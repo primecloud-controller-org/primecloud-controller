@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap      
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="PuppetInstance">
+
+	<typeAlias alias="PuppetInstance" type="jp.primecloud.auto.entity.crud.PuppetInstance" />
+
+	<resultMap id="puppetInstanceResultMap" class="PuppetInstance">
+		<result property="instanceNo" column="INSTANCE_NO" />
+		<result property="password" column="PASSWORD" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.INSTANCE_NO as INSTANCE_NO, 
+			t1.PASSWORD as PASSWORD
+		from
+			PUPPET_INSTANCE t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from PUPPET_INSTANCE t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="puppetInstanceResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.INSTANCE_NO = #instanceNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="puppetInstanceResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readInInstanceNos" parameterClass="java.util.Map" resultMap="puppetInstanceResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.INSTANCE_NO in
+		]]>
+		<iterate property="instanceNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#instanceNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="PuppetInstance">
+		<![CDATA[
+		insert into PUPPET_INSTANCE (
+			INSTANCE_NO, 
+			PASSWORD
+		) values (
+			#instanceNo#, 
+			#password#
+		)
+		]]>
+	</insert>
+
+	<update id="update" parameterClass="PuppetInstance">
+		<![CDATA[
+		update PUPPET_INSTANCE set
+			PASSWORD = #password#
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="PuppetInstance">
+		<![CDATA[
+		delete from PUPPET_INSTANCE
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from PUPPET_INSTANCE
+		]]>
+	</delete>
+
+	<delete id="deleteByInstanceNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from PUPPET_INSTANCE
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByInstanceNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</select>
+
+</sqlMap>

@@ -1,0 +1,6 @@
+auth sufficient /lib64/security/pam_mysql.so user=adc passwd=password host=localhost db=adc table=INSTANCE usercolumn=FQDN passwdcolumn=INSTANCE_CODE crypt=0
+auth sufficient /lib64/security/pam_userdb.so db=/etc/openvpn/userdb
+auth sufficient /lib64/security/pam_unix.so nullok try_first_pass
+account sufficient /lib64/security/pam_mysql.so /lib64/security/pam_mysql.so user=adc passwd=password host=localhost db=adc table=INSTANCE usercolumn=FQDN passwdcolumn=INSTANCE_CODE crypt=0
+account sufficient /lib64/security/pam_userdb.so db=/etc/openvpn/userdb
+account sufficient /lib64/security/pam_unix.so nullok try_first_pass

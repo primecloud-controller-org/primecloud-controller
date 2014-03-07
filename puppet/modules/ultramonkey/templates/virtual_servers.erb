@@ -1,0 +1,23 @@
+virtual = "<%= name %>"
+    module    = "<%= moduletype %>"
+    scheduler = "<%= scheduler %>"
+    maxconn   = "<%= maxconn %>"
+    checktimeout     = "<%= checktimeout %>"
+    negotiatetimeout = "<%= negotiatetimeout %>"
+    checkinterval    = "<%= checkinterval %>"
+    retryinterval    = "<%= retryinterval %>"
+    checkcount       = "<%= checkcount %>"
+<% if (checkport != "") -%>
+    checkport = "<%= checkport %>"
+<% end -%>
+    checktype = "<%= checktype %>"
+    service   = "<%= service %>"
+<% if (request != "") -%>
+    request   = "<%= request %>"
+<% end -%>
+<% if (receive != "") -%>
+    receive   = "<%= receive %>"
+<% end -%>
+<% real_servers.each do |val| -%>
+    real      = "<%= val %>"
+<%end -%> 

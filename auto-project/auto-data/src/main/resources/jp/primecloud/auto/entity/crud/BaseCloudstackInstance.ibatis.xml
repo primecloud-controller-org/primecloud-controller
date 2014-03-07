@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap      
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="CloudstackInstance">
+
+	<typeAlias alias="CloudstackInstance" type="jp.primecloud.auto.entity.crud.CloudstackInstance" />
+
+	<resultMap id="cloudstackInstanceResultMap" class="CloudstackInstance">
+		<result property="instanceNo" column="INSTANCE_NO" />
+		<result property="keyName" column="KEY_NAME" nullValue="" />
+		<result property="instanceType" column="INSTANCE_TYPE" nullValue="" />
+		<result property="instanceId" column="INSTANCE_ID" nullValue="" />
+		<result property="displayname" column="DISPLAYNAME" nullValue="" />
+		<result property="ipaddress" column="IPADDRESS" nullValue="" />
+		<result property="state" column="STATE" nullValue="" />
+		<result property="zoneid" column="ZONEID" nullValue="" />
+		<result property="securitygroup" column="SECURITYGROUP" nullValue="" />
+		<result property="networkid" column="NETWORKID" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.INSTANCE_NO as INSTANCE_NO, 
+			t1.KEY_NAME as KEY_NAME, 
+			t1.INSTANCE_TYPE as INSTANCE_TYPE, 
+			t1.INSTANCE_ID as INSTANCE_ID, 
+			t1.DISPLAYNAME as DISPLAYNAME, 
+			t1.IPADDRESS as IPADDRESS, 
+			t1.STATE as STATE, 
+			t1.ZONEID as ZONEID, 
+			t1.SECURITYGROUP as SECURITYGROUP, 
+			t1.NETWORKID as NETWORKID
+		from
+			CLOUDSTACK_INSTANCE t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from CLOUDSTACK_INSTANCE t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="cloudstackInstanceResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.INSTANCE_NO = #instanceNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="cloudstackInstanceResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readInInstanceNos" parameterClass="java.util.Map" resultMap="cloudstackInstanceResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.INSTANCE_NO in
+		]]>
+		<iterate property="instanceNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#instanceNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="CloudstackInstance">
+		<![CDATA[
+		insert into CLOUDSTACK_INSTANCE (
+			INSTANCE_NO, 
+			KEY_NAME, 
+			INSTANCE_TYPE, 
+			INSTANCE_ID, 
+			DISPLAYNAME, 
+			IPADDRESS, 
+			STATE, 
+			ZONEID, 
+			SECURITYGROUP, 
+			NETWORKID
+		) values (
+			#instanceNo#, 
+			#keyName#, 
+			#instanceType#, 
+			#instanceId#, 
+			#displayname#, 
+			#ipaddress#, 
+			#state#, 
+			#zoneid#, 
+			#securitygroup#, 
+			#networkid#
+		)
+		]]>
+	</insert>
+
+	<update id="update" parameterClass="CloudstackInstance">
+		<![CDATA[
+		update CLOUDSTACK_INSTANCE set
+			KEY_NAME = #keyName#, 
+			INSTANCE_TYPE = #instanceType#, 
+			INSTANCE_ID = #instanceId#, 
+			DISPLAYNAME = #displayname#, 
+			IPADDRESS = #ipaddress#, 
+			STATE = #state#, 
+			ZONEID = #zoneid#, 
+			SECURITYGROUP = #securitygroup#, 
+			NETWORKID = #networkid#
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="CloudstackInstance">
+		<![CDATA[
+		delete from CLOUDSTACK_INSTANCE
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from CLOUDSTACK_INSTANCE
+		]]>
+	</delete>
+
+	<delete id="deleteByInstanceNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from CLOUDSTACK_INSTANCE
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByInstanceNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</select>
+
+</sqlMap>

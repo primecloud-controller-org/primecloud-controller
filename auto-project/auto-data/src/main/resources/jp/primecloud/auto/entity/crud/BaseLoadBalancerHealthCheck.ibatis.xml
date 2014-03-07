@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap      
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="LoadBalancerHealthCheck">
+
+	<typeAlias alias="LoadBalancerHealthCheck" type="jp.primecloud.auto.entity.crud.LoadBalancerHealthCheck" />
+
+	<resultMap id="loadBalancerHealthCheckResultMap" class="LoadBalancerHealthCheck">
+		<result property="loadBalancerNo" column="LOAD_BALANCER_NO" />
+		<result property="checkProtocol" column="CHECK_PROTOCOL" nullValue="" />
+		<result property="checkPort" column="CHECK_PORT" />
+		<result property="checkPath" column="CHECK_PATH" nullValue="" />
+		<result property="checkTimeout" column="CHECK_TIMEOUT" />
+		<result property="checkInterval" column="CHECK_INTERVAL" />
+		<result property="healthyThreshold" column="HEALTHY_THRESHOLD" />
+		<result property="unhealthyThreshold" column="UNHEALTHY_THRESHOLD" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.LOAD_BALANCER_NO as LOAD_BALANCER_NO, 
+			t1.CHECK_PROTOCOL as CHECK_PROTOCOL, 
+			t1.CHECK_PORT as CHECK_PORT, 
+			t1.CHECK_PATH as CHECK_PATH, 
+			t1.CHECK_TIMEOUT as CHECK_TIMEOUT, 
+			t1.CHECK_INTERVAL as CHECK_INTERVAL, 
+			t1.HEALTHY_THRESHOLD as HEALTHY_THRESHOLD, 
+			t1.UNHEALTHY_THRESHOLD as UNHEALTHY_THRESHOLD
+		from
+			LOAD_BALANCER_HEALTH_CHECK t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from LOAD_BALANCER_HEALTH_CHECK t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="loadBalancerHealthCheckResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="loadBalancerHealthCheckResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readInLoadBalancerNos" parameterClass="java.util.Map" resultMap="loadBalancerHealthCheckResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.LOAD_BALANCER_NO in
+		]]>
+		<iterate property="loadBalancerNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#loadBalancerNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="LoadBalancerHealthCheck">
+		<![CDATA[
+		insert into LOAD_BALANCER_HEALTH_CHECK (
+			LOAD_BALANCER_NO, 
+			CHECK_PROTOCOL, 
+			CHECK_PORT, 
+			CHECK_PATH, 
+			CHECK_TIMEOUT, 
+			CHECK_INTERVAL, 
+			HEALTHY_THRESHOLD, 
+			UNHEALTHY_THRESHOLD
+		) values (
+			#loadBalancerNo#, 
+			#checkProtocol#, 
+			#checkPort#, 
+			#checkPath#, 
+			#checkTimeout#, 
+			#checkInterval#, 
+			#healthyThreshold#, 
+			#unhealthyThreshold#
+		)
+		]]>
+	</insert>
+
+	<update id="update" parameterClass="LoadBalancerHealthCheck">
+		<![CDATA[
+		update LOAD_BALANCER_HEALTH_CHECK set
+			CHECK_PROTOCOL = #checkProtocol#, 
+			CHECK_PORT = #checkPort#, 
+			CHECK_PATH = #checkPath#, 
+			CHECK_TIMEOUT = #checkTimeout#, 
+			CHECK_INTERVAL = #checkInterval#, 
+			HEALTHY_THRESHOLD = #healthyThreshold#, 
+			UNHEALTHY_THRESHOLD = #unhealthyThreshold#
+		where
+			LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="LoadBalancerHealthCheck">
+		<![CDATA[
+		delete from LOAD_BALANCER_HEALTH_CHECK
+		where
+			LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from LOAD_BALANCER_HEALTH_CHECK
+		]]>
+	</delete>
+
+	<delete id="deleteByLoadBalancerNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from LOAD_BALANCER_HEALTH_CHECK
+		where
+			LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByLoadBalancerNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</select>
+
+</sqlMap>

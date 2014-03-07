@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="PccSystemInfo">
+
+	<typeAlias alias="PccSystemInfo" type="jp.primecloud.auto.entity.crud.PccSystemInfo" />
+
+	<resultMap id="pccSystemInfoResultMap" class="PccSystemInfo">
+		<result property="secretKey" column="SECRET_KEY" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.SECRET_KEY as SECRET_KEY
+		from
+			PCC_SYSTEM_INFO t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from PCC_SYSTEM_INFO t1
+		]]>
+	</sql>
+
+	<select id="read" resultMap="pccSystemInfoResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<insert id="create" parameterClass="PccSystemInfo">
+		<![CDATA[
+		insert into PCC_SYSTEM_INFO (
+			SECRET_KEY
+		) values (
+			#secretKey#
+		)
+		]]>
+	</insert>
+
+	<update id="update" parameterClass="PccSystemInfo">
+		<![CDATA[
+		update PCC_SYSTEM_INFO set
+			SECRET_KEY = #secretKey#
+		where
+			SECRET_KEY = #secretKey#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="PccSystemInfo">
+		<![CDATA[
+		delete from PCC_SYSTEM_INFO
+		where
+			SECRET_KEY = #secretKey#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from PCC_SYSTEM_INFO
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+</sqlMap>

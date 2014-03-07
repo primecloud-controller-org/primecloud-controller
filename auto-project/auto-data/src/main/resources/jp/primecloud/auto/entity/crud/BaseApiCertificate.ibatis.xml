@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ApiCertificate">
+
+	<typeAlias alias="ApiCertificate" type="jp.primecloud.auto.entity.crud.ApiCertificate" />
+
+	<resultMap id="apiCertificateResultMap" class="ApiCertificate">
+		<result property="userNo" column="USER_NO" />
+		<result property="apiAccessId" column="API_ACCESS_ID" nullValue="" />
+		<result property="apiSecretKey" column="API_SECRET_KEY" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.USER_NO as USER_NO,
+			t1.API_ACCESS_ID as API_ACCESS_ID,
+			t1.API_SECRET_KEY as API_SECRET_KEY
+		from
+			API_CERTIFICATE t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from API_CERTIFICATE t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="apiCertificateResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.USER_NO = #userNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="apiCertificateResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readByApiAccessId" parameterClass="java.util.Map" resultMap="apiCertificateResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.API_ACCESS_ID = #apiAccessId#
+		]]>
+	</select>
+
+	<select id="readByApiSecretKey" parameterClass="java.util.Map" resultMap="apiCertificateResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.API_SECRET_KEY = #apiSecretKey#
+		]]>
+	</select>
+
+	<select id="readInUserNos" parameterClass="java.util.Map" resultMap="apiCertificateResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.USER_NO in
+		]]>
+		<iterate property="userNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#userNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="ApiCertificate">
+		<![CDATA[
+		insert into API_CERTIFICATE (
+			USER_NO,
+			API_ACCESS_ID,
+			API_SECRET_KEY
+		) values (
+			#userNo#,
+			#apiAccessId#,
+			#apiSecretKey#
+		)
+		]]>
+	</insert>
+
+	<update id="update" parameterClass="ApiCertificate">
+		<![CDATA[
+		update API_CERTIFICATE set
+			API_ACCESS_ID = #apiAccessId#,
+			API_SECRET_KEY = #apiSecretKey#
+		where
+			USER_NO = #userNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="ApiCertificate">
+		<![CDATA[
+		delete from API_CERTIFICATE
+		where
+			USER_NO = #userNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from API_CERTIFICATE
+		]]>
+	</delete>
+
+	<delete id="deleteByUserNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from API_CERTIFICATE
+		where
+			USER_NO = #userNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByApiAccessId" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from API_CERTIFICATE
+		where
+			API_ACCESS_ID = #apiAccessId#
+		]]>
+	</delete>
+
+	<delete id="deleteByApiSecretKey" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from API_CERTIFICATE
+		where
+			API_SECRET_KEY = #apiSecretKey#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByUserNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			USER_NO = #userNo#
+		]]>
+	</select>
+
+	<select id="countByApiAccessId" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			API_ACCESS_ID = #apiAccessId#
+		]]>
+	</select>
+
+	<select id="countByApiSecretKey" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			API_SECRET_KEY = #apiSecretKey#
+		]]>
+	</select>
+
+</sqlMap>

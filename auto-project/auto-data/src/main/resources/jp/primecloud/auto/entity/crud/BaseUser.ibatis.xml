@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap      
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="User">
+
+	<typeAlias alias="User" type="jp.primecloud.auto.entity.crud.User" />
+
+	<resultMap id="userResultMap" class="User">
+		<result property="userNo" column="USER_NO" />
+		<result property="username" column="USERNAME" nullValue="" />
+		<result property="password" column="PASSWORD" nullValue="" />
+		<result property="masterUser" column="MASTER_USER" />
+		<result property="powerUser" column="POWER_USER" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.USER_NO as USER_NO, 
+			t1.USERNAME as USERNAME, 
+			t1.PASSWORD as PASSWORD, 
+			t1.MASTER_USER as MASTER_USER, 
+			t1.POWER_USER as POWER_USER
+		from
+			USER t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from USER t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="userResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.USER_NO = #userNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="userResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readByUsername" parameterClass="java.util.Map" resultMap="userResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.USERNAME = #username#
+		]]>
+	</select>
+
+	<select id="readInUserNos" parameterClass="java.util.Map" resultMap="userResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.USER_NO in
+		]]>
+		<iterate property="userNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#userNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="User">
+		<![CDATA[
+		insert into USER (
+			USER_NO, 
+			USERNAME, 
+			PASSWORD, 
+			MASTER_USER, 
+			POWER_USER
+		) values (
+			#userNo#, 
+			#username#, 
+			#password#, 
+			#masterUser#, 
+			#powerUser#
+		)
+		]]>
+	</insert>
+
+	<insert id="createAuto" parameterClass="User">
+		<![CDATA[
+		insert into USER (
+			USER_NO, 
+			USERNAME, 
+			PASSWORD, 
+			MASTER_USER, 
+			POWER_USER
+		) values (
+			#userNo#, 
+			#username#, 
+			#password#, 
+			#masterUser#, 
+			#powerUser#
+		)
+		]]>
+		<selectKey keyProperty="userNo" resultClass="java.lang.Long" type="post">
+		<![CDATA[
+			select last_insert_id()
+		]]>
+		</selectKey>
+	</insert>
+
+	<update id="update" parameterClass="User">
+		<![CDATA[
+		update USER set
+			USERNAME = #username#, 
+			PASSWORD = #password#, 
+			MASTER_USER = #masterUser#, 
+			POWER_USER = #powerUser#
+		where
+			USER_NO = #userNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="User">
+		<![CDATA[
+		delete from USER
+		where
+			USER_NO = #userNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from USER
+		]]>
+	</delete>
+
+	<delete id="deleteByUserNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from USER
+		where
+			USER_NO = #userNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByUsername" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from USER
+		where
+			USERNAME = #username#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByUserNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			USER_NO = #userNo#
+		]]>
+	</select>
+
+	<select id="countByUsername" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			USERNAME = #username#
+		]]>
+	</select>
+
+	<select id="readByMasterUser" parameterClass="java.util.Map" resultMap="userResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			MASTER_USER = #masterUser# and
+			USER_NO != #userNo#
+		]]>
+	</select>
+
+</sqlMap>

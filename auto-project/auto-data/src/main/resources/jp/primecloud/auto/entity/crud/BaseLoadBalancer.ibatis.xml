@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="LoadBalancer">
+
+	<typeAlias alias="LoadBalancer" type="jp.primecloud.auto.entity.crud.LoadBalancer" />
+
+	<resultMap id="loadBalancerResultMap" class="LoadBalancer">
+		<result property="loadBalancerNo" column="LOAD_BALANCER_NO" />
+		<result property="farmNo" column="FARM_NO" />
+		<result property="loadBalancerName" column="LOAD_BALANCER_NAME" nullValue="" />
+		<result property="comment" column="COMMENT" nullValue="" />
+		<result property="fqdn" column="FQDN" nullValue="" />
+		<result property="platformNo" column="PLATFORM_NO" />
+		<result property="type" column="TYPE" nullValue="" />
+		<result property="enabled" column="ENABLED" />
+		<result property="status" column="STATUS" nullValue="" />
+		<result property="componentNo" column="COMPONENT_NO" />
+		<result property="canonicalName" column="CANONICAL_NAME" nullValue="" />
+		<result property="configure" column="CONFIGURE" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.LOAD_BALANCER_NO as LOAD_BALANCER_NO,
+			t1.FARM_NO as FARM_NO,
+			t1.LOAD_BALANCER_NAME as LOAD_BALANCER_NAME,
+			t1.COMMENT as COMMENT,
+			t1.FQDN as FQDN,
+			t1.PLATFORM_NO as PLATFORM_NO,
+			t1.TYPE as TYPE,
+			t1.ENABLED as ENABLED,
+			t1.STATUS as STATUS,
+			t1.COMPONENT_NO as COMPONENT_NO,
+			t1.CANONICAL_NAME as CANONICAL_NAME,
+			t1.CONFIGURE as CONFIGURE
+		from
+			LOAD_BALANCER t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from LOAD_BALANCER t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="loadBalancerResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="loadBalancerResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readByFarmNoAndLoadBalancerName" parameterClass="java.util.Map" resultMap="loadBalancerResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.FARM_NO = #farmNo# and
+			t1.LOAD_BALANCER_NAME = #loadBalancerName#
+		]]>
+	</select>
+
+	<select id="readByFarmNo" parameterClass="java.util.Map" resultMap="loadBalancerResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.FARM_NO = #farmNo#
+		]]>
+	</select>
+
+	<select id="readByComponentNo" parameterClass="java.util.Map" resultMap="loadBalancerResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.COMPONENT_NO = #componentNo#
+		]]>
+	</select>
+
+	<select id="readByPlatformNo" parameterClass="java.util.Map" resultMap="loadBalancerResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="readInLoadBalancerNos" parameterClass="java.util.Map" resultMap="loadBalancerResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.LOAD_BALANCER_NO in
+		]]>
+		<iterate property="loadBalancerNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#loadBalancerNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="LoadBalancer">
+		<![CDATA[
+		insert into LOAD_BALANCER (
+			LOAD_BALANCER_NO,
+			FARM_NO,
+			LOAD_BALANCER_NAME,
+			COMMENT,
+			FQDN,
+			PLATFORM_NO,
+			TYPE,
+			ENABLED,
+			STATUS,
+			COMPONENT_NO,
+			CANONICAL_NAME,
+			CONFIGURE
+		) values (
+			#loadBalancerNo#,
+			#farmNo#,
+			#loadBalancerName#,
+			#comment#,
+			#fqdn#,
+			#platformNo#,
+			#type#,
+			#enabled#,
+			#status#,
+			#componentNo#,
+			#canonicalName#,
+			#configure#
+		)
+		]]>
+	</insert>
+
+	<insert id="createAuto" parameterClass="LoadBalancer">
+		<![CDATA[
+		insert into LOAD_BALANCER (
+			LOAD_BALANCER_NO,
+			FARM_NO,
+			LOAD_BALANCER_NAME,
+			COMMENT,
+			FQDN,
+			PLATFORM_NO,
+			TYPE,
+			ENABLED,
+			STATUS,
+			COMPONENT_NO,
+			CANONICAL_NAME,
+			CONFIGURE
+		) values (
+			#loadBalancerNo#,
+			#farmNo#,
+			#loadBalancerName#,
+			#comment#,
+			#fqdn#,
+			#platformNo#,
+			#type#,
+			#enabled#,
+			#status#,
+			#componentNo#,
+			#canonicalName#,
+			#configure#
+		)
+		]]>
+		<selectKey keyProperty="loadBalancerNo" resultClass="java.lang.Long" type="post">
+		<![CDATA[
+			select last_insert_id()
+		]]>
+		</selectKey>
+	</insert>
+
+	<update id="update" parameterClass="LoadBalancer">
+		<![CDATA[
+		update LOAD_BALANCER set
+			FARM_NO = #farmNo#,
+			LOAD_BALANCER_NAME = #loadBalancerName#,
+			COMMENT = #comment#,
+			FQDN = #fqdn#,
+			PLATFORM_NO = #platformNo#,
+			TYPE = #type#,
+			ENABLED = #enabled#,
+			STATUS = #status#,
+			COMPONENT_NO = #componentNo#,
+			CANONICAL_NAME = #canonicalName#,
+			CONFIGURE = #configure#
+		where
+			LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="LoadBalancer">
+		<![CDATA[
+		delete from LOAD_BALANCER
+		where
+			LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from LOAD_BALANCER
+		]]>
+	</delete>
+
+	<delete id="deleteByLoadBalancerNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from LOAD_BALANCER
+		where
+			LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByFarmNoAndLoadBalancerName" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from LOAD_BALANCER
+		where
+			FARM_NO = #farmNo# and
+			LOAD_BALANCER_NAME = #loadBalancerName#
+		]]>
+	</delete>
+
+	<delete id="deleteByFarmNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from LOAD_BALANCER
+		where
+			FARM_NO = #farmNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByComponentNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from LOAD_BALANCER
+		where
+			COMPONENT_NO = #componentNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByPlatformNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from LOAD_BALANCER
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByLoadBalancerNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</select>
+
+	<select id="countByFarmNoAndLoadBalancerName" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			FARM_NO = #farmNo# and
+			LOAD_BALANCER_NAME = #loadBalancerName#
+		]]>
+	</select>
+
+	<select id="countByFarmNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			FARM_NO = #farmNo#
+		]]>
+	</select>
+
+	<select id="countByComponentNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			COMPONENT_NO = #componentNo#
+		]]>
+	</select>
+
+	<select id="countByPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+</sqlMap>

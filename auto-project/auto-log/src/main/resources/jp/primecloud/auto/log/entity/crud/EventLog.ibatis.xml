@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="EventLog">
+
+	<select id="readBySearchCondition" parameterClass="jp.primecloud.auto.log.dao.crud.EventLogDao$SearchCondition"
+		resultMap="eventLogResultMap">
+		<include refid="selectSql" />
+		<dynamic prepend=" where">
+			<isNotNull prepend=" and" property="fromDate">
+				<![CDATA[
+					LOG_DATE >= #fromDate#
+				]]>
+			</isNotNull>
+			<isNotNull prepend=" and" property="toDate">
+				<![CDATA[
+					LOG_DATE <= #toDate#
+				]]>
+			</isNotNull>
+			<isNotNull prepend=" and" property="userNo">
+				USER_NO = #userNo#
+			</isNotNull>
+			<isNotNull prepend=" and" property="farmNo">
+				FARM_NO = #farmNo#
+			</isNotNull>
+			<isNotNull prepend=" and" property="componentNo">
+				COMPONENT_NO =
+				#componentNo#
+			</isNotNull>
+			<isNotNull prepend=" and" property="instanceNo">
+				INSTANCE_NO =
+				#instanceNo#
+			</isNotNull>
+			<isNotNull prepend=" and" property="logLevel">
+				<![CDATA[
+				LOG_LEVEL >=
+				#logLevel#
+				]]>
+			</isNotNull>
+		</dynamic>
+		ORDER by LOG_NO desc
+		<isNotNull property="limit">
+			LIMIT #limit#
+		</isNotNull>
+	</select>
+
+	<select id="countBySearchCondition" parameterClass="jp.primecloud.auto.log.dao.crud.EventLogDao$SearchCondition"
+		resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<dynamic prepend=" where">
+			<isNotNull prepend=" and" property="fromDate">
+				<![CDATA[
+					LOG_DATE > #fromDate#
+				]]>
+			</isNotNull>
+			<isNotNull prepend=" and" property="toDate">
+				<![CDATA[
+					LOG_DATE < #toDate#
+				]]>
+			</isNotNull>
+			<isNotNull prepend=" and" property="userNo">
+				USER_NO = #userNo#
+			</isNotNull>
+			<isNotNull prepend=" and" property="farmNo">
+				FARM_NO = #farmNo#
+			</isNotNull>
+			<isNotNull prepend=" and" property="componentNo">
+				COMPONENT_NO =
+				#componentNo#
+			</isNotNull>
+			<isNotNull prepend=" and" property="instanceNo">
+				INSTANCE_NO =
+				#instanceNo#
+			</isNotNull>
+			<isNotNull prepend=" and" property="logLevel">
+				<![CDATA[
+				LOG_LEVEL >=
+				#logLevel#
+				]]>
+			</isNotNull>
+		</dynamic>
+	</select>
+
+</sqlMap>

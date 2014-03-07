@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+
+	<!-- 例外ハンドラ -->
+	<bean id="exceptionHandleInterceptor" class="jp.primecloud.auto.common.interceptor.ExceptionHandleInterceptor" />
+
+	<!-- トレースログ出力 -->
+	<bean id="traceInterceptor" class="jp.primecloud.auto.common.interceptor.TraceInterceptor" />
+
+	<aop:config>
+		<!-- ポイントカット定義 -->
+		<aop:pointcut id="serviceMethods" expression="execution(public * (jp.primecloud.auto.service..*Service).*(..))" />
+		<aop:pointcut id="allAppMethods"
+			expression="execution(* (jp.primecloud.auto.service.ServiceSupport+ || jp.primecloud.auto.dao..*DaoImpl || jp.primecloud.auto.service..*Service).*(..))" />
+
+		<!-- 全てのメソッドに対するアドバイスの適用 -->
+		<aop:advisor advice-ref="traceInterceptor" pointcut-ref="allAppMethods" order="4" />
+
+		<!-- サービスに対するアドバイスの適用 -->
+		<aop:advisor advice-ref="exceptionHandleInterceptor" pointcut-ref="serviceMethods" order="5" />
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="serviceMethods" order="9" />
+	</aop:config>
+</beans>

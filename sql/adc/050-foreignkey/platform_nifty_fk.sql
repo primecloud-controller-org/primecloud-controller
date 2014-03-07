@@ -1,0 +1,1 @@
+alter table PLATFORM_NIFTY add constraint PLATFORM_NIFTY_FK1 foreign key (PLATFORM_NO) references PLATFORM (PLATFORM_NO);

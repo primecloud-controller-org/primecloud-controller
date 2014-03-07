@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap      
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="EventLog">
+
+	<typeAlias alias="EventLog" type="jp.primecloud.auto.log.entity.crud.EventLog" />
+
+	<resultMap id="eventLogResultMap" class="EventLog">
+		<result property="logNo" column="LOG_NO" />
+		<result property="logDate" column="LOG_DATE" />
+		<result property="logLevel" column="LOG_LEVEL" />
+		<result property="userNo" column="USER_NO" />
+		<result property="userName" column="USER_NAME" nullValue="" />
+		<result property="farmNo" column="FARM_NO" />
+		<result property="farmName" column="FARM_NAME" nullValue="" />
+		<result property="componentNo" column="COMPONENT_NO" />
+		<result property="componentName" column="COMPONENT_NAME" nullValue="" />
+		<result property="instanceNo" column="INSTANCE_NO" />
+		<result property="instanceName" column="INSTANCE_NAME" nullValue="" />
+		<result property="messageCode" column="MESSAGE_CODE" nullValue="" />
+		<result property="message" column="MESSAGE" nullValue="" />
+		<result property="instanceType" column="INSTANCE_TYPE" nullValue="" />
+		<result property="platformNo" column="PLATFORM_NO" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.LOG_NO as LOG_NO, 
+			t1.LOG_DATE as LOG_DATE, 
+			t1.LOG_LEVEL as LOG_LEVEL, 
+			t1.USER_NO as USER_NO, 
+			t1.USER_NAME as USER_NAME, 
+			t1.FARM_NO as FARM_NO, 
+			t1.FARM_NAME as FARM_NAME, 
+			t1.COMPONENT_NO as COMPONENT_NO, 
+			t1.COMPONENT_NAME as COMPONENT_NAME, 
+			t1.INSTANCE_NO as INSTANCE_NO, 
+			t1.INSTANCE_NAME as INSTANCE_NAME, 
+			t1.MESSAGE_CODE as MESSAGE_CODE, 
+			t1.MESSAGE as MESSAGE, 
+			t1.INSTANCE_TYPE as INSTANCE_TYPE, 
+			t1.PLATFORM_NO as PLATFORM_NO
+		from
+			EVENT_LOG t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from EVENT_LOG t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="eventLogResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.LOG_NO = #logNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="eventLogResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readByLogDate" parameterClass="java.util.Map" resultMap="eventLogResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.LOG_DATE = #logDate#
+		]]>
+	</select>
+
+	<select id="readByLogDateAndUserNo" parameterClass="java.util.Map" resultMap="eventLogResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.LOG_DATE = #logDate# and
+			t1.USER_NO = #userNo#
+		]]>
+	</select>
+
+	<select id="readInLogNos" parameterClass="java.util.Map" resultMap="eventLogResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.LOG_NO in
+		]]>
+		<iterate property="logNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#logNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="EventLog">
+		<![CDATA[
+		insert into EVENT_LOG (
+			LOG_NO, 
+			LOG_DATE, 
+			LOG_LEVEL, 
+			USER_NO, 
+			USER_NAME, 
+			FARM_NO, 
+			FARM_NAME, 
+			COMPONENT_NO, 
+			COMPONENT_NAME, 
+			INSTANCE_NO, 
+			INSTANCE_NAME, 
+			MESSAGE_CODE, 
+			MESSAGE, 
+			INSTANCE_TYPE, 
+			PLATFORM_NO
+		) values (
+			#logNo#, 
+			#logDate#, 
+			#logLevel#, 
+			#userNo#, 
+			#userName#, 
+			#farmNo#, 
+			#farmName#, 
+			#componentNo#, 
+			#componentName#, 
+			#instanceNo#, 
+			#instanceName#, 
+			#messageCode#, 
+			#message#, 
+			#instanceType#, 
+			#platformNo#
+		)
+		]]>
+	</insert>
+
+	<insert id="createAuto" parameterClass="EventLog">
+		<![CDATA[
+		insert into EVENT_LOG (
+			LOG_NO, 
+			LOG_DATE, 
+			LOG_LEVEL, 
+			USER_NO, 
+			USER_NAME, 
+			FARM_NO, 
+			FARM_NAME, 
+			COMPONENT_NO, 
+			COMPONENT_NAME, 
+			INSTANCE_NO, 
+			INSTANCE_NAME, 
+			MESSAGE_CODE, 
+			MESSAGE, 
+			INSTANCE_TYPE, 
+			PLATFORM_NO
+		) values (
+			#logNo#, 
+			#logDate#, 
+			#logLevel#, 
+			#userNo#, 
+			#userName#, 
+			#farmNo#, 
+			#farmName#, 
+			#componentNo#, 
+			#componentName#, 
+			#instanceNo#, 
+			#instanceName#, 
+			#messageCode#, 
+			#message#, 
+			#instanceType#, 
+			#platformNo#
+		)
+		]]>
+		<selectKey keyProperty="logNo" resultClass="java.lang.Long" type="post">
+		<![CDATA[
+			select last_insert_id()
+		]]>
+		</selectKey>
+	</insert>
+
+	<update id="update" parameterClass="EventLog">
+		<![CDATA[
+		update EVENT_LOG set
+			LOG_DATE = #logDate#, 
+			LOG_LEVEL = #logLevel#, 
+			USER_NO = #userNo#, 
+			USER_NAME = #userName#, 
+			FARM_NO = #farmNo#, 
+			FARM_NAME = #farmName#, 
+			COMPONENT_NO = #componentNo#, 
+			COMPONENT_NAME = #componentName#, 
+			INSTANCE_NO = #instanceNo#, 
+			INSTANCE_NAME = #instanceName#, 
+			MESSAGE_CODE = #messageCode#, 
+			MESSAGE = #message#, 
+			INSTANCE_TYPE = #instanceType#, 
+			PLATFORM_NO = #platformNo#
+		where
+			LOG_NO = #logNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="EventLog">
+		<![CDATA[
+		delete from EVENT_LOG
+		where
+			LOG_NO = #logNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from EVENT_LOG
+		]]>
+	</delete>
+
+	<delete id="deleteByLogNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from EVENT_LOG
+		where
+			LOG_NO = #logNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByLogDate" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from EVENT_LOG
+		where
+			LOG_DATE = #logDate#
+		]]>
+	</delete>
+
+	<delete id="deleteByLogDateAndUserNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from EVENT_LOG
+		where
+			LOG_DATE = #logDate# and
+			USER_NO = #userNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByLogNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			LOG_NO = #logNo#
+		]]>
+	</select>
+
+	<select id="countByLogDate" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			LOG_DATE = #logDate#
+		]]>
+	</select>
+
+	<select id="countByLogDateAndUserNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			LOG_DATE = #logDate# and
+			USER_NO = #userNo#
+		]]>
+	</select>
+
+</sqlMap>

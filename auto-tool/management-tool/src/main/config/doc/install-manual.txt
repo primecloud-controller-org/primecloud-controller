@@ -1,0 +1,100 @@
+PrimeCloud Controller ユーザ管理ツール インストールマニュアル ver 1.4.1
+
+　本製品をインストールする為の手順を記述しています。
+　手順に従い、インストール及び設定を行って下さい。
+
+■インストール手順
+□前提条件
+	PCCがインストールされているサーバであること。
+	Javaコマンドが使用可能であること。
+
+	# java -version
+
+□ツールの配備
+	本製品のファイルを解凍します。
+	ファイルはtar.gz形式で圧縮されています。
+
+	# tar zxvf management-tool-<バージョン番号>.tar.gz
+
+	解凍したファイルを配備したいディレクトリに移動します。
+	作成する環境に応じて読み替えてください。
+
+	# mv management-tool-<バージョン番号> /opt/adc/tool/management-tool
+
+	本マニュアルでは/opt/adc/tool/management-tool以下に配備するものとします。
+	以下このディレクトリを<TOOL_HOME>と表記します。
+
+	実行用のスクリプトに実行権限を与えます。
+
+	# cd <TOOL_HOME>/bin
+	# chmod +x *.sh
+
+□各種情報
+
+	・PCCのURL
+		http://<PCCサーバのIPアドレス>/auto-web/
+
+	・ZabbixのURL
+		http://<ZabbixサーバのIPアドレス>/zabbix/
+
+	・ディレクトリ構成
+		bin : 実行用スクリプトが入っているディレクトリ
+		config : 設定ファイルが入っているディレクトリ
+		doc : ユーザ管理スクリプトのドキュメントが保存されているディレクトリ
+		lib : ユーザ管理用プログラム及び依存ライブラリが保存されているディレクトリ
+		logs : ログ情報が出力されるディレクトリ
+		key_pair : ユーザ認証用の秘密鍵と公開鍵が作成されるディレクトリ
+
+□設定ファイルの変更
+
+	ユーザ管理スクリプトのあるディレクトリに移動します。
+	配備したディレクトリは、ツールの配備の項を参照してください。
+
+	# cd <TOOL_HOME>
+
+	設定ファイルを変更します。
+	下記の情報を参考に、環境に合わせて設定を変更してください。
+
+	# vi <TOOL_HOME>/config/management-config.properties
+
+	ログファイルへの書き出しの設定を変更できます。
+	通常、変更する必要はありません。
+
+	# vi <TOOL_HOME>/config/log4j.xml
+
+□設定ファイル例
+
+	PCCで設定しているauto-config.xmlとconfig.propertiesへのパスをフルパスで設定します。
+	下記の例は/opt/adc/app/auto-web/にPCCがインストールされている場合です。
+	#Set the property file's full path used by PCC
+	AUTOCONFIG_PROPERTY_PATH=/opt/adc/conf/config.properties
+
+	Zabbixのデータベースへの接続情報を設定します。
+	ZabbixのDBに書き込み権限のあるユーザを指定してください。
+	#for Zabbix DB
+	ZABBIX_DB=jdbc:mysql://localhost/zabbix
+	ZABBIX_DB_USER=<ZABBIX_USERNAME>
+	ZABBIX_DB_PASSWORD=<ZABBIX_PASSWORD>
+
+	EC2のデフォルトで使用するACCESS_IDとSECRET_KEYを設定します。
+	#for Amazon EC2
+	#Default ACCESS_ID and SECRET_KEY settings
+	AWS_ACCESS_ID=<ACCESS_ID>
+	AWS_SECRET_KEY=<SECRET_KEY>
+
+	Cloudstackのデフォルトで使用するACCESS_IDとSECRET_KEYを設定します。
+	#for CloudStack
+	#Default ACCESS_ID and SECRET_KEY settings
+	CLOUDSTACK_ACCESS_ID=<ACCESS_ID>
+	CLOUDSTACK_SECRET_KEY=<SECRET_KEY>
+
+■設定の確認
+
+	コンフィグを設定後、各種設定が正しいかどうかのチェックスクリプトを実行してください。
+	PCCへのデータベースへの接続確認、Zabbixのデータベースへの接続確認、及びZabbixのAPIへの接続確認を行っています。
+
+	# cd <TOOL_HOME>/bin
+	# ./pcc-check-config.sh
+
+	実行結果にエラーが出ないことを確認できたら、インストールは完了です。
+

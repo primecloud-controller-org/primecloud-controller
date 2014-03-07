@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ROOT SYSTEM "farm.dtd">
+<ROOT>
+    <row>
+      <field name="INSTANCE_NO">5</field>
+      <field name="MACHINE_NAME">db01</field>
+      <field name="INSTANCE_TYPE">small</field>
+      <field name="COMPUTE_RESOURCE">Cluster1</field>
+      <field name="RESOURCE_POOL"></field>
+      <field name="DATASTORE"></field>
+      <field name="KEY_PAIR_NO">1</field>
+      <field name="IP_ADDRESS">172.22.10.102</field>
+      <field name="PRIVATE_IP_ADDRESS">10.10.174.195</field>
+    </row>
+</ROOT>
+
+

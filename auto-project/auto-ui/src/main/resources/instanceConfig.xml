@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ROOT SYSTEM "instanceConfig.dtd">
+<ROOT xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <row>
+      <field name="CONFIG_NO">1</field>
+      <field name="INSTANCE_NO">1</field>
+      <field name="COMPONENT_NO">2</field>
+      <field name="CONFIG_NAME">masterInstanceNo</field>
+      <field name="CONFIG_VALUE" xsi:nil="true" />
+    </row>
+    <row>
+      <field name="CONFIG_NO">2</field>
+      <field name="INSTANCE_NO">1</field>
+      <field name="COMPONENT_NO">1</field>
+      <field name="CONFIG_NAME">masterInstanceNo</field>
+      <field name="CONFIG_VALUE" xsi:nil="true" />
+    </row>
+    <row>
+      <field name="CONFIG_NO">3</field>
+      <field name="INSTANCE_NO">2</field>
+      <field name="COMPONENT_NO">1</field>
+      <field name="CONFIG_NAME">masterInstanceNo</field>
+      <field name="CONFIG_VALUE" xsi:nil="true" />
+    </row>
+    <row>
+      <field name="CONFIG_NO">4</field>
+      <field name="INSTANCE_NO">2</field>
+      <field name="COMPONENT_NO">2</field>
+      <field name="CONFIG_NAME">masterInstanceNo</field>
+      <field name="CONFIG_VALUE" xsi:nil="true" />
+    </row>
+</ROOT>

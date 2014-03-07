@@ -1,0 +1,34 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>jp.primecloud.auto</groupId>
+		<artifactId>auto-project</artifactId>
+		<version>2.4.0</version>
+	</parent>
+	<artifactId>auto-vmware</artifactId>
+	<name>${pom.artifactId}</name>
+	<dependencies>
+		<dependency>
+			<groupId>jp.primecloud.auto</groupId>
+			<artifactId>auto-common</artifactId>
+			<version>${pom.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.vmware</groupId>
+			<artifactId>vijava</artifactId>
+			<version>2.0.1</version>
+		</dependency>
+	</dependencies>
+	<repositories>
+		<repository>
+			<id>auto-vmware</id>
+			<url>file://${basedir}/repository</url>
+		</repository>
+	</repositories>
+</project>

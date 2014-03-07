@@ -1,0 +1,1 @@
+alter table PLATFORM_VMWARE add constraint PLATFORM_VMWARE_FK1 foreign key (PLATFORM_NO) references PLATFORM (PLATFORM_NO);

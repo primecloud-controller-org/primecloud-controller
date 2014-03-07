@@ -1,0 +1,1 @@
+alter table IMAGE add constraint IMAGE_UK1 unique (PLATFORM_NO, IMAGE_NAME);

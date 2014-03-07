@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap      
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="CloudstackLoadBalancer">
+
+	<typeAlias alias="CloudstackLoadBalancer" type="jp.primecloud.auto.entity.crud.CloudstackLoadBalancer" />
+
+	<resultMap id="cloudstackLoadBalancerResultMap" class="CloudstackLoadBalancer">
+		<result property="loadBalancerNo" column="LOAD_BALANCER_NO" />
+		<result property="loadBalancerId" column="LOAD_BALANCER_ID" nullValue="" />
+		<result property="description" column="DESCRIPTION" nullValue="" />
+		<result property="name" column="NAME" nullValue="" />
+		<result property="publicip" column="PUBLICIP" nullValue="" />
+		<result property="state" column="STATE" nullValue="" />
+		<result property="zoneid" column="ZONEID" nullValue="" />
+		<result property="algorithm" column="ALGORITHM" nullValue="" />
+		<result property="addressId" column="ADDRESS_ID" nullValue="" />
+		<result property="publicport" column="PUBLICPORT" nullValue="" />
+		<result property="privateport" column="PRIVATEPORT" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.LOAD_BALANCER_NO as LOAD_BALANCER_NO, 
+			t1.LOAD_BALANCER_ID as LOAD_BALANCER_ID, 
+			t1.DESCRIPTION as DESCRIPTION, 
+			t1.NAME as NAME, 
+			t1.PUBLICIP as PUBLICIP, 
+			t1.STATE as STATE, 
+			t1.ZONEID as ZONEID, 
+			t1.ALGORITHM as ALGORITHM, 
+			t1.ADDRESS_ID as ADDRESS_ID, 
+			t1.PUBLICPORT as PUBLICPORT, 
+			t1.PRIVATEPORT as PRIVATEPORT
+		from
+			CLOUDSTACK_LOAD_BALANCER t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from CLOUDSTACK_LOAD_BALANCER t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="cloudstackLoadBalancerResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="cloudstackLoadBalancerResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readInLoadBalancerNos" parameterClass="java.util.Map" resultMap="cloudstackLoadBalancerResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.LOAD_BALANCER_NO in
+		]]>
+		<iterate property="loadBalancerNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#loadBalancerNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="CloudstackLoadBalancer">
+		<![CDATA[
+		insert into CLOUDSTACK_LOAD_BALANCER (
+			LOAD_BALANCER_NO, 
+			LOAD_BALANCER_ID, 
+			DESCRIPTION, 
+			NAME, 
+			PUBLICIP, 
+			STATE, 
+			ZONEID, 
+			ALGORITHM, 
+			ADDRESS_ID, 
+			PUBLICPORT, 
+			PRIVATEPORT
+		) values (
+			#loadBalancerNo#, 
+			#loadBalancerId#, 
+			#description#, 
+			#name#, 
+			#publicip#, 
+			#state#, 
+			#zoneid#, 
+			#algorithm#, 
+			#addressId#, 
+			#publicport#, 
+			#privateport#
+		)
+		]]>
+	</insert>
+
+	<update id="update" parameterClass="CloudstackLoadBalancer">
+		<![CDATA[
+		update CLOUDSTACK_LOAD_BALANCER set
+			LOAD_BALANCER_ID = #loadBalancerId#, 
+			DESCRIPTION = #description#, 
+			NAME = #name#, 
+			PUBLICIP = #publicip#, 
+			STATE = #state#, 
+			ZONEID = #zoneid#, 
+			ALGORITHM = #algorithm#, 
+			ADDRESS_ID = #addressId#, 
+			PUBLICPORT = #publicport#, 
+			PRIVATEPORT = #privateport#
+		where
+			LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="CloudstackLoadBalancer">
+		<![CDATA[
+		delete from CLOUDSTACK_LOAD_BALANCER
+		where
+			LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from CLOUDSTACK_LOAD_BALANCER
+		]]>
+	</delete>
+
+	<delete id="deleteByLoadBalancerNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from CLOUDSTACK_LOAD_BALANCER
+		where
+			LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByLoadBalancerNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</select>
+
+</sqlMap>

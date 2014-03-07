@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Instance">
+
+	<typeAlias alias="Instance" type="jp.primecloud.auto.entity.crud.Instance" />
+
+	<resultMap id="instanceResultMap" class="Instance">
+		<result property="instanceNo" column="INSTANCE_NO" />
+		<result property="farmNo" column="FARM_NO" />
+		<result property="instanceName" column="INSTANCE_NAME" nullValue="" />
+		<result property="platformNo" column="PLATFORM_NO" />
+		<result property="imageNo" column="IMAGE_NO" />
+		<result property="enabled" column="ENABLED" />
+		<result property="comment" column="COMMENT" nullValue="" />
+		<result property="fqdn" column="FQDN" nullValue="" />
+		<result property="instanceCode" column="INSTANCE_CODE" nullValue="" />
+		<result property="publicIp" column="PUBLIC_IP" nullValue="" />
+		<result property="privateIp" column="PRIVATE_IP" nullValue="" />
+		<result property="status" column="STATUS" nullValue="" />
+		<result property="progress" column="PROGRESS" />
+		<result property="coodinateStatus" column="COODINATE_STATUS" nullValue="" />
+		<result property="loadBalancer" column="LOAD_BALANCER" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.INSTANCE_NO as INSTANCE_NO,
+			t1.FARM_NO as FARM_NO,
+			t1.INSTANCE_NAME as INSTANCE_NAME,
+			t1.PLATFORM_NO as PLATFORM_NO,
+			t1.IMAGE_NO as IMAGE_NO,
+			t1.ENABLED as ENABLED,
+			t1.COMMENT as COMMENT,
+			t1.FQDN as FQDN,
+			t1.INSTANCE_CODE as INSTANCE_CODE,
+			t1.PUBLIC_IP as PUBLIC_IP,
+			t1.PRIVATE_IP as PRIVATE_IP,
+			t1.STATUS as STATUS,
+			t1.PROGRESS as PROGRESS,
+			t1.COODINATE_STATUS as COODINATE_STATUS,
+			t1.LOAD_BALANCER as LOAD_BALANCER
+		from
+			INSTANCE t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from INSTANCE t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="instanceResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.INSTANCE_NO = #instanceNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="instanceResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readByFarmNoAndInstanceName" parameterClass="java.util.Map" resultMap="instanceResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.FARM_NO = #farmNo# and
+			t1.INSTANCE_NAME = #instanceName#
+		]]>
+	</select>
+
+	<select id="readByFarmNo" parameterClass="java.util.Map" resultMap="instanceResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.FARM_NO = #farmNo#
+		]]>
+	</select>
+
+	<select id="readByPlatformNo" parameterClass="java.util.Map" resultMap="instanceResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="readByImageNo" parameterClass="java.util.Map" resultMap="instanceResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.IMAGE_NO = #imageNo#
+		]]>
+	</select>
+
+	<select id="readInInstanceNos" parameterClass="java.util.Map" resultMap="instanceResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.INSTANCE_NO in
+		]]>
+		<iterate property="instanceNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#instanceNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="Instance">
+		<![CDATA[
+		insert into INSTANCE (
+			INSTANCE_NO,
+			FARM_NO,
+			INSTANCE_NAME,
+			PLATFORM_NO,
+			IMAGE_NO,
+			ENABLED,
+			COMMENT,
+			FQDN,
+			INSTANCE_CODE,
+			PUBLIC_IP,
+			PRIVATE_IP,
+			STATUS,
+			PROGRESS,
+			COODINATE_STATUS,
+			LOAD_BALANCER
+		) values (
+			#instanceNo#,
+			#farmNo#,
+			#instanceName#,
+			#platformNo#,
+			#imageNo#,
+			#enabled#,
+			#comment#,
+			#fqdn#,
+			#instanceCode#,
+			#publicIp#,
+			#privateIp#,
+			#status#,
+			#progress#,
+			#coodinateStatus#,
+			#loadBalancer#
+		)
+		]]>
+	</insert>
+
+	<insert id="createAuto" parameterClass="Instance">
+		<![CDATA[
+		insert into INSTANCE (
+			INSTANCE_NO,
+			FARM_NO,
+			INSTANCE_NAME,
+			PLATFORM_NO,
+			IMAGE_NO,
+			ENABLED,
+			COMMENT,
+			FQDN,
+			INSTANCE_CODE,
+			PUBLIC_IP,
+			PRIVATE_IP,
+			STATUS,
+			PROGRESS,
+			COODINATE_STATUS,
+			LOAD_BALANCER
+		) values (
+			#instanceNo#,
+			#farmNo#,
+			#instanceName#,
+			#platformNo#,
+			#imageNo#,
+			#enabled#,
+			#comment#,
+			#fqdn#,
+			#instanceCode#,
+			#publicIp#,
+			#privateIp#,
+			#status#,
+			#progress#,
+			#coodinateStatus#,
+			#loadBalancer#
+		)
+		]]>
+		<selectKey keyProperty="instanceNo" resultClass="java.lang.Long" type="post">
+		<![CDATA[
+			select last_insert_id()
+		]]>
+		</selectKey>
+	</insert>
+
+	<update id="update" parameterClass="Instance">
+		<![CDATA[
+		update INSTANCE set
+			FARM_NO = #farmNo#,
+			INSTANCE_NAME = #instanceName#,
+			PLATFORM_NO = #platformNo#,
+			IMAGE_NO = #imageNo#,
+			ENABLED = #enabled#,
+			COMMENT = #comment#,
+			FQDN = #fqdn#,
+			INSTANCE_CODE = #instanceCode#,
+			PUBLIC_IP = #publicIp#,
+			PRIVATE_IP = #privateIp#,
+			STATUS = #status#,
+			PROGRESS = #progress#,
+			COODINATE_STATUS = #coodinateStatus#,
+			LOAD_BALANCER = #loadBalancer#
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="Instance">
+		<![CDATA[
+		delete from INSTANCE
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from INSTANCE
+		]]>
+	</delete>
+
+	<delete id="deleteByInstanceNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from INSTANCE
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByFarmNoAndInstanceName" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from INSTANCE
+		where
+			FARM_NO = #farmNo# and
+			INSTANCE_NAME = #instanceName#
+		]]>
+	</delete>
+
+	<delete id="deleteByFarmNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from INSTANCE
+		where
+			FARM_NO = #farmNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByPlatformNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from INSTANCE
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByImageNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from INSTANCE
+		where
+			IMAGE_NO = #imageNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByInstanceNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</select>
+
+	<select id="countByFarmNoAndInstanceName" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			FARM_NO = #farmNo# and
+			INSTANCE_NAME = #instanceName#
+		]]>
+	</select>
+
+	<select id="countByFarmNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			FARM_NO = #farmNo#
+		]]>
+	</select>
+
+	<select id="countByPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="countByImageNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			IMAGE_NO = #imageNo#
+		]]>
+	</select>
+
+</sqlMap>

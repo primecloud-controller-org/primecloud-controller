@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/'>
+
+	<!-- APPENDER定義 -->
+	<!-- デフォルトログファイルAPPENDER -->
+	<appender name="DEFAULT_FILE_APPENDER" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="File" value="/opt/adc/log/auto-web/information.log" />
+		<param name="Encoding" value="UTF-8" />
+		<param name="Append" value="true" />
+		<param name="Threshold" value="info" />
+		<layout class="jp.primecloud.auto.common.log.ExtendedPatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy/MM/dd HH:mm:ss} [%-5p] %H%m%n" />
+		</layout>
+	</appender>
+
+	<!-- デバッグログファイルAPPENDER -->
+	<appender name="DEBUG_FILE_APPENDER" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="File" value="/opt/adc/log/auto-web/debug.log" />
+		<param name="Encoding" value="UTF-8" />
+		<param name="Append" value="true" />
+		<layout class="jp.primecloud.auto.common.log.ExtendedPatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy/MM/dd HH:mm:ss} [%-5p] [%30.30c] %H%m%n" />
+		</layout>
+	</appender>
+
+	<!-- 基盤処理デバッグログファイルAPPENDER -->
+	<appender name="PROCESS_DEBUG_FILE_APPENDER" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="File" value="/opt/adc/log/auto-web/process_debug.log" />
+		<param name="Encoding" value="UTF-8" />
+		<param name="Append" value="true" />
+		<layout class="jp.primecloud.auto.common.log.ExtendedPatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy/MM/dd HH:mm:ss} [%-5p] %H%m%n" />
+		</layout>
+	</appender>
+
+	<!-- エラーログファイルAPPENDER -->
+	<appender name="ERROR_FILE_APPENDER" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="File" value="/opt/adc/log/auto-web/error.log" />
+		<param name="Encoding" value="UTF-8" />
+		<param name="Append" value="true" />
+		<param name="Threshold" value="error" />
+		<layout class="jp.primecloud.auto.common.log.ExtendedPatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy/MM/dd HH:mm:ss} [%-5p] %H%m%n" />
+		</layout>
+	</appender>
+
+	<!-- アクセスログファイルAPPENDER -->
+    <appender name="ACCESS_FILE_APPENDER" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="File" value="/opt/adc/log/auto-web/access.log" />
+        <param name="Encoding" value="UTF-8" />
+        <param name="Append" value="true" />
+        <param name="Threshold" value="info" />
+        <layout class="jp.primecloud.auto.common.log.ExtendedPatternLayout">
+            <param name="ConversionPattern" value="%d{yyyy/MM/dd HH:mm:ss} [%-5p] [%30.30c] %H%m%n" />
+        </layout>
+    </appender>
+
+	<!-- コンソールAPPENDER -->
+	<appender name="CONSOLE_APPENDER" class="org.apache.log4j.ConsoleAppender">
+		<param name="immediateFlush" value="true" />
+		<layout class="jp.primecloud.auto.common.log.ExtendedPatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy/MM/dd HH:mm:ss} [%-5p] [%30.30c] %H%m%n" />
+		</layout>
+	</appender>
+
+	<!-- SYSLOG APPENDER -->
+	<appender name="SYSLOG_APPENDER" class="jp.primecloud.auto.common.log.ExtendedSyslogAppender">
+		<param name="SyslogHost" value="localhost" />
+		<param name="Facility" value="local2" />
+		<layout class="jp.primecloud.auto.common.log.ExtendedPatternLayout">
+			<param name="ConversionPattern" value="%X{host} auto: %H%m" />
+		</layout>
+	</appender>
+
+	<!-- 出力しないAPPENDER -->
+	<appender name="NULL_APPENDER" class="org.apache.log4j.varia.NullAppender"></appender>
+
+
+	<logger name="jp.primecloud.auto">
+		<level value="debug" />
+	</logger>
+
+	<!-- 基盤処理デバッグログ -->
+	<logger name="jp.primecloud.auto.process">
+		<appender-ref ref="PROCESS_DEBUG_FILE_APPENDER" />
+	</logger>
+	<logger name="jp.primecloud.auto.component">
+		<appender-ref ref="PROCESS_DEBUG_FILE_APPENDER" />
+	</logger>
+	<logger name="jp.primecloud.auto.aws">
+		<appender-ref ref="PROCESS_DEBUG_FILE_APPENDER" />
+	</logger>
+	<logger name="jp.primecloud.auto.puppet">
+		<appender-ref ref="PROCESS_DEBUG_FILE_APPENDER" />
+	</logger>
+	<logger name="jp.primecloud.auto.zabbix">
+		<appender-ref ref="PROCESS_DEBUG_FILE_APPENDER" />
+	</logger>
+	<logger name="jp.primecloud.auto.nifty">
+		<appender-ref ref="PROCESS_DEBUG_FILE_APPENDER" />
+	</logger>
+
+	<!-- トレースログ -->
+	<logger name="jp.primecloud.auto.common.interceptor.TraceInterceptor">
+		<level value="debug" />
+	</logger>
+
+    <!-- PCC-API アクセスログ-->
+    <logger name="jp.primecloud.auto.api">
+        <level value="info" />
+        <appender-ref ref="ACCESS_FILE_APPENDER" />
+    </logger>
+
+	<!-- その他 -->
+	<logger name="com.amazonaws.util.XpathUtils">
+		<level value="error" />
+	</logger>
+
+
+	<!-- ルートカテゴリ -->
+	<root>
+		<level value="warn" />
+		<!-- <appender-ref ref="CONSOLE_APPENDER" /> -->
+		<appender-ref ref="DEFAULT_FILE_APPENDER" />
+		<appender-ref ref="DEBUG_FILE_APPENDER" />
+		<appender-ref ref="SYSLOG_APPENDER" />
+		<appender-ref ref="ERROR_FILE_APPENDER" />
+	</root>
+
+</log4j:configuration>

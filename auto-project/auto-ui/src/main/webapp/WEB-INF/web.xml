@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	id="WebApp_ID" version="2.5">
+
+	<display-name>auto-ui</display-name>
+
+	<distributable />
+
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>/WEB-INF/context/applicationContext.xml</param-value>
+	</context-param>
+
+	<context-param>
+		<description>Vaadin production mode</description>
+		<param-name>productionMode</param-name>
+		<param-value>false</param-value>
+	</context-param>
+
+	<context-param>
+		<description>Mock mode for development. If true, xml resources used. Otherwise, database used.</description>
+		<param-name>mockMode</param-name>
+		<param-value>true</param-value>
+	</context-param>
+
+	<listener>
+		<listener-class>jp.primecloud.auto.config.ConfigLoaderListener</listener-class>
+	</listener>
+
+	<listener>
+		<listener-class>jp.primecloud.auto.ui.mock.MockBeanContext</listener-class>
+	</listener>
+
+	<servlet>
+		<servlet-name>AutoApplication</servlet-name>
+		<servlet-class>jp.primecloud.auto.ui.server.ExtendedApplicationServlet</servlet-class>
+		<init-param>
+			<description>Vaadin application class to start</description>
+			<param-name>application</param-name>
+			<param-value>jp.primecloud.auto.ui.AutoApplication</param-value>
+		</init-param>
+		<init-param>
+			<description>Application widgetset</description>
+			<param-name>widgetset</param-name>
+			<param-value>jp.primecloud.auto.ui.widgetset.Auto_uiWidgetset</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>AutoApplication</servlet-name>
+		<url-pattern>/view/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>AutoApplication</servlet-name>
+		<url-pattern>/VAADIN/*</url-pattern>
+	</servlet-mapping>
+
+	<welcome-file-list>
+		<welcome-file>index.jsp</welcome-file>
+	</welcome-file-list>
+
+</web-app>

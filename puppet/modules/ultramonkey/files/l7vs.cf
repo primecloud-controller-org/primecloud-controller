@@ -1,0 +1,155 @@
+#
+# UltraMonkey - L7 configuration file
+# 2008 (C) NTT Comware
+# License: GNU General Public License (GPL)
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301 USA
+
+#
+# Rivision History.
+#   2.1.0-0 Add some performance settings.
+#           - 2008/MM/DD NAME
+#   2.0.0-1 Change default log level `info' to `warn'.
+#           - 2008/07/29 Hideaki KONDO.
+#   2.0.0-0 First verion release.(version was put together l7vsd)
+#           - 2008/03/26 Norihisa NAKAI.
+
+#
+# l7vs performance setting
+#
+[iomux]
+max_events = 1024
+
+[conn]
+# recv/send buffer size
+read_bufsize = 20480
+
+#
+# l7vs log setting
+#
+[logger]
+# l7vsd logfile base name
+l7vsd_log_filename = "/var/log/l7vs/l7vsd.log"
+# l7vsd log rotate pattern
+l7vsd_rotation = "size"
+# l7vsd rotate max backup number
+l7vsd_max_backup_index = "10"
+# l7vsd rotate file size
+l7vsd_max_filesize = "10M"
+
+# l7vsd log categories level
+l7vsd_network                   = "warn"
+l7vsd_network.bandwidth         = "warn"
+l7vsd_network.num_connection    = "warn"
+l7vsd_network.qos               = "warn"
+l7vsd_virtual_service           = "warn"
+l7vsd_real_server               = "warn"
+l7vsd_sorry_server              = "warn"
+l7vsd_real_server.balancing     = "warn"
+l7vsd_replication               = "warn"
+l7vsd_start_stop                = "warn"
+l7vsd_system                    = "warn"
+l7vsd_system.memory             = "warn"
+l7vsd_system.socket             = "warn"
+l7vsd_system.signal             = "warn"
+l7vsd_environment               = "warn"
+l7vsd_environment.parameter     = "warn"
+l7vsd_logger                    = "warn"
+l7vsd_parameter                 = "warn"
+l7vsd_event                     = "warn"
+l7vsd_schedule                  = "warn"
+l7vsd_program                   = "warn"
+l7vsd_protocol                  = "warn"
+l7vsd_module                    = "warn"
+
+# l7vsadm log file base name
+l7vsadm_log_filename = "/var/log/l7vs/l7vsadm.log"
+# l7vsadm rotate pattern
+l7vsadm_rotation = "date"
+# l7vsadm rotate max backup number
+l7vsadm_max_backup_index = "10"
+# l7vsadm rotate timing ( every month rotate )
+l7vsadm_rotation_timing = "month"
+# l7vsadm rotate timing ( day and time )
+l7vsadm_rotation_timing_value = "1 0:01"
+
+# l7vsadm log categories level
+l7vsadm_parse           = "warn"
+l7vsadm_operate         = "warn"
+l7vsadm_communicate     = "warn"
+l7vsadm_config_result   = "warn"
+l7vsadm_common          = "warn"
+l7vsadm_logger          = "warn"
+l7vsadm_parameter       = "warn"
+l7vsadm_protocol        = "warn"
+l7vsadm_module          = "warn"
+
+# snmpagent log file base name
+snmpagent_log_filename = "/var/log/l7vs/snmpagent.log"
+# snmpagent log rotate pattern
+snmpagent_rotation = "datesize"
+# snmpagent log rotate max backup num
+snmpagent_max_backup_index = "10"
+# snmpagent max logfile size
+snmpagent_max_filesize = "30M"
+# snmpagent log rotate timing ( every week )
+snmpagent_rotation_timing = "week"
+# snmpagent log rotate timing ( a day of week and time )
+snmpagent_rotation_timing_value = "wed 23:59"
+
+# snmpagent log categories level
+snmpagent_start_stop        = "warn"
+snmpagent_manager_receive   = "warn"
+snmpagent_manager_send      = "warn"
+snmpagent_l7vsd_receive     = "warn"
+snmpagent_l7vsd_send        = "warn"
+snmpagent_logger            = "warn"
+snmpagent_parameter         = "warn"
+
+#
+# l7vsadm setting
+#
+[l7vsadm]
+cmd_interval = 1
+cmd_count = 10
+con_interval = 1
+con_count = 10
+
+#
+# l7vsd replication setting
+#
+[replication]
+#ip_addr = "192.168.0.254"
+#service_name = "40000"
+#nic = "eth0"
+#interval = 1000
+#compulsorily_interval = 40
+#cmponent_id_00 = "virtualservice"
+#cmponent_size_00 = 64
+#cmponent_id_01 = "chash"
+#cmponent_size_01 = 1
+#cmponent_id_02 = "sslid"
+#cmponent_size_02 = 200
+
+#
+# snmpagent settings
+#
+[snmpagent]
+#nic = "eth0"
+#ip_addr = "127.0.0.1"
+#port = 60162
+#interval = 1000
+#status = 0

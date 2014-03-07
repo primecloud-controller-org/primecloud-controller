@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ROOT SYSTEM "awsAddress.dtd">
+<ROOT>
+	<row>
+		<field name="ADDRESS_NO">1</field>
+		<field name="USER_NO">1</field>
+		<field name="PLATFORM_NO">2</field>
+		<field name="PUBLIC_IP">172.22.10.101</field>
+		<field name="COMMENT"></field>
+		<field name="INSTANCE_NO">6</field>
+		<field name="INSTANCE_ID">i-3D03074F</field>
+	</row>
+	<row>
+		<field name="ADDRESS_NO">2</field>
+		<field name="USER_NO">1</field>
+		<field name="PLATFORM_NO">2</field>
+		<field name="PUBLIC_IP">172.22.10.101</field>
+		<field name="COMMENT">こめんとB</field>
+		<field name="INSTANCE_NO">6</field>
+		<field name="INSTANCE_ID"></field>
+	</row>
+		<row>
+		<field name="ADDRESS_NO">3</field>
+		<field name="USER_NO">1</field>
+		<field name="PLATFORM_NO">2</field>
+		<field name="PUBLIC_IP">100.100.100.101</field>
+		<field name="COMMENT">こめんとC</field>
+		<field name="INSTANCE_NO">7</field>
+		<field name="INSTANCE_ID">i-3D03074F</field>
+	</row>
+	<row>
+		<field name="ADDRESS_NO">4</field>
+		<field name="USER_NO">1</field>
+		<field name="PLATFORM_NO">2</field>
+		<field name="PUBLIC_IP">100.100.100.103</field>
+		<field name="COMMENT">こめんとC</field>
+		<field name="INSTANCE_NO"></field>
+		<field name="INSTANCE_ID">i-3D03074F</field>
+	</row>
+	<row>
+		<field name="ADDRESS_NO">5</field>
+		<field name="USER_NO">1</field>
+		<field name="PLATFORM_NO">2</field>
+		<field name="PUBLIC_IP">100.100.100.104</field>
+		<field name="COMMENT">こめんとC</field>
+		<field name="INSTANCE_NO"></field>
+		<field name="INSTANCE_ID"></field>
+	</row>
+</ROOT>

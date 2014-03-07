@@ -1,0 +1,54 @@
+# Put variables and their substitution values in this file. 
+# They will be used when processing the corresponding config.xml. 
+# Values in this file can be overridden by environment variables and system properties 
+# by prefixing the property name with 'org.apache.geronimo.config.substitution.' 
+# For example, an entry such as hostName=localhost 
+# can be overridden by an environment variable or system property org.apache.geronimo.config.substitution.hostName=foo 
+# When running multiple instances of Geronimo choose a PortOffset value such that none of the ports conflict. 
+# For example, try PortOffset=10 
+#Mon Dec 07 21:00:31 PST 2009
+ORBPort=6882
+AJPPort=8009
+MaxThreadPoolSize=500
+ResourceBindingsNamePattern=
+Capacity=1000
+SMTPHost=localhost
+StatelessPoolSize=10
+StatelessTimeout=0
+ResourceBindingsQuery=?\#org.apache.geronimo.naming.ResourceSource
+DerbyPort=1527
+BMPPoolSize=10
+COSNamingPort=1050
+StatefulTimeout=20
+webcontainer=TomcatWebContainer
+OpenEJBPort=4201
+ORBSSLPort=2001
+PortOffset=0
+JMXPort=9999
+ClusterNodeName=<%= server_name %>
+EndPointURI=http\://localhost\:8080
+NamingPort=1099
+DefaultWadiSweepInterval=36000
+WebConnectorConTimeout=20000
+WADIClusterName=<%= cloud_name %>
+BulkPassivate=100
+MulticastDiscoveryPort=6142
+HTTPSPort=8443
+MinThreadPoolSize=200
+MulticastDiscoveryAddress=239.255.3.2
+ReplicaCount=2
+ServerHostname=0.0.0.0
+ActiveMQPort=61616
+SMTPPort=25
+webcontainerName=tomcat6
+ResourceBindingsNameInNamespace=jca\:
+StrictPooling=true
+JMXSecurePort=9998
+DefaultWadiNumPartitions=24
+AccessTimeout=30
+HTTPPort=8080
+FarmName=DEFAULT_FARM
+ClusterName=cluster1
+ResourceBindingsFormat={groupId}/{artifactId}/{j2eeType}/{name}
+RemoteDeployHostname=localhost
+TmId=71,84,77,73,68

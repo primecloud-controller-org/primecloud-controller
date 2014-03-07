@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ROOT SYSTEM "template.dtd">
+<ROOT>
+    <row>
+      <field name="TEMPLATE_NO">1</field>
+      <field name="TEMPLATE_NAME">application_redundant.eucalyptus</field>
+      <field name="TEMPLATE_NAME_DISP">Webアプリ環境[Java EE] (冗長)【Eucalyptus】_test</field>
+      <field name="TEMPLATE_DESCRIPTION_DISP">Web\,AP\,DBそれぞれのサービスにサーバを2台づつ設定したmyCloudをEucalyptus環境上に作成します。_test</field>
+    </row>
+    <row>
+      <field name="TEMPLATE_NO">2</field>
+      <field name="TEMPLATE_NAME">application_redundant.vmware</field>
+      <field name="TEMPLATE_NAME_DISP">Webアプリ環境[Java EE] (冗長)【VMware】_test</field>
+      <field name="TEMPLATE_DESCRIPTION_DISP">Web\,AP\,DBそれぞれのサービスにサーバを2台づつ設定したmyCloudをVMware環境上に作成します。_test</field>
+    </row>
+    <row>
+      <field name="TEMPLATE_NO">11</field>
+      <field name="TEMPLATE_NAME">application.eucalyptus</field>
+      <field name="TEMPLATE_NAME_DISP">Webアプリ環境[Java EE]【Eucalyptus】_test</field>
+      <field name="TEMPLATE_DESCRIPTION_DISP">1台のサーバにWeb+AP+DBのサービスを設定したmyCloudをEucalyptus環境上に作成します。_test</field>
+    </row>
+    <row>
+      <field name="TEMPLATE_NO">12</field>
+      <field name="TEMPLATE_NAME">application.vmware</field>
+      <field name="TEMPLATE_NAME_DISP">Webアプリ環境[Java EE]【VMware】_test</field>
+      <field name="TEMPLATE_DESCRIPTION_DISP">1台のサーバにWeb+AP+DBのサービスを設定したmyCloudをVMware環境上に作成します。_test</field>
+    </row>
+    <row>
+      <field name="TEMPLATE_NO">91</field>
+      <field name="TEMPLATE_NAME">custom</field>
+      <field name="TEMPLATE_NAME_DISP">カスタム(未設定)_test</field>
+      <field name="TEMPLATE_DESCRIPTION_DISP">未設定状態のmyCloudを作成します。_test</field>
+    </row>
+</ROOT>

@@ -1,0 +1,1 @@
+alter table CLOUDSTACK_VOLUME add constraint CLOUDSTACK_VOLUME_UK1 unique (COMPONENT_NO, INSTANCE_NO);

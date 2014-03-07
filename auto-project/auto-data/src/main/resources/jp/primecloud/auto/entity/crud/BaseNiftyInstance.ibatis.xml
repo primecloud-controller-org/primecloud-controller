@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap      
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="NiftyInstance">
+
+	<typeAlias alias="NiftyInstance" type="jp.primecloud.auto.entity.crud.NiftyInstance" />
+
+	<resultMap id="niftyInstanceResultMap" class="NiftyInstance">
+		<result property="instanceNo" column="INSTANCE_NO" />
+		<result property="keyPairNo" column="KEY_PAIR_NO" />
+		<result property="instanceType" column="INSTANCE_TYPE" nullValue="" />
+		<result property="instanceId" column="INSTANCE_ID" nullValue="" />
+		<result property="status" column="STATUS" nullValue="" />
+		<result property="dnsName" column="DNS_NAME" nullValue="" />
+		<result property="privateDnsName" column="PRIVATE_DNS_NAME" nullValue="" />
+		<result property="ipAddress" column="IP_ADDRESS" nullValue="" />
+		<result property="privateIpAddress" column="PRIVATE_IP_ADDRESS" nullValue="" />
+		<result property="initialized" column="INITIALIZED" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.INSTANCE_NO as INSTANCE_NO, 
+			t1.KEY_PAIR_NO as KEY_PAIR_NO, 
+			t1.INSTANCE_TYPE as INSTANCE_TYPE, 
+			t1.INSTANCE_ID as INSTANCE_ID, 
+			t1.STATUS as STATUS, 
+			t1.DNS_NAME as DNS_NAME, 
+			t1.PRIVATE_DNS_NAME as PRIVATE_DNS_NAME, 
+			t1.IP_ADDRESS as IP_ADDRESS, 
+			t1.PRIVATE_IP_ADDRESS as PRIVATE_IP_ADDRESS, 
+			t1.INITIALIZED as INITIALIZED
+		from
+			NIFTY_INSTANCE t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from NIFTY_INSTANCE t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="niftyInstanceResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.INSTANCE_NO = #instanceNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="niftyInstanceResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readByKeyPairNo" parameterClass="java.util.Map" resultMap="niftyInstanceResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.KEY_PAIR_NO = #keyPairNo#
+		]]>
+	</select>
+
+	<select id="readInInstanceNos" parameterClass="java.util.Map" resultMap="niftyInstanceResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.INSTANCE_NO in
+		]]>
+		<iterate property="instanceNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#instanceNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="NiftyInstance">
+		<![CDATA[
+		insert into NIFTY_INSTANCE (
+			INSTANCE_NO, 
+			KEY_PAIR_NO, 
+			INSTANCE_TYPE, 
+			INSTANCE_ID, 
+			STATUS, 
+			DNS_NAME, 
+			PRIVATE_DNS_NAME, 
+			IP_ADDRESS, 
+			PRIVATE_IP_ADDRESS, 
+			INITIALIZED
+		) values (
+			#instanceNo#, 
+			#keyPairNo#, 
+			#instanceType#, 
+			#instanceId#, 
+			#status#, 
+			#dnsName#, 
+			#privateDnsName#, 
+			#ipAddress#, 
+			#privateIpAddress#, 
+			#initialized#
+		)
+		]]>
+	</insert>
+
+	<update id="update" parameterClass="NiftyInstance">
+		<![CDATA[
+		update NIFTY_INSTANCE set
+			KEY_PAIR_NO = #keyPairNo#, 
+			INSTANCE_TYPE = #instanceType#, 
+			INSTANCE_ID = #instanceId#, 
+			STATUS = #status#, 
+			DNS_NAME = #dnsName#, 
+			PRIVATE_DNS_NAME = #privateDnsName#, 
+			IP_ADDRESS = #ipAddress#, 
+			PRIVATE_IP_ADDRESS = #privateIpAddress#, 
+			INITIALIZED = #initialized#
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="NiftyInstance">
+		<![CDATA[
+		delete from NIFTY_INSTANCE
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from NIFTY_INSTANCE
+		]]>
+	</delete>
+
+	<delete id="deleteByInstanceNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from NIFTY_INSTANCE
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByKeyPairNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from NIFTY_INSTANCE
+		where
+			KEY_PAIR_NO = #keyPairNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByInstanceNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</select>
+
+	<select id="countByKeyPairNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			KEY_PAIR_NO = #keyPairNo#
+		]]>
+	</select>
+
+</sqlMap>

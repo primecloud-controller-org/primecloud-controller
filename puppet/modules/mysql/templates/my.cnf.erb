@@ -1,0 +1,61 @@
+[mysql]
+default-character-set=utf8
+
+[mysqld]
+character-set-server=utf8
+default-character-set=utf8
+datadir=<%= db_home %>/mysql/data
+socket=/var/lib/mysql/mysql.sock
+default-storage-engine=InnoDB
+default-table-type=InnoDB
+#
+slave_net_timeout=300
+#
+skip-locking
+#key_buffer_size = 8M
+max_allowed_packet = 16M
+sort_buffer_size = 2M
+read_buffer_size = 1M
+read_rnd_buffer_size = 1M
+join_buffer_size = 256KB 
+net_buffer_length = 32K
+max_connections	= 100
+max_connect_errors = -1
+thread_cache_size = 10
+query_cache_size = 16M
+thread_concurrency = 8
+#
+innodb_data_home_dir=<%= db_home %>/mysql/data/idata
+innodb_data_file_path=idata1:10M;idata2:10M:autoextend:max:2000M
+innodb_log_group_home_dir=<%= db_home %>/mysql/data/ilog
+innodb_buffer_pool_size = 16M
+innodb_log_file_size= 16M
+innodb_log_files_in_group= 3
+innodb-log-buffer-size= 8M
+innodb_file_per_table
+#
+log-bin=<%= db_home %>/mysql/data/blog/binary
+relay-log = relay-bin
+relay-log-info-file = relay-log.info
+sync_binlog=1
+expire_logs_days=5
+
+#log=<%= db_home %>/mysql/log/mysqld-audit.log
+query_cache_size = 10M
+server-id = <%= server_id %> <% if server_type == "SLAVE" %>
+log-slave-updates = true
+read_only
+skip-slave-start
+<% end %>
+[mysql.server]
+user=mysql
+basedir=/var/lib
+
+[mysqld_safe]
+log-error=<%= db_home %>/mysql/log/mysqld.log
+pid-file=/var/run/mysqld/mysqld.pid
+
+[mysqladmin]
+user     = <%= mng_username %>
+password = <%= mng_password %>
+

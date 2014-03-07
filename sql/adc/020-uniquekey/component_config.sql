@@ -1,0 +1,1 @@
+alter table COMPONENT_CONFIG add constraint COMPONENT_CONFIG_UK1 unique (COMPONENT_NO, CONFIG_NAME);

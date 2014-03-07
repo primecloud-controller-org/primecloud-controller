@@ -1,0 +1,1 @@
+alter table PLATFORM add constraint PLATFORM_UK1 unique (PLATFORM_NAME);

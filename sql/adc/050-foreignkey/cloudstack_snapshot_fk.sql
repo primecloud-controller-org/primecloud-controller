@@ -1,0 +1,2 @@
+alter table CLOUDSTACK_SNAPSHOT add constraint CLOUDSTACK_SNAPSHOT_FK1 foreign key (FARM_NO) references FARM (FARM_NO);
+alter table CLOUDSTACK_SNAPSHOT add constraint CLOUDSTACK_SNAPSHOT_FK2 foreign key (PLATFORM_NO) references PLATFORM (PLATFORM_NO);

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="PlatformCloudstack">
+
+	<typeAlias alias="PlatformCloudstack" type="jp.primecloud.auto.entity.crud.PlatformCloudstack" />
+
+	<resultMap id="platformCloudstackResultMap" class="PlatformCloudstack">
+		<result property="platformNo" column="PLATFORM_NO" />
+		<result property="host" column="HOST" nullValue="" />
+		<result property="path" column="PATH" nullValue="" />
+		<result property="port" column="PORT" />
+		<result property="secure" column="SECURE" />
+		<result property="zoneId" column="ZONE_ID" nullValue="" />
+		<result property="networkId" column="NETWORK_ID" nullValue="" />
+		<result property="timeout" column="TIMEOUT" />
+		<result property="deviceType" column="DEVICE_TYPE" nullValue="" />
+		<result property="hostId" column="HOST_ID" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.PLATFORM_NO as PLATFORM_NO,
+			t1.HOST as HOST,
+			t1.PATH as PATH,
+			t1.PORT as PORT,
+			t1.SECURE as SECURE,
+			t1.ZONE_ID as ZONE_ID,
+			t1.NETWORK_ID as NETWORK_ID,
+			t1.TIMEOUT as TIMEOUT,
+			t1.DEVICE_TYPE as DEVICE_TYPE, 
+			t1.HOST_ID as HOST_ID
+		from
+			PLATFORM_CLOUDSTACK t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from PLATFORM_CLOUDSTACK t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="platformCloudstackResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="platformCloudstackResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readInPlatformNos" parameterClass="java.util.Map" resultMap="platformCloudstackResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO in
+		]]>
+		<iterate property="platformNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#platformNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="PlatformCloudstack">
+		<![CDATA[
+		insert into PLATFORM_CLOUDSTACK (
+			PLATFORM_NO,
+			HOST,
+			PATH,
+			PORT,
+			SECURE,
+			ZONE_ID,
+			NETWORK_ID,
+			TIMEOUT,
+			DEVICE_TYPE, 
+			HOST_ID
+		) values (
+			#platformNo#,
+			#host#,
+			#path#,
+			#port#,
+			#secure#,
+			#zoneId#,
+			#networkId#,
+			#timeout#,
+			#deviceType#, 
+			#hostId#
+		)
+		]]>
+	</insert>
+
+	<update id="update" parameterClass="PlatformCloudstack">
+		<![CDATA[
+		update PLATFORM_CLOUDSTACK set
+			HOST = #host#,
+			PATH = #path#,
+			PORT = #port#,
+			SECURE = #secure#,
+			ZONE_ID = #zoneId#,
+			NETWORK_ID = #networkId#,
+			TIMEOUT = #timeout#,
+			DEVICE_TYPE = #deviceType#, 
+			HOST_ID = #hostId#
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="PlatformCloudstack">
+		<![CDATA[
+		delete from PLATFORM_CLOUDSTACK
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from PLATFORM_CLOUDSTACK
+		]]>
+	</delete>
+
+	<delete id="deleteByPlatformNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from PLATFORM_CLOUDSTACK
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+</sqlMap>

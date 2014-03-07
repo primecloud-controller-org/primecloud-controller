@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="PlatformAws">
+
+	<typeAlias alias="PlatformAws" type="jp.primecloud.auto.entity.crud.PlatformAws" />
+
+	<resultMap id="platformAwsResultMap" class="PlatformAws">
+		<result property="platformNo" column="PLATFORM_NO" />
+		<result property="host" column="HOST" nullValue="" />
+		<result property="port" column="PORT" />
+		<result property="secure" column="SECURE" />
+		<result property="euca" column="EUCA" />
+		<result property="vpc" column="VPC" />
+		<result property="region" column="REGION" nullValue="" />
+		<result property="availabilityZone" column="AVAILABILITY_ZONE" nullValue="" />
+		<result property="vpcId" column="VPC_ID" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.PLATFORM_NO as PLATFORM_NO,
+			t1.HOST as HOST,
+			t1.PORT as PORT,
+			t1.SECURE as SECURE,
+			t1.EUCA as EUCA,
+			t1.VPC as VPC,
+			t1.REGION as REGION,
+			t1.AVAILABILITY_ZONE as AVAILABILITY_ZONE,
+			t1.VPC_ID as VPC_ID
+		from
+			PLATFORM_AWS t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from PLATFORM_AWS t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="platformAwsResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="platformAwsResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readInPlatformNos" parameterClass="java.util.Map" resultMap="platformAwsResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO in
+		]]>
+		<iterate property="platformNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#platformNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="PlatformAws">
+		<![CDATA[
+		insert into PLATFORM_AWS (
+			PLATFORM_NO,
+			HOST,
+			PORT,
+			SECURE,
+			EUCA,
+			VPC,
+			REGION,
+			AVAILABILITY_ZONE,
+			VPC_ID
+		) values (
+			#platformNo#,
+			#host#,
+			#port#,
+			#secure#,
+			#euca#,
+			#vpc#,
+			#region#,
+			#availabilityZone#,
+			#vpcId#
+		)
+		]]>
+	</insert>
+
+	<update id="update" parameterClass="PlatformAws">
+		<![CDATA[
+		update PLATFORM_AWS set
+			HOST = #host#,
+			PORT = #port#,
+			SECURE = #secure#,
+			EUCA = #euca#,
+			VPC = #vpc#,
+			REGION = #region#,
+			AVAILABILITY_ZONE = #availabilityZone#,
+			VPC_ID = #vpcId#
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="PlatformAws">
+		<![CDATA[
+		delete from PLATFORM_AWS
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from PLATFORM_AWS
+		]]>
+	</delete>
+
+	<delete id="deleteByPlatformNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from PLATFORM_AWS
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+</sqlMap>

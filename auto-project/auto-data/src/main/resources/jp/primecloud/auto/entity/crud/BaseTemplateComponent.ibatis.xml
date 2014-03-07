@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="TemplateComponent">
+
+	<typeAlias alias="TemplateComponent" type="jp.primecloud.auto.entity.crud.TemplateComponent" />
+
+	<resultMap id="templateComponentResultMap" class="TemplateComponent">
+		<result property="templateComponentNo" column="TEMPLATE_COMPONENT_NO" />
+		<result property="templateComponentName" column="TEMPLATE_COMPONENT_NAME" nullValue="" />
+		<result property="templateNo" column="TEMPLATE_NO" />
+		<result property="componentTypeNo" column="COMPONENT_TYPE_NO" />
+		<result property="comment" column="COMMENT" nullValue="" />
+		<result property="diskSize" column="DISK_SIZE" />
+		<result property="associate" column="ASSOCIATE" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.TEMPLATE_COMPONENT_NO as TEMPLATE_COMPONENT_NO,
+			t1.TEMPLATE_COMPONENT_NAME as TEMPLATE_COMPONENT_NAME,
+			t1.TEMPLATE_NO as TEMPLATE_NO,
+			t1.COMPONENT_TYPE_NO as COMPONENT_TYPE_NO,
+			t1.COMMENT as COMMENT,
+			t1.DISK_SIZE as DISK_SIZE,
+			t1.ASSOCIATE as ASSOCIATE
+		from
+			TEMPLATE_COMPONENT t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from TEMPLATE_COMPONENT t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="templateComponentResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.TEMPLATE_COMPONENT_NO = #templateComponentNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="templateComponentResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readByTemplateNoAndTemplateComponentName" parameterClass="java.util.Map" resultMap="templateComponentResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.TEMPLATE_NO = #templateNo# and
+			t1.TEMPLATE_COMPONENT_NAME = #templateComponentName#
+		]]>
+	</select>
+
+	<select id="readByTemplateNo" parameterClass="java.util.Map" resultMap="templateComponentResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.TEMPLATE_NO = #templateNo#
+		]]>
+	</select>
+
+	<select id="readByComponentTypeNo" parameterClass="java.util.Map" resultMap="templateComponentResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.COMPONENT_TYPE_NO = #componentTypeNo#
+		]]>
+	</select>
+
+	<select id="readInTemplateComponentNos" parameterClass="java.util.Map" resultMap="templateComponentResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.TEMPLATE_COMPONENT_NO in
+		]]>
+		<iterate property="templateComponentNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#templateComponentNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="TemplateComponent">
+		<![CDATA[
+		insert into TEMPLATE_COMPONENT (
+			TEMPLATE_COMPONENT_NO,
+			TEMPLATE_COMPONENT_NAME,
+			TEMPLATE_NO,
+			COMPONENT_TYPE_NO,
+			COMMENT,
+			DISK_SIZE,
+			ASSOCIATE
+		) values (
+			#templateComponentNo#,
+			#templateComponentName#,
+			#templateNo#,
+			#componentTypeNo#,
+			#comment#,
+			#diskSize#,
+			#associate#
+		)
+		]]>
+	</insert>
+
+	<insert id="createAuto" parameterClass="TemplateComponent">
+		<![CDATA[
+		insert into TEMPLATE_COMPONENT (
+			TEMPLATE_COMPONENT_NO,
+			TEMPLATE_COMPONENT_NAME,
+			TEMPLATE_NO,
+			COMPONENT_TYPE_NO,
+			COMMENT,
+			DISK_SIZE,
+			ASSOCIATE
+		) values (
+			#templateComponentNo#,
+			#templateComponentName#,
+			#templateNo#,
+			#componentTypeNo#,
+			#comment#,
+			#diskSize#,
+			#associate#
+		)
+		]]>
+		<selectKey keyProperty="templateComponentNo" resultClass="java.lang.Long" type="post">
+		<![CDATA[
+			select last_insert_id()
+		]]>
+		</selectKey>
+	</insert>
+
+	<update id="update" parameterClass="TemplateComponent">
+		<![CDATA[
+		update TEMPLATE_COMPONENT set
+			TEMPLATE_COMPONENT_NAME = #templateComponentName#,
+			TEMPLATE_NO = #templateNo#,
+			COMPONENT_TYPE_NO = #componentTypeNo#,
+			COMMENT = #comment#,
+			DISK_SIZE = #diskSize#,
+			ASSOCIATE = #associate#
+		where
+			TEMPLATE_COMPONENT_NO = #templateComponentNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="TemplateComponent">
+		<![CDATA[
+		delete from TEMPLATE_COMPONENT
+		where
+			TEMPLATE_COMPONENT_NO = #templateComponentNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from TEMPLATE_COMPONENT
+		]]>
+	</delete>
+
+	<delete id="deleteByTemplateComponentNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from TEMPLATE_COMPONENT
+		where
+			TEMPLATE_COMPONENT_NO = #templateComponentNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByTemplateNoAndTemplateComponentName" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from TEMPLATE_COMPONENT
+		where
+			TEMPLATE_NO = #templateNo# and
+			TEMPLATE_COMPONENT_NAME = #templateComponentName#
+		]]>
+	</delete>
+
+	<delete id="deleteByTemplateNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from TEMPLATE_COMPONENT
+		where
+			TEMPLATE_NO = #templateNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByComponentTypeNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from TEMPLATE_COMPONENT
+		where
+			COMPONENT_TYPE_NO = #componentTypeNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByTemplateComponentNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			TEMPLATE_COMPONENT_NO = #templateComponentNo#
+		]]>
+	</select>
+
+	<select id="countByTemplateNoAndTemplateComponentName" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			TEMPLATE_NO = #templateNo# and
+			TEMPLATE_COMPONENT_NAME = #templateComponentName#
+		]]>
+	</select>
+
+	<select id="countByTemplateNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			TEMPLATE_NO = #templateNo#
+		]]>
+	</select>
+
+	<select id="countByComponentTypeNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			COMPONENT_TYPE_NO = #componentTypeNo#
+		]]>
+	</select>
+
+</sqlMap>

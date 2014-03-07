@@ -1,0 +1,1 @@
+alter table AWS_LOAD_BALANCER add constraint AWS_LOAD_BALANCER_FK1 foreign key (LOAD_BALANCER_NO) references LOAD_BALANCER (LOAD_BALANCER_NO);

@@ -1,0 +1,7 @@
+JAVA_HOME=/usr/java/default
+
+GERONIMO_HOME="/opt/geronimo/default"
+GERONIMO_USER="<%= geronimo_admin_username %>"
+GERONIMO_PASSWORD="<%= geronimo_admin_password %>"
+GERONIMO_OPTS="-Xms512m -Xmx1024m -XX:PermSize=128m -XX:MaxPermSize=512m -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=1234 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dsun.net.inetaddr.ttl=60 -Dsun.net.inetaddr.negative.ttl=10"
+

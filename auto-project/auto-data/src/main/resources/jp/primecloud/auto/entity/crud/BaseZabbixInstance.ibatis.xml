@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap      
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ZabbixInstance">
+
+	<typeAlias alias="ZabbixInstance" type="jp.primecloud.auto.entity.crud.ZabbixInstance" />
+
+	<resultMap id="zabbixInstanceResultMap" class="ZabbixInstance">
+		<result property="instanceNo" column="INSTANCE_NO" />
+		<result property="hostid" column="HOSTID" nullValue="" />
+		<result property="status" column="STATUS" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.INSTANCE_NO as INSTANCE_NO, 
+			t1.HOSTID as HOSTID, 
+			t1.STATUS as STATUS
+		from
+			ZABBIX_INSTANCE t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from ZABBIX_INSTANCE t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="zabbixInstanceResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.INSTANCE_NO = #instanceNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="zabbixInstanceResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readInInstanceNos" parameterClass="java.util.Map" resultMap="zabbixInstanceResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.INSTANCE_NO in
+		]]>
+		<iterate property="instanceNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#instanceNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="ZabbixInstance">
+		<![CDATA[
+		insert into ZABBIX_INSTANCE (
+			INSTANCE_NO, 
+			HOSTID, 
+			STATUS
+		) values (
+			#instanceNo#, 
+			#hostid#, 
+			#status#
+		)
+		]]>
+	</insert>
+
+	<update id="update" parameterClass="ZabbixInstance">
+		<![CDATA[
+		update ZABBIX_INSTANCE set
+			HOSTID = #hostid#, 
+			STATUS = #status#
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="ZabbixInstance">
+		<![CDATA[
+		delete from ZABBIX_INSTANCE
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from ZABBIX_INSTANCE
+		]]>
+	</delete>
+
+	<delete id="deleteByInstanceNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from ZABBIX_INSTANCE
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByInstanceNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</select>
+
+</sqlMap>

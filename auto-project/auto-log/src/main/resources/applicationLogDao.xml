@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<bean id="eventLogDao" class="jp.primecloud.auto.log.dao.crud.impl.EventLogDaoImpl">
+		<property name="sqlMapClient" ref="logSqlMapClient" />
+	</bean>
+
+	<bean id="operationLogDao" class="jp.primecloud.auto.log.dao.crud.impl.OperationLogDaoImpl">
+		<property name="sqlMapClient" ref="logSqlMapClient" />
+	</bean>
+
+</beans>

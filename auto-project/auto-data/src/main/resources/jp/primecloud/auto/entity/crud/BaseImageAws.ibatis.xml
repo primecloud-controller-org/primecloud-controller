@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ImageAws">
+
+	<typeAlias alias="ImageAws" type="jp.primecloud.auto.entity.crud.ImageAws" />
+
+	<resultMap id="imageAwsResultMap" class="ImageAws">
+		<result property="imageNo" column="IMAGE_NO" />
+		<result property="imageId" column="IMAGE_ID" nullValue="" />
+		<result property="kernelId" column="KERNEL_ID" nullValue="" />
+		<result property="ramdiskId" column="RAMDISK_ID" nullValue="" />
+		<result property="instanceTypes" column="INSTANCE_TYPES" nullValue="" />
+		<result property="ebsImage" column="EBS_IMAGE" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.IMAGE_NO as IMAGE_NO,
+			t1.IMAGE_ID as IMAGE_ID,
+			t1.KERNEL_ID as KERNEL_ID,
+			t1.RAMDISK_ID as RAMDISK_ID,
+			t1.INSTANCE_TYPES as INSTANCE_TYPES,
+			t1.EBS_IMAGE as EBS_IMAGE
+		from
+			IMAGE_AWS t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from IMAGE_AWS t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="imageAwsResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.IMAGE_NO = #imageNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="imageAwsResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readInImageNos" parameterClass="java.util.Map" resultMap="imageAwsResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.IMAGE_NO in
+		]]>
+		<iterate property="imageNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#imageNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="ImageAws">
+		<![CDATA[
+		insert into IMAGE_AWS (
+			IMAGE_NO,
+			IMAGE_ID,
+			KERNEL_ID,
+			RAMDISK_ID,
+			INSTANCE_TYPES,
+			EBS_IMAGE
+		) values (
+			#imageNo#,
+			#imageId#,
+			#kernelId#,
+			#ramdiskId#,
+			#instanceTypes#,
+			#ebsImage#
+		)
+		]]>
+	</insert>
+
+	<update id="update" parameterClass="ImageAws">
+		<![CDATA[
+		update IMAGE_AWS set
+			IMAGE_ID = #imageId#,
+			KERNEL_ID = #kernelId#,
+			RAMDISK_ID = #ramdiskId#,
+			INSTANCE_TYPES = #instanceTypes#,
+			EBS_IMAGE = #ebsImage#
+		where
+			IMAGE_NO = #imageNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="ImageAws">
+		<![CDATA[
+		delete from IMAGE_AWS
+		where
+			IMAGE_NO = #imageNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from IMAGE_AWS
+		]]>
+	</delete>
+
+	<delete id="deleteByImageNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from IMAGE_AWS
+		where
+			IMAGE_NO = #imageNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByImageNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			IMAGE_NO = #imageNo#
+		]]>
+	</select>
+
+</sqlMap>

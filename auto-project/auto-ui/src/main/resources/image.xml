@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ROOT SYSTEM "image.dtd">
+<ROOT>
+    <!-- eucalyptus -->
+    <row>
+      <field name="IMAGE_NO">1</field>
+      <field name="PLATFORM_NO">1</field>
+      <field name="IMAGE_NAME">application</field>
+      <field name="IMAGE_NAME_DISP">アプリケーション開発基盤_test</field>
+      <field name="OS">centos55</field>
+      <field name="OS_DISP">CentOS 5.5_test</field>
+      <field name="SELECTABLE">true</field>
+      <field name="COMPONENT_TYPE_NOS">1\,2\,3\,4</field>
+      <field name="ZABBIX_TEMPLATE">Template_OS_Linux</field>
+    </row>
+    <!-- ec2 -->
+    <row>
+      <field name="IMAGE_NO">2</field>
+      <field name="PLATFORM_NO">2</field>
+      <field name="IMAGE_NAME">application</field>
+      <field name="IMAGE_NAME_DISP">アプリケーション開発基盤_test</field>
+      <field name="OS">centos55</field>
+      <field name="OS_DISP">CentOS 5.5_test</field>
+      <field name="SELECTABLE">true</field>
+      <field name="COMPONENT_TYPE_NOS">1\,2\,3\,4</field>
+      <field name="ZABBIX_TEMPLATE">Template_OS_Linux</field>
+    </row>
+    <!-- ec2 vpc -->
+    <row>
+      <field name="IMAGE_NO">3</field>
+      <field name="PLATFORM_NO">3</field>
+      <field name="IMAGE_NAME">application</field>
+      <field name="IMAGE_NAME_DISP">アプリケーション開発基盤_test</field>
+      <field name="OS">centos55</field>
+      <field name="OS_DISP">CentOS 5.5_test</field>
+      <field name="SELECTABLE">true</field>
+      <field name="COMPONENT_TYPE_NOS">1\,2\,3\,4</field>
+      <field name="ZABBIX_TEMPLATE">Template_OS_Linux</field>
+    </row>
+    <!-- eucalyptus -->
+    <row>
+      <field name="IMAGE_NO">7</field>
+      <field name="PLATFORM_NO">1</field>
+      <field name="IMAGE_NAME">ultramonkey</field>
+      <field name="IMAGE_NAME_DISP"></field>
+      <field name="OS">centos55</field>
+      <field name="OS_DISP">CentOS 5.5_test</field>
+      <field name="SELECTABLE">false</field>
+      <field name="COMPONENT_TYPE_NOS">5</field>
+      <field name="ZABBIX_TEMPLATE">Template_OS_Linux</field>
+    </row>
+    <!-- ec2 -->
+    <row>
+      <field name="IMAGE_NO">8</field>
+      <field name="PLATFORM_NO">2</field>
+      <field name="IMAGE_NAME">ultramonkey</field>
+      <field name="IMAGE_NAME_DISP"></field>
+      <field name="OS">centos55</field>
+      <field name="OS_DISP">CentOS 5.5_test</field>
+      <field name="SELECTABLE">false</field>
+      <field name="COMPONENT_TYPE_NOS">5</field>
+      <field name="ZABBIX_TEMPLATE">Template_OS_Linux</field>
+    </row>
+    <!-- ec2 vpc-->
+    <row>
+      <field name="IMAGE_NO">9</field>
+      <field name="PLATFORM_NO">3</field>
+      <field name="IMAGE_NAME">ultramonkey</field>
+      <field name="IMAGE_NAME_DISP"></field>
+      <field name="OS">centos55</field>
+      <field name="OS_DISP">CentOS 5.5_test</field>
+      <field name="SELECTABLE">false</field>
+      <field name="COMPONENT_TYPE_NOS">5</field>
+      <field name="ZABBIX_TEMPLATE">Template_OS_Linux</field>
+    </row>
+    <row>
+      <field name="IMAGE_NO">12</field>
+      <field name="PLATFORM_NO">2</field>
+      <field name="IMAGE_NAME">application_ebs</field>
+      <field name="IMAGE_NAME_DISP">アプリケーション開発基盤EBS_test</field>
+      <field name="OS">centos55</field>
+      <field name="OS_DISP">CentOS 5.5_test</field>
+      <field name="SELECTABLE">true</field>
+      <field name="COMPONENT_TYPE_NOS">1\,2\,3\,4</field>
+      <field name="ZABBIX_TEMPLATE">Template_OS_Linux</field>
+    </row>
+    <row>
+      <field name="IMAGE_NO">13</field>
+      <field name="PLATFORM_NO">3</field>
+      <field name="IMAGE_NAME">application_ebs</field>
+      <field name="IMAGE_NAME_DISP">アプリケーション開発基盤EBS_test</field>
+      <field name="OS">centos55</field>
+      <field name="OS_DISP">CentOS 5.5_test</field>
+      <field name="SELECTABLE">true</field>
+      <field name="COMPONENT_TYPE_NOS">1\,2\,3\,4</field>
+      <field name="ZABBIX_TEMPLATE">Template_OS_Linux</field>
+    </row>
+    <row>
+      <field name="IMAGE_NO">21</field>
+      <field name="PLATFORM_NO">2</field>
+      <field name="IMAGE_NAME">windows</field>
+      <field name="IMAGE_NAME_DISP">Windowsサーバ_test</field>
+      <field name="OS">windows2008R1</field>
+      <field name="OS_DISP">WindowsServer2008R1_test</field>
+      <field name="SELECTABLE">true</field>
+      <field name="COMPONENT_TYPE_NOS"></field>
+      <field name="ZABBIX_TEMPLATE"></field>
+    </row>
+    <row>
+      <field name="IMAGE_NO">22</field>
+      <field name="PLATFORM_NO">3</field>
+      <field name="IMAGE_NAME">windows</field>
+      <field name="IMAGE_NAME_DISP">Windowsサーバ_test</field>
+      <field name="OS">windows2008R1</field>
+      <field name="OS_DISP">WindowsServer2008R1_test</field>
+      <field name="SELECTABLE">true</field>
+      <field name="COMPONENT_TYPE_NOS"></field>
+      <field name="ZABBIX_TEMPLATE"></field>
+    </row>
+    <!-- vmware -->
+    <row>
+      <field name="IMAGE_NO">101</field>
+      <field name="PLATFORM_NO">4</field>
+      <field name="IMAGE_NAME">application</field>
+      <field name="IMAGE_NAME_DISP">アプリケーション開発基盤_test</field>
+      <field name="OS">centos55</field>
+      <field name="OS_DISP">CentOS 5.5_test</field>
+      <field name="SELECTABLE">true</field>
+      <field name="COMPONENT_TYPE_NOS">1\,2\,3\,4</field>
+      <field name="ZABBIX_TEMPLATE">Template_OS_Linux</field>
+    </row>
+    <row>
+      <field name="IMAGE_NO">103</field>
+      <field name="PLATFORM_NO">4</field>
+      <field name="IMAGE_NAME">ultramonkey</field>
+      <field name="IMAGE_NAME_DISP"></field>
+      <field name="OS">centos55</field>
+      <field name="OS_DISP">CentOS 5.5</field>
+      <field name="SELECTABLE">false</field>
+      <field name="COMPONENT_TYPE_NOS">5</field>
+      <field name="ZABBIX_TEMPLATE">Template_OS_Linux</field>
+    </row>
+    <row>
+      <field name="IMAGE_NO">111</field>
+      <field name="PLATFORM_NO">4</field>
+      <field name="IMAGE_NAME">windows</field>
+      <field name="IMAGE_NAME_DISP">Windowsサーバ_test</field>
+      <field name="OS">windows2008R2</field>
+      <field name="OS_DISP">WindowsServer2008R2_test</field>
+      <field name="SELECTABLE">true</field>
+      <field name="COMPONENT_TYPE_NOS"></field>
+      <field name="ZABBIX_TEMPLATE"></field>
+    </row>
+    <!-- nifty -->
+    <row>
+      <field name="IMAGE_NO">201</field>
+      <field name="PLATFORM_NO">5</field>
+      <field name="IMAGE_NAME">application</field>
+      <field name="IMAGE_NAME_DISP">アプリケーション開発基盤_test</field>
+      <field name="OS">centos53</field>
+      <field name="OS_DISP">CentOS 5.3_test</field>
+      <field name="SELECTABLE">true</field>
+      <field name="COMPONENT_TYPE_NOS">1\,2\,3\,4</field>
+      <field name="ZABBIX_TEMPLATE">Template_OS_Linux</field>
+    </row>
+    <row>
+      <field name="IMAGE_NO">203</field>
+      <field name="PLATFORM_NO">5</field>
+      <field name="IMAGE_NAME">ultramonkey</field>
+      <field name="IMAGE_NAME_DISP"></field>
+      <field name="OS">centos53</field>
+      <field name="OS_DISP">CentOS 5.3</field>
+      <field name="SELECTABLE">false</field>
+      <field name="COMPONENT_TYPE_NOS">5</field>
+      <field name="ZABBIX_TEMPLATE">Template_OS_Linux</field>
+    </row>
+    <!-- cloudstack -->
+    <row>
+      <field name="IMAGE_NO">601</field>
+      <field name="PLATFORM_NO">6</field>
+      <field name="IMAGE_NAME">ultramonkey</field>
+      <field name="IMAGE_NAME_DISP"></field>
+      <field name="OS">centos55</field>
+      <field name="OS_DISP">CentOS 5.5</field>
+      <field name="SELECTABLE">false</field>
+      <field name="COMPONENT_TYPE_NOS">5</field>
+      <field name="ZABBIX_TEMPLATE">Template_OS_Linux</field>
+    </row>
+    <row>
+      <field name="IMAGE_NO">701</field>
+      <field name="PLATFORM_NO">6</field>
+      <field name="IMAGE_NAME">application</field>
+      <field name="IMAGE_NAME_DISP">アプリケーション開発基盤_test</field>
+      <field name="OS">centos55</field>
+      <field name="OS_DISP">CentOS 5.5_test</field>
+      <field name="SELECTABLE">true</field>
+      <field name="COMPONENT_TYPE_NOS">1\,2\,3\,4</field>
+      <field name="ZABBIX_TEMPLATE">Template_OS_Linux</field>
+    </row>
+</ROOT>

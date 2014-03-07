@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="TemplateInstanceAws">
+
+	<typeAlias alias="TemplateInstanceAws" type="jp.primecloud.auto.entity.crud.TemplateInstanceAws" />
+
+	<resultMap id="templateInstanceAwsResultMap" class="TemplateInstanceAws">
+		<result property="templateInstanceNo" column="TEMPLATE_INSTANCE_NO" />
+		<result property="templateInstanceName" column="TEMPLATE_INSTANCE_NAME" nullValue="" />
+		<result property="templateNo" column="TEMPLATE_NO" />
+		<result property="platformNo" column="PLATFORM_NO" />
+		<result property="imageNo" column="IMAGE_NO" />
+		<result property="comment" column="COMMENT" nullValue="" />
+		<result property="instanceType" column="INSTANCE_TYPE" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.TEMPLATE_INSTANCE_NO as TEMPLATE_INSTANCE_NO,
+			t1.TEMPLATE_INSTANCE_NAME as TEMPLATE_INSTANCE_NAME,
+			t1.TEMPLATE_NO as TEMPLATE_NO,
+			t1.PLATFORM_NO as PLATFORM_NO,
+			t1.IMAGE_NO as IMAGE_NO,
+			t1.COMMENT as COMMENT,
+			t1.INSTANCE_TYPE as INSTANCE_TYPE
+		from
+			TEMPLATE_INSTANCE_AWS t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from TEMPLATE_INSTANCE_AWS t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="templateInstanceAwsResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.TEMPLATE_INSTANCE_NO = #templateInstanceNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="templateInstanceAwsResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readByTemplateNoAndTemplateInstanceName" parameterClass="java.util.Map" resultMap="templateInstanceAwsResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.TEMPLATE_NO = #templateNo# and
+			t1.TEMPLATE_INSTANCE_NAME = #templateInstanceName#
+		]]>
+	</select>
+
+	<select id="readByTemplateNo" parameterClass="java.util.Map" resultMap="templateInstanceAwsResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.TEMPLATE_NO = #templateNo#
+		]]>
+	</select>
+
+	<select id="readByPlatformNo" parameterClass="java.util.Map" resultMap="templateInstanceAwsResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="readByImageNo" parameterClass="java.util.Map" resultMap="templateInstanceAwsResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.IMAGE_NO = #imageNo#
+		]]>
+	</select>
+
+	<select id="readInTemplateInstanceNos" parameterClass="java.util.Map" resultMap="templateInstanceAwsResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.TEMPLATE_INSTANCE_NO in
+		]]>
+		<iterate property="templateInstanceNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#templateInstanceNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="TemplateInstanceAws">
+		<![CDATA[
+		insert into TEMPLATE_INSTANCE_AWS (
+			TEMPLATE_INSTANCE_NO,
+			TEMPLATE_INSTANCE_NAME,
+			TEMPLATE_NO,
+			PLATFORM_NO,
+			IMAGE_NO,
+			COMMENT,
+			INSTANCE_TYPE
+		) values (
+			#templateInstanceNo#,
+			#templateInstanceName#,
+			#templateNo#,
+			#platformNo#,
+			#imageNo#,
+			#comment#,
+			#instanceType#
+		)
+		]]>
+	</insert>
+
+	<insert id="createAuto" parameterClass="TemplateInstanceAws">
+		<![CDATA[
+		insert into TEMPLATE_INSTANCE_AWS (
+			TEMPLATE_INSTANCE_NO,
+			TEMPLATE_INSTANCE_NAME,
+			TEMPLATE_NO,
+			PLATFORM_NO,
+			IMAGE_NO,
+			COMMENT,
+			INSTANCE_TYPE
+		) values (
+			#templateInstanceNo#,
+			#templateInstanceName#,
+			#templateNo#,
+			#platformNo#,
+			#imageNo#,
+			#comment#,
+			#instanceType#
+		)
+		]]>
+		<selectKey keyProperty="templateInstanceNo" resultClass="java.lang.Long" type="post">
+		<![CDATA[
+			select last_insert_id()
+		]]>
+		</selectKey>
+	</insert>
+
+	<update id="update" parameterClass="TemplateInstanceAws">
+		<![CDATA[
+		update TEMPLATE_INSTANCE_AWS set
+			TEMPLATE_INSTANCE_NAME = #templateInstanceName#,
+			TEMPLATE_NO = #templateNo#,
+			PLATFORM_NO = #platformNo#,
+			IMAGE_NO = #imageNo#,
+			COMMENT = #comment#,
+			INSTANCE_TYPE = #instanceType#
+		where
+			TEMPLATE_INSTANCE_NO = #templateInstanceNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="TemplateInstanceAws">
+		<![CDATA[
+		delete from TEMPLATE_INSTANCE_AWS
+		where
+			TEMPLATE_INSTANCE_NO = #templateInstanceNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from TEMPLATE_INSTANCE_AWS
+		]]>
+	</delete>
+
+	<delete id="deleteByTemplateInstanceNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from TEMPLATE_INSTANCE_AWS
+		where
+			TEMPLATE_INSTANCE_NO = #templateInstanceNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByTemplateNoAndTemplateInstanceName" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from TEMPLATE_INSTANCE_AWS
+		where
+			TEMPLATE_NO = #templateNo# and
+			TEMPLATE_INSTANCE_NAME = #templateInstanceName#
+		]]>
+	</delete>
+
+	<delete id="deleteByTemplateNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from TEMPLATE_INSTANCE_AWS
+		where
+			TEMPLATE_NO = #templateNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByPlatformNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from TEMPLATE_INSTANCE_AWS
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByImageNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from TEMPLATE_INSTANCE_AWS
+		where
+			IMAGE_NO = #imageNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByTemplateInstanceNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			TEMPLATE_INSTANCE_NO = #templateInstanceNo#
+		]]>
+	</select>
+
+	<select id="countByTemplateNoAndTemplateInstanceName" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			TEMPLATE_NO = #templateNo# and
+			TEMPLATE_INSTANCE_NAME = #templateInstanceName#
+		]]>
+	</select>
+
+	<select id="countByTemplateNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			TEMPLATE_NO = #templateNo#
+		]]>
+	</select>
+
+	<select id="countByPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="countByImageNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			IMAGE_NO = #imageNo#
+		]]>
+	</select>
+
+</sqlMap>

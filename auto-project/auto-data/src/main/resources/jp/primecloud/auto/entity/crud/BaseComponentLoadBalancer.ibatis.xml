@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap      
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ComponentLoadBalancer">
+
+	<typeAlias alias="ComponentLoadBalancer" type="jp.primecloud.auto.entity.crud.ComponentLoadBalancer" />
+
+	<resultMap id="componentLoadBalancerResultMap" class="ComponentLoadBalancer">
+		<result property="loadBalancerNo" column="LOAD_BALANCER_NO" />
+		<result property="componentNo" column="COMPONENT_NO" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.LOAD_BALANCER_NO as LOAD_BALANCER_NO, 
+			t1.COMPONENT_NO as COMPONENT_NO
+		from
+			COMPONENT_LOAD_BALANCER t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from COMPONENT_LOAD_BALANCER t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="componentLoadBalancerResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="componentLoadBalancerResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readByComponentNo" parameterClass="java.util.Map" resultMap="componentLoadBalancerResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.COMPONENT_NO = #componentNo#
+		]]>
+	</select>
+
+	<select id="readInLoadBalancerNos" parameterClass="java.util.Map" resultMap="componentLoadBalancerResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.LOAD_BALANCER_NO in
+		]]>
+		<iterate property="loadBalancerNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#loadBalancerNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="ComponentLoadBalancer">
+		<![CDATA[
+		insert into COMPONENT_LOAD_BALANCER (
+			LOAD_BALANCER_NO, 
+			COMPONENT_NO
+		) values (
+			#loadBalancerNo#, 
+			#componentNo#
+		)
+		]]>
+	</insert>
+
+	<update id="update" parameterClass="ComponentLoadBalancer">
+		<![CDATA[
+		update COMPONENT_LOAD_BALANCER set
+			COMPONENT_NO = #componentNo#
+		where
+			LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="ComponentLoadBalancer">
+		<![CDATA[
+		delete from COMPONENT_LOAD_BALANCER
+		where
+			LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from COMPONENT_LOAD_BALANCER
+		]]>
+	</delete>
+
+	<delete id="deleteByLoadBalancerNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from COMPONENT_LOAD_BALANCER
+		where
+			LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByComponentNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from COMPONENT_LOAD_BALANCER
+		where
+			COMPONENT_NO = #componentNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByLoadBalancerNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</select>
+
+	<select id="countByComponentNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			COMPONENT_NO = #componentNo#
+		]]>
+	</select>
+
+</sqlMap>

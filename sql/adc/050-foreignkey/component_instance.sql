@@ -1,0 +1,2 @@
+alter table COMPONENT_INSTANCE add constraint COMPONENT_INSTANCE_FK1 foreign key (COMPONENT_NO) references COMPONENT (COMPONENT_NO);
+alter table COMPONENT_INSTANCE add constraint COMPONENT_INSTANCE_FK2 foreign key (INSTANCE_NO) references INSTANCE (INSTANCE_NO);

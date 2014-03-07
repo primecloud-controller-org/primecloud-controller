@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="NiftyCertificate">
+
+	<typeAlias alias="NiftyCertificate" type="jp.primecloud.auto.entity.crud.NiftyCertificate" />
+
+	<resultMap id="niftyCertificateResultMap" class="NiftyCertificate">
+		<result property="userNo" column="USER_NO" />
+		<result property="platformNo" column="PLATFORM_NO" />
+		<result property="certificate" column="CERTIFICATE" nullValue="" />
+		<result property="privateKey" column="PRIVATE_KEY" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.USER_NO as USER_NO,
+			t1.PLATFORM_NO as PLATFORM_NO,
+			t1.CERTIFICATE as CERTIFICATE,
+			t1.PRIVATE_KEY as PRIVATE_KEY
+		from
+			NIFTY_CERTIFICATE t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from NIFTY_CERTIFICATE t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="niftyCertificateResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.USER_NO = #userNo# and
+			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="niftyCertificateResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readByUserNo" parameterClass="java.util.Map" resultMap="niftyCertificateResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.USER_NO = #userNo#
+		]]>
+	</select>
+
+	<select id="readByPlatformNo" parameterClass="java.util.Map" resultMap="niftyCertificateResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="readInUserNos" parameterClass="java.util.Map" resultMap="niftyCertificateResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.USER_NO in
+		]]>
+		<iterate property="userNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#userNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<select id="readInPlatformNos" parameterClass="java.util.Map" resultMap="niftyCertificateResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO in
+		]]>
+		<iterate property="platformNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#platformNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="NiftyCertificate">
+		<![CDATA[
+		insert into NIFTY_CERTIFICATE (
+			USER_NO,
+			PLATFORM_NO,
+			CERTIFICATE,
+			PRIVATE_KEY
+		) values (
+			#userNo#,
+			#platformNo#,
+			#certificate#,
+			#privateKey#
+		)
+		]]>
+	</insert>
+
+	<update id="update" parameterClass="NiftyCertificate">
+		<![CDATA[
+		update NIFTY_CERTIFICATE set
+			CERTIFICATE = #certificate#,
+			PRIVATE_KEY = #privateKey#
+		where
+			USER_NO = #userNo# and
+			PLATFORM_NO = #platformNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="NiftyCertificate">
+		<![CDATA[
+		delete from NIFTY_CERTIFICATE
+		where
+			USER_NO = #userNo# and
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from NIFTY_CERTIFICATE
+		]]>
+	</delete>
+
+	<delete id="deleteByUserNoAndPlatformNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from NIFTY_CERTIFICATE
+		where
+			USER_NO = #userNo# and
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByUserNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from NIFTY_CERTIFICATE
+		where
+			USER_NO = #userNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByPlatformNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from NIFTY_CERTIFICATE
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByUserNoAndPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			USER_NO = #userNo# and
+			PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="countByUserNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			USER_NO = #userNo#
+		]]>
+	</select>
+
+	<select id="countByPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+</sqlMap>

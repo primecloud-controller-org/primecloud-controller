@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap      
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ComponentInstance">
+
+	<typeAlias alias="ComponentInstance" type="jp.primecloud.auto.entity.crud.ComponentInstance" />
+
+	<resultMap id="componentInstanceResultMap" class="ComponentInstance">
+		<result property="componentNo" column="COMPONENT_NO" />
+		<result property="instanceNo" column="INSTANCE_NO" />
+		<result property="associate" column="ASSOCIATE" />
+		<result property="enabled" column="ENABLED" />
+		<result property="status" column="STATUS" nullValue="" />
+		<result property="configure" column="CONFIGURE" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.COMPONENT_NO as COMPONENT_NO, 
+			t1.INSTANCE_NO as INSTANCE_NO, 
+			t1.ASSOCIATE as ASSOCIATE, 
+			t1.ENABLED as ENABLED, 
+			t1.STATUS as STATUS, 
+			t1.CONFIGURE as CONFIGURE
+		from
+			COMPONENT_INSTANCE t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from COMPONENT_INSTANCE t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="componentInstanceResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.COMPONENT_NO = #componentNo# and
+			t1.INSTANCE_NO = #instanceNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="componentInstanceResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readByComponentNo" parameterClass="java.util.Map" resultMap="componentInstanceResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.COMPONENT_NO = #componentNo#
+		]]>
+	</select>
+
+	<select id="readByInstanceNo" parameterClass="java.util.Map" resultMap="componentInstanceResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.INSTANCE_NO = #instanceNo#
+		]]>
+	</select>
+
+	<select id="readInComponentNos" parameterClass="java.util.Map" resultMap="componentInstanceResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.COMPONENT_NO in
+		]]>
+		<iterate property="componentNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#componentNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<select id="readInInstanceNos" parameterClass="java.util.Map" resultMap="componentInstanceResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.INSTANCE_NO in
+		]]>
+		<iterate property="instanceNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#instanceNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="ComponentInstance">
+		<![CDATA[
+		insert into COMPONENT_INSTANCE (
+			COMPONENT_NO, 
+			INSTANCE_NO, 
+			ASSOCIATE, 
+			ENABLED, 
+			STATUS, 
+			CONFIGURE
+		) values (
+			#componentNo#, 
+			#instanceNo#, 
+			#associate#, 
+			#enabled#, 
+			#status#, 
+			#configure#
+		)
+		]]>
+	</insert>
+
+	<update id="update" parameterClass="ComponentInstance">
+		<![CDATA[
+		update COMPONENT_INSTANCE set
+			ASSOCIATE = #associate#, 
+			ENABLED = #enabled#, 
+			STATUS = #status#, 
+			CONFIGURE = #configure#
+		where
+			COMPONENT_NO = #componentNo# and 
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="ComponentInstance">
+		<![CDATA[
+		delete from COMPONENT_INSTANCE
+		where
+			COMPONENT_NO = #componentNo# and 
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from COMPONENT_INSTANCE
+		]]>
+	</delete>
+
+	<delete id="deleteByComponentNoAndInstanceNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from COMPONENT_INSTANCE
+		where
+			COMPONENT_NO = #componentNo# and
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByComponentNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from COMPONENT_INSTANCE
+		where
+			COMPONENT_NO = #componentNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByInstanceNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from COMPONENT_INSTANCE
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByComponentNoAndInstanceNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			COMPONENT_NO = #componentNo# and
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</select>
+
+	<select id="countByComponentNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			COMPONENT_NO = #componentNo#
+		]]>
+	</select>
+
+	<select id="countByInstanceNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</select>
+
+</sqlMap>

@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Component">
+
+	<typeAlias alias="Component" type="jp.primecloud.auto.entity.crud.Component" />
+
+	<resultMap id="componentResultMap" class="Component">
+		<result property="componentNo" column="COMPONENT_NO" />
+		<result property="farmNo" column="FARM_NO" />
+		<result property="componentName" column="COMPONENT_NAME" nullValue="" />
+		<result property="componentTypeNo" column="COMPONENT_TYPE_NO" />
+		<result property="comment" column="COMMENT" nullValue="" />
+		<result property="loadBalancer" column="LOAD_BALANCER" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.COMPONENT_NO as COMPONENT_NO,
+			t1.FARM_NO as FARM_NO,
+			t1.COMPONENT_NAME as COMPONENT_NAME,
+			t1.COMPONENT_TYPE_NO as COMPONENT_TYPE_NO,
+			t1.COMMENT as COMMENT,
+			t1.LOAD_BALANCER as LOAD_BALANCER
+		from
+			COMPONENT t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from COMPONENT t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="componentResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.COMPONENT_NO = #componentNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="componentResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readByFarmNoAndComponentName" parameterClass="java.util.Map" resultMap="componentResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.FARM_NO = #farmNo# and
+			t1.COMPONENT_NAME = #componentName#
+		]]>
+	</select>
+
+	<select id="readByFarmNo" parameterClass="java.util.Map" resultMap="componentResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.FARM_NO = #farmNo#
+		]]>
+	</select>
+
+	<select id="readByComponentTypeNo" parameterClass="java.util.Map" resultMap="componentResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.COMPONENT_TYPE_NO = #componentTypeNo#
+		]]>
+	</select>
+
+	<select id="readInComponentNos" parameterClass="java.util.Map" resultMap="componentResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.COMPONENT_NO in
+		]]>
+		<iterate property="componentNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#componentNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="Component">
+		<![CDATA[
+		insert into COMPONENT (
+			COMPONENT_NO,
+			FARM_NO,
+			COMPONENT_NAME,
+			COMPONENT_TYPE_NO,
+			COMMENT,
+			LOAD_BALANCER
+		) values (
+			#componentNo#,
+			#farmNo#,
+			#componentName#,
+			#componentTypeNo#,
+			#comment#,
+			#loadBalancer#
+		)
+		]]>
+	</insert>
+
+	<insert id="createAuto" parameterClass="Component">
+		<![CDATA[
+		insert into COMPONENT (
+			COMPONENT_NO,
+			FARM_NO,
+			COMPONENT_NAME,
+			COMPONENT_TYPE_NO,
+			COMMENT,
+			LOAD_BALANCER
+		) values (
+			#componentNo#,
+			#farmNo#,
+			#componentName#,
+			#componentTypeNo#,
+			#comment#,
+			#loadBalancer#
+		)
+		]]>
+		<selectKey keyProperty="componentNo" resultClass="java.lang.Long" type="post">
+		<![CDATA[
+			select last_insert_id()
+		]]>
+		</selectKey>
+	</insert>
+
+	<update id="update" parameterClass="Component">
+		<![CDATA[
+		update COMPONENT set
+			FARM_NO = #farmNo#,
+			COMPONENT_NAME = #componentName#,
+			COMPONENT_TYPE_NO = #componentTypeNo#,
+			COMMENT = #comment#,
+			LOAD_BALANCER = #loadBalancer#
+		where
+			COMPONENT_NO = #componentNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="Component">
+		<![CDATA[
+		delete from COMPONENT
+		where
+			COMPONENT_NO = #componentNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from COMPONENT
+		]]>
+	</delete>
+
+	<delete id="deleteByComponentNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from COMPONENT
+		where
+			COMPONENT_NO = #componentNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByFarmNoAndComponentName" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from COMPONENT
+		where
+			FARM_NO = #farmNo# and
+			COMPONENT_NAME = #componentName#
+		]]>
+	</delete>
+
+	<delete id="deleteByFarmNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from COMPONENT
+		where
+			FARM_NO = #farmNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByComponentTypeNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from COMPONENT
+		where
+			COMPONENT_TYPE_NO = #componentTypeNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByComponentNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			COMPONENT_NO = #componentNo#
+		]]>
+	</select>
+
+	<select id="countByFarmNoAndComponentName" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			FARM_NO = #farmNo# and
+			COMPONENT_NAME = #componentName#
+		]]>
+	</select>
+
+	<select id="countByFarmNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			FARM_NO = #farmNo#
+		]]>
+	</select>
+
+	<select id="countByComponentTypeNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			COMPONENT_TYPE_NO = #componentTypeNo#
+		]]>
+	</select>
+
+</sqlMap>

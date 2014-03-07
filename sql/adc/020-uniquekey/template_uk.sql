@@ -1,0 +1,1 @@
+alter table TEMPLATE add constraint TEMPLATE_UK1 unique (TEMPLATE_NAME);

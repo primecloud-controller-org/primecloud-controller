@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap      
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="LoadBalancerListener">
+
+	<typeAlias alias="LoadBalancerListener" type="jp.primecloud.auto.entity.crud.LoadBalancerListener" />
+
+	<resultMap id="loadBalancerListenerResultMap" class="LoadBalancerListener">
+		<result property="loadBalancerNo" column="LOAD_BALANCER_NO" />
+		<result property="loadBalancerPort" column="LOAD_BALANCER_PORT" />
+		<result property="servicePort" column="SERVICE_PORT" />
+		<result property="protocol" column="PROTOCOL" nullValue="" />
+		<result property="sslKeyNo" column="SSL_KEY_NO" />
+		<result property="enabled" column="ENABLED" />
+		<result property="status" column="STATUS" nullValue="" />
+		<result property="configure" column="CONFIGURE" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.LOAD_BALANCER_NO as LOAD_BALANCER_NO, 
+			t1.LOAD_BALANCER_PORT as LOAD_BALANCER_PORT, 
+			t1.SERVICE_PORT as SERVICE_PORT, 
+			t1.PROTOCOL as PROTOCOL, 
+			t1.SSL_KEY_NO as SSL_KEY_NO,
+			t1.ENABLED as ENABLED, 
+			t1.STATUS as STATUS, 
+			t1.CONFIGURE as CONFIGURE
+		from
+			LOAD_BALANCER_LISTENER t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from LOAD_BALANCER_LISTENER t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="loadBalancerListenerResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.LOAD_BALANCER_NO = #loadBalancerNo# and
+			t1.LOAD_BALANCER_PORT = #loadBalancerPort#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="loadBalancerListenerResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readByLoadBalancerNo" parameterClass="java.util.Map" resultMap="loadBalancerListenerResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</select>
+
+	<select id="readInLoadBalancerNos" parameterClass="java.util.Map" resultMap="loadBalancerListenerResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.LOAD_BALANCER_NO in
+		]]>
+		<iterate property="loadBalancerNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#loadBalancerNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<select id="readInLoadBalancerPorts" parameterClass="java.util.Map" resultMap="loadBalancerListenerResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.LOAD_BALANCER_PORT in
+		]]>
+		<iterate property="loadBalancerPorts" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#loadBalancerPorts[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="LoadBalancerListener">
+		<![CDATA[
+		insert into LOAD_BALANCER_LISTENER (
+			LOAD_BALANCER_NO, 
+			LOAD_BALANCER_PORT, 
+			SERVICE_PORT, 
+			PROTOCOL, 
+			SSL_KEY_NO,
+			ENABLED, 
+			STATUS, 
+			CONFIGURE
+		) values (
+			#loadBalancerNo#, 
+			#loadBalancerPort#, 
+			#servicePort#, 
+			#protocol#, 
+			#sslKeyNo#,
+			#enabled#, 
+			#status#, 
+			#configure#
+		)
+		]]>
+	</insert>
+
+	<update id="update" parameterClass="LoadBalancerListener">
+		<![CDATA[
+		update LOAD_BALANCER_LISTENER set
+			SERVICE_PORT = #servicePort#, 
+			PROTOCOL = #protocol#, 
+			SSL_KEY_NO = #sslKeyNo#,
+			ENABLED = #enabled#, 
+			STATUS = #status#, 
+			CONFIGURE = #configure#
+		where
+			LOAD_BALANCER_NO = #loadBalancerNo# and 
+			LOAD_BALANCER_PORT = #loadBalancerPort#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="LoadBalancerListener">
+		<![CDATA[
+		delete from LOAD_BALANCER_LISTENER
+		where
+			LOAD_BALANCER_NO = #loadBalancerNo# and 
+			LOAD_BALANCER_PORT = #loadBalancerPort#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from LOAD_BALANCER_LISTENER
+		]]>
+	</delete>
+
+	<delete id="deleteByLoadBalancerNoAndLoadBalancerPort" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from LOAD_BALANCER_LISTENER
+		where
+			LOAD_BALANCER_NO = #loadBalancerNo# and
+			LOAD_BALANCER_PORT = #loadBalancerPort#
+		]]>
+	</delete>
+
+	<delete id="deleteByLoadBalancerNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from LOAD_BALANCER_LISTENER
+		where
+			LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByLoadBalancerNoAndLoadBalancerPort" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			LOAD_BALANCER_NO = #loadBalancerNo# and
+			LOAD_BALANCER_PORT = #loadBalancerPort#
+		]]>
+	</select>
+
+	<select id="countByLoadBalancerNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</select>
+
+</sqlMap>

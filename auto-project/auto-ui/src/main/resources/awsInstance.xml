@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ROOT SYSTEM "farm.dtd">
+<ROOT>
+    <row>
+      <field name="INSTANCE_NO">1</field>
+      <field name="KEY_NAME">key02</field>
+      <field name="INSTANCE_TYPE">m1.large</field>
+      <field name="SECURITY_GROUPS">default</field>
+      <field name="AVAILABILITY_ZONE">cluster01</field>
+      <field name="SUBNET_ID"></field>
+      <field name="INSTANCE_ID"></field>
+      <field name="STATUS">terminated</field>
+      <field name="DNS_NAME"></field>
+      <field name="PRIVATE_DNS_NAME"></field>
+      <field name="IP_ADDRESS"></field>
+      <field name="PRIVATE_IP_ADDRESS"></field>
+    </row>
+    <row>
+      <field name="INSTANCE_NO">4</field>
+      <field name="KEY_NAME">key01</field>
+      <field name="INSTANCE_TYPE">m1.large</field>
+      <field name="SECURITY_GROUPS">default</field>
+      <field name="AVAILABILITY_ZONE">cluster01</field>
+      <field name="SUBNET_ID"></field>
+      <field name="INSTANCE_ID">i-123456</field>
+      <field name="STATUS">terminated</field>
+      <field name="DNS_NAME">172.22.10.103</field>
+      <field name="PRIVATE_DNS_NAME">10.10.174.196</field>
+      <field name="IP_ADDRESS"></field>
+      <field name="PRIVATE_IP_ADDRESS"></field>
+    </row>
+    <!--
+    <row>
+      <field name="INSTANCE_NO">5</field>
+      <field name="KEY_NAME">key01</field>
+      <field name="INSTANCE_TYPE">m1.large</field>
+      <field name="SECURITY_GROUPS">default</field>
+      <field name="AVAILABILITY_ZONE">cluster01</field>
+      <field name="SUBNET_ID"></field>
+      <field name="INSTANCE_ID">i-463F0798</field>
+      <field name="STATUS">running</field>
+      <field name="DNS_NAME">172.22.10.109</field>
+      <field name="PRIVATE_DNS_NAME">10.10.174.195</field>
+      <field name="IP_ADDRESS"></field>
+      <field name="PRIVATE_IP_ADDRESS"></field>
+    </row>
+    -->
+    <row>
+      <field name="INSTANCE_NO">6</field>
+      <field name="KEY_NAME">key01</field>
+      <field name="INSTANCE_TYPE">m1.large</field>
+      <field name="SECURITY_GROUPS">default</field>
+      <field name="AVAILABILITY_ZONE">cluster01</field>
+      <field name="SUBNET_ID"></field>
+      <field name="INSTANCE_ID">i-3D03074F</field>
+      <field name="STATUS">running</field>
+      <field name="DNS_NAME">172.22.10.108</field>
+      <field name="PRIVATE_DNS_NAME">10.10.174.194</field>
+      <field name="IP_ADDRESS"></field>
+      <field name="PRIVATE_IP_ADDRESS"></field>
+    </row>
+    <row>
+      <field name="INSTANCE_NO">7</field>
+      <field name="KEY_NAME">key01</field>
+      <field name="INSTANCE_TYPE">m1.large</field>
+      <field name="SECURITY_GROUPS">default</field>
+      <field name="AVAILABILITY_ZONE">cluster01</field>
+      <field name="SUBNET_ID"></field>
+      <field name="INSTANCE_ID">i-3ED5082C</field>
+      <field name="STATUS">running</field>
+      <field name="DNS_NAME">172.22.10.111</field>
+      <field name="PRIVATE_DNS_NAME">10.10.174.197</field>
+      <field name="IP_ADDRESS"></field>
+      <field name="PRIVATE_IP_ADDRESS"></field>
+    </row>
+    <row>
+      <field name="INSTANCE_NO">15</field>
+      <field name="KEY_NAME">key01</field>
+      <field name="INSTANCE_TYPE">m1.large</field>
+      <field name="SECURITY_GROUPS">default</field>
+      <field name="AVAILABILITY_ZONE">cluster01</field>
+      <field name="SUBNET_ID"></field>
+      <field name="INSTANCE_ID">i-3ED5082C</field>
+      <field name="STATUS">running</field>
+      <field name="DNS_NAME">172.22.10.111</field>
+      <field name="PRIVATE_DNS_NAME">10.10.174.197</field>
+      <field name="IP_ADDRESS"></field>
+      <field name="PRIVATE_IP_ADDRESS"></field>
+    </row>
+</ROOT>

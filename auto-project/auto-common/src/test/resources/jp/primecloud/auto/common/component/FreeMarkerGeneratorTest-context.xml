@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd"
+	default-autowire="autodetect">
+
+	<bean class="jp.primecloud.auto.common.component.FreeMarkerGenerator" />
+
+	<bean class="org.springframework.ui.freemarker.FreeMarkerConfigurationFactoryBean">
+		<property name="defaultEncoding" value="UTF-8" />
+		<property name="templateLoaderPath"
+			value="file:target/test-classes/jp/primecloud/auto/common/component" />
+		<property name="freemarkerSettings">
+			<props>
+				<prop key="number_format">computer</prop>
+			</props>
+		</property>
+	</bean>
+
+</beans>

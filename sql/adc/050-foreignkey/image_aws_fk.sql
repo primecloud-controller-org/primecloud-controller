@@ -1,0 +1,1 @@
+alter table IMAGE_AWS add constraint IMAGE_AWS_FK1 foreign key (IMAGE_NO) references IMAGE (IMAGE_NO);

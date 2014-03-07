@@ -1,0 +1,26 @@
+
+# = GLOBAL DIRECTIVES
+
+# - Monitor Settings
+checktimeout     = 5
+negotiatetimeout = 5
+checkinterval    = 10
+retryinterval    = 5
+checkcount       = 3
+
+# - Logging
+logfile          = /var/log/l7vs/l7directord.log
+#logfile          = local0
+#supervised
+
+# - Real Server Operation
+quiescent        = yes
+#fallback         = 127.0.0.1:80
+
+# - Monitor Configuration File
+configinterval   = 10
+autoreload       = no
+#callback         = /opt/config_change.sh
+
+# = VIRTUAL DIRECTIVES
+

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Template">
+
+	<typeAlias alias="Template" type="jp.primecloud.auto.entity.crud.Template" />
+
+	<resultMap id="templateResultMap" class="Template">
+		<result property="templateNo" column="TEMPLATE_NO" />
+		<result property="templateName" column="TEMPLATE_NAME" nullValue="" />
+		<result property="templateNameDisp" column="TEMPLATE_NAME_DISP" nullValue="" />
+		<result property="templateDescriptionDisp" column="TEMPLATE_DESCRIPTION_DISP" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.TEMPLATE_NO as TEMPLATE_NO,
+			t1.TEMPLATE_NAME as TEMPLATE_NAME,
+			t1.TEMPLATE_NAME_DISP as TEMPLATE_NAME_DISP,
+			t1.TEMPLATE_DESCRIPTION_DISP as TEMPLATE_DESCRIPTION_DISP
+		from
+			TEMPLATE t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from TEMPLATE t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="templateResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.TEMPLATE_NO = #templateNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="templateResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readInTemplateNos" parameterClass="java.util.Map" resultMap="templateResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.TEMPLATE_NO in
+		]]>
+		<iterate property="templateNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#templateNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="Template">
+		<![CDATA[
+		insert into TEMPLATE (
+			TEMPLATE_NO,
+			TEMPLATE_NAME,
+			TEMPLATE_NAME_DISP,
+			TEMPLATE_DESCRIPTION_DISP
+		) values (
+			#templateNo#,
+			#templateName#,
+			#templateNameDisp#,
+			#templateDescriptionDisp#
+		)
+		]]>
+	</insert>
+
+	<insert id="createAuto" parameterClass="Template">
+		<![CDATA[
+		insert into TEMPLATE (
+			TEMPLATE_NO,
+			TEMPLATE_NAME,
+			TEMPLATE_NAME_DISP,
+			TEMPLATE_DESCRIPTION_DISP
+		) values (
+			#templateNo#,
+			#templateName#,
+			#templateNameDisp#,
+			#templateDescriptionDisp#
+		)
+		]]>
+		<selectKey keyProperty="templateNo" resultClass="java.lang.Long" type="post">
+		<![CDATA[
+			select last_insert_id()
+		]]>
+		</selectKey>
+	</insert>
+
+	<update id="update" parameterClass="Template">
+		<![CDATA[
+		update TEMPLATE set
+			TEMPLATE_NAME = #templateName#,
+			TEMPLATE_NAME_DISP = #templateNameDisp#,
+			TEMPLATE_DESCRIPTION_DISP = #templateDescriptionDisp#
+		where
+			TEMPLATE_NO = #templateNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="Template">
+		<![CDATA[
+		delete from TEMPLATE
+		where
+			TEMPLATE_NO = #templateNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from TEMPLATE
+		]]>
+	</delete>
+
+	<delete id="deleteByTemplateNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from TEMPLATE
+		where
+			TEMPLATE_NO = #templateNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByTemplateNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			TEMPLATE_NO = #templateNo#
+		]]>
+	</select>
+
+</sqlMap>

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ZabbixData">
+
+	<typeAlias alias="ZabbixData" type="jp.primecloud.auto.entity.crud.ZabbixData" />
+
+	<resultMap id="zabbixDataResultMap" class="ZabbixData">
+		<result property="instanceNo" column="INSTANCE_NO" />
+		<result property="hostid" column="HOSTID" nullValue="" />
+		<result property="idleTime" column="IDLE_TIME" />
+		<result property="firstClock" column="FIRST_CLOCK" />
+		<result property="lastClock" column="LAST_CLOCK" />
+		<result property="continueClock" column="CONTINUE_CLOCK" />
+		<result property="alart" column="ALART" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.INSTANCE_NO as INSTANCE_NO,
+			t1.HOSTID as HOSTID,
+			t1.IDLE_TIME as IDLE_TIME,
+			t1.FIRST_CLOCK as FIRST_CLOCK,
+			t1.LAST_CLOCK as LAST_CLOCK,
+			t1.CONTINUE_CLOCK as CONTINUE_CLOCK,
+			t1.ALART as ALART
+		from
+			ZABBIX_DATA t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from ZABBIX_DATA t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="zabbixDataResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.INSTANCE_NO = #instanceNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="zabbixDataResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readInInstanceNos" parameterClass="java.util.Map" resultMap="zabbixDataResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.INSTANCE_NO in
+		]]>
+		<iterate property="instanceNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#instanceNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="ZabbixData">
+		<![CDATA[
+		insert into ZABBIX_DATA (
+			INSTANCE_NO,
+			HOSTID,
+			IDLE_TIME,
+			FIRST_CLOCK,
+			LAST_CLOCK,
+			CONTINUE_CLOCK,
+			ALART
+		) values (
+			#instanceNo#,
+			#hostid#,
+			#idleTime#,
+			#firstClock#,
+			#lastClock#,
+			#continueClock#,
+			#alart#
+		)
+		]]>
+	</insert>
+
+	<update id="update" parameterClass="ZabbixData">
+		<![CDATA[
+		update ZABBIX_DATA set
+			HOSTID = #hostid#,
+			IDLE_TIME = #idleTime#,
+			FIRST_CLOCK = #firstClock#,
+			LAST_CLOCK = #lastClock#,
+			CONTINUE_CLOCK = #continueClock#,
+			ALART = #alart#
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="ZabbixData">
+		<![CDATA[
+		delete from ZABBIX_DATA
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from ZABBIX_DATA
+		]]>
+	</delete>
+
+	<delete id="deleteByInstanceNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from ZABBIX_DATA
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByInstanceNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</select>
+
+</sqlMap>

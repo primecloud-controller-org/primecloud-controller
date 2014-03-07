@@ -1,0 +1,15 @@
+<Location <%= location %> >
+    ProxyPass balancer://<%= target %> nofailover=Off stickysession=JSESSIONID
+</Location>
+
+<Proxy balancer://<%= target %> >
+  <%- apservers.each do |apserver| -%>
+  <%-
+      array = apserver.split(",")
+      host = array[0]
+      ip = array[1]
+      port = array[2]
+  -%>
+    BalancerMember ajp://<%= ip %>:<%= port %>/<%= target %> loadfactor=10 disablereuse=On route=<%= host %>
+  <%- end -%>
+</Proxy>

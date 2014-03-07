@@ -1,0 +1,1 @@
+alter table IMAGE_NIFTY add constraint IMAGE_NIFTY_FK1 foreign key (IMAGE_NO) references IMAGE (IMAGE_NO);

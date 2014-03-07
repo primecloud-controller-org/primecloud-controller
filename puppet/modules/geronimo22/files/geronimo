@@ -1,0 +1,101 @@
+#!/bin/sh
+#
+# geronimo    Apache Geronimo
+#
+# chkconfig: 2345 80 20
+# description: Apache Geronimo
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+[ -f /etc/sysconfig/geronimo ] && . /etc/sysconfig/geronimo
+
+RETVAL=0
+EXECUTE_USER=geronimo
+GERONIMO_PID="/var/run/geronimo/geronimo.pid"
+
+# startup
+startup() {
+    if status -p $GERONIMO_PID > /dev/null; then
+        echo -n $"geronimo: already running"
+        failure
+        echo
+        return 1
+    fi
+
+    export JAVA_HOME=$JAVA_HOME
+    export GERONIMO_OPTS=$GERONIMO_OPTS
+    export GERONIMO_PID=$GERONIMO_PID
+
+    $GERONIMO_HOME/bin/startup.sh
+    RETVAL=$? 
+
+    if [ $RETVAL != 0 ]; then
+        return $RETVAL
+    fi
+
+    $GERONIMO_HOME/bin/gsh -c "geronimo/wait-for-server -t 180 -u $GERONIMO_USER -w $GERONIMO_PASSWORD"
+    RETVAL=$?
+
+    return $RETVAL
+}
+
+
+# shutdown
+shutdown() {
+    export JAVA_HOME=$JAVA_HOME
+    export GERONIMO_PID=$GERONIMO_PID
+    
+    $GERONIMO_HOME/bin/shutdown.sh --user $GERONIMO_USER --password $GERONIMO_PASSWORD
+    RETVAL=$?
+
+    if [ -e "$GERONIMO_PID" ]; then
+        PID=`cat $GERONIMO_PID`
+        if [ -n "`ps -e | grep $PID`" ]; then
+            kill -9 $PID
+        fi
+        rm -f $GERONIMO_PID
+    fi
+    return $RETVAL
+}
+
+
+# switch user
+if [ -z $USER ] || [ $USER = root ]; then
+    SCRIPT=$(cd $(dirname "$0") && pwd)/$(basename "$0")
+    COMMAND="$SCRIPT $@"
+    su -s /bin/bash - $EXECUTE_USER -c "$COMMAND"
+    RETVAL=$?
+    exit $RETVAL
+
+elif [ $USER != $EXECUTE_USER ]; then
+    echo "This script must be executed by 'root' or '$EXECUTE_USER'."
+    exit 1
+
+fi
+
+
+# check args
+case "$1" in
+    start)
+        startup
+        ;;
+    stop)
+        shutdown
+        ;;
+    restart)
+        shutdown
+        startup
+        ;;
+    status)
+        status -p $GERONIMO_PID
+        RETVAL=$?
+        ;;
+  *)
+        echo $"Usage: $prog {start|stop|restart|status}"
+        exit 1
+esac
+
+exit $RETVAL
+
+

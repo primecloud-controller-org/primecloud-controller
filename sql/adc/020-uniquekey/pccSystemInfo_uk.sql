@@ -1,0 +1,1 @@
+alter table PCC_SYSTEM_INFO add constraint PCC_SYSTEM_INFO_UK1 unique (SECRET_KEY);

@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap      
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Farm">
+
+	<typeAlias alias="Farm" type="jp.primecloud.auto.entity.crud.Farm" />
+
+	<resultMap id="farmResultMap" class="Farm">
+		<result property="farmNo" column="FARM_NO" />
+		<result property="userNo" column="USER_NO" />
+		<result property="farmName" column="FARM_NAME" nullValue="" />
+		<result property="comment" column="COMMENT" nullValue="" />
+		<result property="domainName" column="DOMAIN_NAME" nullValue="" />
+		<result property="scheduled" column="SCHEDULED" />
+		<result property="componentProcessing" column="COMPONENT_PROCESSING" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.FARM_NO as FARM_NO, 
+			t1.USER_NO as USER_NO, 
+			t1.FARM_NAME as FARM_NAME, 
+			t1.COMMENT as COMMENT, 
+			t1.DOMAIN_NAME as DOMAIN_NAME, 
+			t1.SCHEDULED as SCHEDULED, 
+			t1.COMPONENT_PROCESSING as COMPONENT_PROCESSING
+		from
+			FARM t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from FARM t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="farmResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.FARM_NO = #farmNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="farmResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readByFarmName" parameterClass="java.util.Map" resultMap="farmResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.FARM_NAME = #farmName#
+		]]>
+	</select>
+
+	<select id="readByUserNo" parameterClass="java.util.Map" resultMap="farmResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.USER_NO = #userNo#
+		]]>
+	</select>
+
+	<select id="readInFarmNos" parameterClass="java.util.Map" resultMap="farmResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.FARM_NO in
+		]]>
+		<iterate property="farmNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#farmNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="Farm">
+		<![CDATA[
+		insert into FARM (
+			FARM_NO, 
+			USER_NO, 
+			FARM_NAME, 
+			COMMENT, 
+			DOMAIN_NAME, 
+			SCHEDULED, 
+			COMPONENT_PROCESSING
+		) values (
+			#farmNo#, 
+			#userNo#, 
+			#farmName#, 
+			#comment#, 
+			#domainName#, 
+			#scheduled#, 
+			#componentProcessing#
+		)
+		]]>
+	</insert>
+
+	<insert id="createAuto" parameterClass="Farm">
+		<![CDATA[
+		insert into FARM (
+			FARM_NO, 
+			USER_NO, 
+			FARM_NAME, 
+			COMMENT, 
+			DOMAIN_NAME, 
+			SCHEDULED, 
+			COMPONENT_PROCESSING
+		) values (
+			#farmNo#, 
+			#userNo#, 
+			#farmName#, 
+			#comment#, 
+			#domainName#, 
+			#scheduled#, 
+			#componentProcessing#
+		)
+		]]>
+		<selectKey keyProperty="farmNo" resultClass="java.lang.Long" type="post">
+		<![CDATA[
+			select last_insert_id()
+		]]>
+		</selectKey>
+	</insert>
+
+	<update id="update" parameterClass="Farm">
+		<![CDATA[
+		update FARM set
+			USER_NO = #userNo#, 
+			FARM_NAME = #farmName#, 
+			COMMENT = #comment#, 
+			DOMAIN_NAME = #domainName#, 
+			SCHEDULED = #scheduled#, 
+			COMPONENT_PROCESSING = #componentProcessing#
+		where
+			FARM_NO = #farmNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="Farm">
+		<![CDATA[
+		delete from FARM
+		where
+			FARM_NO = #farmNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from FARM
+		]]>
+	</delete>
+
+	<delete id="deleteByFarmNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from FARM
+		where
+			FARM_NO = #farmNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByFarmName" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from FARM
+		where
+			FARM_NAME = #farmName#
+		]]>
+	</delete>
+
+	<delete id="deleteByUserNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from FARM
+		where
+			USER_NO = #userNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByFarmNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			FARM_NO = #farmNo#
+		]]>
+	</select>
+
+	<select id="countByFarmName" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			FARM_NAME = #farmName#
+		]]>
+	</select>
+
+	<select id="countByUserNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			USER_NO = #userNo#
+		]]>
+	</select>
+
+</sqlMap>

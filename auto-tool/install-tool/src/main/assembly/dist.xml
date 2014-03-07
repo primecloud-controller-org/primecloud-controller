@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                      http://maven.apache.org/xsd/assembly-1.0.0.xsd">
+	<id>release</id>
+
+	<formats>
+		<format>tar.gz</format>
+	</formats>
+
+	<fileSets>
+		<fileSet>
+			<directory>src/main/configs</directory>
+			<outputDirectory>/${pom.version}</outputDirectory>
+		</fileSet>
+		<fileSet>
+			<directory>src/main/scripts</directory>
+			<outputDirectory>/tools/</outputDirectory>
+		</fileSet>
+		<fileSet>
+			<directory>../../iaas-gw/src</directory>
+			<outputDirectory>/${pom.version}/iaasgw</outputDirectory>
+		</fileSet>
+		<fileSet>
+			<directory>../../sql/adc</directory>
+			<outputDirectory>/${pom.version}/mysql/db_ddl</outputDirectory>
+		</fileSet>
+		<fileSet>
+			<directory>../../sql/adc_log</directory>
+			<outputDirectory>/${pom.version}/mysql/db_ddl/adc_log</outputDirectory>
+		</fileSet>
+		<fileSet>
+			<directory>../../puppet</directory>
+			<outputDirectory>/${pom.version}/puppet-server/puppet</outputDirectory>
+		</fileSet>
+		<fileSet>
+			<directory>../../script</directory>
+			<outputDirectory>/${pom.version}/pcc/script</outputDirectory>
+		</fileSet>
+		<fileSet>
+			<directory>../../auto-project/auto-process/src/main/resources/puppet</directory>
+			<outputDirectory>/${pom.version}/pcc/puppet</outputDirectory>
+		</fileSet>
+	</fileSets>
+
+	<files>
+		<file>
+			<source>../../auto-project/auto-web/target/auto-web-${pom.version}.war</source>
+			<outputDirectory>/${pom.version}/pcc/</outputDirectory>
+		</file>
+		<file>
+			<source>../management-tool/target/management-tool-${pom.version}.tar.gz</source>
+			<outputDirectory>/${pom.version}/pcc/</outputDirectory>
+		</file>
+	</files>
+
+</assembly>

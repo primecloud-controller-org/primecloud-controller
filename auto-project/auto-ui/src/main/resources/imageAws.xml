@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ROOT SYSTEM "imageAws.dtd">
+<ROOT>
+    <row>
+      <field name="IMAGE_NO">1</field>
+      <field name="IMAGE_ID">emi-10221144</field>
+      <field name="KERNEL_ID">eki-E51B17C3</field>
+      <field name="RAMDISK_ID">eri-46B5190F</field>
+      <field name="INSTANCE_TYPES">m1.large\,m1.xlarge\,c1.xlarge</field>
+      <field name="EBS_IMAGE">false</field>
+    </row>
+    <row>
+      <field name="IMAGE_NO">2</field>
+      <field name="IMAGE_ID">ami-86d625ef</field>
+      <field name="KERNEL_ID">aki-54ce2c3d</field>
+      <field name="RAMDISK_ID">ari-56ce2c3f</field>
+      <field name="INSTANCE_TYPES">m1.large\,m1.xlarge\,m2.xlarge\,m2.2xlarge\,m2.4xlarge\,c1.xlarge</field>
+      <field name="EBS_IMAGE">false</field>
+    </row>
+    <row>
+      <field name="IMAGE_NO">3</field>
+      <field name="IMAGE_ID">ami-86d625ef</field>
+      <field name="KERNEL_ID">aki-54ce2c3d</field>
+      <field name="RAMDISK_ID">ari-56ce2c3f</field>
+      <field name="INSTANCE_TYPES">m1.large\,m1.xlarge\,m2.xlarge\,m2.2xlarge\,m2.4xlarge\,c1.xlarge</field>
+      <field name="EBS_IMAGE">false</field>
+    </row>
+    <row>
+      <field name="IMAGE_NO">7</field>
+      <field name="IMAGE_ID">emi-6AFC12FE</field>
+      <field name="KERNEL_ID">eki-BF111754</field>
+      <field name="RAMDISK_ID">eri-1F0618AA</field>
+      <field name="INSTANCE_TYPES">m1.small\,c1.medium</field>
+      <field name="EBS_IMAGE">false</field>
+    </row>
+    <row>
+      <field name="IMAGE_NO">8</field>
+      <field name="IMAGE_ID">ami-0051a569</field>
+      <field name="KERNEL_ID">aki-94c527fd</field>
+      <field name="RAMDISK_ID">ari-96c527ff</field>
+      <field name="INSTANCE_TYPES">m1.small\,c1.medium</field>
+      <field name="EBS_IMAGE">false</field>
+    </row>
+    <row>
+      <field name="IMAGE_NO">9</field>
+      <field name="IMAGE_ID">ami-0051a569</field>
+      <field name="KERNEL_ID">aki-94c527fd</field>
+      <field name="RAMDISK_ID">ari-96c527ff</field>
+      <field name="INSTANCE_TYPES">m1.small\,c1.medium</field>
+      <field name="EBS_IMAGE">false</field>
+    </row>
+    <row>
+      <field name="IMAGE_NO">12</field>
+      <field name="IMAGE_ID">ami-ead62583</field>
+      <field name="KERNEL_ID">aki-54ce2c3d</field>
+      <field name="RAMDISK_ID">ari-56ce2c3f</field>
+      <field name="INSTANCE_TYPES">m1.large\,m1.xlarge\,m2.xlarge\,m2.2xlarge\,m2.4xlarge\,c1.xlarge</field>
+      <field name="EBS_IMAGE">true</field>
+    </row>
+    <row>
+      <field name="IMAGE_NO">13</field>
+      <field name="IMAGE_ID">ami-ead62583</field>
+      <field name="KERNEL_ID">aki-54ce2c3d</field>
+      <field name="RAMDISK_ID">ari-56ce2c3f</field>
+      <field name="INSTANCE_TYPES">m1.large\,m1.xlarge\,m2.xlarge\,m2.2xlarge\,m2.4xlarge\,c1.xlarge</field>
+      <field name="EBS_IMAGE">true</field>
+    </row>
+    <row>
+      <field name="IMAGE_NO">21</field>
+      <field name="IMAGE_ID">ami-843fcced</field>
+      <field name="KERNEL_ID"></field>
+      <field name="RAMDISK_ID"></field>
+      <field name="INSTANCE_TYPES">m1.large\,m1.xlarge\,m2.xlarge\,m2.2xlarge\,m2.4xlarge\,c1.xlarge</field>
+      <field name="EBS_IMAGE">true</field>
+    </row>
+    <row>
+      <field name="IMAGE_NO">22</field>
+      <field name="IMAGE_ID">ami-843fcced</field>
+      <field name="KERNEL_ID"></field>
+      <field name="RAMDISK_ID"></field>
+      <field name="INSTANCE_TYPES">m1.large\,m1.xlarge\,m2.xlarge\,m2.2xlarge\,m2.4xlarge\,c1.xlarge</field>
+      <field name="EBS_IMAGE">true</field>
+    </row>
+</ROOT>

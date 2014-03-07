@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="CloudstackCertificate">
+
+	<typeAlias alias="CloudstackCertificate" type="jp.primecloud.auto.entity.crud.CloudstackCertificate" />
+
+	<resultMap id="cloudstackCertificateResultMap" class="CloudstackCertificate">
+		<result property="account" column="ACCOUNT" />
+		<result property="platformNo" column="PLATFORM_NO" />
+		<result property="cloudstackAccessId" column="CLOUDSTACK_ACCESS_ID" nullValue="" />
+		<result property="cloudstackSecretKey" column="CLOUDSTACK_SECRET_KEY" nullValue="" />
+		<result property="defKeypair" column="DEF_KEYPAIR" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.ACCOUNT as ACCOUNT,
+			t1.PLATFORM_NO as PLATFORM_NO,
+			t1.CLOUDSTACK_ACCESS_ID as CLOUDSTACK_ACCESS_ID,
+			t1.CLOUDSTACK_SECRET_KEY as CLOUDSTACK_SECRET_KEY,
+			t1.DEF_KEYPAIR as DEF_KEYPAIR
+		from
+			CLOUDSTACK_CERTIFICATE t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from CLOUDSTACK_CERTIFICATE t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="cloudstackCertificateResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.ACCOUNT = #account# and
+			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="cloudstackCertificateResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readByAccount" parameterClass="java.util.Map" resultMap="cloudstackCertificateResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.ACCOUNT = #account#
+		]]>
+	</select>
+
+	<select id="readByPlatformNo" parameterClass="java.util.Map" resultMap="cloudstackCertificateResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="readInAccounts" parameterClass="java.util.Map" resultMap="cloudstackCertificateResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.ACCOUNT in
+		]]>
+		<iterate property="accounts" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#accounts[]#
+			]]>
+		</iterate>
+	</select>
+
+	<select id="readInPlatformNos" parameterClass="java.util.Map" resultMap="cloudstackCertificateResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO in
+		]]>
+		<iterate property="platformNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#platformNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="CloudstackCertificate">
+		<![CDATA[
+		insert into CLOUDSTACK_CERTIFICATE (
+			ACCOUNT,
+			PLATFORM_NO,
+			CLOUDSTACK_ACCESS_ID,
+			CLOUDSTACK_SECRET_KEY,
+			DEF_KEYPAIR
+		) values (
+			#account#,
+			#platformNo#,
+			#cloudstackAccessId#,
+			#cloudstackSecretKey#,
+			#defKeypair#
+		)
+		]]>
+	</insert>
+
+	<update id="update" parameterClass="CloudstackCertificate">
+		<![CDATA[
+		update CLOUDSTACK_CERTIFICATE set
+			CLOUDSTACK_ACCESS_ID = #cloudstackAccessId#,
+			CLOUDSTACK_SECRET_KEY = #cloudstackSecretKey#,
+			DEF_KEYPAIR = #defKeypair#
+		where
+			ACCOUNT = #account# and
+			PLATFORM_NO = #platformNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="CloudstackCertificate">
+		<![CDATA[
+		delete from CLOUDSTACK_CERTIFICATE
+		where
+			ACCOUNT = #account# and
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from CLOUDSTACK_CERTIFICATE
+		]]>
+	</delete>
+
+	<delete id="deleteByAccountAndPlatformNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from CLOUDSTACK_CERTIFICATE
+		where
+			ACCOUNT = #account# and
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByAccount" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from CLOUDSTACK_CERTIFICATE
+		where
+			ACCOUNT = #account#
+		]]>
+	</delete>
+
+	<delete id="deleteByPlatformNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from CLOUDSTACK_CERTIFICATE
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByAccountAndPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			ACCOUNT = #account# and
+			PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="countByAccount" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			ACCOUNT = #account#
+		]]>
+	</select>
+
+	<select id="countByPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+</sqlMap>

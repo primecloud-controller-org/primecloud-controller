@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap      
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="OperationLog">
+
+	<typeAlias alias="OperationLog" type="jp.primecloud.auto.log.entity.crud.OperationLog" />
+
+	<resultMap id="operationLogResultMap" class="OperationLog">
+		<result property="OLogNo" column="O_LOG_NO" />
+		<result property="OLogDate" column="O_LOG_DATE" />
+		<result property="userNo" column="USER_NO" />
+		<result property="userName" column="USER_NAME" nullValue="" />
+		<result property="screen" column="SCREEN" nullValue="" />
+		<result property="operation" column="OPERATION" nullValue="" />
+		<result property="farmNo" column="FARM_NO" />
+		<result property="instanceNo" column="INSTANCE_NO" />
+		<result property="componentNo" column="COMPONENT_NO" />
+		<result property="loadBalancerNo" column="LOAD_BALANCER_NO" />
+		<result property="memo" column="MEMO" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.O_LOG_NO as O_LOG_NO, 
+			t1.O_LOG_DATE as O_LOG_DATE, 
+			t1.USER_NO as USER_NO, 
+			t1.USER_NAME as USER_NAME, 
+			t1.SCREEN as SCREEN, 
+			t1.OPERATION as OPERATION, 
+			t1.FARM_NO as FARM_NO, 
+			t1.INSTANCE_NO as INSTANCE_NO, 
+			t1.COMPONENT_NO as COMPONENT_NO, 
+			t1.LOAD_BALANCER_NO as LOAD_BALANCER_NO, 
+			t1.MEMO as MEMO
+		from
+			OPERATION_LOG t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from OPERATION_LOG t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="operationLogResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.O_LOG_NO = #OLogNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="operationLogResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readByOLogDate" parameterClass="java.util.Map" resultMap="operationLogResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.O_LOG_DATE = #OLogDate#
+		]]>
+	</select>
+
+	<select id="readByOLogDateAndUserNo" parameterClass="java.util.Map" resultMap="operationLogResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.O_LOG_DATE = #OLogDate# and
+			t1.USER_NO = #userNo#
+		]]>
+	</select>
+
+	<select id="readInOLogNos" parameterClass="java.util.Map" resultMap="operationLogResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.O_LOG_NO in
+		]]>
+		<iterate property="OLogNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#OLogNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="OperationLog">
+		<![CDATA[
+		insert into OPERATION_LOG (
+			O_LOG_NO, 
+			O_LOG_DATE, 
+			USER_NO, 
+			USER_NAME, 
+			SCREEN, 
+			OPERATION, 
+			FARM_NO, 
+			INSTANCE_NO, 
+			COMPONENT_NO, 
+			LOAD_BALANCER_NO, 
+			MEMO
+		) values (
+			#OLogNo#, 
+			#OLogDate#, 
+			#userNo#, 
+			#userName#, 
+			#screen#, 
+			#operation#, 
+			#farmNo#, 
+			#instanceNo#, 
+			#componentNo#, 
+			#loadBalancerNo#, 
+			#memo#
+		)
+		]]>
+	</insert>
+
+	<insert id="createAuto" parameterClass="OperationLog">
+		<![CDATA[
+		insert into OPERATION_LOG (
+			O_LOG_NO, 
+			O_LOG_DATE, 
+			USER_NO, 
+			USER_NAME, 
+			SCREEN, 
+			OPERATION, 
+			FARM_NO, 
+			INSTANCE_NO, 
+			COMPONENT_NO, 
+			LOAD_BALANCER_NO, 
+			MEMO
+		) values (
+			#OLogNo#, 
+			#OLogDate#, 
+			#userNo#, 
+			#userName#, 
+			#screen#, 
+			#operation#, 
+			#farmNo#, 
+			#instanceNo#, 
+			#componentNo#, 
+			#loadBalancerNo#, 
+			#memo#
+		)
+		]]>
+		<selectKey keyProperty="OLogNo" resultClass="java.lang.Long" type="post">
+		<![CDATA[
+			select last_insert_id()
+		]]>
+		</selectKey>
+	</insert>
+
+	<update id="update" parameterClass="OperationLog">
+		<![CDATA[
+		update OPERATION_LOG set
+			O_LOG_DATE = #OLogDate#, 
+			USER_NO = #userNo#, 
+			USER_NAME = #userName#, 
+			SCREEN = #screen#, 
+			OPERATION = #operation#, 
+			FARM_NO = #farmNo#, 
+			INSTANCE_NO = #instanceNo#, 
+			COMPONENT_NO = #componentNo#, 
+			LOAD_BALANCER_NO = #loadBalancerNo#, 
+			MEMO = #memo#
+		where
+			O_LOG_NO = #OLogNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="OperationLog">
+		<![CDATA[
+		delete from OPERATION_LOG
+		where
+			O_LOG_NO = #OLogNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from OPERATION_LOG
+		]]>
+	</delete>
+
+	<delete id="deleteByOLogNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from OPERATION_LOG
+		where
+			O_LOG_NO = #OLogNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByOLogDate" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from OPERATION_LOG
+		where
+			O_LOG_DATE = #OLogDate#
+		]]>
+	</delete>
+
+	<delete id="deleteByOLogDateAndUserNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from OPERATION_LOG
+		where
+			O_LOG_DATE = #OLogDate# and
+			USER_NO = #userNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByOLogNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			O_LOG_NO = #OLogNo#
+		]]>
+	</select>
+
+	<select id="countByOLogDate" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			O_LOG_DATE = #OLogDate#
+		]]>
+	</select>
+
+	<select id="countByOLogDateAndUserNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			O_LOG_DATE = #OLogDate# and
+			USER_NO = #userNo#
+		]]>
+	</select>
+
+</sqlMap>

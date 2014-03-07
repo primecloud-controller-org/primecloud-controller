@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="CloudstackVolume">
+
+	<typeAlias alias="CloudstackVolume" type="jp.primecloud.auto.entity.crud.CloudstackVolume" />
+
+	<resultMap id="cloudstackVolumeResultMap" class="CloudstackVolume">
+		<result property="volumeNo" column="VOLUME_NO" />
+		<result property="farmNo" column="FARM_NO" />
+		<result property="platformNo" column="PLATFORM_NO" />
+		<result property="componentNo" column="COMPONENT_NO" />
+		<result property="instanceNo" column="INSTANCE_NO" />
+		<result property="volumeId" column="VOLUME_ID" nullValue="" />
+		<result property="deviceid" column="DEVICEID" nullValue="" />
+		<result property="diskofferingid" column="DISKOFFERINGID" nullValue="" />
+		<result property="name" column="NAME" nullValue="" />
+		<result property="size" column="SIZE" />
+		<result property="snapshotid" column="SNAPSHOTID" nullValue="" />
+		<result property="state" column="STATE" nullValue="" />
+		<result property="instanceId" column="INSTANCE_ID" nullValue="" />
+		<result property="zoneid" column="ZONEID" nullValue="" />
+		<result property="hypervisor" column="HYPERVISOR" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.VOLUME_NO as VOLUME_NO,
+			t1.FARM_NO as FARM_NO,
+			t1.PLATFORM_NO as PLATFORM_NO,
+			t1.COMPONENT_NO as COMPONENT_NO,
+			t1.INSTANCE_NO as INSTANCE_NO,
+			t1.VOLUME_ID as VOLUME_ID,
+			t1.DEVICEID as DEVICEID,
+			t1.DISKOFFERINGID as DISKOFFERINGID,
+			t1.NAME as NAME,
+			t1.SIZE as SIZE,
+			t1.SNAPSHOTID as SNAPSHOTID,
+			t1.STATE as STATE,
+			t1.INSTANCE_ID as INSTANCE_ID,
+			t1.ZONEID as ZONEID,
+			t1.HYPERVISOR as HYPERVISOR
+		from
+			CLOUDSTACK_VOLUME t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from CLOUDSTACK_VOLUME t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="cloudstackVolumeResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.VOLUME_NO = #volumeNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="cloudstackVolumeResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readByComponentNoAndInstanceNo" parameterClass="java.util.Map" resultMap="cloudstackVolumeResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.COMPONENT_NO = #componentNo# and
+			t1.INSTANCE_NO = #instanceNo#
+		]]>
+	</select>
+
+	<select id="readByComponentNo" parameterClass="java.util.Map" resultMap="cloudstackVolumeResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.COMPONENT_NO = #componentNo#
+		]]>
+	</select>
+
+	<select id="readByFarmNo" parameterClass="java.util.Map" resultMap="cloudstackVolumeResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.FARM_NO = #farmNo#
+		]]>
+	</select>
+
+	<select id="readByInstanceNo" parameterClass="java.util.Map" resultMap="cloudstackVolumeResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.INSTANCE_NO = #instanceNo#
+		]]>
+	</select>
+
+	<select id="readByPlatformNo" parameterClass="java.util.Map" resultMap="cloudstackVolumeResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="readInVolumeNos" parameterClass="java.util.Map" resultMap="cloudstackVolumeResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.VOLUME_NO in
+		]]>
+		<iterate property="volumeNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#volumeNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="CloudstackVolume">
+		<![CDATA[
+		insert into CLOUDSTACK_VOLUME (
+			VOLUME_NO,
+			FARM_NO,
+			PLATFORM_NO,
+			COMPONENT_NO,
+			INSTANCE_NO,
+			VOLUME_ID,
+			DEVICEID,
+			DISKOFFERINGID,
+			NAME,
+			SIZE,
+			SNAPSHOTID,
+			STATE,
+			INSTANCE_ID,
+			ZONEID,
+			HYPERVISOR
+		) values (
+			#volumeNo#,
+			#farmNo#,
+			#platformNo#,
+			#componentNo#,
+			#instanceNo#,
+			#volumeId#,
+			#deviceid#,
+			#diskofferingid#,
+			#name#,
+			#size#,
+			#snapshotid#,
+			#state#,
+			#instanceId#,
+			#zoneid#,
+			#hypervisor#
+		)
+		]]>
+	</insert>
+
+	<insert id="createAuto" parameterClass="CloudstackVolume">
+		<![CDATA[
+		insert into CLOUDSTACK_VOLUME (
+			VOLUME_NO,
+			FARM_NO,
+			PLATFORM_NO,
+			COMPONENT_NO,
+			INSTANCE_NO,
+			VOLUME_ID,
+			DEVICEID,
+			DISKOFFERINGID,
+			NAME,
+			SIZE,
+			SNAPSHOTID,
+			STATE,
+			INSTANCE_ID,
+			ZONEID,
+			HYPERVISOR
+		) values (
+			#volumeNo#,
+			#farmNo#,
+			#platformNo#,
+			#componentNo#,
+			#instanceNo#,
+			#volumeId#,
+			#deviceid#,
+			#diskofferingid#,
+			#name#,
+			#size#,
+			#snapshotid#,
+			#state#,
+			#instanceId#,
+			#zoneid#,
+			#hypervisor#
+		)
+		]]>
+		<selectKey keyProperty="volumeNo" resultClass="java.lang.Long" type="post">
+		<![CDATA[
+			select last_insert_id()
+		]]>
+		</selectKey>
+	</insert>
+
+	<update id="update" parameterClass="CloudstackVolume">
+		<![CDATA[
+		update CLOUDSTACK_VOLUME set
+			FARM_NO = #farmNo#,
+			PLATFORM_NO = #platformNo#,
+			COMPONENT_NO = #componentNo#,
+			INSTANCE_NO = #instanceNo#,
+			VOLUME_ID = #volumeId#,
+			DEVICEID = #deviceid#,
+			DISKOFFERINGID = #diskofferingid#,
+			NAME = #name#,
+			SIZE = #size#,
+			SNAPSHOTID = #snapshotid#,
+			STATE = #state#,
+			INSTANCE_ID = #instanceId#,
+			ZONEID = #zoneid#,
+			HYPERVISOR = #hypervisor#
+		where
+			VOLUME_NO = #volumeNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="CloudstackVolume">
+		<![CDATA[
+		delete from CLOUDSTACK_VOLUME
+		where
+			VOLUME_NO = #volumeNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from CLOUDSTACK_VOLUME
+		]]>
+	</delete>
+
+	<delete id="deleteByVolumeNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from CLOUDSTACK_VOLUME
+		where
+			VOLUME_NO = #volumeNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByComponentNoAndInstanceNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from CLOUDSTACK_VOLUME
+		where
+			COMPONENT_NO = #componentNo# and
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByComponentNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from CLOUDSTACK_VOLUME
+		where
+			COMPONENT_NO = #componentNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByFarmNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from CLOUDSTACK_VOLUME
+		where
+			FARM_NO = #farmNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByInstanceNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from CLOUDSTACK_VOLUME
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByPlatformNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from CLOUDSTACK_VOLUME
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByVolumeNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			VOLUME_NO = #volumeNo#
+		]]>
+	</select>
+
+	<select id="countByComponentNoAndInstanceNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			COMPONENT_NO = #componentNo# and
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</select>
+
+	<select id="countByComponentNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			COMPONENT_NO = #componentNo#
+		]]>
+	</select>
+
+	<select id="countByFarmNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			FARM_NO = #farmNo#
+		]]>
+	</select>
+
+	<select id="countByInstanceNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</select>
+
+	<select id="countByPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+</sqlMap>

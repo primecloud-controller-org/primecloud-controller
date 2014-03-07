@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="CloudstackSnapshot">
+
+	<typeAlias alias="CloudstackSnapshot" type="jp.primecloud.auto.entity.crud.CloudstackSnapshot" />
+
+	<resultMap id="cloudstackSnapshotResultMap" class="CloudstackSnapshot">
+		<result property="snapshotNo" column="SNAPSHOT_NO" />
+		<result property="snapshotId" column="SNAPSHOT_ID" nullValue="" />
+		<result property="farmNo" column="FARM_NO" />
+		<result property="platformNo" column="PLATFORM_NO" />
+		<result property="createDate" column="CREATE_DATE" nullValue="" />
+		<result property="volumeid" column="VOLUMEID" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.SNAPSHOT_NO as SNAPSHOT_NO,
+			t1.SNAPSHOT_ID as SNAPSHOT_ID,
+			t1.FARM_NO as FARM_NO,
+			t1.PLATFORM_NO as PLATFORM_NO,
+			t1.CREATE_DATE as CREATE_DATE,
+			t1.VOLUMEID as VOLUMEID
+		from
+			CLOUDSTACK_SNAPSHOT t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from CLOUDSTACK_SNAPSHOT t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="cloudstackSnapshotResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.SNAPSHOT_NO = #snapshotNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="cloudstackSnapshotResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readByPlatformNo" parameterClass="java.util.Map" resultMap="cloudstackSnapshotResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="readInSnapshotNos" parameterClass="java.util.Map" resultMap="cloudstackSnapshotResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.SNAPSHOT_NO in
+		]]>
+		<iterate property="snapshotNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#snapshotNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="CloudstackSnapshot">
+		<![CDATA[
+		insert into CLOUDSTACK_SNAPSHOT (
+			SNAPSHOT_NO,
+			SNAPSHOT_ID,
+			FARM_NO,
+			PLATFORM_NO,
+			CREATE_DATE,
+			VOLUMEID
+		) values (
+			#snapshotNo#,
+			#snapshotId#,
+			#farmNo#,
+			#platformNo#,
+			#createDate#,
+			#volumeid#
+		)
+		]]>
+	</insert>
+
+	<insert id="createAuto" parameterClass="CloudstackSnapshot">
+		<![CDATA[
+		insert into CLOUDSTACK_SNAPSHOT (
+			SNAPSHOT_NO,
+			SNAPSHOT_ID,
+			FARM_NO,
+			PLATFORM_NO,
+			CREATE_DATE,
+			VOLUMEID
+		) values (
+			#snapshotNo#,
+			#snapshotId#,
+			#farmNo#,
+			#platformNo#,
+			#createDate#,
+			#volumeid#
+		)
+		]]>
+		<selectKey keyProperty="snapshotNo" resultClass="java.lang.Long" type="post">
+		<![CDATA[
+			select last_insert_id()
+		]]>
+		</selectKey>
+	</insert>
+
+	<update id="update" parameterClass="CloudstackSnapshot">
+		<![CDATA[
+		update CLOUDSTACK_SNAPSHOT set
+			SNAPSHOT_ID = #snapshotId#,
+			FARM_NO = #farmNo#,
+			PLATFORM_NO = #platformNo#,
+			CREATE_DATE = #createDate#,
+			VOLUMEID = #volumeid#
+		where
+			SNAPSHOT_NO = #snapshotNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="CloudstackSnapshot">
+		<![CDATA[
+		delete from CLOUDSTACK_SNAPSHOT
+		where
+			SNAPSHOT_NO = #snapshotNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from CLOUDSTACK_SNAPSHOT
+		]]>
+	</delete>
+
+	<delete id="deleteBySnapshotNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from CLOUDSTACK_SNAPSHOT
+		where
+			SNAPSHOT_NO = #snapshotNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByPlatformNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from CLOUDSTACK_SNAPSHOT
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countBySnapshotNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			SNAPSHOT_NO = #snapshotNo#
+		]]>
+	</select>
+
+	<select id="countByPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+</sqlMap>

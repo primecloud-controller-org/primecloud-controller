@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="PlatformNifty">
+
+	<typeAlias alias="PlatformNifty" type="jp.primecloud.auto.entity.crud.PlatformNifty" />
+
+	<resultMap id="platformNiftyResultMap" class="PlatformNifty">
+		<result property="platformNo" column="PLATFORM_NO" />
+		<result property="wsdl" column="WSDL" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.PLATFORM_NO as PLATFORM_NO,
+			t1.WSDL as WSDL
+		from
+			PLATFORM_NIFTY t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from PLATFORM_NIFTY t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="platformNiftyResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="platformNiftyResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readInPlatformNos" parameterClass="java.util.Map" resultMap="platformNiftyResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO in
+		]]>
+		<iterate property="platformNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#platformNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="PlatformNifty">
+		<![CDATA[
+		insert into PLATFORM_NIFTY (
+			PLATFORM_NO,
+			WSDL
+		) values (
+			#platformNo#,
+			#wsdl#
+		)
+		]]>
+	</insert>
+
+	<update id="update" parameterClass="PlatformNifty">
+		<![CDATA[
+		update PLATFORM_NIFTY set
+			WSDL = #wsdl#
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="PlatformNifty">
+		<![CDATA[
+		delete from PLATFORM_NIFTY
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from PLATFORM_NIFTY
+		]]>
+	</delete>
+
+	<delete id="deleteByPlatformNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from PLATFORM_NIFTY
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+</sqlMap>

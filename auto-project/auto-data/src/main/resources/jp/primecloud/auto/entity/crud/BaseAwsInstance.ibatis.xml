@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap      
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="AwsInstance">
+
+	<typeAlias alias="AwsInstance" type="jp.primecloud.auto.entity.crud.AwsInstance" />
+
+	<resultMap id="awsInstanceResultMap" class="AwsInstance">
+		<result property="instanceNo" column="INSTANCE_NO" />
+		<result property="keyName" column="KEY_NAME" nullValue="" />
+		<result property="instanceType" column="INSTANCE_TYPE" nullValue="" />
+		<result property="securityGroups" column="SECURITY_GROUPS" nullValue="" />
+		<result property="availabilityZone" column="AVAILABILITY_ZONE" nullValue="" />
+		<result property="subnetId" column="SUBNET_ID" nullValue="" />
+		<result property="instanceId" column="INSTANCE_ID" nullValue="" />
+		<result property="status" column="STATUS" nullValue="" />
+		<result property="dnsName" column="DNS_NAME" nullValue="" />
+		<result property="privateDnsName" column="PRIVATE_DNS_NAME" nullValue="" />
+		<result property="ipAddress" column="IP_ADDRESS" nullValue="" />
+		<result property="privateIpAddress" column="PRIVATE_IP_ADDRESS" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.INSTANCE_NO as INSTANCE_NO, 
+			t1.KEY_NAME as KEY_NAME, 
+			t1.INSTANCE_TYPE as INSTANCE_TYPE, 
+			t1.SECURITY_GROUPS as SECURITY_GROUPS, 
+			t1.AVAILABILITY_ZONE as AVAILABILITY_ZONE, 
+			t1.SUBNET_ID as SUBNET_ID, 
+			t1.INSTANCE_ID as INSTANCE_ID, 
+			t1.STATUS as STATUS, 
+			t1.DNS_NAME as DNS_NAME, 
+			t1.PRIVATE_DNS_NAME as PRIVATE_DNS_NAME, 
+			t1.IP_ADDRESS as IP_ADDRESS, 
+			t1.PRIVATE_IP_ADDRESS as PRIVATE_IP_ADDRESS
+		from
+			AWS_INSTANCE t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from AWS_INSTANCE t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="awsInstanceResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.INSTANCE_NO = #instanceNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="awsInstanceResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readInInstanceNos" parameterClass="java.util.Map" resultMap="awsInstanceResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.INSTANCE_NO in
+		]]>
+		<iterate property="instanceNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#instanceNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="AwsInstance">
+		<![CDATA[
+		insert into AWS_INSTANCE (
+			INSTANCE_NO, 
+			KEY_NAME, 
+			INSTANCE_TYPE, 
+			SECURITY_GROUPS, 
+			AVAILABILITY_ZONE, 
+			SUBNET_ID, 
+			INSTANCE_ID, 
+			STATUS, 
+			DNS_NAME, 
+			PRIVATE_DNS_NAME, 
+			IP_ADDRESS, 
+			PRIVATE_IP_ADDRESS
+		) values (
+			#instanceNo#, 
+			#keyName#, 
+			#instanceType#, 
+			#securityGroups#, 
+			#availabilityZone#, 
+			#subnetId#, 
+			#instanceId#, 
+			#status#, 
+			#dnsName#, 
+			#privateDnsName#, 
+			#ipAddress#, 
+			#privateIpAddress#
+		)
+		]]>
+	</insert>
+
+	<update id="update" parameterClass="AwsInstance">
+		<![CDATA[
+		update AWS_INSTANCE set
+			KEY_NAME = #keyName#, 
+			INSTANCE_TYPE = #instanceType#, 
+			SECURITY_GROUPS = #securityGroups#, 
+			AVAILABILITY_ZONE = #availabilityZone#, 
+			SUBNET_ID = #subnetId#, 
+			INSTANCE_ID = #instanceId#, 
+			STATUS = #status#, 
+			DNS_NAME = #dnsName#, 
+			PRIVATE_DNS_NAME = #privateDnsName#, 
+			IP_ADDRESS = #ipAddress#, 
+			PRIVATE_IP_ADDRESS = #privateIpAddress#
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="AwsInstance">
+		<![CDATA[
+		delete from AWS_INSTANCE
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from AWS_INSTANCE
+		]]>
+	</delete>
+
+	<delete id="deleteByInstanceNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from AWS_INSTANCE
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByInstanceNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</select>
+
+</sqlMap>

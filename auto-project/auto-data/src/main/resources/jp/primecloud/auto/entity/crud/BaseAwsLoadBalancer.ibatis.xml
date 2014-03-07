@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="AwsLoadBalancer">
+
+	<typeAlias alias="AwsLoadBalancer" type="jp.primecloud.auto.entity.crud.AwsLoadBalancer" />
+
+	<resultMap id="awsLoadBalancerResultMap" class="AwsLoadBalancer">
+		<result property="loadBalancerNo" column="LOAD_BALANCER_NO" />
+		<result property="name" column="NAME" nullValue="" />
+		<result property="dnsName" column="DNS_NAME" nullValue="" />
+		<result property="subnetId" column="SUBNET_ID" nullValue="" />
+		<result property="securityGroups" column="SECURITY_GROUPS" nullValue="" />
+		<result property="availabilityZone" column="AVAILABILITY_ZONE" nullValue="" />
+		<result property="hostid" column="HOSTID" nullValue="" />
+		<result property="status" column="STATUS" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.LOAD_BALANCER_NO as LOAD_BALANCER_NO,
+			t1.NAME as NAME,
+			t1.DNS_NAME as DNS_NAME,
+			t1.SUBNET_ID as SUBNET_ID,
+			t1.SECURITY_GROUPS as SECURITY_GROUPS,
+			t1.AVAILABILITY_ZONE as AVAILABILITY_ZONE, 
+			t1.HOSTID as HOSTID, 
+			t1.STATUS as STATUS
+		from
+			AWS_LOAD_BALANCER t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from AWS_LOAD_BALANCER t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="awsLoadBalancerResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="awsLoadBalancerResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readInLoadBalancerNos" parameterClass="java.util.Map" resultMap="awsLoadBalancerResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.LOAD_BALANCER_NO in
+		]]>
+		<iterate property="loadBalancerNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#loadBalancerNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="AwsLoadBalancer">
+		<![CDATA[
+		insert into AWS_LOAD_BALANCER (
+			LOAD_BALANCER_NO,
+			NAME,
+			DNS_NAME,
+			SUBNET_ID,
+			SECURITY_GROUPS,
+			AVAILABILITY_ZONE, 
+			HOSTID, 
+			STATUS
+		) values (
+			#loadBalancerNo#,
+			#name#,
+			#dnsName#,
+			#subnetId#,
+			#securityGroups#,
+			#availabilityZone#, 
+			#hostid#, 
+			#status#
+		)
+		]]>
+	</insert>
+
+	<update id="update" parameterClass="AwsLoadBalancer">
+		<![CDATA[
+		update AWS_LOAD_BALANCER set
+			NAME = #name#,
+			DNS_NAME = #dnsName#,
+			SUBNET_ID = #subnetId#,
+			SECURITY_GROUPS = #securityGroups#,
+			AVAILABILITY_ZONE = #availabilityZone#, 
+			HOSTID = #hostid#, 
+			STATUS = #status#
+		where
+			LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="AwsLoadBalancer">
+		<![CDATA[
+		delete from AWS_LOAD_BALANCER
+		where
+			LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from AWS_LOAD_BALANCER
+		]]>
+	</delete>
+
+	<delete id="deleteByLoadBalancerNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from AWS_LOAD_BALANCER
+		where
+			LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByLoadBalancerNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</select>
+
+</sqlMap>

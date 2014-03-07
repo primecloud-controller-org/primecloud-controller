@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+    xmlns:jxb="http://java.sun.com/xml/ns/jaxb" xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+    jxb:version="2.1" jxb:extensionBindingPrefixes="xjc">
+  <xs:annotation>
+    <xs:appinfo>
+      <jxb:globalBindings>
+        <xjc:serializable uid="1"/>
+      </jxb:globalBindings>
+      <jxb:schemaBindings>
+        <jxb:package name="jp.primecloud.auto.config.jaxb"/>
+      </jxb:schemaBindings>
+    </xs:appinfo>
+  </xs:annotation>
+
+  <xs:element name="autoConfig">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="platforms"/>
+        <xs:element ref="componentTypes"/>
+        <xs:element ref="images"/>
+        <xs:element ref="templates"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="platforms">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="platform" maxOccurs="unbounded" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="platform">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="no" type="xs:long"/>
+        <xs:element name="name" type="xs:string"/>
+        <xs:element name="internal" type="xs:boolean"/>
+        <xs:element name="aws" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="host" type="xs:string"/>
+              <xs:element name="port" type="xs:int"/>
+              <xs:element name="secure" type="xs:boolean"/>
+              <xs:element name="euca" type="xs:boolean"/>
+              <xs:element name="vpc" type="xs:boolean"/>
+              <xs:element name="availabilityZone" type="xs:string"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="vmware" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="url" type="xs:string"/>
+              <xs:element name="username" type="xs:string"/>
+              <xs:element name="password" type="xs:string"/>
+              <xs:element name="datacenter" type="xs:string"/>
+              <xs:element name="publicNetwork" type="xs:string"/>
+              <xs:element name="privateNetwork" type="xs:string"/>
+              <xs:element name="computeResource" type="xs:string"/>
+              <xs:element name="instanceTypes">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="instanceType" maxOccurs="unbounded" minOccurs="0">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="name" type="xs:string"/>
+                          <xs:element name="cpu" type="xs:int"/>
+                          <xs:element name="memory" type="xs:long"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="nifty" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="wsdl" type="xs:string"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="cloudStack" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="ipAddress" type="xs:string"/>
+              <xs:element name="zoneId" type="xs:string"/>
+              <xs:element name="networkid" type="xs:string"/>
+              <xs:element name="domainid" type="xs:string"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="proxy" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="host" type="xs:string"/>
+              <xs:element name="port" type="xs:int"/>
+              <xs:element name="user" type="xs:string" nillable="true"/>
+              <xs:element name="password" type="xs:string" nillable="true"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="componentTypes">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="componentType" maxOccurs="unbounded" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="componentType">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="no" type="xs:long"/>
+        <xs:element name="name" type="xs:string"/>
+        <xs:element name="layer" type="xs:string"/>
+        <xs:element name="runOrder" type="xs:int" nillable="true"/>
+        <xs:element name="zabbixTemplate" type="xs:string" nillable="true"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="images">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="image" maxOccurs="unbounded" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="image">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="no" type="xs:long"/>
+        <xs:element name="name" type="xs:string"/>
+        <xs:element name="platformNo" type="xs:long"/>
+        <xs:element name="os" type="xs:string"/>
+        <xs:element name="selectable" type="xs:boolean"/>
+        <xs:element name="componentTypeNos" type="xs:string" nillable="true"/>
+        <xs:element name="zabbixTemplate" type="xs:string" nillable="true"/>
+        <xs:element name="aws" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="imageId" type="xs:string"/>
+              <xs:element name="kernelId" type="xs:string" nillable="true"/>
+              <xs:element name="ramdiskId" type="xs:string" nillable="true"/>
+              <xs:element name="instanceTypes" type="xs:string"/>
+              <xs:element name="ebsImage" type="xs:boolean"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="vmware" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="templateName" type="xs:string"/>
+              <xs:element name="instanceTypes" type="xs:string"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="nifty" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="imageId" type="xs:string"/>
+              <xs:element name="instanceTypes" type="xs:string"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="cloudStack" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="templateId" type="xs:string"/>
+              <xs:element name="zoneId" type="xs:string"/>
+              <xs:element name="instanceTypes" type="xs:string"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="templates">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="template" maxOccurs="unbounded" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="template">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="no" type="xs:long"/>
+        <xs:element name="name" type="xs:string"/>
+        <xs:element name="components" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="component" maxOccurs="unbounded" minOccurs="0">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="name" type="xs:string"/>
+                    <xs:element name="componentTypeName" type="xs:string"/>
+                    <xs:element name="comment" type="xs:string" nillable="true"/>
+                    <xs:element name="diskSize" type="xs:int" nillable="true"/>
+                    <xs:element name="associate" type="xs:string" nillable="true"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="instances" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="instance" maxOccurs="unbounded" minOccurs="0">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="name" type="xs:string"/>
+                    <xs:element name="platformName" type="xs:string"/>
+                    <xs:element name="comment" type="xs:string" nillable="true"/>
+                    <xs:element name="aws" minOccurs="0">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="imageName" type="xs:string"/>
+                          <xs:element name="instanceType" type="xs:string"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="vmware" minOccurs="0">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="imageName" type="xs:string"/>
+                          <xs:element name="instanceType" type="xs:string"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="nifty" minOccurs="0">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="imageName" type="xs:string"/>
+                          <xs:element name="instanceType" type="xs:string"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="cloudStack" minOccurs="0">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="imageName" type="xs:string"/>
+                          <xs:element name="instanceType" type="xs:string"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

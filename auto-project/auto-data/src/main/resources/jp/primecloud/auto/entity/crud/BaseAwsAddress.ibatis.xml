@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="AwsAddress">
+
+	<typeAlias alias="AwsAddress" type="jp.primecloud.auto.entity.crud.AwsAddress" />
+
+	<resultMap id="awsAddressResultMap" class="AwsAddress">
+		<result property="addressNo" column="ADDRESS_NO" />
+		<result property="userNo" column="USER_NO" />
+		<result property="platformNo" column="PLATFORM_NO" />
+		<result property="publicIp" column="PUBLIC_IP" nullValue="" />
+		<result property="comment" column="COMMENT" nullValue="" />
+		<result property="instanceNo" column="INSTANCE_NO" />
+		<result property="instanceId" column="INSTANCE_ID" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.ADDRESS_NO as ADDRESS_NO,
+			t1.USER_NO as USER_NO,
+			t1.PLATFORM_NO as PLATFORM_NO,
+			t1.PUBLIC_IP as PUBLIC_IP,
+			t1.COMMENT as COMMENT,
+			t1.INSTANCE_NO as INSTANCE_NO,
+			t1.INSTANCE_ID as INSTANCE_ID
+		from
+			AWS_ADDRESS t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from AWS_ADDRESS t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="awsAddressResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.ADDRESS_NO = #addressNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="awsAddressResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readByUserNo" parameterClass="java.util.Map" resultMap="awsAddressResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.USER_NO = #userNo#
+		]]>
+	</select>
+
+	<select id="readByInstanceNo" parameterClass="java.util.Map" resultMap="awsAddressResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.INSTANCE_NO = #instanceNo#
+		]]>
+	</select>
+
+	<select id="readByPlatformNo" parameterClass="java.util.Map" resultMap="awsAddressResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="readInAddressNos" parameterClass="java.util.Map" resultMap="awsAddressResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.ADDRESS_NO in
+		]]>
+		<iterate property="addressNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#addressNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="AwsAddress">
+		<![CDATA[
+		insert into AWS_ADDRESS (
+			ADDRESS_NO,
+			USER_NO,
+			PLATFORM_NO,
+			PUBLIC_IP,
+			COMMENT,
+			INSTANCE_NO,
+			INSTANCE_ID
+		) values (
+			#addressNo#,
+			#userNo#,
+			#platformNo#,
+			#publicIp#,
+			#comment#,
+			#instanceNo#,
+			#instanceId#
+		)
+		]]>
+	</insert>
+
+	<insert id="createAuto" parameterClass="AwsAddress">
+		<![CDATA[
+		insert into AWS_ADDRESS (
+			ADDRESS_NO,
+			USER_NO,
+			PLATFORM_NO,
+			PUBLIC_IP,
+			COMMENT,
+			INSTANCE_NO,
+			INSTANCE_ID
+		) values (
+			#addressNo#,
+			#userNo#,
+			#platformNo#,
+			#publicIp#,
+			#comment#,
+			#instanceNo#,
+			#instanceId#
+		)
+		]]>
+		<selectKey keyProperty="addressNo" resultClass="java.lang.Long" type="post">
+		<![CDATA[
+			select last_insert_id()
+		]]>
+		</selectKey>
+	</insert>
+
+	<update id="update" parameterClass="AwsAddress">
+		<![CDATA[
+		update AWS_ADDRESS set
+			USER_NO = #userNo#,
+			PLATFORM_NO = #platformNo#,
+			PUBLIC_IP = #publicIp#,
+			COMMENT = #comment#,
+			INSTANCE_NO = #instanceNo#,
+			INSTANCE_ID = #instanceId#
+		where
+			ADDRESS_NO = #addressNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="AwsAddress">
+		<![CDATA[
+		delete from AWS_ADDRESS
+		where
+			ADDRESS_NO = #addressNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from AWS_ADDRESS
+		]]>
+	</delete>
+
+	<delete id="deleteByAddressNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from AWS_ADDRESS
+		where
+			ADDRESS_NO = #addressNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByUserNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from AWS_ADDRESS
+		where
+			USER_NO = #userNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByInstanceNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from AWS_ADDRESS
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByPlatformNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from AWS_ADDRESS
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByAddressNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			ADDRESS_NO = #addressNo#
+		]]>
+	</select>
+
+	<select id="countByUserNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			USER_NO = #userNo#
+		]]>
+	</select>
+
+	<select id="countByInstanceNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</select>
+
+	<select id="countByPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+</sqlMap>

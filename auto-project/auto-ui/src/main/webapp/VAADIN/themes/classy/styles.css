@@ -1,0 +1,1525 @@
+@import url(../reindeer/styles.css);
+@import url(button.css);
+
+.v-app, .v-window, .v-panel, .v-popupview-popup, .v-tooltip, .v-app input, .v-app select, .v-app button, .v-app textarea, .v-window input, .v-window select, .v-window button, .v-window textarea, .v-popupview-popup input, .v-popupview-popup select, .v-popupview-popup button, .v-popupview-popup textarea, .v-filterselect-suggestpopup, .v-datefield-popup, .v-contextmenu, .v-menubar-submenu {
+	font-family:'CI',Meiryo,'lr SVbN',sans-serif;
+	font-size: 12px;
+	background : #ffffff;
+}
+.v-filterselect-suggestpopup {
+	background : #f8f8f9;
+	border: 1px solid #b3b3b3;
+}
+.v-label pre{
+	font-family:'CI',Meiryo,'lr SVbN',sans-serif;
+}
+.v-window-outerheader {
+	background : #0A2986;
+}
+.v-window-header img{
+		margin-top: -2px;
+}
+.v-table .v-selected {
+/*	background: #b7ab95;*/
+	background: #BEB29C;
+}
+.v-table .v-selected .v-table-cell-content {
+/*	border-color: #877b65;*/
+	border-right-color: #D3D4D5;
+}
+.v-table .v-selected .v-table-cell-content:last-child {
+	border-right-color: transparent;
+}
+
+.v-progressindicator-wrapper {
+	border-radius: 2px;
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	background: #eee url(images/grad-dark-bottom.png) repeat-x left bottom;
+	overflow: visible;
+	font-size: 1px;
+	line-height: 1px;
+	}
+.v-progressindicator-indicator {
+	border-radius: 2px;
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	background: url(images/grad-light-top.png) repeat-x 0 -10px;
+	background-color: rgb(15,49,147);
+	margin: -1px;
+	height: 7px;
+	border: 1px solid #b3b3b3;
+	}
+
+/* ACRx */
+.icon-label img{
+	float: left;
+	position: relative;
+}
+.icon-label div{
+	position: relative;
+	top: 4px;
+}
+
+/* d؂ */
+.desc-padding , .desc-padding-vertical {
+	border-right: 1px solid #D3D4D5;
+}
+.desc-padding-horizontal {
+	border-top: 1px solid #D3D4D5;
+}
+
+/* _CAO */
+.v-label-dialog-message{
+	text-align: center;
+}
+
+/* [hoT[ʑJڗp{^ */
+.loadbalancer-button .v-button-caption{
+	color: -webkit-link;
+	text-decoration: underline;
+	text-shadow: none;
+	font-size: 12px;
+}
+
+/* ^u̕\ݒ*/
+.v-tabsheet-tabitem .v-captiontext{
+	font-size: 13px;
+}
+.v-tabsheet-tabitem{
+	border-top-left-radius: 1px ;
+	border-top-right-radius: 3px ;
+	-webkit-border-top-left-radius: 1px;
+	-webkit-border-top-right-radius: 3px;
+	-moz-border-radius-topleft: 1px;
+	-moz-border-radius-topright: 3px;
+}
+.v-tabsheet-tabitem-selected{
+	border-top: 2px solid #FF9910;
+	height: 30px;
+}
+.v-tabsheet-tabitem-selected .v-captiontext{
+	margin-top: -2px;
+	font-weight: bolder;
+}
+.v-tabsheet-tabitem-selected img{
+	margin-top: -2px;
+}
+
+/*Login*/
+.form-login .v-required-field-indicator{
+	display:none;
+}
+
+/*ʏ㕔 Top Menu*/
+	.v-csslayout-TopBar .v-horizontallayout-margin{
+		padding-left: 5px;
+	}
+	.v-csslayout-TopBar {
+		background:	#0A2986;
+		color:#F5F5F5;
+/*		text-shadow:1px 1px 0 #909090;*/
+		text-shadow: #3B5A7A 0px 1px 0px;
+	}
+	.v-csslayout-TopBar .v-label-logo img{
+/*		margin-top: 2px;*/
+		float: left;
+	}
+/*	.v-csslayout-TopBar .v-label-logo div{
+		margin-top: 10px;
+		margin-left: 8px;
+		font-size:24px;
+		float: left;
+	}*/
+
+	.v-csslayout-TopBar .v-label-versionNoNone p{
+		margin-left : 80px;
+		float: left;
+	}
+
+	.v-csslayout-TopBar .v-label-versionNo p{
+		margin-top :  12px;
+		margin-left : 5px;
+		font-size: 12px;
+		float: left;
+	}
+
+	.v-csslayout-TopBar .v-button-mycloud{
+		margin-top :  4px;
+		margin-left: 10px;
+		float: left;
+	}
+	.v-csslayout-TopBar .v-link-zabbix{
+		margin-top :  5px;
+		margin-left: 40px;
+		float: left;
+		font-size: 13px;
+		font-weight: bold;
+		color:#F5F5F5;
+	}
+	.v-csslayout-TopBar .v-link-zabbix img{
+		margin-right: 2px;
+	}
+	.v-csslayout-TopBar .eventlog{
+/*		margin-top :  5px;*/
+		margin-top :  4px;
+		margin-left: 30px;
+		float: left;
+	}
+	.v-csslayout-TopBar .v-link-payment{
+		margin-top :  5px;
+		margin-left: 30px;
+		float: left;
+		font-size: 13px;
+		font-weight: bold;
+		color:#F5F5F5;
+	}
+	.v-csslayout-TopBar .v-link-payment img{
+		margin-right: 2px;
+	}
+
+	.v-csslayout-TopBar .v-button-account{
+		margin-top :  2px;
+		margin-right: 15px;
+		float: right;
+	}
+	.v-csslayout-TopBar .v-button-logout{
+		margin-top :  2px;
+		margin-right: 10px;
+		float: right;
+	}
+	.v-csslayout-TopBar .v-button-caption {
+/*		font-size:12px;*/
+		font-size:13px;
+		font-weight:bold;
+		line-height:17px;
+		text-decoration: underline;
+		text-shadow: #3B5A7A 0px 1px 0px;
+		color:#F5F5F5;
+	}
+	.v-csslayout-TopBar .v-link a:visited span , .v-csslayout-TopBar .v-link a:link span{
+		color:#F5F5F5;
+	}
+
+/*myCloud\*/
+	.v-csslayout-mycloud-name{
+		background: #DCE5EE;
+/*		background: #fbfaec;*/
+		font-weight: bold;
+		font-size:14px;
+	}
+
+	.v-csslayout-mycloud-name .v-textfield-mycloud-label.v-disabled{
+		background: transparent;
+		opacity: 1;
+		font-weight: bold;
+		font-size:14px;
+		position: relative;
+		top: 4px;
+	}
+	.v-csslayout-mycloud-name .v-csslayout-margin{
+		padding-left: 15px;
+		padding-right: 18px;
+		padding-top: 0px;
+		padding-bottom: 0px;
+	}
+
+	/* Edit {^*/
+	.v-csslayout-mycloud-name .v-button-edit-button{
+		margin-right: 10px;
+		position: relative;
+		top: 3px;
+	}
+	.v-csslayout-mycloud-name .v-button-edit-button .v-button-caption{
+		vertical-align: -20%;
+		font-size: 11px;
+		text-decoration: underline;
+		text-shadow: none;
+	}
+
+	/*Reload{^*/
+	.v-csslayout-mycloud-name .sync-button{
+		margin-top: 2px;
+		float: right;
+		text-decoration: none;
+	}
+	.v-csslayout-mycloud-name .sync-button .v-button-caption{
+		vertical-align: -12%;
+		font-size: 12px;
+		text-decoration: underline;
+		text-shadow: none;
+	}
+
+/* Service Table , Server Table , LoadBalancer Table*/
+	.service-table .v-table-header-wrap , .server-table .v-table-header-wrap ,  .loadbalancer-table .v-table-header-wrap{
+		font-size:11px;
+		font-weight:normal;
+		text-align: center;
+	}
+	.service-table .v-table-resizer , .server-table .v-table-resizer , .loadbalancer-table .v-table-resizer{
+		display:none;
+	}
+
+/* Service Table */
+	.service-table  .v-label {
+		cursor: pointer;
+	}
+	/* ځFNO */
+	.service-table .v-table-cell-content-no {
+		cursor: pointer;
+		text-align: center;
+		vertical-align: middle;
+		font-weight: bold;
+/*		text-decoration: underline; */
+		width: 35px;
+	}
+	/* ځFNAME */
+	.service-table .v-table-cell-content-name{
+		vertical-align: middle;
+		line-height: 1.3em;
+		width: 200px;
+	}
+	.service-table .v-table-cell-content-name .v-label{
+		line-height: 1.3em;
+	}
+	/* ځFSTATUS */
+	.service-table .v-table-cell-content-status{
+		vertical-align: middle;
+		width: 140px;
+	}
+	.service-table .v-table-cell-content-status img{
+		float: left;
+		top: 2px;
+		position: relative;
+		margin-left:  10px;
+		margin-right: 5px;
+	}
+	.service-table .v-table-cell-content-status .v-label div{
+		position: relative;
+		top: 6px;
+	}
+	/* ځFSRVS */
+	.service-table .v-table-cell-content-srvs {
+		text-align: center;
+		vertical-align: middle;
+		width: 50px;
+	}
+	/* :loadBalancer */
+	.service-table .v-table-cell-content-loadbalancer{
+		text-align: center;
+		width: 120px;
+	}
+	.service-table .v-table-cell-content-loadbalancer .v-button{
+		vertical-align: middle;
+		padding-top: 6px;
+	}
+	/* ځFSERVCIEDETAIL */
+	.service-table .v-table-cell-content-servicedetail{
+		vertical-align: middle;
+	}
+	.service-table .v-table-cell-content-servicedetail img{
+		float: left;
+		top: 2px;
+		position: relative;
+		margin-right: 5px;
+	}
+	.service-table .v-table-cell-content-servicedetail .v-label div{
+		position: relative;
+		top: 6px;
+		left: 3px;
+	}
+
+/*Server-Table*/
+	/*.server-table .v-table-cell-content-no .v-label{
+		cursor: pointer;
+	}*/
+	.server-table .v-label{
+		cursor: pointer;
+	}
+	/* ځFNO */
+	.server-table .v-table-cell-content-no {
+		cursor: pointer;
+		text-align: center;
+		vertical-align: middle;
+		font-weight: bold;
+/*		text-decoration: underline; */
+		width: 35px;
+	}
+	/* ځFNAME */
+	.server-table .v-table-cell-content-name{
+		vertical-align: middle;
+		width: 170px;
+	}
+	.server-table .v-table-cell-content-name img{
+		float: left;
+		top: 2px;
+		position: relative;
+	}
+	.server-table .v-table-cell-content-name .v-label div{
+		position: relative;
+		top: 6px;
+		left: 3px;
+	}
+	.server-table .v-table-cell-content-fqdn {
+		cursor: pointer;
+/*		text-align: center;*/
+		vertical-align: middle;
+		width: 180px;
+	}
+
+	/* ځFPUBLICIP */
+	.server-table .v-table-cell-content-publicip{
+		vertical-align: middle;
+		text-align: center;
+		width: 130px;
+	}
+	/* ځFSTATUS */
+	.server-table .v-table-cell-content-status{
+		vertical-align: middle;
+		width: 140px;
+	}
+	.server-table .v-table-cell-content-status img{
+		float: left;
+		top: 2px;
+		position: relative;
+		margin-left:  10px;
+		margin-right: 5px;
+	}
+	.server-table .v-table-cell-content-status  .v-label div{
+		position: relative;
+		top: 6px;
+		left: 3px;
+	}
+	/* ځFSERVICES */
+
+	.server-table .v-table-cell-content-services{
+		vertical-align: middle;
+		width: 140px;
+	}
+	.server-table .v-table-cell-content-services div{
+		width: 140px;
+	}
+	.server-table .v-table-cell-content-services div img{
+		float: left;
+		top: 2px;
+		position: relative;
+	}
+	/* ځFOPERATION */
+	.server-table .v-table-cell-content-operation{
+		vertical-align: middle;
+		width: 125px;
+	}
+	.server-table .v-table-cell-content-operation span.v-button-caption{
+		display: none;
+	}
+
+
+/* LoadBalancer Table */
+	.loadbalancer-table  .v-label {
+		cursor: pointer;
+	}
+	/* ځFNO */
+	.loadbalancer-table .v-table-cell-content-no {
+		cursor: pointer;
+		text-align: center;
+		vertical-align: middle;
+		font-weight: bold;
+/*		text-decoration: underline; */
+		width: 35px;
+	}
+	/* ځFNAME */
+	.loadbalancer-table .v-table-cell-content-name{
+		vertical-align: middle;
+		line-height: 1.3em;
+		width: 170px;
+	}
+	.loadbalancer-table .v-table-cell-content-name .v-label{
+		line-height: 1.3em;
+	}
+
+	/* :zXg */
+	.loadbalancer-table .v-table-cell-content-hostname {
+		vertical-align: middle;
+		/* width: 170px;*/
+	}
+
+	/* ځFSTATUS */
+	.loadbalancer-table .v-table-cell-content-status{
+		cursor: pointer;
+		vertical-align: middle;
+		width: 160px;
+	}
+	.loadbalancer-table .v-table-cell-content-status img{
+		float: left;
+		top: 2px;
+		position: relative;
+		margin-left:  10px;
+		margin-right: 5px;
+	}
+	.loadbalancer-table .v-table-cell-content-status .v-label div{
+		position: relative;
+		top: 6px;
+	}
+
+	/* ځFTYPE */
+	.loadbalancer-table .v-table-cell-content-type{
+		cursor: pointer;
+		vertical-align: middle;
+		width: 150px;
+	}
+	.loadbalancer-table .v-table-cell-content-type img{
+		float: left;
+		position: relative;
+		margin-left:  5px;
+		margin-right: 0px;
+	}
+	.loadbalancer-table .v-table-cell-content-type .v-label div{
+		position: relative;
+		top: 4px;
+	}
+
+	/* ځF蓖ăT[rX */
+	.loadbalancer-table .v-table-cell-content-servicename{
+		vertical-align: middle;
+		line-height: 1.3em;
+		width: 200px;
+	}
+	.loadbalancer-table .v-table-cell-content-servicename .v-label{
+		line-height: 1.3em;
+	}
+
+/* Service Table  ServerTable  LoadBalancerTable  㕔E  {^ʕ*/
+	.service-buttons .v-csslayout-margin , .server-buttons .v-csslayout-margin , .loadbalancer-table-operation .v-csslayout-margin{
+		padding-left: 6px;
+		padding-right: 5px;
+		padding-right: 25px;
+		padding-top: 2px;
+		padding-bottom: 1px;
+	}
+	.service-buttons .v-label , .server-buttons .v-label , .loadbalancer-table-operation .v-label{
+		float: left;
+		margin-left: 0px;
+		margin-top: 4px;
+	}
+	.service-buttons .v-button-right , .server-buttons .v-button-right , .loadbalancer-table-operation .v-button-right{
+		float: right;
+		margin-right: 10px;
+	}
+	.service-buttons .v-button-left , .server-buttons .v-button-left , .loadbalancer-table-operation .v-button-left{
+		float: left;
+		margin-left: 10px;
+	}
+	.service-buttons .v-label-left , .server-buttons .v-label-left , .loadbalancer-table-operation .v-label-left{
+		float: left;
+		margin-left: 20px;
+	}
+	.service-buttons .v-label-right , .server-buttons .v-label-right , .loadbalancer-table-operation .v-label-right{
+		float: right;
+		margin-right: 20px;
+	}
+
+	/* Service Table  ServerTable  LoadBalancerTable  㕔 {^*/
+	.service-table-label .v-csslayout-margin , .server-table-label .v-csslayout-margin {
+		padding-left: 6px;
+		padding-right: 25px;
+		padding-top: 1px;
+		padding-bottom: 2px;
+	}
+	.loadbalancer-table-label .v-csslayout-margin {
+		padding-left: 6px;
+		padding-top: 6px;
+	}
+	.service-table-label , .server-table-label , .loadbalancer-table-label{
+		font-size: 13px;
+		font-weight: normal;
+	}
+	.service-table-label .v-button-caption , .server-table-label .v-button-caption, .loadbalancer-table-label .v-button-caption{
+/*		color: #990000;*/
+		text-decoration: underline;
+	}
+	.service-table-label  {
+		background: #b9dcff;
+	}
+	.server-table-label {
+		background: #d9f5d3;
+	}
+	.loadbalancer-table-label {
+/*		background: #dde8d7;*/
+		background: #FAEDD4;
+	}
+
+/* Service  Serveřʏ\ 㕔 Label*/
+	.service-desc-panel .v-panel-caption, .server-desc-panel .v-panel-caption , .loadbalancer-desc-panel .v-panel-caption{
+		font-size: 13px;
+		font-weight: normal;
+		padding-left: 10px;
+		height: 17px;
+		padding-left: 8px;
+		padding-top: 5px;
+	}
+	.service-desc-panel .v-label , .server-desc-panel .v-label , .loadbalancer-desc-panel .v-lavel{
+		font-size: 13px;
+		font-weight: normal;
+	}
+	.service-desc-panel .v-panel-caption{
+		background: #b9dcff;
+	}
+	.server-desc-panel .v-panel-caption{
+		background: #d9f5d3;
+	}
+	.loadbalancer-desc-panel .v-panel-caption{
+/*		background: #dde8d7;*/
+		background: #FAEDD4;
+	}
+
+/* Service Desc Basic (T[rX  {)*/
+
+	.server-desc-basic .v-table-cell-content-status{
+		width: 95px;
+	}
+	.server-desc-basic .v-table-cell-content-platform{
+		width: 135px;
+	}
+	.service-desc-basic .v-horizontallayout-margin{
+		padding-left: 10px;
+		padding-right: 10px;
+		padding-top: 5px;
+		padding-bottom: 7px;
+	}
+	.service-desc-basic .v-table-resizer {
+		display:none;
+	}
+	.service-desc-basic .v-table-caption-container{
+		position: relative;
+		font-weight:normal;
+		text-align: center;
+	}
+	.service-desc-basic-panel .v-panel-caption{
+		font-size: 12px;
+		background: #ffffff;
+		padding: 0px;
+	}
+	.service-desc-basic-panel .v-verticallayout-margin{
+		padding-left: 10px;
+		padding-right: 10px;
+		padding-top: 5px;
+		padding-bottom: 5px;
+	}
+	.service-desc-basic-info > div > div > div{
+		border-bottom: 1px solid #D3D4D5;
+	}
+	.service-desc-basic-info .v-label{
+		padding-top: 6px;
+		vertical-align: middle;
+	}
+	.service-desc-basic-info .v-label div{
+		left: 4px;
+		position: relative;
+	}
+	.service-desc-basic-info .v-label img{
+		float: left;
+		top: -3px;
+		position: relative;
+	}
+
+	.v-caption-service-desc-basic-server .v-captiontext{
+		margin-left: 3px;
+	}
+	.service-desc-basic-server .v-table-cell-content{
+		border-bottom: 1px dotted white;
+	}
+	.service-desc-basic-server .v-table-cell-content-check {
+		vertical-align: middle;
+	}
+	.service-desc-basic-server .v-table-cell-content-instancename {
+		vertical-align: middle;
+	}
+	.service-desc-basic-server .v-table-cell-content-urlicon {
+		width: 75px;
+		vertical-align: middle;
+	}
+	.service-desc-basic-server .v-table-cell-content-urlicon a{
+		top: 3px;
+		position: relative;
+	}
+	.service-desc-basic-server .v-table-cell-content-urlicon .v-link span{
+		color: -webkit-link;
+		text-shadow: none;
+		font-weight: bold;
+		font-size: 11px;
+	}
+	.service-desc-basic-server .v-table-cell-content-urlicon img{
+		position: relative;
+		top: -1px;
+		left: 3px;
+		margin-right: 4px;
+	}
+	.service-desc-basic-server .v-table-cell-content-status {
+		width: 110px;
+		vertical-align: middle;
+	}
+	.service-desc-basic-server .v-table-cell-content-status img{
+		float: left;
+		top: 2px;
+		position: relative;
+	}
+	.service-desc-basic-server .v-table-cell-content-status .v-label div{
+		position: relative;
+		top: 6px;
+		left: 3px;
+	}
+	.service-desc-basic-server .v-table-cell-content-platform {
+		width: 150px;
+		vertical-align: middle;
+	}
+	.service-desc-basic-server .v-table-cell-content-platform img{
+		position: relative;
+		top: 2px;
+		float: left;
+	}
+	.service-desc-basic-server .v-table-cell-content-platform .v-label div{
+		position: relative;
+		top: 6px;
+	}
+	/* Check All{^*/
+	.v-button-checkall .v-button-caption{
+		/* text-shadow: none;*/
+		/* font-weight: normal; */
+		text-decoration: underline;
+	}
+	.v-button-checkall img.v-icon{
+		margin-right: 0px;
+	}
+
+/* Service Desc Basic (T[rX  ڍ׏)*/
+	.service-desc-detail .v-table-resizer {
+		display:none;
+	}
+	.service-desc-detail .v-table-caption-container{
+		position: relative;
+		font-weight:normal;
+		text-align: center;
+	}
+	.service-desc-detail .v-horizontallayout-margin{
+		padding-left: 10px;
+		padding-right: 10px;
+		padding-top: 5px;
+		padding-bottom: 7px;
+	}
+	.service-desc-detail-param .v-table-cell-content-kind{
+		width: 20%;
+	}
+	.service-desc-detail-param .v-table-cell-content-name{
+		width: 30%;
+	}
+	.service-desc-detail-param .v-table-cell-content-value{
+		width: 50%;
+	}
+
+/* Server Desc Basic (T[o  {)*/
+	.server-desc-basic .v-horizontallayout-margin{
+		padding-left: 10px;
+		padding-right: 10px;
+		padding-top: 5px;
+		padding-bottom: 0px;
+	}
+	.server-desc-basic .v-verticallayout-margin{
+		padding-left: 0px;
+		padding-right: 0px;
+		padding-top: 0px;
+		padding-bottom: 7px;
+	}
+	.server-desc-basic .v-table-cell-content-componentname{
+		width: 200px;
+	}
+	.server-desc-basic-panel .v-panel-caption{
+		font-size: 12px;
+		background: #ffffff;
+		padding: 0px;
+	}
+	.server-desc-basic-panel .v-verticallayout-margin{
+		padding-left: 10px;
+		padding-right: 10px;
+		padding-top: 5px;
+		padding-bottom: 0px;
+	}
+	.server-desc-basic-info > div > div > div{
+		border-bottom: 1px solid #D3D4D5;
+	}
+	.server-desc-basic-info .v-label{
+		padding-top: 6px;
+		vertical-align: middle;
+	}
+	.server-desc-basic-info .v-label div{
+		left: 4px;
+		position: relative;
+	}
+	.server-desc-basic-info .v-label img{
+		float: left;
+		top: -3px;
+		position: relative;
+	}
+	.server-desc-basic-info .v-button-getpassword{
+		margin-top: 4px;
+	}
+	.server-desc-basic-form .v-form fieldset {
+		border: thin solid;
+	}
+	.v-caption-server-desc-basic-service .v-captiontext{
+		margin-left: 3px;
+	}
+	.server-desc-basic-service .v-table-resizer {
+		display:none;
+	}
+	.server-desc-basic-service .v-table-caption-container{
+		text-align: center;
+		font-weight:normal;
+	}
+	.server-desc-basic-service .v-table-cell-content-componentname {
+		width: 150px;
+		vertical-align: middle;
+	}
+	.server-desc-basic-service .v-table-cell-content-componentname .v-label{
+		line-height: 1.3em;
+	}
+	.server-desc-basic-service  .v-table-cell-content-servicedetail{
+		vertical-align: middle;
+	}
+	.server-desc-basic-service .v-table-cell-content-urlicon {
+		width: 75px;
+		vertical-align: middle;
+	}
+	.server-desc-basic-service .v-table-cell-content-urlicon img{
+		position: relative;
+		top: 3px;
+		left: 3px;
+		margin-right: 4px;
+	}
+	.server-desc-basic-service .v-table-cell-content-urlicon .v-link span{
+		color: -webkit-link;
+	}
+	.server-desc-basic-service .v-table-cell-content-status {
+		width: 110px;
+		vertical-align: middle;
+	}
+	.server-desc-basic-service .v-table-cell-content-status img{
+		float: left;
+		top: 2px;
+		position: relative;
+	}
+	.server-desc-basic-service .v-table-cell-content-status .v-label div{
+		position: relative;
+		top: 6px;
+		left: 3px;
+	}
+/* Desc Desc Basic (T[o  ڍ׏)*/
+	.server-desc-detail .v-horizontallayout-margin{
+		padding-left: 10px;
+		padding-right: 10px;
+		padding-top: 5px;
+		padding-bottom: 0px;
+	}
+	.server-desc-detail .v-verticallayout-margin{
+		padding-left: 0px;
+		padding-right: 0px;
+		padding-top: 0px;
+		padding-bottom: 7px;
+	}
+	.server-desc-detail .v-table-resizer {
+		display:none;
+	}
+	.server-desc-detail .v-table-caption-container{
+		position: relative;
+		font-weight:normal;
+		text-align: center;
+	}
+	.server-desc-detail-param .v-horizontallayout-margin{
+		padding-left: 10px;
+		padding-right: 10px;
+		padding-top: 5px;
+		padding-bottom: 30px;
+	}
+	.server-desc-detail-param .v-table-cell-content-kind{
+		width: 20%;
+	}
+	.server-desc-detail-param .v-table-cell-content-name{
+		width: 30%;
+	}
+	.server-desc-detail-param .v-table-cell-content-valve{
+		width: 50%;
+	}
+
+/* myNEhVK*/
+	.win-mycloud-add-temp .v-table-cell-content{
+		vertical-align: middle;
+	}
+	.win-mycloud-add-temp .v-table-cell-content-no{
+		text-align: center;
+		font-weight: bold;
+		width: 25px;
+	}
+	.win-mycloud-add-temp .v-table-cell-content-name img{
+		float: left;
+		top: 2px;
+		position: relative;
+		margin-left:  5px;
+		margin-right: 5px;
+	}
+	.win-mycloud-add-temp .v-table-cell-content-name .v-label div{
+		position: relative;
+		top: 6px;
+	}
+	.v-csslayout-template-desc .v-csslayout-margin{
+		padding: 5px;
+	}
+
+/* myNEhҏW*/
+	.win-mycloud-edit-table .v-table-cell-content{
+		vertical-align: middle;
+	}
+	.win-mycloud-edit-table .v-table-cell-content-no{
+		font-weight: bold;
+		text-align: center;
+/*		text-decoration: underline;*/
+		width: 30px;
+	}
+/*	.win-mycloud-edit-table .v-table-cell-content-name{
+		width: 180px;
+	}
+	*/
+	.win-mycloud-edit-table .v-table-cell-content-name img{
+		float: left;
+		top: 2px;
+		position: relative;
+		margin-left:  5px;
+		margin-right: 5px;
+	}
+	.win-mycloud-edit-table .v-table-cell-content-name .v-label div{
+		position: relative;
+		top: 6px;
+	}
+
+/* T[rXǉ */
+	.win-service-add-service .v-table-cell-content{
+		vertical-align: middle;
+	}
+	.win-service-add-service .v-table-cell-content-no{
+		text-align: center;
+		font-weight: bold;
+		width: 25px;
+	}
+	.win-service-add-service .v-table-cell-content-service{
+		width: 200px;
+	}
+	.win-service-add-service .v-table-cell-content-service img{
+		float: left;
+		top: 2px;
+		position: relative;
+		margin-left:  5px;
+		margin-right: 5px;
+	}
+	.win-service-add-service .v-table-cell-content-service .v-label div{
+		position: relative;
+		top: 6px;
+	}
+	.win-service-add-form .v-horizontallayout-serverselect{
+		margin-top: 5px;
+	}
+	.win-service-add-form .v-select-twincol-serverselect{
+		margin-top: -5px;
+	}
+
+	/* T[rXҏW */
+
+	.win-service-edit-form .v-captiontext{
+		margin-top: 3px;
+	}
+	.win-service-edit-form .v-absolutelayout-serverselect{
+		margin-top: 5px;
+	}
+	.win-service-edit-form .v-select-twincol-serverselect{
+		margin-top: -8px;
+	}
+
+/* T[oǉ*/
+	/* NEhIe[u */
+	.win-server-add-cloud .v-table-cell-content{
+		vertical-align: middle;
+	}
+	.win-server-add-cloud .v-table-cell-content-no{
+		text-align: center;
+		font-weight: bold;
+		width: 25px;
+	}
+	.win-server-add-cloud .v-table-cell-content-cloud img{
+		float: left;
+		top: 2px;
+		position: relative;
+		margin-left:  5px;
+		margin-right: 5px;
+	}
+	.win-server-add-cloud .v-table-cell-content-cloud .v-label div{
+		position: relative;
+		top: 6px;
+	}
+
+	/* T[oʑIe[u */
+	.win-server-add-os .v-table-cell-content{
+		vertical-align: middle;
+	}
+	.win-server-add-os .v-table-cell-content-no{
+		text-align: center;
+		font-weight: bold;
+		width: 25px;
+	}
+	.win-server-add-os .v-table-cell-content-image img{
+		float: left;
+		top: 2px;
+		position: relative;
+		margin-left:  5px;
+		margin-right: 5px;
+	}
+	.win-server-add-os .v-table-cell-content-image .v-label div{
+		position: relative;
+		top: 6px;
+	}
+	.win-server-add-os .v-table-cell-content-detail{
+		width: 170px;
+	}
+	.win-server-add-os .v-table-cell-content-detail img{
+		float: left;
+		top: 2px;
+		position: relative;
+		margin-left:  5px;
+		margin-right: 5px;
+	}
+	.win-server-add-os .v-table-cell-content-detail .v-label div{
+		position: relative;
+		top: 6px;
+	}
+
+	 /* p\T[rX\ */
+	.v-csslayout-win-server-add-panel .v-csslayout-margin{
+		padding: 5px;
+	}
+	.win-server-add-service .v-table-row , .win-server-add-service .v-table-row-odd{
+		background: whiteSmoke;
+	}
+	.win-server-add-service .v-table-body.focused{
+		border-color: #C2C3C4;
+	}
+	.win-server-add-service .v-table-cell-content{
+		border-bottom: 1px dotted #D3D4D5;
+		vertical-align: middle;
+	}
+	.win-server-add-service .v-table-cell-content-description{
+		text-align: center;
+		width: 150px;
+	}
+	.win-server-add-service .v-table-cell-content-service img{
+		float: left;
+		top: 1px;
+		position: relative;
+		margin-left:  5px;
+		margin-right: 5px;
+	}
+	.win-server-add-service .v-table-cell-content-service .v-label div{
+		position: relative;
+		top: 4px;
+	}
+
+/* T[oҏW */
+	.win-server-edit-form .v-captiontext{
+		margin-top: 3px;
+	}
+	.v-caption-win-server-add-service .v-captiontext{
+		margin-top: 0px;
+	}
+
+/* T[o-T[rXǉ*/
+	.win-server-attach-service .v-table-header-wrap{
+		font-weight:normal;
+		text-align: center;
+	}
+	.win-server-attach-service .v-table-resizer {
+		display:none;
+	}
+	.win-server-attach-service .v-table-cell-content{
+		border-bottom: 1px dotted white;
+	}
+	.win-server-attach-service .v-table-cell-content-check {
+		width: 20px;
+		vertical-align: middle;
+	}
+	.win-server-attach-service .v-table-cell-content-status {
+		width: 120px;
+		vertical-align: middle;
+	}
+	.win-server-attach-service .v-table-cell-content-status img{
+		float: left;
+		top: 2px;
+		position: relative;
+	}
+	.win-server-attach-service .v-table-cell-content-status .v-label div{
+		position: relative;
+		top: 6px;
+		left: 3px;
+	}
+	.win-server-attach-service .v-disabled {
+		opacity: 0.8px;
+	}
+
+/* O\ */
+/*
+	.win-log-view .label{
+		float: left;
+		position: relative;
+		width: 150px;
+		margin-left:  0px;
+	}
+	.win-log-view .v-filterselect-cmbmycloud{
+		position: relative;
+		margin-left:  0px;
+	}
+
+	.win-log-view .v-button-mycloudrefresh{
+		position: relative;
+		margin-left:  0px;
+	}
+*/
+
+/* [U[Ǘ@@@ */
+	.win-user-view {
+	}
+
+	.v-csslayout-UserTopTitle .v-horizontallayout-margin{
+		padding-left: 5px;
+	}
+
+
+	.v-csslayout-UserTopTitle {
+		background:	#0A2986;
+		color:#F5F5F5;
+		text-shadow: #3B5A7A 0px 1px 0px;
+	}
+	.v-csslayout-UserTopTitle .v-label-title {
+		font-size: 20px;
+		margin-top :  5px;
+		font-weight: bold;
+		text-align: center;
+	}
+
+	.user-buttons .v-csslayout-margin{
+		padding-left: 6px;
+		padding-right: 5px;
+		padding-right: 25px;
+		padding-top: 2px;
+		padding-bottom: 1px;
+	}
+	.user-buttons .v-label{
+		float: left;
+		margin-left: 0px;
+		margin-top: 4px;
+	}
+	.user-buttons .v-button-right{
+		float: right;
+		margin-right: 10px;
+	}
+	.user-buttons .v-button-left{
+		float: left;
+		margin-left: 10px;
+	}
+	.user-buttons .v-label-left{
+		float: left;
+		margin-left: 20px;
+	}
+	.user-buttons .v-label-right{
+		float: right;
+		margin-right: 20px;
+	}
+	.user-table-label .v-csslayout-margin{
+		padding-left: 6px;
+		padding-right: 25px;
+		padding-top: 1px;
+		padding-bottom: 2px;
+	}
+	.user-table-label{
+		font-size: 13px;
+		font-weight: normal;
+	}
+	.user-table-label .v-button-caption{
+		text-decoration: underline;
+	}
+	.user-table-label  {
+		background: #b9dcff;
+	}
+	.user-table .v-table-header-wrap, .user-table .white .v-table-header-wrap {
+        text-transform: none;
+	}
+
+/* VK[UǉE[UҏWʁA[Ue[u */
+    .win-user-auth-table .v-table-cell-content {
+        vertical-align: middle;
+    }
+    .win-user-auth-table .v-table-header-wrap, .win-user-auth-table .white .v-table-header-wrap {
+        text-transform: none;
+    }
+
+/* mFp_CAO  */
+	.dialog-confirm .v-window-outerheader {
+		Height: 20px;
+		background: #0A2986;
+		padding-top: 4px;
+	}
+	.dialog-confirm .v-window-outerheader .v-window-header img{
+		margin-top: -2px;
+	}
+	.dialog-confirm .v-verticallayout-margin {
+		padding: 10px;
+	}
+	.dialog-confirm .v-horizontallayout-margin {
+		padding-top: 10px;
+	}
+	.dialog-confirm .v-verticallayout-spacing-off{
+		padding: 4px;
+	}
+	.dialog-confirm-option .v-verticallayout-margin , .dialog-confirm-option .v-horizontallayout-margin{
+		padding-left: 0px;
+		padding-right: 0px;
+		padding-top: 0px;
+		padding-bottom: 5px;
+	}
+	.dialog-confirm .v-filterselect-input{
+		color: #b22222;
+	}
+	.dialog-confirm.v-filterselect-prompt .v-filterselect-input{
+		color: #D69E9E;
+	}
+	.v-filterselect-suggestpopup-dialog-confirm .v-filterselect-suggestmenu {
+		color: #b22222;
+	}
+/*	.v-filterselect-suggestpopup-dialog-confirm .v-filterselect-suggestmenu .gwt-MenuItem-selected{
+		color: #b22222;
+	}*/
+
+	/* Nortification*/
+	.v-Notification-search{
+		background: #fdf3b5;
+		border: 3px solid #fee3af;
+	}
+
+	.v-Notification-search h1{
+		font-size: 16px;
+		color: #ca9a61;
+	}
+
+/* LoadBalancer Desc Basic*/
+	.loadbalancer-desc-basic-panel .v-panel-caption{
+		font-size: 12px;
+		background: #ffffff;
+		padding: 0px;
+	}
+	.loadbalancer-desc-basic .v-verticallayout-margin{
+		padding-left: 0px;
+		padding-right: 0px;
+		padding-top: 0px;
+		padding-bottom: 7px;
+	}
+	.loadbalancer-desc-basic .v-horizontallayout-margin{
+		padding-left: 10px;
+		padding-right: 10px;
+		padding-top: 5px;
+		padding-bottom: 0px;
+	}
+
+/* Loadbalancer Add Window*/
+	/* platform table */
+	.loadbalancer-add-table .v-table-cell-content{
+		vertical-align: middle;
+	}
+	.loadbalancer-add-table .v-table-cell-content-no{
+		text-align: center;
+		font-weight: bold;
+		width: 25px;
+	}
+	.loadbalancer-add-table .v-table-cell-content-cloud img{
+		float: left;
+		top: 2px;
+		position: relative;
+		margin-left:  5px;
+		margin-right: 5px;
+	}
+	.loadbalancer-add-table  .v-table-cell-content-cloud .v-label div{
+		position: relative;
+		top: 6px;
+	}
+
+	/* platform table */
+	.loadbalancer-add-table .v-table-cell-content-detail img{
+		float: left;
+		top: 2px;
+		position: relative;
+		margin-left:  5px;
+		margin-right: 5px;
+	}
+	.loadbalancer-add-table .v-table-cell-content-detail .v-label div{
+		position: relative;
+		top: 6px;
+	}
+	/* service table */
+	.loadbalancer-select-service .v-table-cell-content-name{
+		vertical-align: middle;
+		line-height: 1.3em;
+		width: 200px;
+	}
+	.loadbalancer-select-service .v-table-cell-content-name .v-label{
+		line-height: 1.3em;
+	}
+	.loadbalancer-select-service .v-table-cell-content-detail img{
+		float: left;
+		top: 2px;
+		position: relative;
+		margin-left:  5px;
+		margin-right: 5px;
+	}
+	.loadbalancer-select-service .v-table-cell-content-detail .v-label div{
+		position: relative;
+		top: 6px;
+	}
+
+
+/*[hoT { */
+	.loadbalancer-desc-basic-panel .v-panel-caption{
+		font-size: 12px;
+		background: #ffffff;
+		padding: 0px;
+	}
+	.loadbalancer-desc-basic-panel .v-verticallayout-margin{
+		padding-left: 10px;
+		padding-right: 10px;
+		padding-top: 5px;
+		padding-bottom: 5px;
+	}
+	.loadbalancer-desc-basic-info > div > div > div{
+		border-bottom: 1px solid #D3D4D5;
+	}
+	.loadbalancer-desc-basic-info .v-label{
+		padding-top: 6px;
+		vertical-align: middle;
+	}
+	.loadbalancer-desc-basic-info .v-label div{
+		left: 4px;
+		position: relative;
+	}
+	.loadbalancer-desc-basic-info .v-label img{
+		float: left;
+		top: -3px;
+		position: relative;
+	}
+
+	.v-caption-loadbalancer-desc-basic-listener .v-captiontext{
+		margin-left: 3px;
+	}
+	.loadbalancer-desc-basic-listener .v-table-resizer {
+		display:none;
+	}
+	.loadbalancer-desc-basic-listener .v-table-caption-container{
+		text-align: center;
+		font-weight:normal;
+	}
+	.loadbalancer-desc-basic-listener .v-table-cell-content {
+		border-bottom: 1px dotted white;
+	}
+	.loadbalancer-desc-basic-listener .v-table-cell-content-check {
+		text-align: center;
+		vertical-align: middle;
+	}
+	.loadbalancer-desc-basic-listener .v-table-cell-content-edit {
+		width: 60px;
+		vertical-align: middle;
+	}
+	.loadbalancer-desc-basic-listener .v-table-cell-content-edit .v-button {
+		top: 2px;
+		left: 5px;
+		position: relative;
+	}
+	.loadbalancer-desc-basic-listener .v-table-cell-content-edit .v-button-caption {
+		color: -webkit-link;
+		text-decoration: underline;
+		text-shadow: none;
+		font-size: 12px;
+	}
+	.loadbalancer-desc-basic-listener .v-table-cell-content-componentname {
+		width: 150px;
+		vertical-align: middle;
+	}
+	.loadbalancer-desc-basic-listener .v-table-cell-content-componentname .v-label{
+		line-height: 1.3em;
+	}
+	.loadbalancer-desc-basic-listener .v-table-cell-content-status {
+		/*width: 110px;*/
+		vertical-align: middle;
+	}
+	.loadbalancer-desc-basic-listener .v-table-cell-content-status img{
+		float: left;
+		top: 1px;
+		left: 8px;
+		position: relative;
+	}
+	.loadbalancer-desc-basic-listener .v-table-cell-content-status .v-label div{
+		position: relative;
+		top: 6px;
+		left: 13px;
+	}
+	.loadbalancer-desc-basic-listener .v-table-cell-content-loadbalancerport {
+		width: 110px;
+		text-align: center;
+		vertical-align: middle;
+	}
+	.loadbalancer-desc-basic-listener .v-table-cell-content-loadbalancerport img{
+		position: relative;
+	}
+	.loadbalancer-desc-basic-listener .v-table-cell-content-loadbalancerport .v-link a:link span {
+		color: -webkit-link;
+		position: relative;
+		top: 0px;
+		left: 3px;
+		font-weight: bold;
+		text-shadow: none;
+	}
+	.loadbalancer-desc-basic-listener .v-table-cell-content-serviceport {
+		width: 85px;
+		text-align: center;
+		vertical-align: middle;
+	}
+	.loadbalancer-desc-basic-listener .v-table-cell-content-protocol {
+		width: 85px;
+		text-align: center;
+		vertical-align: middle;
+	}
+
+/* [hoT[蓖ăT[rXڍ */
+	.loadbalancer-desc-server-right .v-verticallayout-margin{
+		padding-left: 0px;
+		padding-right: 0px;
+		padding-top: 0px;
+		padding-bottom: 0px;
+	}
+	.loadbalancer-desc-service-select-panel .v-verticallayout-margin{
+		padding-left: 0px;
+		padding-right: 0px;
+		padding-top: 5px;
+		padding-bottom: 0px;
+	}
+	.loadbalancer-desc-service-select-panel .v-horizontallayout-margin{
+		padding-left: 0px;
+		padding-right: 0px;
+		padding-top: 0px;
+		padding-bottom: 0px;
+	}
+
+	.v-caption-loadbalancer-desc-service-servers .v-captiontext{
+		margin-left: 3px;
+	}
+	.loadbalancer-desc-service-servers .v-table-resizer {
+		display:none;
+	}
+	.loadbalancer-desc-service-servers .v-table-caption-container{
+		text-align: center;
+		font-weight:normal;
+	}
+	.loadbalancer-desc-service-servers .v-table-cell-content {
+		border-bottom: 1px dotted white;
+	}
+	.loadbalancer-desc-service-servers .v-table-cell-content-check {
+		vertical-align: middle;
+	}
+	.loadbalancer-desc-service-servers .v-table-cell-content-instancename {
+		vertical-align: middle;
+	}
+	.loadbalancer-desc-service-servers .v-table-cell-content-instancename img{
+		float: left;
+		top: 2px;
+		position: relative;
+	}
+	.loadbalancer-desc-service-servers .v-table-cell-content-instancename .v-label div{
+		position: relative;
+		top: 6px;
+		left: 3px;
+	}
+	.loadbalancer-desc-service-servers .v-table-cell-content-status {
+		width: 130px;
+		vertical-align: middle;
+	}
+	.loadbalancer-desc-service-servers .v-table-cell-content-status img{
+		float: left;
+		top: 2px;
+		left: 8px;
+		position: relative;
+	}
+	.loadbalancer-desc-service-servers .v-table-cell-content-status .v-label div{
+		position: relative;
+		top: 6px;
+		left: 13px;
+	}
+	.loadbalancer-desc-service-servers .v-table-cell-content-servicestatus {
+		width: 130px;
+		vertical-align: middle;
+	}
+	.loadbalancer-desc-service-servers .v-table-cell-content-servicestatus img{
+		float: left;
+		top: 2px;
+		left: 8px;
+		position: relative;
+	}
+	.loadbalancer-desc-service-servers .v-table-cell-content-servicestatus .v-label div{
+		position: relative;
+		top: 6px;
+		left: 13px;
+	}
+	.loadbalancer-desc-service-servers .v-table-cell-content-platform{
+		width: 150px;
+		vertical-align: middle;
+	}
+	.loadbalancer-desc-service-servers .v-table-cell-content-platform img{
+		float: left;
+		top: 2px;
+		position: relative;
+	}
+	.loadbalancer-desc-service-servers .v-table-cell-content-platform .v-label div{
+		position: relative;
+		top: 6px;
+	}
+
+/* T[rX{   [hoT{ [hoT[ڍ E{^암 */
+	.operation-buttons .v-horizontallayout-margin{
+		padding-left: 0px;
+		padding-right: 80px;
+		padding-top: 0px;
+		padding-bottom: 0px;
+	}
+	.operation-buttons .v-horizontallayout-spacing-on , .loadbalancer-service-operation-buttons .v-horizontallayout-spacing-on{
+		padding-left: 10px;
+	}
+	.loadbalancer-service-operation-buttons .v-horizontallayout-margin{
+		padding-left: 0px;
+		padding-right: 10px;
+		padding-top: 0px;
+		padding-bottom: 0px;
+	}
+
+/* WindowspX[h擾*/
+	.v-verticallayout-win-password {
+
+	}
+
+	.v-verticallayout-win-password .v-textarea-privatekey{
+		font-size:2px;
+	}
+
+	.v-verticallayout-win-password .v-textfield-password {
+		background-color:#F5F0E7;
+		font-weight:bold;
+		color:#0A2986;
+		text-align:center;
+	}

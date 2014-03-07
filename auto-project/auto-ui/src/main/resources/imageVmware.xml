@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ROOT SYSTEM "imageVmware.dtd">
+<ROOT>
+    <row>
+      <field name="IMAGE_NO">101</field>
+      <field name="TEMPLATE_NAME">vm-template</field>
+      <field name="INSTANCE_TYPES">small\,medium\,large</field>
+    </row>
+    <row>
+      <field name="IMAGE_NO">103</field>
+      <field name="TEMPLATE_NAME">ultramonkey-template</field>
+      <field name="INSTANCE_TYPES">small</field>
+    </row>
+    <row>
+      <field name="IMAGE_NO">111</field>
+      <field name="TEMPLATE_NAME">windows2008R2-template</field>
+      <field name="INSTANCE_TYPES">small\,medium\,large</field>
+    </row>
+</ROOT>

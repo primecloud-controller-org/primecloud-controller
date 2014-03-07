@@ -1,0 +1,42 @@
+#!/bin/sh
+if [ $# -ne 4 ]; then
+    echo $"Usage: $0  master_host master_port admin_user admin_password" 1>&2
+    exit 1
+fi
+
+ADMIN_USER=$3
+ADMIN_PASSWORD=$4
+CHANGE_HOST=$1
+CHANGE_PORT=$2
+
+#Get SLAVE STATUS
+ORG_MASTER_HOST=`mysql -u${ADMIN_USER} --password="${ADMIN_PASSWORD}" -e "show slave status\G"  | gawk -v IGNORECASE=1 -F : '/^ +Master_Host/ { print $2 }'`
+ORG_MASTER_PORT=`mysql -u${ADMIN_USER} --password="${ADMIN_PASSWORD}" -e "show slave status\G"  | gawk -v IGNORECASE=1 -F : '/^ +Master_Port/ { print $2 }'`
+MASTER_LOG_FILE=`mysql -u${ADMIN_USER} --password="${ADMIN_PASSWORD}" -e "show slave status\G"  | gawk -v IGNORECASE=1 -F : '/^ +Master_Log_File/ { print $2 }'`
+READ_MASTER_LOG_POS=`mysql -u${ADMIN_USER} --password="${ADMIN_PASSWORD}" -e "show slave status\G"  | gawk -v IGNORECASE=1 -F : '/^ +Read_Master_Log_Pos/ { print $2 }'`
+
+if [ $ORG_MASTER_HOST == $CHANGE_HOST ] && [ $ORG_MASTER_PORT == $CHANGE_PORT ]; then
+   #START SLAVE
+   mysqladmin -u${ADMIN_USER} --password="${ADMIN_PASSWORD}" start-slave > /dev/null
+   RETVAL=$?
+   exit $RETVAL
+fi
+
+#STOP SLAVE
+mysqladmin -u${ADMIN_USER} --password="${ADMIN_PASSWORD}" stop-slave > /dev/null
+RETVAL=$?
+if [ $RETVAL -ne 0 ]; then
+    exit $RETVAL
+fi
+
+#CHANGE MASTER
+mysql -u${ADMIN_USER} --password="${ADMIN_PASSWORD}" -e "CHANGE MASTER TO MASTER_HOST='${CHANGE_HOST}',MASTER_PORT=${CHANGE_PORT},MASTER_LOG_POS=${READ_MASTER_LOG_POS}" > /dev/null
+RETVAL=$?
+if [ $RETVAL -ne 0 ]; then
+    exit $RETVAL
+fi
+
+#START SLAVE
+mysqladmin -u${ADMIN_USER} --password="${ADMIN_PASSWORD}" start-slave > /dev/null
+RETVAL=$?
+exit $RETVAL

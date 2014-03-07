@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap      
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ComponentConfig">
+
+	<typeAlias alias="ComponentConfig" type="jp.primecloud.auto.entity.crud.ComponentConfig" />
+
+	<resultMap id="componentConfigResultMap" class="ComponentConfig">
+		<result property="configNo" column="CONFIG_NO" />
+		<result property="componentNo" column="COMPONENT_NO" />
+		<result property="configName" column="CONFIG_NAME" nullValue="" />
+		<result property="configValue" column="CONFIG_VALUE" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.CONFIG_NO as CONFIG_NO, 
+			t1.COMPONENT_NO as COMPONENT_NO, 
+			t1.CONFIG_NAME as CONFIG_NAME, 
+			t1.CONFIG_VALUE as CONFIG_VALUE
+		from
+			COMPONENT_CONFIG t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from COMPONENT_CONFIG t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="componentConfigResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.CONFIG_NO = #configNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="componentConfigResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readByComponentNoAndConfigName" parameterClass="java.util.Map" resultMap="componentConfigResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.COMPONENT_NO = #componentNo# and
+			t1.CONFIG_NAME = #configName#
+		]]>
+	</select>
+
+	<select id="readByComponentNo" parameterClass="java.util.Map" resultMap="componentConfigResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.COMPONENT_NO = #componentNo#
+		]]>
+	</select>
+
+	<select id="readInConfigNos" parameterClass="java.util.Map" resultMap="componentConfigResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.CONFIG_NO in
+		]]>
+		<iterate property="configNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#configNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="ComponentConfig">
+		<![CDATA[
+		insert into COMPONENT_CONFIG (
+			CONFIG_NO, 
+			COMPONENT_NO, 
+			CONFIG_NAME, 
+			CONFIG_VALUE
+		) values (
+			#configNo#, 
+			#componentNo#, 
+			#configName#, 
+			#configValue#
+		)
+		]]>
+	</insert>
+
+	<insert id="createAuto" parameterClass="ComponentConfig">
+		<![CDATA[
+		insert into COMPONENT_CONFIG (
+			CONFIG_NO, 
+			COMPONENT_NO, 
+			CONFIG_NAME, 
+			CONFIG_VALUE
+		) values (
+			#configNo#, 
+			#componentNo#, 
+			#configName#, 
+			#configValue#
+		)
+		]]>
+		<selectKey keyProperty="configNo" resultClass="java.lang.Long" type="post">
+		<![CDATA[
+			select last_insert_id()
+		]]>
+		</selectKey>
+	</insert>
+
+	<update id="update" parameterClass="ComponentConfig">
+		<![CDATA[
+		update COMPONENT_CONFIG set
+			COMPONENT_NO = #componentNo#, 
+			CONFIG_NAME = #configName#, 
+			CONFIG_VALUE = #configValue#
+		where
+			CONFIG_NO = #configNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="ComponentConfig">
+		<![CDATA[
+		delete from COMPONENT_CONFIG
+		where
+			CONFIG_NO = #configNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from COMPONENT_CONFIG
+		]]>
+	</delete>
+
+	<delete id="deleteByConfigNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from COMPONENT_CONFIG
+		where
+			CONFIG_NO = #configNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByComponentNoAndConfigName" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from COMPONENT_CONFIG
+		where
+			COMPONENT_NO = #componentNo# and
+			CONFIG_NAME = #configName#
+		]]>
+	</delete>
+
+	<delete id="deleteByComponentNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from COMPONENT_CONFIG
+		where
+			COMPONENT_NO = #componentNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByConfigNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			CONFIG_NO = #configNo#
+		]]>
+	</select>
+
+	<select id="countByComponentNoAndConfigName" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			COMPONENT_NO = #componentNo# and
+			CONFIG_NAME = #configName#
+		]]>
+	</select>
+
+	<select id="countByComponentNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			COMPONENT_NO = #componentNo#
+		]]>
+	</select>
+
+</sqlMap>

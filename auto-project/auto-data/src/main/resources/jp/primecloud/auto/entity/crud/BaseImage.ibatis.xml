@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Image">
+
+	<typeAlias alias="Image" type="jp.primecloud.auto.entity.crud.Image" />
+
+	<resultMap id="imageResultMap" class="Image">
+		<result property="imageNo" column="IMAGE_NO" />
+		<result property="platformNo" column="PLATFORM_NO" />
+		<result property="imageName" column="IMAGE_NAME" nullValue="" />
+		<result property="imageNameDisp" column="IMAGE_NAME_DISP" nullValue="" />
+		<result property="os" column="OS" nullValue="" />
+		<result property="osDisp" column="OS_DISP" nullValue="" />
+		<result property="selectable" column="SELECTABLE" />
+		<result property="componentTypeNos" column="COMPONENT_TYPE_NOS" nullValue="" />
+		<result property="zabbixTemplate" column="ZABBIX_TEMPLATE" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.IMAGE_NO as IMAGE_NO,
+			t1.PLATFORM_NO as PLATFORM_NO,
+			t1.IMAGE_NAME as IMAGE_NAME,
+			t1.IMAGE_NAME_DISP as IMAGE_NAME_DISP,
+			t1.OS as OS,
+			t1.OS_DISP as OS_DISP,
+			t1.SELECTABLE as SELECTABLE,
+			t1.COMPONENT_TYPE_NOS as COMPONENT_TYPE_NOS,
+			t1.ZABBIX_TEMPLATE as ZABBIX_TEMPLATE
+		from
+			IMAGE t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from IMAGE t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="imageResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.IMAGE_NO = #imageNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="imageResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readByPlatformNo" parameterClass="java.util.Map" resultMap="imageResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="readInImageNos" parameterClass="java.util.Map" resultMap="imageResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.IMAGE_NO in
+		]]>
+		<iterate property="imageNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#imageNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="Image">
+		<![CDATA[
+		insert into IMAGE (
+			IMAGE_NO,
+			PLATFORM_NO,
+			IMAGE_NAME,
+			IMAGE_NAME_DISP,
+			OS,
+			OS_DISP,
+			SELECTABLE,
+			COMPONENT_TYPE_NOS,
+			ZABBIX_TEMPLATE
+		) values (
+			#imageNo#,
+			#platformNo#,
+			#imageName#,
+			#imageNameDisp#,
+			#os#,
+			#osDisp#,
+			#selectable#,
+			#componentTypeNos#,
+			#zabbixTemplate#
+		)
+		]]>
+	</insert>
+
+	<insert id="createAuto" parameterClass="Image">
+		<![CDATA[
+		insert into IMAGE (
+			IMAGE_NO,
+			PLATFORM_NO,
+			IMAGE_NAME,
+			IMAGE_NAME_DISP,
+			OS,
+			OS_DISP,
+			SELECTABLE,
+			COMPONENT_TYPE_NOS,
+			ZABBIX_TEMPLATE
+		) values (
+			#imageNo#,
+			#platformNo#,
+			#imageName#,
+			#imageNameDisp#,
+			#os#,
+			#osDisp#,
+			#selectable#,
+			#componentTypeNos#,
+			#zabbixTemplate#
+		)
+		]]>
+		<selectKey keyProperty="imageNo" resultClass="java.lang.Long" type="post">
+		<![CDATA[
+			select last_insert_id()
+		]]>
+		</selectKey>
+	</insert>
+
+	<update id="update" parameterClass="Image">
+		<![CDATA[
+		update IMAGE set
+			PLATFORM_NO = #platformNo#,
+			IMAGE_NAME = #imageName#,
+			IMAGE_NAME_DISP = #imageNameDisp#,
+			OS = #os#,
+			OS_DISP = #osDisp#,
+			SELECTABLE = #selectable#,
+			COMPONENT_TYPE_NOS = #componentTypeNos#,
+			ZABBIX_TEMPLATE = #zabbixTemplate#
+		where
+			IMAGE_NO = #imageNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="Image">
+		<![CDATA[
+		delete from IMAGE
+		where
+			IMAGE_NO = #imageNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from image
+		]]>
+	</delete>
+
+	<delete id="deleteByImageNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from IMAGE
+		where
+			IMAGE_NO = #imageNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByPlatformNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from IMAGE
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByImageNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			IMAGE_NO = #imageNo#
+		]]>
+	</select>
+
+	<select id="countByPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+</sqlMap>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ROOT SYSTEM "componentType.dtd">
+<ROOT>
+    <row>
+       <field name="COMPONENT_TYPE_NO">1</field>
+      <field name="COMPONENT_TYPE_NAME">mysql</field>
+      <field name="COMPONENT_TYPE_NAME_DISP">MySQL Community Server_test</field>
+      <field name="LAYER">db</field>
+      <field name="LAYER_DISP">データベースサーバ_test</field>
+      <field name="RUN_ORDER">100</field>
+      <field name="ZABBIX_TEMPLATE">Template_MW_MySQL</field>
+    </row>
+    <row>
+       <field name="COMPONENT_TYPE_NO">2</field>
+      <field name="COMPONENT_TYPE_NAME">tomcat</field>
+      <field name="COMPONENT_TYPE_NAME_DISP">Apache Tomcat_test</field>
+      <field name="LAYER">ap_java</field>
+      <field name="LAYER_DISP">Java EEサーバ_test</field>
+      <field name="RUN_ORDER">200</field>
+      <field name="ZABBIX_TEMPLATE">Template_MW_Tomcat</field>
+    </row>
+    <row>
+       <field name="COMPONENT_TYPE_NO">3</field>
+      <field name="COMPONENT_TYPE_NAME">geronimo</field>
+      <field name="COMPONENT_TYPE_NAME_DISP">Apache Geronimo_test</field>
+      <field name="LAYER">ap_java</field>
+      <field name="LAYER_DISP">Java EEサーバ_test</field>
+      <field name="RUN_ORDER">200</field>
+      <field name="ZABBIX_TEMPLATE">Template_MW_Geronimo</field>
+    </row>
+    <row>
+       <field name="COMPONENT_TYPE_NO">4</field>
+      <field name="COMPONENT_TYPE_NAME">apache</field>
+      <field name="COMPONENT_TYPE_NAME_DISP">Apache HTTP Server_test</field>
+      <field name="LAYER">web</field>
+      <field name="LAYER_DISP">Webサーバ_test</field>
+      <field name="RUN_ORDER">300</field>
+      <field name="ZABBIX_TEMPLATE">Template_MW_Apache</field>
+    </row>
+    <row>
+      <field name="COMPONENT_TYPE_NO">5</field>
+      <field name="COMPONENT_TYPE_NAME">ultramonkey</field>
+      <field name="COMPONENT_TYPE_NAME_DISP"></field>
+      <field name="LAYER">lb</field>
+      <field name="LAYER_DISP"></field>
+      <field name="RUN_ORDER">400</field>
+      <field name="ZABBIX_TEMPLATE">Template_LB_UltraMonkey</field>
+    </row>
+    <row>
+      <field name="COMPONENT_TYPE_NO">6</field>
+      <field name="COMPONENT_TYPE_NAME">prjserver</field>
+      <field name="COMPONENT_TYPE_NAME_DISP">開発プロジェクト用サーバ_test</field>
+      <field name="LAYER">prj</field>
+      <field name="LAYER_DISP">開発プロジェクト用サーバ_test</field>
+      <field name="RUN_ORDER">1000</field>
+      <field name="ZABBIX_TEMPLATE">Template_MW_Prjserver</field>
+    </row>
+</ROOT>

@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="AutoScalingConf">
+
+	<typeAlias alias="AutoScalingConf" type="jp.primecloud.auto.entity.crud.AutoScalingConf" />
+
+	<resultMap id="autoScalingConfResultMap" class="AutoScalingConf">
+		<result property="loadBalancerNo" column="LOAD_BALANCER_NO" />
+		<result property="farmNo" column="FARM_NO" />
+		<result property="platformNo" column="PLATFORM_NO" />
+		<result property="imageNo" column="IMAGE_NO" />
+		<result property="instanceType" column="INSTANCE_TYPE" nullValue="" />
+		<result property="namingRule" column="NAMING_RULE" nullValue="" />
+		<result property="idleTimeMax" column="IDLE_TIME_MAX" />
+		<result property="idleTimeMin" column="IDLE_TIME_MIN" />
+		<result property="continueLimit" column="CONTINUE_LIMIT" />
+		<result property="addCount" column="ADD_COUNT" />
+		<result property="delCount" column="DEL_COUNT" />
+		<result property="enabled" column="ENABLED" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.LOAD_BALANCER_NO as LOAD_BALANCER_NO,
+			t1.FARM_NO as FARM_NO,
+			t1.PLATFORM_NO as PLATFORM_NO,
+			t1.IMAGE_NO as IMAGE_NO,
+			t1.INSTANCE_TYPE as INSTANCE_TYPE,
+			t1.NAMING_RULE as NAMING_RULE,
+			t1.IDLE_TIME_MAX as IDLE_TIME_MAX,
+			t1.IDLE_TIME_MIN as IDLE_TIME_MIN,
+			t1.CONTINUE_LIMIT as CONTINUE_LIMIT,
+			t1.ADD_COUNT as ADD_COUNT,
+			t1.DEL_COUNT as DEL_COUNT,
+			t1.ENABLED as ENABLED
+		from
+			AUTO_SCALING_CONF t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from AUTO_SCALING_CONF t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="autoScalingConfResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="autoScalingConfResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readByFarmNo" parameterClass="java.util.Map" resultMap="autoScalingConfResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.FARM_NO = #farmNo#
+		]]>
+	</select>
+
+	<select id="readByPlatformNo" parameterClass="java.util.Map" resultMap="autoScalingConfResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="readByImageNo" parameterClass="java.util.Map" resultMap="autoScalingConfResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.IMAGE_NO = #imageNo#
+		]]>
+	</select>
+
+	<select id="readInLoadBalancerNos" parameterClass="java.util.Map" resultMap="autoScalingConfResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.LOAD_BALANCER_NO in
+		]]>
+		<iterate property="loadBalancerNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#loadBalancerNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="AutoScalingConf">
+		<![CDATA[
+		insert into AUTO_SCALING_CONF (
+			LOAD_BALANCER_NO,
+			FARM_NO,
+			PLATFORM_NO,
+			IMAGE_NO,
+			INSTANCE_TYPE,
+			NAMING_RULE,
+			IDLE_TIME_MAX,
+			IDLE_TIME_MIN,
+			CONTINUE_LIMIT,
+			ADD_COUNT,
+			DEL_COUNT,
+			ENABLED
+		) values (
+			#loadBalancerNo#,
+			#farmNo#,
+			#platformNo#,
+			#imageNo#,
+			#instanceType#,
+			#namingRule#,
+			#idleTimeMax#,
+			#idleTimeMin#,
+			#continueLimit#,
+			#addCount#,
+			#delCount#,
+			#enabled#
+		)
+		]]>
+	</insert>
+
+	<update id="update" parameterClass="AutoScalingConf">
+		<![CDATA[
+		update AUTO_SCALING_CONF set
+			FARM_NO = #farmNo#,
+			PLATFORM_NO = #platformNo#,
+			IMAGE_NO = #imageNo#,
+			INSTANCE_TYPE = #instanceType#,
+			NAMING_RULE = #namingRule#,
+			IDLE_TIME_MAX = #idleTimeMax#,
+			IDLE_TIME_MIN = #idleTimeMin#,
+			CONTINUE_LIMIT = #continueLimit#,
+			ADD_COUNT = #addCount#,
+			DEL_COUNT = #delCount#,
+			ENABLED = #enabled#
+		where
+			LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="AutoScalingConf">
+		<![CDATA[
+		delete from AUTO_SCALING_CONF
+		where
+			LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from AUTO_SCALING_CONF
+		]]>
+	</delete>
+
+	<delete id="deleteByLoadBalancerNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from AUTO_SCALING_CONF
+		where
+			LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByFarmNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from AUTO_SCALING_CONF
+		where
+			FARM_NO = #farmNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByPlatformNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from AUTO_SCALING_CONF
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByImageNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from AUTO_SCALING_CONF
+		where
+			IMAGE_NO = #imageNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByLoadBalancerNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</select>
+
+	<select id="countByFarmNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			FARM_NO = #farmNo#
+		]]>
+	</select>
+
+	<select id="countByPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="countByImageNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			IMAGE_NO = #imageNo#
+		]]>
+	</select>
+
+</sqlMap>

@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ComponentType">
+
+	<typeAlias alias="ComponentType" type="jp.primecloud.auto.entity.crud.ComponentType" />
+
+	<resultMap id="componentTypeResultMap" class="ComponentType">
+		<result property="componentTypeNo" column="COMPONENT_TYPE_NO" />
+		<result property="componentTypeName" column="COMPONENT_TYPE_NAME" nullValue="" />
+		<result property="componentTypeNameDisp" column="COMPONENT_TYPE_NAME_DISP" nullValue="" />
+		<result property="layer" column="LAYER" nullValue="" />
+		<result property="layerDisp" column="LAYER_DISP" nullValue="" />
+		<result property="runOrder" column="RUN_ORDER" />
+		<result property="selectable" column="SELECTABLE" />
+		<result property="zabbixTemplate" column="ZABBIX_TEMPLATE" nullValue="" />
+		<result property="addressUrl" column="ADDRESS_URL" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.COMPONENT_TYPE_NO as COMPONENT_TYPE_NO,
+			t1.COMPONENT_TYPE_NAME as COMPONENT_TYPE_NAME,
+			t1.COMPONENT_TYPE_NAME_DISP as COMPONENT_TYPE_NAME_DISP,
+			t1.LAYER as LAYER,
+			t1.LAYER_DISP as LAYER_DISP,
+			t1.RUN_ORDER as RUN_ORDER,
+			t1.SELECTABLE as SELECTABLE,
+			t1.ZABBIX_TEMPLATE as ZABBIX_TEMPLATE,
+			t1.ADDRESS_URL as ADDRESS_URL
+		from
+			COMPONENT_TYPE t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from COMPONENT_TYPE t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="componentTypeResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.COMPONENT_TYPE_NO = #componentTypeNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="componentTypeResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readByComponentTypeName" parameterClass="java.util.Map" resultMap="componentTypeResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.COMPONENT_TYPE_NAME = #componentTypeName#
+		]]>
+	</select>
+
+	<select id="readInComponentTypeNos" parameterClass="java.util.Map" resultMap="componentTypeResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.COMPONENT_TYPE_NO in
+		]]>
+		<iterate property="componentTypeNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#componentTypeNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="ComponentType">
+		<![CDATA[
+		insert into COMPONENT_TYPE (
+			COMPONENT_TYPE_NO,
+			COMPONENT_TYPE_NAME,
+			COMPONENT_TYPE_NAME_DISP,
+			LAYER,
+			LAYER_DISP,
+			RUN_ORDER,
+			SELECTABLE,
+			ZABBIX_TEMPLATE,
+			ADDRESS_URL
+		) values (
+			#componentTypeNo#,
+			#componentTypeName#,
+			#componentTypeNameDisp#,
+			#layer#,
+			#layerDisp#,
+			#runOrder#,
+			#selectable#,
+			#zabbixTemplate#,
+			#addressUrl#
+		)
+		]]>
+	</insert>
+
+	<insert id="createAuto" parameterClass="ComponentType">
+		<![CDATA[
+		insert into COMPONENT_TYPE (
+			COMPONENT_TYPE_NO,
+			COMPONENT_TYPE_NAME,
+			COMPONENT_TYPE_NAME_DISP,
+			LAYER,
+			LAYER_DISP,
+			RUN_ORDER,
+			SELECTABLE,
+			ZABBIX_TEMPLATE,
+			ADDRESS_URL
+		) values (
+			#componentTypeNo#,
+			#componentTypeName#,
+			#componentTypeNameDisp#,
+			#layer#,
+			#layerDisp#,
+			#runOrder#,
+			#selectable#,
+			#zabbixTemplate#,
+			#addressUrl#
+		)
+		]]>
+		<selectKey keyProperty="componentTypeNo" resultClass="java.lang.Long" type="post">
+		<![CDATA[
+			select last_insert_id()
+		]]>
+		</selectKey>
+	</insert>
+
+	<update id="update" parameterClass="ComponentType">
+		<![CDATA[
+		update COMPONENT_TYPE set
+			COMPONENT_TYPE_NAME = #componentTypeName#,
+			COMPONENT_TYPE_NAME_DISP = #componentTypeNameDisp#,
+			LAYER = #layer#,
+			LAYER_DISP = #layerDisp#,
+			RUN_ORDER = #runOrder#,
+			SELECTABLE = #selectable#,
+			ZABBIX_TEMPLATE = #zabbixTemplate#,
+			ADDRESS_URL = #addressUrl#
+		where
+			COMPONENT_TYPE_NO = #componentTypeNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="ComponentType">
+		<![CDATA[
+		delete from COMPONENT_TYPE
+		where
+			COMPONENT_TYPE_NO = #componentTypeNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from COMPONENT_TYPE
+		]]>
+	</delete>
+
+	<delete id="deleteByComponentTypeNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from COMPONENT_TYPE
+		where
+			COMPONENT_TYPE_NO = #componentTypeNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByComponentTypeName" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from COMPONENT_TYPE
+		where
+			COMPONENT_TYPE_NAME = #componentTypeName#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByComponentTypeNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			COMPONENT_TYPE_NO = #componentTypeNo#
+		]]>
+	</select>
+
+	<select id="countByComponentTypeName" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			COMPONENT_TYPE_NAME = #componentTypeName#
+		]]>
+	</select>
+
+</sqlMap>

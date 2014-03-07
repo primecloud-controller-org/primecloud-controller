@@ -1,0 +1,1 @@
+alter table VMWARE_NETWORK add constraint VMWARE_NETWORK_UK1 unique (PLATFORM_NO, NETWORK_NAME);

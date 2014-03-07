@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="AwsSnapshot">
+
+	<typeAlias alias="AwsSnapshot" type="jp.primecloud.auto.entity.crud.AwsSnapshot" />
+
+	<resultMap id="awsSnapshotResultMap" class="AwsSnapshot">
+		<result property="snapshotNo" column="SNAPSHOT_NO" />
+		<result property="farmNo" column="FARM_NO" />
+		<result property="platformNo" column="PLATFORM_NO" />
+		<result property="volumeNo" column="VOLUME_NO" />
+		<result property="snapshotId" column="SNAPSHOT_ID" nullValue="" />
+		<result property="createDate" column="CREATE_DATE" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.SNAPSHOT_NO as SNAPSHOT_NO,
+			t1.FARM_NO as FARM_NO,
+			t1.PLATFORM_NO as PLATFORM_NO,
+			t1.VOLUME_NO as VOLUME_NO,
+			t1.SNAPSHOT_ID as SNAPSHOT_ID,
+			t1.CREATE_DATE as CREATE_DATE
+		from
+			AWS_SNAPSHOT t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from AWS_SNAPSHOT t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="awsSnapshotResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.SNAPSHOT_NO = #snapshotNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="awsSnapshotResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readByFarmNo" parameterClass="java.util.Map" resultMap="awsSnapshotResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.FARM_NO = #farmNo#
+		]]>
+	</select>
+
+	<select id="readByVolumeNo" parameterClass="java.util.Map" resultMap="awsSnapshotResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.VOLUME_NO = #volumeNo#
+		]]>
+	</select>
+
+	<select id="readByPlatformNo" parameterClass="java.util.Map" resultMap="awsSnapshotResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="readInSnapshotNos" parameterClass="java.util.Map" resultMap="awsSnapshotResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.SNAPSHOT_NO in
+		]]>
+		<iterate property="snapshotNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#snapshotNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="AwsSnapshot">
+		<![CDATA[
+		insert into AWS_SNAPSHOT (
+			SNAPSHOT_NO,
+			FARM_NO,
+			PLATFORM_NO,
+			VOLUME_NO,
+			SNAPSHOT_ID,
+			CREATE_DATE
+		) values (
+			#snapshotNo#,
+			#farmNo#,
+			#platformNo#,
+			#volumeNo#,
+			#snapshotId#,
+			#createDate#
+		)
+		]]>
+	</insert>
+
+	<insert id="createAuto" parameterClass="AwsSnapshot">
+		<![CDATA[
+		insert into AWS_SNAPSHOT (
+			SNAPSHOT_NO,
+			FARM_NO,
+			PLATFORM_NO,
+			VOLUME_NO,
+			SNAPSHOT_ID,
+			CREATE_DATE
+		) values (
+			#snapshotNo#,
+			#farmNo#,
+			#platformNo#,
+			#volumeNo#,
+			#snapshotId#,
+			#createDate#
+		)
+		]]>
+		<selectKey keyProperty="snapshotNo" resultClass="java.lang.Long" type="post">
+		<![CDATA[
+			select last_insert_id()
+		]]>
+		</selectKey>
+	</insert>
+
+	<update id="update" parameterClass="AwsSnapshot">
+		<![CDATA[
+		update AWS_SNAPSHOT set
+			FARM_NO = #farmNo#,
+			PLATFORM_NO = #platformNo#,
+			VOLUME_NO = #volumeNo#,
+			SNAPSHOT_ID = #snapshotId#,
+			CREATE_DATE = #createDate#
+		where
+			SNAPSHOT_NO = #snapshotNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="AwsSnapshot">
+		<![CDATA[
+		delete from AWS_SNAPSHOT
+		where
+			SNAPSHOT_NO = #snapshotNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from AWS_SNAPSHOT
+		]]>
+	</delete>
+
+	<delete id="deleteBySnapshotNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from AWS_SNAPSHOT
+		where
+			SNAPSHOT_NO = #snapshotNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByFarmNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from AWS_SNAPSHOT
+		where
+			FARM_NO = #farmNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByVolumeNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from AWS_SNAPSHOT
+		where
+			VOLUME_NO = #volumeNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByPlatformNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from AWS_SNAPSHOT
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countBySnapshotNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			SNAPSHOT_NO = #snapshotNo#
+		]]>
+	</select>
+
+	<select id="countByFarmNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			FARM_NO = #farmNo#
+		]]>
+	</select>
+
+	<select id="countByVolumeNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			VOLUME_NO = #volumeNo#
+		]]>
+	</select>
+
+	<select id="countByPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+</sqlMap>

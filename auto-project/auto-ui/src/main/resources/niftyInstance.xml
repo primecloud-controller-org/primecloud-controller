@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ROOT SYSTEM "farm.dtd">
+<ROOT>
+    <row>
+      <field name="INSTANCE_NO">11</field>
+      <field name="KEY_PAIR_NO">1</field>
+      <field name="INSTANCE_TYPE">small</field>
+      <field name="INSTANCE_ID"></field>
+      <field name="STATUS"></field>
+      <field name="DNS_NAME"></field>
+      <field name="PRIVATE_DNS_NAME"></field>
+      <field name="IP_ADDRESS"></field>
+      <field name="PRIVATE_IP_ADDRESS"></field>
+      <field name="INITIALIZED">0</field>
+    </row>
+    <row>
+      <field name="INSTANCE_NO">12</field>
+      <field name="KEY_PAIR_NO">2</field>
+      <field name="INSTANCE_TYPE">small</field>
+      <field name="INSTANCE_ID">123456</field>
+      <field name="STATUS">running</field>
+      <field name="DNS_NAME">172.22.10.112</field>
+      <field name="PRIVATE_DNS_NAME">10.10.174.112</field>
+      <field name="IP_ADDRESS">172.22.10.112</field>
+      <field name="PRIVATE_IP_ADDRESS">10.10.174.112</field>
+      <field name="INITIALIZED">1</field>
+    </row>
+</ROOT>

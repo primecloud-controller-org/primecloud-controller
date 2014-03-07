@@ -1,0 +1,139 @@
+#!/bin/sh
+#
+# chkconfig: 345 85 15
+# description: Tomcat
+#
+##############################################################################
+#
+#   Copyright 2004 The Apache Software Foundation.
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+##############################################################################
+#
+# Small shell script to show how to start/stop Tomcat using jsvc
+# If you want to have Tomcat running on port 80 please modify the server.xml
+# file:
+#
+#    <!-- Define a non-SSL HTTP/1.1 Connector on port 80 -->
+#    <Connector className="org.apache.catalina.connector.http.HttpConnector"
+#               port="80" minProcessors="5" maxProcessors="75"
+#               enableLookups="true" redirectPort="8443"
+#               acceptCount="10" debug="0" connectionTimeout="60000"/>
+#
+# That is for Tomcat-5.0.x (Apache Tomcat/5.0)
+#
+# Adapt the following lines to your configuration
+
+. /etc/rc.d/init.d/functions
+
+[ -f /etc/sysconfig/tomcat ] && . /etc/sysconfig/tomcat
+
+#JAVA_HOME=/usr/java/default
+#CATALINA_HOME=/opt/tomcat/default
+DAEMON_HOME=$CATALINA_HOME
+TOMCAT_USER=tomcat
+
+# for multi instances adapt those lines.
+TMP_DIR=/var/tmp
+PID_FILE=/var/run/tomcat/jsvc.pid
+CATALINA_BASE=$CATALINA_HOME
+
+#CATALINA_OPTS=
+CLASSPATH=\
+$JAVA_HOME/lib/tools.jar:\
+$CATALINA_HOME/bin/commons-daemon.jar:\
+$CATALINA_HOME/bin/bootstrap.jar
+
+LOGGING_CONFIG="-Djava.util.logging.config.file=$CATALINA_BASE/conf/logging.properties"
+LOGGING_MANAGER="-Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager"
+
+
+startup() {
+    if status -p $PID_FILE > /dev/null; then
+        echo -n $"jsvc: already running"
+        failure
+        echo
+        RETVAL=1
+        return $RETVAL
+    fi
+
+    #
+    # Start Tomcat
+    #
+    $DAEMON_HOME/bin/jsvc \
+    -user $TOMCAT_USER \
+    -home $JAVA_HOME \
+    -Dcatalina.home=$CATALINA_HOME \
+    -Dcatalina.base=$CATALINA_BASE \
+    -Djava.io.tmpdir=$TMP_DIR \
+    -pidfile $PID_FILE \
+    -outfile $CATALINA_HOME/logs/catalina.out \
+    -errfile '&1' \
+    $LOGGING_CONFIG \
+    $LOGGING_MANAGER \
+    $CATALINA_OPTS \
+    -cp $CLASSPATH \
+    org.apache.catalina.startup.Bootstrap
+    #
+    # To get a verbose JVM
+    #-verbose \
+    # To get a debug of jsvc.
+    #-debug \
+
+    RETVAL=$?
+    return $RETVAL;
+}
+
+shutdown() {
+    #
+    # Stop Tomcat
+    #
+    $DAEMON_HOME/bin/jsvc \
+    -stop \
+    -pidfile $PID_FILE \
+    org.apache.catalina.startup.Bootstrap
+    RETVAL=$?
+
+    if [ -e "$PID_FILE" ]; then
+        PID=`cat $PID_FILE`
+        if [ -n "`ps -e | grep $PID`" ]; then
+            kill -9 $PID
+        fi
+        rm -f $PID_FILE
+    fi
+    return $RETVAL
+}
+
+
+case "$1" in
+    start)
+        startup
+        ;;
+    stop)
+        shutdown
+        ;;
+    restart)
+        shutdown
+        startup
+        ;;
+    status)
+        status -p $PID_FILE
+        RETVAL=$?
+        ;;
+    *)
+        echo $"Usage: $prog {start|stop|restart|status}"
+        exit 1
+esac
+
+exit $RETVAL
+

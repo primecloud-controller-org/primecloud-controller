@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ROOT SYSTEM "platformAws.dtd">
+<ROOT>
+    <row>
+      <field name="PLATFORM_NO">1</field>
+      <field name="HOST">172.17.1.7</field>
+      <field name="PORT">8773</field>
+      <field name="SECURE">false</field>
+      <field name="EUCA">true</field>
+      <field name="VPC">false</field>
+      <field name="AVAILABILITY_ZONE">cluster01</field>
+    </row>
+    <row>
+      <field name="PLATFORM_NO">2</field>
+      <field name="HOST">amazonaws.com</field>
+      <field name="PORT">443</field>
+      <field name="SECURE">true</field>
+      <field name="EUCA">false</field>
+      <field name="VPC">false</field>
+      <field name="AVAILABILITY_ZONE">cluster01</field>
+    </row>
+    <row>
+      <field name="PLATFORM_NO">3</field>
+      <field name="HOST">ap-northeast-1.amazonaws.com</field>
+      <field name="PORT">443</field>
+      <field name="SECURE">true</field>
+      <field name="EUCA">false</field>
+      <field name="VPC">true</field>
+      <field name="AVAILABILITY_ZONE"></field>
+    </row>
+</ROOT>

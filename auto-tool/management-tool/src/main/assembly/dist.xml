@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                      http://maven.apache.org/xsd/assembly-1.0.0.xsd">
+	<id>release</id>
+
+	<formats>
+		<format>tar.gz</format>
+	</formats>
+
+	<fileSets>
+		<fileSet>
+			<directory>src/main/config</directory>
+			<outputDirectory>/</outputDirectory>
+		</fileSet>
+		<fileSet>
+			<directory>src/main/scripts</directory>
+			<outputDirectory>/bin/</outputDirectory>
+		</fileSet>
+		<fileSet>
+			<directory>src/main/release</directory>
+			<outputDirectory>/config/</outputDirectory>
+		</fileSet>
+	</fileSets>
+
+	<files>
+		<file>
+			<source>src/main/resources/applicationContext.xml</source>
+			<outputDirectory>/config</outputDirectory>
+		</file>
+		<file>
+			<source>src/main/resources/log4j.xml</source>
+			<outputDirectory>/config</outputDirectory>
+		</file>
+	</files>
+
+	<dependencySets>
+		<dependencySet>
+			<outputDirectory>/lib/</outputDirectory>
+		</dependencySet>
+	</dependencySets>
+
+</assembly>

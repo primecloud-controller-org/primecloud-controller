@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="CloudstackAddress">
+
+	<typeAlias alias="CloudstackAddress" type="jp.primecloud.auto.entity.crud.CloudstackAddress" />
+
+	<resultMap id="cloudstackAddressResultMap" class="CloudstackAddress">
+		<result property="addressNo" column="ADDRESS_NO" />
+		<result property="account" column="ACCOUNT" />
+		<result property="platformNo" column="PLATFORM_NO" />
+		<result property="instanceNo" column="INSTANCE_NO" />
+		<result property="instanceId" column="INSTANCE_ID" nullValue="" />
+		<result property="addressId" column="ADDRESS_ID" nullValue="" />
+		<result property="ipaddress" column="IPADDRESS" nullValue="" />
+		<result property="networkid" column="NETWORKID" nullValue="" />
+		<result property="state" column="STATE" nullValue="" />
+		<result property="zoneid" column="ZONEID" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.ADDRESS_NO as ADDRESS_NO,
+			t1.ACCOUNT as ACCOUNT,
+			t1.PLATFORM_NO as PLATFORM_NO,
+			t1.INSTANCE_NO as INSTANCE_NO,
+			t1.INSTANCE_ID as INSTANCE_ID,
+			t1.ADDRESS_ID as ADDRESS_ID,
+			t1.IPADDRESS as IPADDRESS,
+			t1.NETWORKID as NETWORKID,
+			t1.STATE as STATE,
+			t1.ZONEID as ZONEID
+		from
+			CLOUDSTACK_ADDRESS t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from CLOUDSTACK_ADDRESS t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="cloudstackAddressResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.ADDRESS_NO = #addressNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="cloudstackAddressResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readByAccount" parameterClass="java.util.Map" resultMap="cloudstackAddressResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.ACCOUNT = #account#
+		]]>
+	</select>
+
+	<select id="readByInstanceNo" parameterClass="java.util.Map" resultMap="cloudstackAddressResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.INSTANCE_NO = #instanceNo#
+		]]>
+	</select>
+
+	<select id="readByPlatformNo" parameterClass="java.util.Map" resultMap="cloudstackAddressResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="readInAddressNos" parameterClass="java.util.Map" resultMap="cloudstackAddressResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.ADDRESS_NO in
+		]]>
+		<iterate property="addressNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#addressNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="CloudstackAddress">
+		<![CDATA[
+		insert into CLOUDSTACK_ADDRESS (
+			ADDRESS_NO,
+			ACCOUNT,
+			PLATFORM_NO,
+			INSTANCE_NO,
+			INSTANCE_ID,
+			ADDRESS_ID,
+			IPADDRESS,
+			NETWORKID,
+			STATE,
+			ZONEID
+		) values (
+			#addressNo#,
+			#account#,
+			#platformNo#,
+			#instanceNo#,
+			#instanceId#,
+			#addressId#,
+			#ipaddress#,
+			#networkid#,
+			#state#,
+			#zoneid#
+		)
+		]]>
+	</insert>
+
+	<insert id="createAuto" parameterClass="CloudstackAddress">
+		<![CDATA[
+		insert into CLOUDSTACK_ADDRESS (
+			ADDRESS_NO,
+			ACCOUNT,
+			PLATFORM_NO,
+			INSTANCE_NO,
+			INSTANCE_ID,
+			ADDRESS_ID,
+			IPADDRESS,
+			NETWORKID,
+			STATE,
+			ZONEID
+		) values (
+			#addressNo#,
+			#account#,
+			#platformNo#,
+			#instanceNo#,
+			#instanceId#,
+			#addressId#,
+			#ipaddress#,
+			#networkid#,
+			#state#,
+			#zoneid#
+		)
+		]]>
+		<selectKey keyProperty="addressNo" resultClass="java.lang.Long" type="post">
+		<![CDATA[
+			select last_insert_id()
+		]]>
+		</selectKey>
+	</insert>
+
+	<update id="update" parameterClass="CloudstackAddress">
+		<![CDATA[
+		update CLOUDSTACK_ADDRESS set
+			ACCOUNT = #account#,
+			PLATFORM_NO = #platformNo#,
+			INSTANCE_NO = #instanceNo#,
+			INSTANCE_ID = #instanceId#,
+			ADDRESS_ID = #addressId#,
+			IPADDRESS = #ipaddress#,
+			NETWORKID = #networkid#,
+			STATE = #state#,
+			ZONEID = #zoneid#
+		where
+			ADDRESS_NO = #addressNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="CloudstackAddress">
+		<![CDATA[
+		delete from CLOUDSTACK_ADDRESS
+		where
+			ADDRESS_NO = #addressNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from CLOUDSTACK_ADDRESS
+		]]>
+	</delete>
+
+	<delete id="deleteByAddressNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from CLOUDSTACK_ADDRESS
+		where
+			ADDRESS_NO = #addressNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByAccount" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from CLOUDSTACK_ADDRESS
+		where
+			ACCOUNT = #account#
+		]]>
+	</delete>
+
+	<delete id="deleteByInstanceNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from CLOUDSTACK_ADDRESS
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByPlatformNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from CLOUDSTACK_ADDRESS
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByAddressNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			ADDRESS_NO = #addressNo#
+		]]>
+	</select>
+
+	<select id="countByAccount" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			ACCOUNT = #account#
+		]]>
+	</select>
+
+	<select id="countByInstanceNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</select>
+
+	<select id="countByPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+</sqlMap>

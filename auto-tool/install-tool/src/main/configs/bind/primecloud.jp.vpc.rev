@@ -1,0 +1,10 @@
+$TTL 86400	; 1 day
+@	IN SOA	pcc.primecloud.jp. root.primecloud.jp. (
+				2011072001 ; serial
+				10800      ; refresh (3 hours)
+				1800       ; retry (30 minutes)
+				3600000    ; expire (5 weeks 6 days 16 hours)
+				86400      ; minimum (1 day)
+				)
+			NS	pcc.primecloud.jp.
+

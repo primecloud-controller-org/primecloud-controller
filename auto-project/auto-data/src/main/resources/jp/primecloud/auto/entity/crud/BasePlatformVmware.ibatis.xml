@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="PlatformVmware">
+
+	<typeAlias alias="PlatformVmware" type="jp.primecloud.auto.entity.crud.PlatformVmware" />
+
+	<resultMap id="platformVmwareResultMap" class="PlatformVmware">
+		<result property="platformNo" column="PLATFORM_NO" />
+		<result property="url" column="URL" nullValue="" />
+		<result property="username" column="USERNAME" nullValue="" />
+		<result property="password" column="PASSWORD" nullValue="" />
+		<result property="datacenter" column="DATACENTER" nullValue="" />
+		<result property="publicNetwork" column="PUBLIC_NETWORK" nullValue="" />
+		<result property="privateNetwork" column="PRIVATE_NETWORK" nullValue="" />
+		<result property="computeResource" column="COMPUTE_RESOURCE" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.PLATFORM_NO as PLATFORM_NO,
+			t1.URL as URL,
+			t1.USERNAME as USERNAME,
+			t1.PASSWORD as PASSWORD,
+			t1.DATACENTER as DATACENTER,
+			t1.PUBLIC_NETWORK as PUBLIC_NETWORK,
+			t1.PRIVATE_NETWORK as PRIVATE_NETWORK,
+			t1.COMPUTE_RESOURCE as COMPUTE_RESOURCE
+		from
+			PLATFORM_VMWARE t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from platform_vmware t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="platformVmwareResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="platformVmwareResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readInPlatformNos" parameterClass="java.util.Map" resultMap="platformVmwareResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO in
+		]]>
+		<iterate property="platformNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#platformNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="PlatformVmware">
+		<![CDATA[
+		insert into PLATFORM_VMWARE (
+			PLATFORM_NO,
+			URL,
+			USERNAME,
+			PASSWORD,
+			DATACENTER,
+			PUBLIC_NETWORK,
+			PRIVATE_NETWORK,
+			COMPUTE_RESOURCE
+		) values (
+			#platformNo#,
+			#url#,
+			#username#,
+			#password#,
+			#datacenter#,
+			#publicNetwork#,
+			#privateNetwork#,
+			#computeResource#
+		)
+		]]>
+	</insert>
+
+	<update id="update" parameterClass="PlatformVmware">
+		<![CDATA[
+		update PLATFORM_VMWARE set
+			URL = #url#,
+			USERNAME = #username#,
+			PASSWORD = #password#,
+			DATACENTER = #datacenter#,
+			PUBLIC_NETWORK = #publicNetwork#,
+			PRIVATE_NETWORK = #privateNetwork#,
+			COMPUTE_RESOURCE = #computeResource#
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="PlatformVmware">
+		<![CDATA[
+		delete from PLATFORM_VMWARE
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from PLATFORM_VMWARE
+		]]>
+	</delete>
+
+	<delete id="deleteByPlatformNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from PLATFORM_VMWARE
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+</sqlMap>

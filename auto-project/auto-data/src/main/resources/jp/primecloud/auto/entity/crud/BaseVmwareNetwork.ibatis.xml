@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap      
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="VmwareNetwork">
+
+	<typeAlias alias="VmwareNetwork" type="jp.primecloud.auto.entity.crud.VmwareNetwork" />
+
+	<resultMap id="vmwareNetworkResultMap" class="VmwareNetwork">
+		<result property="networkNo" column="NETWORK_NO" />
+		<result property="networkName" column="NETWORK_NAME" nullValue="" />
+		<result property="platformNo" column="PLATFORM_NO" />
+		<result property="vlanId" column="VLAN_ID" />
+		<result property="vswitchName" column="VSWITCH_NAME" nullValue="" />
+		<result property="farmNo" column="FARM_NO" />
+		<result property="publicNetwork" column="PUBLIC_NETWORK" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.NETWORK_NO as NETWORK_NO, 
+			t1.NETWORK_NAME as NETWORK_NAME, 
+			t1.PLATFORM_NO as PLATFORM_NO, 
+			t1.VLAN_ID as VLAN_ID, 
+			t1.VSWITCH_NAME as VSWITCH_NAME, 
+			t1.FARM_NO as FARM_NO, 
+			t1.PUBLIC_NETWORK as PUBLIC_NETWORK
+		from
+			VMWARE_NETWORK t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from VMWARE_NETWORK t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="vmwareNetworkResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.NETWORK_NO = #networkNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="vmwareNetworkResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readByPlatformNoAndNetworkName" parameterClass="java.util.Map" resultMap="vmwareNetworkResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO = #platformNo# and
+			t1.NETWORK_NAME = #networkName#
+		]]>
+	</select>
+
+	<select id="readByPlatformNo" parameterClass="java.util.Map" resultMap="vmwareNetworkResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="readByFarmNo" parameterClass="java.util.Map" resultMap="vmwareNetworkResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.FARM_NO = #farmNo#
+		]]>
+	</select>
+
+	<select id="readInNetworkNos" parameterClass="java.util.Map" resultMap="vmwareNetworkResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.NETWORK_NO in
+		]]>
+		<iterate property="networkNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#networkNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="VmwareNetwork">
+		<![CDATA[
+		insert into VMWARE_NETWORK (
+			NETWORK_NO, 
+			NETWORK_NAME, 
+			PLATFORM_NO, 
+			VLAN_ID, 
+			VSWITCH_NAME, 
+			FARM_NO, 
+			PUBLIC_NETWORK
+		) values (
+			#networkNo#, 
+			#networkName#, 
+			#platformNo#, 
+			#vlanId#, 
+			#vswitchName#, 
+			#farmNo#, 
+			#publicNetwork#
+		)
+		]]>
+	</insert>
+
+	<insert id="createAuto" parameterClass="VmwareNetwork">
+		<![CDATA[
+		insert into VMWARE_NETWORK (
+			NETWORK_NO, 
+			NETWORK_NAME, 
+			PLATFORM_NO, 
+			VLAN_ID, 
+			VSWITCH_NAME, 
+			FARM_NO, 
+			PUBLIC_NETWORK
+		) values (
+			#networkNo#, 
+			#networkName#, 
+			#platformNo#, 
+			#vlanId#, 
+			#vswitchName#, 
+			#farmNo#, 
+			#publicNetwork#
+		)
+		]]>
+		<selectKey keyProperty="networkNo" resultClass="java.lang.Long" type="post">
+		<![CDATA[
+			select last_insert_id()
+		]]>
+		</selectKey>
+	</insert>
+
+	<update id="update" parameterClass="VmwareNetwork">
+		<![CDATA[
+		update VMWARE_NETWORK set
+			NETWORK_NAME = #networkName#, 
+			PLATFORM_NO = #platformNo#, 
+			VLAN_ID = #vlanId#, 
+			VSWITCH_NAME = #vswitchName#, 
+			FARM_NO = #farmNo#, 
+			PUBLIC_NETWORK = #publicNetwork#
+		where
+			NETWORK_NO = #networkNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="VmwareNetwork">
+		<![CDATA[
+		delete from VMWARE_NETWORK
+		where
+			NETWORK_NO = #networkNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from VMWARE_NETWORK
+		]]>
+	</delete>
+
+	<delete id="deleteByNetworkNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from VMWARE_NETWORK
+		where
+			NETWORK_NO = #networkNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByPlatformNoAndNetworkName" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from VMWARE_NETWORK
+		where
+			PLATFORM_NO = #platformNo# and
+			NETWORK_NAME = #networkName#
+		]]>
+	</delete>
+
+	<delete id="deleteByPlatformNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from VMWARE_NETWORK
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByFarmNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from VMWARE_NETWORK
+		where
+			FARM_NO = #farmNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByNetworkNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			NETWORK_NO = #networkNo#
+		]]>
+	</select>
+
+	<select id="countByPlatformNoAndNetworkName" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			PLATFORM_NO = #platformNo# and
+			NETWORK_NAME = #networkName#
+		]]>
+	</select>
+
+	<select id="countByPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="countByFarmNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			FARM_NO = #farmNo#
+		]]>
+	</select>
+
+</sqlMap>

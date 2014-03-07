@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+	http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.5.xsd">
+
+	<import resource="classpath:applicationLogDao.xml" />
+
+	<!-- DBMS接続情報 -->
+	<bean id="logDataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="${db.log.url}" />
+		<property name="username" value="${db.log.username}" />
+		<property name="password" value="${db.log.password}" />
+		<property name="validationQuery" value="select 1 from dual" />
+	</bean>
+
+	<!-- iBATIS設定 -->
+	<bean id="logSqlMapClient" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+		<property name="dataSource" ref="logDataSource" />
+		<property name="configLocations">
+			<list>
+				<value>classpath:LogSqlMapConfig.xml</value>
+			</list>
+		</property>
+		<property name="sqlMapClientProperties">
+			<props></props>
+		</property>
+	</bean>
+
+	<!-- EventLogService -->
+	<bean id="eventLogService" class="jp.primecloud.auto.log.service.impl.EventLogServiceImpl">
+		<property name="eventLogDao" ref="eventLogDao" />
+	</bean>
+	<bean id="operationLogService" class="jp.primecloud.auto.log.service.impl.OperationLogServiceImpl">
+		<property name="operationLogDao" ref="operationLogDao" />
+	</bean>
+
+	<!-- EventLog -->
+	<bean id="eventLogger" class="jp.primecloud.auto.log.EventLogger">
+		<property name="eventLogDao" ref="eventLogDao" />
+	</bean>
+
+</beans>

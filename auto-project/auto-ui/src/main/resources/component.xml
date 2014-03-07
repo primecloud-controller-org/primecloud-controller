@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ROOT SYSTEM "component.dtd">
+<ROOT>
+    <row>
+       <field name="COMPONENT_NO">1</field>
+      <field name="FARM_NO">1</field>
+      <field name="COMPONENT_NAME">ap01</field>
+      <field name="COMPONENT_TYPE_NO">2</field>
+      <field name="COMMENT">ec APサーバ</field>
+      <field name="LOAD_BALANCER"></field>
+
+    </row>
+    <row>
+      <field name="COMPONENT_NO">2</field>
+      <field name="FARM_NO">1</field>
+      <field name="COMPONENT_NAME">DB</field>
+      <field name="COMPONENT_TYPE_NO">1</field>
+      <field name="COMMENT">商品データベース</field>
+      <field name="LOAD_BALANCER"></field>
+    </row>
+    <row>
+      <field name="COMPONENT_NO">3</field>
+      <field name="FARM_NO">1</field>
+      <field name="COMPONENT_NAME">Web</field>
+      <field name="COMPONENT_TYPE_NO">4</field>
+      <field name="COMMENT">Intenet用Web</field>
+      <field name="LOAD_BALANCER"></field>
+    </row>
+</ROOT>

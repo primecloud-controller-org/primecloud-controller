@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="AwsCertificate">
+
+	<typeAlias alias="AwsCertificate" type="jp.primecloud.auto.entity.crud.AwsCertificate" />
+
+	<resultMap id="awsCertificateResultMap" class="AwsCertificate">
+		<result property="userNo" column="USER_NO" />
+		<result property="platformNo" column="PLATFORM_NO" />
+		<result property="awsAccessId" column="AWS_ACCESS_ID" nullValue="" />
+		<result property="awsSecretKey" column="AWS_SECRET_KEY" nullValue="" />
+		<result property="defKeypair" column="DEF_KEYPAIR" nullValue="" />
+		<result property="defSubnet" column="DEF_SUBNET" nullValue="" />
+		<result property="defLbSubnet" column="DEF_LB_SUBNET" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.USER_NO as USER_NO,
+			t1.PLATFORM_NO as PLATFORM_NO,
+			t1.AWS_ACCESS_ID as AWS_ACCESS_ID,
+			t1.AWS_SECRET_KEY as AWS_SECRET_KEY,
+			t1.DEF_KEYPAIR as DEF_KEYPAIR,
+			t1.DEF_SUBNET as DEF_SUBNET,
+			t1.DEF_LB_SUBNET as DEF_LB_SUBNET
+		from
+			AWS_CERTIFICATE t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from AWS_CERTIFICATE t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="awsCertificateResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.USER_NO = #userNo# and
+			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="awsCertificateResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readByUserNo" parameterClass="java.util.Map" resultMap="awsCertificateResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.USER_NO = #userNo#
+		]]>
+	</select>
+
+	<select id="readByPlatformNo" parameterClass="java.util.Map" resultMap="awsCertificateResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="readInUserNos" parameterClass="java.util.Map" resultMap="awsCertificateResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.USER_NO in
+		]]>
+		<iterate property="userNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#userNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<select id="readInPlatformNos" parameterClass="java.util.Map" resultMap="awsCertificateResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO in
+		]]>
+		<iterate property="platformNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#platformNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="AwsCertificate">
+		<![CDATA[
+		insert into AWS_CERTIFICATE (
+			USER_NO,
+			PLATFORM_NO,
+			AWS_ACCESS_ID,
+			AWS_SECRET_KEY,
+			DEF_KEYPAIR,
+			DEF_SUBNET,
+			DEF_LB_SUBNET
+		) values (
+			#userNo#,
+			#platformNo#,
+			#awsAccessId#,
+			#awsSecretKey#,
+			#defKeypair#,
+			#defSubnet#,
+			#defLbSubnet#
+		)
+		]]>
+	</insert>
+
+	<update id="update" parameterClass="AwsCertificate">
+		<![CDATA[
+		update AWS_CERTIFICATE set
+			AWS_ACCESS_ID = #awsAccessId#,
+			AWS_SECRET_KEY = #awsSecretKey#,
+			DEF_KEYPAIR = #defKeypair#,
+			DEF_SUBNET = #defSubnet#,
+			DEF_LB_SUBNET = #defLbSubnet#
+		where
+			USER_NO = #userNo# and
+			PLATFORM_NO = #platformNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="AwsCertificate">
+		<![CDATA[
+		delete from AWS_CERTIFICATE
+		where
+			USER_NO = #userNo# and
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from AWS_CERTIFICATE
+		]]>
+	</delete>
+
+	<delete id="deleteByUserNoAndPlatformNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from AWS_CERTIFICATE
+		where
+			USER_NO = #userNo# and
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByUserNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from AWS_CERTIFICATE
+		where
+			USER_NO = #userNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByPlatformNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from AWS_CERTIFICATE
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByUserNoAndPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			USER_NO = #userNo# and
+			PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="countByUserNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			USER_NO = #userNo#
+		]]>
+	</select>
+
+	<select id="countByPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+</sqlMap>

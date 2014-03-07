@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+
+  <%- dbservers.each do |dbserver| -%>
+  <%-
+      array = dbserver.split(",")
+      name = array[0]
+      ip = array[1]
+      username = array[2]
+      password = array[3]
+  -%>
+    <Resource
+        name="jdbc/<%= name %>"
+        type="javax.sql.DataSource"
+        driverClassName="com.mysql.jdbc.Driver"
+        url="jdbc:mysql://<%= ip %>/app"
+        username="<%= username %>"
+        password="<%= password %>"
+        initialSize="5"
+        maxActive="10"
+        maxIdle="5"
+        maxWait="5000"
+        validationQuery="select 1 from dual"
+        testWhileIdle="true"
+        timeBetweenEvictionRunsMillis="300000"
+        numTestsPerEvictionRun="10"
+    />
+  <%- end -%>
+
+</Context>
+

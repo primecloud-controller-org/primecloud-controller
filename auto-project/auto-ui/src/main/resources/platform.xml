@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ROOT SYSTEM "component.dtd">
+<ROOT>
+    <row>
+      <field name="PLATFORM_NO">1</field>
+      <field name="PLATFORM_NAME">eucalyptus</field>
+      <field name="PLATFORM_NAME_DISP">Eucalyptus_test</field>
+      <field name="PLATFORM_SIMPLENAME_DISP">Eucalyptus_test</field>
+      <field name="INTERNAL">true</field>
+      <field name="PROXY">false</field>
+      <field name="PLATFORM_TYPE">aws</field>
+    </row>
+    <row>
+      <field name="PLATFORM_NO">2</field>
+      <field name="PLATFORM_NAME">ec2</field>
+      <field name="PLATFORM_NAME_DISP">Amazon EC2_test</field>
+      <field name="PLATFORM_SIMPLENAME_DISP">Amazon EC2_test</field>
+      <field name="INTERNAL">false</field>
+      <field name="PROXY">false</field>
+      <field name="PLATFORM_TYPE">aws</field>
+    </row>
+    <row>
+      <field name="PLATFORM_NO">3</field>
+      <field name="PLATFORM_NAME">ec2_vpc</field>
+      <field name="PLATFORM_NAME_DISP">Amazon EC2+VPC_test</field>
+      <field name="PLATFORM_SIMPLENAME_DISP">Amazon EC2+VPC_test</field>
+      <field name="INTERNAL">false</field>
+      <field name="PROXY">false</field>
+      <field name="PLATFORM_TYPE">aws</field>
+    </row>
+    <row>
+      <field name="PLATFORM_NO">4</field>
+      <field name="PLATFORM_NAME">vmware</field>
+      <field name="PLATFORM_NAME_DISP">VMware vSphere 4_test</field>
+      <field name="PLATFORM_SIMPLENAME_DISP">VMware_test</field>
+      <field name="INTERNAL">true</field>
+      <field name="PROXY">false</field>
+      <field name="PLATFORM_TYPE">vmware</field>
+    </row>
+    <row>
+      <field name="PLATFORM_NO">5</field>
+      <field name="PLATFORM_NAME">nifty</field>
+      <field name="PLATFORM_NAME_DISP">ニフティクラウド_test</field>
+      <field name="PLATFORM_SIMPLENAME_DISP">ニフティクラウド_test</field>
+      <field name="INTERNAL">false</field>
+      <field name="PROXY">false</field>
+      <field name="PLATFORM_TYPE">nifty</field>
+    </row>
+    <row>
+      <field name="PLATFORM_NO">6</field>
+      <field name="PLATFORM_NAME">cloudstack</field>
+      <field name="PLATFORM_NAME_DISP">CLOUDSTACK_test</field>
+      <field name="PLATFORM_SIMPLENAME_DISP">CLOUDSTACK_test</field>
+      <field name="INTERNAL">false</field>
+      <field name="PROXY">false</field>
+      <field name="PLATFORM_TYPE">cloudstack</field>
+    </row>
+</ROOT>

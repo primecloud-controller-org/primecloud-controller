@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+
+	<bean id="placeholderProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:management-config.properties</value>
+				<value>file:/opt/adc/conf/config.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<import resource="classpath:applicationDao.xml" />
+	<import resource="file:/opt/adc/app/auto-web/WEB-INF/context/applicationProcess.xml" />
+
+	<!-- DBMS接続情報 -->
+	<bean id="dataSource" class="jp.primecloud.auto.tool.management.db.PccDataSource"	destroy-method="close">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="validationQuery" value="select 1 from dual" />
+	</bean>
+
+	<!-- iBATIS設定 -->
+	<bean id="sqlMapClient" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocations">
+			<list>
+				<value>classpath:SqlMapConfig.xml</value>
+			</list>
+		</property>
+		<property name="sqlMapClientProperties">
+			<props></props>
+		</property>
+	</bean>
+
+	<!-- トランザクションマネージャ設定 -->
+	<bean id="txManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<!-- トランザクション設定 -->
+	<tx:advice id="txAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="*" propagation="REQUIRED" />
+		</tx:attributes>
+	</tx:advice>
+
+</beans>
