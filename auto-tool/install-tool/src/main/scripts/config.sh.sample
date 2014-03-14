@@ -1,7 +1,6 @@
 #Install parameter
 #Change parameters your environment
 PCC_VERSION=2.4.0
-ZABBIX_VERSION=1.8.15
 NIFTY_PARAM=YES
 DOMAIN_NAME="primecloud.jp"
 CLOUD1_SERVICE="172.16.0.0/16"
