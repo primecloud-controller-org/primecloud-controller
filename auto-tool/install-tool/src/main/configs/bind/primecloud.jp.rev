@@ -9,4 +9,4 @@ $TTL 86400	; 1 day
 			NS	pcc.primecloud.jp.
 $ORIGIN 16.172.in-addr.arpa.
 $TTL 3600	; 1 hour
-2.1			PTR	pcc.primecloud.jp.
+1.2			PTR	pcc.primecloud.jp.
