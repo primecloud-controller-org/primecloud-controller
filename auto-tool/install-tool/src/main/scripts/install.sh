@@ -446,7 +446,7 @@ fi
 echo "====START :install zabbix====" >> $LOG_FILE 2>&1
 echo "====START :install zabbix===="
 
-yum -y install zabbix-${ZABBIX_VERSION} zabbix-agent-${ZABBIX_VERSION} zabbix-server-${ZABBIX-VERSION} zabbix-server-mysql-${ZABBIX_VERSION} zabbix-web-${ZABBIX-VERSION} zabbix-web-mysql-${ZABBIX_VERSION} >> $LOG_FILE 2>&1
+yum -y install zabbix-${ZABBIX_VERSION} zabbix-agent-${ZABBIX_VERSION} zabbix-server-${ZABBIX_VERSION} zabbix-server-mysql-${ZABBIX_VERSION} zabbix-web-${ZABBIX_VERSION} zabbix-web-mysql-${ZABBIX_VERSION} >> $LOG_FILE 2>&1
 
 if [ $? -ne 0 ]; then
     echo "ERROR: Install base pkg for zabbix faile" >> $LOG_FILE 2>&1
