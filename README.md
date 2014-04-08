@@ -21,7 +21,7 @@ GNU General Public License Version 2で提供しています。
 [GPLv2原文](http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 
 ### 商標について
-PrimecCloudはSCSK株式会社の商標または登録商標です。
+PrimeCloudはSCSK株式会社の商標または登録商標です。
 
 PrimeCloud ControllerのロゴはSCSK株式会社の商標または登録商標です。
 
