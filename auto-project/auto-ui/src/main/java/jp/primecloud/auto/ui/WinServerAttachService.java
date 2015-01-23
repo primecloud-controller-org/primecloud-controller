@@ -5,10 +5,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+
 import jp.primecloud.auto.common.status.ComponentInstanceStatus;
+import jp.primecloud.auto.common.status.InstanceStatus;
 import jp.primecloud.auto.entity.crud.AwsVolume;
+import jp.primecloud.auto.entity.crud.AzureDisk;
 import jp.primecloud.auto.entity.crud.CloudstackVolume;
 import jp.primecloud.auto.entity.crud.ComponentType;
+import jp.primecloud.auto.entity.crud.OpenstackVolume;
+import jp.primecloud.auto.entity.crud.VcloudDisk;
 import jp.primecloud.auto.entity.crud.VmwareDisk;
 import jp.primecloud.auto.service.ComponentService;
 import jp.primecloud.auto.service.dto.ComponentDto;
@@ -22,10 +29,6 @@ import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewProperties;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 import com.vaadin.Application;
 import com.vaadin.data.Container;
 import com.vaadin.data.Property;
@@ -315,6 +318,7 @@ public class WinServerAttachService extends Window {
                 }
 
                 // ディスクがアタッチされているサービスは無効
+                //TODO CLOUD BRANCHING
                 if (instance.getAwsVolumes() != null) {
                     for (AwsVolume awsVolume : instance.getAwsVolumes()) {
                         if (StringUtils.isNotEmpty(awsVolume.getInstanceId())) {
@@ -333,6 +337,33 @@ public class WinServerAttachService extends Window {
                     for (VmwareDisk vmwareDisk : instance.getVmwareDisks()) {
                         if (BooleanUtils.isTrue(vmwareDisk.getAttached())) {
                             checkMap.put(vmwareDisk.getComponentNo(), false);
+                        }
+                    }
+                }
+                if (instance.getVcloudDisks() != null) {
+                    for (VcloudDisk vcloudDisk : instance.getVcloudDisks()) {
+                        if (BooleanUtils.isTrue(vcloudDisk.getAttached())) {
+                            if (InstanceStatus.fromStatus(instance.getInstance().getStatus()) != InstanceStatus.STOPPED) {
+                                checkMap.put(vcloudDisk.getComponentNo(), false);
+                            }
+                        }
+                    }
+                }
+                if (instance.getAzureDisks() != null) {
+                    for (AzureDisk azureDisk : instance.getAzureDisks()) {
+                        if (StringUtils.isNotEmpty(azureDisk.getInstanceName())) {
+                            if (InstanceStatus.fromStatus(instance.getInstance().getStatus()) != InstanceStatus.STOPPED) {
+                                checkMap.put(azureDisk.getComponentNo(), false);
+                            }
+                        }
+                    }
+                }
+                if (instance.getOpenstackVolumes() != null) {
+                    for (OpenstackVolume openstackVolume : instance.getOpenstackVolumes()) {
+                        if (StringUtils.isNotEmpty(openstackVolume.getInstanceId())) {
+                            if (InstanceStatus.fromStatus(instance.getInstance().getStatus()) != InstanceStatus.STOPPED) {
+                                checkMap.put(openstackVolume.getComponentNo(), false);
+                            }
                         }
                     }
                 }

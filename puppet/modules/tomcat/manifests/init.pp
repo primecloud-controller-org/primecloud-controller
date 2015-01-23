@@ -1,5 +1,5 @@
 class tomcat {
-#    $default_tomcat_version="apache-tomcat-6.0.37"
+#    $default_tomcat_version="apache-tomcat-6.0.26"
 }
 
 define tomcat::stop(
@@ -18,10 +18,10 @@ define tomcat::stop(
     notice ("db_servers = ${db_servers}")
     notice ("ap_servers = ${ap_servers}")
     notice ("web_servers = ${web_servers}")
-
+    
     $ap_home = $name
     $rsyncFlag = "${ap_home}/${fact_rsyncflagfile}" #see modules/custom/liv/facter/fact_rsyncstatus.rb
-
+    
     service { "tomcat":
         before  => [ Mount["${name}"],Exec["killProc-${name}"] ],
         enable  => "false",
@@ -54,7 +54,7 @@ define tomcat::config(
     $custom_param_2 ="",
     $custom_param_3 =""
 ){
-
+    
     notice ("custom_param_1 = ${custom_param_1}")
     notice ("custom_param_2 = ${custom_param_2}")
     notice ("custom_param_3 = ${custom_param_3}")
@@ -64,7 +64,7 @@ define tomcat::config(
     notice ("db_servers = ${db_servers}")
     notice ("ap_servers = ${ap_servers}")
     notice ("web_servers = ${web_servers}")
-
+    
     $ap_home = $name
     $tomcat_home="${ap_home}/${tomcat_version}"
     $rsyncFlag = "${ap_home}/${fact_rsyncflagfile}" #see site.pp
@@ -77,14 +77,18 @@ define tomcat::config(
         require    =>  [ File["${ap_home}/default"] , File["/opt/tomcat" ], Exec["rsync-tomcat"], File["server.xml"], File["/etc/sysconfig/tomcat"], File["${ap_home}/default/bin/jsvc"]  ]
     }
 
-    file { "${ap_home}/default/bin/jsvc" :
-            before  => Service["tomcat"],
-            owner   => "tomcat",
-            group   => "tomcat",
-            mode    => "755",
-            source  => "puppet:///modules/tomcat/jsvc" ,
-            require => Exec["rsync-tomcat"],
-            #replace => "${replaceoption}",
+    if ( $architecture == "i386" ) {
+         file { "${ap_home}/default/bin/jsvc" :
+                before  => Service["tomcat"],
+                owner   => "tomcat",
+                group   => "tomcat",
+                mode    => "755",
+                source  => "puppet:///modules/tomcat/jsvc.i386" ,
+                require => Exec["rsync-tomcat"],
+                #replace => "${replaceoption}",
+        }
+    } else {
+        file { "${ap_home}/default/bin/jsvc" : }
     }
 
     if $rsync_server {
@@ -126,7 +130,7 @@ define tomcat::config(
         ensure  => "${tomcat_home}",
         require => File["${tomcat_home}"],
     }
-
+ 
     file { "/opt/tomcat" :
         ensure => "${ap_home}",
         require => Mount["${ap_home}"],
@@ -188,9 +192,9 @@ define tomcat::config(
 
 define tomcat::dbhost ( $ip , $ap_restart=true ){
     if $ap_restart=="true" {
-        host { $name :
-            ip  => $ip ,
-#            notify => Service["tomcat"]
+        host { $name :  
+            ip  => $ip , 
+#            notify => Service["tomcat"] 
         }
     }else{
         host { $name :  ip  => $ip }

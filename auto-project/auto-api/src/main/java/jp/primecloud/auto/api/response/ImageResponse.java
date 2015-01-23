@@ -10,7 +10,6 @@ import jp.primecloud.auto.entity.crud.Platform;
 
 
 
-
 @XmlRootElement(name="ImageResponse")
 @XmlType(propOrder = {"imageNo", "imageName", "platformName", "os"})
 public class ImageResponse {

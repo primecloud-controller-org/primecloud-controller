@@ -25,6 +25,10 @@ import jp.primecloud.auto.entity.crud.AwsAddress;
 import jp.primecloud.auto.entity.crud.AwsCertificate;
 import jp.primecloud.auto.entity.crud.AwsInstance;
 import jp.primecloud.auto.entity.crud.AwsVolume;
+import jp.primecloud.auto.entity.crud.AzureCertificate;
+import jp.primecloud.auto.entity.crud.AzureDisk;
+import jp.primecloud.auto.entity.crud.AzureInstance;
+import jp.primecloud.auto.entity.crud.AzureSubnet;
 import jp.primecloud.auto.entity.crud.CloudstackAddress;
 import jp.primecloud.auto.entity.crud.CloudstackInstance;
 import jp.primecloud.auto.entity.crud.CloudstackVolume;
@@ -32,11 +36,20 @@ import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.InstanceConfig;
 import jp.primecloud.auto.entity.crud.NiftyInstance;
 import jp.primecloud.auto.entity.crud.NiftyKeyPair;
+import jp.primecloud.auto.entity.crud.NiftyVolume;
+import jp.primecloud.auto.entity.crud.OpenstackCertificate;
+import jp.primecloud.auto.entity.crud.OpenstackInstance;
+import jp.primecloud.auto.entity.crud.OpenstackVolume;
+import jp.primecloud.auto.entity.crud.PlatformVcloudStorageType;
+import jp.primecloud.auto.entity.crud.VcloudDisk;
+import jp.primecloud.auto.entity.crud.VcloudInstance;
+import jp.primecloud.auto.entity.crud.VcloudInstanceNetwork;
+import jp.primecloud.auto.entity.crud.VcloudKeyPair;
 import jp.primecloud.auto.entity.crud.VmwareAddress;
 import jp.primecloud.auto.entity.crud.VmwareDisk;
 import jp.primecloud.auto.entity.crud.VmwareInstance;
 import jp.primecloud.auto.entity.crud.VmwareKeyPair;
-
+import jp.primecloud.auto.entity.crud.ZabbixInstance;
 
 /**
  * <p>
@@ -49,6 +62,8 @@ public class InstanceDto implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Instance instance;
+
+    private ZabbixInstance zabbixInstance;
 
     private PlatformDto platform;
 
@@ -84,6 +99,32 @@ public class InstanceDto implements Serializable {
 
     private NiftyKeyPair niftyKeyPair;
 
+    private VcloudInstance vcloudInstance;
+
+    private VcloudKeyPair vcloudKeyPair;
+
+    private List<VcloudDisk> vcloudDisks;
+
+    private List<VcloudInstanceNetwork> vcloudInstanceNetworks;
+
+    private PlatformVcloudStorageType platformVcloudStorageType;
+
+    private AzureInstance azureInstance;
+
+    private AzureCertificate azureCertificate;
+
+    private List<AzureDisk> azureDisks;
+
+    private AzureSubnet azureSubnet;
+
+    private OpenstackInstance openstackInstance;
+
+    private OpenstackCertificate openstackCertificate;
+
+    private List<OpenstackVolume> openstackVolumes;
+
+    private List<NiftyVolume> niftyVolumes;
+
     /**
      * instanceを取得します。
      *
@@ -100,6 +141,24 @@ public class InstanceDto implements Serializable {
      */
     public void setInstance(Instance instance) {
         this.instance = instance;
+    }
+
+    /**
+     * zabbixInstanceを取得します。
+     *
+     * @return zabbixInstance
+     */
+    public ZabbixInstance getZabbixInstance() {
+        return zabbixInstance;
+    }
+
+    /**
+     * zabbixInstanceを設定します。
+     *
+     * @param zabbixInstance zabbixInstance
+     */
+    public void setZabbixInstance(ZabbixInstance zabbixInstance) {
+        this.zabbixInstance = zabbixInstance;
     }
 
     /**
@@ -406,6 +465,235 @@ public class InstanceDto implements Serializable {
      */
     public void setCloudstackVolumes(List<CloudstackVolume> cloudstackVolumes) {
         this.cloudstackVolumes = cloudstackVolumes;
+    }
+
+    /**
+     * vcloudInstanceを取得します。
+     *
+     * @return vcloudInstance
+     */
+    public VcloudInstance getVcloudInstance() {
+        return vcloudInstance;
+    }
+
+    /**
+     * vcloudInstanceを設定します。
+     *
+     * @param vcloudInstance vcloudInstance
+     */
+    public void setVcloudInstance(VcloudInstance vcloudInstance) {
+        this.vcloudInstance = vcloudInstance;
+    }
+
+    /**
+     * vcloudKeyPairを取得します。
+     *
+     * @return vcloudKeyPair
+     */
+    public VcloudKeyPair getVcloudKeyPair() {
+        return vcloudKeyPair;
+    }
+
+    /**
+     * vcloudKeyPairを設定します。
+     *
+     * @param vcloudKeyPair vcloudKeyPair
+     */
+    public void setVcloudKeyPair(VcloudKeyPair vcloudKeyPair) {
+        this.vcloudKeyPair = vcloudKeyPair;
+    }
+    /**
+     * vcloudDisksを取得します。
+     *
+     * @return vcloudDisks
+     */
+    public List<VcloudDisk> getVcloudDisks() {
+        return vcloudDisks;
+    }
+
+    /**
+     * vcloudDisksを設定します。
+     *
+     * @param vcloudDisks vcloudDisks
+     */
+    public void setVcloudDisks(List<VcloudDisk> vcloudDisks) {
+        this.vcloudDisks = vcloudDisks;
+    }
+
+    /**
+     * vcloudInstanceNetworksを取得します。
+     *
+     * @return vcloudInstanceNetworks
+     */
+    public List<VcloudInstanceNetwork> getVcloudInstanceNetworks() {
+        return vcloudInstanceNetworks;
+    }
+
+    /**
+     * vcloudInstanceNetworksを設定します。
+     *
+     * @param vcloudInstanceNetworks vcloudInstanceNetworks
+     */
+    public void setVcloudInstanceNetworks(List<VcloudInstanceNetwork> vcloudInstanceNetworks) {
+        this.vcloudInstanceNetworks = vcloudInstanceNetworks;
+    }
+
+    /**
+     * platformVcloudStorageTypeを取得します。
+     *
+     * @return platformVcloudStorageType
+     */
+    public PlatformVcloudStorageType getPlatformVcloudStorageType() {
+        return platformVcloudStorageType;
+    }
+
+    /**
+     * platformVcloudStorageTypeを設定します。
+     *
+     * @param platformVcloudStorageType platformVcloudStorageType
+     */
+    public void setPlatformVcloudStorageType(PlatformVcloudStorageType platformVcloudStorageType) {
+        this.platformVcloudStorageType = platformVcloudStorageType;
+    }
+
+    /**
+     * azureInstanceを取得します。
+     *
+     * @return azureInstance
+     */
+    public AzureInstance getAzureInstance() {
+        return azureInstance;
+    }
+
+    /**
+     * azureInstanceを設定します。
+     *
+     * @return azureInstance azureInstance
+     */
+    public void setAzureInstance(AzureInstance azureInstance) {
+        this.azureInstance = azureInstance;
+    }
+
+    /**
+     * azureCertificateを取得します。
+     *
+     * @return azureCertificate
+     */
+    public AzureCertificate getAzureCertificate() {
+        return azureCertificate;
+    }
+
+    /**
+     * azureCertificateを設定します。
+     *
+     * @return azureCertificate azureCertificate
+     */
+    public void setAzureCertificate(AzureCertificate azureCertificate) {
+        this.azureCertificate = azureCertificate;
+    }
+
+    /**
+     * azureDisksを取得します。
+     *
+     * @return azureDisks
+     */
+    public List<AzureDisk> getAzureDisks() {
+        return azureDisks;
+    }
+
+    /**
+     * azureDisksを設定します。
+     *
+     * @return azureDisks azureDisks
+     */
+    public void setAzureDisks(List<AzureDisk> azureDisks) {
+        this.azureDisks = azureDisks;
+    }
+
+    /**
+     * azureInstanceNetworksを取得します。
+     *
+     * @return azureSubnet
+     */
+    public AzureSubnet getAzureSubnet() {
+        return azureSubnet;
+    }
+
+    /**
+     * azureInstanceNetworksを設定します。
+     *
+     * @return AzureSubnet azureSubnet
+     */
+    public void setAzureSubnet(AzureSubnet azureInstanceNetworks) {
+        this.azureSubnet = azureInstanceNetworks;
+    }
+
+    /**
+     * openstackInstanceを取得します。
+     *
+     * @return openstackInstance
+     */
+    public OpenstackInstance getOpenstackInstance() {
+        return openstackInstance;
+    }
+
+    /**
+     * openstackInstanceを設定します。
+     *
+     * @return openstackInstance openstackInstance
+     */
+    public void setOpenstackInstance(OpenstackInstance openstackInstance) {
+        this.openstackInstance = openstackInstance;
+    }
+
+    /**
+     * openstackCertificateを取得します。
+     *
+     * @return openstackCertificate
+     */
+    public OpenstackCertificate getOpenstackCertificate() {
+        return openstackCertificate;
+    }
+
+    /**
+     * openstackCertificateを設定します。
+     *
+     * @return openstackCertificate openstackCertificate
+     */
+    public void setOpenstackCertificate(OpenstackCertificate openstackCertificate) {
+        this.openstackCertificate = openstackCertificate;
+    }
+
+    /**
+     * openstackVolumesを取得します。
+     * @return openstackVolumes
+     */
+    public List<OpenstackVolume> getOpenstackVolumes() {
+        return openstackVolumes;
+    }
+
+    /**
+     * openstackVolumesを設定します。
+     * @param openstackVolumes openstackVolumes
+     */
+    public void setOpenstackVolumes(List<OpenstackVolume> openstackVolumes) {
+        this.openstackVolumes = openstackVolumes;
+    }
+
+    /**
+     * niftyVolumesを取得します。
+     * @return niftyVolumes
+     */
+    public List<NiftyVolume> getNiftyVolumes() {
+        return niftyVolumes;
+    }
+
+    /**
+     * niftyVolumesを設定します。
+     * @param niftyVolumes niftyVolumes
+     */
+    public void setNiftyVolumes(List<NiftyVolume> niftyVolumes) {
+        this.niftyVolumes = niftyVolumes;
     }
 
 }

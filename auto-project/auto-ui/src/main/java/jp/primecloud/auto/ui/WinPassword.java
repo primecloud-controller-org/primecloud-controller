@@ -18,6 +18,7 @@
  */
 package jp.primecloud.auto.ui;
 
+import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.IaasDescribeService;
 import jp.primecloud.auto.service.dto.InstanceDto;
@@ -26,7 +27,6 @@ import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
-
 import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -69,9 +69,10 @@ public class WinPassword extends Window {
         //プラットフォーム
         PlatformDto platformDto = instanceDto.getPlatform();
         String keyName = "";
-        if ("aws".equals(platformDto.getPlatform().getPlatformType())) {
+        // TODO CLOUD BRANCHING
+        if (PCCConstant.PLATFORM_TYPE_AWS.equals(platformDto.getPlatform().getPlatformType())) {
             keyName = instanceDto.getAwsInstance().getKeyName();
-        } else if ("cloudstack".equals(platformDto.getPlatform().getPlatformType())) {
+        } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platformDto.getPlatform().getPlatformType())) {
             keyName = instanceDto.getCloudstackInstance().getKeyName();
         }
 

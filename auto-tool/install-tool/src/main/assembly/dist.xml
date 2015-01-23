@@ -41,6 +41,10 @@
 			<directory>../../auto-project/auto-process/src/main/resources/puppet</directory>
 			<outputDirectory>/${pom.version}/pcc/puppet</outputDirectory>
 		</fileSet>
+		<fileSet>
+			<directory>../../zabbix</directory>
+			<outputDirectory>/${pom.version}/zabbix</outputDirectory>
+		</fileSet>
 	</fileSets>
 
 	<files>
@@ -50,6 +54,14 @@
 		</file>
 		<file>
 			<source>../management-tool/target/management-tool-${pom.version}.tar.gz</source>
+			<outputDirectory>/${pom.version}/pcc/</outputDirectory>
+		</file>
+		<file>
+			<source>../auto-cli/target/auto-cli-${pom.version}.tar.gz</source>
+			<outputDirectory>/${pom.version}/pcc/</outputDirectory>
+		</file>
+		<file>
+			<source>../auto-repo/target/auto-repo-${pom.version}.tar.gz</source>
 			<outputDirectory>/${pom.version}/pcc/</outputDirectory>
 		</file>
 	</files>

@@ -18,6 +18,9 @@
  */
 package jp.primecloud.auto.ui;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.exception.MultiCauseException;
@@ -25,10 +28,6 @@ import jp.primecloud.auto.ui.DialogConfirm.Buttons;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
 import jp.primecloud.auto.util.MessageUtils;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.vaadin.event.ListenerMethod;
 import com.vaadin.ui.AbstractComponent.ComponentErrorEvent;
 import com.vaadin.ui.AbstractComponent.ComponentErrorHandler;

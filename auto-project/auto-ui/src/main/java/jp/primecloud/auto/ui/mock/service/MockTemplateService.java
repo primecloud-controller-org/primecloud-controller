@@ -28,7 +28,6 @@ import jp.primecloud.auto.service.impl.TemplateServiceImpl;
 import jp.primecloud.auto.ui.mock.XmlDataLoader;
 import jp.primecloud.auto.util.MessageUtils;
 
-
 /**
  * <p>
  * TODO: クラスコメントを記述

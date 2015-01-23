@@ -37,7 +37,7 @@ import jp.primecloud.auto.ui.util.ConvertUtil;
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
-
+import jp.primecloud.auto.util.MessageUtils;
 import com.vaadin.data.Item;
 import com.vaadin.data.Validator;
 import com.vaadin.data.Validator.InvalidValueException;
@@ -393,7 +393,7 @@ public class WinUserAuthAddEdit extends Window {
         String message = ViewMessages.getMessage("IUI-000117");
         userNameField.setRequired(true);
         userNameField.setRequiredError(message);
-        userNameField.addValidator(new StringLengthValidator(message, 1, 15, false));
+        userNameField.addValidator(new StringLengthValidator(message, -1, 15, false));
         userNameField.addValidator(new RegexpValidator("^[a-z]|[a-z][0-9a-z-]*[0-9a-z]$", true, message));
 
         //パスワード
@@ -467,7 +467,14 @@ public class WinUserAuthAddEdit extends Window {
             //パスワード
             passwordField.validate();
         } catch (InvalidValueException e) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), e.getMessage());
+            String errMes = e.getMessage();
+            if (null == errMes){
+                //メッセージが取得できない場合は複合エラー 先頭を表示する
+                InvalidValueException[] exceptions =  e.getCauses();
+                errMes = exceptions[0].getMessage();
+            }
+
+            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), errMes);
             getParent().addWindow(dialog);
             return;
         }

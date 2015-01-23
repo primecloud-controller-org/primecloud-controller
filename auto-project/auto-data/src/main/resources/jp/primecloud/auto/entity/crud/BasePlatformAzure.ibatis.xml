@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap      
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="PlatformAzure">
+
+	<typeAlias alias="PlatformAzure" type="jp.primecloud.auto.entity.crud.PlatformAzure" />
+
+	<resultMap id="platformAzureResultMap" class="PlatformAzure">
+		<result property="platformNo" column="PLATFORM_NO" />
+		<result property="locationName" column="LOCATION_NAME" nullValue="" />
+		<result property="affinityGroupName" column="AFFINITY_GROUP_NAME" nullValue="" />
+		<result property="cloudServiceName" column="CLOUD_SERVICE_NAME" nullValue="" />
+		<result property="storageAccountName" column="STORAGE_ACCOUNT_NAME" nullValue="" />
+		<result property="networkName" column="NETWORK_NAME" nullValue="" />
+		<result property="availabilitySets" column="AVAILABILITY_SETS" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.PLATFORM_NO as PLATFORM_NO, 
+			t1.LOCATION_NAME as LOCATION_NAME, 
+			t1.AFFINITY_GROUP_NAME as AFFINITY_GROUP_NAME, 
+			t1.CLOUD_SERVICE_NAME as CLOUD_SERVICE_NAME, 
+			t1.STORAGE_ACCOUNT_NAME as STORAGE_ACCOUNT_NAME, 
+			t1.NETWORK_NAME as NETWORK_NAME, 
+			t1.AVAILABILITY_SETS as AVAILABILITY_SETS
+		from
+			PLATFORM_AZURE t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from PLATFORM_AZURE t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="platformAzureResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="platformAzureResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readInPlatformNos" parameterClass="java.util.Map" resultMap="platformAzureResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO in
+		]]>
+		<iterate property="platformNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#platformNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="PlatformAzure">
+		<![CDATA[
+		insert into PLATFORM_AZURE (
+			PLATFORM_NO, 
+			LOCATION_NAME, 
+			AFFINITY_GROUP_NAME, 
+			CLOUD_SERVICE_NAME, 
+			STORAGE_ACCOUNT_NAME, 
+			NETWORK_NAME, 
+			AVAILABILITY_SETS
+		) values (
+			#platformNo#, 
+			#locationName#, 
+			#affinityGroupName#, 
+			#cloudServiceName#, 
+			#storageAccountName#, 
+			#networkName#, 
+			#availabilitySets#
+		)
+		]]>
+	</insert>
+
+	<update id="update" parameterClass="PlatformAzure">
+		<![CDATA[
+		update PLATFORM_AZURE set
+			LOCATION_NAME = #locationName#, 
+			AFFINITY_GROUP_NAME = #affinityGroupName#, 
+			CLOUD_SERVICE_NAME = #cloudServiceName#, 
+			STORAGE_ACCOUNT_NAME = #storageAccountName#, 
+			NETWORK_NAME = #networkName#, 
+			AVAILABILITY_SETS = #availabilitySets#
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="PlatformAzure">
+		<![CDATA[
+		delete from PLATFORM_AZURE
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from PLATFORM_AZURE
+		]]>
+	</delete>
+
+	<delete id="deleteByPlatformNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from PLATFORM_AZURE
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+</sqlMap>

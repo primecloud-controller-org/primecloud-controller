@@ -25,6 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+
 import jp.primecloud.auto.common.status.ComponentInstanceStatus;
 import jp.primecloud.auto.entity.crud.ComponentType;
 import jp.primecloud.auto.service.ComponentService;
@@ -41,10 +44,6 @@ import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 import com.vaadin.data.Container;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -366,7 +365,7 @@ public class ServiceTable extends Table {
                     return;
                 }
 
-                //TODO LOG
+                //オペレーションログ
                 AutoApplication apl = (AutoApplication)getApplication();
                 apl.doOpLog("SERVICE", "Delete Service", null, dto.getComponent().getComponentNo(), null, null);
 

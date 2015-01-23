@@ -8,8 +8,8 @@
 	<resultMap id="niftyCertificateResultMap" class="NiftyCertificate">
 		<result property="userNo" column="USER_NO" />
 		<result property="platformNo" column="PLATFORM_NO" />
-		<result property="certificate" column="CERTIFICATE" nullValue="" />
-		<result property="privateKey" column="PRIVATE_KEY" nullValue="" />
+		<result property="niftyAccessId" column="NIFTY_ACCESS_ID" nullValue="" />
+		<result property="niftySecretKey" column="NIFTY_SECRET_KEY" nullValue="" />
 	</resultMap>
 
 	<sql id="selectSql">
@@ -17,8 +17,8 @@
 		select
 			t1.USER_NO as USER_NO,
 			t1.PLATFORM_NO as PLATFORM_NO,
-			t1.CERTIFICATE as CERTIFICATE,
-			t1.PRIVATE_KEY as PRIVATE_KEY
+			t1.NIFTY_ACCESS_ID as NIFTY_ACCESS_ID,
+			t1.NIFTY_SECRET_KEY as NIFTY_SECRET_KEY
 		from
 			NIFTY_CERTIFICATE t1
 		]]>
@@ -90,13 +90,13 @@
 		insert into NIFTY_CERTIFICATE (
 			USER_NO,
 			PLATFORM_NO,
-			CERTIFICATE,
-			PRIVATE_KEY
+			NIFTY_ACCESS_ID,
+			NIFTY_SECRET_KEY
 		) values (
 			#userNo#,
 			#platformNo#,
-			#certificate#,
-			#privateKey#
+			#niftyAccessId#,
+			#niftySecretKey#
 		)
 		]]>
 	</insert>
@@ -104,8 +104,8 @@
 	<update id="update" parameterClass="NiftyCertificate">
 		<![CDATA[
 		update NIFTY_CERTIFICATE set
-			CERTIFICATE = #certificate#,
-			PRIVATE_KEY = #privateKey#
+			NIFTY_ACCESS_ID = #niftyAccessId#,
+			NIFTY_SECRET_KEY = #niftySecretKey#
 		where
 			USER_NO = #userNo# and
 			PLATFORM_NO = #platformNo#

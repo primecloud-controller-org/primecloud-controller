@@ -36,7 +36,7 @@ if [ -n "${USER_NAME}" ]; then
 
         #ユーザーがすでに作成されているかどうかの確認
         SQL_ALREADY_CREATED="SELECT USER_NO FROM USER where USERNAME ='${USER_NAME}'"
-        USER_NO=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -S -sql "${SQL_ALREADY_CREATED}" -columntype int -columnname USER_NO`
+        USER_NO=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -S -sql \"${SQL_ALREADY_CREATED}\" -columntype int -columnname USER_NO"`
 
         if [ "${USER_NO}" = "NULL" ]; then
                 echo "${USER_NAME} は作成されていません。先にPCCのユーザを作成してください。"
@@ -52,7 +52,7 @@ if [ -n "${USER_NAME}" ]; then
 
         #無効化されているか確認
         SQL_USER_DISABLED="SELECT LOCATE('${DISABLE_CODE}',PASSWORD) as LOCATE from USER where USER_NO=${USER_NO}"
-        LOCATE=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -S -sql "${SQL_USER_DISABLED}" -columntype int -columnname LOCATE`
+        LOCATE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -S -sql \"${SQL_USER_DISABLED}\" -columntype int -columnname LOCATE"`
 
         if [ "${LOCATE}" != "0" ]; then
                 echo "${USER_NAME} は無効化されています。"
@@ -61,7 +61,7 @@ if [ -n "${USER_NAME}" ]; then
 
         #ユーザーがすでに有効化されているかどうかの確認
         SQL_ALREADY_API_CREATED="SELECT USER_NO FROM API_CERTIFICATE where USER_NO =${USER_NO}"
-        USER_NO_CHECK=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -S -sql "${SQL_ALREADY_API_CREATED}" -columntype int -columnname USER_NO`
+        USER_NO_CHECK=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -S -sql \"${SQL_ALREADY_API_CREATED}\" -columntype int -columnname USER_NO"`
 
         if [ "${USER_NO_CHECK}" != "NULL" ]; then
                 echo "${USER_NAME} はすでにPCC-APIを使用可能です。"
@@ -69,7 +69,7 @@ if [ -n "${USER_NAME}" ]; then
         fi
 
         #PCC-API認証情報のACCESS_IDを生成
-        MESSAGE=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -A -userno "${USER_NO}" -generateType accessId`
+        MESSAGE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -A -userno \"${USER_NO}\" -generatetype accessId"`
         if [ "${MESSAGE}" == "GENERATE_ERROR" ]; then
                 echo "ACCESS_IDの生成に失敗しました。"
                 exit 1
@@ -77,7 +77,7 @@ if [ -n "${USER_NAME}" ]; then
         API_ACCESS_ID="${MESSAGE}"
 
         #PCC-API認証情報のSECRET_KEYを生成
-        MESSAGE=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -A -userno "${USER_NO}" -generateType secretKey`
+        MESSAGE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -A -userno \"${USER_NO}\" -generatetype secretKey"`
         if [ "${MESSAGE}" == "GENERATE_ERROR" ]; then
                 echo "SECRET_KEYの生成に失敗しました。"
                 exit 1
@@ -86,7 +86,7 @@ if [ -n "${USER_NAME}" ]; then
 
         #PCC-API認証情報の作成
         SQL_CREATE_API_CERTIFICATE="INSERT INTO API_CERTIFICATE values (${USER_NO}, '${API_ACCESS_ID}','${API_SECRET_KEY}')"
-        MESSAGE=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -U -sql "${SQL_CREATE_API_CERTIFICATE}"`
+        MESSAGE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -U -sql \"${SQL_CREATE_API_CERTIFICATE}\""`
         if [ -n "${MESSAGE}" ]; then
                 echo "${MESSAGE}"
                 exit 1

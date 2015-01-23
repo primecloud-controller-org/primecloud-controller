@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.entity.crud.AutoScalingConf;
 import jp.primecloud.auto.entity.crud.AwsLoadBalancer;
 import jp.primecloud.auto.entity.crud.CloudstackLoadBalancer;
@@ -69,17 +70,16 @@ public class MockLoadBalancerService implements LoadBalancerService {
         List<Platform> platforms = XmlDataLoader.getData("platform.xml", Platform.class);
         LinkedHashMap<Long, PlatformAws> platformAwsMap = getPlatformAwsMap();
         LinkedHashMap<Long, PlatformCloudstack> platformCloudstackMap = getPlatformCloudstackMap();
-        LinkedHashMap<Long, PlatformVmware> platformVmwareMap = getPlatformVmwareMap();
+        LinkedHashMap<Long, PlatformVmware>  platformVmwareMap = getPlatformVmwareMap();
         LinkedHashMap<Long, PlatformNifty> platformNiftyMap = getPlatformNiftyMap();
         LinkedHashMap<Long, PlatformDto> platformDtoMap = new LinkedHashMap<Long, PlatformDto>();
-        for (Platform platform : platforms) {
+        for (Platform platform: platforms) {
             PlatformDto platformDto = new PlatformDto();
             platformDto.setPlatform(platform);
             platformDto.setPlatformAws(platformAwsMap.get(platform.getPlatformNo()));
             platformDto.setPlatformCloudstack(platformCloudstackMap.get(platform.getPlatformNo()));
             platformDto.setPlatformVmware(platformVmwareMap.get(platform.getPlatformNo()));
             platformDto.setPlatformNifty(platformNiftyMap.get(platform.getPlatformNo()));
-            platformDtoMap.put(platform.getPlatformNo(), platformDto);
         }
 
         // Image
@@ -89,7 +89,7 @@ public class MockLoadBalancerService implements LoadBalancerService {
         LinkedHashMap<Long, ImageVmware> imageVmwareMap = getImageVmwareMap();
         LinkedHashMap<Long, ImageNifty> imageNiftyMap = getImageNiftyMap();
         LinkedHashMap<Long, ImageDto> imageDtoMap = new LinkedHashMap<Long, ImageDto>();
-        for (Image image : images) {
+        for (Image image: images) {
             ImageDto imageDto = new ImageDto();
             imageDto.setImage(image);
             imageDto.setImageAws(imageAwsMap.get(image.getImageNo()));
@@ -104,7 +104,7 @@ public class MockLoadBalancerService implements LoadBalancerService {
 
             // AwsLoadBalancer
             AwsLoadBalancer awsLoadBalancer = null;
-            if ("aws".equals(loadBalancer.getType())) {
+            if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancer.getType())) {
                 awsLoadBalancer = new AwsLoadBalancer();
                 awsLoadBalancer.setLoadBalancerNo(loadBalancer.getLoadBalancerNo());
                 awsLoadBalancer.setDnsName(loadBalancer.getCanonicalName());
@@ -113,7 +113,7 @@ public class MockLoadBalancerService implements LoadBalancerService {
             }
 
             CloudstackLoadBalancer cloudstackLoadBalancer = null;
-            if ("cloudstack".equals(loadBalancer.getType())) {
+            if (PCCConstant.LOAD_BALANCER_CLOUDSTACK.equals(loadBalancer.getType())) {
                 cloudstackLoadBalancer = new CloudstackLoadBalancer();
                 cloudstackLoadBalancer.setLoadBalancerNo(loadBalancer.getLoadBalancerNo());
             }
@@ -182,17 +182,15 @@ public class MockLoadBalancerService implements LoadBalancerService {
             autoScalingConf.setDelCount(0L);
             autoScalingConf.setEnabled(false);
 
-            // autoScaling was disabled
-
-            // autoScalingConfDto.setAutoScalingConf(autoScalingConf);
-            // autoScalingConfDto.setPlatform(platformDtoMap.get(autoScalingConf.getPlatformNo()));
-            // autoScalingConfDto.setImage(imageDtoMap.get(autoScalingConf.getImageNo()));
+            autoScalingConfDto.setAutoScalingConf(autoScalingConf);
+            autoScalingConfDto.setPlatform(platformDtoMap.get(autoScalingConf.getPlatformNo()));
+            autoScalingConfDto.setImage(imageDtoMap.get(autoScalingConf.getImageNo()));
 
             // DTO
             LoadBalancerDto dto = new LoadBalancerDto();
             dto.setLoadBalancer(loadBalancer);
             dto.setPlatform(platformDtoMap.get(loadBalancer.getPlatformNo()));
-            // dto.setAutoScalingConf(autoScalingConfDto);
+            dto.setAutoScalingConf(autoScalingConfDto);
             dto.setAwsLoadBalancer(awsLoadBalancer);
             dto.setCloudstackLoadBalancer(cloudstackLoadBalancer);
             dto.setLoadBalancerListeners(listeners);
@@ -213,8 +211,7 @@ public class MockLoadBalancerService implements LoadBalancerService {
     }
 
     @Override
-    public Long createCloudstackLoadBalancer(Long farmNo, String loadBalancerName, String comment, Long platformNo,
-            Long componentNo) {
+    public Long createCloudstackLoadBalancer(Long farmNo, String loadBalancerName, String comment, Long platformNo, Long componentNo) {
         System.out.println("createAwsLoadBalancer: loadBalancerName=" + loadBalancerName + ", componentNo="
                 + componentNo);
         return null;
@@ -229,19 +226,18 @@ public class MockLoadBalancerService implements LoadBalancerService {
     }
 
     @Override
-    public void updateAwsLoadBalancer(Long loadBalancerNo, String loadBalancerName, String comment, Long componentNo,
-            String subnetId, String securityGroupName, String availabilityZone) {
+    public void updateAwsLoadBalancer(Long loadBalancerNo, String loadBalancerName, String comment,
+            Long componentNo, String subnetId, String securityGroupName, String availabilityZone) {
         System.out.println("updateAwsLoadBalancer: loadBalancerName=" + loadBalancerName + ", componentNo="
                 + componentNo);
     }
 
     @Override
-    public void updateCloudstackLoadBalancer(Long loadBalancerNo, String loadBalancerName, String comment,
-            Long componentNo, String algorithm, String pubricPort, String privatePort) {
+    public void updateCloudstackLoadBalancer(Long loadBalancerNo, String loadBalancerName, String comment, Long componentNo,
+            String algorithm, String pubricPort, String privatePort) {
         System.out.println("updateAwsLoadBalancer: loadBalancerName=" + loadBalancerName + ", componentNo="
                 + componentNo);
     }
-
     @Override
     public void updateUltraMonkeyLoadBalancer(Long loadBalancerNo, String loadBalancerName, String comment,
             Long componentNo) {
@@ -255,8 +251,7 @@ public class MockLoadBalancerService implements LoadBalancerService {
     }
 
     @Override
-    public void createListener(Long loadBalancerNo, Integer loadBalancerPort, Integer servicePort, String protocol,
-            Long sslKeyNo) {
+    public void createListener(Long loadBalancerNo, Integer loadBalancerPort, Integer servicePort, String protocol, Long sslKeyNo) {
         System.out.println("createLoadBalancerListener: loadBalancerNo=" + loadBalancerNo + ", loadBalancerPort="
                 + loadBalancerPort);
     }
@@ -308,7 +303,7 @@ public class MockLoadBalancerService implements LoadBalancerService {
             List<String> types = new ArrayList<String>();
 
             // AmazonEC2の場合、AWSロードバランサを利用可能とする
-            if ("aws".equals(platform.getPlatformType())) {
+            if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
                 PlatformAws platformAws = platformAwsMap.get(platform.getPlatformNo());
                 if (platformAws.getEuca() == false) {
                     types.add("aws"); // TODO: 文字列定数化
@@ -317,9 +312,8 @@ public class MockLoadBalancerService implements LoadBalancerService {
 
             // UltraMonkeyイメージの利用可否チェック
             for (Image image : images) {
-                if (image.getPlatformNo().equals(platform.getPlatformNo())
-                        && "ultramonkey".equals(image.getImageName())) {
-                    types.add("ultramonkey"); // TODO: 文字列定数化
+                if (image.getPlatformNo().equals(platform.getPlatformNo()) && PCCConstant.IMAGE_NAME_ULTRAMONKEY.equals(image.getImageName())) {
+                    types.add(PCCConstant.LOAD_BALANCER_ULTRAMONKEY);
                 }
             }
 
@@ -352,6 +346,7 @@ public class MockLoadBalancerService implements LoadBalancerService {
 
     }
 
+
     private List<ImageDto> getImages(Platform platform, List<Image> images) {
         // イメージを取得
         List<ImageDto> imageDtos = new ArrayList<ImageDto>();
@@ -361,7 +356,8 @@ public class MockLoadBalancerService implements LoadBalancerService {
         LinkedHashMap<Long, ImageCloudstack> imageCloudstackMap = getImageCloudstackMap();
         for (Image image : images) {
             // プラットフォームが異なる場合はスキップ
-            if (platform.getPlatformNo().equals(image.getPlatformNo()) == false || image.getSelectable() == false) {
+            if (platform.getPlatformNo().equals(image.getPlatformNo()) == false ||
+                image.getSelectable() == false) {
                 continue;
             }
 
@@ -380,7 +376,7 @@ public class MockLoadBalancerService implements LoadBalancerService {
     private LinkedHashMap<Long, PlatformAws> getPlatformAwsMap() {
         List<PlatformAws> platformAwss = XmlDataLoader.getData("platformAws.xml", PlatformAws.class);
         LinkedHashMap<Long, PlatformAws> map = new LinkedHashMap<Long, PlatformAws>();
-        for (PlatformAws platformAws : platformAwss) {
+        for (PlatformAws platformAws: platformAwss) {
             map.put(platformAws.getPlatformNo(), platformAws);
         }
         return map;
@@ -389,7 +385,7 @@ public class MockLoadBalancerService implements LoadBalancerService {
     private LinkedHashMap<Long, PlatformVmware> getPlatformVmwareMap() {
         List<PlatformVmware> platformVmwares = XmlDataLoader.getData("platformVmware.xml", PlatformVmware.class);
         LinkedHashMap<Long, PlatformVmware> map = new LinkedHashMap<Long, PlatformVmware>();
-        for (PlatformVmware platformVmware : platformVmwares) {
+        for (PlatformVmware platformVmware: platformVmwares) {
             map.put(platformVmware.getPlatformNo(), platformVmware);
         }
         return map;
@@ -398,17 +394,16 @@ public class MockLoadBalancerService implements LoadBalancerService {
     private LinkedHashMap<Long, PlatformNifty> getPlatformNiftyMap() {
         List<PlatformNifty> platformNifties = XmlDataLoader.getData("platformNifty.xml", PlatformNifty.class);
         LinkedHashMap<Long, PlatformNifty> map = new LinkedHashMap<Long, PlatformNifty>();
-        for (PlatformNifty platformNifty : platformNifties) {
+        for (PlatformNifty platformNifty: platformNifties) {
             map.put(platformNifty.getPlatformNo(), platformNifty);
         }
         return map;
     }
 
     private LinkedHashMap<Long, PlatformCloudstack> getPlatformCloudstackMap() {
-        List<PlatformCloudstack> platformCloudstacks = XmlDataLoader.getData("platformNifty.xml",
-                PlatformCloudstack.class);
+        List<PlatformCloudstack> platformCloudstacks = XmlDataLoader.getData("platformNifty.xml", PlatformCloudstack.class);
         LinkedHashMap<Long, PlatformCloudstack> map = new LinkedHashMap<Long, PlatformCloudstack>();
-        for (PlatformCloudstack platformCloudstack : platformCloudstacks) {
+        for (PlatformCloudstack platformCloudstack: platformCloudstacks) {
             map.put(platformCloudstack.getPlatformNo(), platformCloudstack);
         }
         return map;
@@ -417,7 +412,7 @@ public class MockLoadBalancerService implements LoadBalancerService {
     private LinkedHashMap<Long, ImageAws> getImageAwsMap() {
         List<ImageAws> imageAwss = XmlDataLoader.getData("imageAws.xml", ImageAws.class);
         LinkedHashMap<Long, ImageAws> map = new LinkedHashMap<Long, ImageAws>();
-        for (ImageAws imageAws : imageAwss) {
+        for (ImageAws imageAws: imageAwss) {
             map.put(imageAws.getImageNo(), imageAws);
         }
         return map;
@@ -426,7 +421,7 @@ public class MockLoadBalancerService implements LoadBalancerService {
     private LinkedHashMap<Long, ImageCloudstack> getImageCloudstackMap() {
         List<ImageCloudstack> imageCloudstacks = XmlDataLoader.getData("imageCloudstack.xml", ImageCloudstack.class);
         LinkedHashMap<Long, ImageCloudstack> map = new LinkedHashMap<Long, ImageCloudstack>();
-        for (ImageCloudstack imageCloudstack : imageCloudstacks) {
+        for (ImageCloudstack imageCloudstack: imageCloudstacks) {
             map.put(imageCloudstack.getImageNo(), imageCloudstack);
         }
         return map;
@@ -435,7 +430,7 @@ public class MockLoadBalancerService implements LoadBalancerService {
     private LinkedHashMap<Long, ImageVmware> getImageVmwareMap() {
         List<ImageVmware> imageVmwares = XmlDataLoader.getData("imageVmware.xml", ImageVmware.class);
         LinkedHashMap<Long, ImageVmware> map = new LinkedHashMap<Long, ImageVmware>();
-        for (ImageVmware imageVmware : imageVmwares) {
+        for (ImageVmware imageVmware: imageVmwares) {
             map.put(imageVmware.getImageNo(), imageVmware);
         }
         return map;
@@ -444,7 +439,7 @@ public class MockLoadBalancerService implements LoadBalancerService {
     private LinkedHashMap<Long, ImageNifty> getImageNiftyMap() {
         List<ImageNifty> imageNifties = XmlDataLoader.getData("imageNifty.xml", ImageNifty.class);
         LinkedHashMap<Long, ImageNifty> map = new LinkedHashMap<Long, ImageNifty>();
-        for (ImageNifty imageNifty : imageNifties) {
+        for (ImageNifty imageNifty: imageNifties) {
             map.put(imageNifty.getImageNo(), imageNifty);
         }
         return map;
@@ -452,21 +447,14 @@ public class MockLoadBalancerService implements LoadBalancerService {
 
     @Override
     public Long getLoadBalancerInstance(Long loadBalancerNo) {
-        return 1L;
+        // TODO 自動生成されたメソッド・スタブ
+        return null;
     }
 
     @Override
     public List<SslKeyDto> getSSLKey(Long loadBalancerNo) {
-
-        List<SslKeyDto> sslKeyDtosList = new ArrayList<SslKeyDto>();
-        SslKeyDto sslKeyDto = new SslKeyDto();
-        sslKeyDto.setKeyId("testKeyId");
-        sslKeyDto.setKeyName("testKeyName");
-        sslKeyDto.setKeyNo(1L);
-
-        sslKeyDtosList.add(sslKeyDto);
-
-        return sslKeyDtosList;
+        // TODO 自動生成されたメソッド・スタブ
+        return null;
     }
 
 }

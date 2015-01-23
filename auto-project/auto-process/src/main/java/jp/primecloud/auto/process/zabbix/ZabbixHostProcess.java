@@ -21,6 +21,10 @@ package jp.primecloud.auto.process.zabbix;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+
+import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.ZabbixInstanceStatus;
 import jp.primecloud.auto.config.Config;
 import jp.primecloud.auto.entity.crud.Component;
@@ -29,18 +33,17 @@ import jp.primecloud.auto.entity.crud.ComponentType;
 import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.Image;
 import jp.primecloud.auto.entity.crud.Instance;
+import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.entity.crud.ZabbixInstance;
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.log.EventLogger;
+import jp.primecloud.auto.process.ProcessLogger;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
 import jp.primecloud.auto.zabbix.model.hostgroup.Hostgroup;
+import jp.primecloud.auto.zabbix.model.proxy.Proxy;
 import jp.primecloud.auto.zabbix.model.template.Template;
-
-import org.apache.commons.lang.StringUtils;
-
-import jp.primecloud.auto.process.ProcessLogger;
 
 /**
  * <p>
@@ -64,6 +67,7 @@ public class ZabbixHostProcess extends ServiceSupport {
         }
 
         Instance instance = instanceDao.read(instanceNo);
+        Platform platform = platformDao.read(instance.getPlatformNo());
 
         // ログ出力
         if (log.isInfoEnabled()) {
@@ -74,11 +78,21 @@ public class ZabbixHostProcess extends ServiceSupport {
 
         String hostid = zabbixInstance.getHostid();
         log.info("********hostid:"+hostid);
+
+        //ホスト名取得
+        String hostname = getHostName(instance.getFqdn());
+        //IP/DNS使用フラグ取得
+        Boolean useIp = BooleanUtils.toBooleanObject(Config.getProperty("zabbix.useIp"));
+        //ZabbixプロキシID取得
+        String proxyHostid = getProxyHostid(zabbixProcessClient);
+        //IP設定
+        String zabbixListenIp = getZabbixListenIp(zabbixProcessClient, instance, platform);
+
         if (StringUtils.isEmpty(hostid)) {
             List<Hostgroup> hostgroups = getInitHostgroups(zabbixProcessClient, instance);
 
             // 監視対象の登録
-            hostid = zabbixProcessClient.createHost(instance.getFqdn(), hostgroups, true);
+            hostid = zabbixProcessClient.createHost(hostname, instance.getFqdn(), hostgroups, true, useIp, zabbixListenIp, proxyHostid);
 
             // イベントログ出力
             processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null,instance, "ZabbixRegist", new Object[] {instance.getFqdn(), hostid });
@@ -89,7 +103,7 @@ public class ZabbixHostProcess extends ServiceSupport {
             zabbixInstanceDao.update(zabbixInstance);
         } else {
             // 監視対象の更新
-            zabbixProcessClient.updateHost(hostid, instance.getFqdn(), null, true);
+            zabbixProcessClient.updateHost(hostid, hostname, instance.getFqdn(), null, true, useIp, zabbixListenIp, proxyHostid);
 
             // データベースの更新
             zabbixInstance.setStatus(ZabbixInstanceStatus.MONITORING.toString());
@@ -143,7 +157,14 @@ public class ZabbixHostProcess extends ServiceSupport {
 
         // 監視対象の無効化
         try {
-            zabbixProcessClient.updateHost(zabbixInstance.getHostid(), instance.getFqdn(), null, false);
+            //ホスト名取得
+            String hostname = getHostName(instance.getFqdn());
+            //IP/DNS使用フラグ取得
+            Boolean useIp = BooleanUtils.toBooleanObject(Config.getProperty("zabbix.useIp"));
+            //ZabbixプロキシID取得
+            String proxyHostid = getProxyHostid(zabbixProcessClient);
+
+            zabbixProcessClient.updateHost(zabbixInstance.getHostid(), hostname, instance.getFqdn(), null, false, useIp, null, proxyHostid);
 
             // イベントログ出力
             processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null,instance, "ZabbixStop", new Object[] {instance.getFqdn(), zabbixInstance.getHostid() });
@@ -435,13 +456,22 @@ public class ZabbixHostProcess extends ServiceSupport {
         // コンポーネントごとのホストグループを取得
         Farm farm = farmDao.read(instance.getFarmNo());
         User user = userDao.read(farm.getUserNo());
+        Platform platform = platformDao.read(instance.getPlatformNo());
         String hostgroupName = getHostgroupName(user, farm, component);
         Hostgroup hostgroup = zabbixProcessClient.getHostgroupByName(hostgroupName);
 
         // ホストがホストグループに含まれない場合、ホストグループに含める
         if (hostgroup != null && !groupids.contains(hostgroup.getGroupid())) {
             hostgroups.add(hostgroup);
-            zabbixProcessClient.updateHost(hostid, instance.getFqdn(), hostgroups, null);
+            //ホスト名取得
+            String hostname = getHostName(instance.getFqdn());
+            //IP/DNS使用フラグ取得
+            Boolean useIp = BooleanUtils.toBooleanObject(Config.getProperty("zabbix.useIp"));
+            //ZabbixプロキシID取得
+            String proxyHostid = getProxyHostid(zabbixProcessClient);
+            //IP設定
+            String zabbixListenIp = getZabbixListenIp(zabbixProcessClient, instance, platform);
+            zabbixProcessClient.updateHost(hostid, hostname, instance.getFqdn(), hostgroups, null, useIp, zabbixListenIp, proxyHostid);
         }
     }
 
@@ -457,6 +487,7 @@ public class ZabbixHostProcess extends ServiceSupport {
         // コンポーネントごとのホストグループ名
         Farm farm = farmDao.read(instance.getFarmNo());
         User user = userDao.read(farm.getUserNo());
+        Platform platform = platformDao.read(instance.getPlatformNo());
         String hostgroupName = getHostgroupName(user, farm, component);
 
         // 対象のインスタンスに関連付けられたコンポーネントの中に、同名のホストグループになるものがあればスキップする
@@ -486,8 +517,56 @@ public class ZabbixHostProcess extends ServiceSupport {
                     break;
                 }
             }
-            zabbixProcessClient.updateHost(hostid, instance.getFqdn(), hostgroups, null);
+
+            //ホスト名取得
+            String hostname = getHostName(instance.getFqdn());
+            //IP/DNS使用フラグ取得
+            Boolean useIp = BooleanUtils.toBooleanObject(Config.getProperty("zabbix.useIp"));
+            //ZabbixプロキシID取得
+            String proxyHostid = getProxyHostid(zabbixProcessClient);
+            //IP設定
+            String zabbixListenIp = getZabbixListenIp(zabbixProcessClient, instance, platform);
+            zabbixProcessClient.updateHost(hostid, hostname, instance.getFqdn(), hostgroups, null, useIp, zabbixListenIp, proxyHostid);
         }
+    }
+
+    private String getHostName(String fqdn) {
+        // Zabbixのホストの「名前」を prefix + _ + FQDN で設定する
+        // prefix値はconfig.propertiesから取得
+        String hostname = fqdn;
+        if (StringUtils.isNotEmpty(Config.getProperty("zabbix.prefix"))) {
+            //pretixが設定されている場合のみ設定
+            //設定されていない場合は通常通り、FQDNを設定
+            hostname = Config.getProperty("zabbix.prefix") + "-" + fqdn;
+        }
+        return hostname;
+    }
+
+    private String getProxyHostid(ZabbixProcessClient zabbixProcessClient) {
+        String proxyName = Config.getProperty("zabbix.proxy");
+        String proxyHostid = null;
+        if (StringUtils.isNotEmpty(proxyName)) {
+            Proxy proxy = zabbixProcessClient.getProxy(proxyName);
+            if (proxy != null) {
+                proxyHostid = proxy.getProxyid();
+            }
+        }
+        return proxyHostid;
+    }
+
+    private String getZabbixListenIp(ZabbixProcessClient zabbixProcessClient, Instance instance, Platform platform) {
+        String zabbixListenIp = instance.getPublicIp();
+        if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
+            if (BooleanUtils.isTrue(platform.getInternal())) {
+                // 内部のAWSプラットフォームの場合はprivateIpで待ち受ける
+                // この分岐に来るパターンは以下の場合
+                // Eucalyptus
+                // 内部AWS
+                // 通常のVPC(VPC+VPNでは無い)
+                zabbixListenIp = instance.getPrivateIp();
+            }
+        }
+        return zabbixListenIp;
     }
 
     /**

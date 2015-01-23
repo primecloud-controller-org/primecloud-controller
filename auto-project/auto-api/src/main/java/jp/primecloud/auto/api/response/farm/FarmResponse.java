@@ -7,7 +7,6 @@ import javax.xml.bind.annotation.XmlType;
 import jp.primecloud.auto.entity.crud.Farm;
 
 
-
 @XmlRootElement(name="FarmResponse")
 @XmlType(propOrder = {"farmNo", "farmName", "domainName", "comment"})
 public class FarmResponse {

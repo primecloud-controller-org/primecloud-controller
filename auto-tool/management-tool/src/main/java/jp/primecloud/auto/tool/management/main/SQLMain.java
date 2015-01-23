@@ -18,8 +18,12 @@
  */
 package jp.primecloud.auto.tool.management.main;
 
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -72,6 +76,21 @@ public class SQLMain {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    public static <T, V> List<T> selectExecuteWithResult(String sql, Class<T> clazz) throws Exception {
+        SQLExecuter sqlExecuter = new SQLExecuterFactory().createPCCSQLExecuter();
+        List<Map<String, Object>> selectResults = sqlExecuter.showColumns(sql);
+        List<T> results = new ArrayList<T>();
+        Constructor<?>[] constructors = clazz.getConstructors();
+        for (int i = 0; i < selectResults.size(); i++) {
+            Map<String, Object> rowMap = selectResults.get(i);
+            T newEntity = (T) constructors[0].newInstance();
+            BeanUtils.populate(newEntity, rowMap);
+            results.add(newEntity);
+        }
+        return results;
+    }
+
     public static void updateExecute(CommandLine commandLine) {
 
         String sql = commandLine.getOptionValue("sql");
@@ -84,7 +103,6 @@ public class SQLMain {
             System.out.println("[" + sql + "] の実行に失敗しました");
             return;
         }
-
     }
 
     public static void updateExecutePrepared(CommandLine commandLine) {
@@ -100,6 +118,16 @@ public class SQLMain {
             System.out.println("[" + sql + "] の実行に失敗しました");
             return;
         }
+    }
 
+    public static void updateExecutePrepared(String sql, String[] params) {
+        SQLExecuter sqlExecuter = new SQLExecuterFactory().createPCCSQLExecuter();
+        try {
+            sqlExecuter.executePrepared(sql, params);
+        } catch (Exception e) {
+            log.error("[" + sql + "] の実行に失敗しました", e);
+            System.out.println("[" + sql + "] の実行に失敗しました");
+            return;
+        }
     }
 }

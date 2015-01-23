@@ -2,6 +2,10 @@ package jp.primecloud.auto.ui;
 
 import java.util.List;
 
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+
+import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.entity.crud.ComponentType;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.ComponentService;
@@ -9,15 +13,12 @@ import jp.primecloud.auto.service.LoadBalancerService;
 import jp.primecloud.auto.service.dto.ComponentDto;
 import jp.primecloud.auto.service.dto.LoadBalancerPlatformDto;
 import jp.primecloud.auto.ui.util.BeanContext;
+import jp.primecloud.auto.ui.util.CommonUtils;
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 import com.vaadin.Application;
 import com.vaadin.data.Property;
 import com.vaadin.data.Validator.InvalidValueException;
@@ -312,21 +313,8 @@ public class WinLoadBalancerAdd extends Window {
                 continue;
             }
 
-            // TODO: アイコン名の取得ロジックのリファクタリング
-            Icons icon = Icons.NONE;
-            if ("aws".equals(platformDto.getPlatform().getPlatformType())) {
-                if (platformDto.getPlatformAws().getEuca()) {
-                    icon = Icons.EUCALYPTUS;
-                } else {
-                    icon = Icons.AWS;
-                }
-            } else if ("vmware".equals(platformDto.getPlatform().getPlatformType())) {
-                icon = Icons.VMWARE;
-            } else if ("nifty".equals(platformDto.getPlatform().getPlatformType())) {
-                icon = Icons.NIFTY;
-            } else if ("cloudstack".equals(platformDto.getPlatform().getPlatformType())){
-                icon = Icons.CLOUD_STACK;
-            }
+            //プラットフォームアイコン名の取得
+            Icons icon = CommonUtils.getPlatformIcon(platformDto);
 
             String description = platformDto.getPlatform().getPlatformNameDisp();
 
@@ -370,7 +358,6 @@ public class WinLoadBalancerAdd extends Window {
         int n = 0;
         for (String type : types) {
             // ロードバランサ種別名
-            // TODO: アイコン名取得ロジックのリファクタリング
             Icons typeIcon = Icons.NONE;
             String typeString = ViewProperties.getLoadBalancerType(type);
 
@@ -444,7 +431,14 @@ public class WinLoadBalancerAdd extends Window {
             loadBalancerNameField.validate();
             commentField.validate();
         } catch (InvalidValueException e) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), e.getMessage());
+            String errMes = e.getMessage();
+            if (null == errMes){
+                //メッセージが取得できない場合は複合エラー 先頭を表示する
+                InvalidValueException[] exceptions =  e.getCauses();
+                errMes = exceptions[0].getMessage();
+            }
+
+            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), errMes);
             getApplication().getMainWindow().addWindow(dialog);
             return;
         }
@@ -478,8 +472,8 @@ public class WinLoadBalancerAdd extends Window {
         Long loadBalancerNo = null;
         LoadBalancerService loadBalancerService = BeanContext.getBean(LoadBalancerService.class);
 
-        // TODO: 固定文字列を外部化・定数化
-        if ("aws".equals(type)) {
+        // TODO CLOUD BRANCHING
+        if (PCCConstant.LOAD_BALANCER_ELB.equals(type)) {
             // AWSロードバランサを作成
             try {
                 loadBalancerNo = loadBalancerService.createAwsLoadBalancer(farmNo, loadBalancerName, comment, platformNo, componentNo);
@@ -489,7 +483,7 @@ public class WinLoadBalancerAdd extends Window {
                 getApplication().getMainWindow().addWindow(dialog);
                 return;
             }
-        } else if ("ultramonkey".equals(type)) {
+        } else if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(type)) {
             // UltraMonkeyロードバランサを作成
             try {
                 loadBalancerNo = loadBalancerService.createUltraMonkeyLoadBalancer(farmNo, loadBalancerName, comment, platformNo,
@@ -500,7 +494,7 @@ public class WinLoadBalancerAdd extends Window {
                 getApplication().getMainWindow().addWindow(dialog);
                 return;
             }
-        } else if ("cloudstack".equals(type)) {
+        } else if (PCCConstant.LOAD_BALANCER_CLOUDSTACK.equals(type)) {
             // cloudstackロードバランサを作成
             try {
                 loadBalancerNo = loadBalancerService.createCloudstackLoadBalancer(farmNo, loadBalancerName, comment, platformNo,
@@ -513,7 +507,7 @@ public class WinLoadBalancerAdd extends Window {
             }
         }
 
-        //TODO LOG
+        //オペレーションログ
         AutoApplication aapl =  (AutoApplication)apl;
         aapl.doOpLog("LOAD_BALANCER", "Make Load_Balancer", null, null, loadBalancerNo, null);
 

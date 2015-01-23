@@ -27,7 +27,11 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
+
+import org.apache.commons.lang.BooleanUtils;
+
 import jp.primecloud.auto.api.response.lb.CreateLoadBalancerListenerResponse;
+import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.entity.crud.AwsSslKey;
 import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.entity.crud.LoadBalancerListener;
@@ -35,9 +39,6 @@ import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.util.MessageUtils;
-
-import org.apache.commons.lang.BooleanUtils;
-
 
 
 @Path("/CreateLoadBalancerListener")
@@ -93,7 +94,7 @@ public class CreateLoadBalancerListener extends ApiSupport {
                         PARAM_NAME_PLATFORM_NO, loadBalancer.getPlatformNo());
             }
 
-            if ("cloudstack".equals(platform.getPlatformType())) {
+            if (PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
                 // プラットフォームがCloudStackの場合は処理を行わず終了
                 response.setSuccess(true);
                 return response;
@@ -116,7 +117,7 @@ public class CreateLoadBalancerListener extends ApiSupport {
             // Protocol
             ApiValidate.validateProtocol(protocol);
             // SslKeyNo
-            if ("aws".equals(loadBalancer.getType()) && "HTTPS".equals(protocol)) {
+            if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancer.getType()) && "HTTPS".equals(protocol)) {
                 //ELBかつプロトコルがHTTPSの場合
                 ApiValidate.validateSslKeyNo(sslKeyNo);
 

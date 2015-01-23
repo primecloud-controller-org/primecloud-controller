@@ -18,17 +18,13 @@
  */
 package jp.primecloud.auto.tool.management.iaasgw;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import jp.primecloud.auto.dao.crud.PlatformAwsDao;
-import jp.primecloud.auto.dao.crud.PlatformDao;
-import jp.primecloud.auto.entity.crud.Platform;
-import jp.primecloud.auto.entity.crud.PlatformAws;
+import jp.primecloud.auto.config.Config;
 import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.iaasgw.IaasGatewayFactory;
 import jp.primecloud.auto.iaasgw.IaasGatewayWrapper;
 
 public class IaasGatewayScriptService {
@@ -37,26 +33,19 @@ public class IaasGatewayScriptService {
 
     protected IaasGatewayWrapper gateway;
 
-    private Platform platform;
-    private PlatformAws platformAws;
+    protected String platformName;
 
-    public IaasGatewayScriptService(Long userNo, Long platformNo) throws AutoException {
-        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
-        IaasGatewayFactory factory = (IaasGatewayFactory) context.getBean("iaasGatewayFactory");
-        gateway = factory.createIaasGateway(userNo, platformNo);
-
+    public IaasGatewayScriptService(Long userNo, Long platformNo, String platformName) throws AutoException {
         try {
-            PlatformDao platformDao = (PlatformDao) context.getBean("platformDao");
-            platform = platformDao.read(platformNo);
-
-            PlatformAwsDao platformAwsDao = (PlatformAwsDao) context.getBean("platformAwsDao");
-            platformAws = platformAwsDao.read(platformNo);
-
+            log.info("IaasGatewayScriptService before context.getBean(iaasGatewayFactory)");
+            Integer interval = Integer.parseInt(Config.getProperty("aws.describeInterval"));
+            Boolean sync = BooleanUtils.toBoolean(Config.getProperty("aws.synchronized"));
+            IaasGatewayFactory factory = new IaasGatewayFactory(interval, sync);
+            gateway = factory.createIaasGateway(userNo, platformNo);
+            this.platformName = platformName;
         } catch (Exception e) {
             e.printStackTrace();
             log.error(e.getMessage(), e);
-        } finally {
-            context.destroy();
         }
     }
 
@@ -67,7 +56,7 @@ public class IaasGatewayScriptService {
         if (StringUtils.isNotEmpty(keyPairs)) {
             for (String keyPair: keyPairs.split("##")) {
                 if (StringUtils.equals(keyName, keyPair)) {
-                    log.info(platform.getPlatformName() + " の " + keyName + " はすでに登録されている為、キーのインポートをスキップします");
+                    log.info(platformName + " の " + keyName + " はすでに登録されている為、キーのインポートをスキップします");
                     System.out.println("IMPORT_SKIPPED");
                     return;
                 }
@@ -78,16 +67,16 @@ public class IaasGatewayScriptService {
         log.info(keyName + "のキーをインポートしました。");
     }
 
-    public boolean hasSubnets() throws AutoException {
-        if (StringUtils.isEmpty(platformAws.getVpcId())){
-            log.info(platform.getPlatformName() + " にvpcIdが有りません");
+    public boolean hasSubnets(String vpcId) throws AutoException {
+        if (StringUtils.isEmpty(vpcId)){
+            log.info(platformName + " にvpcIdが有りません");
             System.out.println("VPCID_EMPTY");
             return false;
         }
 
-        String subnets = gateway.describeSubnets(platformAws.getVpcId());
+        String subnets = gateway.describeSubnets(vpcId);
         if (StringUtils.isEmpty(subnets)){
-            log.info(platform.getPlatformName() + " にサブネットが有りません");
+            log.info(platformName + " にサブネットが有りません");
             System.out.println("SUBNET_EMPTY");
             return false;
         }

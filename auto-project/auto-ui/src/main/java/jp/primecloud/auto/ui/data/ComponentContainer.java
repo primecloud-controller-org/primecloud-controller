@@ -26,7 +26,6 @@ import jp.primecloud.auto.service.ComponentService;
 import jp.primecloud.auto.service.dto.ComponentDto;
 import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.ViewContext;
-
 import com.vaadin.data.util.BeanItemContainer;
 
 /**

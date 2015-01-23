@@ -187,6 +187,44 @@ public class IaasGatewayWrapper{
         return excGateway("DescribeSubnets.py", params);
     }
 
+    public String describeNetworks() {
+        List<String> params = new ArrayList<String>();
+        return excGateway("DescribeNetworks.py", params);
+    }
+
+    public String describeAzureSubnets(String networkName) {
+        List<String> params = new ArrayList<String>();
+        if(networkName != null && !networkName.equals("")) {
+            params.add(String.valueOf(networkName));
+        }
+        return excGateway("DescribeAzureSubnets.py", params);
+    }
+
+    public String describeFlavors(String flavorIds) {
+        List<String> params = new ArrayList<String>();
+        if(flavorIds != null && !flavorIds.equals("")) {
+            params.add(String.valueOf(flavorIds));
+        }
+        return excGateway("DescribeFlavors.py", params);
+    }
+
+    /*****************************
+     *  MyCloud
+     *****************************/
+
+    //Create VCloud vApp
+    public void createMyCloud(String farmName) {
+        List<String> params = new ArrayList<String>();
+        params.add(farmName);
+        excGateway("CreateMyCloud.py", params);
+    }
+
+    //Delete VCloud vApp
+    public void deleteMyCloud(Long farmNo) {
+        List<String> params = new ArrayList<String>();
+        params.add(String.valueOf(farmNo));
+        excGateway("DeleteMyCloud.py", params);
+    }
 
     /*****************************
      *  Instances
@@ -325,6 +363,12 @@ public class IaasGatewayWrapper{
         return excGateway("GetPasswordData.py", params);
     }
 
+    public boolean synchronizeCloud(Long farmNo) {
+        List<String> params = new ArrayList<String>();
+        params.add(String.valueOf(farmNo));
+        excGateway("SynchronizeCloud.py", params);
+        return true;
+    }
 
     /*****************************
      *  handleException
@@ -337,8 +381,8 @@ public class IaasGatewayWrapper{
         if (exception instanceof IaasgwException){
             // イベントログ出力
             if (eventLogger != null) {
-            eventLogger.error("SystemError", new Object[] { exception.getMessage() });
-        }
+                eventLogger.error("SystemError", new Object[] { exception.getMessage() });
+            }
         }
 
         String str = StringUtils.reflectToString(param);

@@ -11,7 +11,6 @@ import javax.xml.bind.annotation.XmlType;
 import jp.primecloud.auto.entity.crud.LoadBalancer;
 
 
-
 @XmlRootElement(name="DescribeLoadBalancerResponse")
 @XmlType(propOrder={ "success", "message", "loadBalancerNo", "loadBalancerName", "fqdn", "platformNo", "type", "status", "componentNo", "componentName", "listeners", "healthCheck", "instances", "autoScaling" })
 public class DescribeLoadBalancerResponse {

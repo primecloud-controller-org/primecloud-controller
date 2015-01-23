@@ -31,7 +31,6 @@ import jp.primecloud.auto.service.dto.UserAuthDto;
 import jp.primecloud.auto.service.dto.UserDto;
 import jp.primecloud.auto.util.MessageUtils;
 
-
 /**
  * <p>
  * UserServiceインターフェースの実装クラス

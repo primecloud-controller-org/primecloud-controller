@@ -18,11 +18,11 @@
  */
 package jp.primecloud.auto.service.impl;
 
+import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.log.EventLogger;
 import jp.primecloud.auto.service.PlatformService;
 import jp.primecloud.auto.service.ServiceSupport;
-
 
 /**
  * <p>
@@ -40,28 +40,48 @@ public class PlatformServiceImpl extends ServiceSupport implements PlatformServi
     */
     @Override
     public boolean isUseablePlatforms(Long userNo, Platform platform) {
-        if ("aws".equals(platform.getPlatformType())) {
+        // TODO CLOUD BRANCHING
+        if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
             // AWS認証情報のチェック
             if (awsCertificateDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) == 0) {
                 return false;
             }
-        } else if ("cloudstack".equals(platform.getPlatformType())) {
+        } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
             // CloudStack認証情報のチェック
             if (cloudstackCertificateDao.countByAccountAndPlatformNo(userNo, platform.getPlatformNo()) == 0) {
                 return false;
             }
-        } else if ("vmware".equals(platform.getPlatformType())) {
+        } else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
             // VMWareキーペアのチェック
             if (vmwareKeyPairDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) == 0) {
                 return false;
             }
-        } else if ("nifty".equals(platform.getPlatformType())) {
+        } else if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platform.getPlatformType())) {
             // Nifty認証情報のチェック
             if (niftyCertificateDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) == 0) {
                 return false;
             }
             // Niftyキーペアのチェック
             if (niftyKeyPairDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) == 0) {
+                return false;
+            }
+        } else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
+            // VCloud認証情報のチェック
+            if (vcloudCertificateDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo())== 0) {
+                return false;
+            }
+            // VCloudキーペアのチェック
+            if (vcloudKeyPairDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) == 0) {
+                return false;
+            }
+        } else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
+            // Azure認証情報のチェック
+            if (azureCertificateDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) == 0) {
+                return false;
+            }
+        } else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
+            // OpenStack認証情報のチェック
+            if (openstackCertificateDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) == 0) {
                 return false;
             }
         } else {

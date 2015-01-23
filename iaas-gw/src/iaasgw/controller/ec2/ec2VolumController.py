@@ -150,7 +150,7 @@ class ec2VolumController(object):
         # ボリュームの作成
         volume = self.client.createVolume(awsVolume["AVAILABILITY_ZONE"], awsVolume["SIZE"], awsVolume["SNAPSHOT_ID"])
 
-        # イベントログ出力
+        #イベントログ出力
         tableCPNT = self.conn.getTable("COMPONENT")
         component = self.conn.selectOne(tableCPNT.select(tableCPNT.c.COMPONENT_NO==awsVolume["COMPONENT_NO"]))
         componentName = None
@@ -223,7 +223,7 @@ class ec2VolumController(object):
         volume = self.client.describeVolume(volumeId);
 
         if volume.status != "available":
-            # ボリュームがavailableでない時
+            #ボリュームがavailableでない時
             raise IaasException("EPROCESS-000114", [volumeId, volume.status,])
 
 

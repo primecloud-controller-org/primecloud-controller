@@ -18,11 +18,11 @@
  */
 package jp.primecloud.auto.process.nifty;
 
+import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
-
 
 /**
  * <p>
@@ -52,8 +52,10 @@ public class NiftyProcess extends ServiceSupport {
         }
 
         // NiftyProcessClientの作成
+        String clientType;
+        clientType = PCCConstant.NIFTYCLIENT_TYPE_SERVER;
         NiftyProcessClient niftyProcessClient = niftyProcessClientFactory.createNiftyProcessClient(farm.getUserNo(),
-                instance.getPlatformNo());
+                instance.getPlatformNo(), clientType);
 
         // インスタンス作成処理
         niftyInstanceProcess.createInstance(niftyProcessClient, instanceNo);
@@ -83,8 +85,10 @@ public class NiftyProcess extends ServiceSupport {
         }
 
         // NiftyProcessClientの作成
+        String clientType;
+        clientType = PCCConstant.NIFTYCLIENT_TYPE_SERVER;
         NiftyProcessClient niftyProcessClient = niftyProcessClientFactory.createNiftyProcessClient(farm.getUserNo(),
-                instance.getPlatformNo());
+                instance.getPlatformNo(), clientType);
 
         try {
             // DNSに関する処理

@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="VcloudInstance">
+
+	<typeAlias alias="VcloudInstance" type="jp.primecloud.auto.entity.crud.VcloudInstance" />
+
+	<resultMap id="vcloudInstanceResultMap" class="VcloudInstance">
+		<result property="instanceNo" column="INSTANCE_NO" />
+		<result property="vmName" column="VM_NAME" nullValue="" />
+		<result property="storageTypeNo" column="STORAGE_TYPE_NO" />
+		<result property="instanceType" column="INSTANCE_TYPE" nullValue="" />
+		<result property="keyPairNo" column="KEY_PAIR_NO" />
+		<result property="status" column="STATUS" nullValue="" />
+		<result property="ipAddress" column="IP_ADDRESS" nullValue="" />
+		<result property="privateIpAddress" column="PRIVATE_IP_ADDRESS" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.INSTANCE_NO as INSTANCE_NO,
+			t1.VM_NAME as VM_NAME,
+			t1.STORAGE_TYPE_NO as STORAGE_TYPE_NO,
+			t1.INSTANCE_TYPE as INSTANCE_TYPE,
+			t1.KEY_PAIR_NO as KEY_PAIR_NO,
+			t1.STATUS as STATUS,
+			t1.IP_ADDRESS as IP_ADDRESS,
+			t1.PRIVATE_IP_ADDRESS as PRIVATE_IP_ADDRESS
+		from
+			VCLOUD_INSTANCE t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from VCLOUD_INSTANCE t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="vcloudInstanceResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.INSTANCE_NO = #instanceNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="vcloudInstanceResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readByKeyPairNo" parameterClass="java.util.Map" resultMap="vcloudInstanceResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.KEY_PAIR_NO = #keyPairNo#
+		]]>
+	</select>
+
+	<select id="readByStorageTypeNo" parameterClass="java.util.Map" resultMap="vcloudInstanceResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.STORAGE_TYPE_NO = #storageTypeNo#
+		]]>
+	</select>
+
+	<select id="readInInstanceNos" parameterClass="java.util.Map" resultMap="vcloudInstanceResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.INSTANCE_NO in
+		]]>
+		<iterate property="instanceNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#instanceNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="VcloudInstance">
+		<![CDATA[
+		insert into VCLOUD_INSTANCE (
+			INSTANCE_NO,
+			VM_NAME,
+			STORAGE_TYPE_NO,
+			INSTANCE_TYPE,
+			KEY_PAIR_NO,
+			STATUS,
+			IP_ADDRESS,
+			PRIVATE_IP_ADDRESS
+		) values (
+			#instanceNo#,
+			#vmName#,
+			#storageTypeNo#,
+			#instanceType#,
+			#keyPairNo#,
+			#status#,
+			#ipAddress#,
+			#privateIpAddress#
+		)
+		]]>
+	</insert>
+
+	<update id="update" parameterClass="VcloudInstance">
+		<![CDATA[
+		update VCLOUD_INSTANCE set
+			VM_NAME = #vmName#,
+			STORAGE_TYPE_NO = #storageTypeNo#,
+			INSTANCE_TYPE = #instanceType#,
+			KEY_PAIR_NO = #keyPairNo#,
+			STATUS = #status#,
+			IP_ADDRESS = #ipAddress#,
+			PRIVATE_IP_ADDRESS = #privateIpAddress#
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="VcloudInstance">
+		<![CDATA[
+		delete from VCLOUD_INSTANCE
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from VCLOUD_INSTANCE
+		]]>
+	</delete>
+
+	<delete id="deleteByInstanceNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from VCLOUD_INSTANCE
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByKeyPairNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from VCLOUD_INSTANCE
+		where
+			KEY_PAIR_NO = #keyPairNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByStorageTypeNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from VCLOUD_INSTANCE
+		where
+			STORAGE_TYPE_NO = #storageTypeNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByInstanceNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</select>
+
+	<select id="countByKeyPairNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			KEY_PAIR_NO = #keyPairNo#
+		]]>
+	</select>
+
+	<select id="countByStorageTypeNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			STORAGE_TYPE_NO = #storageTypeNo#
+		]]>
+	</select>
+
+</sqlMap>

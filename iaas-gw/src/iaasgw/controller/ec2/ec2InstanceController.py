@@ -86,7 +86,7 @@ class ec2InstanceController(object):
 
 
     def stopInstance(self, instanceNo):
-        # AWS_INSTANCE 取得
+        #AWS_INSTANCE 取得
         tableAWSINS = self.conn.getTable("AWS_INSTANCE")
         awsInstance = self.conn.selectOne(tableAWSINS.select(tableAWSINS.c.INSTANCE_NO==instanceNo))
 
@@ -94,11 +94,11 @@ class ec2InstanceController(object):
         if (isEmpty(awsInstance["INSTANCE_ID"])):
             return;
 
-        # PCC_INSTANCE 取得
+        #PCC_INSTANCE 取得
         tableINS = self.conn.getTable("INSTANCE")
         pccInstance = self.conn.selectOne(tableINS.select(tableINS.c.INSTANCE_NO==instanceNo))
 
-        # イメージの取得  再考の余地あり
+        #イメージの取得  再考の余地あり
         image = getImage(pccInstance["IMAGE_NO"])
 
         # インスタンスイメージの場合
@@ -638,9 +638,8 @@ class ec2InstanceController(object):
         # VPN情報
         internal = self.platforminfo["internal"]
         if (internal == 0):
-            if (isEmpty(awsInstance["SUBNET_ID"])):
-                # 外部のプラットフォームでVPCを利用しない場合、VPN情報を含める
                 userData.update(self.createVpnUserData(pccInstance))
+
         return userData;
 
 
@@ -687,7 +686,7 @@ class ec2InstanceController(object):
 
         # クライアント証明書ダウンロードURL
         userData.update({"vpnclienturl": getVpnProperty("vpn.clienturl")})
-
+        
         return userData;
 
 

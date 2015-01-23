@@ -83,7 +83,7 @@ REGION_PARAM ={"NORTHEAST":
                }
 
 
-#APIバージョン変更
+#APIバァージョン変更
 API_VERSION = '2012-03-01'
 NAMESPACE = "http://ec2.amazonaws.com/doc/%s/" % (API_VERSION)
 

@@ -7,9 +7,8 @@ import javax.xml.bind.annotation.XmlType;
 import jp.primecloud.auto.entity.crud.Instance;
 
 
-
 @XmlRootElement(name="DescribeInstanceResponse")
-@XmlType(propOrder = { "success", "message", "instanceNo", "instanceName", "fqdn", "publicIp", "privateIp", "status", "aws", "nifty", "vmware", "cloudstack" })
+@XmlType(propOrder = { "success", "message", "instanceNo", "instanceName", "fqdn", "publicIp", "privateIp", "status", "aws", "nifty", "vmware", "cloudstack", "vcloud" , "openstack" , "azure"})
 public class DescribeInstanceResponse {
 
     /**
@@ -71,6 +70,21 @@ public class DescribeInstanceResponse {
      * CloudStackインスタンス情報
      */
     private CloudstackInstanceResponse cloudstack;
+
+    /**
+     * VCloudインスタンス情報
+     */
+    private VcloudInstanceResponse vcloud;
+
+    /**
+     * Openstackインスタンス情報
+     */
+    private OpenstackInstanceResponse openstack;
+
+    /**
+     * Azureインスタンス情報
+     */
+    private AzureInstanceResponse azure;
 
     public DescribeInstanceResponse() {}
 
@@ -333,5 +347,68 @@ public class DescribeInstanceResponse {
     */
     public void setCloudstack(CloudstackInstanceResponse cloudstack) {
         this.cloudstack = cloudstack;
+    }
+
+   /**
+    *
+    * vcloudを取得します。
+    *
+    * @return vcloud
+    */
+    @XmlElement(name="VCLOUD")
+    public VcloudInstanceResponse getVcloud() {
+        return vcloud;
+    }
+
+   /**
+    *
+    * vcloudを設定します。
+    *
+    * @param vcloud
+    */
+    public void setVcloud(VcloudInstanceResponse vcloud) {
+        this.vcloud = vcloud;
+    }
+
+    /**
+    *
+    * openstackを取得します。
+    *
+    * @return openstack
+    */
+    @XmlElement(name="OPENSTACK")
+    public OpenstackInstanceResponse getOpenstack() {
+        return openstack;
+    }
+
+   /**
+    *
+    * openstackを設定します。
+    *
+    * @param openstack
+    */
+    public void setOpenstack(OpenstackInstanceResponse openstack) {
+        this.openstack = openstack;
+    }
+
+    /**
+    *
+    * azureを取得します。
+    *
+    * @return azure
+    */
+    @XmlElement(name="AZURE")
+    public AzureInstanceResponse getAzure() {
+        return azure;
+    }
+
+   /**
+    *
+    * azureを設定します。
+    *
+    * @param azure
+    */
+    public void setAzure(AzureInstanceResponse azure) {
+        this.azure = azure;
     }
 }

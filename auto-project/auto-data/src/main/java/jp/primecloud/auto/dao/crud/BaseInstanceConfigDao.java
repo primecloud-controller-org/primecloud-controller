@@ -20,7 +20,6 @@ package jp.primecloud.auto.dao.crud;
 
 import java.util.Collection;
 import java.util.List;
-
 import jp.primecloud.auto.entity.crud.InstanceConfig;
 
 /**

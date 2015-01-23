@@ -25,6 +25,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 import jp.primecloud.auto.config.Config;
 import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.Image;
@@ -35,19 +41,11 @@ import jp.primecloud.auto.entity.crud.NiftyKeyPair;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.log.EventLogger;
-import jp.primecloud.auto.nifty.soap.jaxws.RunningInstancesItemType;
+import jp.primecloud.auto.process.ProcessLogger;
 import jp.primecloud.auto.puppet.PuppetClient;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.JSchUtils;
 import jp.primecloud.auto.util.JSchUtils.JSchResult;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
-
-import jp.primecloud.auto.process.ProcessLogger;
 import com.jcraft.jsch.Session;
 
 /**
@@ -67,6 +65,8 @@ public class NiftyInstanceProcess extends ServiceSupport {
     protected ProcessLogger processLogger;
 
     protected EventLogger eventLogger;
+
+    private final static Object lock = new Object();
 
     public void createInstance(NiftyProcessClient niftyProcessClient, Long instanceNo) {
         NiftyInstance niftyInstance = niftyInstanceDao.read(instanceNo);
@@ -143,98 +143,107 @@ public class NiftyInstanceProcess extends ServiceSupport {
         // キーペアを取得
         NiftyKeyPair niftyKeyPair = niftyKeyPairDao.read(niftyInstance.getKeyPairNo());
 
-        // イベントログ出力
-        Platform platform = platformDao.read(niftyProcessClient.getPlatformNo());
-        processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance,  "NiftyInstanceCreate",
-                new Object[] { platform.getPlatformName() });
+        // 排他制御(apiを同時に実行するとエラーになる対策)
+        synchronized(lock) {
+            // イベントログ出力
+            Platform platform = platformDao.read(niftyProcessClient.getPlatformNo());
+            processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance,  "NiftyInstanceCreate",
+                    new Object[] { platform.getPlatformName() });
 
-        // インスタンスの起動
-        // TODO: rootパスワードを決める
-        RunningInstancesItemType instance2 = niftyProcessClient.runInstance(imageNifty.getImageId(), niftyKeyPair
-                .getKeyName(), "mini", "password");
+            // インスタンスの起動
+            // TODO: rootパスワードを決める
+            com.nifty.cloud.sdk.server.model.Instance instance2 = niftyProcessClient.runInstance(imageNifty.getImageId(), niftyKeyPair
+                    .getKeyName(), "mini", "password");
 
-        String instanceId = instance2.getInstanceId();
+            String instanceId = instance2.getInstanceId();
 
-        // データベース更新
-        niftyInstance = niftyInstanceDao.read(instanceNo);
-        niftyInstance.setInstanceId(instanceId);
-        niftyInstanceDao.update(niftyInstance);
+            // データベース更新
+            niftyInstance = niftyInstanceDao.read(instanceNo);
+            niftyInstance.setInstanceId(instanceId);
+            niftyInstanceDao.update(niftyInstance);
 
-        // インスタンスの起動待ち
-        instance2 = niftyProcessClient.waitRunInstance(instanceId);
+            // インスタンスの起動待ち
+            instance2 = niftyProcessClient.waitRunInstance(instanceId);
 
-        // イベントログ出力
-        processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance, "NiftyInstanceCreateFinish",
-                new Object[] { platform.getPlatformName(), instance2.getInstanceId() });
+            // イベントログ出力
+            processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance, "NiftyInstanceCreateFinish",
+                    new Object[] { platform.getPlatformName(), instance2.getInstanceId() });
 
-        // データベース更新
-        niftyInstance = niftyInstanceDao.read(instanceNo);
-        niftyInstance.setStatus(instance2.getInstanceState().getName());
-        niftyInstance.setDnsName(instance2.getDnsName());
-        niftyInstance.setPrivateDnsName(instance2.getPrivateDnsName());
-        niftyInstance.setIpAddress(instance2.getIpAddress());
-        niftyInstance.setPrivateIpAddress(instance2.getPrivateIpAddress());
-        niftyInstanceDao.update(niftyInstance);
+            // データベース更新
+            niftyInstance = niftyInstanceDao.read(instanceNo);
+            niftyInstance.setStatus(instance2.getState().getName());
+            niftyInstance.setDnsName(instance2.getDnsName());
+            niftyInstance.setPrivateDnsName(instance2.getPrivateDnsName());
+            niftyInstance.setIpAddress(instance2.getIpAddress());
+            niftyInstance.setPrivateIpAddress(instance2.getPrivateIpAddress());
+            niftyInstanceDao.update(niftyInstance);
+        }
     }
 
     protected void start(NiftyProcessClient niftyProcessClient, Long instanceNo) {
         NiftyInstance niftyInstance = niftyInstanceDao.read(instanceNo);
         String instanceId = niftyInstance.getInstanceId();
 
-        // イベントログ出力
-        Instance instance = instanceDao.read(instanceNo);
-        Platform platform = platformDao.read(niftyProcessClient.getPlatformNo());
-        processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance, "NiftyInstanceStart", new Object[] {
-                platform.getPlatformName(), instanceId });
+        // 排他制御(apiを同時に実行するとエラーになる対策)
+        synchronized(lock) {
+            // イベントログ出力
+            Instance instance = instanceDao.read(instanceNo);
+            Platform platform = platformDao.read(niftyProcessClient.getPlatformNo());
+            processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance, "NiftyInstanceStart", new Object[] {
+                    platform.getPlatformName(), instanceId });
 
-        // インスタンスの開始
-        niftyProcessClient.startInstance(instanceId, niftyInstance.getInstanceType());
+            // インスタンスの開始
+            niftyProcessClient.startInstance(instanceId, niftyInstance.getInstanceType());
 
-        // インスタンスの開始待ち
-        RunningInstancesItemType instance2 = niftyProcessClient.waitStartInstance(instanceId);
+            // インスタンスの開始待ち
+            com.nifty.cloud.sdk.server.model.Instance instance2 = niftyProcessClient.waitStartInstance(instanceId);
 
-        // イベントログ出力
-        processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance, "NiftyInstanceStartFinish", new Object[] {
-                platform.getPlatformName(), instanceId });
+            // イベントログ出力
+            processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance, "NiftyInstanceStartFinish", new Object[] {
+                    platform.getPlatformName(), instanceId });
 
-        // データベース更新
-        niftyInstance = niftyInstanceDao.read(instanceNo);
-        niftyInstance.setStatus(instance2.getInstanceState().getName());
-        niftyInstance.setDnsName(instance2.getDnsName());
-        niftyInstance.setPrivateDnsName(instance2.getPrivateDnsName());
-        niftyInstance.setIpAddress(instance2.getIpAddress());
-        niftyInstance.setPrivateIpAddress(instance2.getPrivateIpAddress());
-        niftyInstanceDao.update(niftyInstance);
+            // データベース更新
+            niftyInstance = niftyInstanceDao.read(instanceNo);
+            niftyInstance.setStatus(instance2.getState().getName());
+            niftyInstance.setDnsName(instance2.getDnsName());
+            niftyInstance.setPrivateDnsName(instance2.getPrivateDnsName());
+            niftyInstance.setIpAddress(instance2.getIpAddress());
+            niftyInstance.setPrivateIpAddress(instance2.getPrivateIpAddress());
+            niftyInstanceDao.update(niftyInstance);
+        }
     }
 
     protected void stop(NiftyProcessClient niftyProcessClient, Long instanceNo) {
         NiftyInstance niftyInstance = niftyInstanceDao.read(instanceNo);
         String instanceId = niftyInstance.getInstanceId();
 
-        // イベントログ出力
-        Instance instance = instanceDao.read(instanceNo);
-        Platform platform = platformDao.read(niftyProcessClient.getPlatformNo());
-        processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance, "NiftyInstanceStop", new Object[] {
-                platform.getPlatformName(), instanceId });
+        // 排他制御(apiを同時に実行するとエラーになる対策)
+        synchronized(lock) {
+            // イベントログ出力
+            Instance instance = instanceDao.read(instanceNo);
+            Platform platform = platformDao.read(niftyProcessClient.getPlatformNo());
+            processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance, "NiftyInstanceStop", new Object[] {
+                    platform.getPlatformName(), instanceId });
 
-        // インスタンスの停止
-        niftyProcessClient.stopInstance(instanceId);
+            // インスタンスの停止
+            niftyProcessClient.stopInstance(instanceId);
 
-        // インスタンスの停止待ち
-        RunningInstancesItemType instance2 = niftyProcessClient.waitStopInstance(instanceId);
+            // インスタンスの停止待ち
+            com.nifty.cloud.sdk.server.model.Instance instance2 = niftyProcessClient.waitStopInstance(instanceId);
 
-        // イベントログ出力
-        processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance, "NiftyInstanceStopFinish", new Object[] {
-                platform.getPlatformName(), instanceId });
+            // イベントログ出力
+            processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance, "NiftyInstanceStopFinish", new Object[] {
+                    platform.getPlatformName(), instanceId });
 
-        // データベース更新
-        niftyInstance = niftyInstanceDao.read(instanceNo);
-        niftyInstance.setStatus(instance2.getInstanceState().getName());
-        niftyInstance.setDnsName(instance2.getDnsName());
-        niftyInstance.setPrivateDnsName(instance2.getPrivateDnsName());
-        niftyInstance.setIpAddress(instance2.getIpAddress());
-        niftyInstance.setPrivateIpAddress(instance2.getPrivateIpAddress());
-        niftyInstanceDao.update(niftyInstance);
+            // データベース更新
+            niftyInstance = niftyInstanceDao.read(instanceNo);
+            niftyInstance.setStatus(instance2.getState().getName());
+            niftyInstance.setDnsName(instance2.getDnsName());
+            niftyInstance.setPrivateDnsName(instance2.getPrivateDnsName());
+            niftyInstance.setIpAddress(instance2.getIpAddress());
+            niftyInstance.setPrivateIpAddress(instance2.getPrivateIpAddress());
+            niftyInstanceDao.update(niftyInstance);
+        }
     }
 
     protected void terminate(NiftyProcessClient niftyProcessClient, Long instanceNo) {
@@ -389,6 +398,8 @@ public class NiftyInstanceProcess extends ServiceSupport {
             // 外部のプラットフォームの場合、VPN情報を含める
             map.putAll(createVpnUserDataMap(instanceNo));
         }
+        // OpenVPNクライアント証明書ダウンロード先URL
+        map.put("vpnclienturl", Config.getProperty("vpn.clienturl"));
 
         return map;
     }
@@ -436,9 +447,6 @@ public class NiftyInstanceProcess extends ServiceSupport {
 
         // ZIPパスワード
         map.put("vpnzippass", Config.getProperty("vpn.zippass"));
-
-        // OpenVPNクライアント証明書ダウンロード先URL
-        map.put("vpnclienturl", Config.getProperty("vpn.clienturl"));
 
         return map;
     }

@@ -20,6 +20,7 @@ package jp.primecloud.auto.zabbix.model.host;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -38,6 +39,26 @@ public class HostGetParam implements Serializable {
     private String selectGroups;
 
     private String selectParentTemplates;
+
+    private Map<String, List<Object>> filter;
+
+    public Map<String, List<Object>> getFilter() {
+        return filter;
+    }
+
+    public void setFilter(Map<String, List<Object>> filter) {
+        this.filter = filter;
+    }
+
+    private List<String> groupids;
+
+    public List<String> getGroupids() {
+        return groupids;
+    }
+
+    public void setGroupids(List<String> groupids) {
+        this.groupids = groupids;
+    }
 
     /**
      * hostidsを取得します。

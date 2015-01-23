@@ -18,13 +18,16 @@
  */
 package jp.primecloud.auto.process.zabbix;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
+import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.ZabbixInstanceStatus;
 import jp.primecloud.auto.config.Config;
 import jp.primecloud.auto.entity.crud.AwsLoadBalancer;
-import jp.primecloud.auto.entity.crud.Component;
 import jp.primecloud.auto.entity.crud.ComponentType;
 import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.Image;
@@ -32,14 +35,12 @@ import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.log.EventLogger;
+import jp.primecloud.auto.process.ProcessLogger;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
 import jp.primecloud.auto.zabbix.model.hostgroup.Hostgroup;
+import jp.primecloud.auto.zabbix.model.proxy.Proxy;
 import jp.primecloud.auto.zabbix.model.template.Template;
-
-import org.apache.commons.lang.StringUtils;
-
-import jp.primecloud.auto.process.ProcessLogger;
 
 /**
  * <p>
@@ -68,11 +69,18 @@ public class ElbZabbixHostProcess extends ServiceSupport {
         ZabbixProcessClient zabbixProcessClient = zabbixProcessClientFactory.createZabbixProcessClient();
 
         String hostid = awsLoadbalancer.getHostid();
+
+        //ホスト名取得
+        String hostname = getHostName(loadBalancer.getFqdn());
+        //ZabbixプロキシID取得
+        String proxyHostid = getProxyHostid(zabbixProcessClient);
+
         if (StringUtils.isEmpty(hostid)) {
             List<Hostgroup> hostgroups = getInitHostgroups(zabbixProcessClient, loadBalancer.getFarmNo());
 
             // 監視対象の登録
-            hostid = zabbixProcessClient.createHost(loadBalancer.getFqdn(), hostgroups, true);
+            // ELBはIPでの監視をしない(DNSのみ)のでIPにはNULLを設定
+            hostid = zabbixProcessClient.createHost(hostname, loadBalancer.getFqdn(), hostgroups, true, false, null, proxyHostid);
 
             // イベントログ出力
             processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "ZabbixRegist", new Object[] {loadBalancer.getFqdn(), hostid });
@@ -83,7 +91,8 @@ public class ElbZabbixHostProcess extends ServiceSupport {
             awsLoadBalancerDao.update(awsLoadbalancer);
         } else {
             // 監視対象の更新
-            zabbixProcessClient.updateHost(hostid, loadBalancer.getFqdn(), null, true);
+            // ELBはIPでの監視をしない(DNSのみ)のでIPにはNULLを設定
+            zabbixProcessClient.updateHost(hostid, hostname, loadBalancer.getFqdn(), null, true, false, null, proxyHostid);
 
             // データベースの更新
             awsLoadbalancer.setStatus(ZabbixInstanceStatus.MONITORING.toString());
@@ -97,7 +106,7 @@ public class ElbZabbixHostProcess extends ServiceSupport {
         Image useImage = null;
         List<Image> images = imageDao.readByPlatformNo(loadBalancer.getPlatformNo());
         for (Image image : images) {
-            if ("aws".equals(image.getImageName())) {
+            if (PCCConstant.IMAGE_NAME_ELB.equals(image.getImageName())) {
                 useImage = image;
                 break;
             }
@@ -135,7 +144,12 @@ public class ElbZabbixHostProcess extends ServiceSupport {
 
         // 監視対象の無効化
         try {
-            zabbixProcessClient.updateHost(awsLoadbalancer.getHostid(), loadBalancer.getFqdn(), null, false);
+            //ホスト名取得
+            String hostname = getHostName(loadBalancer.getFqdn());
+            //ZabbixプロキシID取得
+            String proxyHostid = getProxyHostid(zabbixProcessClient);
+
+            zabbixProcessClient.updateHost(awsLoadbalancer.getHostid(), hostname, loadBalancer.getFqdn(), null, false, false, null, proxyHostid);
 
             // イベントログ出力
             processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "ZabbixStop", new Object[] {loadBalancer.getFqdn(), awsLoadbalancer.getHostid() });
@@ -220,7 +234,7 @@ public class ElbZabbixHostProcess extends ServiceSupport {
         String templateName = null;
         List<ComponentType> componentTypes = componentTypeDao.readAll();
         for (ComponentType type:componentTypes){
-            if ("aws".equals(type.getComponentTypeName())) {
+            if ("elb".equals(type.getComponentTypeName())) {
                 templateName = type.getZabbixTemplate();
             }
         }
@@ -265,7 +279,7 @@ public class ElbZabbixHostProcess extends ServiceSupport {
         String templateName = null;
         List<ComponentType> componentTypes = componentTypeDao.readAll();
         for (ComponentType type:componentTypes){
-            if ("aws".equals(type.getComponentTypeName())) {
+            if ("elb".equals(type.getComponentTypeName())) {
                 templateName = type.getZabbixTemplate();
             }
         }
@@ -431,7 +445,12 @@ public class ElbZabbixHostProcess extends ServiceSupport {
         // ホストがホストグループに含まれない場合、ホストグループに含める
         if (hostgroup != null && !groupids.contains(hostgroup.getGroupid())) {
             hostgroups.add(hostgroup);
-            zabbixProcessClient.updateHost(hostid, loadbalancer.getFqdn(), hostgroups, null);
+            //ホスト名取得
+            String hostname = getHostName(loadbalancer.getFqdn());
+            //ZabbixプロキシID取得
+            String proxyHostid = getProxyHostid(zabbixProcessClient);
+
+            zabbixProcessClient.updateHost(hostid, hostname, loadbalancer.getFqdn(), hostgroups, null, false, null, proxyHostid);
         }
     }
 
@@ -458,8 +477,37 @@ public class ElbZabbixHostProcess extends ServiceSupport {
                     break;
                 }
             }
-            zabbixProcessClient.updateHost(hostid, loadbalancer.getFqdn(), hostgroups, null);
+            //ホスト名取得
+            String hostname = getHostName(loadbalancer.getFqdn());
+            //ZabbixプロキシID取得
+            String proxyHostid = getProxyHostid(zabbixProcessClient);
+
+            zabbixProcessClient.updateHost(hostid, hostname, loadbalancer.getFqdn(), hostgroups, null, false, null, proxyHostid);
         }
+    }
+
+    private String getHostName(String fqdn) {
+        // Zabbixのホストの「名前」を prefix + _ + FQDN で設定する
+        // prefix値はconfig.propertiesから取得
+        String hostname = fqdn;
+        if (StringUtils.isNotEmpty(Config.getProperty("zabbix.prefix"))) {
+            //pretixが設定されている場合のみ設定
+            //設定されていない場合は通常通り、FQDNを設定
+            hostname = Config.getProperty("zabbix.prefix") + "-" + fqdn;
+        }
+        return hostname;
+    }
+
+    private String getProxyHostid(ZabbixProcessClient zabbixProcessClient) {
+        String proxyName = Config.getProperty("zabbix.proxy");
+        String proxyHostid = null;
+        if (StringUtils.isNotEmpty(proxyName)) {
+            Proxy proxy = zabbixProcessClient.getProxy(proxyName);
+            if (proxy != null) {
+                proxyHostid = proxy.getProxyid();
+            }
+        }
+        return proxyHostid;
     }
 
     /**

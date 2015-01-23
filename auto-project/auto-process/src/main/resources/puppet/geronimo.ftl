@@ -4,6 +4,7 @@ class ${instance.fqdn?replace('.','_')}_${component.componentName} {
 
     class { "apserver::geronimo" :
         geronimo_service_name   => "${component.componentName}",
+      <#comment>TODO CLOUD BRANCHING</#comment>
       <#if awsVolume ??>
         geronimo_vgdisk         => "${awsVolume.device}",
         geronimo_visor          => "aws",
@@ -13,6 +14,15 @@ class ${instance.fqdn?replace('.','_')}_${component.componentName} {
       <#elseif vmwareDisk ??>
         geronimo_vgdisk         => "/dev/disk/by-path/pci-0000:00:10.0-scsi-0:0:${vmwareDisk.scsiId}:0",
         geronimo_visor          => "vmware",
+      <#elseif vcloudDisk ??>
+        geronimo_vgdisk         => "/dev/disk/by-path/pci-0000:00:10.0-scsi-0:0:${vcloudDisk.unitNo}:0",
+        geronimo_visor          => "vcloud",
+      <#elseif azureDisk ??>
+        geronimo_vgdisk         => "${azureDisk.device}",
+        geronimo_visor          => "azure",
+      <#elseif openstackVolume ??>
+        geronimo_vgdisk         => "${openstackVolume.device}",
+        geronimo_visor          => "openstack",
       <#else>
         geronimo_vgdisk         => "",
         geronimo_visor          => "",
@@ -65,6 +75,13 @@ class ${instance.fqdn?replace('.','_')}_${component.componentName} {
       </#if>
     }
     </#list>
+  </#if>
+
+  <#if sampleDbInstance ??>
+    # for arvicio Sample
+    geronimo22::dbhost { "AppDS-master":
+        ip => "${accessIps[sampleDbInstance.instanceNo?string]}"
+    }
   </#if>
 
     class { "apserver::geronimo::mount": }

@@ -40,7 +40,7 @@ if [ -n "${USER_NAME}" ]; then
         #ユーザの無効化処理
         #ユーザー作成されているかどうかの確認
         SQL_ALREADY_CREATED="SELECT USER_NO FROM USER where USERNAME ='${USER_NAME}'"
-        USER_NO=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -S -sql "${SQL_ALREADY_CREATED}" -columntype int -columnname USER_NO`
+        USER_NO=`su tomcat -c "java $JAVA_OPTS -cp ${CLASSPATH} ${MAIN} -S -sql \"${SQL_ALREADY_CREATED}\" -columntype int -columnname USER_NO"`
 
         if [ "${USER_NO}" = "NULL" ]; then
                 echo "${USER_NAME} は登録されていません。"
@@ -48,7 +48,7 @@ if [ -n "${USER_NAME}" ]; then
         fi
 
 		#無効化文字列を読む
-        DISABLE_CODE=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -config DISABLE_CODE`
+        DISABLE_CODE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -config DISABLE_CODE"`
 		if [ "${DISABLE_CODE}" = "NULL" ]; then
 			echo "無効化文字列の読み込みに失敗しました。"
 			exit 1
@@ -56,7 +56,7 @@ if [ -n "${USER_NAME}" ]; then
 
         #すでに無効化されているかか確認
         SQL_USER_DISABLED="SELECT LOCATE('${DISABLE_CODE}',PASSWORD) as LOCATE from USER where USER_NO=${USER_NO}"
-        LOCATE=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -S -sql "${SQL_USER_DISABLED}" -columntype int -columnname LOCATE`
+        LOCATE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -S -sql \"${SQL_USER_DISABLED}\" -columntype int -columnname LOCATE"`
 
         if [ "${LOCATE}" != "0" ]; then
                 echo "${USER_NAME} はすでに無効化されています。"
@@ -64,11 +64,11 @@ if [ -n "${USER_NAME}" ]; then
         fi
 
 		#Zabbix有効オプションを読む
-        ZABBIX_USE=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -config "zabbix.useZabbix"`
+        ZABBIX_USE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -config \"zabbix.useZabbix\""`
 
 		if [ "${ZABBIX_USE}" = "true" ]; then
 	        #すでにZabbixユーザが作成されているか確認
-	        ZABBIX_USERNAME=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -Z -get -username ${USER_NAME}`
+            ZABBIX_USERNAME=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -Z -get -username ${USER_NAME}"`
 	        if [ "${ZABBIX_USERNAME}" = "NULL" ]; then
 	                echo "${USER_NAME} はZabbixユーザに存在しません。"
 	                exit 1
@@ -77,7 +77,7 @@ if [ -n "${USER_NAME}" ]; then
 
         #対象のユーザのパスワードに無効化文字列を入れる
         SQL_USER_DISABLE="UPDATE USER SET PASSWORD=CONCAT('${DISABLE_CODE}',PASSWORD) where USER_NO=${USER_NO}"
-        MESSAGE=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -U -sql "${SQL_USER_DISABLE}"`
+        MESSAGE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -U -sql \"${SQL_USER_DISABLE}\""`
 
         if [ -n "${MESSAGE}" ]; then
                 echo "${MESSAGE}"
@@ -87,7 +87,7 @@ if [ -n "${USER_NAME}" ]; then
 		#Zabbix有効オプションを読む
 		if [ "${ZABBIX_USE}" = "true" ]; then
 	        #ZABBIXユーザの無効化
-	        MESSAGE=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -Z -disable -username ${USER_NAME}`
+            MESSAGE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -Z -disable -username ${USER_NAME}"`
 
 	        if [ -n "${MESSAGE}" ]; then
 	                echo "${MESSAGE}"

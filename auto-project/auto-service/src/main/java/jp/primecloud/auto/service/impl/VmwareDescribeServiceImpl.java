@@ -22,13 +22,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 import jp.primecloud.auto.entity.crud.PlatformVmware;
 import jp.primecloud.auto.entity.crud.VmwareKeyPair;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.service.VmwareDescribeService;
 import jp.primecloud.auto.vmware.VmwareClient;
 import jp.primecloud.auto.vmware.VmwareClientFactory;
-
 import com.vmware.vim25.mo.ComputeResource;
 import com.vmware.vim25.mo.ManagedEntity;
 
@@ -73,7 +74,12 @@ public class VmwareDescribeServiceImpl extends ServiceSupport implements VmwareD
 
         ManagedEntity[] entities = vmwareClient.searchByType(ComputeResource.class);
         for (ManagedEntity entity : entities) {
-            computeResources.add(ComputeResource.class.cast(entity));
+            ComputeResource computeResource = ComputeResource.class.cast(entity);
+            if (StringUtils.isNotEmpty(platformVmware.getComputeResource()) &&
+                !StringUtils.equals(computeResource.getName(), platformVmware.getComputeResource())) {
+                continue;
+            }
+            computeResources.add(computeResource);
         }
 
         // ソート

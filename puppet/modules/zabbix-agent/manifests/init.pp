@@ -3,7 +3,8 @@ class zabbix-agent {
 }
 
 define zabbix-agent::config(
-    $zabbix_server
+    $zabbix_server,
+    $zabbix_hostname
 ){
     file { "/etc/zabbix/zabbix_agent.conf" :
         mode => "644",
@@ -31,13 +32,11 @@ define zabbix-agent::config(
 }
 
 define zabbix-agent::config-windows(
-    $zabbix_server
+    $zabbix_server,
+    $zabbix_hostname
 ){
 
     file { "C:/Program Files/ZABBIX Agent/zabbix_agentd.conf" :
-#        mode => "0664",
-#        owner => Administrator,
-#        group => Administrators,
         content => template("zabbix-agent/windows/zabbix_agentd.conf.erb"),
         before => Service["Zabbix Agent"],
         notify => Service["Zabbix Agent"],

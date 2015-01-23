@@ -47,6 +47,7 @@ public class Main {
         options.addOption("E", false, "Ecrypt UserPassword");
         options.addOption("I", false, "IaasGateway Mode");
         options.addOption("A", false, "PCC-API Genarate ID or Key Mode");
+        options.addOption("W", false, "Decrypt UserPassword");
 
         options.addOption("username", true, "Create the username");
         options.addOption("password", true, "Create the password");
@@ -61,6 +62,7 @@ public class Main {
         options.addOption("sql", true, "SQL");
         options.addOption("columnname", true, "columnName");
         options.addOption("columntype", true, "columnType");
+        options.addOption("salt", true, "Salt");
 
         OptionBuilder.withLongOpt("prepared");
         OptionBuilder.hasArgs();
@@ -81,13 +83,13 @@ public class Main {
         options.addOption("platformno", true, "Platform can obtain from auto-config.xml");
 
         // for IaasGateway(AWS, Cloudstack)
-        options.addOption("iaasgwAccessId", true, "IaasGateway Access Id");
-        options.addOption("iaasgwSecretKey", true, "IaasGateway SecretKey");
-        options.addOption("keyName", true, "import your key pair as keyName");
-        options.addOption("publicKey", true, "import your public key");
+        options.addOption("keyname", true, "import your key pair as keyName");
+        options.addOption("publickey", true, "import your public key");
 
-        // for PCC-API
-        options.addOption("generateType", true, "PCC-API Genarate Type");
+        // for PCC
+        options.addOption("accessid", true, "accessid for PCC-API");
+        options.addOption("secretkey", true, "secretkey for PCC-API");
+        options.addOption("generatetype", true, "genarateType for PCC-API");
 
         options.addOption("h", "help", false, "help");
 
@@ -126,9 +128,6 @@ public class Main {
             } else if (commandLine.hasOption("get")) {
                 //Zabbixユーザ取得
                 ZabbixMain.getUser(commandLine);
-            } else if (commandLine.hasOption("S")) {
-                //ZabbixデータベースへのSQL実行
-                ZabbixMain.selectExecute(commandLine);
             } else if (commandLine.hasOption("check")) {
                 //Zabbixバージョン取得
                 ZabbixMain.checkApiVersion();
@@ -165,6 +164,10 @@ public class Main {
             IaasGatewayMain.importExecute(commandLine);
         } else if (commandLine.hasOption("A")) {
             PccApiGenerateService.genarate(commandLine);
+        } else if (commandLine.hasOption("W")) {
+            //PCCユーザ復号化パスワード取得
+            UserService.decryptUserPassword(commandLine.getOptionValue("password"),
+                    commandLine.getOptionValue("salt"));
         }
     }
 }

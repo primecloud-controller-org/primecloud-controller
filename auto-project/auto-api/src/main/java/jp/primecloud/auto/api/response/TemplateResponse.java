@@ -9,7 +9,6 @@ import jp.primecloud.auto.entity.crud.Template;
 
 
 
-
 @XmlRootElement(name="TemplateResponse")
 @XmlType(propOrder = { "templateNo", "templateName", "description" })
 public class TemplateResponse {

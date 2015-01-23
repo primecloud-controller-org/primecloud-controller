@@ -20,6 +20,7 @@ package jp.primecloud.auto.service.impl;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,13 +31,20 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+
+import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.log.LoggingUtils;
 import jp.primecloud.auto.common.status.ComponentInstanceStatus;
 import jp.primecloud.auto.common.status.ComponentStatus;
 import jp.primecloud.auto.common.status.InstanceStatus;
+import jp.primecloud.auto.component.mysql.MySQLConstants;
 import jp.primecloud.auto.config.Config;
 import jp.primecloud.auto.entity.crud.AwsInstance;
 import jp.primecloud.auto.entity.crud.AwsVolume;
+import jp.primecloud.auto.entity.crud.AzureDisk;
+import jp.primecloud.auto.entity.crud.AzureInstance;
 import jp.primecloud.auto.entity.crud.CloudstackInstance;
 import jp.primecloud.auto.entity.crud.CloudstackVolume;
 import jp.primecloud.auto.entity.crud.Component;
@@ -48,30 +56,33 @@ import jp.primecloud.auto.entity.crud.Image;
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.InstanceConfig;
 import jp.primecloud.auto.entity.crud.LoadBalancer;
+import jp.primecloud.auto.entity.crud.NiftyInstance;
+import jp.primecloud.auto.entity.crud.NiftyVolume;
+import jp.primecloud.auto.entity.crud.OpenstackInstance;
+import jp.primecloud.auto.entity.crud.OpenstackVolume;
 import jp.primecloud.auto.entity.crud.Platform;
+import jp.primecloud.auto.entity.crud.VcloudDisk;
 import jp.primecloud.auto.entity.crud.VmwareDisk;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.exception.AutoException;
+import jp.primecloud.auto.iaasgw.IaasGatewayFactory;
+import jp.primecloud.auto.iaasgw.IaasGatewayWrapper;
 import jp.primecloud.auto.log.EventLogLevel;
 import jp.primecloud.auto.log.EventLogger;
+import jp.primecloud.auto.process.ComponentConstants;
+import jp.primecloud.auto.process.nifty.NiftyProcessClient;
+import jp.primecloud.auto.process.nifty.NiftyProcessClientFactory;
+import jp.primecloud.auto.process.vmware.VmwareDiskProcess;
+import jp.primecloud.auto.process.vmware.VmwareProcessClient;
+import jp.primecloud.auto.process.vmware.VmwareProcessClientFactory;
+import jp.primecloud.auto.process.zabbix.ZabbixHostProcess;
 import jp.primecloud.auto.service.ComponentService;
 import jp.primecloud.auto.service.InstanceService;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.service.dto.ComponentDto;
 import jp.primecloud.auto.service.dto.ComponentInstanceDto;
 import jp.primecloud.auto.service.dto.ComponentTypeDto;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
-import jp.primecloud.auto.component.mysql.MySQLConstants;
-import jp.primecloud.auto.iaasgw.IaasGatewayFactory;
-import jp.primecloud.auto.iaasgw.IaasGatewayWrapper;
-import jp.primecloud.auto.process.ComponentConstants;
-import jp.primecloud.auto.process.vmware.VmwareDiskProcess;
-import jp.primecloud.auto.process.vmware.VmwareProcessClient;
-import jp.primecloud.auto.process.vmware.VmwareProcessClientFactory;
-import jp.primecloud.auto.process.zabbix.ZabbixHostProcess;
+import jp.primecloud.auto.service.dto.InstanceDto;
 
 /**
  * <p>
@@ -92,6 +103,8 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
     protected ZabbixHostProcess zabbixHostProcess;
 
     protected EventLogger eventLogger;
+
+    protected NiftyProcessClientFactory niftyProcessClientFactory;
 
     /**
      * {@inheritDoc}
@@ -168,7 +181,17 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
 //                        break;
 //                    }
 //                }
-                String url = createUrl(instance.getPublicIp(), component.getComponentTypeNo());
+
+                String url;
+                Boolean showPublicIp = BooleanUtils.toBooleanObject(Config.getProperty("ui.showPublicIp"));
+                if (BooleanUtils.isTrue(showPublicIp)) {
+                    //ui.showPublicIp = true の場合、URLにPublicIpを表示
+                    url = createUrl(instance.getPublicIp(), component.getComponentTypeNo());
+                } else {
+                    //ui.showPublicIp = false の場合、URLにPrivateIpを表示
+                    url = createUrl(instance.getPrivateIp(), component.getComponentTypeNo());
+                }
+
                 componentInstanceDto.setUrl(url);
                 componentInstanceDtos.add(componentInstanceDto);
             }
@@ -458,6 +481,26 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
                             zabbixHostProcess.removeTemplate(componentInstance.getInstanceNo(), componentNo);
                         }
 
+                        /******************************************************************
+                         * 停止時ディスクデタッチを行わないクラウドに対する特殊ロジック
+                         * ※現在はVCLOUD（USiZE）のみがこのタイプ
+                         ******************************************************************/
+                        List<VcloudDisk> vdisks = vcloudDiskDao.readByInstanceNo(instance.getInstanceNo());
+                        for (VcloudDisk disk:vdisks) {
+                            if (componentNo.equals(disk.getComponentNo())) {
+                                //componentNoの一致するディスクが存在していれば削除する
+                                Farm farm = farmDao.read(instance.getFarmNo());
+                                IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), instance.getPlatformNo());
+                                try {
+                                    gateway.deleteVolume(String.valueOf(disk.getDiskNo()));
+                                } catch (AutoException ignore) {
+                                    // ディスクが存在しない場合などに備えて握りつぶす
+                                }
+                                //データも削除
+                                vcloudDiskDao.delete(disk);
+                            }
+                        }
+
                         // コンポーネントが停止している場合、関連付けを削除する
                         componentInstanceDao.delete(componentInstance);
                     } else {
@@ -546,9 +589,14 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
 
         // 既存と異なるディスクサイズ設定が与えられた場合、ボリュームの非存在チェックをする
         if (oldDiskSize != null && !oldDiskSize.equals(diskSize)) {
+         // TODO CLOUD BRANCHING
             long count = awsVolumeDao.countByComponentNo(componentNo);
             count += vmwareDiskDao.countByComponentNo(componentNo);
             count += cloudstackVolumeDao.countByComponentNo(componentNo);
+            count += vcloudDiskDao.countByComponentNo(componentNo);
+            count += niftyVolumeDao.countByComponentNo(componentNo);
+            count += azureDiskDao.countByComponentNo(componentNo);
+            count += openstackVolumeDao.countByComponentNo(componentNo);
             if (count > 0) {
                 throw new AutoApplicationException("ESERVICE-000307", componentNo);
             }
@@ -664,205 +712,6 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
         // イベントログ出力
         eventLogger.log(EventLogLevel.INFO, farm.getFarmNo(), farm.getFarmName(), componentNo, component
                 .getComponentName(), null, null, "ComponentUpdate", null, null, null);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void deleteComponent(Long componentNo) {
-        // 引数チェック
-        if (componentNo == null) {
-            throw new AutoApplicationException("ECOMMON-000003", "componentNo");
-        }
-
-        // コンポーネントの存在チェック
-        Component component = componentDao.read(componentNo);
-        if (component == null) {
-            // コンポーネントが存在しない場合
-            return;
-        }
-
-        // コンポーネントが停止しているかどうかのチェック
-        List<ComponentInstance> componentInstances = componentInstanceDao.readByComponentNo(componentNo);
-        for (ComponentInstance componentInstance : componentInstances) {
-            ComponentInstanceStatus status = ComponentInstanceStatus.fromStatus(componentInstance.getStatus());
-            if (status != ComponentInstanceStatus.STOPPED) {
-                // コンポーネントが停止状態でない場合
-                throw new AutoApplicationException("ESERVICE-000302", component.getComponentName());
-            }
-        }
-
-        // ディスクがデタッチされているかどうかのチェック
-        List<AwsVolume> awsVolumes = awsVolumeDao.readByComponentNo(componentNo);
-        for (AwsVolume awsVolume : awsVolumes) {
-            if (StringUtils.isNotEmpty(awsVolume.getInstanceId())) {
-                // ディスクがデタッチされていない場合
-                Instance instance = instanceDao.read(awsVolume.getInstanceNo());
-                throw new AutoApplicationException("ESERVICE-000310", instance.getInstanceName());
-            }
-        }
-        // ディスクがデタッチされているかどうかのチェック
-        List<CloudstackVolume> csVolumes = cloudstackVolumeDao.readByComponentNo(componentNo);
-        for (CloudstackVolume csVolume : csVolumes) {
-            if (StringUtils.isNotEmpty(csVolume.getInstanceId())) {
-                // ディスクがデタッチされていない場合
-                Instance instance = instanceDao.read(csVolume.getInstanceNo());
-                throw new AutoApplicationException("ESERVICE-000310", instance.getInstanceName());
-            }
-        }
-        List<VmwareDisk> vmwareDisks = vmwareDiskDao.readByComponentNo(componentNo);
-        for (VmwareDisk vmwareDisk : vmwareDisks) {
-            if (BooleanUtils.isTrue(vmwareDisk.getAttached())) {
-                // ディスクがデタッチされていない場合
-                Instance instance = instanceDao.read(vmwareDisk.getInstanceNo());
-                throw new AutoApplicationException("ESERVICE-000310", instance.getInstanceName());
-            }
-        }
-
-        // 削除するコンポーネントを振り分け対象とするロードバランサがないかどかのチェック
-        List<LoadBalancer> loadBalancers = loadBalancerDao.readByComponentNo(componentNo);
-        if (!loadBalancers.isEmpty()) {
-            throw new AutoApplicationException("ESERVICE-000309", loadBalancers.get(0).getLoadBalancerName());
-        }
-
-        // インスタンス設定の削除処理
-        instanceConfigDao.deleteByComponentNo(componentNo);
-
-        // コンポーネントとインスタンスの関連の削除処理
-        doAssociate(componentNo, new ArrayList<Long>());
-        componentInstanceDao.deleteByComponentNo(componentNo);
-
-        // コンポーネント設定の削除処理
-        componentConfigDao.deleteByComponentNo(componentNo);
-
-        // AWSボリュームの削除処理
-        // TODO: ボリューム自体の削除処理を別で行うようにする
-        Farm farm = farmDao.read(component.getFarmNo());
-        for (AwsVolume awsVolume : awsVolumes) {
-            if (StringUtils.isEmpty(awsVolume.getVolumeId())) {
-                continue;
-            }
-
-            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), awsVolume.getPlatformNo());
-
-            //イベントログ出力
-            Platform platform = platformDao.read(gateway.getPlatformNo());
-            Instance instance = instanceDao.read(awsVolume.getInstanceNo());
-            AwsInstance awsInstance = awsInstanceDao.read(awsVolume.getInstanceNo());
-            eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), awsVolume.getComponentNo(),
-                    component.getComponentName(), awsVolume.getInstanceNo(), instance.getInstanceName(),
-                    "AwsEbsDelete", awsInstance.getInstanceType(),  instance.getPlatformNo(), new Object[] { platform.getPlatformName(), awsVolume.getVolumeId() });
-
-            try {
-                // ボリュームの削除
-                gateway.deleteVolume(awsVolume.getVolumeId());
-
-                //イベントログ出力
-                eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), awsVolume.getComponentNo(),
-                        component.getComponentName(), awsVolume.getInstanceNo(), instance.getInstanceName(),
-                        "CloudStackVolumeDelete", awsInstance.getInstanceType(), instance.getPlatformNo(), new Object[] { platform.getPlatformName(), awsVolume.getVolumeId() });
-
-                // EC2ではDeleteVolumeに時間がかかるため、Waitしない
-                //awsProcessClient.waitDeleteVolume(volumeId);
-            } catch (AutoException ignore) {
-                // ボリュームが存在しない場合などに備えて例外を握りつぶす
-            }
-        }
-        awsVolumeDao.deleteByComponentNo(componentNo);
-
-        // CLOUDSTACKボリュームの削除処理
-        // TODO: ボリューム自体の削除処理を別で行うようにする
-        for (CloudstackVolume csVolume : csVolumes) {
-            if (StringUtils.isEmpty(csVolume.getVolumeId())) {
-                continue;
-            }
-
-            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), csVolume.getPlatformNo());
-
-            //イベントログ出力
-            Platform platform = platformDao.read(gateway.getPlatformNo());
-            Instance instance = instanceDao.read(csVolume.getInstanceNo());
-            CloudstackInstance csInstance = cloudstackInstanceDao.read(csVolume.getInstanceNo());
-            eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), csVolume.getComponentNo(),
-                    component.getComponentName(), csVolume.getInstanceNo(), instance.getInstanceName(),
-                    "CloudStackVolumeDelete", csInstance.getInstanceType(), instance.getPlatformNo(), new Object[] { platform.getPlatformName(), csVolume.getVolumeId() });
-
-            try {
-                // ボリュームの削除
-                gateway.deleteVolume(csVolume.getVolumeId());
-
-                //イベントログ出力
-                eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), csVolume.getComponentNo(),
-                        component.getComponentName(), csVolume.getInstanceNo(), instance.getInstanceName(),
-                        "CloudStackVolumeDeleteFinish", csInstance.getInstanceType(), instance.getPlatformNo(), new Object[] { platform.getPlatformName(), csVolume.getVolumeId() });
-
-            } catch (AutoException ignore) {
-                // ボリュームが存在しない場合などに備えて例外を握りつぶす
-            }
-        }
-        cloudstackVolumeDao.deleteByComponentNo(componentNo);
-
-
-        // VMwareディスクの削除処理
-        // TODO: 削除処理を別で行うようにする
-        for (VmwareDisk vmwareDisk : vmwareDisks) {
-            if (StringUtils.isEmpty(vmwareDisk.getFileName())) {
-                continue;
-            }
-            VmwareProcessClient vmwareProcessClient = vmwareProcessClientFactory.createVmwareProcessClient(vmwareDisk.getPlatformNo());
-            try {
-                vmwareDiskProcess.deleteDisk(vmwareProcessClient, vmwareDisk.getDiskNo());
-            } catch (AutoException ignore) {
-                // ディスクが存在しない場合などに備えて例外を握りつぶす
-            } finally {
-                vmwareProcessClient.getVmwareClient().logout();
-            }
-        }
-        vmwareDiskDao.deleteByComponentNo(componentNo);
-
-        // コンポーネントの削除処理
-        componentDao.delete(component);
-
-        //移行ツール対応 残存ディレクトリ削除
-        StringBuilder dpath = new StringBuilder("/opt/userdata/");
-        dpath.append(LoggingUtils.getUserName());
-        dpath.append(System.getProperty("file.separator"));
-        dpath.append(LoggingUtils.getFarmName());
-        dpath.append(System.getProperty("file.separator"));
-        dpath.append(component.getComponentName());
-        File delDir = new File(dpath.toString());
-        if (delDir.exists()) {
-            deleteDirectoryAndFile(delDir);
-        }
-
-        // イベントログ出力
-        eventLogger.log(EventLogLevel.INFO, farm.getFarmNo(), farm.getFarmName(), componentNo, component
-                .getComponentName(), null, null, "ComponentDelete", null, null, null);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    private void deleteDirectoryAndFile(File delFile) {
-        if (delFile == null || !delFile.exists()) {
-            return;
-        }
-        if (delFile.isFile()) {
-            // ファイル削除
-            if (delFile.exists() && !delFile.delete()) {
-                delFile.deleteOnExit();
-            }
-        } else {
-            // ディレクトリの場合、再帰する
-            File[] list = delFile.listFiles();
-            for (int i = 0; i < list.length; i++) {
-                deleteDirectoryAndFile(list[i]);
-            }
-            if (delFile.exists() && !delFile.delete()) {
-                delFile.deleteOnExit();
-            }
-        }
     }
 
     /**
@@ -1027,6 +876,378 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
         throw new RuntimeException("No such ComponentType: " + componentTypeName);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void deleteComponent(Long componentNo) {
+        // 引数チェック
+        if (componentNo == null) {
+            throw new AutoApplicationException("ECOMMON-000003", "componentNo");
+        }
+
+        // コンポーネントの存在チェック
+        Component component = componentDao.read(componentNo);
+        if (component == null) {
+            // コンポーネントが存在しない場合
+            return;
+        }
+
+        // コンポーネントが停止しているかどうかのチェック
+        List<ComponentInstance> componentInstances = componentInstanceDao.readByComponentNo(componentNo);
+        for (ComponentInstance componentInstance : componentInstances) {
+            ComponentInstanceStatus status = ComponentInstanceStatus.fromStatus(componentInstance.getStatus());
+            if (status != ComponentInstanceStatus.STOPPED) {
+                // コンポーネントが停止状態でない場合
+                throw new AutoApplicationException("ESERVICE-000302", component.getComponentName());
+            }
+        }
+
+        // ディスクがデタッチされているかどうかのチェック
+        List<AwsVolume> awsVolumes = awsVolumeDao.readByComponentNo(componentNo);
+        for (AwsVolume awsVolume : awsVolumes) {
+            if (StringUtils.isNotEmpty(awsVolume.getInstanceId())) {
+                // ディスクがデタッチされていない場合
+                Instance instance = instanceDao.read(awsVolume.getInstanceNo());
+                throw new AutoApplicationException("ESERVICE-000310", instance.getInstanceName());
+            }
+        }
+        // ディスクがデタッチされているかどうかのチェック
+        List<CloudstackVolume> csVolumes = cloudstackVolumeDao.readByComponentNo(componentNo);
+        for (CloudstackVolume csVolume : csVolumes) {
+            if (StringUtils.isNotEmpty(csVolume.getInstanceId())) {
+                // ディスクがデタッチされていない場合
+                Instance instance = instanceDao.read(csVolume.getInstanceNo());
+                throw new AutoApplicationException("ESERVICE-000310", instance.getInstanceName());
+            }
+        }
+        List<VmwareDisk> vmwareDisks = vmwareDiskDao.readByComponentNo(componentNo);
+        for (VmwareDisk vmwareDisk : vmwareDisks) {
+            if (BooleanUtils.isTrue(vmwareDisk.getAttached())) {
+                // ディスクがデタッチされていない場合
+                Instance instance = instanceDao.read(vmwareDisk.getInstanceNo());
+                throw new AutoApplicationException("ESERVICE-000310", instance.getInstanceName());
+            }
+        }
+        List<VcloudDisk> vcloudDisks = vcloudDiskDao.readByComponentNo(componentNo);
+        for (VcloudDisk vcloudDisk: vcloudDisks) {
+            if (BooleanUtils.isTrue(vcloudDisk.getAttached())) {
+                // Vcloudはディスクがデタッチされていない場合、サーバが停止していないと削除できない
+                Instance instance = instanceDao.read(vcloudDisk.getInstanceNo());
+                InstanceStatus status = InstanceStatus.fromStatus(instance.getStatus());
+                if (InstanceStatus.STOPPED != status) {
+                    throw new AutoApplicationException("ESERVICE-000310", instance.getInstanceName());
+                }
+            }
+        }
+        // ディスクがデタッチされているかどうかのチェック
+        List<AzureDisk> azureDisks = azureDiskDao.readByComponentNo(componentNo);
+        for (AzureDisk azureDisk : azureDisks) {
+            if (StringUtils.isNotEmpty(azureDisk.getInstanceName())) {
+                // ディスクがデタッチされていない場合
+                Instance instance = instanceDao.read(azureDisk.getInstanceNo());
+                throw new AutoApplicationException("ESERVICE-000310", instance.getInstanceName());
+            }
+        }
+        // ディスクがデタッチされているかどうかのチェック
+        List<OpenstackVolume> osVolumes = openstackVolumeDao.readByComponentNo(componentNo);
+        for (OpenstackVolume osVolume : osVolumes) {
+            if (StringUtils.isNotEmpty(osVolume.getInstanceId())) {
+                // ディスクがデタッチされていない場合
+                Instance instance = instanceDao.read(osVolume.getInstanceNo());
+                throw new AutoApplicationException("ESERVICE-000310", instance.getInstanceName());
+            }
+        }
+        // ディスクがデタッチされているかどうかのチェック
+        List<NiftyVolume> niftyVolumes = niftyVolumeDao.readByComponentNo(componentNo);
+        for (NiftyVolume niftyVolume : niftyVolumes) {
+            if (StringUtils.isNotEmpty(niftyVolume.getInstanceId())) {
+                // ディスクがデタッチされていない場合
+                Instance instance = instanceDao.read(niftyVolume.getInstanceNo());
+                throw new AutoApplicationException("ESERVICE-000310", instance.getInstanceName());
+            }
+        }
+
+        // 削除するコンポーネントを振り分け対象とするロードバランサがないかどかのチェック
+        List<LoadBalancer> loadBalancers = loadBalancerDao.readByComponentNo(componentNo);
+        if (!loadBalancers.isEmpty()) {
+            throw new AutoApplicationException("ESERVICE-000309", loadBalancers.get(0).getLoadBalancerName());
+        }
+
+        // インスタンス設定の削除処理
+        instanceConfigDao.deleteByComponentNo(componentNo);
+
+        // コンポーネントとインスタンスの関連の削除処理
+        doAssociate(componentNo, new ArrayList<Long>());
+        componentInstanceDao.deleteByComponentNo(componentNo);
+
+        // コンポーネント設定の削除処理
+        componentConfigDao.deleteByComponentNo(componentNo);
+
+        // 各プラットフォームのボリューム削除処理
+        // TODO CLOUD BRANCHING
+        Farm farm = farmDao.read(component.getFarmNo());
+
+        // AWSボリュームの削除処理
+        // TODO: ボリューム自体の削除処理を別で行うようにする
+        for (AwsVolume awsVolume : awsVolumes) {
+            if (StringUtils.isEmpty(awsVolume.getVolumeId())) {
+                continue;
+            }
+
+            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), awsVolume.getPlatformNo());
+
+            //イベントログ出力
+            Platform platform = platformDao.read(gateway.getPlatformNo());
+            Instance instance = instanceDao.read(awsVolume.getInstanceNo());
+            AwsInstance awsInstance = awsInstanceDao.read(awsVolume.getInstanceNo());
+            eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), awsVolume.getComponentNo(),
+                    component.getComponentName(), awsVolume.getInstanceNo(), instance.getInstanceName(),
+                    "AwsEbsDelete", awsInstance.getInstanceType(),  instance.getPlatformNo(), new Object[] { platform.getPlatformName(), awsVolume.getVolumeId() });
+
+            try {
+                // ボリュームの削除
+                gateway.deleteVolume(awsVolume.getVolumeId());
+
+                //イベントログ出力
+                eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), awsVolume.getComponentNo(),
+                        component.getComponentName(), awsVolume.getInstanceNo(), instance.getInstanceName(),
+                        "AwsEbsDeleteFinish", awsInstance.getInstanceType(), instance.getPlatformNo(), new Object[] { platform.getPlatformName(), awsVolume.getVolumeId() });
+
+                // EC2ではDeleteVolumeに時間がかかるため、Waitしない
+                //awsProcessClient.waitDeleteVolume(volumeId);
+            } catch (AutoException ignore) {
+                // ボリュームが存在しない場合などに備えて例外を握りつぶす
+            }
+        }
+        awsVolumeDao.deleteByComponentNo(componentNo);
+
+        // CLOUDSTACKボリュームの削除処理
+        // TODO: ボリューム自体の削除処理を別で行うようにする
+        for (CloudstackVolume csVolume : csVolumes) {
+            if (StringUtils.isEmpty(csVolume.getVolumeId())) {
+                continue;
+            }
+
+            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), csVolume.getPlatformNo());
+
+            //イベントログ出力
+            Platform platform = platformDao.read(gateway.getPlatformNo());
+            Instance instance = instanceDao.read(csVolume.getInstanceNo());
+            CloudstackInstance csInstance = cloudstackInstanceDao.read(csVolume.getInstanceNo());
+            eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), csVolume.getComponentNo(),
+                    component.getComponentName(), csVolume.getInstanceNo(), instance.getInstanceName(),
+                    "CloudStackVolumeDelete", csInstance.getInstanceType(), instance.getPlatformNo(), new Object[] { platform.getPlatformName(), csVolume.getVolumeId() });
+
+            try {
+                // ボリュームの削除
+                gateway.deleteVolume(csVolume.getVolumeId());
+
+                //イベントログ出力
+                eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), csVolume.getComponentNo(),
+                        component.getComponentName(), csVolume.getInstanceNo(), instance.getInstanceName(),
+                        "CloudStackVolumeDeleteFinish", csInstance.getInstanceType(), instance.getPlatformNo(), new Object[] { platform.getPlatformName(), csVolume.getVolumeId() });
+
+            } catch (AutoException ignore) {
+                // ボリュームが存在しない場合などに備えて例外を握りつぶす
+            }
+        }
+        cloudstackVolumeDao.deleteByComponentNo(componentNo);
+
+
+        // VMwareディスクの削除処理
+        // TODO: 削除処理を別で行うようにする
+        for (VmwareDisk vmwareDisk : vmwareDisks) {
+            if (StringUtils.isEmpty(vmwareDisk.getFileName())) {
+                continue;
+            }
+            VmwareProcessClient vmwareProcessClient = vmwareProcessClientFactory.createVmwareProcessClient(vmwareDisk.getPlatformNo());
+            try {
+                vmwareDiskProcess.deleteDisk(vmwareProcessClient, vmwareDisk.getDiskNo());
+            } catch (AutoException ignore) {
+                // ディスクが存在しない場合などに備えて例外を握りつぶす
+            } finally {
+                vmwareProcessClient.getVmwareClient().logout();
+            }
+        }
+        vmwareDiskDao.deleteByComponentNo(componentNo);
+
+        // VCloudディスクの削除処理
+        // VCLoudの場合は関連付け解除時（doAssociate呼出）にディスクを削除する為必要なし
+//        for (VcloudDisk vcloudDisk : vcloudDisks) {
+//            if (StringUtils.isEmpty(vcloudDisk.getDiskId())) {
+//                continue;
+//            }
+//
+//            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), vcloudDisk.getPlatformNo());
+//
+//            //イベントログ出力
+//            Platform platform = platformDao.read(gateway.getPlatformNo());
+//            Instance instance = instanceDao.read(vcloudDisk.getInstanceNo());
+//            VcloudInstance vcloudInstance = vcloudInstanceDao.read(vcloudDisk.getInstanceNo());
+//            //TODO イベントログのメッセージと引数
+//            eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), vcloudDisk.getComponentNo(),
+//                    component.getComponentName(), vcloudDisk.getInstanceNo(), instance.getInstanceName(),
+//                    "VcloudVolumeDelete", vcloudInstance.getInstanceType(),  instance.getPlatformNo(), new Object[] { platform.getPlatformName(), vcloudDisk.getDiskId() });
+//
+//            try {
+//                // ボリュームの削除
+//                // ※VCloudの引数はDiskNo
+//                gateway.deleteVolume(String.valueOf(vcloudDisk.getDiskNo()));
+//
+//                //イベントログ出力
+//                eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), vcloudDisk.getComponentNo(),
+//                        component.getComponentName(), vcloudDisk.getInstanceNo(), instance.getInstanceName(),
+//                        "VcloudVolumeDeleteFinish", vcloudInstance.getInstanceType(), instance.getPlatformNo(), new Object[] { platform.getPlatformName(), vcloudDisk.getDiskId() });
+//
+//            } catch (AutoException ignore) {
+//                // ボリュームが存在しない場合などに備えて例外を握りつぶす
+//            }
+//        }
+//        vcloudDiskDao.deleteByComponentNo(componentNo);
+
+        // Azureボリュームの削除処理
+        // TODO: ボリューム自体の削除処理を別で行うようにする
+        for (AzureDisk azureDisk : azureDisks) {
+            if (StringUtils.isEmpty(azureDisk.getDiskName())) {
+                continue;
+            }
+
+            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), azureDisk.getPlatformNo());
+
+            //イベントログ出力
+            Platform platform = platformDao.read(gateway.getPlatformNo());
+            Instance instance = instanceDao.read(azureDisk.getInstanceNo());
+            AzureInstance azureInstance = azureInstanceDao.read(azureDisk.getInstanceNo());
+            eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), azureDisk.getComponentNo(),
+                    component.getComponentName(), azureDisk.getInstanceNo(), instance.getInstanceName(),
+                    "AzureDiskDelete", azureInstance.getInstanceType(), instance.getPlatformNo(), new Object[] { platform.getPlatformName(), azureDisk.getDiskName() });
+
+            try {
+                // ボリュームの削除
+                gateway.deleteVolume(azureDisk.getDiskNo().toString());
+
+                //イベントログ出力
+                eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), azureDisk.getComponentNo(),
+                        component.getComponentName(), azureDisk.getInstanceNo(), instance.getInstanceName(),
+                        "AzureDiskDeleteFinish", azureInstance.getInstanceType(), instance.getPlatformNo(), new Object[] { platform.getPlatformName(), azureDisk.getDiskName() });
+
+            } catch (AutoException ignore) {
+                // ボリュームが存在しない場合などに備えて例外を握りつぶす
+            }
+        }
+        azureDiskDao.deleteByComponentNo(componentNo);
+
+        // Openstackボリュームの削除処理
+        // TODO: ボリューム自体の削除処理を別で行うようにする
+        for (OpenstackVolume osVolume : osVolumes) {
+            if (StringUtils.isEmpty(osVolume.getVolumeId())) {
+                continue;
+            }
+
+            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), osVolume.getPlatformNo());
+
+            //イベントログ出力
+            Platform platform = platformDao.read(gateway.getPlatformNo());
+            Instance instance = instanceDao.read(osVolume.getInstanceNo());
+            OpenstackInstance osInstance = openstackInstanceDao.read(osVolume.getInstanceNo());
+            eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), osVolume.getComponentNo(),
+                    component.getComponentName(), osVolume.getInstanceNo(), instance.getInstanceName(),
+                    "OpenstackVolumeDelete", osInstance.getInstanceType(),  instance.getPlatformNo(), new Object[] { platform.getPlatformName(), osVolume.getVolumeId() });
+
+            try {
+                // ボリュームの削除
+                gateway.deleteVolume(osVolume.getVolumeId());
+
+                //イベントログ出力
+                eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), osVolume.getComponentNo(),
+                        component.getComponentName(), osVolume.getInstanceNo(), instance.getInstanceName(),
+                        "OpenstackVolumeDeleteFinish", osInstance.getInstanceType(), instance.getPlatformNo(), new Object[] { platform.getPlatformName(), osVolume.getVolumeId() });
+
+            } catch (AutoException ignore) {
+                // ボリュームが存在しない場合などに備えて例外を握りつぶす
+            }
+        }
+        openstackVolumeDao.deleteByComponentNo(componentNo);
+
+        // Niftyボリュームの削除処理
+        // TODO: ボリューム自体の削除処理を別で行うようにする
+        for (NiftyVolume niftyVolume : niftyVolumes) {
+            if (StringUtils.isEmpty(niftyVolume.getVolumeId())) {
+                continue;
+            }
+
+            // NiftyProcessClientの作成
+            String clientType;
+            clientType = PCCConstant.NIFTYCLIENT_TYPE_DISK;
+            NiftyProcessClient niftyProcessClient = niftyProcessClientFactory.createNiftyProcessClient(farm.getUserNo(),
+                    niftyVolume.getPlatformNo(), clientType);
+
+            //イベントログ出力
+            Platform platform = platformDao.read(niftyProcessClient.getPlatformNo());
+            Instance instance = instanceDao.read(niftyVolume.getInstanceNo());
+            NiftyInstance niftyInstance = niftyInstanceDao.read(niftyVolume.getInstanceNo());
+            eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), niftyVolume.getComponentNo(),
+                    component.getComponentName(), niftyVolume.getInstanceNo(), instance.getInstanceName(),
+                    "NiftyDiskDelete", niftyInstance.getInstanceType(),  instance.getPlatformNo(), new Object[] { platform.getPlatformName(), niftyVolume.getVolumeId() });
+
+            try {
+                // ボリュームの削除
+                niftyProcessClient.deleteVolume(niftyVolume.getVolumeId());
+
+                //イベントログ出力
+                eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), niftyVolume.getComponentNo(),
+                        component.getComponentName(), niftyVolume.getInstanceNo(), instance.getInstanceName(),
+                        "NiftyDiskDeleteFinish", niftyInstance.getInstanceType(), instance.getPlatformNo(), new Object[] { platform.getPlatformName(), niftyVolume.getVolumeId() });
+
+            } catch (AutoException ignore) {
+                // ボリュームが存在しない場合などに備えて例外を握りつぶす
+            }
+        }
+        niftyVolumeDao.deleteByComponentNo(componentNo);
+
+        // コンポーネントの削除処理
+        componentDao.delete(component);
+
+        //移行ツール対応 残存ディレクトリ削除
+        StringBuilder dpath = new StringBuilder("/opt/userdata/");
+        dpath.append(LoggingUtils.getUserName());
+        dpath.append(System.getProperty("file.separator"));
+        dpath.append(LoggingUtils.getFarmName());
+        dpath.append(System.getProperty("file.separator"));
+        dpath.append(component.getComponentName());
+        File delDir = new File(dpath.toString());
+        if (delDir.exists()) {
+            deleteDirectoryAndFile(delDir);
+        }
+
+        // イベントログ出力
+        eventLogger.log(EventLogLevel.INFO, farm.getFarmNo(), farm.getFarmName(), componentNo, component
+                .getComponentName(), null, null, "ComponentDelete", null, null, null);
+    }
+
+
+    private void deleteDirectoryAndFile(File delFile) {
+        if ( delFile == null || !delFile.exists() ) { return; }
+        if ( delFile.isFile() ) {
+            // ファイル削除
+            if ( delFile.exists() && !delFile.delete() ) {
+                delFile.deleteOnExit();
+            }
+        } else {
+            // ディレクトリの場合、再帰する
+            File[] list = delFile.listFiles();
+            for ( int i = 0 ; i < list.length ; i++ ) {
+                deleteDirectoryAndFile( list[i] );
+            }
+            if ( delFile.exists() && !delFile.delete() ) {
+                delFile.deleteOnExit();
+            }
+        }
+    }
+
+
+
     protected Image getImage(Long platformNo, String imageName) {
         List<Image> images = imageDao.readAll();
         for (Image image : images) {
@@ -1137,6 +1358,111 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Collection<Object> checkAttachDisk(Long farmNo, Long componentNo, String instanceName,
+            String notSelectedItem, Collection<Object> moveList) {
+
+        List<InstanceDto> instances = instanceService.getInstances(farmNo);
+        for (InstanceDto instance : instances) {
+            if (StringUtils.equals(instanceName, instance.getInstance().getInstanceName())) {
+                //TODO CLOUD BRANCHING
+                if (instance.getAwsVolumes() != null) {
+                    // AwsVolumeをチェック
+                    for (AwsVolume awsVolume : instance.getAwsVolumes()) {
+                        if (componentNo.equals(awsVolume.getComponentNo())) {
+                            if (StringUtils.isNotEmpty(awsVolume.getInstanceId())) {
+                                // ディスクがアタッチされたままの場合
+                                moveList.add(notSelectedItem);
+                            }
+                            break;
+                        }
+                    }
+                }
+                else if (instance.getVmwareDisks() != null) {
+                    // VmwareDiskをチェック
+                    for (VmwareDisk vmwareDisk : instance.getVmwareDisks()) {
+                        if (componentNo.equals(vmwareDisk.getComponentNo())) {
+                            if (BooleanUtils.isTrue(vmwareDisk.getAttached())) {
+                                // ディスクがアタッチされたままの場合
+                                moveList.add(notSelectedItem);
+                            }
+                            break;
+                        }
+                    }
+                }
+                else if (instance.getCloudstackVolumes() != null) {
+                    // CloudstackVolumeをチェック
+                    for (CloudstackVolume cloudstackVolume : instance.getCloudstackVolumes()) {
+                        if (componentNo.equals(cloudstackVolume.getComponentNo())) {
+                            if (StringUtils.isNotEmpty(cloudstackVolume.getInstanceId())) {
+                                // ディスクがアタッチされたままの場合
+                                moveList.add(notSelectedItem);
+                            }
+                            break;
+                        }
+                    }
+                }
+                else if (instance.getVcloudDisks() != null) {
+                    // VcloudDiskをチェック
+                    for (VcloudDisk vcloudDisk : instance.getVcloudDisks()) {
+                        if (componentNo.equals(vcloudDisk.getComponentNo())) {
+                            if (BooleanUtils.isTrue(vcloudDisk.getAttached())) {
+                                if (InstanceStatus.fromStatus(instance.getInstance().getStatus()) != InstanceStatus.STOPPED) {
+                                    // ディスクがアタッチされたままの場合
+                                    moveList.add(notSelectedItem);
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+                else if (instance.getAzureDisks() != null) {
+                    // AzureDiskをチェック
+                    for (AzureDisk azureDisk : instance.getAzureDisks()) {
+                        if (componentNo.equals(azureDisk.getComponentNo())) {
+                            if (StringUtils.isNotEmpty(azureDisk.getInstanceName())) {
+                                if (InstanceStatus.fromStatus(instance.getInstance().getStatus()) != InstanceStatus.STOPPED) {
+                                    // ディスクがアタッチされたままの場合
+                                    moveList.add(notSelectedItem);
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+                else if (instance.getNiftyVolumes() != null) {
+                    // NiftyVolumeをチェック
+                    for (NiftyVolume niftyVolume : instance.getNiftyVolumes()) {
+                        if (componentNo.equals(niftyVolume.getComponentNo())) {
+                            if (StringUtils.isNotEmpty(niftyVolume.getInstanceId())) {
+                                // ディスクがアタッチされたままの場合
+                                moveList.add(notSelectedItem);
+                            }
+                            break;
+                        }
+                    }
+                }
+                else if (instance.getOpenstackVolumes() != null) {
+                    // OpenstackVolumeをチェック
+                    for (OpenstackVolume openstackVolume : instance.getOpenstackVolumes()) {
+                        if (componentNo.equals(openstackVolume.getComponentNo())) {
+                            if (StringUtils.isNotEmpty(openstackVolume.getInstanceId())) {
+                                // ディスクがアタッチされたままの場合
+                                moveList.add(notSelectedItem);
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return moveList;
+    }
+
+    /**
      * instanceServiceを設定します。
      *
      * @param instanceService instanceService
@@ -1188,6 +1514,14 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
      */
     public void setEventLogger(EventLogger eventLogger) {
         this.eventLogger = eventLogger;
+    }
+
+    /**
+     * niftyProcessClientFactoryを設定します。
+     * @param niftyProcessClientFactory niftyProcessClientFactory
+     */
+    public void setNiftyProcessClientFactory(NiftyProcessClientFactory niftyProcessClientFactory) {
+        this.niftyProcessClientFactory = niftyProcessClientFactory;
     }
 
 }

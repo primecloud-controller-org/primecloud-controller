@@ -58,6 +58,7 @@ class MysqlConnector(object):
 
 
     def __init__(self, userNo=None):
+        #self.logger.info(connectinfo)
         self.session = Session()
         self.userNo = userNo
 
@@ -104,6 +105,10 @@ class MysqlConnector(object):
     def close(self):
         self.session.close()
 
+    #基本的に利用しないでください
+    def remakeSession(self):
+        self.session.close()
+        self.session = Session()
 
     #####################################################
     #
@@ -127,12 +132,13 @@ class MysqlConnector(object):
 
         farmT = Table("FARM", METADATA, autoload=True)
         farm = self.selectOne(farmT.select(farmT.c.FARM_NO==farmNo))
-        print farm
+        farmName = None
         if farm is not None:
             farmName = farm["FARM_NAME"]
 
         userT = Table("USER", METADATA, autoload=True)
         user = self.selectOne(userT.select(userT.c.USER_NO==self.userNo))
+        userName = None
         if user is not None:
             userName = user["USERNAME"]
 
@@ -181,19 +187,19 @@ class MysqlConnector(object):
         message = getMassage(code, additions)
 
         log_table = Table("EVENT_LOG", METADATA2, autoload=True)
-        log_table.insert([None,
-                          datetime.datetime.today(),
-                          self.LOGLEVEL[logLevel],
-                          userNo,
-                          userName,
-                          farmNo,
-                          farmName,
-                          componentNo,
-                          componentName,
-                          instanceNo,
-                          instanceName,
-                          code,
-                          message,
-                          instanceType,
-                          platformNo]).execute()
+        log_table.insert({"LOG_NO":None,
+                          "LOG_DATE":datetime.datetime.today(),
+                          "LOG_LEVEL":self.LOGLEVEL[logLevel],
+                          "USER_NO":userNo,
+                          "USER_NAME":userName,
+                          "FARM_NO":farmNo,
+                          "FARM_NAME":farmName,
+                          "COMPONENT_NO":componentNo,
+                          "COMPONENT_NAME":componentName,
+                          "INSTANCE_NO":instanceNo,
+                          "INSTANCE_NAME":instanceName,
+                          "MESSAGE_CODE":code,
+                          "MESSAGE":message,
+                          "INSTANCE_TYPE":instanceType,
+                          "PLATFORM_NO":platformNo}).execute()
 

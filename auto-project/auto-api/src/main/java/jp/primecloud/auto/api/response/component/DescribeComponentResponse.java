@@ -11,7 +11,6 @@ import javax.xml.bind.annotation.XmlType;
 import jp.primecloud.auto.entity.crud.Component;
 
 
-
 @XmlRootElement(name="DescribeComponentResponse")
 @XmlType(propOrder = {"success", "message", "componentNo", "componentName", "componentTypeNo", "comment", "instances"})
 public class DescribeComponentResponse {

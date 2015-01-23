@@ -19,6 +19,7 @@
 package jp.primecloud.auto.ui;
 
 import jp.primecloud.auto.entity.crud.User;
+import jp.primecloud.auto.entity.crud.UserAuth;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.UserService;
 import jp.primecloud.auto.service.dto.UserAuthDto;
@@ -28,7 +29,6 @@ import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
-
 import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.Button;
@@ -90,8 +90,8 @@ public class WinLogin extends Window {
         ok.addListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
                 loginButtonClick(event);
-            }
-        });
+                    }
+                });
 
         // [Enter]でOKボタンクリック
         ok.setClickShortcut(KeyCode.ENTER);
@@ -135,8 +135,7 @@ public class WinLogin extends Window {
             userDto = userService.authenticate(username, password);
         } catch (AutoApplicationException e) {
             // TODO: 認証情報が間違っている場合の処理
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                    ViewMessages.getMessage("IUI-000021"));
+            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), ViewMessages.getMessage("IUI-000021"));
             getApplication().getMainWindow().addWindow(dialog);
             return;
         }
@@ -148,9 +147,9 @@ public class WinLogin extends Window {
         ViewContext.setLoginUser(user.getUserNo());
         ViewContext.setPowerUser(user.getPowerUser());
         ViewContext.setPowerDefaultMaster(user.getMasterUser());
-        if (user.getPowerUser() || user.getMasterUser().equals(user.getUserNo())) {
+        if (user.getPowerUser() || user.getMasterUser().equals(user.getUserNo())){
             ViewContext.setAuthority(new UserAuthDto(true));
-        } else {
+        }else{
             ViewContext.setAuthority(new UserAuthDto(false));
         }
 

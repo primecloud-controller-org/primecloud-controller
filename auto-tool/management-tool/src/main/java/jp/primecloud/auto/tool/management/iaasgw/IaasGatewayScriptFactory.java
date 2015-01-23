@@ -18,17 +18,13 @@
  */
 package jp.primecloud.auto.tool.management.iaasgw;
 
-import org.apache.commons.cli.CommandLine;
 
 public class IaasGatewayScriptFactory {
 
     public IaasGatewayScriptFactory() {
     }
 
-    public static IaasGatewayScriptService createIaasGatewayScriptService(CommandLine commandLine) {
-        Long platformNo = Long.parseLong(commandLine.getOptionValue("platformno"));
-        Long userNo = Long.parseLong(commandLine.getOptionValue("userno"));
-
-        return new IaasGatewayScriptService(userNo, platformNo);
+    public static IaasGatewayScriptService createIaasGatewayScriptService(Long userNo, Long platformNo, String platformName) {
+        return new IaasGatewayScriptService(userNo, platformNo, platformName);
     }
 }

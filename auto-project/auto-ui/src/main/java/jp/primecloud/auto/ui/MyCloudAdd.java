@@ -34,7 +34,6 @@ import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
-
 import com.vaadin.Application;
 import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.validator.RegexpValidator;
@@ -303,7 +302,7 @@ public class MyCloudAdd extends Window {
                     return;
                 }
 
-                //TODO LOG
+                //オペレーションログ
                 AutoApplication aapl =  (AutoApplication)apl;
                 aapl.doOpLog("CLOUD", "Make Cloud", farmNo, null);
 

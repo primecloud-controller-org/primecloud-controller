@@ -49,6 +49,10 @@ public class HostCreateParam implements Serializable {
 
     private Integer status;
 
+    private Integer useip;
+
+    private String proxyHostid;
+
     /**
      * hostを取得します。
      *
@@ -175,4 +179,39 @@ public class HostCreateParam implements Serializable {
         this.status = status;
     }
 
+    /**
+     * useipを取得します。
+     *
+     * @return useip
+     */
+    public Integer getUseip() {
+        return useip;
+    }
+
+    /**
+     * useipを設定します。
+     *
+     * @param useip useip
+     */
+    public void setUseip(Integer useip) {
+        this.useip = useip;
+    }
+
+    /**
+     * proxyHostidを取得します。
+     *
+     * @return proxyHostid
+     */
+    public String getProxyHostid() {
+        return proxyHostid;
+    }
+
+    /**
+     * proxyHostidを設定します。
+     *
+     * @param proxyHostid proxyHostid
+     */
+    public void setProxyHostid(String proxyHostid) {
+        this.proxyHostid = proxyHostid;
+    }
 }

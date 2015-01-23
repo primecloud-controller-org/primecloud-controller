@@ -18,11 +18,10 @@
  */
 package jp.primecloud.auto.api;
 
-import jp.primecloud.auto.api.util.ValidateUtil;
-import jp.primecloud.auto.exception.AutoApplicationException;
-
 import org.apache.commons.lang.StringUtils;
 
+import jp.primecloud.auto.api.util.ValidateUtil;
+import jp.primecloud.auto.exception.AutoApplicationException;
 
 public class ApiValidate extends ApiConstants {
 
@@ -483,4 +482,9 @@ public class ApiValidate extends ApiConstants {
         ValidateUtil.longInRange(sslKeyNo, new Long(1), Long.MAX_VALUE, "EAPI-000002",
                 new Object[] {PARAM_NAME_SSL_KEY_NO, new Long(1), Long.MAX_VALUE});
     }
+
+    public static void validateStrageType(String storageType) {
+        ValidateUtil.required(storageType, "EAPI-000001", new Object[] {PARAM_NAME_STORAGE_TYPE});
+    }
+
 }

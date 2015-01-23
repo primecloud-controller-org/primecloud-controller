@@ -61,7 +61,7 @@
 	top: 4px;
 }
 
-/* d؂ */
+/* d�?*/
 .desc-padding , .desc-padding-vertical {
 	border-right: 1px solid #D3D4D5;
 }
@@ -82,7 +82,7 @@
 	font-size: 12px;
 }
 
-/* ^u̕\ݒ*/
+/* ^u̕\�?/
 .v-tabsheet-tabitem .v-captiontext{
 	font-size: 13px;
 }
@@ -488,7 +488,7 @@
 		line-height: 1.3em;
 	}
 
-/* Service Table  ServerTable  LoadBalancerTable  㕔E  {^ʕ*/
+/* Service Table  ServerTable  LoadBalancerTable  㕔E  {^�?/
 	.service-buttons .v-csslayout-margin , .server-buttons .v-csslayout-margin , .loadbalancer-table-operation .v-csslayout-margin{
 		padding-left: 6px;
 		padding-right: 5px;
@@ -518,7 +518,7 @@
 		margin-right: 20px;
 	}
 
-	/* Service Table  ServerTable  LoadBalancerTable  㕔 {^*/
+	/* Service Table  ServerTable  LoadBalancerTable  �?{^*/
 	.service-table-label .v-csslayout-margin , .server-table-label .v-csslayout-margin {
 		padding-left: 6px;
 		padding-right: 25px;
@@ -548,7 +548,7 @@
 		background: #FAEDD4;
 	}
 
-/* Service  Serveřʏ\ 㕔 Label*/
+/* Service  Serveřʏ\ �?Label*/
 	.service-desc-panel .v-panel-caption, .server-desc-panel .v-panel-caption , .loadbalancer-desc-panel .v-panel-caption{
 		font-size: 13px;
 		font-weight: normal;
@@ -572,7 +572,7 @@
 		background: #FAEDD4;
 	}
 
-/* Service Desc Basic (T[rX  {)*/
+/* Service Desc Basic (T[rX �?{)*/
 
 	.server-desc-basic .v-table-cell-content-status{
 		width: 95px;
@@ -691,7 +691,7 @@
 		margin-right: 0px;
 	}
 
-/* Service Desc Basic (T[rX  ڍ׏)*/
+/* Service Desc Basic (T[rX �?ڍ�?*/
 	.service-desc-detail .v-table-resizer {
 		display:none;
 	}
@@ -716,7 +716,7 @@
 		width: 50%;
 	}
 
-/* Server Desc Basic (T[o  {)*/
+/* Server Desc Basic (T[o �?{)*/
 	.server-desc-basic .v-horizontallayout-margin{
 		padding-left: 10px;
 		padding-right: 10px;
@@ -812,7 +812,7 @@
 		top: 6px;
 		left: 3px;
 	}
-/* Desc Desc Basic (T[o  ڍ׏)*/
+/* Desc Desc Basic (T[o �?ڍ�?*/
 	.server-desc-detail .v-horizontallayout-margin{
 		padding-left: 10px;
 		padding-right: 10px;
@@ -899,7 +899,7 @@
 		top: 6px;
 	}
 
-/* T[rXǉ */
+/* T[rX�?*/
 	.win-service-add-service .v-table-cell-content{
 		vertical-align: middle;
 	}
@@ -941,7 +941,7 @@
 		margin-top: -8px;
 	}
 
-/* T[oǉ*/
+/* T[o�?/
 	/* NEhIe[u */
 	.win-server-add-cloud .v-table-cell-content{
 		vertical-align: middle;
@@ -1035,8 +1035,14 @@
 	.v-caption-win-server-add-service .v-captiontext{
 		margin-top: 0px;
 	}
-
-/* T[o-T[rXǉ*/
+	/* f[^fBXNAlbg[N */
+	.win-server-edit-datadisk .v-table-resizer, .win-server-edit-network .v-table-resizer {
+        display:none;
+    }
+    .win-server-edit-network .v-table-cell-content{
+        vertical-align: middle;
+    }
+/* T[o-T[rX�?/
 	.win-server-attach-service .v-table-header-wrap{
 		font-weight:normal;
 		text-align: center;
@@ -1398,7 +1404,7 @@
 		vertical-align: middle;
 	}
 
-/* [hoT[蓖ăT[rXڍ */
+/* [hoT[蓖ăT[rX�?*/
 	.loadbalancer-desc-server-right .v-verticallayout-margin{
 		padding-left: 0px;
 		padding-right: 0px;
@@ -1491,7 +1497,7 @@
 		top: 6px;
 	}
 
-/* T[rX{   [hoT{ [hoT[ڍ E{^암 */
+/* T[rX{   [hoT{ [hoT[�?E{^??*/
 	.operation-buttons .v-horizontallayout-margin{
 		padding-left: 0px;
 		padding-right: 80px;

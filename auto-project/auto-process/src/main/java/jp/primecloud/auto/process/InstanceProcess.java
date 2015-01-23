@@ -20,6 +20,10 @@ package jp.primecloud.auto.process;
 
 import java.util.List;
 
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+
+import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.log.LoggingUtils;
 import jp.primecloud.auto.common.status.InstanceCoodinateStatus;
 import jp.primecloud.auto.common.status.InstanceStatus;
@@ -30,20 +34,16 @@ import jp.primecloud.auto.entity.crud.ImageAws;
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.log.EventLogger;
-import jp.primecloud.auto.puppet.PuppetClient;
-import jp.primecloud.auto.service.ServiceSupport;
-import jp.primecloud.auto.util.MessageUtils;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.iaasgw.IaasGatewayFactory;
 import jp.primecloud.auto.iaasgw.IaasGatewayWrapper;
+import jp.primecloud.auto.log.EventLogger;
 import jp.primecloud.auto.process.nifty.NiftyProcess;
 import jp.primecloud.auto.process.puppet.PuppetNodeProcess;
 import jp.primecloud.auto.process.vmware.VmwareProcess;
 import jp.primecloud.auto.process.zabbix.ZabbixHostProcess;
+import jp.primecloud.auto.puppet.PuppetClient;
+import jp.primecloud.auto.service.ServiceSupport;
+import jp.primecloud.auto.util.MessageUtils;
 
 /**
  * <p>
@@ -71,7 +71,6 @@ public class InstanceProcess extends ServiceSupport {
 
     protected PuppetClient puppetClient;
 
-
     public void start(Long instanceNo) {
         Instance instance = instanceDao.read(instanceNo);
         if (instance == null) {
@@ -97,8 +96,8 @@ public class InstanceProcess extends ServiceSupport {
         if (status != InstanceStatus.STOPPED && status != InstanceStatus.RUNNING) {
             // 処理中のため実行できない場合
             if (log.isDebugEnabled()) {
-                log.debug(MessageUtils.format("Instance {1} status is {2}.(instanceNo={0})", instanceNo, instance
-                        .getInstanceName(), status));
+                log.debug(MessageUtils.format("Instance {1} status is {2}.(instanceNo={0})", instanceNo,
+                        instance.getInstanceName(), status));
             }
             return;
         }
@@ -128,7 +127,7 @@ public class InstanceProcess extends ServiceSupport {
         try {
 
             //事前処理 AWSの場合に必要
-            if ("aws".equals(platform.getPlatformType())) {
+            if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
                 AwsInstance awsInstance = awsInstanceDao.read(instanceNo);
                 // インスタンスイメージの場合や、EBSイメージでインスタンスIDがない場合
                 ImageAws imageAws = imageAwsDao.read(image.getImageNo());
@@ -147,25 +146,33 @@ public class InstanceProcess extends ServiceSupport {
             }
 
             // インスタンス起動処理
-            if ("aws".equals(platform.getPlatformType()) || "cloudstack".equals(platform.getPlatformType())) {
+            // TODO CLOUD BRANCHING
+            if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType()) ||
+                PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType()) ||
+                PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType()) ||
+                PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType()) ||
+                PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
                 //IaasGateway対応サービス
                 IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), instance.getPlatformNo());
                 gateway.startInstance(instanceNo);
-
-            } else if ("vmware".equals(platform.getPlatformType())) {
+            } else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
                 //**********************************TODO IaasGateway対応後は　上記へ一本化します
 
                 // VMwareの場合
                 vmwareProcess.start(instanceNo);
-            } else if ("nifty".equals(platform.getPlatformType())) {
+            } else if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platform.getPlatformType())) {
                 //**********************************TODO IaasGateway対応後は　上記へ一本化します
                 // Niftyの場合
                 niftyProcess.start(instanceNo);
             }
 
-            //事後処理 AWSの場合に必要
-
-            if ("aws".equals(platform.getPlatformType()) || "cloudstack".equals(platform.getPlatformType())) {
+            //事後処理 AWS or CloudStack or VCloud or Azureの場合に必要
+            // TODO CLOUD BRANCHING
+            if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType()) ||
+                PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType()) ||
+                PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType()) ||
+                PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType()) ||
+                PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
                 // DNSに関する処理
                 dnsProcess.startDns(platform, instanceNo);
             }
@@ -250,8 +257,8 @@ public class InstanceProcess extends ServiceSupport {
         if (status != InstanceStatus.STOPPED && status != InstanceStatus.RUNNING && status != InstanceStatus.WARNING) {
             // 処理中のため実行できない場合
             if (log.isDebugEnabled()) {
-                log.debug(MessageUtils.format("Instance {1} status is {2}.(instanceNo={0})", instanceNo, instance
-                        .getInstanceName(), status));
+                log.debug(MessageUtils.format("Instance {1} status is {2}.(instanceNo={0})", instanceNo,
+                        instance.getInstanceName(), status));
             }
             return;
         }
@@ -294,31 +301,58 @@ public class InstanceProcess extends ServiceSupport {
         instanceDao.update(instance);
         Platform platform = platformDao.read(instance.getPlatformNo());
 
-        //事前処理 AWSの場合に必要
-        if ("aws".equals(platform.getPlatformType()) || "cloudstack".equals(platform.getPlatformType())) {
-            try {
+        try {
+
+            //事前処理 AWS or Cloudstack or VCloudの場合に必要
+            // TODO CLOUD BRANCHING
+            if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType()) ||
+                PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType()) ||
+                PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType()) ||
+                PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType()) ||
+                PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
                 // DNSに関する処理
                 dnsProcess.stopDns(platform, instanceNo);
-            } catch (RuntimeException e) {
-                log.warn(e.getMessage());
             }
-        }
 
+            // インスタンス停止処理
+            // TODO CLOUD BRANCHING
+            if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())
+                    || PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())
+                    || PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())
+                    || PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())
+                    || PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
+                // IaasGateway対応サービス
+                IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(),
+                        instance.getPlatformNo());
+                gateway.stopInstance(instanceNo);
 
-        // インスタンス停止処理
-        if ("aws".equals(platform.getPlatformType()) || "cloudstack".equals(platform.getPlatformType())) {
-            // IaasGateway対応サービス
-            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), instance.getPlatformNo());
-            gateway.stopInstance(instanceNo);
+            } else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
+                //**********************************TODO IaasGateway対応後は　上記へ一本化します
+                // VMwareの場合
+                vmwareProcess.stop(instanceNo);
+            } else if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platform.getPlatformType())) {
+                //**********************************TODO IaasGateway対応後は　上記へ一本化します
+                // Niftyの場合
+                niftyProcess.stop(instanceNo);
+            }
 
-        } else if ("vmware".equals(platform.getPlatformType())) {
-            //**********************************TODO IaasGateway対応後は　上記へ一本化します
-            // VMwareの場合
-            vmwareProcess.stop(instanceNo);
-        } else if ("nifty".equals(platform.getPlatformType())) {
-            //**********************************TODO IaasGateway対応後は　上記へ一本化します
-            // Niftyの場合
-            niftyProcess.stop(instanceNo);
+        } catch (RuntimeException e) {
+            instance = instanceDao.read(instanceNo);
+            status = InstanceStatus.fromStatus(instance.getStatus());
+
+            // イベントログ出力
+            if (status == InstanceStatus.STOPPING) {
+                processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, instance, "InstanceStopFail", null);
+            } else if (status == InstanceStatus.CONFIGURING) {
+                processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, instance, "InstanceReloadFail", null);
+            }
+
+            // ステータスの更新
+            instance.setStatus(InstanceStatus.WARNING.toString());
+            instance.setEnabled(true);
+            instanceDao.update(instance);
+
+            throw e;
         }
 
         // イベントログ出力
@@ -338,7 +372,7 @@ public class InstanceProcess extends ServiceSupport {
         }
     }
 
-    protected void clearPuppetCa( Long instanceNo) {
+    protected void clearPuppetCa(Long instanceNo) {
         List<String> clients = puppetClient.listClients();
 
         Instance instance = instanceDao.read(instanceNo);

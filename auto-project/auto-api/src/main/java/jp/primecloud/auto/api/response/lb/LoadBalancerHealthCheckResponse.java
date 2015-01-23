@@ -7,7 +7,6 @@ import javax.xml.bind.annotation.XmlType;
 import jp.primecloud.auto.entity.crud.LoadBalancerHealthCheck;
 
 
-
 @XmlRootElement(name="LoadBalancerHealthCheckResponse")
 @XmlType(propOrder = {"checkProtocol", "checkPort", "checkPath", "checkTimeout", "checkInterval", "healthyThreshold", "unhealthyThreshold"})
 public class LoadBalancerHealthCheckResponse {

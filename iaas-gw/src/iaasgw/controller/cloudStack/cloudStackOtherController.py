@@ -54,10 +54,13 @@ class CloudStackOtherController(object):
         snapshot = self.client.createSnapshot(volumeId)
 
         tableCSSNP = self.conn.getTable("CLOUDSTACK_SNAPSHOT")
-        sql = tableCSSNP.insert([None,
-                                snapshot["id"],
-                                snapshot["created"],
-                                volumeId])
+        sql = tableCSSNP.insert({"SNAPSHOT_NO":None,
+                                "SNAPSHOT_ID":snapshot["id"],
+                                "FARM_NO":csVolumes["FARM_NO"],
+                                "PLATFORM_NO":csVolumes["PLATFORM_NO"],
+                                "CREATE_DATE":snapshot["created"],
+                                "VOLUMEID":volumeId,
+                                })
 
         self.conn.execute(sql)
         return snapshot["id"]

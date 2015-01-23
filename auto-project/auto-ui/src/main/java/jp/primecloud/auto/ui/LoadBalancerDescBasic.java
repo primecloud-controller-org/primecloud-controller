@@ -7,6 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang.StringUtils;
+
+import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.LoadBalancerListenerStatus;
 import jp.primecloud.auto.common.status.LoadBalancerStatus;
 import jp.primecloud.auto.entity.crud.ComponentType;
@@ -24,14 +27,12 @@ import jp.primecloud.auto.service.dto.UserAuthDto;
 import jp.primecloud.auto.ui.DialogConfirm.Buttons;
 import jp.primecloud.auto.ui.DialogConfirm.Result;
 import jp.primecloud.auto.ui.util.BeanContext;
+import jp.primecloud.auto.ui.util.CommonUtils;
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
-
-import org.apache.commons.lang.StringUtils;
-
 import com.vaadin.data.Container;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.event.ItemClickEvent;
@@ -249,21 +250,8 @@ public class LoadBalancerDescBasic extends Panel {
                 Platform platform = dto.getPlatform().getPlatform();
                 PlatformAws platformAws = dto.getPlatform().getPlatformAws();
 
-                // TODO: アイコン名の取得ロジックのリファクタリング
-                Icons icon = Icons.NONE;
-                if ("aws".equals(platform.getPlatformType())) {
-                    if (platformAws.getEuca()) {
-                        icon = Icons.EUCALYPTUS;
-                    } else {
-                        icon = Icons.AWS;
-                    }
-                } else if ("vmware".equals(platform.getPlatformType())) {
-                    icon = Icons.VMWARE;
-                } else if ("nifty".equals(platform.getPlatformType())) {
-                    icon = Icons.NIFTY;
-                } else if ("cloudstack".equals(platform.getPlatformType())) {
-                    icon = Icons.CLOUD_STACK;
-                }
+                //プラットフォームアイコン名の取得
+                Icons icon = CommonUtils.getPlatformIcon(dto.getPlatform());
 
                 String description = platform.getPlatformNameDisp();
                 displayLabels.get("field.platform").setValue(
@@ -276,7 +264,7 @@ public class LoadBalancerDescBasic extends Panel {
                 }
 
                 //サブネット
-                if ("aws".equals(lb.getType()) && platformAws.getVpc() && StringUtils.isNotEmpty(dto.getAwsLoadBalancer().getSubnetId())) {
+                if (PCCConstant.LOAD_BALANCER_ELB.equals(lb.getType()) && platformAws.getVpc() && StringUtils.isNotEmpty(dto.getAwsLoadBalancer().getSubnetId())) {
                     List<String> lbSubnets = new ArrayList<String>();
                     for (String lbSubnet: dto.getAwsLoadBalancer().getSubnetId().split(",")) {
                         lbSubnets.add(lbSubnet.trim());
@@ -631,7 +619,7 @@ public class LoadBalancerDescBasic extends Panel {
 
             // ロードバランサの選択状態に応じてボタンの有効／無効を制御する
             // CloudStackはリスナーを利用しない
-            if (dto == null || "cloudstack".equals(dto.getLoadBalancer().getType())) {
+            if (dto == null || PCCConstant.LOAD_BALANCER_CLOUDSTACK.equals(dto.getLoadBalancer().getType())) {
                 btnCheckAll.setEnabled(false);
                 btnAdd.setEnabled(false);
                 btnDelete.setEnabled(false);
@@ -743,7 +731,7 @@ public class LoadBalancerDescBasic extends Panel {
                         return;
                     }
 
-                    //TODO LOG
+                    //オペレーションログ
                     AutoApplication apl = (AutoApplication)getApplication();
                     apl.doOpLog("LOAD_BALANCER", "Detach LB_Listener", null, null, listener.getLoadBalancerNo(), String.valueOf(listener.getLoadBalancerPort()));
 
@@ -842,7 +830,7 @@ public class LoadBalancerDescBasic extends Panel {
                         return;
                     }
 
-                    //TODO LOG
+                    //オペレーションログ
                     AutoApplication apl = (AutoApplication)getApplication();
                     apl.doOpLog("LOAD_BALANCER", "Enable LB_Listener", null, null,
                             dto.getLoadBalancer().getLoadBalancerNo(), String.valueOf(loadBalancerPorts.size()));
@@ -943,7 +931,7 @@ public class LoadBalancerDescBasic extends Panel {
                         return;
                     }
 
-                    //TODO LOG
+                    //オペレーションログ
                     AutoApplication apl = (AutoApplication)getApplication();
                     apl.doOpLog("LOAD_BALANCER", "Disable LB_Listener", null, null,
                             dto.getLoadBalancer().getLoadBalancerNo(), String.valueOf(loadBalancerPorts.size()));

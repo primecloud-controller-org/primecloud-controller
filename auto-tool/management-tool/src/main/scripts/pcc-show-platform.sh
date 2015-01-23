@@ -34,7 +34,7 @@ else
 			exit 1
 		fi
 
-		java $JAVA_OPTS -cp $CLASSPATH jp.primecloud.auto.tool.management.main.Main -P
+        su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} jp.primecloud.auto.tool.management.main.Main -P"
 
 		exit 0
 fi

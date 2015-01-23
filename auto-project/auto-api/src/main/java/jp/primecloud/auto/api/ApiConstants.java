@@ -73,7 +73,6 @@ public class ApiConstants {
     protected static final String PARAM_NAME_INSTANCE_NOS = "InstanceNos";
     protected static final String PARAM_NAME_SUBNET = "Subnet";
     protected static final String PARAM_NAME_PRIVATE_IP = "PrivateIpAddress";
-
     protected static final String PARAM_NAME_IS_FROM_CURRENT = "IsFromCurrent";
     protected static final String PARAM_NAME_FROM_CURRENT = "FromCurrent";
     protected static final String PARAM_NAME_FROM_DATE = "FromDate";
@@ -85,14 +84,17 @@ public class ApiConstants {
     protected static final String PARAM_NAME_CUSTOM_PARAM_1 = "CustomParam1";
     protected static final String PARAM_NAME_CUSTOM_PARAM_2 = "CustomParam2";
     protected static final String PARAM_NAME_CUSTOM_PARAM_3 = "CustomParam3";
-
     protected static final String PARAM_NAME_SSL_KEY_NO = "SslKeyNo";
+    protected static final String PARAM_NAME_STORAGE_TYPE = "StorageType";
 
     //PLATFORM_TYPE
     protected static final String PLATFORM_TYPE_AWS = "aws";
     protected static final String PLATFORM_TYPE_VMWARE = "vmware";
     protected static final String PLATFORM_TYPE_NIFTY = "nifty";
     protected static final String PLATFORM_TYPE_CLOUDSTACK = "cloudstack";
+    protected static final String PLATFORM_TYPE_VCLOUD = "vcloud";
+    protected static final String PLATFORM_TYPE_AZURE = "azure";
+    protected static final String PLATFORM_TYPE_OPENSTACK = "openstack";
 
     //LOAD_BALANCER_TYPE
     protected static final String LB_TYPE_ELB = "aws";

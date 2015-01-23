@@ -30,19 +30,21 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+
 import jp.primecloud.auto.api.response.instance.StartInstanceResponse;
+import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.InstanceStatus;
 import jp.primecloud.auto.entity.crud.AwsInstance;
+import jp.primecloud.auto.entity.crud.AzureInstance;
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.PlatformAws;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.util.MessageUtils;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 
 
 @Path("/StartInstance")
@@ -96,14 +98,41 @@ public class StartInstance extends ApiSupport {
                 throw new AutoApplicationException("EAPI-100006", instanceNo);
             }
 
-            // EC2+VPCの場合のサブネットチェック
             Platform platform = platformDao.read(instance.getPlatformNo());
-            if (PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
                 PlatformAws platformAws = platformAwsDao.read(instance.getPlatformNo());
                 AwsInstance awsInstance = awsInstanceDao.read(Long.parseLong(instanceNo));
-                if(platformAws.getVpc() && StringUtils.isEmpty(awsInstance.getSubnetId())) {
+            AzureInstance azureInstance = azureInstanceDao.read(Long.parseLong(instanceNo));
+
+            boolean vpc = false;
+            String subnetId = null;
+            boolean subnetErrFlg;
+            if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
+                // サブネットチェック
+                vpc = platformAws.getVpc();
+                subnetId = awsInstance.getSubnetId();
+                subnetErrFlg = processService.checkSubnet(platform.getPlatformType(), vpc, subnetId);
+                if (subnetErrFlg == true) {
                     // EC2+VPCでサブネットが設定されていないサーバは起動不可
                     throw new AutoApplicationException("EAPI-100033", instance.getInstanceName());
+                }
+            }
+            if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
+                // サブネットチェック
+                subnetId = azureInstance.getSubnetId();
+                subnetErrFlg = processService.checkSubnet(platform.getPlatformType(), vpc, subnetId);
+                if (subnetErrFlg == true) {
+                    // サブネットが設定されていないサーバは起動不可
+                    throw new AutoApplicationException("EAPI-100033", instance.getInstanceName());
+                }
+                // インスタンス起動チェック（個別起動）
+                boolean startupErrFlg;
+                startupErrFlg = processService.checkStartup(platform.getPlatformType(),
+                        azureInstance.getInstanceName(),
+                        azureInstance.getInstanceNo());
+                if (startupErrFlg == true) {
+                    // インスタンス作成中のものがあった場合は、起動不可
+                    // 同一インスタンスNoは、除外する
+                    throw new AutoApplicationException("EAPI-100038", instance.getInstanceName());
                 }
             }
 

@@ -36,7 +36,6 @@ import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
-
 import com.vaadin.Application;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.Alignment;
@@ -310,7 +309,7 @@ public class MyCloudManage extends Window {
                     return;
                 }
 
-                //TODO LOG
+                //オペレーションログ
                 AutoApplication aapl =  (AutoApplication)apl;
                 aapl.doOpLog("CLOUD", "Delete Cloud", farm.getFarm().getFarmNo(), null);
 

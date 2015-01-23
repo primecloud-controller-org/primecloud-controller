@@ -54,12 +54,12 @@ class ec2OtherController(object):
         snapshot = self.client.createSnapshot(volumeId)
 
         tableCSSNP = self.conn.getTable("CLOUDSTACK_SNAPSHOT")
-        sql = tableCSSNP.insert([None,
-                                awsVolumes["FARM_NO"],
-                                awsVolumes["PLATFORM_NO"],
-                                volumeNo,
-                                snapshot.snapshotId,
-                                snapshot.startTime])
+        sql = tableCSSNP.insert({"SNAPSHOT_NO":None,
+                                "FARM_NO":awsVolumes["FARM_NO"],
+                                "PLATFORM_NO":awsVolumes["PLATFORM_NO"],
+                                "VOLUME_NO":volumeNo,
+                                "SNAPSHOT_ID":snapshot.snapshotId,
+                                "CREATE_DATE":snapshot.startTime})
 
         self.conn.execute(sql)
         return snapshot

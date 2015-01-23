@@ -18,6 +18,7 @@
  */
 package jp.primecloud.auto.service;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -53,5 +54,11 @@ public interface ProcessService {
     public void startLoadBalancerListeners(Long farmNo, Long loadBalancerNo, List<Integer> loadBalancerPorts);
 
     public void stopLoadBalancerListeners(Long farmNo, Long loadBalancerNo, List<Integer> loadBalancerPorts);
+
+    public boolean checkSubnet(String platformType, Boolean vpc, String subnetId);
+
+    public HashMap<String, Boolean> checkStartupAll(String platformType, String instanceName, boolean skipServer);
+
+    public boolean checkStartup(String platformType, String instanceName, Long instanceNo);
 
 }

@@ -1,6 +1,6 @@
 #Install parameter
 #Change parameters your environment
-PCC_VERSION=2.4.0
+PCC_VERSION=2.4.3
 NIFTY_PARAM=NO
 DOMAIN_NAME="primecloud.jp"
 CLOUD1_SERVICE="172.16.0.0/16"

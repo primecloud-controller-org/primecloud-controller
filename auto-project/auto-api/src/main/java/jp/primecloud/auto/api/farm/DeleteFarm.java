@@ -33,7 +33,6 @@ import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.util.MessageUtils;
 
 
-
 @Path("/DeleteFarm")
 public class DeleteFarm extends ApiSupport {
 

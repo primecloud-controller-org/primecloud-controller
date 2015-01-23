@@ -21,18 +21,17 @@ package jp.primecloud.auto.process.nifty;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import org.apache.commons.lang.StringUtils;
+
 import jp.primecloud.auto.common.component.DnsStrategy;
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.NiftyInstance;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.log.EventLogger;
+import jp.primecloud.auto.process.ProcessLogger;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
-
-import org.apache.commons.lang.StringUtils;
-
-import jp.primecloud.auto.process.ProcessLogger;
 
 /**
  * <p>

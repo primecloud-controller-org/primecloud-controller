@@ -1,4 +1,4 @@
-PCC Management Tool ver 2.2
+PCC Management Tool ver 2.3.0
 
 usage: PCC script
  -C                             Create Mode

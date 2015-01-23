@@ -9,7 +9,6 @@ import jp.primecloud.auto.log.entity.crud.EventLog;
 
 
 
-
 @XmlRootElement(name="EventLogResponse")
 @XmlType(propOrder = { "date", "logLevel", "farmName", "componentName", "instanceName", "message" })
 public class EventLogResponse {
