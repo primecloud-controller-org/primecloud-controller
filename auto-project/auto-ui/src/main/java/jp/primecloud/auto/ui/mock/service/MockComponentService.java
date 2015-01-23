@@ -20,6 +20,7 @@ package jp.primecloud.auto.ui.mock.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -38,7 +39,6 @@ import jp.primecloud.auto.service.dto.ComponentDto;
 import jp.primecloud.auto.service.dto.ComponentInstanceDto;
 import jp.primecloud.auto.service.dto.ComponentTypeDto;
 import jp.primecloud.auto.ui.mock.XmlDataLoader;
-
 
 /**
  * <p>
@@ -263,5 +263,12 @@ public class MockComponentService implements ComponentService {
             map.put(componentType.getComponentTypeNo(), componentType);
         }
         return map;
+    }
+
+    @Override
+    public Collection<Object> checkAttachDisk(Long farmNo, Long componentNo, String instanceName,
+            String notSelectedItem, Collection<Object> moveList) {
+        // TODO 自動生成されたメソッド・スタブ
+        return null;
     }
 }

@@ -16,18 +16,29 @@
  * You should have received a copy of the GNU General Public License
  * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
  */
+
 package jp.primecloud.auto.tool.management.db;
 
 import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import jp.primecloud.auto.config.Config;
 
 public class PccDataSource extends BasicDataSource {
 
-    public PccDataSource() {
-        setUrl(Config.getProperty("db.url"));
-        setUsername(Config.getProperty("db.username"));
-        setPassword(Config.getProperty("db.password"));
-    }
+    protected static Log log = LogFactory.getLog(PccDataSource.class);
 
+    public PccDataSource() {
+//        setUrl(Config.getProperty("db.url"));
+//        setUsername(Config.getProperty("db.username"));
+//        setPassword(Config.getProperty("db.password"));
+        setUrl(Config.getProperty("db.url"));
+        log.info(PccDataSource.class.toString());
+        log.info(Config.getProperty("db.url"));
+        setUsername(Config.getProperty("db.username"));
+        log.info(Config.getProperty("db.username"));
+        setPassword(Config.getProperty("db.password"));
+        log.info(Config.getProperty("db.password"));
+    }
 }

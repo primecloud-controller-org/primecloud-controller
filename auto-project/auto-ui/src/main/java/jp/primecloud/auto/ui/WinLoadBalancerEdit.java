@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+
+import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.LoadBalancerStatus;
 import jp.primecloud.auto.config.Config;
 import jp.primecloud.auto.entity.crud.AutoScalingConf;
@@ -24,16 +28,13 @@ import jp.primecloud.auto.service.dto.PlatformDto;
 import jp.primecloud.auto.service.dto.SecurityGroupDto;
 import jp.primecloud.auto.service.dto.SubnetDto;
 import jp.primecloud.auto.ui.util.BeanContext;
+import jp.primecloud.auto.ui.util.CommonUtils;
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
 import jp.primecloud.auto.ui.validator.IntegerRangeValidator;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 import com.vaadin.Application;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
@@ -245,6 +246,7 @@ public class WinLoadBalancerEdit extends Window {
             editlay.addComponent(txt);
             editlay.setComponentAlignment(txt, Alignment.MIDDLE_LEFT);
 
+
             // 割り当てサービス
             serviceSelect = new ComboBox();
             serviceSelect.setCaption(ViewProperties.getCaption("field.loadBalancerService"));
@@ -257,10 +259,10 @@ public class WinLoadBalancerEdit extends Window {
             AbsoluteLayout aboveLayout = new AbsoluteLayout();
             aboveLayout.setWidth("100%");
             aboveLayout.setHeight("20px");
-            Label selectLbl = new Label(ViewProperties.getCaption("field.selectSubnet"));
-            Label selectedLbl = new Label(ViewProperties.getCaption("field.selectedSubnet"));
-            aboveLayout.addComponent(selectLbl, "left:7%");
-            aboveLayout.addComponent(selectedLbl, "left:60%");
+            Label selectLbl= new Label(ViewProperties.getCaption("field.selectSubnet"));
+            Label selectedLbl= new Label(ViewProperties.getCaption("field.selectedSubnet"));
+            aboveLayout.addComponent(selectLbl,"left:7%");
+            aboveLayout.addComponent(selectedLbl,"left:60%");
 
             //サブネット選択(選択コンポーネント本体)
             subnetSelect = new TwinColSelect(ViewProperties.getCaption("field.subnetZone"));
@@ -274,10 +276,10 @@ public class WinLoadBalancerEdit extends Window {
             subnetSelect.getWidthUnits();
 
             //サブネット選択(下部のラベル)
-            AbsoluteLayout belowLayout = new AbsoluteLayout();
+            AbsoluteLayout  belowLayout = new AbsoluteLayout();
             belowLayout.setWidth("100%");
             belowLayout.setHeight("20px");
-            Label descriptionLbl = new Label(ViewProperties.getCaption("field.selectSubnetDescription"));
+            Label descriptionLbl= new Label(ViewProperties.getCaption("field.selectSubnetDescription"));
             belowLayout.addComponent(descriptionLbl);
 
             //セキュリティグループ
@@ -298,7 +300,7 @@ public class WinLoadBalancerEdit extends Window {
             form.getLayout().addComponent(serviceSelect);
 
             PlatformAws platformAws = platformDto.getPlatformAws();
-            if ("aws".equals(loadBalancerDto.getLoadBalancer().getType()) && platformAws.getVpc()) {
+            if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancerDto.getLoadBalancer().getType()) && platformAws.getVpc()) {
                 form.getLayout().addComponent(grpSelect);
                 form.getLayout().addComponent(aboveLayout);
                 form.getLayout().addComponent(subnetSelect);
@@ -316,6 +318,7 @@ public class WinLoadBalancerEdit extends Window {
                 editServerButton.setEnabled(false);
             }
 
+
         }
 
         private void initValidation() {
@@ -323,7 +326,7 @@ public class WinLoadBalancerEdit extends Window {
             commentField.addValidator(new StringLengthValidator(message, -1, 100, true));
 
             PlatformAws platformAws = platformDto.getPlatformAws();
-            if ("aws".equals(loadBalancerDto.getLoadBalancer().getType()) && platformAws.getVpc()) {
+            if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancerDto.getLoadBalancer().getType()) && platformAws.getVpc()) {
                 message = ViewMessages.getMessage("IUI-000108");
                 subnetSelect.setRequired(true);
                 subnetSelect.setRequiredError(message);
@@ -350,21 +353,8 @@ public class WinLoadBalancerEdit extends Window {
             Platform platform = platformDto.getPlatform();
             PlatformAws platformAws = platformDto.getPlatformAws();
 
-            // TODO: アイコン名の取得ロジックのリファクタリング
-            Icons icon = Icons.NONE;
-            if ("aws".equals(platform.getPlatformType())) {
-                if (platformAws.getEuca()) {
-                    icon = Icons.EUCALYPTUS;
-                } else {
-                    icon = Icons.AWS;
-                }
-            } else if ("vmware".equals(platform.getPlatformType())) {
-                icon = Icons.VMWARE;
-            } else if ("nifty".equals(platform.getPlatformType())) {
-                icon = Icons.NIFTY;
-            } else if ("cloudstack".equals(platform.getPlatformType())) {
-                icon = Icons.CLOUD_STACK;
-            }
+            //プラットフォームアイコン名の取得
+            Icons icon = CommonUtils.getPlatformIcon(platformDto);
 
             String description = platform.getPlatformNameDisp();
             String cloudValue = "<img src=\"" + VaadinUtils.getIconPath(apl, icon) + "\"><div>" + description
@@ -373,7 +363,6 @@ public class WinLoadBalancerEdit extends Window {
             cloudLabel.setContentMode(Label.CONTENT_XHTML);
 
             // ロードバランサ種別
-            // TODO: アイコン名取得ロジックのリファクタリング
             String type = loadBalancerDto.getLoadBalancer().getType();
             Icons typeIcon = Icons.NONE;
             String typeString = ViewProperties.getLoadBalancerType(type);
@@ -407,15 +396,15 @@ public class WinLoadBalancerEdit extends Window {
             }
 
             // サブネット
-            if ("aws".equals(type) && platformAws.getVpc()) {
+            if (PCCConstant.LOAD_BALANCER_ELB.equals(type) && platformAws.getVpc()) {
                 //ELB + VPCの場合
                 subnetSelect.setContainerDataSource(createSubnetContainer());
                 if (StringUtils.isNotEmpty(loadBalancerDto.getAwsLoadBalancer().getSubnetId())) {
                     List<String> lbSubnets = new ArrayList<String>();
-                    for (String lbSubnet : loadBalancerDto.getAwsLoadBalancer().getSubnetId().split(",")) {
+                    for (String lbSubnet: loadBalancerDto.getAwsLoadBalancer().getSubnetId().split(",")) {
                         lbSubnets.add(lbSubnet.trim());
                     }
-                    for (SubnetDto subnetDto : subnets) {
+                    for (SubnetDto subnetDto: subnets) {
                         if (lbSubnets.contains(subnetDto.getSubnetId())) {
                             subnetSelect.select(subnetDto);
                         }
@@ -426,7 +415,7 @@ public class WinLoadBalancerEdit extends Window {
             }
 
             //セキュリティグループ
-            if ("aws".equals(type) && platformAws.getVpc()) {
+            if (PCCConstant.LOAD_BALANCER_ELB.equals(type) && platformAws.getVpc()) {
                 //ELB + VPCの場合
                 grpSelect.setContainerDataSource(new IndexedContainer(securityGroups));
                 grpSelect.select(loadBalancerDto.getAwsLoadBalancer().getSecurityGroups());
@@ -440,7 +429,7 @@ public class WinLoadBalancerEdit extends Window {
             subnetContainer.addContainerProperty("subnetId", String.class, null);
             subnetContainer.addContainerProperty("zoneid", String.class, null);
 
-            for (SubnetDto subnetDto : subnets) {
+            for (SubnetDto subnetDto: subnets) {
                 Item item = subnetContainer.addItem(subnetDto);
                 String subnetDisp = subnetDto.getCidrBlock() + "[" + subnetDto.getZoneid() + "]";
                 item.getItemProperty(SUBNET_CAPTION_ID).setValue(subnetDisp);
@@ -584,7 +573,7 @@ public class WinLoadBalancerEdit extends Window {
             unhealthyThresholdField.addValidator(new IntegerRangeValidator(2, 10, message));
 
             // 復帰閾値
-            if ("aws".equals(loadBalancerDto.getLoadBalancer().getType())) {
+            if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancerDto.getLoadBalancer().getType())) {
                 message = ViewMessages.getMessage("IUI-000075", 2, 10);
                 healthyThresholdField.setRequired(true);
                 healthyThresholdField.setRequiredError(message);
@@ -635,7 +624,7 @@ public class WinLoadBalancerEdit extends Window {
                 if (healthCheck.getHealthyThreshold() != null) {
                     healthyThresholdField.setValue(healthCheck.getHealthyThreshold().toString());
                 }
-                if ("ultramonkey".equals(loadBalancerDto.getLoadBalancer().getType())) {
+                if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(loadBalancerDto.getLoadBalancer().getType())) {
                     healthyThresholdField.setEnabled(false);
                 }
             }
@@ -664,6 +653,7 @@ public class WinLoadBalancerEdit extends Window {
             }
         }
     }
+
 
     private class AutoScalingTab extends VerticalLayout {
         final String CHECKENABLED_CAPTION_ID = "EnableName";
@@ -763,6 +753,7 @@ public class WinLoadBalancerEdit extends Window {
 
         }
 
+
         private class SelectCloudTable extends Table {
             SelectCloudTable() {
                 //テーブル基本設定
@@ -843,6 +834,7 @@ public class WinLoadBalancerEdit extends Window {
                     }
                 });
 
+
                 // 行が選択されたときのイベント
                 addListener(new Property.ValueChangeListener() {
                     @Override
@@ -889,33 +881,34 @@ public class WinLoadBalancerEdit extends Window {
                 String name = image.getImage().getImageNameDisp();
                 String iconName = StringUtils.substringBefore(image.getImage().getImageName(), "_");
                 Icons nameIcon;
-                if ("application".equals(iconName)) {
+                if (PCCConstant.IMAGE_NAME_APPLICATION.equals(iconName)) {
                     nameIcon = Icons.PAAS;
-                } else if ("prjserver".equals(iconName)) {
+                } else if (PCCConstant.IMAGE_NAME_PRJSERVER.equals(iconName)) {
                     nameIcon = Icons.PRJSERVER;
-                } else if ("windows".equals(iconName)) {
+                }else if (PCCConstant.IMAGE_NAME_WINDOWS.equals(iconName)) {
                     nameIcon = Icons.WINDOWS_APP;
-                } else if ("cloudstack".equals(iconName)) {
+                }else if ("cloudstack".equals(iconName)) {
                     nameIcon = Icons.CLOUD_STACK;
                 } else {
                     nameIcon = Icons.fromName(iconName);
                 }
 
-                Label nlbl = new Label("<img src=\"" + VaadinUtils.getIconPath(apl, nameIcon) + "\"><div>" + name
-                        + "</div>", Label.CONTENT_XHTML);
+                Label nlbl = new Label("<img src=\"" + VaadinUtils.getIconPath(apl, nameIcon) + "\"><div>" + name + "</div>", Label.CONTENT_XHTML);
                 nlbl.setHeight(COLUMN_HEIGHT);
 
                 // OS名
                 String os = image.getImage().getOsDisp();
                 Icons osIcon = Icons.NONE;
-                if (image.getImage().getOs().startsWith("centos")) {
+                if (image.getImage().getOs().startsWith(PCCConstant.OS_NAME_CENTOS)) {
                     osIcon = Icons.CENTOS;
-                } else if (image.getImage().getOs().startsWith("windows")) {
+                }else if (image.getImage().getOs().startsWith(PCCConstant.OS_NAME_REDHAT)) {
+                    osIcon = Icons.REDHAT;
+                }else if (image.getImage().getOs().startsWith(PCCConstant.OS_NAME_WIN)) {
                     osIcon = Icons.WINDOWS;
                 }
 
-                Label slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(apl, osIcon) + "\"><div>" + os
-                        + "</div>", Label.CONTENT_XHTML);
+                Label slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(apl, osIcon) + "\"><div>" + os + "</div>",
+                        Label.CONTENT_XHTML);
                 slbl.setHeight(COLUMN_HEIGHT);
 
                 n++;
@@ -938,39 +931,49 @@ public class WinLoadBalancerEdit extends Window {
             }
             // プラットフォーム選定
             PlatformDto platform = null;
-            for (PlatformDto tmpPlatform : platforms) {
-                if (platformNo.equals(tmpPlatform.getPlatform().getPlatformNo())) {
+            for (PlatformDto tmpPlatform: platforms) {
+                if (platformNo.equals(tmpPlatform.getPlatform().getPlatformNo())){
                     platform = tmpPlatform;
                 }
             }
 
             // イメージ選定
             ImageDto image = null;
-            for (ImageDto tmpImage : platform.getImages()) {
+            for (ImageDto tmpImage: platform.getImages()) {
                 if (tmpImage.getImage().getImageNo().equals(imageNo)) {
                     image = tmpImage;
                     break;
                 }
             }
-
-            if ("aws".equals(platform.getPlatform().getPlatformType())) {
+            // TODO CLOUD BRANCHING
+            if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatform().getPlatformType())) {
                 instanceTypes = new ArrayList<String>();
                 for (String instanceType : image.getImageAws().getInstanceTypes().split(",")) {
                     instanceTypes.add(instanceType);
                 }
-            } else if ("vmware".equals(platform.getPlatform().getPlatformType())) {
+            } else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatform().getPlatformType())) {
                 instanceTypes = new ArrayList<String>();
                 for (String instanceType : image.getImageVmware().getInstanceTypes().split(",")) {
                     instanceTypes.add(instanceType);
                 }
-            } else if ("nifty".equals(platform.getPlatform().getPlatformType())) {
+            } else if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platform.getPlatform().getPlatformType())) {
                 instanceTypes = new ArrayList<String>();
                 for (String instanceType : image.getImageNifty().getInstanceTypes().split(",")) {
                     instanceTypes.add(instanceType);
                 }
-            } else if ("cloudstack".equals(platform.getPlatform().getPlatformType())) {
+            } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatform().getPlatformType())) {
                 instanceTypes = new ArrayList<String>();
                 for (String instanceType : image.getImageCloudstack().getInstanceTypes().split(",")) {
+                    instanceTypes.add(instanceType);
+                }
+            } else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatform().getPlatformType())) {
+                instanceTypes = new ArrayList<String>();
+                for (String instanceType : image.getImageVcloud().getInstanceTypes().split(",")) {
+                    instanceTypes.add(instanceType);
+                }
+            } else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatform().getPlatformType())) {
+                instanceTypes = new ArrayList<String>();
+                for (String instanceType : image.getImageOpenstack().getInstanceTypes().split(",")) {
                     instanceTypes.add(instanceType);
                 }
             }
@@ -1040,39 +1043,26 @@ public class WinLoadBalancerEdit extends Window {
 
                 String lbType = loadBalancerDto.getLoadBalancer().getType();
                 Platform lbPlatform = platformDto.getPlatform();
-                boolean isVpcElb = platformDto.getPlatformAws() != null ? platformDto.getPlatformAws().getVpc() : false;
-                if ("aws".equals(lbType) && isVpcElb) {
+                boolean isVpcElb = platformDto.getPlatformAws() != null ? platformDto.getPlatformAws().getVpc(): false;
+                if (PCCConstant.LOAD_BALANCER_ELB.equals(lbType) && isVpcElb) {
                     //ELB+VPCの場合→同じプラットフォーム以外選択不可
                     if (lbPlatform.getPlatformNo().equals(platform.getPlatform().getPlatformNo()) == false) {
                         continue;
                     }
-                } else if ("aws".equals(lbType) && isVpcElb == false) {
+                } else if (PCCConstant.LOAD_BALANCER_ELB.equals(lbType) && isVpcElb == false) {
                     //ELBの場合→AWS以外選択不可
-                    if ("aws".equals(platform.getPlatform().getPlatformType()) == false) {
+                    if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatform().getPlatformType()) == false) {
                         continue;
                     }
                 } else {
                     //ELB以外の場合→EC2+VPCのプラットフォームは選択不可
-                    if ("aws".equals(platform.getPlatform().getPlatformType()) && platform.getPlatformAws().getVpc()) {
+                    if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatform().getPlatformType()) && platform.getPlatformAws().getVpc()) {
                         continue;
                     }
                 }
 
-                // TODO: アイコン名の取得ロジックのリファクタリング
-                Icons icon = Icons.NONE;
-                if ("aws".equals(platform.getPlatform().getPlatformType())) {
-                    if (platform.getPlatformAws().getEuca()) {
-                        icon = Icons.EUCALYPTUS;
-                    } else {
-                        icon = Icons.AWS;
-                    }
-                } else if ("vmware".equals(platform.getPlatform().getPlatformType())) {
-                    icon = Icons.VMWARE;
-                } else if ("nifty".equals(platform.getPlatform().getPlatformType())) {
-                    icon = Icons.NIFTY;
-                } else if ("cloudstack".equals(platform.getPlatform().getPlatformType())) {
-                    icon = Icons.CLOUD_STACK;
-                }
+                //プラットフォームアイコン名の取得
+                Icons icon = CommonUtils.getPlatformIcon(platformDto);
 
                 String description = platform.getPlatform().getPlatformNameDisp();
 
@@ -1080,7 +1070,7 @@ public class WinLoadBalancerEdit extends Window {
                         + "</div>", Label.CONTENT_XHTML);
                 slbl.setHeight(COLUMN_HEIGHT);
 
-                cloudTable.addItem(new Object[] { (i + 1), slbl }, platform.getPlatform().getPlatformNo());
+                cloudTable.addItem(new Object[] { (i+1), slbl }, platform.getPlatform().getPlatformNo());
             }
 
             Long platformNo = null;
@@ -1108,7 +1098,7 @@ public class WinLoadBalancerEdit extends Window {
                 // オートスケーリング有効/無効
                 if (autoScalingConf.getEnabled()) {
                     checkEnabledSelect.select("有効");
-                } else {
+                }else{
                     checkEnabledSelect.select("無効");
                 }
 
@@ -1204,7 +1194,6 @@ public class WinLoadBalancerEdit extends Window {
         Long farmNo = ViewContext.getFarmNo();
 
         // ロードバランサ情報を取得
-        // TODO: ロジックを必ずリファクタリングすること！
         LoadBalancerService loadBalancerService = BeanContext.getBean(LoadBalancerService.class);
         List<LoadBalancerDto> loadBalancerDtos = loadBalancerService.getLoadBalancers(farmNo);
         for (LoadBalancerDto loadBalancerDto : loadBalancerDtos) {
@@ -1218,7 +1207,6 @@ public class WinLoadBalancerEdit extends Window {
         String type = loadBalancerDto.getLoadBalancer().getType();
 
         // プラットフォーム情報を取得
-        // TODO: ロジックを必ずリファクタリングすること！
         Long platformNo = loadBalancerDto.getLoadBalancer().getPlatformNo();
         List<LoadBalancerPlatformDto> platformDtos = loadBalancerService.getPlatforms(userNo);
         for (LoadBalancerPlatformDto platformDto : platformDtos) {
@@ -1233,28 +1221,29 @@ public class WinLoadBalancerEdit extends Window {
         componentDtos = componentService.getComponents(farmNo);
 
         //ultramonkeyはインスタンスを特定
-        if ("ultramonkey".equals(type)) {
+        System.out.println("LB-TYPE:"+type);
+        if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(type)) {
             this.instanceNo = loadBalancerService.getLoadBalancerInstance(loadBalancerNo);
+            System.out.println("INSTANCE:"+this.instanceNo);
         }
 
         //サブネットを取得
         PlatformAws platformAws = platformDto.getPlatformAws();
         this.subnets = new ArrayList<SubnetDto>();
-        if ("aws".equals(type) && platformAws.getVpc()) {
+        if (PCCConstant.LOAD_BALANCER_ELB.equals(type) && platformAws.getVpc()) {
             IaasDescribeService iaasDescribeService = BeanContext.getBean(IaasDescribeService.class);
             List<SubnetDto> subnetDtos = iaasDescribeService.getSubnets(userNo, platformNo, platformAws.getVpcId());
-            for (SubnetDto subnetDto : subnetDtos) {
+            for (SubnetDto subnetDto: subnetDtos) {
                 subnets.add(subnetDto);
             }
         }
 
         //セキュリティグループを取得
         this.securityGroups = new ArrayList<String>();
-        if ("aws".equals(type) && platformAws.getVpc()) {
+        if (PCCConstant.LOAD_BALANCER_ELB.equals(type) && platformAws.getVpc()) {
             IaasDescribeService iaasDescribeService = BeanContext.getBean(IaasDescribeService.class);
-            List<SecurityGroupDto> securityGroupDtos = iaasDescribeService.getSecurityGroups(userNo, platformNo,
-                    platformAws.getVpcId());
-            for (SecurityGroupDto securityGroupDto : securityGroupDtos) {
+            List<SecurityGroupDto> securityGroupDtos = iaasDescribeService.getSecurityGroups(userNo, platformNo, platformAws.getVpcId());
+            for (SecurityGroupDto securityGroupDto: securityGroupDtos) {
                 this.securityGroups.add(securityGroupDto.getGroupName());
             }
         }
@@ -1288,7 +1277,7 @@ public class WinLoadBalancerEdit extends Window {
         String zone = null;
         Collection<SubnetDto> subnets = null;
         String securityGroup = null;
-        if ("aws".equals(type) && platformAws.getVpc()) {
+        if (PCCConstant.LOAD_BALANCER_ELB.equals(type) && platformAws.getVpc()) {
             subnets = (Collection<SubnetDto>) basicTab.subnetSelect.getValue();
             securityGroup = (String) basicTab.grpSelect.getValue();
         }
@@ -1304,9 +1293,9 @@ public class WinLoadBalancerEdit extends Window {
         Long imageNo = (Long) autoScalingTab.imageTable.getValue();
         String instanceType = (String) autoScalingTab.sizeSelect.getValue();
         String checkEnabledValue = (String) autoScalingTab.checkEnabledSelect.getValue();
-        if ("有効".equals(checkEnabledValue)) {
+        if("有効".equals(checkEnabledValue)){
             checkEnabledValue = "1";
-        } else {
+        }else {
             checkEnabledValue = "0";
         }
 
@@ -1320,7 +1309,7 @@ public class WinLoadBalancerEdit extends Window {
         // TODO: 入力チェック
         try {
             basicTab.commentField.validate();
-            if ("aws".equals(type) && platformAws.getVpc()) {
+            if (PCCConstant.LOAD_BALANCER_ELB.equals(type) && platformAws.getVpc()) {
                 basicTab.subnetSelect.validate();
                 basicTab.grpSelect.validate();
             }
@@ -1335,8 +1324,7 @@ public class WinLoadBalancerEdit extends Window {
             healthCheckTab.unhealthyThresholdField.validate();
             healthCheckTab.healthyThresholdField.validate();
 
-            if ("1".equals(checkEnabledValue)
-                    && BooleanUtils.toBoolean(Config.getProperty("autoScaling.useAutoScaling"))) {
+            if ("1".equals(checkEnabledValue) && BooleanUtils.toBoolean(Config.getProperty("autoScaling.useAutoScaling"))) {
                 autoScalingTab.namingRuleField.validate();
                 autoScalingTab.idleTimeMaxField.validate();
                 autoScalingTab.idleTimeMinField.validate();
@@ -1354,56 +1342,52 @@ public class WinLoadBalancerEdit extends Window {
 
         //特殊入力チェック
         if (namingRuleString.startsWith("lb-")) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                    ViewMessages.getMessage("IUI-000083", namingRuleString));
+            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), ViewMessages.getMessage("IUI-000083", namingRuleString));
             getApplication().getMainWindow().addWindow(dialog);
             return;
         }
 
         //サブネットのチェック
-        if ("aws".equals(type) && platformAws.getVpc()) {
+        if (PCCConstant.LOAD_BALANCER_ELB.equals(type) && platformAws.getVpc()) {
             if (subnets != null) {
                 StringBuffer subnetBuffer = new StringBuffer();
                 StringBuffer zoneBuffer = new StringBuffer();
                 List<String> zones = new ArrayList<String>();
-                for (SubnetDto subnetDto : subnets) {
-                    if (zones.contains(subnetDto.getZoneid())) {
+                for (SubnetDto subnetDto: subnets) {
+                    if (zones.contains(subnetDto.getZoneid())){
                         //同じゾーンのサブネットを複数選択している場合
-                        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                                ViewMessages.getMessage("IUI-000110"));
+                        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), ViewMessages.getMessage("IUI-000110"));
                         getApplication().getMainWindow().addWindow(dialog);
                         return;
                     }
                     zones.add(subnetDto.getZoneid());
-                    subnetBuffer.append(subnetBuffer.length() > 0 ? "," + subnetDto.getSubnetId() : subnetDto
-                            .getSubnetId());
-                    zoneBuffer.append(zoneBuffer.length() > 0 ? "," + subnetDto.getZoneid() : subnetDto.getZoneid());
+                    subnetBuffer.append(subnetBuffer.length() > 0 ? ","+ subnetDto.getSubnetId(): subnetDto.getSubnetId());
+                    zoneBuffer.append(zoneBuffer.length() > 0 ? ","+ subnetDto.getZoneid(): subnetDto.getZoneid());
                 }
                 subnetId = subnetBuffer.toString();
                 zone = zoneBuffer.toString();
             }
         }
 
-        //TODO LOG
-        AutoApplication aapl = (AutoApplication) apl;
+        //オペレーションログ
+        AutoApplication aapl =  (AutoApplication)apl;
         aapl.doOpLog("LOAD_BALANCER", "Edit Load_Balancer", null, null, loadBalancerNo, null);
 
         LoadBalancerService loadBalancerService = BeanContext.getBean(LoadBalancerService.class);
-        // TODO: 固定文字列を外部化・定数化
-        if ("aws".equals(type)) {
+        // TODO CLOUD BRANCHING
+        if (PCCConstant.LOAD_BALANCER_ELB.equals(type)) {
             // AWSロードバランサを変更
             try {
                 String loadBalancerName = loadBalancerDto.getLoadBalancer().getLoadBalancerName();
                 Long componentNo = componentDto.getComponent().getComponentNo();
-                loadBalancerService.updateAwsLoadBalancer(loadBalancerNo, loadBalancerName, comment, componentNo,
-                        subnetId, securityGroup, zone);
+                loadBalancerService.updateAwsLoadBalancer(loadBalancerNo, loadBalancerName, comment, componentNo, subnetId, securityGroup, zone);
             } catch (AutoApplicationException e) {
                 String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
                 DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
                 getApplication().getMainWindow().addWindow(dialog);
                 return;
             }
-        } else if ("ultramonkey".equals(type)) {
+        } else if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(type)) {
             // Ultramonkeyロードバランサを変更
             try {
                 String loadBalancerName = loadBalancerDto.getLoadBalancer().getLoadBalancerName();
@@ -1445,8 +1429,7 @@ public class WinLoadBalancerEdit extends Window {
             namingRuleString = namingRuleString + "%d";
             try {
                 loadBalancerService.updateAutoScalingConf(farmNo, loadBalancerNo, platformNo, imageNo, instanceType,
-                        enabledValue, namingRuleString, idleTimeMaxValue, idleTimeMinValue, continueLimitValue,
-                        addCountValue, delCountValue);
+                        enabledValue, namingRuleString, idleTimeMaxValue, idleTimeMinValue,  continueLimitValue, addCountValue, delCountValue);
             } catch (AutoApplicationException e) {
                 String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
                 DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);

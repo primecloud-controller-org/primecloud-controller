@@ -18,6 +18,9 @@
  */
 package jp.primecloud.auto.service;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import jp.primecloud.auto.dao.crud.ApiCertificateDao;
 import jp.primecloud.auto.dao.crud.AuthoritySetDao;
 import jp.primecloud.auto.dao.crud.AutoScalingConfDao;
@@ -28,6 +31,10 @@ import jp.primecloud.auto.dao.crud.AwsLoadBalancerDao;
 import jp.primecloud.auto.dao.crud.AwsSnapshotDao;
 import jp.primecloud.auto.dao.crud.AwsSslKeyDao;
 import jp.primecloud.auto.dao.crud.AwsVolumeDao;
+import jp.primecloud.auto.dao.crud.AzureCertificateDao;
+import jp.primecloud.auto.dao.crud.AzureDiskDao;
+import jp.primecloud.auto.dao.crud.AzureInstanceDao;
+import jp.primecloud.auto.dao.crud.AzureSubnetDao;
 import jp.primecloud.auto.dao.crud.CloudstackAddressDao;
 import jp.primecloud.auto.dao.crud.CloudstackCertificateDao;
 import jp.primecloud.auto.dao.crud.CloudstackInstanceDao;
@@ -41,9 +48,12 @@ import jp.primecloud.auto.dao.crud.ComponentLoadBalancerDao;
 import jp.primecloud.auto.dao.crud.ComponentTypeDao;
 import jp.primecloud.auto.dao.crud.FarmDao;
 import jp.primecloud.auto.dao.crud.ImageAwsDao;
+import jp.primecloud.auto.dao.crud.ImageAzureDao;
 import jp.primecloud.auto.dao.crud.ImageCloudstackDao;
 import jp.primecloud.auto.dao.crud.ImageDao;
 import jp.primecloud.auto.dao.crud.ImageNiftyDao;
+import jp.primecloud.auto.dao.crud.ImageOpenstackDao;
+import jp.primecloud.auto.dao.crud.ImageVcloudDao;
 import jp.primecloud.auto.dao.crud.ImageVmwareDao;
 import jp.primecloud.auto.dao.crud.InstanceConfigDao;
 import jp.primecloud.auto.dao.crud.InstanceDao;
@@ -54,11 +64,21 @@ import jp.primecloud.auto.dao.crud.LoadBalancerListenerDao;
 import jp.primecloud.auto.dao.crud.NiftyCertificateDao;
 import jp.primecloud.auto.dao.crud.NiftyInstanceDao;
 import jp.primecloud.auto.dao.crud.NiftyKeyPairDao;
+import jp.primecloud.auto.dao.crud.NiftyVolumeDao;
+import jp.primecloud.auto.dao.crud.OpenstackCertificateDao;
+import jp.primecloud.auto.dao.crud.OpenstackInstanceDao;
+import jp.primecloud.auto.dao.crud.OpenstackSslKeyDao;
+import jp.primecloud.auto.dao.crud.OpenstackVolumeDao;
 import jp.primecloud.auto.dao.crud.PccSystemInfoDao;
 import jp.primecloud.auto.dao.crud.PlatformAwsDao;
+import jp.primecloud.auto.dao.crud.PlatformAzureDao;
 import jp.primecloud.auto.dao.crud.PlatformCloudstackDao;
 import jp.primecloud.auto.dao.crud.PlatformDao;
 import jp.primecloud.auto.dao.crud.PlatformNiftyDao;
+import jp.primecloud.auto.dao.crud.PlatformOpenstackDao;
+import jp.primecloud.auto.dao.crud.PlatformVcloudDao;
+import jp.primecloud.auto.dao.crud.PlatformVcloudInstanceTypeDao;
+import jp.primecloud.auto.dao.crud.PlatformVcloudStorageTypeDao;
 import jp.primecloud.auto.dao.crud.PlatformVmwareDao;
 import jp.primecloud.auto.dao.crud.PlatformVmwareInstanceTypeDao;
 import jp.primecloud.auto.dao.crud.ProxyDao;
@@ -68,6 +88,11 @@ import jp.primecloud.auto.dao.crud.TemplateDao;
 import jp.primecloud.auto.dao.crud.TemplateInstanceDao;
 import jp.primecloud.auto.dao.crud.UserAuthDao;
 import jp.primecloud.auto.dao.crud.UserDao;
+import jp.primecloud.auto.dao.crud.VcloudCertificateDao;
+import jp.primecloud.auto.dao.crud.VcloudDiskDao;
+import jp.primecloud.auto.dao.crud.VcloudInstanceDao;
+import jp.primecloud.auto.dao.crud.VcloudInstanceNetworkDao;
+import jp.primecloud.auto.dao.crud.VcloudKeyPairDao;
 import jp.primecloud.auto.dao.crud.VmwareAddressDao;
 import jp.primecloud.auto.dao.crud.VmwareDiskDao;
 import jp.primecloud.auto.dao.crud.VmwareInstanceDao;
@@ -75,10 +100,6 @@ import jp.primecloud.auto.dao.crud.VmwareKeyPairDao;
 import jp.primecloud.auto.dao.crud.VmwareNetworkDao;
 import jp.primecloud.auto.dao.crud.ZabbixDataDao;
 import jp.primecloud.auto.dao.crud.ZabbixInstanceDao;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 
 /**
  * <p>
@@ -90,9 +111,9 @@ public abstract class BaseServiceSupport {
 
     protected Log log = LogFactory.getLog(getClass());
 
-    protected AuthoritySetDao authoritySetDao;
-
     protected ApiCertificateDao apiCertificateDao;
+
+    protected AuthoritySetDao authoritySetDao;
 
     protected AutoScalingConfDao autoScalingConfDao;
 
@@ -109,6 +130,14 @@ public abstract class BaseServiceSupport {
     protected AwsSslKeyDao awsSslKeyDao;
 
     protected AwsVolumeDao awsVolumeDao;
+
+    protected AzureCertificateDao azureCertificateDao;
+
+    protected AzureDiskDao azureDiskDao;
+
+    protected AzureInstanceDao azureInstanceDao;
+
+    protected AzureSubnetDao azureSubnetDao;
 
     protected CloudstackAddressDao cloudstackAddressDao;
 
@@ -138,9 +167,15 @@ public abstract class BaseServiceSupport {
 
     protected ImageAwsDao imageAwsDao;
 
+    protected ImageAzureDao imageAzureDao;
+
     protected ImageCloudstackDao imageCloudstackDao;
 
     protected ImageNiftyDao imageNiftyDao;
+
+    protected ImageOpenstackDao imageOpenstackDao;
+
+    protected ImageVcloudDao imageVcloudDao;
 
     protected ImageVmwareDao imageVmwareDao;
 
@@ -162,15 +197,35 @@ public abstract class BaseServiceSupport {
 
     protected NiftyKeyPairDao niftyKeyPairDao;
 
+    protected NiftyVolumeDao niftyVolumeDao;
+
+    protected OpenstackCertificateDao openstackCertificateDao;
+
+    protected OpenstackInstanceDao openstackInstanceDao;
+
+    protected OpenstackSslKeyDao openstackSslKeyDao;
+
+    protected OpenstackVolumeDao openstackVolumeDao;
+
     protected PccSystemInfoDao pccSystemInfoDao;
 
     protected PlatformDao platformDao;
 
     protected PlatformAwsDao platformAwsDao;
 
+    protected PlatformAzureDao platformAzureDao;
+
     protected PlatformCloudstackDao platformCloudstackDao;
 
     protected PlatformNiftyDao platformNiftyDao;
+
+    protected PlatformOpenstackDao platformOpenstackDao;
+
+    protected PlatformVcloudDao platformVcloudDao;
+
+    protected PlatformVcloudInstanceTypeDao platformVcloudInstanceTypeDao;
+
+    protected PlatformVcloudStorageTypeDao platformVcloudStorageTypeDao;
 
     protected PlatformVmwareDao platformVmwareDao;
 
@@ -190,6 +245,16 @@ public abstract class BaseServiceSupport {
 
     protected UserAuthDao userAuthDao;
 
+    protected VcloudCertificateDao vcloudCertificateDao;
+
+    protected VcloudDiskDao vcloudDiskDao;
+
+    protected VcloudInstanceDao vcloudInstanceDao;
+
+    protected VcloudInstanceNetworkDao vcloudInstanceNetworkDao;
+
+    protected VcloudKeyPairDao vcloudKeyPairDao;
+
     protected VmwareAddressDao vmwareAddressDao;
 
     protected VmwareDiskDao vmwareDiskDao;
@@ -205,21 +270,21 @@ public abstract class BaseServiceSupport {
     protected ZabbixInstanceDao zabbixInstanceDao;
 
     /**
-     * authoritySetDaoを設定します。
-     *
-     * @param authoritySetDao authoritySetDao
-     */
-    public void setAuthoritySetDao(AuthoritySetDao authoritySetDao) {
-        this.authoritySetDao = authoritySetDao;
-    }
-
-    /**
      * apiCertificateDaoを設定します。
      *
      * @param apiCertificateDao apiCertificateDao
      */
     public void setApiCertificateDao(ApiCertificateDao apiCertificateDao) {
         this.apiCertificateDao = apiCertificateDao;
+    }
+
+    /**
+     * authoritySetDaoを設定します。
+     *
+     * @param authoritySetDao authoritySetDao
+     */
+    public void setAuthoritySetDao(AuthoritySetDao authoritySetDao) {
+        this.authoritySetDao = authoritySetDao;
     }
 
     /**
@@ -286,12 +351,57 @@ public abstract class BaseServiceSupport {
     }
 
     /**
+     * openstackVolumeDaoを設定します。
+     *
+     * @param openstackVolumeDao openstackVolumeDao
+     */
+    public void setOpenstackVolumeDao(OpenstackVolumeDao openstackVolumeDao) {
+        this.openstackVolumeDao = openstackVolumeDao;
+    }
+
+    /**
      * awsVolumeDaoを設定します。
      *
      * @param awsVolumeDao awsVolumeDao
      */
     public void setAwsVolumeDao(AwsVolumeDao awsVolumeDao) {
         this.awsVolumeDao = awsVolumeDao;
+    }
+
+    /**
+     * azureCertificateDaoを設定します。
+     *
+     * @param azureCertificateDao azureCertificateDao
+     */
+    public void setAzureCertificateDao(AzureCertificateDao azureCertificateDao) {
+        this.azureCertificateDao = azureCertificateDao;
+    }
+
+    /**
+     * azureDiskDaoを設定します。
+     *
+     * @param azureDiskDao azureDiskDao
+     */
+    public void setAzureDiskDao(AzureDiskDao azureDiskDao) {
+        this.azureDiskDao = azureDiskDao;
+    }
+
+    /**
+     * azureInstanceDaoを設定します。
+     *
+     * @param azureInstanceDao azureInstanceDao
+     */
+    public void setAzureInstanceDao(AzureInstanceDao azureInstanceDao) {
+        this.azureInstanceDao = azureInstanceDao;
+    }
+
+    /**
+     * azureSubnetDaoを設定します。
+     *
+     * @param azureSubnetDao azureSubnetDao
+     */
+    public void setAzureSubnetDao(AzureSubnetDao azureSubnetDao) {
+        this.azureSubnetDao = azureSubnetDao;
     }
 
     /**
@@ -421,6 +531,15 @@ public abstract class BaseServiceSupport {
     }
 
     /**
+     * imageAzureDaoを設定します。
+     *
+     * @param imageAzureDao imageAzureDao
+     */
+    public void setImageAzureDao(ImageAzureDao imageAzureDao) {
+        this.imageAzureDao = imageAzureDao;
+    }
+
+    /**
      * imageCloudstackDaoを設定します。
      *
      * @param imageCloudstackDao imageCloudstackDao
@@ -436,6 +555,24 @@ public abstract class BaseServiceSupport {
      */
     public void setImageNiftyDao(ImageNiftyDao imageNiftyDao) {
         this.imageNiftyDao = imageNiftyDao;
+    }
+
+    /**
+     * imageOpenstackDaoを設定します。
+     *
+     * @param imageOpenstackDao imageOpenstackDao
+     */
+    public void setImageOpenstackDao(ImageOpenstackDao imageOpenstackDao) {
+        this.imageOpenstackDao = imageOpenstackDao;
+    }
+
+    /**
+     * imageVcloudDaoを設定します。
+     *
+     * @param imageVcloudDao imageVcloudDao
+     */
+    public void setImageVcloudDao(ImageVcloudDao imageVcloudDao) {
+        this.imageVcloudDao = imageVcloudDao;
     }
 
     /**
@@ -529,6 +666,42 @@ public abstract class BaseServiceSupport {
     }
 
     /**
+     * niftyVolumeDaoを設定します。
+     *
+     * @param niftyVolumeDao niftyVolumeDao
+     */
+    public void setNiftyVolumeDao(NiftyVolumeDao niftyVolumeDao) {
+        this.niftyVolumeDao = niftyVolumeDao;
+    }
+
+    /**
+     * openstackCertificateDaoを設定します。
+     *
+     * @param openstackCertificateDao openstackCertificateDao
+     */
+    public void setOpenstackCertificateDao(OpenstackCertificateDao openstackCertificateDao) {
+        this.openstackCertificateDao = openstackCertificateDao;
+    }
+
+    /**
+     * openstackInstanceDaoを設定します。
+     *
+     * @param openstackInstanceDao openstackInstanceDao
+     */
+    public void setOpenstackInstanceDao(OpenstackInstanceDao openstackInstanceDao) {
+        this.openstackInstanceDao = openstackInstanceDao;
+    }
+
+    /**
+     * openstackSslKeyDaoを設定します。
+     *
+     * @param openstackSslKeyDao openstackSslKeyDao
+     */
+    public void setOpenstackSslKeyDao(OpenstackSslKeyDao openstackSslKeyDao) {
+        this.openstackSslKeyDao = openstackSslKeyDao;
+    }
+
+    /**
      * pccSystemInfoDaoを設定します。
      *
      * @param pccSystemInfoDao pccSystemInfoDao
@@ -556,6 +729,15 @@ public abstract class BaseServiceSupport {
     }
 
     /**
+     * platformAzureDaoを設定します。
+     *
+     * @param platformAzureDao platformAzureDao
+     */
+    public void setPlatformAzureDao(PlatformAzureDao platformAzureDao) {
+        this.platformAzureDao = platformAzureDao;
+    }
+
+    /**
      * platformCloudstackDaoを設定します。
      *
      * @param platformCloudstackDao platformCloudstackDao
@@ -571,6 +753,42 @@ public abstract class BaseServiceSupport {
      */
     public void setPlatformNiftyDao(PlatformNiftyDao platformNiftyDao) {
         this.platformNiftyDao = platformNiftyDao;
+    }
+
+    /**
+     * platformOpenstackDaoを設定します。
+     *
+     * @param platformOpenstackDao platformOpenstackDao
+     */
+    public void setPlatformOpenstackDao(PlatformOpenstackDao platformOpenstackDao) {
+        this.platformOpenstackDao = platformOpenstackDao;
+    }
+
+    /**
+     * platformVcloudDaoを設定します。
+     *
+     * @param platformVcloudDao platformVcloudDao
+     */
+    public void setPlatformVcloudDao(PlatformVcloudDao platformVcloudDao) {
+        this.platformVcloudDao = platformVcloudDao;
+    }
+
+    /**
+     * platformVcloudInstanceTypeDaoを設定します。
+     *
+     * @param platformVcloudInstanceTypeDao platformVcloudInstanceTypeDao
+     */
+    public void setPlatformVcloudInstanceTypeDao(PlatformVcloudInstanceTypeDao platformVcloudInstanceTypeDao) {
+        this.platformVcloudInstanceTypeDao = platformVcloudInstanceTypeDao;
+    }
+
+    /**
+     * platformVcloudStorageTypeDaoを設定します。
+     *
+     * @param platformVcloudStorageTypeDao platformVcloudStorageTypeDao
+     */
+    public void setPlatformVcloudStorageTypeDao(PlatformVcloudStorageTypeDao platformVcloudStorageTypeDao) {
+        this.platformVcloudStorageTypeDao = platformVcloudStorageTypeDao;
     }
 
     /**
@@ -652,6 +870,51 @@ public abstract class BaseServiceSupport {
      */
     public void setUserAuthDao(UserAuthDao userAuthDao) {
         this.userAuthDao = userAuthDao;
+    }
+
+    /**
+     * vcloudCertificateDaoを設定します。
+     *
+     * @param vcloudCertificateDao vcloudCertificateDao
+     */
+    public void setVcloudCertificateDao(VcloudCertificateDao vcloudCertificateDao) {
+        this.vcloudCertificateDao = vcloudCertificateDao;
+    }
+
+    /**
+     * vcloudDiskDaoを設定します。
+     *
+     * @param vcloudDiskDao vcloudDiskDao
+     */
+    public void setVcloudDiskDao(VcloudDiskDao vcloudDiskDao) {
+        this.vcloudDiskDao = vcloudDiskDao;
+    }
+
+    /**
+     * vcloudInstanceDaoを設定します。
+     *
+     * @param vcloudInstanceDao vcloudInstanceDao
+     */
+    public void setVcloudInstanceDao(VcloudInstanceDao vcloudInstanceDao) {
+        this.vcloudInstanceDao = vcloudInstanceDao;
+    }
+
+    /**
+     * vcloudInstanceNetworkDaoを設定します。
+     *
+     * @param vcloudInstanceNetworkDao vcloudInstanceNetworkDao
+     */
+    public void setVcloudInstanceNetworkDao(VcloudInstanceNetworkDao vcloudInstanceNetworkDao) {
+        this.vcloudInstanceNetworkDao = vcloudInstanceNetworkDao;
+    }
+
+    /**
+     * vcloudKeyPairDaoを設定します。
+     *
+     * @param vcloudKeyPairDao vcloudKeyPairDao
+     */
+    public void setVcloudKeyPairDao(VcloudKeyPairDao vcloudKeyPairDao) {
+        this.vcloudKeyPairDao = vcloudKeyPairDao;
     }
 
     /**

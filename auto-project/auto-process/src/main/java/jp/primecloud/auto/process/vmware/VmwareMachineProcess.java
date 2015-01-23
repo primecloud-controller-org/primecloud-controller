@@ -23,6 +23,10 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
 
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+
+import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.ImageVmware;
 import jp.primecloud.auto.entity.crud.Instance;
@@ -34,16 +38,13 @@ import jp.primecloud.auto.entity.crud.VmwareInstance;
 import jp.primecloud.auto.entity.crud.VmwareNetwork;
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.log.EventLogger;
+import jp.primecloud.auto.process.ProcessLogger;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
-import jp.primecloud.auto.process.ProcessLogger;
 import com.vmware.vim25.CustomFieldDef;
 import com.vmware.vim25.DatastoreSummary;
 import com.vmware.vim25.GuestNicInfo;
+import com.vmware.vim25.NetIpConfigInfoIpAddress;
 import com.vmware.vim25.mo.Datastore;
 import com.vmware.vim25.mo.Folder;
 import com.vmware.vim25.mo.ManagedEntity;
@@ -277,17 +278,17 @@ public class VmwareMachineProcess extends ServiceSupport {
         VirtualMachine machine = vmwareProcessClient.getVirtualMachine(vmwareInstance.getMachineName());
         for (GuestNicInfo nicInfo : machine.getGuest().getNet()) {
             // NIC情報からIPv4のアドレスを取得
-            String[] tmpAddresses = nicInfo.getIpAddress();
+            NetIpConfigInfoIpAddress[] tmpAddresses = nicInfo.getIpConfig().getIpAddress();
             if (tmpAddresses == null) {
                 continue;
             }
 
             String ipAddress = null;
-            for (String tmpAdress : tmpAddresses) {
+            for (NetIpConfigInfoIpAddress tmpAdress : tmpAddresses) {
                 try {
-                    InetAddress inetAddress = InetAddress.getByName(tmpAdress);
+                    InetAddress inetAddress = InetAddress.getByName(tmpAdress.getIpAddress());
                     if (inetAddress instanceof Inet4Address) {
-                        ipAddress = tmpAdress;
+                        ipAddress = tmpAdress.getIpAddress();
                         break;
                     }
                 } catch (UnknownHostException ignore) {
@@ -338,7 +339,7 @@ public class VmwareMachineProcess extends ServiceSupport {
         // InstanceTypeの取得
         PlatformVmwareInstanceType instanceType = null;
         Platform platform = platformDao.read(instance.getPlatformNo());
-        if (platform != null && ("vmware".equals(platform.getPlatformType()))) {
+        if (platform != null && (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType()))) {
             PlatformVmware platformVmware = platformVmwareDao.read(instance.getPlatformNo());
             List<PlatformVmwareInstanceType> instanceTypes = platformVmwareInstanceTypeDao.readByPlatformNo(instance.getPlatformNo());
             if (platformVmware != null && instanceTypes.isEmpty() == false) {

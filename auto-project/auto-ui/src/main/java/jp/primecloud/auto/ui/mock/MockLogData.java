@@ -26,7 +26,7 @@ public class MockLogData {
     public EventLog getEventLogSample() {
 
         String componentName = "tomcat";
-        String userName = "test";
+        String userName = "ayano";
         String farmName = "eucaly";
         String instanceName = "webap";
 
@@ -84,7 +84,7 @@ public class MockLogData {
                 result = "インスタンス i-4B9907A2 を起動しました。";
                 break;
             case 2:
-                result = "172.22.10.102 の逆引きレコードを lb559.dev.primecloud.jp として追加しました。";
+                result = "172.22.10.102 の逆引きレコードを lb559.testaaa.dev.csk-cc.com として追加しました。";
                 break;
             case 3:
                 result = "ホスト 10865 を更新しました。";

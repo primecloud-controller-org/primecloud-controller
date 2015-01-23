@@ -18,26 +18,34 @@
  */
 package jp.primecloud.auto.ui;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.ComponentInstanceStatus;
 import jp.primecloud.auto.common.status.InstanceStatus;
+import jp.primecloud.auto.common.status.ZabbixInstanceStatus;
+import jp.primecloud.auto.component.mysql.MySQLConstants;
+import jp.primecloud.auto.config.Config;
 import jp.primecloud.auto.entity.crud.ComponentType;
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.InstanceConfig;
+import jp.primecloud.auto.entity.crud.ZabbixInstance;
 import jp.primecloud.auto.service.dto.ComponentDto;
 import jp.primecloud.auto.service.dto.ComponentInstanceDto;
 import jp.primecloud.auto.service.dto.ImageDto;
 import jp.primecloud.auto.service.dto.InstanceDto;
 import jp.primecloud.auto.service.dto.PlatformDto;
 import jp.primecloud.auto.ui.data.ComponentDtoContainer;
+import jp.primecloud.auto.ui.util.CommonUtils;
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewProperties;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import jp.primecloud.auto.component.mysql.MySQLConstants;
 import com.vaadin.data.Container;
 import com.vaadin.terminal.ExternalResource;
 import com.vaadin.ui.Button;
@@ -330,24 +338,32 @@ public class ServerDescBasic extends Panel {
 
         Label status ;
 
+        Label monitoringStatus;
+
         CssLayout layoutOsType;
         Label ostype ;
         Button getPassword;
 
-        //項目名
-        String[] CAPNAME = {
-//                ViewProperties.getCaption("field.serverName"),
-                ViewProperties.getCaption("field.fqdn"),
-                ViewProperties.getCaption("field.ipAddress"),
-                ViewProperties.getCaption("field.platform"),
-                ViewProperties.getCaption("field.os"),
-                ViewProperties.getCaption("field.serverOsStatus"),
-                ViewProperties.getCaption("field.comment")
-                };
-
         GridLayout layout;
 
+        Boolean useZabbix = BooleanUtils.toBooleanObject(Config.getProperty("zabbix.useZabbix"));
+        Boolean changeMonitoring = BooleanUtils.toBooleanObject(Config.getProperty("zabbix.changeMonitoring"));
+        Boolean showPublicIp = BooleanUtils.toBooleanObject(Config.getProperty("ui.showPublicIp"));
+
         BasicInfo() {
+            //項目名
+            List<String> capName = new ArrayList<String>();
+            capName.add(ViewProperties.getCaption("field.fqdn"));
+            capName.add(ViewProperties.getCaption("field.ipAddress"));
+            capName.add(ViewProperties.getCaption("field.platform"));
+            capName.add(ViewProperties.getCaption("field.os"));
+            capName.add(ViewProperties.getCaption("field.serverOsStatus"));
+            if (BooleanUtils.isTrue(useZabbix) && BooleanUtils.isTrue(changeMonitoring)) {
+                //Zabbix使用フラグ、監視設定変更フラグがtrueの場合のみ表示
+                capName.add(ViewProperties.getCaption("field.serverMonitoringStatus"));
+            }
+            capName.add(ViewProperties.getCaption("field.comment"));
+
             setCaption(ViewProperties.getCaption("table.serverBasicInfo"));
             setHeight("100%");
             setStyleName("server-desc-basic-panel");
@@ -356,7 +372,7 @@ public class ServerDescBasic extends Panel {
             vlay.setStyleName("server-desc-basic-panel");
             vlay.setMargin(true);
 
-            layout = new GridLayout(2,CAPNAME.length);
+            layout = new GridLayout(2,capName.size());
 
             layout.setWidth("100%");
             layout.setStyleName("server-desc-basic-info");
@@ -365,8 +381,8 @@ public class ServerDescBasic extends Panel {
             vlay.addComponent(layout);
 
             //項目名設定
-            for (int i=0; i<CAPNAME.length ; i++){
-                Label lbl1 = new Label(CAPNAME[i], Label.CONTENT_XHTML);
+            for (int i=0; i < capName.size() ; i++){
+                Label lbl1 = new Label(capName.get(i), Label.CONTENT_XHTML);
                 Label lbl2 = new Label("");
                 lbl1.setHeight(COLUMN_HEIGHT);
                 layout.addComponent(lbl1,0,i);
@@ -389,8 +405,6 @@ public class ServerDescBasic extends Panel {
                     getWindow().addWindow(winPassword);
                 }
             });
-
-
         }
 
         public void setItem(InstanceDto instanceDto) {
@@ -398,36 +412,29 @@ public class ServerDescBasic extends Panel {
 
             if (instanceDto != null) {
                 Instance instance = instanceDto.getInstance();
-//                hostName = new Label(instance.getInstanceName(), Label.CONTENT_TEXT);
-//                layout.removeComponent( 1, line );
-//                layout.addComponent(hostName , 1, line++ );
+                ZabbixInstance zabbixInstance = instanceDto.getZabbixInstance();
 
+                //FQDN
                 fqdn = new Label(instance.getFqdn(), Label.CONTENT_TEXT);
                 layout.removeComponent( 1, line );
                 layout.addComponent(fqdn , 1, line++ );
 
-                ipAddress = new Label(instance.getPublicIp(), Label.CONTENT_TEXT);
+                //IPアドレス
+                if (BooleanUtils.isTrue(showPublicIp)) {
+                    //ui.showPublicIp = trueの場合はPublicIpを表示
+                    ipAddress = new Label(instance.getPublicIp(), Label.CONTENT_TEXT);
+                } else {
+                    //ui.showPublicIp = falseの場合はPrivateIpを表示
+                    ipAddress = new Label(instance.getPrivateIp(), Label.CONTENT_TEXT);
+                }
                 layout.removeComponent( 1, line );
                 layout.addComponent(ipAddress , 1, line++ );
 
                 //プラットフォームの表示
                 PlatformDto platformDto = instanceDto.getPlatform();
 
-                // TODO: アイコン名の取得ロジックのリファクタリング
-                Icons icon = Icons.NONE;
-                if ("aws".equals(platformDto.getPlatform().getPlatformType())) {
-                    if (platformDto.getPlatformAws().getEuca()) {
-                        icon = Icons.EUCALYPTUS;
-                    } else {
-                        icon = Icons.AWS;
-                    }
-                } else if ("vmware".equals(platformDto.getPlatform().getPlatformType())) {
-                    icon = Icons.VMWARE;
-                } else if ("nifty".equals(platformDto.getPlatform().getPlatformType())) {
-                    icon = Icons.NIFTY;
-                } else if ("cloudstack".equals(platformDto.getPlatform().getPlatformType())) {
-                    icon = Icons.CLOUD_STACK;
-                }
+                //プラットフォームアイコン名の取得
+                Icons icon = CommonUtils.getPlatformIcon(platformDto);
 
                 String description = platformDto.getPlatform().getPlatformNameDisp();
                 platform = new Label("<img src=\"" + VaadinUtils.getIconPath(ServerDescBasic.this, icon) + "\"><div>"
@@ -435,17 +442,13 @@ public class ServerDescBasic extends Panel {
                 layout.removeComponent( 1, line );
                 layout.addComponent(platform , 1, line++ );
 
-
                 //OS名の表示
                 ImageDto imageDto = instanceDto.getImage();
-                // TODO: アイコン名取得ロジックのリファクタリング
                 String os = imageDto.getImage().getOsDisp();
-                Icons osIcon = Icons.NONE;
-                if (imageDto.getImage().getOs().startsWith("centos")) {
-                    osIcon = Icons.CENTOS;
-                }else if (imageDto.getImage().getOs().startsWith("windows")) {
-                    osIcon = Icons.WINDOWS;
-                }
+
+                // OSアイコン名の取得
+                Icons osIcon = CommonUtils.getOsIcon(imageDto);
+
                 layoutOsType = new CssLayout();
                 ostype = new Label("<img src=\"" + VaadinUtils.getIconPath(ServerDescBasic.this, osIcon) + "\"><div>"
                         + os + "</div>", Label.CONTENT_XHTML);
@@ -453,34 +456,49 @@ public class ServerDescBasic extends Panel {
                 layoutOsType.setMargin(false);
                 layoutOsType.addComponent(ostype);
 
-                //OSがWindowsの場合パスワード取得ボタンを表示
-                if (imageDto.getImage().getOs().startsWith("windows")) {
-                    //ただしEUCALYPTUSは除外
-                   if (platformDto.getPlatformAws() == null || platformDto.getPlatformAws().getEuca() == false){
-                    InstanceStatus instanceStatus = InstanceStatus.fromStatus(instance.getStatus());
-                    if(instanceStatus == InstanceStatus.RUNNING){
-                        getPassword.setEnabled(true);
-                        getPassword.setData(instance.getInstanceNo());
-                    } else {
-                        getPassword.setEnabled(false);
+                // Azure時はボタンを表示させない
+                if ( !PCCConstant.PLATFORM_TYPE_AZURE.equals(platformDto.getPlatform().getPlatformType()) ) {
+                    //OSがWindowsの場合パスワード取得ボタンを表示
+                    if (imageDto.getImage().getOs().startsWith(PCCConstant.OS_NAME_WIN)) {
+                        //ただしEUCALYPTUSは除外
+                        if (platformDto.getPlatformAws() == null || platformDto.getPlatformAws().getEuca() == false){
+                            InstanceStatus instanceStatus = InstanceStatus.fromStatus(instance.getStatus());
+                            if(instanceStatus == InstanceStatus.RUNNING){
+                                getPassword.setEnabled(true);
+                                getPassword.setData(instance.getInstanceNo());
+                            } else {
+                                getPassword.setEnabled(false);
+                            }
+                            layoutOsType.addComponent(getPassword);
+                            layoutOsType.setHeight("60px");
+                        }
                     }
-                    layoutOsType.addComponent(getPassword);
-                    layoutOsType.setHeight("60px");
-                }
                 }
 
                 layout.removeComponent( 1, line );
                 layout.addComponent(layoutOsType , 1, line++ );
 
                 //ステータスの表示
-                String stat = instance.getStatus().substring(0, 1).toUpperCase()
-                        + instance.getStatus().substring(1).toLowerCase();
+                String stat = parseStatus(instance.getStatus());
                 Icons icon2 = Icons.fromName(stat);
 
                 status = new Label("<img src=\"" + VaadinUtils.getIconPath(ServerDescBasic.this, icon2) + "\"><div>"
                         + stat + "</div>", Label.CONTENT_XHTML);
                 layout.removeComponent( 1, line );
                 layout.addComponent(status , 1, line++ );
+
+                //監視ステータスの表示
+                //Zabbix使用フラグ、監視設定変更フラグがtrueの場合のみ表示
+                if (BooleanUtils.isTrue(useZabbix) && BooleanUtils.isTrue(changeMonitoring)) {
+                    String mStat = ZabbixInstanceStatus.UN_MONITORING.toString();
+                    if (zabbixInstance != null) {
+                        mStat = ZabbixInstanceStatus.fromStatus(zabbixInstance.getStatus()).toString();
+                    }
+                    monitoringStatus = new Label("<img src=\"" + VaadinUtils.getIconPath(ServerDescBasic.this, Icons.fromName(parseStatus(mStat))) + "\"><div>"
+                            + mStat + "</div>", Label.CONTENT_XHTML);
+                    layout.removeComponent( 1, line );
+                    layout.addComponent(monitoringStatus , 1, line++ );
+                }
 
                 //コメント
                 comment = new Label(instance.getComment(), Label.CONTENT_XHTML);
@@ -489,10 +507,6 @@ public class ServerDescBasic extends Panel {
 
 
             } else {
-//                hostName = new Label("", Label.CONTENT_TEXT);
-//                layout.removeComponent( 1, line );
-//                layout.addComponent(hostName , 1, line++ );
-
                 fqdn = new Label("", Label.CONTENT_TEXT);
                 layout.removeComponent( 1, line );
                 layout.addComponent(fqdn , 1, line++ );
@@ -515,20 +529,33 @@ public class ServerDescBasic extends Panel {
                 layout.removeComponent( 1, line );
                 layout.addComponent(layoutOsType , 1, line++ );
 
-
                 //ステータスの表示
                 status = new Label("", Label.CONTENT_XHTML);
                 layout.removeComponent( 1, line );
                 layout.addComponent(status , 1, line++ );
 
+                //監視ステータスの表示
+                //Zabbix使用フラグ、監視設定変更フラグがtrueの場合のみ表示
+                if (BooleanUtils.isTrue(useZabbix) && BooleanUtils.isTrue(changeMonitoring)) {
+                    monitoringStatus = new Label("", Label.CONTENT_XHTML);
+                    layout.removeComponent( 1, line );
+                    layout.addComponent(monitoringStatus , 1, line++ );
+                }
+
                 //コメント
                 comment = new Label("", Label.CONTENT_XHTML);
                 layout.removeComponent( 1, line );
                 layout.addComponent(comment , 1, line++ );
-
-
             }
+        }
 
+        private String parseStatus(String status) {
+            StringBuffer sb = new StringBuffer();
+            String[] array = status.split("_");
+            for (String str: array) {
+                sb.append(str.substring(0, 1).toUpperCase()).append(str.substring(1).toLowerCase());
+            }
+            return sb.toString();
         }
     }
 

@@ -26,35 +26,37 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+
 import jp.primecloud.auto.common.component.FreeMarkerGenerator;
 import jp.primecloud.auto.common.component.PasswordEncryptor;
 import jp.primecloud.auto.common.component.PasswordGenerator;
+import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.config.Config;
 import jp.primecloud.auto.entity.crud.AwsVolume;
+import jp.primecloud.auto.entity.crud.AzureDisk;
 import jp.primecloud.auto.entity.crud.CloudstackVolume;
 import jp.primecloud.auto.entity.crud.Component;
 import jp.primecloud.auto.entity.crud.ComponentInstance;
 import jp.primecloud.auto.entity.crud.ComponentType;
 import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.Instance;
+import jp.primecloud.auto.entity.crud.OpenstackVolume;
 import jp.primecloud.auto.entity.crud.PccSystemInfo;
 import jp.primecloud.auto.entity.crud.Platform;
-import jp.primecloud.auto.entity.crud.PlatformAws;
 import jp.primecloud.auto.entity.crud.PuppetInstance;
 import jp.primecloud.auto.entity.crud.User;
+import jp.primecloud.auto.entity.crud.VcloudDisk;
 import jp.primecloud.auto.entity.crud.VmwareDisk;
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.log.EventLogger;
+import jp.primecloud.auto.process.ProcessLogger;
 import jp.primecloud.auto.puppet.PuppetClient;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
-
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
-import jp.primecloud.auto.process.ProcessLogger;
 
 /**
  * <p>
@@ -295,6 +297,17 @@ public class PuppetNodeProcess extends ServiceSupport {
         // Component
         List<Component> components = componentDao.readByFarmNo(instance.getFarmNo());
         map.put("components", components);
+        Map<Long, Component> componentMap = new HashMap<Long, Component>();
+        for (Component component: components) {
+            componentMap.put(component.getComponentNo(), component);
+        }
+
+        // ComponentType
+        List<ComponentType> componentTypes = componentTypeDao.readAll();
+        Map<Long, ComponentType> componentTypeMap = new HashMap<Long, ComponentType>();
+        for (ComponentType componentType: componentTypes) {
+            componentTypeMap.put(componentType.getComponentTypeNo(), componentType);
+        }
 
         // PuppetInstance
         PuppetInstance puppetInstance = puppetInstanceDao.read(instanceNo);
@@ -303,44 +316,64 @@ public class PuppetNodeProcess extends ServiceSupport {
         // Platform
         Platform platform = platformDao.read(instance.getPlatformNo());
         map.put("platform", platform);
-
-        if ("aws".equals(platform.getPlatformType())) {
+        // TODO CLOUD BRANCHING
+        if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
             // AwsVolume
             List<AwsVolume> awsVolumes = awsVolumeDao.readByInstanceNo(instanceNo);
             map.put("awsVolumes", awsVolumes);
-        } else if ("cloudstack".equals(platform.getPlatformType())) {
+        } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
             // CloudStackVolume
             List<CloudstackVolume> cloudstackVolumes = cloudstackVolumeDao.readByInstanceNo(instanceNo);
             map.put("cloudstackVolumes", cloudstackVolumes);
-        } else if ("vmware".equals(platform.getPlatformType())) {
+        } else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
             // VmwareDisk
             List<VmwareDisk> vmwareDisks = vmwareDiskDao.readByInstanceNo(instanceNo);
             map.put("vmwareDisks", vmwareDisks);
+        } else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
+            // VcloudDisk
+            List<VcloudDisk> vcloudDisks = vcloudDiskDao.readByInstanceNo(instanceNo);
+            map.put("vcloudDisks", vcloudDisks);
+        } else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
+            // AzureDisk
+            List<AzureDisk> azureDisks = azureDiskDao.readByInstanceNo(instanceNo);
+            map.put("azureDisks", azureDisks);
+        } else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
+            // OpenstackVolume
+            List<OpenstackVolume> osVolumes = openstackVolumeDao.readByInstanceNo(instanceNo);
+            map.put("osVolumes", osVolumes);
         }
 
         // その他
         map.put("zabbixServer", Config.getProperty("zabbix.server"));
         map.put("rsyslogServer", Config.getProperty("rsyslog.server"));
 
-        // Zabbix待ち受けIP  TODO cloudstackの場合はパブリック？
+        // Zabbix待ち受けIP
         String zabbixListenIp = instance.getPublicIp();
-        if ("aws".equals(platform.getPlatformType())) {
-            PlatformAws platformAws = platformAwsDao.read(platform.getPlatformNo());
+        if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
             if (BooleanUtils.isTrue(platform.getInternal())) {
                 // 内部のAWSプラットフォームの場合はprivateIpで待ち受ける
-                zabbixListenIp = instance.getPrivateIp();
-
-            } else if (BooleanUtils.isTrue(platformAws.getVpc())) {
-                // 外部のAWSプラットフォームでVPCを用いる場合はprivateIpで待ち受ける
+                // この分岐に来るパターンは以下の場合
+                // Eucalyptus
+                // 内部AWS
+                // 通常のVPC(VPC+VPNでは無い)
                 zabbixListenIp = instance.getPrivateIp();
             }
         }
         map.put("zabbixListenIp", zabbixListenIp);
 
+        // Zabbix ホスト名
+        // Zabbixのホストの「名前」を prefix + - + fqdn で設定する
+        // prefix値はconfig.propertiesから取得
+        String zabbixHostname = instance.getFqdn();
+        if (StringUtils.isNotEmpty(Config.getProperty("zabbix.prefix"))) {
+            zabbixHostname = Config.getProperty("zabbix.prefix") + "-" + instance.getFqdn();
+        }
+        log.debug("zabbixHostname =" + zabbixHostname);
+        map.put("zabbixHostname", zabbixHostname);
+
         // 関連するコンポーネント
         List<Component> associatedComponents = new ArrayList<Component>();
         List<ComponentType> associatedComponentTypes = new ArrayList<ComponentType>();
-
         List<ComponentInstance> componentInstances = componentInstanceDao.readByInstanceNo(instanceNo);
         for (ComponentInstance componentInstance : componentInstances) {
             // 無効な関連は除外
@@ -361,6 +394,17 @@ public class PuppetNodeProcess extends ServiceSupport {
         map.put("associatedComponents", associatedComponents);
         map.put("associatedComponentTypes", associatedComponentTypes);
 
+        //コンポーネントタイプ名マップ(コンポーネント番号,コンポーネントタイプ名)
+        Map<String, String> componentTypeNameMap = new HashMap<String, String>();
+        for (ComponentInstance componentInstance : componentInstances) {
+            if (!componentTypeNameMap.containsKey(componentInstance.getComponentNo())) {
+                Component component = componentMap.get(componentInstance.getComponentNo());
+                ComponentType componentType = componentTypeMap.get(component.getComponentTypeNo());
+                componentTypeNameMap.put(componentInstance.getComponentNo().toString(), componentType.getComponentTypeName());
+            }
+        }
+
+        map.put("componentTypeNameMap", componentTypeNameMap);
         return map;
     }
 

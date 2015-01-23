@@ -25,7 +25,6 @@ import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewProperties;
-
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;

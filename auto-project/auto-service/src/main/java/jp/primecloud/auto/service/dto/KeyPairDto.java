@@ -30,6 +30,7 @@ public class KeyPairDto  implements Serializable {
 
     private String keyFingerprint;
 
+    private Long keyNo;
 
     public String getKeyName() {
         return keyName;
@@ -43,10 +44,14 @@ public class KeyPairDto  implements Serializable {
     public void setKeyFingerprint(String keyFingerprint) {
         this.keyFingerprint = keyFingerprint;
     }
-
     public KeyPairDto withKeyName(String keyName){
         this.keyName = keyName;
         return this;
     }
-
+    public Long getKeyNo() {
+        return keyNo;
+    }
+    public void setKeyNo(Long keyNo) {
+        this.keyNo = keyNo;
+    }
 }

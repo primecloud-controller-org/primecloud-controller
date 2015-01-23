@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ImageVcloud">
+
+	<typeAlias alias="ImageVcloud" type="jp.primecloud.auto.entity.crud.ImageVcloud" />
+
+	<resultMap id="imageVcloudResultMap" class="ImageVcloud">
+		<result property="imageNo" column="IMAGE_NO" />
+		<result property="templateName" column="TEMPLATE_NAME" nullValue="" />
+		<result property="instanceTypes" column="INSTANCE_TYPES" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.IMAGE_NO as IMAGE_NO,
+			t1.TEMPLATE_NAME as TEMPLATE_NAME,
+			t1.INSTANCE_TYPES as INSTANCE_TYPES
+		from
+			IMAGE_VCLOUD t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from IMAGE_VCLOUD t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="imageVcloudResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.IMAGE_NO = #imageNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="imageVcloudResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readInImageNos" parameterClass="java.util.Map" resultMap="imageVcloudResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.IMAGE_NO in
+		]]>
+		<iterate property="imageNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#imageNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="ImageVcloud">
+		<![CDATA[
+		insert into IMAGE_VCLOUD (
+			IMAGE_NO,
+			TEMPLATE_NAME,
+			INSTANCE_TYPES
+		) values (
+			#imageNo#,
+			#templateName#,
+			#instanceTypes#
+		)
+		]]>
+	</insert>
+
+	<update id="update" parameterClass="ImageVcloud">
+		<![CDATA[
+		update IMAGE_VCLOUD set
+			TEMPLATE_NAME = #templateName#,
+			INSTANCE_TYPES = #instanceTypes#
+		where
+			IMAGE_NO = #imageNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="ImageVcloud">
+		<![CDATA[
+		delete from IMAGE_VCLOUD
+		where
+			IMAGE_NO = #imageNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from IMAGE_VCLOUD
+		]]>
+	</delete>
+
+	<delete id="deleteByImageNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from IMAGE_VCLOUD
+		where
+			IMAGE_NO = #imageNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByImageNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			IMAGE_NO = #imageNo#
+		]]>
+	</select>
+
+</sqlMap>

@@ -18,6 +18,8 @@
  */
 package jp.primecloud.auto.ui;
 
+import org.apache.commons.lang.BooleanUtils;
+
 import jp.primecloud.auto.entity.crud.UserAuth;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.UserManagementService;
@@ -27,9 +29,6 @@ import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
-
-import org.apache.commons.lang.BooleanUtils;
-
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.IndexedContainer;

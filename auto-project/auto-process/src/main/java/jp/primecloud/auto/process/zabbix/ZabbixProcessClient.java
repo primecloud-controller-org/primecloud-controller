@@ -24,6 +24,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.util.MessageUtils;
 import jp.primecloud.auto.zabbix.ZabbixClient;
@@ -39,13 +44,10 @@ import jp.primecloud.auto.zabbix.model.hostgroup.HostgroupGetParam;
 import jp.primecloud.auto.zabbix.model.item.Item;
 import jp.primecloud.auto.zabbix.model.item.ItemGetParam;
 import jp.primecloud.auto.zabbix.model.item.ItemUpdateParam;
+import jp.primecloud.auto.zabbix.model.proxy.Proxy;
+import jp.primecloud.auto.zabbix.model.proxy.ProxyGetParam;
 import jp.primecloud.auto.zabbix.model.template.Template;
 import jp.primecloud.auto.zabbix.model.template.TemplateGetParam;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 
 /**
  * <p>
@@ -65,6 +67,22 @@ public class ZabbixProcessClient {
 
     public ZabbixClient getZabbixClient() {
         return zabbixClient;
+    }
+
+    public Proxy getProxy(String proxyName) {
+        ProxyGetParam param = new ProxyGetParam();
+        Map<String, List<Object>> search = new HashMap<String, List<Object>>();
+        search.put("host", Arrays.asList((Object)proxyName));
+        param.setSearch(search);
+        param.setOutput("extend");
+
+        List<Proxy> proxies = zabbixClient.proxy().get(param);
+        if (proxies.isEmpty()) {
+            log.info(MessageUtils.getMessage("IPROCESS-100334", proxyName));
+            return null;
+        }
+
+        return proxies.get(0);
     }
 
     public Host getHost(String hostid) {
@@ -89,14 +107,22 @@ public class ZabbixProcessClient {
         return hosts.get(0);
     }
 
-    public String createHost(String fqdn, List<Hostgroup> hostgroups, Boolean status) {
+    public String createHost(String hostname, String fqdn, List<Hostgroup> hostgroups,
+            Boolean status, Boolean userIp, String ip, String proxyHostid) {
         HostCreateParam param = new HostCreateParam();
-        param.setHost(fqdn);
+        param.setHost(hostname);
         param.setGroups(hostgroups);
         param.setDns(fqdn);
         param.setPort(10050);
         if (status != null) {
             param.setStatus(status ? 0 : 1); // 有効の場合は0、無効の場合は1
+        }
+        if (userIp != null) {
+            param.setUseip(userIp ? 1: 0);  // DNSの場合は0、IPの場合は1
+            param.setIp(StringUtils.isEmpty(ip) ? "0.0.0.0": ip);
+        }
+        if (StringUtils.isNotEmpty(proxyHostid)) {
+            param.setProxyHostid(proxyHostid);
         }
 
         List<String> hostids = zabbixClient.host().create(param);
@@ -115,15 +141,23 @@ public class ZabbixProcessClient {
         return hostid;
     }
 
-    public String updateHost(String hostid, String fqdn, List<Hostgroup> hostgroups, Boolean status) {
+    public String updateHost(String hostid, String hostname, String fqdn, List<Hostgroup> hostgroups,
+            Boolean status, Boolean userIp, String ip, String proxyHostid) {
         HostUpdateParam param = new HostUpdateParam();
         param.setHostid(hostid);
-        param.setHost(fqdn);
+        param.setHost(hostname);
         param.setGroups(hostgroups);
         param.setDns(fqdn);
         param.setPort(10050);
         if (status != null) {
-            param.setStatus(status ? 0 : 1);
+            param.setStatus(status ? 0 : 1);// 有効の場合は0、無効の場合は1
+        }
+        if (userIp != null) {
+            param.setUseip(BooleanUtils.toInteger(userIp));// DNSの場合は0、IPの場合は1
+            param.setIp(StringUtils.isEmpty(ip) ? "0.0.0.0": ip);
+        }
+        if (StringUtils.isNotEmpty(proxyHostid)) {
+            param.setProxyHostid(proxyHostid);
         }
 
         List<String> hostids = zabbixClient.host().update(param);

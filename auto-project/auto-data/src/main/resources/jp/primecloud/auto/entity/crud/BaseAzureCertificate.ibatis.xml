@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap      
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="AzureCertificate">
+
+	<typeAlias alias="AzureCertificate" type="jp.primecloud.auto.entity.crud.AzureCertificate" />
+
+	<resultMap id="azureCertificateResultMap" class="AzureCertificate">
+		<result property="userNo" column="USER_NO" />
+		<result property="platformNo" column="PLATFORM_NO" />
+		<result property="subscriptionId" column="SUBSCRIPTION_ID" nullValue="" />
+		<result property="certificate" column="CERTIFICATE" nullValue="" />
+		<result property="defaultSubnetId" column="DEFAULT_SUBNET_ID" nullValue="" />
+		<result property="keyName" column="KEY_NAME" nullValue="" />
+		<result property="keyPublic" column="KEY_PUBLIC" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.USER_NO as USER_NO, 
+			t1.PLATFORM_NO as PLATFORM_NO, 
+			t1.SUBSCRIPTION_ID as SUBSCRIPTION_ID, 
+			t1.CERTIFICATE as CERTIFICATE, 
+			t1.DEFAULT_SUBNET_ID as DEFAULT_SUBNET_ID, 
+			t1.KEY_NAME as KEY_NAME, 
+			t1.KEY_PUBLIC as KEY_PUBLIC
+		from
+			AZURE_CERTIFICATE t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from AZURE_CERTIFICATE t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="azureCertificateResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.USER_NO = #userNo# and
+			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="azureCertificateResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readByUserNo" parameterClass="java.util.Map" resultMap="azureCertificateResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.USER_NO = #userNo#
+		]]>
+	</select>
+
+	<select id="readByPlatformNo" parameterClass="java.util.Map" resultMap="azureCertificateResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="readInUserNos" parameterClass="java.util.Map" resultMap="azureCertificateResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.USER_NO in
+		]]>
+		<iterate property="userNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#userNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<select id="readInPlatformNos" parameterClass="java.util.Map" resultMap="azureCertificateResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO in
+		]]>
+		<iterate property="platformNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#platformNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="AzureCertificate">
+		<![CDATA[
+		insert into AZURE_CERTIFICATE (
+			USER_NO, 
+			PLATFORM_NO, 
+			SUBSCRIPTION_ID, 
+			CERTIFICATE, 
+			DEFAULT_SUBNET_ID, 
+			KEY_NAME, 
+			KEY_PUBLIC
+		) values (
+			#userNo#, 
+			#platformNo#, 
+			#subscriptionId#, 
+			#certificate#, 
+			#defaultSubnetId#, 
+			#keyName#, 
+			#keyPublic#
+		)
+		]]>
+	</insert>
+
+	<update id="update" parameterClass="AzureCertificate">
+		<![CDATA[
+		update AZURE_CERTIFICATE set
+			SUBSCRIPTION_ID = #subscriptionId#, 
+			CERTIFICATE = #certificate#, 
+			DEFAULT_SUBNET_ID = #defaultSubnetId#, 
+			KEY_NAME = #keyName#, 
+			KEY_PUBLIC = #keyPublic#
+		where
+			USER_NO = #userNo# and 
+			PLATFORM_NO = #platformNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="AzureCertificate">
+		<![CDATA[
+		delete from AZURE_CERTIFICATE
+		where
+			USER_NO = #userNo# and 
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from AZURE_CERTIFICATE
+		]]>
+	</delete>
+
+	<delete id="deleteByUserNoAndPlatformNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from AZURE_CERTIFICATE
+		where
+			USER_NO = #userNo# and
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByUserNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from AZURE_CERTIFICATE
+		where
+			USER_NO = #userNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByPlatformNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from AZURE_CERTIFICATE
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByUserNoAndPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			USER_NO = #userNo# and
+			PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="countByUserNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			USER_NO = #userNo#
+		]]>
+	</select>
+
+	<select id="countByPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+</sqlMap>

@@ -18,13 +18,13 @@
  */
 package jp.primecloud.auto.tool.management.main;
 
+import java.util.List;
+
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import jp.primecloud.auto.dao.crud.PlatformAwsDao;
-import jp.primecloud.auto.dao.crud.PlatformDao;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.PlatformAws;
 import jp.primecloud.auto.exception.AutoException;
@@ -36,38 +36,37 @@ public class IaasGatewayMain {
     protected static Log log = LogFactory.getLog(IaasGatewayMain.class);
 
     public static void importExecute(CommandLine commandLine) {
-        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
-
-        String keyName = commandLine.getOptionValue("keyName");
-        String publicKey = commandLine.getOptionValue("publicKey");
-
+        Long userNo = Long.parseLong(commandLine.getOptionValue("userno"));
         Long platformNo = Long.parseLong(commandLine.getOptionValue("platformno"));
-
-        String platformName = "";
+        String platformKind = commandLine.getOptionValue("platformkind");
+        String keyName = commandLine.getOptionValue("keyname");
+        String publicKey = commandLine.getOptionValue("publickey");
 
         try {
-            PlatformDao platformDao = (PlatformDao) context.getBean("platformDao");
-            PlatformAwsDao platformAwsDao = (PlatformAwsDao) context.getBean("platformAwsDao");
+            log.info("IaasGatewayScriptFactory");
+            String platformSql = "SELECT * FROM PLATFORM WHERE PLATFORM_NO=" + platformNo;
+            List<Platform> platforms = SQLMain.selectExecuteWithResult(platformSql, Platform.class);
+            Platform platform = platforms.get(0);
 
-            IaasGatewayScriptService scriptService = IaasGatewayScriptFactory.createIaasGatewayScriptService(commandLine);
-            Platform platform = platformDao.read(platformNo);
-            platformName = platform.getPlatformName();
-
-            PlatformAws aws = platformAwsDao.read(platformNo);
-            if ("aws".equals(platform.getPlatformType()) && aws.getVpc() && !scriptService.hasSubnets()) {
+            IaasGatewayScriptService scriptService = IaasGatewayScriptFactory.createIaasGatewayScriptService(userNo, platformNo, platform.getPlatformName());
+            if ("aws".equals(platformKind)) {
+                String platformAwsSql = "SELECT * FROM PLATFORM_AWS WHERE PLATFORM_NO=" + platformNo;
+                List<PlatformAws> platformAwses = SQLMain.selectExecuteWithResult(platformAwsSql, PlatformAws.class);
+                PlatformAws aws = platformAwses.get(0);
+                if (BooleanUtils.isTrue(aws.getVpc()) && !scriptService.hasSubnets(aws.getVpcId())) {
                 // AWSでVPC利用の場合
                 // Subnetが無ければVPCは使用できない
                 return;
             }
+            }
             scriptService.importKeyPair(keyName, publicKey);
         } catch (AutoException e) {
-            log.error("キーのインポートでエラーが発生しました。keyName:" + keyName + " plarformName:" + platformName, e);
+            log.error("キーのインポートでエラーが発生しました。keyName:" + keyName + " platformNo:" + platformNo, e);
             System.out.println("IMPORT_ERROR");
         } catch (Exception e) {
-            log.error("キーのインポートでエラーが発生しました。keyName:" + keyName + " plarformName:" + platformName, e);
+            log.error("キーのインポートでエラーが発生しました。keyName:" + keyName + " platformNo:" + platformNo, e);
             System.out.println("キーのインポートでエラーが発生しました。");
         } finally {
-            context.destroy();
         }
     }
 }

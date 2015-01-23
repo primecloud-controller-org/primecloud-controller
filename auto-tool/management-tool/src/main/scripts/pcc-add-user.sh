@@ -1,4 +1,5 @@
 #!/bin/sh
+
 PROGRAM="$0"
 PROGRAM_DIR=`dirname $PROGRAM`
 TOOL_HOME=`cd "$PROGRAM_DIR/.."; pwd`
@@ -73,19 +74,18 @@ if [ -n "${USER_NAME}" -a -n "${PASSWORD}" ]; then
         #ユーザ作成処理
         #ユーザーがすでに作成されているかどうかの確認
         SQL_ALREADY_CREATED="SELECT USER_NO FROM USER where USERNAME ='${USER_NAME}'"
-        USER_NO=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -S -sql "${SQL_ALREADY_CREATED}" -columntype int -columnname USER_NO`
-
+        USER_NO=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -S -sql \"${SQL_ALREADY_CREATED}\" -columntype int -columnname USER_NO"`
         if [ "${USER_NO}" != "NULL" ]; then
                 echo "${USER_NAME} は既にPCCに存在します。"
                 exit 1
         fi
 
         #Zabbix有効オプションを読む
-        ZABBIX_USE=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -config "zabbix.useZabbix"`
+        ZABBIX_USE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -config \"zabbix.useZabbix\""`
 
         if [ "${ZABBIX_USE}" = "true" ]; then
             #すでにZabbixユーザが作成されているか確認
-            ZABBIX_USERNAME=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -Z -get -username ${USER_NAME}`
+            ZABBIX_USERNAME=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -Z -get -username ${USER_NAME}"`
             if [ "${ZABBIX_USERNAME}" != "NULL" ]; then
                     echo "${USER_NAME} は既Zabbixに存在します。"
                     exit 1
@@ -105,8 +105,8 @@ if [ -n "${USER_NAME}" -a -n "${PASSWORD}" ]; then
 
         #PCCユーザーの作成
         SQL_CREATE_PCC_USER="INSERT INTO USER SET USERNAME=?, PASSWORD=?"
-        ENCRYPTED_PASSWORD=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -E -password "${PASSWORD}"`
-        MESSAGE=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -U -sql "${SQL_CREATE_PCC_USER}" -prepared "${USER_NAME}" "${ENCRYPTED_PASSWORD}"`
+        ENCRYPTED_PASSWORD=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -E -password \"${PASSWORD}\""`
+        MESSAGE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -U -sql \"${SQL_CREATE_PCC_USER}\" -prepared \"${USER_NAME}\" \"${ENCRYPTED_PASSWORD}\""`
 
         if [ -n "${MESSAGE}" ]; then
                 echo "${MESSAGE}"
@@ -114,7 +114,7 @@ if [ -n "${USER_NAME}" -a -n "${PASSWORD}" ]; then
         fi
 
         #作成したユーザーNOの取得
-        USER_NO=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -S -sql "${SQL_ALREADY_CREATED}" -columntype int -columnname USER_NO`
+        USER_NO=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -S -sql \"${SQL_ALREADY_CREATED}\" -columntype int -columnname USER_NO"`
 
         #作成したユーザーNOをチェック
         if [ "${USER_NO}" = "NULL" ]; then
@@ -125,7 +125,7 @@ if [ -n "${USER_NAME}" -a -n "${PASSWORD}" ]; then
         #PCCユーザーの更新(ユーザ権限の付与)
         #ユーザ作成時はマスターユーザかつパワーユーザとしておく
         SQL_UPDATE_PCC_USER="UPDATE USER SET MASTER_USER=?, POWER_USER=? WHERE USER_NO=?" 
-        MESSAGE=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -U -sql "${SQL_UPDATE_PCC_USER}" -prepared "${USER_NO}" "0" "${USER_NO}"`
+        MESSAGE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -U -sql \"${SQL_UPDATE_PCC_USER}\" -prepared \"${USER_NO}\" \"0\" \"${USER_NO}\""`
         
         if [ -n "${MESSAGE}" ]; then
                 echo "${MESSAGE}" 
@@ -146,7 +146,7 @@ if [ -n "${USER_NAME}" -a -n "${PASSWORD}" ]; then
         if [ "${ZABBIX_USE}" = "true" ]; then
             #Zabbixユーザの作成
             #簡略化のため名前と苗字にもユーザー名を入れています
-            MESSAGE=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -Z -C -username "${USER_NAME}" -password "${PASSWORD}" -firstname "${USER_NAME}" -familyname "${USER_NAME}"`
+            MESSAGE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -Z -C -username \"${USER_NAME}\" -password \"${PASSWORD}\" -firstname \"${USER_NAME}\" -familyname \"${USER_NAME}\""`
 
             if [ -n "${MESSAGE}" ]; then
                     echo "${MESSAGE}"

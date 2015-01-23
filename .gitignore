@@ -105,6 +105,7 @@ log/*
 # for PCC
 ################
 
-!auto-web*.war
-!management-tool*.tar.gz
 !vijava*.jar
+!nifty*.jar
+!auto-tool/auto-cli/bin/
+!auto-tool/auto-cli/lib/

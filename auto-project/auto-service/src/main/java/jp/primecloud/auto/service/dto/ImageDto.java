@@ -24,10 +24,12 @@ import java.util.List;
 import jp.primecloud.auto.entity.crud.ComponentType;
 import jp.primecloud.auto.entity.crud.Image;
 import jp.primecloud.auto.entity.crud.ImageAws;
+import jp.primecloud.auto.entity.crud.ImageAzure;
 import jp.primecloud.auto.entity.crud.ImageCloudstack;
 import jp.primecloud.auto.entity.crud.ImageNifty;
+import jp.primecloud.auto.entity.crud.ImageOpenstack;
+import jp.primecloud.auto.entity.crud.ImageVcloud;
 import jp.primecloud.auto.entity.crud.ImageVmware;
-
 
 
 /**
@@ -49,6 +51,12 @@ public class ImageDto implements Serializable {
     private ImageVmware imageVmware;
 
     private ImageNifty imageNifty;
+
+    private ImageVcloud imageVcloud;
+
+    private ImageAzure imageAzure;
+
+    private ImageOpenstack imageOpenstack;
 
     private List<ComponentType> componentTypes;
 
@@ -140,6 +148,60 @@ public class ImageDto implements Serializable {
      */
     public void setImageNifty(ImageNifty imageNifty) {
         this.imageNifty = imageNifty;
+    }
+
+    /**
+     * imageVcloudを取得します。
+     *
+     * @return imageVcloud
+     */
+    public ImageVcloud getImageVcloud() {
+        return imageVcloud;
+    }
+
+    /**
+     * imageVcloudを設定します。
+     *
+     * @param imageVcloud imageVcloud
+     */
+    public void setImageVcloud(ImageVcloud imageVcloud) {
+        this.imageVcloud = imageVcloud;
+    }
+
+    /**
+     * imageAzureを取得します。
+     *
+     * @return imageAzure
+     */
+    public ImageAzure getImageAzure() {
+        return imageAzure;
+    }
+
+    /**
+     * imageAzureを設定します。
+     *
+     * @param imageAzure imageAzure
+     */
+    public void setImageAzure(ImageAzure imageAzure) {
+        this.imageAzure = imageAzure;
+    }
+
+    /**
+     * imageOpenstackを取得します。
+     *
+     * @return imageOpenstack
+     */
+    public ImageOpenstack getImageOpenstack() {
+        return imageOpenstack;
+    }
+
+    /**
+     * imageOpenstackを設定します。
+     *
+     * @param imageOpenstack imageOpenstack
+     */
+    public void setImageOpenstack(ImageOpenstack imageOpenstack) {
+        this.imageOpenstack = imageOpenstack;
     }
 
     /**

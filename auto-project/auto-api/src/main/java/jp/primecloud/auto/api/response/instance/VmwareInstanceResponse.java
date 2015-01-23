@@ -7,7 +7,6 @@ import javax.xml.bind.annotation.XmlType;
 import jp.primecloud.auto.entity.crud.VmwareInstance;
 
 
-
 @XmlRootElement(name="VmwareInstanceResponse")
 @XmlType(propOrder = {"machineName","instanceType","computeResource","resourcePool","datastore","keyName","ipAddress","privateIpAddress","isStaticIp","subnetMask","defaultGateway"})
 public class VmwareInstanceResponse {

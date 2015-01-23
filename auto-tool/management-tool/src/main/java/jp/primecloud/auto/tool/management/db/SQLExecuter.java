@@ -25,7 +25,10 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
@@ -310,4 +313,63 @@ public class SQLExecuter {
         return results;
     }
 
+    public List<Map<String, Object>> showColumns(String sql) throws SQLException, Exception {
+        Connection con = null;
+        Statement stmt = null;
+        ResultSet rs = null;
+        log.info("[" + sql + "] を実行します");
+        List<Map<String, Object>> results = new ArrayList<Map<String,Object>>();
+        try {
+            con = dbConnector.getConnection();
+            stmt = con.createStatement();
+            rs = stmt.executeQuery(sql);
+            ResultSetMetaData rsMetaData = rs.getMetaData();
+
+            int size = rsMetaData.getColumnCount();
+            while (rs.next()) {
+                Map<String, Object> result = new HashMap<String, Object>();
+                for (int i = 1; i <= size; i++) {
+                    result.put(parseColumnName(rsMetaData.getColumnName(i)), rs.getObject(i));
+                }
+                results.add(result);
+            }
+            log.info("[" + sql + "] を実行しました");
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+
+            throw new SQLException(e);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new Exception(e);
+        } finally {
+            try {
+                dbConnector.closeConnection(con, stmt, rs);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+        return results;
+    }
+
+    private String parseColumnName(String columnName) {
+        String name = columnName.toLowerCase(Locale.ENGLISH);
+        String[] array = name.split("_");
+        if (array.length == 1) {
+            return array[0];
+        }
+
+        StringBuilder sb = new StringBuilder();
+        if (array[0].length() == 1) {
+            sb.append(Character.toUpperCase(array[0].charAt(0)));
+        } else {
+            sb.append(array[0]);
+        }
+
+        for (int i = 1; i < array.length; i++) {
+            sb.append(Character.toUpperCase(array[i].charAt(0))).append(array[i].substring(1));
+        }
+
+        return sb.toString();
+    }
 }

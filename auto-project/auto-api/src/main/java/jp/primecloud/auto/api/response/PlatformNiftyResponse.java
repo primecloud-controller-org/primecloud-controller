@@ -6,7 +6,6 @@ import javax.xml.bind.annotation.XmlType;
 import jp.primecloud.auto.entity.crud.PlatformNifty;
 
 
-
 @XmlRootElement(name="PlatformNiftyResponse")
 @XmlType(propOrder = {})
 public class PlatformNiftyResponse {

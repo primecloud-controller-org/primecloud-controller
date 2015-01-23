@@ -18,24 +18,28 @@
  */
 package jp.primecloud.auto.process;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-
-import jp.primecloud.auto.common.component.DnsStrategy;
-import jp.primecloud.auto.entity.crud.AwsInstance;
-import jp.primecloud.auto.entity.crud.CloudstackInstance;
-import jp.primecloud.auto.entity.crud.Image;
-import jp.primecloud.auto.entity.crud.Instance;
-import jp.primecloud.auto.entity.crud.Platform;
-import jp.primecloud.auto.entity.crud.PlatformAws;
-import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.log.EventLogger;
-import jp.primecloud.auto.service.ServiceSupport;
-import jp.primecloud.auto.util.MessageUtils;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
+import jp.primecloud.auto.common.component.DnsStrategy;
+import jp.primecloud.auto.common.constant.PCCConstant;
+import jp.primecloud.auto.entity.crud.AwsInstance;
+import jp.primecloud.auto.entity.crud.AzureInstance;
+import jp.primecloud.auto.entity.crud.CloudstackInstance;
+import jp.primecloud.auto.entity.crud.Image;
+import jp.primecloud.auto.entity.crud.Instance;
+import jp.primecloud.auto.entity.crud.OpenstackInstance;
+import jp.primecloud.auto.entity.crud.Platform;
+import jp.primecloud.auto.entity.crud.PlatformAws;
+import jp.primecloud.auto.entity.crud.VcloudInstance;
+import jp.primecloud.auto.exception.AutoException;
+import jp.primecloud.auto.log.EventLogger;
+import jp.primecloud.auto.service.ServiceSupport;
+import jp.primecloud.auto.util.MessageUtils;
 
 /**
  * <p>
@@ -55,39 +59,58 @@ public class DnsProcess extends ServiceSupport {
 
     public void startDns(Platform platform, Long instanceNo) {
         Instance instance = instanceDao.read(instanceNo);
-        if ("cloudstack".equals(platform.getPlatformType())) {
+        // TODO CLOUD BRANCHING
+        if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
             startDnsCloudstack(instanceNo);
-        }else if ("aws".equals(platform.getPlatformType())) {
-            //Platform platform = Config.getPlatform(awsProcessClient.getPlatformNo());
+        }else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
+            if (platform.getInternal()) {
+                //内部プラットフォーム(VPNなし)
+                startDnsVcloud(instanceNo);
+            } else {
+                //外部プラットフォーム(VPNあり)
+                startDnsVcloudVPN(instanceNo);
+            }
+        // Azureの場合
+        }else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
+            startDnsAzure(instanceNo);
+        }else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
+            startDnsOpenstack(instanceNo);
+        }else if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
+            PlatformAws platformAws = platformAwsDao.read(platform.getPlatformNo());
             if (platform.getInternal()) {
                 // 内部のプラットフォームの場合
-                PlatformAws platformAws = platformAwsDao.read(platform.getPlatformNo());
                 if (BooleanUtils.isTrue(platformAws.getEuca())) {
                     // Eucalyptusの場合
+                    log.debug("DnsProcess:startDnsVpc[internal=true, vpc=euca]");
                     startDnsNormalEuca(instanceNo);
                 } else {
                     // Amazon EC2の場合
-                    startDnsNormalEc2(instanceNo);
+                    if (BooleanUtils.isTrue(platformAws.getVpc())) {
+                        // VPCを使用している場合
+                        log.debug("DnsProcess:startDnsVpc[internal=true, vpc=true]");
+                        startDnsVpc(instanceNo);
+                    } else {
+                        // VPCを使用しない場合
+                        log.debug("DnsProcess:startDnsNormalEc2[internal=true, vpc=false]");
+                        startDnsNormalEc2(instanceNo);
+                    }
                 }
             } else {
                 // 外部のプラットフォームの場合
-                AwsInstance awsInstance = awsInstanceDao.read(instanceNo);
-                if (!StringUtils.isEmpty(awsInstance.getSubnetId())) {
-                    // VPCを使用している場合
-                    startDnsVpc(instanceNo);
+                // Windowsの場合はVPNの使用なし
+                Image image = imageDao.read(instance.getImageNo());
+                if (StringUtils.startsWithIgnoreCase(image.getOs(), PCCConstant.OS_NAME_WIN)) {
+                    // VPNを使用していない場合
+                    log.debug("DnsProcess:startDnsNormalEc2[internal=false, os=windows]");
+                    startDnsNormalEc2(instanceNo);
                 } else {
-                    // Windowsの場合はVPNの使用なし
-                    Image image = imageDao.read(instance.getImageNo());
-                    if (StringUtils.startsWithIgnoreCase(image.getOs(), "windows")) {
-                        // VPNを使用していない場合
-                        startDnsNormalEc2(instanceNo);
-                    } else {
-                        // VPNを使用している場合
-                        startDnsVpn(instanceNo);
-                    }
+                    // VPNを使用している場合(VPC+VPNもしくは通常のVPN)
+                    log.debug("DnsProcess:startDnsVpn[internal=false, os=linux]※VPC+VPN");
+                    startDnsVpn(instanceNo);
                 }
             }
         }
+
         // イベントログ出力
         instance = instanceDao.read(instanceNo);
         processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance, "DnsRegist", new Object[] { instance.getFqdn(), instance.getPublicIp() });
@@ -95,35 +118,45 @@ public class DnsProcess extends ServiceSupport {
 
     public void stopDns(Platform platform, Long instanceNo) {
         Instance instance = instanceDao.read(instanceNo);
-        if ("cloudstack".equals(platform.getPlatformType())) {
-            stopDnsCloudstack(instanceNo);
-        }else if ("aws".equals(platform.getPlatformType())) {
-            //Platform platform = Config.getPlatform(awsProcessClient.getPlatformNo());
+        // TODO CLOUD BRANCHING
+        if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
+            stopDnsNormal(instanceNo);
+        }else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
+            stopDnsNormal(instanceNo);
+        }else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
+            stopDnsNormal(instanceNo);
+        }else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
+            stopDnsNormal(instanceNo);
+        }else if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
+            PlatformAws platformAws = platformAwsDao.read(platform.getPlatformNo());
             if (platform.getInternal()) {
                 // 内部のプラットフォームの場合
-                PlatformAws platformAws = platformAwsDao.read(platform.getPlatformNo());
                 if (BooleanUtils.isTrue(platformAws.getEuca())) {
                     // Eucalyptusの場合
-                    stopDnsNormalEuca(instanceNo);
+                    log.debug("DnsProcess:stopDnsNormalEuca[internal=true, vpc=euca]");
+                    stopDnsNormal(instanceNo);
                 } else {
-                    // Amazon EC2の場合
-                    stopDnsNormalEc2(instanceNo);
+                    if (BooleanUtils.isTrue(platformAws.getVpc())) {
+                        // VPCを使用している場合
+                        log.debug("DnsProcess:stopDnsVpc[internal=true, vpc=true]");
+                        stopDnsNormal(instanceNo);
+                    } else {
+                        // VPCを使用しない場合
+                        log.debug("DnsProcess:stopDnsNormalEc2[internal=true, vpc=false]");
+                        stopDnsNormalEc2(instanceNo);
+                    }
                 }
             } else {
                 // 外部のプラットフォームの場合
-                AwsInstance awsInstance = awsInstanceDao.read(instanceNo);
-                if (!StringUtils.isEmpty(awsInstance.getSubnetId())) {
-                    // VPCを使用している場合
-                    stopDnsVpc(instanceNo);
+                // Windowsの場合はVPNの使用なし
+                Image image = imageDao.read(instance.getImageNo());
+                if (StringUtils.startsWithIgnoreCase(image.getOs(), PCCConstant.OS_NAME_WIN)) {
+                    log.debug("DnsProcess:stopDnsNormalEc2[internal=false, os=windows]");
+                    stopDnsNormalEc2(instanceNo);
                 } else {
-                    // Windowsの場合はVPNの使用なし
-                    Image image = imageDao.read(instance.getImageNo());
-                    if (StringUtils.startsWithIgnoreCase(image.getOs(), "windows")) {
-                        stopDnsNormalEc2(instanceNo);
-                    } else {
-                        // VPNを使用している場合
-                        stopDnsVpn(instanceNo);
-                    }
+                    // VPNを使用している場合
+                    log.debug("DnsProcess:stopDnsVpn[internal=false, os=linux]※VPC+VPN");
+                    stopDnsNormal(instanceNo);
                 }
             }
         }
@@ -184,7 +217,7 @@ public class DnsProcess extends ServiceSupport {
         Instance instance = instanceDao.read(instanceNo);
         CloudstackInstance csInstance = cloudstackInstanceDao.read(instanceNo);
 
-        // 最新のAwsInstance情報がInstanceに登録されている場合はスキップする
+        // 最新のCloudStackInstance情報がInstanceに登録されている場合はスキップする
         if (StringUtils.equals(instance.getPublicIp(), csInstance.getIpaddress())) {
             return;
         }
@@ -202,6 +235,54 @@ public class DnsProcess extends ServiceSupport {
         instanceDao.update(instance);
     }
 
+    protected void startDnsAzure(Long instanceNo) {
+        Instance instance = instanceDao.read(instanceNo);
+        AzureInstance azureInstance = azureInstanceDao.read(instanceNo);
+
+        // 最新のAzureInstance情報がInstanceに登録されている場合はスキップする
+        if (StringUtils.equals(instance.getPublicIp(), azureInstance.getPrivateIpAddress())) {
+            return;
+        }
+
+        String fqdn = instance.getFqdn();
+        //String publicIp = resolveHost(fqdn);
+        String publicIp = azureInstance.getPrivateIpAddress();
+        String privateIp = azureInstance.getPrivateIpAddress();
+
+        // 正引きの追加
+        addForward(fqdn, publicIp);
+
+        // 逆引きの追加
+        addReverse(fqdn, publicIp);
+
+        // データベースの更新
+        instance.setPublicIp(publicIp);
+        instance.setPrivateIp(privateIp);
+        instanceDao.update(instance);
+    }
+
+    protected void startDnsOpenstack(Long instanceNo) {
+        Instance instance = instanceDao.read(instanceNo);
+        OpenstackInstance osInstance = openstackInstanceDao.read(instanceNo);
+
+        // InstanceにIPアドレスが登録済みの場合はスキップする
+        if (!StringUtils.isEmpty(instance.getPublicIp())) {
+            return;
+        }
+
+        // IPアドレスを正引きにより取得する（正引きの追加はインスタンス内で行う）
+        String fqdn = instance.getFqdn();
+        String publicIp = resolveHost(fqdn); // VPNインタフェースのIPアドレス
+        String privateIp = osInstance.getPrivateIpAddress();
+
+        // 逆引きの追加
+        addReverse(fqdn, publicIp);
+
+        // データベースの更新
+        instance.setPublicIp(publicIp);
+        instance.setPrivateIp(privateIp);
+        instanceDao.update(instance);
+    }
 
     protected void startDnsVpn(Long instanceNo) {
         Instance instance = instanceDao.read(instanceNo);
@@ -252,7 +333,65 @@ public class DnsProcess extends ServiceSupport {
         instanceDao.update(instance);
     }
 
-    protected void stopDnsNormalEuca(Long instanceNo) {
+    //VPNを使用しないVCloudDNS設定
+    //PublicIP  → VCloudで外部ネットワークに接続されているネットワークのIPアドレス
+    //PrivateIP → VCloudで外部ネットワークに接続されていないネットワークのIPアドレス
+    protected void startDnsVcloud(Long instanceNo) {
+        Instance instance = instanceDao.read(instanceNo);
+        VcloudInstance vcloudInstance = vcloudInstanceDao.read(instanceNo);
+
+        // 最新のVcloudInstance情報がInstanceに登録されている場合はスキップする
+        if (StringUtils.equals(instance.getPublicIp(), vcloudInstance.getIpAddress())) {
+            return;
+        }
+
+        String fqdn = instance.getFqdn();
+        String publicIp = vcloudInstance.getIpAddress();
+        //TODO ロジックの検討あり
+        //VMがVCloud側で再起動される場合があり
+        //その際、DNS情報が消されるので、IPが有効になったタイミングでDNSの登録を行う
+//        contactHost(publicIp);
+        String privateIp = vcloudInstance.getPrivateIpAddress();
+
+        // 正引きの追加
+        addForward(fqdn, publicIp);
+
+        // 逆引きの追加
+        addReverse(fqdn, publicIp);
+
+        // データベースの更新
+        instance.setPublicIp(publicIp);
+        instance.setPrivateIp(privateIp);
+        instanceDao.update(instance);
+    }
+
+    //VPNを使用するVCloudDNS設定
+    //PublicIP  → PCC(OpenVPN)で払い出されたIPアドレス
+    //PrivateIP → VCloudで外部ネットワークに接続されていないネットワークのIPアドレス
+    protected void startDnsVcloudVPN(Long instanceNo) {
+        Instance instance = instanceDao.read(instanceNo);
+        VcloudInstance vcloudInstance = vcloudInstanceDao.read(instanceNo);
+
+        // 最新のVcloudInstance情報がInstanceに登録されている場合はスキップする
+        if (StringUtils.equals(instance.getPublicIp(), vcloudInstance.getIpAddress())) {
+            return;
+        }
+
+        // IPアドレスを正引きにより取得する（正引きの追加はインスタンス側(OpenVPNの実行)で行う）
+        String fqdn = instance.getFqdn();
+        String publicIp = resolveHost(fqdn); // VPNインタフェースのIPアドレス
+        String privateIp = vcloudInstance.getPrivateIpAddress();
+
+        // 逆引きの追加
+        addReverse(fqdn, publicIp);
+
+        // データベースの更新
+        instance.setPublicIp(publicIp);
+        instance.setPrivateIp(privateIp);
+        instanceDao.update(instance);
+    }
+
+    protected void stopDnsNormal(Long instanceNo) {
         Instance instance = instanceDao.read(instanceNo);
 
         // IPアドレスがない場合はスキップ
@@ -287,77 +426,6 @@ public class DnsProcess extends ServiceSupport {
 
         // CNAMEの削除
         deleteCanonicalName(fqdn);
-
-        // データベースの更新
-        instance.setPublicIp(null);
-        instance.setPrivateIp(null);
-        instanceDao.update(instance);
-    }
-
-    protected void stopDnsCloudstack(Long instanceNo) {
-        Instance instance = instanceDao.read(instanceNo);
-
-        // IPアドレスがない場合はスキップ
-        if (StringUtils.isEmpty(instance.getPublicIp())) {
-            return;
-        }
-
-        String fqdn = instance.getFqdn();
-        String publicIp = instance.getPublicIp();
-
-        // CNAMEの削除
-        //deleteCanonicalName(fqdn);
-
-        // 正引きの削除
-        deleteForward(fqdn);
-        // 逆引きの削除
-        deleteReverse(publicIp);
-
-        // データベースの更新
-        instance.setPublicIp(null);
-        instance.setPrivateIp(null);
-        instanceDao.update(instance);
-    }
-
-    protected void stopDnsVpn(Long instanceNo) {
-        Instance instance = instanceDao.read(instanceNo);
-
-        // IPアドレスがない場合はスキップ
-        if (StringUtils.isEmpty(instance.getPublicIp())) {
-            return;
-        }
-
-        String fqdn = instance.getFqdn();
-        String publicIp = instance.getPublicIp();
-
-        // 正引きの削除
-        deleteForward(fqdn);
-
-        // 逆引きの削除
-        deleteReverse(publicIp);
-
-        // データベースの更新
-        instance.setPublicIp(null);
-        instance.setPrivateIp(null);
-        instanceDao.update(instance);
-    }
-
-    protected void stopDnsVpc(Long instanceNo) {
-        Instance instance = instanceDao.read(instanceNo);
-
-        // IPアドレスがない場合はスキップ
-        if (StringUtils.isEmpty(instance.getPublicIp())) {
-            return;
-        }
-
-        String fqdn = instance.getFqdn();
-        String publicIp = instance.getPublicIp();
-
-        // 正引きの削除
-        deleteForward(fqdn);
-
-        // 逆引きの削除
-        deleteReverse(publicIp);
 
         // データベースの更新
         instance.setPublicIp(null);
@@ -450,6 +518,39 @@ public class DnsProcess extends ServiceSupport {
             }
             try {
                 Thread.sleep(5000);
+            } catch (InterruptedException ignore) {
+            }
+        }
+    }
+
+    protected void contactHost(String ip) {
+        long timeout = 1000L * 60 * 5;
+        long startTime = System.currentTimeMillis();
+        int count = 0;
+        boolean beforeReached = false;
+        while (true) {
+            try {
+                InetAddress address = InetAddress.getByName(ip);
+                boolean reached = address.isReachable(1500);
+                if (reached) {
+                    if (beforeReached != reached) {
+                        count = 0;
+                    }
+                    count++;
+                    log.debug(MessageUtils.format("contactHost {0} time.(ipAddress={1})", count, ip));
+                    if (count >= 30) {
+                        return;
+                    }
+                }
+                beforeReached = reached;
+            } catch (IOException ignore) {
+            }
+            if (System.currentTimeMillis() - startTime > timeout) {
+                // タイムアウト発生時
+                throw new AutoException("EPROCESS-000206", ip);
+            }
+            try {
+                Thread.sleep(1000);
             } catch (InterruptedException ignore) {
             }
         }

@@ -67,7 +67,7 @@ if [ -n "${USER_NAME}" -a -n "${PASSWORD}" ]; then
 
         #ユーザーがすでに作成されているかどうかの確認
         SQL_ALREADY_CREATED="SELECT USER_NO FROM USER where USERNAME ='${USER_NAME}'"
-        USER_NO=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -S -sql "${SQL_ALREADY_CREATED}" -columntype int -columnname USER_NO`
+        USER_NO=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -S -sql \"${SQL_ALREADY_CREATED}\" -columntype int -columnname USER_NO"`
 
         if [ "${USER_NO}" = "NULL" ]; then
                 echo "${USER_NAME} はPCCに存在しません。"
@@ -75,7 +75,7 @@ if [ -n "${USER_NAME}" -a -n "${PASSWORD}" ]; then
         fi
 
         #Zabbix有効オプションを読む
-       ZABBIX_USE=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -config "zabbix.useZabbix"`
+        ZABBIX_USE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -config \"zabbix.useZabbix\""`
         #if [ "${ZABBIX_USE}" = "true" ]; then
 
             #すでにZabbixユーザが作成されているか確認
@@ -86,7 +86,7 @@ if [ -n "${USER_NAME}" -a -n "${PASSWORD}" ]; then
             #fi
         #fi
         #無効化文字列を読む
-        DISABLE_CODE=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -config DISABLE_CODE`
+        DISABLE_CODE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -config DISABLE_CODE"`
         if [ "${DISABLE_CODE}" = "NULL" ]; then
             echo "DISABLE_CODEの読み込みに失敗しました。"
             exit 1
@@ -94,7 +94,7 @@ if [ -n "${USER_NAME}" -a -n "${PASSWORD}" ]; then
 
         #無効化されているか確認
         SQL_USER_DISABLED="SELECT LOCATE('${DISABLE_CODE}',PASSWORD) as LOCATE from USER where USER_NO=${USER_NO}"
-        LOCATE=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -S -sql "${SQL_USER_DISABLED}" -columntype int -columnname LOCATE`
+        LOCATE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -S -sql \"${SQL_USER_DISABLED}\" -columntype int -columnname LOCATE"`
 
         if [ "${LOCATE}" != "0" ]; then
                 echo "${USER_NAME} は無効化されています。"
@@ -103,8 +103,8 @@ if [ -n "${USER_NAME}" -a -n "${PASSWORD}" ]; then
 
         #対象のユーザのパスワードを変更する
         SQL_USER_PASSWORD_UPDATE="UPDATE USER SET PASSWORD=? where USER_NO =?"
-        ENCRYPTED_PASSWORD=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -E -password "${PASSWORD}"`
-        MESSAGE=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -U -sql "${SQL_USER_PASSWORD_UPDATE}" -prepared "${ENCRYPTED_PASSWORD}" "${USER_NO}"`
+        ENCRYPTED_PASSWORD=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -E -password \"${PASSWORD}\""`
+        MESSAGE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -U -sql \"${SQL_USER_PASSWORD_UPDATE}\" -prepared \"${ENCRYPTED_PASSWORD}\" \"${USER_NO}\""`
 
         if [ -n "${MESSAGE}" ]; then
                 echo "${MESSAGE}"
@@ -113,7 +113,7 @@ if [ -n "${USER_NAME}" -a -n "${PASSWORD}" ]; then
 
         if [ "${ZABBIX_USE}" = "true" ]; then
             #Zabbixユーザのパスワードを変更する。
-            MESSAGE=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -Z -U -username "${USER_NAME}" -password "${PASSWORD}"`
+            MESSAGE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -Z -U -username \"${USER_NAME}\" -password \"${PASSWORD}\""`
 
             if [ -n "${MESSAGE}" ]; then
                     echo "${MESSAGE}"

@@ -3,7 +3,10 @@ package jp.primecloud.auto.process.vmware;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 import jp.primecloud.auto.common.component.PasswordEncryptor;
+import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.config.Config;
 import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.Image;
@@ -15,9 +18,6 @@ import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
 import jp.primecloud.auto.vmware.VmwareClient;
-
-import org.apache.commons.lang.StringUtils;
-
 import com.vmware.vim25.CustomizationAdapterMapping;
 import com.vmware.vim25.CustomizationDhcpIpGenerator;
 import com.vmware.vim25.CustomizationFixedName;
@@ -61,7 +61,7 @@ public class VmwareCustomizeProcess extends ServiceSupport {
         // Windowsで始まるOSはカスタマイズする
         Instance instance = instanceDao.read(instanceNo);
         Image image = imageDao.read(instance.getImageNo());
-        if (StringUtils.startsWith(image.getOs(), "windows")) {
+        if (StringUtils.startsWith(image.getOs(), PCCConstant.OS_NAME_WIN)) {
             if (log.isInfoEnabled()) {
                 log.info(MessageUtils.getMessage("IPROCESS-100464", vmwareInstance.getMachineName()));
             }
@@ -137,7 +137,6 @@ public class VmwareCustomizeProcess extends ServiceSupport {
         // Windowsオプション設定
         CustomizationWinOptions options = new CustomizationWinOptions();
         options.setChangeSID(true);
-        options.setDeleteAccounts(false);
         options.setReboot(CustomizationSysprepRebootOption.shutdown);
         customSpec.setOptions(options);
 

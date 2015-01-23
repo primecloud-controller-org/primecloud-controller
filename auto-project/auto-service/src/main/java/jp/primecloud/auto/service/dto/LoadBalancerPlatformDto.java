@@ -23,10 +23,12 @@ import java.util.List;
 
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.PlatformAws;
+import jp.primecloud.auto.entity.crud.PlatformAzure;
 import jp.primecloud.auto.entity.crud.PlatformCloudstack;
 import jp.primecloud.auto.entity.crud.PlatformNifty;
+import jp.primecloud.auto.entity.crud.PlatformOpenstack;
+import jp.primecloud.auto.entity.crud.PlatformVcloud;
 import jp.primecloud.auto.entity.crud.PlatformVmware;
-
 
 
 
@@ -49,6 +51,12 @@ public class LoadBalancerPlatformDto implements Serializable {
     private PlatformVmware platformVmware;
 
     private PlatformNifty platformNifty;
+
+    private PlatformVcloud platformVcloud;
+
+    private PlatformAzure platformAzure;
+
+    private PlatformOpenstack platformOpenstack;
 
     private List<ImageDto> images;
 
@@ -142,6 +150,60 @@ public class LoadBalancerPlatformDto implements Serializable {
      */
     public void setPlatformNifty(PlatformNifty platformNifty) {
         this.platformNifty = platformNifty;
+    }
+
+    /**
+     * platformVcloudを取得します。
+     *
+     * @return platformVcloud
+     */
+    public PlatformVcloud getPlatformVcloud() {
+        return platformVcloud;
+    }
+
+    /**
+     * platformVcloudを設定します。
+     *
+     * @param platformVcloud platformVcloud
+     */
+    public void setPlatformVcloud(PlatformVcloud platformVcloud) {
+        this.platformVcloud = platformVcloud;
+    }
+
+    /**
+     * platformAzureを取得します。
+     *
+     * @return platformAzure
+     */
+    public PlatformAzure getPlatformAzure() {
+        return platformAzure;
+    }
+
+    /**
+     * platformAzureを設定します。
+     *
+     * @param platformAzure platformAzure
+     */
+    public void setPlatformAzure(PlatformAzure platformAzure) {
+        this.platformAzure = platformAzure;
+    }
+
+    /**
+     * platformOpenstackを取得します。
+     *
+     * @return platformOpenstack
+     */
+    public PlatformOpenstack getPlatformOpenstack() {
+        return platformOpenstack;
+    }
+
+    /**
+     * platformAzureを設定します。
+     *
+     * @param platformOpenstack platformOpenstack
+     */
+    public void setPlatformOpenstack(PlatformOpenstack platformOpenstack) {
+        this.platformOpenstack = platformOpenstack;
     }
 
     /**

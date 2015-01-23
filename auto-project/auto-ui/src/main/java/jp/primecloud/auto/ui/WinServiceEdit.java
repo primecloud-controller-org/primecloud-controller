@@ -24,14 +24,22 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+
 import jp.primecloud.auto.common.status.ComponentInstanceStatus;
 import jp.primecloud.auto.common.status.ComponentStatus;
 import jp.primecloud.auto.config.Config;
 import jp.primecloud.auto.entity.crud.AwsVolume;
+import jp.primecloud.auto.entity.crud.AzureDisk;
 import jp.primecloud.auto.entity.crud.CloudstackVolume;
 import jp.primecloud.auto.entity.crud.ComponentConfig;
+import jp.primecloud.auto.entity.crud.NiftyVolume;
+import jp.primecloud.auto.entity.crud.OpenstackVolume;
+import jp.primecloud.auto.entity.crud.VcloudDisk;
 import jp.primecloud.auto.entity.crud.VmwareDisk;
 import jp.primecloud.auto.exception.AutoApplicationException;
+import jp.primecloud.auto.process.ComponentConstants;
 import jp.primecloud.auto.service.ComponentService;
 import jp.primecloud.auto.service.InstanceService;
 import jp.primecloud.auto.service.dto.ComponentDto;
@@ -47,11 +55,6 @@ import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
-import jp.primecloud.auto.process.ComponentConstants;
 import com.vaadin.Application;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -325,6 +328,7 @@ public class WinServiceEdit extends Window {
             // ディスクが１つでも存在する場合、ディスクサイズを変更できないようにする
             int countDisk = 0;
             for (InstanceDto dto : instances) {
+                //TODO CLOUD BRANCHING
                 if (dto.getAwsVolumes() != null) {
                     for (AwsVolume awsVolume : dto.getAwsVolumes()) {
                         if (componentNo.equals(awsVolume.getComponentNo())) {
@@ -344,6 +348,38 @@ public class WinServiceEdit extends Window {
                 if (dto.getVmwareDisks() != null) {
                     for (VmwareDisk vmwareDisk : dto.getVmwareDisks()) {
                         if (componentNo.equals(vmwareDisk.getComponentNo())) {
+                            countDisk++;
+                            break;
+                        }
+                    }
+                }
+                if (dto.getVcloudDisks() != null) {
+                    for (VcloudDisk vcloudDisk : dto.getVcloudDisks()) {
+                        if (componentNo.equals(vcloudDisk.getComponentNo())) {
+                            countDisk++;
+                            break;
+                        }
+                    }
+                }
+                if (dto.getAzureDisks() != null) {
+                    for (AzureDisk azureDisk : dto.getAzureDisks()) {
+                        if (componentNo.equals(azureDisk.getComponentNo())) {
+                            countDisk++;
+                            break;
+                        }
+                    }
+                }
+                if (dto.getNiftyVolumes() != null) {
+                    for (NiftyVolume niftyVolume : dto.getNiftyVolumes()) {
+                        if (componentNo.equals(niftyVolume.getComponentNo())) {
+                            countDisk++;
+                            break;
+                        }
+                    }
+                }
+                if (dto.getOpenstackVolumes() != null) {
+                    for (OpenstackVolume openstackVolume : dto.getOpenstackVolumes()) {
+                        if (componentNo.equals(openstackVolume.getComponentNo())) {
                             countDisk++;
                             break;
                         }
@@ -485,46 +521,10 @@ public class WinServiceEdit extends Window {
         for (String notSelectedItem : notSelectedList) {
             int index = notSelectedItem.indexOf(" ");
             String instanceName = index == -1 ? notSelectedItem : notSelectedItem.substring(0, index);
-            for (InstanceDto instance : instances) {
-                if (StringUtils.equals(instanceName, instance.getInstance().getInstanceName())) {
-                    if (instance.getAwsVolumes() != null) {
-                        // AwsVolumeをチェック
-                        for (AwsVolume awsVolume : instance.getAwsVolumes()) {
-                            if (componentNo.equals(awsVolume.getComponentNo())) {
-                                if (StringUtils.isNotEmpty(awsVolume.getInstanceId())) {
-                                    // ディスクがアタッチされたままの場合
-                                    moveList.add(notSelectedItem);
-                                }
-                                break;
-                            }
-                        }
-                    }
-                    else if (instance.getVmwareDisks() != null) {
-                        // VmwareDiskをチェック
-                        for (VmwareDisk vmwareDisk : instance.getVmwareDisks()) {
-                            if (componentNo.equals(vmwareDisk.getComponentNo())) {
-                                if (BooleanUtils.isTrue(vmwareDisk.getAttached())) {
-                                    // ディスクがアタッチされたままの場合
-                                    moveList.add(notSelectedItem);
-                                }
-                                break;
-                            }
-                        }
-                    }
-                    else if (instance.getCloudstackVolumes() != null) {
-                        // CloudstackVolumeをチェック
-                        for (CloudstackVolume cloudstackVolume : instance.getCloudstackVolumes()) {
-                            if (componentNo.equals(cloudstackVolume.getComponentNo())) {
-                                if (StringUtils.isNotEmpty(cloudstackVolume.getInstanceId())) {
-                                    // ディスクがアタッチされたままの場合
-                                    moveList.add(notSelectedItem);
-                                }
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
+            // pcc-apiでも同様の処理が必要の為、サービスに切り出す
+            ComponentService componentService = BeanContext.getBean(ComponentService.class);
+            moveList = componentService.checkAttachDisk(ViewContext.getFarmNo(), componentNo,
+                    instanceName, notSelectedItem, moveList);
         }
 
         if (!moveList.isEmpty()) {
@@ -594,11 +594,11 @@ public class WinServiceEdit extends Window {
                if (ComponentConstants.CONFIG_NAME_CUSTOM_PARAM_1.equals(config.getConfigName())) {
                    customParam1 = config.getConfigValue();
                    break;
-            }
-        }
+               }
+           }
            if (customParam1 != null) {
                customParam1Feild.setValue(customParam1);
-    }
+           }
 
            // カスタムパラメータ2
            String customParam2 = null;
@@ -624,7 +624,7 @@ public class WinServiceEdit extends Window {
                customParam3Feild.setValue(customParam3);
            }
         }
-        }
+    }
 
 //    private class DetailTab extends VerticalLayout {
 //        MySQLForm mysqlForm;
@@ -765,7 +765,7 @@ public class WinServiceEdit extends Window {
             return;
         }
 
-        //TODO LOG
+        //オペレーションログ
         AutoApplication aapl =  (AutoApplication)apl;
         aapl.doOpLog("SERVICE", "Edit Service", null, componentNo, null, null);
 

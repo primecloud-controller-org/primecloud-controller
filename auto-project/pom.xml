@@ -4,7 +4,7 @@
 	<groupId>jp.primecloud.auto</groupId>
 	<artifactId>auto-project</artifactId>
 	<packaging>pom</packaging>
-	<version>2.4.0</version>
+	<version>2.4.3</version>
 	<name>${pom.artifactId}</name>
 	<properties>
 		<github.global.server>github</github.global.server>

@@ -18,13 +18,13 @@
  */
 package jp.primecloud.auto.ui.mock.service;
 
+import java.util.HashMap;
 import java.util.List;
-
-import jp.primecloud.auto.service.ProcessService;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import jp.primecloud.auto.service.ProcessService;
 
 /**
  * <p>
@@ -101,6 +101,24 @@ public class MockProcessService implements ProcessService {
     @Override
     public void stopLoadBalancerListeners(Long farmNo, Long loadBalancerNo, List<Integer> loadBalancerPorts) {
         log.info("stopLoadBalancerListeners: " + loadBalancerNo + ", loadBalancerPorts=" + loadBalancerPorts);
+    }
+
+    @Override
+    public boolean checkSubnet(String platformType, Boolean vpc, String subnetId) {
+        // TODO 自動生成されたメソッド・スタブ
+        return false;
+    }
+
+    @Override
+    public HashMap<String, Boolean> checkStartupAll(String platformType, String instanceName, boolean skipServer) {
+        // TODO 自動生成されたメソッド・スタブ
+        return null;
+    }
+
+    @Override
+    public boolean checkStartup(String platformType, String instanceName, Long instanceNo) {
+        // TODO 自動生成されたメソッド・スタブ
+        return false;
     }
 
 }

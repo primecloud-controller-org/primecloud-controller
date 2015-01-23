@@ -29,7 +29,6 @@ import jp.primecloud.auto.ui.util.ContextUtils;
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
-
 import com.vaadin.Application;
 import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.validator.StringLengthValidator;
@@ -198,7 +197,6 @@ public class MyCloudEdit extends Window {
                 String domainName = (String) domainNameField.getValue();
                 String comment = (String) commentField.getValue();
 
-                //TODO LOG
                 AutoApplication aapl =  (AutoApplication)apl;
                 aapl.doOpLog("CLOUD", "Edit Cloud", farmNo, null);
 

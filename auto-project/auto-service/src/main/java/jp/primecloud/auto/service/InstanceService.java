@@ -1,6 +1,6 @@
 /*
  * Copyright 2014 by SCSK Corporation.
- * 
+ * ss
  * This file is part of PrimeCloud Controller(TM).
  * 
  * PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
@@ -22,10 +22,11 @@ import java.util.List;
 
 import jp.primecloud.auto.common.status.InstanceStatus;
 import jp.primecloud.auto.entity.crud.Instance;
+import jp.primecloud.auto.service.dto.DataDiskDto;
 import jp.primecloud.auto.service.dto.InstanceDto;
+import jp.primecloud.auto.service.dto.InstanceNetworkDto;
 import jp.primecloud.auto.service.dto.PlatformDto;
 import jp.primecloud.auto.service.dto.VmwareAddressDto;
-
 
 /**
  * <p>
@@ -53,6 +54,23 @@ public interface InstanceService {
 
     public void updateCloudstackInstance(Long instanceNo, String instanceName, String comment, String keyName,
             String instanceType, String securityGroupName, String availabilityZoneName, Long addressNo);
+
+    public void updateVcloudInstance(Long instanceNo, String instanceName, String comment, Long storageTypeNo, Long keyPairNo,
+            String instanceType, List<InstanceNetworkDto> instanceNetworkDtos);
+
+    public void updateAzureInstance(Long instanceNo, String instanceName, String comment, String instanceType,
+            String availabilitySet, String subnetId);
+
+    public void updateOpenStackInstance(Long instanceNo, String instanceName, String comment, String instanceType,
+            String availabilityZoneName, String securityGroupName, String keyName);
+
+    public Long createDataDisk(Long instanceNo, DataDiskDto dataDiskDto);
+
+    public void updateDataDisk(Long instanceNo, DataDiskDto dataDiskDto);
+
+    public void attachDataDisk(Long instanceNo, Long diskNo);
+
+    public void detachDataDisk(Long instanceNo, Long diskNo);
 
     public void updateVmwareInstance(Long instanceNo, String instanceName, String comment, String instanceType,
             String computeResource, String resourcePool, Long keyPairNo);

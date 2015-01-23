@@ -25,11 +25,8 @@ import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import jp.primecloud.auto.config.Config;
-import jp.primecloud.auto.dao.crud.PlatformAwsDao;
-import jp.primecloud.auto.dao.crud.PlatformDao;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.PlatformAws;
 
@@ -40,11 +37,10 @@ public class ConfigMain {
     public static final int PAD_SIZE = 20;
 
     public static void showPlatforms() {
-        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
         try {
-            PlatformDao platformDao = (PlatformDao) context.getBean("platformDao");
-            List<Platform> platforms = platformDao.readAll();
-            if (platforms == null || platforms.isEmpty()) {
+            String sql = "SELECT * FROM PLATFORM";
+            List<Platform> platforms = SQLMain.selectExecuteWithResult(sql, Platform.class);
+            if (platforms.isEmpty()) {
                 System.out.println("使用可能なプラットフォームがありません");
                 return;
             }
@@ -70,62 +66,52 @@ public class ConfigMain {
         } catch (Exception e) {
             e.printStackTrace();
             log.error(e.getMessage(), e);
-        } finally {
-            context.destroy();
         }
     }
 
-//    public static boolean hasPlatform(Long platformNo) {
-//        try  {
-//            List<Platform> platforms = Config.getPlatforms();
-//            if (platforms == null || platforms.isEmpty()) {
-//                return false;
-//            }
-//            for (Platform platform : platforms) {
-//                if (platform.getNo() == platformNo.longValue()) {
-//                    return true;
-//                }
-//            }
-//        } catch {
-//
-//        }
-//        return false;
-//    }
-
     public static void getPlatformNo(String platformName, String platformKind) {
-        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
-
         try {
-            PlatformDao platformDao = (PlatformDao) context.getBean("platformDao");
-            PlatformAwsDao platformAwsDao = (PlatformAwsDao) context.getBean("platformAwsDao");
-
-            List<Platform> platforms = platformDao.readAll();
+            String platformSql = "SELECT * FROM PLATFORM";
+            List<Platform> platforms = SQLMain.selectExecuteWithResult(platformSql, Platform.class);
             if (platforms == null || platforms.isEmpty()) {
                 System.out.println("NULL");
+                return;
             }
             for (Platform platform : platforms) {
-                if (platform.getPlatformName().equals(platformName)) {
+                if (StringUtils.equals(platform.getPlatformName(), platformName)) {
                     if (BooleanUtils.isNotTrue(platform.getSelectable())) {
                         //使用不可なプラットフォーム
                         System.out.println("DISABLE");
                         return;
                     }
 
-                    PlatformAws platformAws = platformAwsDao.read(platform.getPlatformNo());
-                    if (platformKind.equals("ec2") && "aws".equals(platform.getPlatformType()) && platformAws.getEuca() == false) {
-                        System.out.println(Long.toString(platform.getPlatformNo()));
+                    String platformAwsSql = "SELECT * FROM PLATFORM_AWS WHERE PLATFORM_NO=" + platform.getPlatformNo();
+                    List<PlatformAws> platformAwses = SQLMain.selectExecuteWithResult(platformAwsSql, PlatformAws.class);
+                    if ("ec2".equals(platformKind) && "aws".equals(platform.getPlatformType()) &&
+                        BooleanUtils.isFalse(platformAwses.get(0).getEuca())) {
+                        System.out.println(platform.getPlatformNo().toString());
                         return;
-                    } else if (platformKind.equals("vmware") && "vmware".equals(platform.getPlatformType())) {
-                        System.out.println(Long.toString(platform.getPlatformNo()));
+                    } else if ("vmware".equals(platformKind) && "vmware".equals(platform.getPlatformType())) {
+                        System.out.println(platform.getPlatformNo().toString());
                         return;
-                    } else if (platformKind.equals("eucalyptus") && "aws".equals(platform.getPlatformType()) && platformAws.getEuca()) {
-                        System.out.println(Long.toString(platform.getPlatformNo()));
+                    } else if ("eucalyptus".equals(platformKind) && "aws".equals(platform.getPlatformType()) &&
+                               BooleanUtils.isTrue(platformAwses.get(0).getEuca())) {
+                        System.out.println(platform.getPlatformNo().toString());
                         return;
-                    } else if (platformKind.equals("nifty") && "nifty".equals(platform.getPlatformType())) {
-                        System.out.println(Long.toString(platform.getPlatformNo()));
+                    } else if ("nifty".equals(platformKind) && "nifty".equals(platform.getPlatformType())) {
+                        System.out.println(platform.getPlatformNo().toString());
                         return;
-                    } else if (platformKind.equals("cloudstack") && "cloudstack".equals(platform.getPlatformType())) {
-                        System.out.println(Long.toString(platform.getPlatformNo()));
+                    } else if ("cloudstack".equals(platformKind) && "cloudstack".equals(platform.getPlatformType())) {
+                        System.out.println(platform.getPlatformNo().toString());
+                        return;
+                    } else if ("vcloud".equals(platformKind) && "vcloud".equals(platform.getPlatformType())) {
+                        System.out.println(platform.getPlatformNo().toString());
+                        return;
+                    } else if ("azure".equals(platformKind) && "azure".equals(platform.getPlatformType())) {
+                        System.out.println(platform.getPlatformNo().toString());
+                        return;
+                    } else if ("openstack".equals(platformKind) && "openstack".equals(platform.getPlatformType())) {
+                        System.out.println(platform.getPlatformNo().toString());
                         return;
                     }
                 }
@@ -134,8 +120,6 @@ public class ConfigMain {
         } catch (Exception e) {
             e.printStackTrace();
             log.error(e.getMessage(), e);
-        } finally {
-            context.destroy();
         }
     }
 

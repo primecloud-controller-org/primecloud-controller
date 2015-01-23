@@ -24,11 +24,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+
+import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.InstanceStatus;
+import jp.primecloud.auto.component.mysql.MySQLConstants;
+import jp.primecloud.auto.config.Config;
 import jp.primecloud.auto.entity.crud.ComponentType;
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.InstanceConfig;
-import jp.primecloud.auto.log.service.OperationLogService;
 import jp.primecloud.auto.service.InstanceService;
 import jp.primecloud.auto.service.ProcessService;
 import jp.primecloud.auto.service.dto.ComponentDto;
@@ -38,15 +43,12 @@ import jp.primecloud.auto.ui.DialogConfirm.Buttons;
 import jp.primecloud.auto.ui.DialogConfirm.Result;
 import jp.primecloud.auto.ui.data.InstanceDtoContainer;
 import jp.primecloud.auto.ui.util.BeanContext;
+import jp.primecloud.auto.ui.util.CommonUtils;
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
-
-import org.apache.commons.lang.StringUtils;
-
-import jp.primecloud.auto.component.mysql.MySQLConstants;
 import com.vaadin.data.Container;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
@@ -118,21 +120,8 @@ public class ServerTable extends Table {
                 InstanceDto p = (InstanceDto) itemId;
 
                 PlatformDto platformDto = p.getPlatform();
-                // TODO: アイコン名の取得ロジックのリファクタリング
-                Icons icon = Icons.NONE;
-                if ("aws".equals(platformDto.getPlatform().getPlatformType())) {
-                    if (platformDto.getPlatformAws().getEuca()) {
-                        icon = Icons.EUCALYPTUS;
-                    } else {
-                        icon = Icons.AWS;
-                    }
-                } else if ("vmware".equals(platformDto.getPlatform().getPlatformType())) {
-                    icon = Icons.VMWARE;
-                } else if ("nifty".equals(platformDto.getPlatform().getPlatformType())) {
-                    icon = Icons.NIFTY;
-                } else if ("cloudstack".equals(platformDto.getPlatform().getPlatformType())) {
-                    icon = Icons.CLOUD_STACK;
-                }
+                //プラットフォームアイコン名の取得
+                Icons icon = CommonUtils.getPlatformIcon(platformDto);
 
                 Label nlbl = new Label("<img src=\"" + VaadinUtils.getIconPath(ServerTable.this, icon) + "\"><div>"
                         + p.getInstance().getInstanceName() + "</div>", Label.CONTENT_XHTML);
@@ -152,7 +141,15 @@ public class ServerTable extends Table {
         addGeneratedColumn("publicIp", new ColumnGenerator() {
             public Component generateCell(Table source, Object itemId, Object columnId) {
                 InstanceDto p = (InstanceDto) itemId;
-                Label ipaddr = new Label(p.getInstance().getPublicIp());
+                Boolean showPublicIp = BooleanUtils.toBooleanObject(Config.getProperty("ui.showPublicIp"));
+                Label ipaddr;
+                if (BooleanUtils.isTrue(showPublicIp)) {
+                    //ui.showPublicIp = trueの場合はPublicIpを表示
+                    ipaddr = new Label(p.getInstance().getPublicIp());
+                } else {
+                    //ui.showPublicIp = falseの場合はPrivateIpを表示
+                    ipaddr = new Label(p.getInstance().getPrivateIp());
+                }
                 return ipaddr;
             }
         });
@@ -181,7 +178,7 @@ public class ServerTable extends Table {
                     String name = componentType.getComponentTypeNameDisp();
                     Icons nameIcon = Icons.fromName(componentType.getComponentTypeName());
                     // Master
-                    if(MySQLConstants.COMPONENT_TYPE_NAME.equals(componentType.getComponentTypeName())){
+                    if (MySQLConstants.COMPONENT_TYPE_NAME.equals(componentType.getComponentTypeName())) {
                         Long masterInstanceNo = null;
                         for (InstanceConfig config : dto.getInstanceConfigs()) {
                             if (MySQLConstants.CONFIG_NAME_MASTER_INSTANCE_NO.equals(config.getConfigName())) {
@@ -191,21 +188,21 @@ public class ServerTable extends Table {
                                 }
                             }
                         }
-                        if(masterInstanceNo != null){
-                            if(masterInstanceNo.equals(p.getInstance().getInstanceNo())){
-                                name = name +"_master";
+                        if (masterInstanceNo != null) {
+                            if (masterInstanceNo.equals(p.getInstance().getInstanceNo())) {
+                                name = name + "_master";
                                 nameIcon = Icons.MYSQL_MASTER;
-                            }else{
-                                name = name +"_slave";
+                            } else {
+                                name = name + "_slave";
                                 nameIcon = Icons.MYSQL_SLAVE;
                             }
-                        }else{
-                            name = name +"_slave";
+                        } else {
+                            name = name + "_slave";
                             nameIcon = Icons.MYSQL_SLAVE;
                         }
                     }
 
-                    context = context  +   "<img style=\"width: 5px;\" src=\" "
+                    context = context + "<img style=\"width: 5px;\" src=\" "
                             + VaadinUtils.getIconPath(ServerTable.this, Icons.fromName("SPACER")) + "\" >"
                             + "<img src=\"" + VaadinUtils.getIconPath(ServerTable.this, nameIcon) + "\" + "
                             + " title=\"" + name + "\">";
@@ -297,19 +294,132 @@ public class ServerTable extends Table {
 //        alwaysRecalculateColumnWidths = true;
     }
 
+    public void startMonitoringButtonClick(Button.ClickEvent event) {
+        final InstanceDto dto = (InstanceDto) this.getValue();
+        final int index = this.getCurrentPageFirstItemIndex();
+
+        String message = ViewMessages.getMessage("IUI-000121", dto.getInstance().getInstanceName());
+        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message, Buttons.OKCancel);
+
+        dialog.setCallback(new DialogConfirm.Callback() {
+            @Override
+            public void onDialogResult(Result result) {
+                if (result != Result.OK) {
+                    return;
+                }
+
+                InstanceService instanceService = BeanContext.getBean(InstanceService.class);
+
+                //オペレーションログ
+                AutoApplication apl = (AutoApplication) getApplication();
+                apl.doOpLog("SERVER", "Start Monitoring Server", dto.getInstance().getInstanceNo(), null, null, dto.getInstance().getInstanceName());
+
+                //監視有効化処理
+                instanceService.enableZabbixMonitoring(dto.getInstance().getInstanceNo());
+                sender.refreshTable();
+
+                // 選択されていたサーバを選択し直す
+                for (Object itemId : getItemIds()) {
+                    InstanceDto dto2 = (InstanceDto) itemId;
+                    if (dto.getInstance().getInstanceNo().equals(dto2.getInstance().getInstanceNo())) {
+                        select(itemId);
+                        setCurrentPageFirstItemIndex(index);
+                        setButtonStatus(dto2.getInstance());
+                        break;
+                    }
+                }
+            }
+        });
+        getApplication().getMainWindow().addWindow(dialog);
+    }
+
+    public void stopMonitoringButtonClick(Button.ClickEvent event) {
+        final InstanceDto dto = (InstanceDto) this.getValue();
+        final int index = this.getCurrentPageFirstItemIndex();
+
+        String message = ViewMessages.getMessage("IUI-000122", dto.getInstance().getInstanceName());
+        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message, Buttons.OKCancel);
+
+        dialog.setCallback(new DialogConfirm.Callback() {
+            @Override
+            public void onDialogResult(Result result) {
+                if (result != Result.OK) {
+                    return;
+                }
+
+                InstanceService instanceService = BeanContext.getBean(InstanceService.class);
+
+                //オペレーションログ
+                AutoApplication apl = (AutoApplication) getApplication();
+                apl.doOpLog("SERVER", "Stop Monitoring Server", dto.getInstance().getInstanceNo(), null, null, dto.getInstance().getInstanceName());
+
+                //監視無効化処理
+                instanceService.disableZabbixMonitoring(dto.getInstance().getInstanceNo());
+                sender.refreshTable();
+
+                // 選択されていたサーバを選択し直す
+                for (Object itemId : getItemIds()) {
+                    InstanceDto dto2 = (InstanceDto) itemId;
+                    if (dto.getInstance().getInstanceNo().equals(dto2.getInstance().getInstanceNo())) {
+                        select(itemId);
+                        setCurrentPageFirstItemIndex(index);
+                        setButtonStatus(dto2.getInstance());
+                        break;
+                    }
+                }
+            }
+        });
+        getApplication().getMainWindow().addWindow(dialog);
+    }
+
     public void playButtonClick(Button.ClickEvent event) {
         final InstanceDto dto = (InstanceDto) this.getValue();
         final int index = this.getCurrentPageFirstItemIndex();
         final PlatformDto platform = dto.getPlatform();
-        if ("aws".equals(platform.getPlatform().getPlatformType()) &&
-            platform.getPlatformAws().getVpc() &&
-            StringUtils.isEmpty(dto.getAwsInstance().getSubnetId())) {
-            //EC2+VPCの場合、サブネットを設定しないと起動不可
+
+        ProcessService processService = BeanContext.getBean(ProcessService.class);
+
+        boolean vpc = false;
+        String subnetId = null;
+        boolean subnetErrFlg;
+        if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatform().getPlatformType())) {
+            // サブネットチェック
+            vpc = platform.getPlatformAws().getVpc();
+            subnetId = dto.getAwsInstance().getSubnetId();
+            subnetErrFlg = processService.checkSubnet(platform.getPlatform().getPlatformType(), vpc, subnetId);
+            if (subnetErrFlg == true) {
+                //EC2+VPCの場合、サブネットを設定しないと起動不可
             DialogConfirm dialog = new DialogConfirm(
                     ViewProperties.getCaption("dialog.error"), ViewMessages.getMessage("IUI-000111"));
             getApplication().getMainWindow().addWindow(dialog);
             return;
         }
+        }
+        if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatform().getPlatformType())) {
+            // サブネットチェック
+            subnetId = dto.getAzureInstance().getSubnetId();
+            subnetErrFlg = processService.checkSubnet(platform.getPlatform().getPlatformType(), vpc, subnetId);
+            if (subnetErrFlg == true) {
+                // サブネットを設定しないと起動不可
+                DialogConfirm dialog = new DialogConfirm(
+                        ViewProperties.getCaption("dialog.error"), ViewMessages.getMessage("IUI-000111"));
+                getApplication().getMainWindow().addWindow(dialog);
+                return;
+            }
+            // インスタンス起動チェック（個別起動）
+            boolean startupErrFlg;
+            startupErrFlg = processService.checkStartup(platform.getPlatform().getPlatformType(),
+                    dto.getAzureInstance().getInstanceName(),
+                    dto.getAzureInstance().getInstanceNo());
+            if (startupErrFlg == true) {
+                        // インスタンス作成中のものがあった場合は、起動不可
+                // 同一インスタンスNoは、除外する
+                        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
+                                ViewMessages.getMessage("IUI-000133"));
+                        getApplication().getMainWindow().addWindow(dialog);
+                        return;
+                    }
+                }
 
         HorizontalLayout optionLayout = new HorizontalLayout();
         final CheckBox checkBox = new CheckBox(ViewMessages.getMessage("IUI-000035"), false);
@@ -332,8 +442,8 @@ public class ServerTable extends Table {
                 list.add(dto.getInstance().getInstanceNo());
                 boolean startService = (Boolean) checkBox.getValue();
 
-                //TODO LOG
-                AutoApplication apl = (AutoApplication)getApplication();
+                //オペレーションログ
+                AutoApplication apl = (AutoApplication) getApplication();
                 apl.doOpLog("SERVER", "Start Server", dto.getInstance().getInstanceNo(), null, null, String.valueOf(startService));
 
                 processService.startInstances(farmNo, list, startService);
@@ -372,8 +482,8 @@ public class ServerTable extends Table {
                 List<Long> list = new ArrayList<Long>();
                 list.add(dto.getInstance().getInstanceNo());
 
-                //TODO LOG
-                AutoApplication apl = (AutoApplication)getApplication();
+                //オペレーションログ
+                AutoApplication apl = (AutoApplication) getApplication();
                 apl.doOpLog("SERVER", "Stop Server", dto.getInstance().getInstanceNo(), null, null, null);
 
                 processService.stopInstances(farmNo, list);
@@ -399,7 +509,7 @@ public class ServerTable extends Table {
         final InstanceDto dto = (InstanceDto) this.getValue();
         final int index = this.getCurrentPageFirstItemIndex();
 
-        WinServerEdit winServerEdit = new WinServerEdit(getApplication(),dto.getInstance().getInstanceNo());
+        WinServerEdit winServerEdit = new WinServerEdit(getApplication(), dto.getInstance().getInstanceNo());
         winServerEdit.addListener(new Window.CloseListener() {
             @Override
             public void windowClose(CloseEvent e) {
@@ -434,8 +544,8 @@ public class ServerTable extends Table {
                     return;
                 }
 
-                //TODO LOG
-                AutoApplication apl = (AutoApplication)getApplication();
+                //オペレーションログ
+                AutoApplication apl = (AutoApplication) getApplication();
                 apl.doOpLog("SERVER", "Delete Server", dto.getInstance().getInstanceNo(), null, null, null);
 
                 Long instanceNo = dto.getInstance().getInstanceNo();

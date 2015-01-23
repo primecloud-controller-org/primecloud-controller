@@ -13,6 +13,12 @@ class ${instance.fqdn?replace('.','_')}_${component.componentName} {
       <#elseif vmwareDisk ??>
         prjserver_vgdisk       => "/dev/disk/by-path/pci-0000:00:10.0-scsi-0:0:${vmwareDisk.scsiId}:0",
         prjserver_visor        => "vmware",
+      <#elseif vcloudDisk ??>
+        prjserver_vgdisk       => "/dev/disk/by-path/pci-0000:00:10.0-scsi-0:0:${vcloudDisk.unitNo}:0",
+        prjserver_visor        => "vcloud",
+      <#elseif azureDisk ??>
+        geronimo_vgdisk         => "${azureDisk.lun}",
+        geronimo_visor          => "azure",
       <#else>
         prjserver_vgdisk       => "",
         prjserver_visor        => "",

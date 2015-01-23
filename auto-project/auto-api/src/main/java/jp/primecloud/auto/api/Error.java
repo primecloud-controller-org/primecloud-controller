@@ -28,7 +28,6 @@ import javax.ws.rs.core.MediaType;
 import jp.primecloud.auto.api.response.ErrorResponse;
 
 
-
 @Path("/Error")
 public class Error {
 

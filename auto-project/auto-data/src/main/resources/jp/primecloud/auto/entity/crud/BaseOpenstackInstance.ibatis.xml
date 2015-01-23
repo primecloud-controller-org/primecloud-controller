@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap      
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="OpenstackInstance">
+
+	<typeAlias alias="OpenstackInstance" type="jp.primecloud.auto.entity.crud.OpenstackInstance" />
+
+	<resultMap id="openstackInstanceResultMap" class="OpenstackInstance">
+		<result property="instanceNo" column="INSTANCE_NO" />
+		<result property="keyName" column="KEY_NAME" nullValue="" />
+		<result property="instanceType" column="INSTANCE_TYPE" nullValue="" />
+		<result property="securityGroups" column="SECURITY_GROUPS" nullValue="" />
+		<result property="availabilityZone" column="AVAILABILITY_ZONE" nullValue="" />
+		<result property="instanceId" column="INSTANCE_ID" nullValue="" />
+		<result property="status" column="STATUS" nullValue="" />
+		<result property="clientIpAddress" column="CLIENT_IP_ADDRESS" nullValue="" />
+		<result property="privateIpAddress" column="PRIVATE_IP_ADDRESS" nullValue="" />
+		<result property="networkId" column="NETWORK_ID" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.INSTANCE_NO as INSTANCE_NO, 
+			t1.KEY_NAME as KEY_NAME, 
+			t1.INSTANCE_TYPE as INSTANCE_TYPE, 
+			t1.SECURITY_GROUPS as SECURITY_GROUPS, 
+			t1.AVAILABILITY_ZONE as AVAILABILITY_ZONE, 
+			t1.INSTANCE_ID as INSTANCE_ID, 
+			t1.STATUS as STATUS, 
+			t1.CLIENT_IP_ADDRESS as CLIENT_IP_ADDRESS, 
+			t1.PRIVATE_IP_ADDRESS as PRIVATE_IP_ADDRESS, 
+			t1.NETWORK_ID as NETWORK_ID
+		from
+			OPENSTACK_INSTANCE t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from OPENSTACK_INSTANCE t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="openstackInstanceResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.INSTANCE_NO = #instanceNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="openstackInstanceResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readInInstanceNos" parameterClass="java.util.Map" resultMap="openstackInstanceResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.INSTANCE_NO in
+		]]>
+		<iterate property="instanceNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#instanceNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="OpenstackInstance">
+		<![CDATA[
+		insert into OPENSTACK_INSTANCE (
+			INSTANCE_NO, 
+			KEY_NAME, 
+			INSTANCE_TYPE, 
+			SECURITY_GROUPS, 
+			AVAILABILITY_ZONE, 
+			INSTANCE_ID, 
+			STATUS, 
+			CLIENT_IP_ADDRESS, 
+			PRIVATE_IP_ADDRESS, 
+			NETWORK_ID
+		) values (
+			#instanceNo#, 
+			#keyName#, 
+			#instanceType#, 
+			#securityGroups#, 
+			#availabilityZone#, 
+			#instanceId#, 
+			#status#, 
+			#clientIpAddress#, 
+			#privateIpAddress#, 
+			#networkId#
+		)
+		]]>
+	</insert>
+
+	<update id="update" parameterClass="OpenstackInstance">
+		<![CDATA[
+		update OPENSTACK_INSTANCE set
+			KEY_NAME = #keyName#, 
+			INSTANCE_TYPE = #instanceType#, 
+			SECURITY_GROUPS = #securityGroups#, 
+			AVAILABILITY_ZONE = #availabilityZone#, 
+			INSTANCE_ID = #instanceId#, 
+			STATUS = #status#, 
+			CLIENT_IP_ADDRESS = #clientIpAddress#, 
+			PRIVATE_IP_ADDRESS = #privateIpAddress#, 
+			NETWORK_ID = #networkId#
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="OpenstackInstance">
+		<![CDATA[
+		delete from OPENSTACK_INSTANCE
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from OPENSTACK_INSTANCE
+		]]>
+	</delete>
+
+	<delete id="deleteByInstanceNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from OPENSTACK_INSTANCE
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByInstanceNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</select>
+
+</sqlMap>

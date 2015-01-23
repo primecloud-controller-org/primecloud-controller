@@ -2,17 +2,17 @@ package jp.primecloud.auto.ui;
 
 import java.util.Collection;
 
+import org.apache.commons.lang.StringUtils;
+
 import jp.primecloud.auto.common.status.LoadBalancerStatus;
 import jp.primecloud.auto.service.dto.ComponentDto;
 import jp.primecloud.auto.service.dto.LoadBalancerDto;
 import jp.primecloud.auto.service.dto.PlatformDto;
 import jp.primecloud.auto.ui.data.LoadBalancerDtoContainer;
+import jp.primecloud.auto.ui.util.CommonUtils;
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewProperties;
-
-import org.apache.commons.lang.StringUtils;
-
 import com.vaadin.data.Container;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
@@ -129,21 +129,8 @@ public class LoadBalancerTable  extends Table {
                 LoadBalancerDto p = (LoadBalancerDto) itemId;
                 PlatformDto platformDto = p.getPlatform();
 
-                // TODO: アイコン名の取得ロジックのリファクタリング
-                Icons icon = Icons.NONE;
-                if ("aws".equals(platformDto.getPlatform().getPlatformType())) {
-                    if (platformDto.getPlatformAws().getEuca()) {
-                        icon = Icons.EUCALYPTUS;
-                    } else {
-                        icon = Icons.AWS;
-                    }
-                } else if ("vmware".equals(platformDto.getPlatform().getPlatformType())) {
-                    icon = Icons.VMWARE;
-                } else if ("nifty".equals(platformDto.getPlatform().getPlatformType())) {
-                    icon = Icons.NIFTY;
-                } else if ("cloudstack".equals(platformDto.getPlatform().getPlatformType())) {
-                    icon = Icons.CLOUD_STACK;
-                }
+                //プラットフォームアイコン名の取得
+                Icons icon = CommonUtils.getPlatformIcon(platformDto);
 
                 String type = ViewProperties.getLoadBalancerType(p.getLoadBalancer().getType());
                 Label slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(LoadBalancerTable.this, icon) + "\"><div>"

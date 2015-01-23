@@ -4,6 +4,7 @@ class ${instance.fqdn?replace('.','_')}_${component.componentName} {
 
     class { "dbserver::mysql":
         mysql_service_name  => "${component.componentName}",
+    <#comment>TODO CLOUD BRANCHING</#comment>
     <#if awsVolume ??>
         mysql_vgdisk        => "${awsVolume.device}",
         mysql_visor         => "aws",
@@ -13,6 +14,15 @@ class ${instance.fqdn?replace('.','_')}_${component.componentName} {
     <#elseif vmwareDisk ??>
         mysql_vgdisk        => "/dev/disk/by-path/pci-0000:00:10.0-scsi-0:0:${vmwareDisk.scsiId}:0",
         mysql_visor         => "vmware",
+    <#elseif vcloudDisk ??>
+        mysql_vgdisk         => "/dev/disk/by-path/pci-0000:00:10.0-scsi-0:0:${vcloudDisk.unitNo}:0",
+        mysql_visor          => "vcloud",
+    <#elseif azureDisk ??>
+        mysql_vgdisk         => "${azureDisk.device}",
+        mysql_visor          => "azure",
+    <#elseif openstackVolume ??>
+        mysql_vgdisk         => "${openstackVolume.device}",
+        mysql_visor          => "openstack",
     <#else>
         mysql_vgdisk        => "",
         mysql_visor         => "",

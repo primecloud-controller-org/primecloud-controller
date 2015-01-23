@@ -25,33 +25,40 @@ import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.Security;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.crypto.Cipher;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.StringUtils;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.openssl.PEMReader;
+
+import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.entity.crud.AwsAddress;
 import jp.primecloud.auto.entity.crud.CloudstackAddress;
 import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.Platform;
+import jp.primecloud.auto.entity.crud.PlatformVcloudStorageType;
 import jp.primecloud.auto.entity.crud.User;
+import jp.primecloud.auto.entity.crud.VcloudInstanceNetwork;
+import jp.primecloud.auto.entity.crud.VcloudKeyPair;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.exception.AutoException;
+import jp.primecloud.auto.iaasgw.IaasGatewayFactory;
+import jp.primecloud.auto.iaasgw.IaasGatewayWrapper;
 import jp.primecloud.auto.log.EventLogger;
 import jp.primecloud.auto.service.IaasDescribeService;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.service.dto.AddressDto;
 import jp.primecloud.auto.service.dto.KeyPairDto;
+import jp.primecloud.auto.service.dto.NetworkDto;
 import jp.primecloud.auto.service.dto.SecurityGroupDto;
+import jp.primecloud.auto.service.dto.StorageTypeDto;
 import jp.primecloud.auto.service.dto.SubnetDto;
 import jp.primecloud.auto.service.dto.ZoneDto;
-
-import org.apache.commons.codec.binary.Base64;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.openssl.PEMReader;
-
-import jp.primecloud.auto.iaasgw.IaasGatewayFactory;
-import jp.primecloud.auto.iaasgw.IaasGatewayWrapper;
 
 /**
  * <p>
@@ -77,10 +84,10 @@ public class IaasDescribeServiceImpl extends ServiceSupport implements IaasDescr
         IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(userNo, platformNo);
         String result = gateway.describeAvailabilityZones();
 
-        ArrayList<ZoneDto> retArray = new  ArrayList<ZoneDto>();
-        if(!"".equals(result)){
+        ArrayList<ZoneDto> retArray = new ArrayList<ZoneDto>();
+        if (!"".equals(result)) {
             String[] resultArray = result.split("##");
-            for (String item:resultArray){
+            for (String item : resultArray) {
                 String[] resultArray2 = item.split("#");
                 ZoneDto zone = new ZoneDto();
                 //今はこれしか利用されていないので
@@ -97,17 +104,32 @@ public class IaasDescribeServiceImpl extends ServiceSupport implements IaasDescr
      */
     @Override
     public List<KeyPairDto> getKeyPairs(Long userNo, Long platformNo) {
-        IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(userNo, platformNo);
-        String result = gateway.describeKeyPairs();
+        ArrayList<KeyPairDto> retArray = new ArrayList<KeyPairDto>();
+        Platform platform = platformDao.read(platformNo);
 
-        ArrayList<KeyPairDto> retArray = new  ArrayList<KeyPairDto>();
-        if(!"".equals(result)){
-            String[] resultArray = result.split("##");
-            for (String item:resultArray){
-                String[] resultArray2 = item.split("#");
+        if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType()) ||
+            PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType()) ||
+            PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
+            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(userNo, platformNo);
+            String result = gateway.describeKeyPairs();
+            if (!"".equals(result)) {
+                String[] resultArray = result.split("##");
+                for (String item : resultArray) {
+                    String[] resultArray2 = item.split("#");
+                    KeyPairDto pair = new KeyPairDto();
+                    //今はこれしか利用されていないので
+                    pair.setKeyName(resultArray2[0]);
+                    retArray.add(pair);
+                }
+            }
+        } else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
+            List<VcloudKeyPair> vcloudKeyPairs = vcloudKeyPairDao.readByUserNoAndPlatformNo(userNo, platformNo);
+            // ソート
+            Collections.sort(vcloudKeyPairs, Comparators.COMPARATOR_VCLOUD_KEY_PAIR);
+            for (VcloudKeyPair vcloudKeyPair : vcloudKeyPairs) {
                 KeyPairDto pair = new KeyPairDto();
-                //今はこれしか利用されていないので
-                pair.setKeyName(resultArray2[0]);
+                pair.setKeyNo(vcloudKeyPair.getKeyNo());
+                pair.setKeyName(vcloudKeyPair.getKeyName());
                 retArray.add(pair);
             }
         }
@@ -122,10 +144,10 @@ public class IaasDescribeServiceImpl extends ServiceSupport implements IaasDescr
         IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(userNo, platformNo);
         String result = gateway.describeSecurityGroups(vpcId);
 
-        ArrayList<SecurityGroupDto> retArray = new  ArrayList<SecurityGroupDto>();
-        if(!"".equals(result)){
+        ArrayList<SecurityGroupDto> retArray = new ArrayList<SecurityGroupDto>();
+        if (!"".equals(result)) {
             String[] resultArray = result.split("##");
-            for (String item:resultArray){
+            for (String item : resultArray) {
                 String[] resultArray2 = item.split("#");
                 SecurityGroupDto group = new SecurityGroupDto();
                 //今はこれしか利用されていないので
@@ -144,10 +166,10 @@ public class IaasDescribeServiceImpl extends ServiceSupport implements IaasDescr
         IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(userNo, platformNo);
         String result = gateway.describeSubnets(vpcId);
 
-        ArrayList<SubnetDto> retArray = new  ArrayList<SubnetDto>();
-        if(!"".equals(result)){
+        ArrayList<SubnetDto> retArray = new ArrayList<SubnetDto>();
+        if (!"".equals(result)) {
             String[] resultArray = result.split("##");
-            for (String item:resultArray){
+            for (String item : resultArray) {
                 String[] resultArray2 = item.split("#");
                 SubnetDto subnet = new SubnetDto();
                 //今はこれしか利用されていないので
@@ -158,6 +180,77 @@ public class IaasDescribeServiceImpl extends ServiceSupport implements IaasDescr
             }
         }
         // VPCをサポートしていない場合は無視する
+        return retArray;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<StorageTypeDto> getStorageTypes(Long userNo, Long platformNo) {
+        List<StorageTypeDto> retArray = new ArrayList<StorageTypeDto>();
+        List<PlatformVcloudStorageType> platformVcloudStorageTypes = platformVcloudStorageTypeDao.readByPlatformNo(platformNo);
+        Collections.sort(platformVcloudStorageTypes, Comparators.COMPARATOR_PLATFORM_VCLOUD_STORAGE_TYPE);
+        for (PlatformVcloudStorageType storageType : platformVcloudStorageTypes) {
+            StorageTypeDto storageTypeDto = new StorageTypeDto(storageType);
+            retArray.add(storageTypeDto);
+        }
+
+        return retArray;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<NetworkDto> getNetworks(Long userNo, Long platformNo) {
+        IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(userNo, platformNo);
+        // IaasGateWay処理
+        String result = gateway.describeNetworks();
+        List<NetworkDto> tmpRetArray = new ArrayList<NetworkDto>();
+        List<NetworkDto> retArray = new ArrayList<NetworkDto>();
+        if (!"".equals(result)) {
+            //IaasGateway戻り値の例(データが存在しない場合はNone)
+            //出力形式 ネットワーク名#GATEWAY=*.*.*.*,NETMASK=*.*.*.*,DNS1=*.*.*.*,DNS2=*.*.*.*,RANGEF=*.*.*.*,RANGET=*.*.*.*,PRIMARY=TrueもしくはFalse
+            //例)common-internet-direct#GATEWAY=172.16.221.254,NETMASK=255.255.255.0,DNS1=172.31.12.102,DNS2=172.16.1.1,RANGEF=172.16.221.1,RANGET=172.16.221.253,PRIMARY=True
+            String[] resultArray = result.split("##");
+            for (String item : resultArray) {
+                String[] resultArray2 = item.split("#");
+                NetworkDto networkDto = new NetworkDto();
+                networkDto.setNetworkName(resultArray2[0]);
+                String[] keyAndValues = resultArray2[1].split(",");
+                for (String keyAndValue : keyAndValues) {
+                    String[] array = keyAndValue.split("=");
+                    if (StringUtils.equals("GATEWAY", array[0])) {
+                        networkDto.setGateWay(StringUtils.equals("None", array[1]) ? "" : array[1]);
+                    } else if (StringUtils.equals("NETMASK", array[0])) {
+                        networkDto.setNetmask(StringUtils.equals("None", array[1]) ? "" : array[1]);
+                    } else if (StringUtils.equals("DNS1", array[0])) {
+                        networkDto.setDns1(StringUtils.equals("None", array[1]) ? "" : array[1]);
+                    } else if (StringUtils.equals("DNS2", array[0])) {
+                        networkDto.setDns2(StringUtils.equals("None", array[1]) ? "" : array[1]);
+                    } else if (StringUtils.equals("RANGEF", array[0])) {
+                        networkDto.setRangeFrom(StringUtils.equals("None", array[1]) ? "" : array[1]);
+                    } else if (StringUtils.equals("RANGET", array[0])) {
+                        networkDto.setRangeTo(StringUtils.equals("None", array[1]) ? "" : array[1]);
+                    } else if (StringUtils.equals("PRIMARY", array[0])) {
+                        networkDto.setIsPcc(StringUtils.equals("True", array[1]));
+                    }
+                }
+                tmpRetArray.add(networkDto);
+            }
+            //PCCネットワークを先頭で返す
+            for (NetworkDto networkDto : tmpRetArray) {
+                if (networkDto.isPcc()) {
+                    retArray.add(networkDto);
+                }
+            }
+            for (NetworkDto networkDto : tmpRetArray) {
+                if (!networkDto.isPcc()) {
+                    retArray.add(networkDto);
+                }
+            }
+        }
         return retArray;
     }
 
@@ -177,7 +270,8 @@ public class IaasDescribeServiceImpl extends ServiceSupport implements IaasDescr
         Platform platform = platformDao.read(platformNo);
 
         List<AddressDto> addresses = new ArrayList<AddressDto>();
-        if ("aws".equals(platform.getPlatformType())) {
+        // TODO CLOUD BRANCHING
+        if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
             // ユーザに紐づくAWSアドレス情報を取得
             List<AwsAddress> allAddresses = awsAddressDao.readByUserNo(userNo);
             for (AwsAddress address : allAddresses) {
@@ -185,7 +279,7 @@ public class IaasDescribeServiceImpl extends ServiceSupport implements IaasDescr
                     addresses.add(new AddressDto(address));
                 }
             }
-        } else if ("cloudstack".equals(platform.getPlatformType())){
+        } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
             // ユーザに紐づくCloudstackアドレス情報を取得
             List<CloudstackAddress> allAddresses = cloudstackAddressDao.readByAccount(userNo);
             for (CloudstackAddress address : allAddresses) {
@@ -196,6 +290,56 @@ public class IaasDescribeServiceImpl extends ServiceSupport implements IaasDescr
 
         }
         return addresses;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<SubnetDto> getAzureSubnets(Long userNo, Long platformNo, String networkName) {
+        String result = "";
+        if (StringUtils.isNotEmpty(networkName)) {
+            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(userNo, platformNo);
+            result = gateway.describeAzureSubnets(networkName);
+        }
+        ArrayList<SubnetDto> retArray = new ArrayList<SubnetDto>();
+        if (!"".equals(result)) {
+            String[] resultArray = result.split("##");
+            for (String item : resultArray) {
+                String[] resultArray2 = item.split("#");
+                SubnetDto subnet = new SubnetDto();
+                subnet.setSubnetId(resultArray2[0]);
+                subnet.setCidrBlock(resultArray2[1]);
+                retArray.add(subnet);
+            }
+        }
+        return retArray;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String hasIpAddresse(Long platformNo, Long instanceNo, String ipAddress) {
+        // 引数チェック
+        if (platformNo == null) {
+            throw new AutoApplicationException("ECOMMON-000003", "platformNo");
+        }
+        if (instanceNo == null) {
+            throw new AutoApplicationException("ECOMMON-000003", "instanceNo");
+        }
+        if (StringUtils.isEmpty(ipAddress)) {
+            throw new AutoApplicationException("ECOMMON-000003", "ipAddress");
+        }
+
+        List<VcloudInstanceNetwork> vcloudInstanceNetworks = vcloudInstanceNetworkDao.readByPlatformNo(platformNo);
+        for (VcloudInstanceNetwork instanceNetwork : vcloudInstanceNetworks) {
+            if (!instanceNo.equals(instanceNetwork.getInstanceNo()) && instanceNetwork.getIpAddress().equals(ipAddress)) {
+                Instance instance = instanceDao.read(instanceNetwork.getInstanceNo());
+                return instance.getInstanceName();
+            }
+        }
+        return null;
     }
 
     /**
@@ -213,7 +357,8 @@ public class IaasDescribeServiceImpl extends ServiceSupport implements IaasDescr
 
         // プラットフォームのチェック
         Platform platform = platformDao.read(platformNo);
-        if ("aws".equals(platform.getPlatformType()) == false && "cloudstack".equals(platform.getPlatformType()) == false) {
+        if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType()) == false
+                && PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType()) == false) {
             throw new AutoApplicationException("ESERVICE-000702", platformNo);
         }
 

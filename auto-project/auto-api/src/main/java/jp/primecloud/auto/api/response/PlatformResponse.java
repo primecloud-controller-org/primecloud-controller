@@ -4,14 +4,13 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import jp.primecloud.auto.entity.crud.Platform;
-
 import org.apache.commons.lang.BooleanUtils;
 
+import jp.primecloud.auto.entity.crud.Platform;
 
 
 @XmlRootElement(name="PlatformResponse")
-@XmlType(propOrder = {"platformNo","platformName","internal","platformType","aws","vmware","nifty","cloudstack"})
+@XmlType(propOrder = {"platformNo","platformName","internal","platformType","aws","vmware","nifty","cloudstack", "vcloud" , "openstack" , "azure"})
 public class PlatformResponse {
 
     /**
@@ -53,6 +52,21 @@ public class PlatformResponse {
      * プラットフォーム詳細情報(Cloudstack)
      */
     private PlatformCloudstackResponse cloudstack;
+
+    /**
+     * プラットフォーム詳細情報(VCloud)
+     */
+    private PlatformVcloudResponse vcloud;
+
+    /**
+     * プラットフォーム詳細情報(Openstack)
+     */
+    private PlatformOpenstackResponse openstack;
+
+    /**
+     * プラットフォーム詳細情報(Azure)
+     */
+    private PlatformAzureResponse azure;
 
     public PlatformResponse() {}
 
@@ -230,4 +244,67 @@ public class PlatformResponse {
     public void setCloudstack(PlatformCloudstackResponse cloudstack) {
         this.cloudstack = cloudstack;
     }
+
+   /**
+    *
+    * vcloudを取得します。
+    *
+    * @return vcloud
+    */
+    @XmlElement(name="VCLOUD")
+    public PlatformVcloudResponse getVcloud() {
+        return vcloud;
+    }
+
+   /**
+    *
+    * vcloudを設定
+    *
+    * @param vcloud
+    */
+    public void setVcloud(PlatformVcloudResponse vcloud) {
+        this.vcloud = vcloud;
+    }
+
+        /**
+        *
+        * openstackを取得します。
+        *
+        * @return openstack
+        */
+        @XmlElement(name="OPENSTACK")
+        public PlatformOpenstackResponse getOpenstack() {
+            return openstack;
+        }
+
+       /**
+        *
+        * openstackを設定
+        *
+        * @param openstack
+        */
+        public void setOpenstack(PlatformOpenstackResponse openstack) {
+            this.openstack = openstack;
+        }
+
+        /**
+        *
+        * azureを取得します。
+        *
+        * @return azure
+        */
+        @XmlElement(name="AZURE")
+        public PlatformAzureResponse getAzure() {
+            return azure;
+        }
+
+       /**
+        *
+        * azureを設定
+        *
+        * @param azure
+        */
+        public void setAzure(PlatformAzureResponse azure) {
+            this.azure = azure;
+        }
 }

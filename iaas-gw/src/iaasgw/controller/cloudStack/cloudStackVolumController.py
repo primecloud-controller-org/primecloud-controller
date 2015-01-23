@@ -131,31 +131,31 @@ class CloudStackVolumController(object):
         disk = csVolumes["DISKOFFERINGID"]
         iscustomized = True
 
-        # DISKOFFERINGIDを取得
+        #DISKOFFERINGIDを取得
         diskOfferings = self.client.describeDiskOfferings()
         diskOfferings.sort(cmp=lambda x,y: cmp(x["disksize"], y["disksize"]))
 
         if snap is not None and not snap.isspace():
-            # スナップ利用の場合はDiskとサイズは空に
+            #スナップ利用の場合はDiskとサイズは空に
             disk = None
             size = None
         elif disk is not None and not disk.isspace():
-            # DISKOFFERINGIDが入力されている場合
+            #DISKOFFERINGIDが入力されている場合
             for diskOffering in diskOfferings:
-                # DISKOFFERINGIDを確認
+                #DISKOFFERINGIDを確認
                 if diskOffering['id'] == disk:
                     iscustomized = diskOffering["iscustomized"]
-                    # カスタムサイズが許可されていなければDISKOFFERINGIDの内容に合わせる
+                    #カスタムサイズが許可されていなければDISKOFFERINGIDの内容に合わせる
                     if not iscustomized:
                         size = diskOffering['disksize']
 
         elif size is not None or size != 0:
             bestDisk = None
             fixSize = size
-            # サイズのみ指定されている場合
+            #サイズのみ指定されている場合
             for diskOffering in diskOfferings:
                 iscustomized = diskOffering["iscustomized"]
-                # カスタムサイズが許可されている物を探す
+                #カスタムサイズが許可されている物を探す
                 if iscustomized:
                     bestDisk = diskOffering['id']
                     fixSize = size
@@ -167,7 +167,7 @@ class CloudStackVolumController(object):
                         fixSize = diskOffering["disksize"]
                         break;
 
-            # 適切な物が見つからない
+            #適切な物が見つからない
             if bestDisk == None:
                 raise IaasException("Useful Diskoffering is not found")
             else:
@@ -229,20 +229,12 @@ class CloudStackVolumController(object):
         self.conn.debug(instance["FARM_NO"], csVolumes["COMPONENT_NO"], componentName, instanceNo, instance["INSTANCE_NAME"],
                          "CloudStackVolumeAttach",[instance["INSTANCE_NAME"], csVolumes["VOLUME_ID"], csVolumes["DISKOFFERINGID"]])
 
-        # ハイパーバイザ取得
-        hypervisor = self.client.getHypervisor(csVolumes["ZONEID"])
-        dviceList = getDeviceProperty(hypervisor["name"])
-        #以前アタッチされたデバイス
-        #preAttachedDev = None
-        #if csVolumes["DEVICEID"] is not None:
-        #    for key, value in dviceList:
-        #        if value == csVolumes["DEVICEID"]:
-        #            preAttachedDev = key
-
-
         # ボリュームのアタッチ
-        #volume = self.client.attachVolume(volumeId, instanceId, preAttachedDev)
         volume = self.client.attachVolume(volumeId, instanceId)
+
+        # ハイパーバイザ取得
+        hypervisor = volume["hypervisor"]
+        dviceList = getDeviceProperty(hypervisor)
 
         #アタッチされたデバイス
         attachedDev = None
@@ -270,7 +262,7 @@ class CloudStackVolumController(object):
         updateDict["INSTANCE_ID"] = instanceId
         updateDict["STATE"] = volume["state"]
         updateDict["DEVICEID"] = attachedDev
-        updateDict["HYPERVISOR"] = hypervisor["name"]
+        updateDict["HYPERVISOR"] = hypervisor
         sql = tableCSVOL.update(tableCSVOL.c.VOLUME_NO ==updateDict["VOLUME_NO"], values=updateDict)
         self.conn.execute(sql)
 
@@ -314,6 +306,7 @@ class CloudStackVolumController(object):
         updateDict["STATE"] = volume["state"]
         updateDict["INSTANCE_ID"] = None
         updateDict["DEVICEID"] = None
+        updateDict["HYPERVISOR"] = None
         sql = tableCSVOL.update(tableCSVOL.c.VOLUME_NO ==updateDict["VOLUME_NO"], values=updateDict)
         self.conn.execute(sql)
 

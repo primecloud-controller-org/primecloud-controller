@@ -47,6 +47,9 @@ public class Icons {
 
     public static Icons AWS = new Icons("aws.png");
 
+    /** PLATFORM.PLATFORM_TYPEの文字列が "azure" の時に表示されるアイコン  */
+    public static Icons AZURE = new Icons("azure.png");
+
     public static Icons BASIC = new Icons("basic.png");
 
     public static Icons CENTOS = new Icons("centos.png");
@@ -57,9 +60,9 @@ public class Icons {
 
     public static Icons CLOUDBIG = new Icons("cloudbig.png");
 
-    public static Icons CONFIGURING = new Icons("Configuring.png");
+    public static Icons CLOUD_STACK = new Icons("cloudstack.png");
 
-    public static Icons CSKLOGO = new Icons("CSKLogo.png");
+    public static Icons CONFIGURING = new Icons("Configuring.png");
 
     public static Icons CUSTOM = new Icons("custom.png");
 
@@ -121,6 +124,9 @@ public class Icons {
 
     public static Icons NIFTY = new Icons("nifty.png");
 
+    /** PLATFORM.PLATFORM_TYPEの文字列が "openstack" の時に表示されるアイコン  */
+    public static Icons OPENSTACK = new Icons("openstack.png");
+
     public static Icons PAAS = new Icons("paas.png");
 
     public static Icons PCCLOGO = new Icons("PCCLogo.png");
@@ -131,12 +137,14 @@ public class Icons {
 
     public static Icons PRJSERVER = new Icons("prjserver.png");
 
+    public static Icons REDHAT = new Icons("redhat.png");
+
     public static Icons RELOAD = new Icons("Reload.png");
 
     public static Icons RUNNING = new Icons("Running.png");
 
     /** インスタンスは起動しているが設定確認が必要<BR>
-     *  　ロードバランサの場合：リスナーが存在しない */
+     *  ロードバランサの場合：リスナーが存在しない */
     public static Icons RUN_WARNING = new Icons("RunWarning.png");
 
     public static Icons SELECTMINI = new Icons("selectmini.png");
@@ -163,7 +171,12 @@ public class Icons {
 
     public static Icons TOMCAT = new Icons("tomcat.png");
 
+    /** OS_TYPEの文字列が "ubuntu" の時に表示されるアイコン  */
+    public static Icons UBUNTU = new Icons("ubuntu.png");
+
     public static Icons USER = new Icons("user.png");
+
+    public static Icons VCLOUD = new Icons("vcloud.png");
 
     public static Icons VMWARE = new Icons("vmware.png");
 
@@ -173,7 +186,13 @@ public class Icons {
 
     public static Icons WARNING = new Icons("Warning.png");
 
-    public static Icons CLOUD_STACK = new Icons("cloudstack.png");
+    public static Icons START_MONITORING = new Icons("Startmonitoring.png");
+
+    public static Icons STOP_MONITORING = new Icons("Stopmonitoring.png");
+
+    public static Icons MONITORING = new Icons("Monitoring.png");
+
+    public static Icons UN_MONITORING = new Icons("Un_monitoring.png");
 
     protected static Map<String, Icons> map;
 

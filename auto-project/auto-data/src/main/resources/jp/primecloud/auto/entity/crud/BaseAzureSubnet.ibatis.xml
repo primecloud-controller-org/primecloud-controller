@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap      
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="AzureSubnet">
+
+	<typeAlias alias="AzureSubnet" type="jp.primecloud.auto.entity.crud.AzureSubnet" />
+
+	<resultMap id="azureSubnetResultMap" class="AzureSubnet">
+		<result property="subnetNo" column="SUBNET_NO" />
+		<result property="subnetName" column="SUBNET_NAME" nullValue="" />
+		<result property="networkName" column="NETWORK_NAME" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.SUBNET_NO as SUBNET_NO, 
+			t1.SUBNET_NAME as SUBNET_NAME, 
+			t1.NETWORK_NAME as NETWORK_NAME
+		from
+			AZURE_SUBNET t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from AZURE_SUBNET t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="azureSubnetResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.SUBNET_NO = #subnetNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="azureSubnetResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readInSubnetNos" parameterClass="java.util.Map" resultMap="azureSubnetResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.SUBNET_NO in
+		]]>
+		<iterate property="subnetNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#subnetNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="AzureSubnet">
+		<![CDATA[
+		insert into AZURE_SUBNET (
+			SUBNET_NO, 
+			SUBNET_NAME, 
+			NETWORK_NAME
+		) values (
+			#subnetNo#, 
+			#subnetName#, 
+			#networkName#
+		)
+		]]>
+	</insert>
+
+	<insert id="createAuto" parameterClass="AzureSubnet">
+		<![CDATA[
+		insert into AZURE_SUBNET (
+			SUBNET_NO, 
+			SUBNET_NAME, 
+			NETWORK_NAME
+		) values (
+			#subnetNo#, 
+			#subnetName#, 
+			#networkName#
+		)
+		]]>
+		<selectKey keyProperty="subnetNo" resultClass="java.lang.Long" type="post">
+		<![CDATA[
+			select last_insert_id()
+		]]>
+		</selectKey>
+	</insert>
+
+	<update id="update" parameterClass="AzureSubnet">
+		<![CDATA[
+		update AZURE_SUBNET set
+			SUBNET_NAME = #subnetName#, 
+			NETWORK_NAME = #networkName#
+		where
+			SUBNET_NO = #subnetNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="AzureSubnet">
+		<![CDATA[
+		delete from AZURE_SUBNET
+		where
+			SUBNET_NO = #subnetNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from AZURE_SUBNET
+		]]>
+	</delete>
+
+	<delete id="deleteBySubnetNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from AZURE_SUBNET
+		where
+			SUBNET_NO = #subnetNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countBySubnetNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			SUBNET_NO = #subnetNo#
+		]]>
+	</select>
+
+</sqlMap>

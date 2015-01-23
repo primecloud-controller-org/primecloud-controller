@@ -22,10 +22,11 @@ import java.util.List;
 
 import jp.primecloud.auto.service.dto.AddressDto;
 import jp.primecloud.auto.service.dto.KeyPairDto;
+import jp.primecloud.auto.service.dto.NetworkDto;
 import jp.primecloud.auto.service.dto.SecurityGroupDto;
+import jp.primecloud.auto.service.dto.StorageTypeDto;
 import jp.primecloud.auto.service.dto.SubnetDto;
 import jp.primecloud.auto.service.dto.ZoneDto;
-
 
 /**
  * <p>
@@ -43,7 +44,15 @@ public interface IaasDescribeService {
 
     public List<SubnetDto> getSubnets(Long userNo, Long platformNo, String vpcId);
 
+    public List<StorageTypeDto> getStorageTypes(Long userNo, Long platformNo);
+
+    public List<NetworkDto> getNetworks(Long userNo, Long platformNo);
+
     public List<AddressDto> getAddresses(Long userNo, Long platformNo);
+
+    public List<SubnetDto> getAzureSubnets(Long userNo, Long platformNo, String networkName);
+
+    public String hasIpAddresse(Long platformNo, Long instanceNo, String ipAddress);
 
     public Long createAddress(Long userNo, Long platformNo);
 

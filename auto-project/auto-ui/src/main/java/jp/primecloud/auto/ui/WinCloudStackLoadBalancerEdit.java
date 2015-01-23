@@ -3,6 +3,8 @@ package jp.primecloud.auto.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.ComponentService;
 import jp.primecloud.auto.service.LoadBalancerService;
@@ -10,14 +12,12 @@ import jp.primecloud.auto.service.dto.ComponentDto;
 import jp.primecloud.auto.service.dto.LoadBalancerDto;
 import jp.primecloud.auto.service.dto.LoadBalancerPlatformDto;
 import jp.primecloud.auto.ui.util.BeanContext;
+import jp.primecloud.auto.ui.util.CommonUtils;
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
-
-import org.apache.commons.lang.StringUtils;
-
 import com.vaadin.Application;
 import com.vaadin.data.Item;
 import com.vaadin.data.Validator.InvalidValueException;
@@ -248,21 +248,8 @@ public class WinCloudStackLoadBalancerEdit extends Window {
 
 
             // プラットフォーム
-            // TODO: アイコン名の取得ロジックのリファクタリング
-            Icons icon = Icons.NONE;
-            if ("aws".equals(platformDto.getPlatform().getPlatformType())) {
-                if (platformDto.getPlatformAws().getEuca()) {
-                    icon = Icons.EUCALYPTUS;
-                } else {
-                    icon = Icons.AWS;
-                }
-            } else if ("vmware".equals(platformDto.getPlatform().getPlatformType())) {
-                icon = Icons.VMWARE;
-            } else if ("nifty".equals(platformDto.getPlatform().getPlatformType())) {
-                icon = Icons.NIFTY;
-            } else if ("cloudstack".equals(platformDto.getPlatform().getPlatformType())) {
-                icon = Icons.CLOUD_STACK;
-            }
+            //プラットフォームアイコン名の取得
+            Icons icon = CommonUtils.getPlatformIcon(platformDto);
 
             String description = platformDto.getPlatform().getPlatformNameDisp();
             String cloudValue = "<img src=\"" + VaadinUtils.getIconPath(apl, icon) + "\"><div>" + description
@@ -271,7 +258,6 @@ public class WinCloudStackLoadBalancerEdit extends Window {
             cloudLabel.setContentMode(Label.CONTENT_XHTML);
 
             // ロードバランサ種別
-            // TODO: アイコン名取得ロジックのリファクタリング
             String type = loadBalancerDto.getLoadBalancer().getType();
             Icons typeIcon = Icons.NONE;
             String typeString = ViewProperties.getLoadBalancerType(type);
@@ -311,7 +297,6 @@ public class WinCloudStackLoadBalancerEdit extends Window {
         Long farmNo = ViewContext.getFarmNo();
 
         // ロードバランサ情報を取得
-        // TODO: ロジックを必ずリファクタリングすること！
         LoadBalancerService loadBalancerService = BeanContext.getBean(LoadBalancerService.class);
         List<LoadBalancerDto> loadBalancerDtos = loadBalancerService.getLoadBalancers(farmNo);
         for (LoadBalancerDto loadBalancerDto : loadBalancerDtos) {
@@ -322,7 +307,6 @@ public class WinCloudStackLoadBalancerEdit extends Window {
         }
 
         // プラットフォーム情報を取得
-        // TODO: ロジックを必ずリファクタリングすること！
         Long platformNo = loadBalancerDto.getLoadBalancer().getPlatformNo();
         List<LoadBalancerPlatformDto> platformDtos = loadBalancerService.getPlatforms(userNo);
         for (LoadBalancerPlatformDto platformDto : platformDtos) {

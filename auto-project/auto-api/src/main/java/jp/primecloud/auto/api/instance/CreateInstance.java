@@ -30,21 +30,24 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+
 import jp.primecloud.auto.api.response.instance.CreateInstanceResponse;
 import jp.primecloud.auto.entity.crud.Image;
 import jp.primecloud.auto.entity.crud.ImageAws;
 import jp.primecloud.auto.entity.crud.ImageCloudstack;
 import jp.primecloud.auto.entity.crud.ImageNifty;
+import jp.primecloud.auto.entity.crud.ImageVcloud;
 import jp.primecloud.auto.entity.crud.ImageVmware;
+import jp.primecloud.auto.entity.crud.ImageOpenstack;
+import jp.primecloud.auto.entity.crud.ImageAzure;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.util.MessageUtils;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 
 
 @Path("/CreateInstance")
@@ -128,8 +131,13 @@ public class CreateInstance extends ApiSupport {
 
             // 対象となるIaas(プラットフォーム)にサーバ(インスタンス)を作成
             Long newInstanceNo = null;
-            if (PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
-                // AWS or Eucalyptus
+            // TODO CLOUD BRANCHING
+            if (PLATFORM_TYPE_AWS.equals(platform.getPlatformType()) ||
+                PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType()) ||
+                PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType()) ||
+                PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType()) ||
+                PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
+                // AWS or Eucalyptus or Cloudstack or VCloud or Openstack or Azure
                 newInstanceNo = instanceService.createIaasInstance(Long.parseLong(farmNo), instanceName,
                         image.getPlatformNo(), comment, image.getImageNo() , instanceType);
             } else if (PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
@@ -139,10 +147,6 @@ public class CreateInstance extends ApiSupport {
             } else if (PLATFORM_TYPE_NIFTY.equals(platform.getPlatformType())) {
                 // Nifty
                 newInstanceNo = instanceService.createNiftyInstance(Long.parseLong(farmNo), instanceName,
-                        image.getPlatformNo(), comment, image.getImageNo(), instanceType);
-            } else if (PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
-                // CloudStack
-                newInstanceNo = instanceService.createIaasInstance(Long.parseLong(farmNo), instanceName,
                         image.getPlatformNo(), comment, image.getImageNo(), instanceType);
             }
 
@@ -165,6 +169,7 @@ public class CreateInstance extends ApiSupport {
 
     private List<String> getInstanceTypes(Platform platform, Image image) {
         String instanceTypesText = null;
+        // TODO CLOUD BRANCHING
         if (PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
             //Aws or Eucalyptus
             ImageAws imageAws = imageAwsDao.read(image.getImageNo());
@@ -181,6 +186,18 @@ public class CreateInstance extends ApiSupport {
             //CloudStack
             ImageCloudstack imageCloudstack = imageCloudstackDao.read(image.getImageNo());
             instanceTypesText = imageCloudstack.getInstanceTypes();
+        } else if (PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
+            //VCloud
+            ImageVcloud imageVcloud = imageVcloudDao.read(image.getImageNo());
+            instanceTypesText = imageVcloud.getInstanceTypes();
+        } else if (PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
+            //OpenStack
+            ImageOpenstack imageOpenstack = imageOpenstackDao.read(image.getImageNo());
+            instanceTypesText = imageOpenstack.getInstanceTypes();
+        } else if (PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
+            //Azure
+            ImageAzure imageAzure = imageAzureDao.read(image.getImageNo());
+            instanceTypesText = imageAzure.getInstanceTypes();
         }
         List<String> instanceTypes = getInstanceTypesFromText(instanceTypesText);
         return instanceTypes;

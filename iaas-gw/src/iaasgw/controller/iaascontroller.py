@@ -20,6 +20,19 @@
 
 class IaasController(object):
 
+    #############################################################
+    #  同期関数
+    #############################################################
+    def synchronizeCloud(self, platformNo):
+        '''オーバーライドされなかったとき
+        '''
+        raise NotImplementedError('startInstance not implemented for this Controller')
+
+
+    #############################################################
+    #  固有関数
+    #############################################################
+
     def startInstance(self, instanceNo):
         '''オーバーライドされなかったとき
         '''
@@ -104,3 +117,23 @@ class IaasController(object):
         '''オーバーライドされなかったとき
         '''
         raise NotImplementedError('describeSubnets not implemented for this Controller')
+
+    def describeNetwork(self, platformNo):
+        '''オーバーライドされなかったとき
+        '''
+        raise NotImplementedError('describeSubnets not implemented for this Controller')
+    def describeAzureSubnets(self, networkName):
+        '''オーバーライドされなかったとき
+        '''
+        raise NotImplementedError('describeAzureSubnets not implemented for this Controller')
+
+    #############################################################
+    #  固有関数 (VCLOUDのみ有効)
+    #############################################################
+
+    def createMyCloud(self, platformNo, farmNo):
+        '''オーバーライドされなかったとき
+        '''
+        raise NotImplementedError('describeSubnets not implemented for this Controller')
+
+

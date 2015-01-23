@@ -18,16 +18,17 @@
  */
 package jp.primecloud.auto.process.nifty;
 
+import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.dao.crud.NiftyCertificateDao;
 import jp.primecloud.auto.dao.crud.PlatformDao;
-import jp.primecloud.auto.dao.crud.PlatformNiftyDao;
 import jp.primecloud.auto.entity.crud.NiftyCertificate;
 import jp.primecloud.auto.entity.crud.Platform;
-import jp.primecloud.auto.entity.crud.PlatformNifty;
 import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.nifty.soap.NiftyCloudPortTypeFactory;
-import jp.primecloud.auto.nifty.soap.jaxws.NiftyCloudPortType;
-
+import com.nifty.cloud.sdk.ClientConfiguration;
+import com.nifty.cloud.sdk.auth.BasicCredentials;
+import com.nifty.cloud.sdk.auth.Credentials;
+import com.nifty.cloud.sdk.disk.NiftyDiskClient;
+import com.nifty.cloud.sdk.server.NiftyServerClient;
 
 /**
  * <p>
@@ -45,21 +46,18 @@ public class NiftyProcessClientFactory {
 
     protected PlatformDao platformDao;
 
-    protected PlatformNiftyDao platformNiftyDao;
 
-
-    public NiftyProcessClient createNiftyProcessClient(Long userNo, Long platformNo) {
+    public NiftyProcessClient createNiftyProcessClient(Long userNo, Long platformNo, String clientType) {
         Platform platform =platformDao.read(platformNo);
         if (platform == null) {
             throw new AutoException("EPROCESS-000004", platformNo);
         }
 
-        return createNiftyProcessClient(userNo, platform);
+        return createNiftyProcessClient(userNo, platform, clientType);
     }
 
-    protected NiftyProcessClient createNiftyProcessClient(Long userNo, Platform platform) {
-        PlatformNifty platformNifty = platformNiftyDao.read(platform.getPlatformNo());
-        if ("nifty".equals(platform.getPlatformType()) == false || platformNifty == null) {
+    protected NiftyProcessClient createNiftyProcessClient(Long userNo, Platform platform, String clientType) {
+        if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platform.getPlatformType()) == false) {
             throw new AutoException("EPROCESS-000008", platform.getPlatformNo());
         }
 
@@ -69,16 +67,22 @@ public class NiftyProcessClientFactory {
             throw new AutoException("EPROCESS-000009", userNo, platform.getPlatformNo());
         }
 
-        NiftyCloudPortType niftyCloud = createNiftyCloudPortType(platformNifty, niftyCertificate);
+        // 指定されたAccessKeyとSecretAccessKeyから認証情報インスタンスを生成します。
+        Credentials credential = new BasicCredentials(niftyCertificate.getNiftyAccessId(), niftyCertificate.getNiftySecretKey());
 
-        return new NiftyProcessClient(niftyCloud, platform.getPlatformNo(), describeInterval);
-    }
+        // 設定ファイル
+        ClientConfiguration config = new ClientConfiguration();
 
-    protected NiftyCloudPortType createNiftyCloudPortType(PlatformNifty nifty, NiftyCertificate niftyCertificate) {
-        NiftyCloudPortTypeFactory factory = new NiftyCloudPortTypeFactory();
-        factory.setWsdlDocumentUrl(nifty.getWsdl());
-        factory.setTimeout(apiTimeout);
-        return factory.createNiftyCloudPortType(niftyCertificate.getCertificate(), niftyCertificate.getPrivateKey());
+        if (PCCConstant.NIFTYCLIENT_TYPE_SERVER.equals(clientType)) {
+            NiftyServerClient niftyServerClient = new NiftyServerClient(credential, config);
+            return new NiftyProcessClient(niftyServerClient, platform.getPlatformNo(), describeInterval);
+        } else if (PCCConstant.NIFTYCLIENT_TYPE_DISK.equals(clientType)) {
+            NiftyDiskClient niftyDiskClient = new NiftyDiskClient(credential, config);
+            return new NiftyProcessClient(niftyDiskClient, platform.getPlatformNo(), describeInterval);
+        }
+
+        return null;
+
     }
 
     /**
@@ -117,12 +121,4 @@ public class NiftyProcessClientFactory {
         this.platformDao = platformDao;
     }
 
-    /**
-     * platformNiftyDaoを設定します。
-     *
-     * @param platformNiftyDao platformNiftyDao
-     */
-    public void setPlatformNiftyDao(PlatformNiftyDao platformNiftyDao) {
-        this.platformNiftyDao = platformNiftyDao;
-    }
 }

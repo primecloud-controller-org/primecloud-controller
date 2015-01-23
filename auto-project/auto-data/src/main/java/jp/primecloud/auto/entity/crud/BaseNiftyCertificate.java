@@ -37,11 +37,11 @@ public abstract class BaseNiftyCertificate implements Serializable {
     /** PLATFORM_NO [BIGINT(19,0)] */
     private Long platformNo;
 
-    /** CERTIFICATE [VARCHAR(10,240,0)] */
-    private String certificate;
+    /** NIFTY_ACCESS_ID [VARCHAR(100,0)] */
+    private String niftyAccessId;
 
-    /** PRIVATE_KEY [VARCHAR(10,240,0)] */
-    private String privateKey;
+    /** NIFTY_SECRET_KEY [VARCHAR(100,0)] */
+    private String niftySecretKey;
 
     /**
      * userNoを取得します。
@@ -80,39 +80,39 @@ public abstract class BaseNiftyCertificate implements Serializable {
     }
 
     /**
-     * certificateを取得します。
+     * niftyAccessIdを取得します。
      *
-     * @return certificate
+     * @return niftyAccessId
      */
-    public String getCertificate() {
-        return certificate;
+    public String getNiftyAccessId() {
+        return niftyAccessId;
     }
 
     /**
-     * certificateを設定します。
+     * niftyAccessIdを設定します。
      *
-     * @param certificate certificate
+     * @param niftyAccessId niftyAccessId
      */
-    public void setCertificate(String certificate) {
-        this.certificate = certificate;
+    public void setNiftyAccessId(String niftyAccessId) {
+        this.niftyAccessId = niftyAccessId;
     }
 
     /**
-     * privateKeyを取得します。
+     * niftySecretKeyを取得します。
      *
-     * @return privateKey
+     * @return niftySecretKey
      */
-    public String getPrivateKey() {
-        return privateKey;
+    public String getNiftySecretKey() {
+        return niftySecretKey;
     }
 
     /**
-     * privateKeyを設定します。
+     * niftySecretKeyを設定します。
      *
-     * @param privateKey privateKey
+     * @param niftySecretKey niftySecretKey
      */
-    public void setPrivateKey(String privateKey) {
-        this.privateKey = privateKey;
+    public void setNiftySecretKey(String niftySecretKey) {
+        this.niftySecretKey = niftySecretKey;
     }
 
 
@@ -126,8 +126,8 @@ public abstract class BaseNiftyCertificate implements Serializable {
         final int prime = 31;
         result = prime * result + ((userNo == null) ? 0 : userNo.hashCode());
         result = prime * result + ((platformNo == null) ? 0 : platformNo.hashCode());
-        result = prime * result + ((certificate == null) ? 0 : certificate.hashCode());
-        result = prime * result + ((privateKey == null) ? 0 : privateKey.hashCode());
+        result = prime * result + ((niftyAccessId == null) ? 0 : niftyAccessId.hashCode());
+        result = prime * result + ((niftySecretKey == null) ? 0 : niftySecretKey.hashCode());
 
         return result;
     }
@@ -152,14 +152,14 @@ public abstract class BaseNiftyCertificate implements Serializable {
         } else if (!platformNo.equals(other.platformNo)) {
             return false;
         }
-        if (certificate == null) {
-            if (other.certificate != null) { return false; }
-        } else if (!certificate.equals(other.certificate)) {
+        if (niftyAccessId == null) {
+            if (other.niftyAccessId != null) { return false; }
+        } else if (!niftyAccessId.equals(other.niftyAccessId)) {
             return false;
         }
-        if (privateKey == null) {
-            if (other.privateKey != null) { return false; }
-        } else if (!privateKey.equals(other.privateKey)) {
+        if (niftySecretKey == null) {
+            if (other.niftySecretKey != null) { return false; }
+        } else if (!niftySecretKey.equals(other.niftySecretKey)) {
             return false;
         }
 
@@ -175,8 +175,8 @@ public abstract class BaseNiftyCertificate implements Serializable {
         sb.append("NiftyCertificate").append(" [");
         sb.append("userNo=").append(userNo).append(", ");
         sb.append("platformNo=").append(platformNo).append(", ");
-        sb.append("certificate=").append(certificate).append(", ");
-        sb.append("privateKey=").append(privateKey);
+        sb.append("niftyAccessId=").append(niftyAccessId).append(", ");
+        sb.append("niftySecretKey=").append(niftySecretKey);
         sb.append("]");
         return sb.toString();
     }

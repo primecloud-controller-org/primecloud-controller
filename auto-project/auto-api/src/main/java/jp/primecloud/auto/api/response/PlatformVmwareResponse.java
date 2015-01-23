@@ -7,7 +7,6 @@ import javax.xml.bind.annotation.XmlType;
 import jp.primecloud.auto.entity.crud.PlatformVmware;
 
 
-
 @XmlRootElement(name="PlatformVmwareResponse")
 @XmlType(propOrder = {"url","datacenter","publicNetwork","privateNetwork","computresource"})
 public class PlatformVmwareResponse {

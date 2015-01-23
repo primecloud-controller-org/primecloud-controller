@@ -30,7 +30,7 @@ else
         #コンフィグが正常に設定されているかのチェック
 
 		#Zabbix有効オプションを読む
-        ZABBIX_USE=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -config "zabbix.useZabbix"`
+        ZABBIX_USE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -config \"zabbix.useZabbix\""`
         if [ $? -ne 0 ]; then
         	echo "設定ファイルの読み込みに失敗しました。"
         	exit 1
@@ -44,7 +44,7 @@ else
 
 		#PCCのDBへの接続テスト
         SQL_CHECK="SELECT 1 FROM dual"
-        MESSAGE=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -S -sql "${SQL_CHECK}" -columntype int -columnname 1`
+        MESSAGE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -S -sql \"${SQL_CHECK}\" -columntype int -columnname 1"`
 
         if [ "${MESSAGE}" != "1" ]; then
                 echo "PCCのDBサーバへの接続に失敗しました。"
@@ -53,17 +53,8 @@ else
         fi
 
 		if [ "${ZABBIX_USE}" = "true" ]; then
-			#ZabbixのDBへ接続テスト
-	        MESSAGE=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -Z -S -sql "${SQL_CHECK}" -columntype int -columnname 1`
-
-			if [ "${MESSAGE}" != "1" ]; then
-	                echo "ZabbixのDBサーバへの接続に失敗しました。"
-			else
-					echo "ZabbixのDBサーバへの接続テストに成功しました。"
-	        fi
-
 			#ZabbixのAPIへの接続テスト
-	        MESSAGE=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -Z -check`
+            MESSAGE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -Z -check"`
 
 	        if [ "${MESSAGE}" = "NULL" ]; then
 	                echo "ZabbixへのAPI接続テストに失敗しました。"

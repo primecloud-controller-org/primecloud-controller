@@ -7,7 +7,6 @@ import jp.primecloud.auto.entity.crud.AuthoritySet;
 import jp.primecloud.auto.entity.crud.UserAuth;
 import jp.primecloud.auto.service.UserManagementService;
 
-
 public class ConvertUtil {
 
     private String AUTH_TRUE = "1";

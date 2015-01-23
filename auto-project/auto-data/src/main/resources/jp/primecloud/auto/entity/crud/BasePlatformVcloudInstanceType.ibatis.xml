@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="PlatformVcloudInstanceType">
+
+	<typeAlias alias="PlatformVcloudInstanceType" type="jp.primecloud.auto.entity.crud.PlatformVcloudInstanceType" />
+
+	<resultMap id="platformVcloudInstanceTypeResultMap" class="PlatformVcloudInstanceType">
+		<result property="instanceTypeNo" column="INSTANCE_TYPE_NO" />
+		<result property="platformNo" column="PLATFORM_NO" />
+		<result property="instanceTypeName" column="INSTANCE_TYPE_NAME" nullValue="" />
+		<result property="cpu" column="CPU" />
+		<result property="memory" column="MEMORY" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.INSTANCE_TYPE_NO as INSTANCE_TYPE_NO,
+			t1.PLATFORM_NO as PLATFORM_NO,
+			t1.INSTANCE_TYPE_NAME as INSTANCE_TYPE_NAME,
+			t1.CPU as CPU,
+			t1.MEMORY as MEMORY
+		from
+			PLATFORM_VCLOUD_INSTANCE_TYPE t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from PLATFORM_VCLOUD_INSTANCE_TYPE t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="platformVcloudInstanceTypeResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.INSTANCE_TYPE_NO = #instanceTypeNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="platformVcloudInstanceTypeResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readByPlatformNoAndInstanceTypeName" parameterClass="java.util.Map" resultMap="platformVcloudInstanceTypeResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO = #platformNo# and
+			t1.INSTANCE_TYPE_NAME = #instanceTypeName#
+		]]>
+	</select>
+
+	<select id="readByPlatformNo" parameterClass="java.util.Map" resultMap="platformVcloudInstanceTypeResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="readInInstanceTypeNos" parameterClass="java.util.Map" resultMap="platformVcloudInstanceTypeResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.INSTANCE_TYPE_NO in
+		]]>
+		<iterate property="instanceTypeNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#instanceTypeNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="PlatformVcloudInstanceType">
+		<![CDATA[
+		insert into PLATFORM_VCLOUD_INSTANCE_TYPE (
+			INSTANCE_TYPE_NO,
+			PLATFORM_NO,
+			INSTANCE_TYPE_NAME,
+			CPU,
+			MEMORY
+		) values (
+			#instanceTypeNo#,
+			#platformNo#,
+			#instanceTypeName#,
+			#cpu#,
+			#memory#
+		)
+		]]>
+	</insert>
+
+	<insert id="createAuto" parameterClass="PlatformVcloudInstanceType">
+		<![CDATA[
+		insert into PLATFORM_VCLOUD_INSTANCE_TYPE (
+			INSTANCE_TYPE_NO,
+			PLATFORM_NO,
+			INSTANCE_TYPE_NAME,
+			CPU,
+			MEMORY
+		) values (
+			#instanceTypeNo#,
+			#platformNo#,
+			#instanceTypeName#,
+			#cpu#,
+			#memory#
+		)
+		]]>
+		<selectKey keyProperty="instanceTypeNo" resultClass="java.lang.Long" type="post">
+		<![CDATA[
+			select last_insert_id()
+		]]>
+		</selectKey>
+	</insert>
+
+	<update id="update" parameterClass="PlatformVcloudInstanceType">
+		<![CDATA[
+		update PLATFORM_VCLOUD_INSTANCE_TYPE set
+			PLATFORM_NO = #platformNo#,
+			INSTANCE_TYPE_NAME = #instanceTypeName#,
+			CPU = #cpu#,
+			MEMORY = #memory#
+		where
+			INSTANCE_TYPE_NO = #instanceTypeNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="PlatformVcloudInstanceType">
+		<![CDATA[
+		delete from PLATFORM_VCLOUD_INSTANCE_TYPE
+		where
+			INSTANCE_TYPE_NO = #instanceTypeNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from PLATFORM_VCLOUD_INSTANCE_TYPE
+		]]>
+	</delete>
+
+	<delete id="deleteByInstanceTypeNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from PLATFORM_VCLOUD_INSTANCE_TYPE
+		where
+			INSTANCE_TYPE_NO = #instanceTypeNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByPlatformNoAndInstanceTypeName" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from PLATFORM_VCLOUD_INSTANCE_TYPE
+		where
+			PLATFORM_NO = #platformNo# and
+			INSTANCE_TYPE_NAME = #instanceTypeName#
+		]]>
+	</delete>
+
+	<delete id="deleteByPlatformNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from PLATFORM_VCLOUD_INSTANCE_TYPE
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByInstanceTypeNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			INSTANCE_TYPE_NO = #instanceTypeNo#
+		]]>
+	</select>
+
+	<select id="countByPlatformNoAndInstanceTypeName" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			PLATFORM_NO = #platformNo# and
+			INSTANCE_TYPE_NAME = #instanceTypeName#
+		]]>
+	</select>
+
+	<select id="countByPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+</sqlMap>

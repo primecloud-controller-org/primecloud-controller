@@ -29,6 +29,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+
+import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.log.LoggingUtils;
 import jp.primecloud.auto.common.status.InstanceStatus;
 import jp.primecloud.auto.common.status.LoadBalancerStatus;
@@ -41,14 +45,10 @@ import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.entity.crud.PuppetInstance;
 import jp.primecloud.auto.exception.MultiCauseException;
-import jp.primecloud.auto.service.ServiceSupport;
-import jp.primecloud.auto.util.MessageUtils;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.process.lb.LoadBalancerProcess;
 import jp.primecloud.auto.process.puppet.PuppetComponentProcess;
+import jp.primecloud.auto.service.ServiceSupport;
+import jp.primecloud.auto.util.MessageUtils;
 
 /**
  * <p>
@@ -211,7 +211,7 @@ public class ComponentProcess extends ServiceSupport {
             // PuppetInstanceレコードがなければ対象外  ただしOSがwindowsの場合はカウントする
             PuppetInstance puppetInstance = puppetInstanceDao.read(instance.getInstanceNo());
             Image image = imageDao.read(instance.getImageNo());
-            if (puppetInstance == null && !StringUtils.startsWithIgnoreCase(image.getOs(), "windows")) {
+            if (puppetInstance == null && !StringUtils.startsWithIgnoreCase(image.getOs(), PCCConstant.OS_NAME_WIN)) {
                 continue;
             }
 

@@ -32,6 +32,10 @@ import javax.ws.rs.core.UriInfo;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+
 import jp.primecloud.auto.api.response.component.StopComponentResponse;
 import jp.primecloud.auto.entity.crud.Component;
 import jp.primecloud.auto.entity.crud.ComponentInstance;
@@ -40,10 +44,6 @@ import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.util.MessageUtils;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 
 
 @Path("/StopComponent")

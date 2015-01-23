@@ -23,6 +23,7 @@ import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.UserService;
 import jp.primecloud.auto.service.dto.UserAuthDto;
 import jp.primecloud.auto.service.dto.UserDto;
+import jp.primecloud.auto.service.impl.UserServiceImpl;
 
 /**
  * <p>
@@ -30,7 +31,7 @@ import jp.primecloud.auto.service.dto.UserDto;
  * </p>
  *
  */
-public class MockUserService implements UserService {
+public class MockUserService extends UserServiceImpl implements UserService {
 
     @Override
     public UserDto authenticate(String username, String password) {
@@ -44,8 +45,6 @@ public class MockUserService implements UserService {
         user.setUserNo(1L);
         user.setUsername(username);
         user.setPassword(password);
-        user.setPowerUser(true);
-        user.setMasterUser(1L);
         dto.setUser(user);
 
         return dto;
@@ -53,21 +52,13 @@ public class MockUserService implements UserService {
 
     @Override
     public UserDto getUser(Long userNo) {
-        UserDto dto = new UserDto();
-
-        User user = new User();
-        user.setUserNo(1L);
-        user.setUsername("test");
-        user.setPassword("test");
-        user.setPowerUser(true);
-        user.setMasterUser(1L);
-        dto.setUser(user);
-        return dto;
+        return null;
     }
 
     @Override
     public UserAuthDto getUserAuth(Long userNo, Long farmNo) {
-        return new UserAuthDto(true);
+        // TODO 自動生成されたメソッド・スタブ
+        return null;
     }
 
 }

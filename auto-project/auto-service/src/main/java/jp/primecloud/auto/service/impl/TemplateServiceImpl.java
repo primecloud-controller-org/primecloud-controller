@@ -23,6 +23,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+
+import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.entity.crud.Component;
 import jp.primecloud.auto.entity.crud.ComponentType;
 import jp.primecloud.auto.entity.crud.Farm;
@@ -38,10 +42,6 @@ import jp.primecloud.auto.service.InstanceService;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.service.TemplateService;
 import jp.primecloud.auto.service.dto.TemplateDto;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 
 /**
  * <p>
@@ -165,18 +165,23 @@ public class TemplateServiceImpl extends ServiceSupport implements TemplateServi
         for (TemplateInstance templateInstance: templateInstances) {
             Long instanceNo = null;
             Platform platform = platformMap.get(templateInstance.getPlatformNo());
-            if ("aws".equals(platform.getPlatformType()) || "cloudstack".equals(platform.getPlatformType())) {
-                //Iaas(AWS or CloudStack)
+            // TODO CLOUD BRANCHING
+            if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType()) ||
+                PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType()) ||
+                PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType()) ||
+                PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType()) ||
+                PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
+                //Iaas(AWS or CloudStack or VCloud or Azure or OpenStack)
                 instanceNo = instanceService.createIaasInstance(
                         farmNo, templateInstance.getTemplateInstanceName(),templateInstance.getPlatformNo(),
                         templateInstance.getComment(), templateInstance.getImageNo(), templateInstance.getInstanceType());
-            } else if ("vmware".equals(platform.getPlatformType())) {
+            } else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
                 //VMware
                 instanceNo = instanceService.createVmwareInstance(
                         farmNo, templateInstance.getTemplateInstanceName(), templateInstance.getPlatformNo(),
                         templateInstance.getComment(), templateInstance.getImageNo(), templateInstance.getInstanceType());
 
-            } else if ("nifty".equals(platform.getPlatformType())) {
+            } else if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platform.getPlatformType())) {
                 //Nifty
                 instanceNo = instanceService.createNiftyInstance(
                         farmNo, templateInstance.getTemplateInstanceName(),templateInstance.getPlatformNo(),
@@ -227,18 +232,18 @@ public class TemplateServiceImpl extends ServiceSupport implements TemplateServi
                 // 使用不可プラットフォームの場合スキップ
                 continue;
             }
-
-            if ("aws".equals(platform.getPlatformType())) {
+            // TODO CLOUD BRANCHING
+            if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
                 // 認証情報がない場合はスキップ
                 if (awsCertificateDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) == 0) {
                     continue;
                 }
-            } else if ("vmware".equals(platform.getPlatformType())) {
+            } else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
                 // キーペアがない場合はスキップ
                 if (vmwareKeyPairDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) == 0) {
                     continue;
                 }
-            } else if ("nifty".equals(platform.getPlatformType())) {
+            } else if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platform.getPlatformType())) {
                 // 認証情報とキーペアがない場合はスキップ
                 if (niftyCertificateDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) == 0) {
                     continue;
@@ -246,9 +251,27 @@ public class TemplateServiceImpl extends ServiceSupport implements TemplateServi
                 if (niftyKeyPairDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) == 0) {
                     continue;
                 }
-            } else if ("cloudstack".equals(platform.getPlatformType())) {
+            } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
                 // 認証情報がない場合はスキップ
                 if (cloudstackCertificateDao.countByAccountAndPlatformNo(userNo, platform.getPlatformNo()) == 0) {
+                    continue;
+                }
+            } else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
+                // 認証情報とキーペアがない場合はスキップ
+                if (vcloudCertificateDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo())== 0) {
+                    continue;
+                }
+                if (vcloudKeyPairDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) == 0) {
+                    continue;
+                }
+            } else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
+                // 認証情報がない場合はスキップ
+                if (azureCertificateDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo())== 0) {
+                    continue;
+                }
+            } else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
+                // 認証情報がない場合はスキップ
+                if (openstackCertificateDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo())== 0) {
                     continue;
                 }
             }

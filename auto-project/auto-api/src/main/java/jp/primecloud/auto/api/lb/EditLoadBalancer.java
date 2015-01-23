@@ -30,7 +30,12 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+
 import jp.primecloud.auto.api.response.lb.EditLoadBalancerResponse;
+import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.LoadBalancerStatus;
 import jp.primecloud.auto.entity.crud.CloudstackLoadBalancer;
 import jp.primecloud.auto.entity.crud.LoadBalancer;
@@ -41,10 +46,6 @@ import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.service.dto.SecurityGroupDto;
 import jp.primecloud.auto.service.dto.SubnetDto;
 import jp.primecloud.auto.util.MessageUtils;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 
 
 @Path("/EditLoadBalancer")
@@ -159,7 +160,7 @@ public class EditLoadBalancer extends ApiSupport {
             ApiValidate.validateComment(comment);
 
             CloudstackLoadBalancer cloudstackLoadBalancer = null;
-            if ("cloudstack".equals(loadBalancer.getType())) {
+            if (PCCConstant.LOAD_BALANCER_CLOUDSTACK.equals(loadBalancer.getType())) {
                 cloudstackLoadBalancer = cloudstackLoadBalancerDao.read(Long.parseLong(loadBalancerNo));
             }
 

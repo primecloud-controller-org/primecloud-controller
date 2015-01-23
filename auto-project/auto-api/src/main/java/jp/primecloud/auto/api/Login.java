@@ -25,14 +25,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import jp.primecloud.auto.api.response.LoginResponse;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.util.MessageUtils;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 
 
 @Path("/Login")
@@ -63,7 +62,9 @@ public class Login extends ApiSupport {
             // Password
             ApiValidate.validatePassword(password);
 
-            // Filterクラスで認証できているので、入力チェック処理のみとする。
+            // ログイン認証
+            userService.authenticate(userName, password);
+
             response.setSuccess(true);
         } catch (Throwable e){
             String message = "";

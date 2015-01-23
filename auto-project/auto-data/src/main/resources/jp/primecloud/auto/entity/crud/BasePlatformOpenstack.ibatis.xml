@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap      
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="PlatformOpenstack">
+
+	<typeAlias alias="PlatformOpenstack" type="jp.primecloud.auto.entity.crud.PlatformOpenstack" />
+
+	<resultMap id="platformOpenstackResultMap" class="PlatformOpenstack">
+		<result property="platformNo" column="PLATFORM_NO" />
+		<result property="url" column="URL" nullValue="" />
+		<result property="networkId" column="NETWORK_ID" nullValue="" />
+		<result property="tenantId" column="TENANT_ID" nullValue="" />
+		<result property="tenantNm" column="TENANT_NM" nullValue="" />
+		<result property="availabilityZone" column="AVAILABILITY_ZONE" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.PLATFORM_NO as PLATFORM_NO, 
+			t1.URL as URL, 
+			t1.NETWORK_ID as NETWORK_ID, 
+			t1.TENANT_ID as TENANT_ID, 
+			t1.TENANT_NM as TENANT_NM, 
+			t1.AVAILABILITY_ZONE as AVAILABILITY_ZONE
+		from
+			PLATFORM_OPENSTACK t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from PLATFORM_OPENSTACK t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="platformOpenstackResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="platformOpenstackResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readInPlatformNos" parameterClass="java.util.Map" resultMap="platformOpenstackResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO in
+		]]>
+		<iterate property="platformNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#platformNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="PlatformOpenstack">
+		<![CDATA[
+		insert into PLATFORM_OPENSTACK (
+			PLATFORM_NO, 
+			URL, 
+			NETWORK_ID, 
+			TENANT_ID, 
+			TENANT_NM, 
+			AVAILABILITY_ZONE
+		) values (
+			#platformNo#, 
+			#url#, 
+			#networkId#, 
+			#tenantId#, 
+			#tenantNm#, 
+			#availabilityZone#
+		)
+		]]>
+	</insert>
+
+	<update id="update" parameterClass="PlatformOpenstack">
+		<![CDATA[
+		update PLATFORM_OPENSTACK set
+			URL = #url#, 
+			NETWORK_ID = #networkId#, 
+			TENANT_ID = #tenantId#, 
+			TENANT_NM = #tenantNm#, 
+			AVAILABILITY_ZONE = #availabilityZone#
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="PlatformOpenstack">
+		<![CDATA[
+		delete from PLATFORM_OPENSTACK
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from PLATFORM_OPENSTACK
+		]]>
+	</delete>
+
+	<delete id="deleteByPlatformNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from PLATFORM_OPENSTACK
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+</sqlMap>

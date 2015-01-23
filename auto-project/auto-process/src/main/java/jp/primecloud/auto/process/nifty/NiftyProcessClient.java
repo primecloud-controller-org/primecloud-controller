@@ -21,33 +21,43 @@ package jp.primecloud.auto.process.nifty;
 import java.util.ArrayList;
 import java.util.List;
 
-import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.nifty.soap.jaxws.DescribeInstancesInfoType;
-import jp.primecloud.auto.nifty.soap.jaxws.DescribeInstancesItemType;
-import jp.primecloud.auto.nifty.soap.jaxws.DescribeInstancesResponseType;
-import jp.primecloud.auto.nifty.soap.jaxws.DescribeInstancesType;
-import jp.primecloud.auto.nifty.soap.jaxws.InstanceIdSetType;
-import jp.primecloud.auto.nifty.soap.jaxws.InstanceIdType;
-import jp.primecloud.auto.nifty.soap.jaxws.InstanceStateChangeType;
-import jp.primecloud.auto.nifty.soap.jaxws.NiftyCloudPortType;
-import jp.primecloud.auto.nifty.soap.jaxws.ReservationInfoType;
-import jp.primecloud.auto.nifty.soap.jaxws.RunInstancesResponseType;
-import jp.primecloud.auto.nifty.soap.jaxws.RunInstancesType;
-import jp.primecloud.auto.nifty.soap.jaxws.RunningInstancesItemType;
-import jp.primecloud.auto.nifty.soap.jaxws.StartInstancesResponseType;
-import jp.primecloud.auto.nifty.soap.jaxws.StartInstancesType;
-import jp.primecloud.auto.nifty.soap.jaxws.StopInstancesResponseType;
-import jp.primecloud.auto.nifty.soap.jaxws.StopInstancesType;
-import jp.primecloud.auto.nifty.soap.jaxws.TerminateInstancesResponseType;
-import jp.primecloud.auto.nifty.soap.jaxws.TerminateInstancesType;
-import jp.primecloud.auto.util.MessageUtils;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import jp.primecloud.auto.exception.AutoException;
+import jp.primecloud.auto.util.MessageUtils;
+import com.nifty.cloud.sdk.NiftyClientException;
+import com.nifty.cloud.sdk.NiftyServiceException;
+import com.nifty.cloud.sdk.disk.NiftyDiskClient;
+import com.nifty.cloud.sdk.disk.model.AttachVolumeRequest;
+import com.nifty.cloud.sdk.disk.model.AttachVolumeResult;
+import com.nifty.cloud.sdk.disk.model.CreateVolumeRequest;
+import com.nifty.cloud.sdk.disk.model.CreateVolumeResult;
+import com.nifty.cloud.sdk.disk.model.DeleteVolumeRequest;
+import com.nifty.cloud.sdk.disk.model.DeleteVolumeResult;
+import com.nifty.cloud.sdk.disk.model.DescribeVolumesRequest;
+import com.nifty.cloud.sdk.disk.model.DescribeVolumesResult;
+import com.nifty.cloud.sdk.disk.model.DetachVolumeRequest;
+import com.nifty.cloud.sdk.disk.model.DetachVolumeResult;
+import com.nifty.cloud.sdk.disk.model.Volume;
+import com.nifty.cloud.sdk.server.NiftyServerClient;
+import com.nifty.cloud.sdk.server.model.DescribeInstancesRequest;
+import com.nifty.cloud.sdk.server.model.DescribeInstancesResult;
+import com.nifty.cloud.sdk.server.model.Instance;
+import com.nifty.cloud.sdk.server.model.InstanceIdSet;
+import com.nifty.cloud.sdk.server.model.InstanceStateChange;
+import com.nifty.cloud.sdk.server.model.Reservation;
+import com.nifty.cloud.sdk.server.model.RunInstancesRequest;
+import com.nifty.cloud.sdk.server.model.RunInstancesResult;
+import com.nifty.cloud.sdk.server.model.StartInstancesRequest;
+import com.nifty.cloud.sdk.server.model.StartInstancesResult;
+import com.nifty.cloud.sdk.server.model.StopInstancesRequest;
+import com.nifty.cloud.sdk.server.model.StopInstancesResult;
+import com.nifty.cloud.sdk.server.model.TerminateInstancesRequest;
+import com.nifty.cloud.sdk.server.model.TerminateInstancesResult;
 
 /**
  * <p>
@@ -59,64 +69,80 @@ public class NiftyProcessClient {
 
     protected Log log = LogFactory.getLog(getClass());
 
-    protected NiftyCloudPortType niftyCloud;
+    protected NiftyServerClient niftyServerClient;
+
+    protected NiftyDiskClient niftyDiskClient;
 
     protected Long platformNo;
 
     protected Integer describeInterval;
 
-    public NiftyProcessClient(NiftyCloudPortType niftyCloud, Long platformNo) {
-        this.niftyCloud = niftyCloud;
+    private final static Object lock = new Object();
+
+    public NiftyProcessClient(NiftyServerClient niftyServerClient, Long platformNo) {
+        this.niftyServerClient = niftyServerClient;
         this.platformNo = platformNo;
     }
 
-    public NiftyProcessClient(NiftyCloudPortType niftyCloud, Long platformNo, Integer describeInterval) {
-        this(niftyCloud, platformNo);
+    public NiftyProcessClient(NiftyDiskClient niftyDiskClient, Long platformNo) {
+        this.niftyDiskClient = niftyDiskClient;
+        this.platformNo = platformNo;
+    }
+
+    public NiftyProcessClient(NiftyServerClient niftyServerClient, Long platformNo, Integer describeInterval) {
+        this(niftyServerClient, platformNo);
         this.describeInterval = describeInterval;
     }
 
-    public NiftyCloudPortType getNiftyCloud() {
-        return niftyCloud;
+    public NiftyProcessClient(NiftyDiskClient niftyDiskClient, Long platformNo, Integer describeInterval) {
+        this(niftyDiskClient, platformNo);
+        this.describeInterval = describeInterval;
+    }
+
+    public NiftyServerClient getNiftyServerClient() {
+        return niftyServerClient;
+    }
+
+    public NiftyDiskClient getNiftyDiskClient() {
+        return niftyDiskClient;
     }
 
     public Long getPlatformNo() {
         return platformNo;
     }
 
-    public List<RunningInstancesItemType> describeAllInstances() {
+    public List<Instance> describeAllInstances() {
         // 全インスタンスの参照
-        DescribeInstancesType request = new DescribeInstancesType();
+        DescribeInstancesRequest request = new DescribeInstancesRequest();
 
         try {
             Thread.sleep(1000 * describeInterval);
         } catch (InterruptedException ignore) {
         }
 
-        DescribeInstancesResponseType response = niftyCloud.describeInstances(request);
-        List<ReservationInfoType> reservations = response.getReservationSet().getItem();
+        DescribeInstancesResult result = niftyServerClient.describeInstances(request);
+        List<Reservation> reservations = result.getReservations();
 
-        List<RunningInstancesItemType> instances = new ArrayList<RunningInstancesItemType>();
-        for (ReservationInfoType reservation : reservations) {
-            instances.addAll(reservation.getInstancesSet().getItem());
+        List<Instance> instances = new ArrayList<Instance>();
+        for (Reservation reservation : reservations) {
+            instances.addAll(reservation.getInstances());
         }
 
         return instances;
     }
 
-    public RunningInstancesItemType describeInstance(String instanceId) {
+    public Instance describeInstance(String instanceId) {
         // 単一インスタンスの参照
-        DescribeInstancesType request = new DescribeInstancesType();
-        DescribeInstancesInfoType instancesSet = new DescribeInstancesInfoType();
-        instancesSet.getItem().add(new DescribeInstancesItemType().withInstanceId(instanceId));
-        request.setInstancesSet(instancesSet);
+        DescribeInstancesRequest request = new DescribeInstancesRequest();
+        request.withInstanceIds(instanceId);
 
         try {
             Thread.sleep(1000 * describeInterval);
         } catch (InterruptedException ignore) {
         }
 
-        DescribeInstancesResponseType response = niftyCloud.describeInstances(request);
-        List<ReservationInfoType> reservations = response.getReservationSet().getItem();
+        DescribeInstancesResult result = niftyServerClient.describeInstances(request);
+        List<Reservation> reservations = result.getReservations();
 
         // API実行結果チェック
         if (reservations.size() == 0) {
@@ -130,7 +156,7 @@ public class NiftyProcessClient {
             throw exception;
         }
 
-        List<RunningInstancesItemType> instances = reservations.get(0).getInstancesSet().getItem();
+        List<Instance> instances = reservations.get(0).getInstances();
 
         if (instances.size() == 0) {
             // インスタンスが存在しない場合
@@ -146,16 +172,16 @@ public class NiftyProcessClient {
         return instances.get(0);
     }
 
-    public RunningInstancesItemType waitInstance(String instanceId) {
+    public Instance waitInstance(String instanceId) {
         // インスタンスの処理待ち
         String[] stableStatus = new String[] { "running", "stopped" };
         // TODO: ニフティクラウドAPIの経過観察（インスタンスのステータス warning はAPIリファレンスに記載されていない）
-        String[] unstableStatus = new String[] { "pending", "warning" };// 
+        String[] unstableStatus = new String[] { "pending", "warning" };//
 
-        RunningInstancesItemType instance;
+        Instance instance;
         while (true) {
             instance = describeInstance(instanceId);
-            String status = instance.getInstanceState().getName();
+            String status = instance.getState().getName();
 
             if (ArrayUtils.contains(stableStatus, status)) {
                 break;
@@ -172,9 +198,9 @@ public class NiftyProcessClient {
         return instance;
     }
 
-    public RunningInstancesItemType runInstance(String imageId, String keyName, String instanceType, String password) {
+    public Instance runInstance(String imageId, String keyName, String instanceType, String password) {
         // インスタンスの起動
-        RunInstancesType request = new RunInstancesType();
+        RunInstancesRequest request = new RunInstancesRequest();
         request.setImageId(imageId);
         request.setMinCount(1);
         request.setMaxCount(1);
@@ -184,14 +210,23 @@ public class NiftyProcessClient {
         request.setPassword(password);
         request.setDisableApiTermination(false); // APIでインスタンスを削除できるようにする
 
-        RunInstancesResponseType response = niftyCloud.runInstances(request);
-
-        if (response.getInstancesSet() == null || response.getInstancesSet().getItem().size() != 1) {
+        RunInstancesResult result = new RunInstancesResult();
+        try {
+            result = niftyServerClient.runInstances(request);
+        } catch (NiftyServiceException e) {
+            // インスタンス起動失敗時
+            throw new AutoException("EPROCESS-000605");
+        } catch (NiftyClientException e) {
             // インスタンス起動失敗時
             throw new AutoException("EPROCESS-000605");
         }
 
-        RunningInstancesItemType instance = response.getInstancesSet().getItem().get(0);
+        if (result.getReservation() == null || result.getReservation().getInstances().size() != 1) {
+            // インスタンス起動失敗時
+            throw new AutoException("EPROCESS-000605");
+        }
+
+        Instance instance = result.getReservation().getInstances().get(0);
         String instanceId = instance.getInstanceId();
 
         // ログ出力
@@ -202,14 +237,14 @@ public class NiftyProcessClient {
         return instance;
     }
 
-    public RunningInstancesItemType waitRunInstance(String instanceId) {
+    public Instance waitRunInstance(String instanceId) {
         // TODO: ニフティクラウドAPIの経過観察（RunInstances直後はインスタンスを参照できないことがあるので、インスタンス情報を取得できるまでは全インスタンス情報を取得する）
         long timeout = 600 * 1000L;
         long startTime = System.currentTimeMillis();
         while (true) {
             boolean exist = false;
-            List<RunningInstancesItemType> instances = describeAllInstances();
-            for (RunningInstancesItemType instance : instances) {
+            List<Instance> instances = describeAllInstances();
+            for (Instance instance : instances) {
                 if (StringUtils.equals(instanceId, instance.getInstanceId())) {
                     exist = true;
                     break;
@@ -225,9 +260,9 @@ public class NiftyProcessClient {
             }
         }
 
-        RunningInstancesItemType instance = waitInstance(instanceId);
+        Instance instance = waitInstance(instanceId);
 
-        String state = instance.getInstanceState().getName();
+        String state = instance.getState().getName();
         if (!"running".equals(state)) {
             // インスタンス起動失敗時
             AutoException exception = new AutoException("EPROCESS-000606", instanceId, state);
@@ -243,27 +278,36 @@ public class NiftyProcessClient {
         return instance;
     }
 
-    public InstanceStateChangeType startInstance(String instanceId, String instanceType) {
+    public InstanceStateChange startInstance(String instanceId, String instanceType) {
         // インスタンスの起動
-        StartInstancesType request = new StartInstancesType();
-        InstanceIdSetType instancesSet = new InstanceIdSetType();
-        request.setInstancesSet(instancesSet);
-        InstanceIdType instance = new InstanceIdType();
-        instance.setInstanceId(instanceId);
-        instance.setInstanceType(instanceType);
-        instancesSet.getItem().add(instance);
+        StartInstancesRequest request = new StartInstancesRequest();
+        List<InstanceIdSet> instances = new ArrayList<InstanceIdSet>();
+        InstanceIdSet instanceIdSet = new InstanceIdSet();
+        instanceIdSet.setInstanceId(instanceId);
+        instanceIdSet.setInstanceType(instanceType);
+        instances.add(instanceIdSet);
+        request.setInstances(instances);
 
-        StartInstancesResponseType response = niftyCloud.startInstances(request);
+        StartInstancesResult result = new StartInstancesResult();
+        try {
+            result = niftyServerClient.startInstances(request);
+        } catch (NiftyServiceException e) {
+            // インスタンス起動失敗時
+            throw new AutoException("EPROCESS-000610", instanceId);
+        } catch (NiftyClientException e) {
+            // インスタンス起動失敗時
+            throw new AutoException("EPROCESS-000610", instanceId);
+        }
 
         // API実行結果チェック
-        if (response.getInstancesSet() == null || response.getInstancesSet().getItem().size() == 0) {
+        if (result.getStartingInstances() == null || result.getStartingInstances().size() == 0) {
             // インスタンス起動失敗時
             throw new AutoException("EPROCESS-000610", instanceId);
 
-        } else if (response.getInstancesSet().getItem().size() > 1) {
+        } else if (result.getStartingInstances().size() > 1) {
             // 複数のインスタンスが起動した場合
             AutoException exception = new AutoException("EPROCESS-000612", instanceId);
-            exception.addDetailInfo("result=" + response.getInstancesSet().getItem());
+            exception.addDetailInfo("result=" + result.getStartingInstances());
             throw exception;
         }
 
@@ -272,16 +316,16 @@ public class NiftyProcessClient {
             log.info(MessageUtils.getMessage("IPROCESS-100513", instanceId));
         }
 
-        return response.getInstancesSet().getItem().get(0);
+        return result.getStartingInstances().get(0);
     }
 
-    public RunningInstancesItemType waitStartInstance(String instanceId) {
+    public Instance waitStartInstance(String instanceId) {
         // TODO: ニフティクラウドAPIの経過観察（StartInstances直後はstoppedのステータスを返すことがあるので、stopped以外になるまで待つ）
         long timeout = 600 * 1000L;
         long startTime = System.currentTimeMillis();
         while (true) {
-            RunningInstancesItemType instance = describeInstance(instanceId);
-            if (!"stopped".equals(instance.getInstanceState().getName())) {
+            Instance instance = describeInstance(instanceId);
+            if (!"stopped".equals(instance.getState().getName())) {
                 break;
             }
 
@@ -291,9 +335,9 @@ public class NiftyProcessClient {
             }
         }
 
-        RunningInstancesItemType instance = waitInstance(instanceId);
+        Instance instance = waitInstance(instanceId);
 
-        String state = instance.getInstanceState().getName();
+        String state = instance.getState().getName();
         if (!"running".equals(state)) {
             // インスタンス開始失敗時
             AutoException exception = new AutoException("EPROCESS-000611", instanceId, state);
@@ -309,27 +353,34 @@ public class NiftyProcessClient {
         return instance;
     }
 
-    public InstanceStateChangeType stopInstance(String instanceId) {
+    public InstanceStateChange stopInstance(String instanceId) {
         // インスタンスの停止
-        StopInstancesType request = new StopInstancesType();
+        StopInstancesRequest request = new StopInstancesRequest();
+        List<String> instanceIds = new ArrayList<String>();
+        instanceIds.add(instanceId);
+        request.setInstanceIds(instanceIds);
         request.setForce(false);
-        InstanceIdSetType instancesSet = new InstanceIdSetType();
-        request.setInstancesSet(instancesSet);
-        InstanceIdType instance = new InstanceIdType();
-        instance.setInstanceId(instanceId);
-        instancesSet.getItem().add(instance);
 
-        StopInstancesResponseType response = niftyCloud.stopInstances(request);
+        StopInstancesResult result = new StopInstancesResult();
+        try {
+            result = niftyServerClient.stopInstances(request);
+        } catch (NiftyServiceException e) {
+            // インスタンス停止失敗時
+            throw new AutoException("EPROCESS-000613", instanceId);
+        } catch (NiftyClientException e) {
+            // インスタンス停止失敗時
+            throw new AutoException("EPROCESS-000613", instanceId);
+        }
 
         // API実行結果チェック
-        if (response.getInstancesSet() == null || response.getInstancesSet().getItem().size() == 0) {
+        if (result.getStoppingInstances() == null || result.getStoppingInstances().size() == 0) {
             // インスタンス停止失敗時
             throw new AutoException("EPROCESS-000613", instanceId);
 
-        } else if (response.getInstancesSet().getItem().size() > 1) {
+        } else if (result.getStoppingInstances().size() > 1) {
             // 複数のインスタンスが停止した場合
             AutoException exception = new AutoException("EPROCESS-000615", instanceId);
-            exception.addDetailInfo("result=" + response.getInstancesSet().getItem());
+            exception.addDetailInfo("result=" + result.getStoppingInstances());
             throw exception;
         }
 
@@ -338,16 +389,16 @@ public class NiftyProcessClient {
             log.info(MessageUtils.getMessage("IPROCESS-100515", instanceId));
         }
 
-        return response.getInstancesSet().getItem().get(0);
+        return result.getStoppingInstances().get(0);
     }
 
-    public RunningInstancesItemType waitStopInstance(String instanceId) {
+    public Instance waitStopInstance(String instanceId) {
         // TODO: ニフティクラウドAPIの経過観察（StopInstances直後はrunningのステータスを返すことがあるので、running以外になるまで待つ）
         long timeout = 600 * 1000L;
         long startTime = System.currentTimeMillis();
         while (true) {
-            RunningInstancesItemType instance = describeInstance(instanceId);
-            if (!"running".equals(instance.getInstanceState().getName())) {
+            Instance instance = describeInstance(instanceId);
+            if (!"running".equals(instance.getState().getName())) {
                 break;
             }
 
@@ -357,9 +408,9 @@ public class NiftyProcessClient {
             }
         }
 
-        RunningInstancesItemType instance = waitInstance(instanceId);
+        Instance instance = waitInstance(instanceId);
 
-        String state = instance.getInstanceState().getName();
+        String state = instance.getState().getName();
         if (!"stopped".equals(state)) {
             // インスタンス停止失敗時
             AutoException exception = new AutoException("EPROCESS-000614", instanceId, state);
@@ -375,26 +426,33 @@ public class NiftyProcessClient {
         return instance;
     }
 
-    public InstanceStateChangeType terminateInstance(String instanceId) {
+    public InstanceStateChange terminateInstance(String instanceId) {
         // インスタンスの停止
-        TerminateInstancesType request = new TerminateInstancesType();
-        InstanceIdSetType instancesSet = new InstanceIdSetType();
-        request.setInstancesSet(instancesSet);
-        InstanceIdType instance = new InstanceIdType();
-        instance.setInstanceId(instanceId);
-        instancesSet.getItem().add(instance);
+        TerminateInstancesRequest request = new TerminateInstancesRequest();
+        List<String> instanceIds = new ArrayList<String>();
+        instanceIds.add(instanceId);
+        request.setInstanceIds(instanceIds);
 
-        TerminateInstancesResponseType response = niftyCloud.terminateInstances(request);
+        TerminateInstancesResult result = new TerminateInstancesResult();
+        try {
+            result = niftyServerClient.terminateInstances(request);
+        } catch (NiftyServiceException e) {
+            // インスタンス削除失敗時
+            throw new AutoException("EPROCESS-000607", instanceId);
+        } catch (NiftyClientException e) {
+            // インスタンス削除失敗時
+            throw new AutoException("EPROCESS-000607", instanceId);
+        }
 
         // API実行結果チェック
-        if (response.getInstancesSet() == null || response.getInstancesSet().getItem().size() == 0) {
+        if (result.getTerminatingInstances() == null || result.getTerminatingInstances().size() == 0) {
             // インスタンス停止失敗時
             throw new AutoException("EPROCESS-000607", instanceId);
 
-        } else if (response.getInstancesSet().getItem().size() > 1) {
+        } else if (result.getTerminatingInstances().size() > 1) {
             // 複数のインスタンスが停止した場合
             AutoException exception = new AutoException("EPROCESS-000608", instanceId);
-            exception.addDetailInfo("result=" + response.getInstancesSet().getItem());
+            exception.addDetailInfo("result=" + result.getTerminatingInstances());
             throw exception;
         }
 
@@ -403,7 +461,7 @@ public class NiftyProcessClient {
             log.info(MessageUtils.getMessage("IPROCESS-100517", instanceId));
         }
 
-        return response.getInstancesSet().getItem().get(0);
+        return result.getTerminatingInstances().get(0);
     }
 
     public void waitTerminateInstance(String instanceId) {
@@ -433,4 +491,274 @@ public class NiftyProcessClient {
         }
     }
 
+    public Volume createVolume(Integer size, String instanceId) {
+        // 最適なサイズに変換する
+        int editSize;
+        editSize = 0;
+        for (int i = 1; i < 11; i++) {
+            if (size == 0) {
+                editSize = 0;
+                break;
+            }
+            if (size <= i * 100) {
+                editSize = i;
+                break;
+            }
+        }
+        // サイズに1GB～1000GB以外指定した場合、エラー
+        if (editSize == 0) {
+            // ディスク新規作成失敗時
+            throw new AutoException("EPROCESS-000617");
+        }
+
+        // ディスク新規作成
+        CreateVolumeRequest request = new CreateVolumeRequest();
+        request.setSize(String.valueOf(editSize));
+        request.setDiskType("3"); // Disk200A
+        request.setInstanceId(instanceId);
+        request.setAccountingType("2"); // 従量課金
+
+        CreateVolumeResult result = new CreateVolumeResult();
+        try {
+            result = niftyDiskClient.createVolume(request);
+        } catch (NiftyServiceException e) {
+            // ディスク新規作成失敗時
+            throw new AutoException("EPROCESS-000617");
+        } catch (NiftyClientException e) {
+            // ディスク新規作成失敗時
+            throw new AutoException("EPROCESS-000617");
+        }
+
+        if (result.getVolume() == null) {
+            // ディスク新規作成失敗時
+            throw new AutoException("EPROCESS-000617");
+        }
+
+        Volume volume = result.getVolume();
+        // ログ出力
+        if (log.isInfoEnabled()) {
+            log.info(MessageUtils.getMessage("IPROCESS-100521", volume.getVolumeId()));
+        }
+
+        return volume;
+    }
+
+    public Volume waitCreateVolume(String volumeId) {
+        // ボリュームの作成待ち
+        Volume volume = null;
+        volume = waitVolume(volumeId);
+
+        String status = volume.getStatus();
+        if (!"in-use".equals(status)) {
+            // ボリューム作成失敗時
+            AutoException exception = new AutoException("EPROCESS-000621", volumeId, status);
+            exception.addDetailInfo("result=" + ReflectionToStringBuilder.toString(volume));
+            throw exception;
+        }
+
+        // ログ出力
+        if (log.isInfoEnabled()) {
+            log.info(MessageUtils.getMessage("IPROCESS-100522", volumeId));
+        }
+
+        return volume;
+    }
+
+    protected Volume waitVolume(String volumeId) {
+        // Volumeの処理待ち
+        String[] stableStatus = new String[] { "available", "in-use" };
+        String[] unstableStatus = new String[] { "creating" };
+        Volume volume = null;
+        while (true) {
+            volume = describeVolume(volumeId);
+            String status;
+            status = volume.getStatus();
+
+            if (ArrayUtils.contains(stableStatus, status)) {
+                break;
+            }
+
+            if (!ArrayUtils.contains(unstableStatus, status)) {
+                // 予期しないステータス
+                AutoException exception = new AutoException("EPROCESS-000620", volumeId, status);
+                exception.addDetailInfo("result=" + ReflectionToStringBuilder.toString(volume));
+                throw exception;
+            }
+        }
+
+        return volume;
+    }
+
+    protected Volume describeVolume(String volumeId) {
+        // ディスク情報取得
+        DescribeVolumesRequest request = new DescribeVolumesRequest();
+        List<String> volumeIds = new ArrayList<String>();
+        volumeIds.add(volumeId);
+        request.setVolumeIds(volumeIds);
+
+        DescribeVolumesResult result = niftyDiskClient.describeVolumes(request);
+
+        // API実行結果チェック
+        if (result.getVolumes() == null || result.getVolumes().size() == 0) {
+            // インスタンスが存在しない場合
+            throw new AutoException("EPROCESS-000618", volumeId);
+
+        } else if (result.getVolumes().size() > 1) {
+            // インスタンスを複数参照できた場合
+            AutoException exception = new AutoException("EPROCESS-000619", volumeId);
+            exception.addDetailInfo("result=" + result.getVolumes());
+            throw exception;
+        }
+
+        return result.getVolumes().get(0);
+    }
+
+    public void attachVolume(String volumeId, String instanceId) {
+        // ボリュームのアタッチ
+        AttachVolumeRequest request = new AttachVolumeRequest();
+        request.setVolumeId(volumeId);
+        request.setInstanceId(instanceId);
+
+        AttachVolumeResult result = new AttachVolumeResult();
+        try {
+            result = niftyDiskClient.attachVolume(request);
+        } catch (NiftyServiceException e) {
+            // アタッチ失敗時
+            throw new AutoException("EPROCESS-000622", instanceId, volumeId);
+        } catch (NiftyClientException e) {
+            // アタッチ失敗時
+            throw new AutoException("EPROCESS-000622", instanceId, volumeId);
+        }
+
+        if (result.getAttachment() == null) {
+            // アタッチ失敗時
+            throw new AutoException("EPROCESS-000622", instanceId, volumeId);
+        }
+
+        // ログ出力
+        if (log.isInfoEnabled()) {
+            log.info(MessageUtils.getMessage("IPROCESS-100523", volumeId, instanceId));
+        }
+    }
+
+    public Volume waitAttachVolume(String volumeId, String instanceId) {
+        // TODO: ニフティクラウドAPIの経過観察（アタッチ情報がすぐに更新されない問題に暫定的に対応）
+        Volume volume = null;
+        long timeout = 600 * 1000L;
+        long startTime = System.currentTimeMillis();
+        while (true) {
+            volume = waitVolume(volumeId);
+            if ("in-use".equals(volume.getStatus())) {
+                break;
+            }
+            if (System.currentTimeMillis() - startTime > timeout) {
+                // タイムアウト発生時、アタッチにに失敗したものとする
+                throw new AutoException("EPROCESS-000623", instanceId, volumeId, volume.getStatus());
+            }
+        }
+
+        if (!"in-use".equals(volume.getStatus())) {
+            // アタッチ失敗時
+            AutoException exception = new AutoException("EPROCESS-000623", instanceId, volumeId, volume.getStatus());
+            exception.addDetailInfo("result=" + ReflectionToStringBuilder.toString(volume));
+            throw exception;
+        }
+
+        // ログ出力
+        if (log.isInfoEnabled()) {
+            log.info(MessageUtils.getMessage("IPROCESS-100524", volumeId, instanceId));
+        }
+
+        return volume;
+    }
+
+    public void detachVolume(String volumeId, String instanceId) {
+        // ボリュームのデタッチ
+        DetachVolumeRequest request = new DetachVolumeRequest();
+        request.setVolumeId(volumeId);
+        request.setInstanceId(instanceId);
+        request.setAgreement(true); // 解除実施
+
+        DetachVolumeResult result = new DetachVolumeResult();
+        try {
+            result = niftyDiskClient.detachVolume(request);
+        } catch (NiftyServiceException e) {
+            // デタッチ失敗時
+            throw new AutoException("EPROCESS-000624", instanceId, volumeId);
+        } catch (NiftyClientException e) {
+            // デタッチ失敗時
+            throw new AutoException("EPROCESS-000624", instanceId, volumeId);
+        }
+
+        if (result.getAttachment() == null) {
+            // デタッチ失敗時
+            throw new AutoException("EPROCESS-000624", instanceId, volumeId);
+        }
+
+        // ログ出力
+        if (log.isInfoEnabled()) {
+            log.info(MessageUtils.getMessage("IPROCESS-100525", volumeId, instanceId));
+        }
+    }
+
+    public Volume waitDetachVolume(String volumeId, String instanceId) {
+        // TODO: ニフティクラウドAPIの経過観察（アタッチ情報がすぐに更新されない問題に暫定的に対応）
+        Volume volume = null;
+        long timeout = 600 * 1000L;
+        long startTime = System.currentTimeMillis();
+        while (true) {
+            volume = waitVolume(volumeId);
+            if ("available".equals(volume.getStatus())) {
+                break;
+            }
+            if (System.currentTimeMillis() - startTime > timeout) {
+                // タイムアウト発生時、デタッチにに失敗したものとする
+                throw new AutoException("EPROCESS-000625", instanceId, volumeId, volume.getStatus());
+            }
+        }
+
+        if (!"available".equals(volume.getStatus())) {
+            // デタッチ失敗時
+            AutoException exception = new AutoException("EPROCESS-000625", instanceId, volumeId, volume.getStatus());
+            exception.addDetailInfo("result=" + ReflectionToStringBuilder.toString(volume));
+            throw exception;
+        }
+
+        // ログ出力
+        if (log.isInfoEnabled()) {
+            log.info(MessageUtils.getMessage("IPROCESS-100526", volumeId, instanceId));
+        }
+
+        return volume;
+    }
+
+    public void deleteVolume(String volumeId) {
+        // 排他制御(apiを同時に実行するとエラーになる対策)
+        synchronized(lock) {
+            // ディスク削除
+            DeleteVolumeRequest request = new DeleteVolumeRequest();
+            request.setVolumeId(volumeId);
+
+            DeleteVolumeResult result = new DeleteVolumeResult();
+            try {
+                result = niftyDiskClient.deleteVolume(request);
+            } catch (NiftyServiceException e) {
+                // ディスク削除失敗時
+                throw new AutoException("EPROCESS-000626", volumeId);
+            } catch (NiftyClientException e) {
+                // ディスク削除失敗時
+                throw new AutoException("EPROCESS-000626", volumeId);
+            }
+
+            if (result.getReturn() == null) {
+                // ディスク削除失敗時
+                throw new AutoException("EPROCESS-000626", volumeId);
+            }
+
+            // ログ出力
+            if (log.isInfoEnabled()) {
+                log.info(MessageUtils.getMessage("IPROCESS-100527", volumeId));
+            }
+        }
+    }
 }

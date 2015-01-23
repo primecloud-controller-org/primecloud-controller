@@ -20,6 +20,7 @@ package jp.primecloud.auto.api.component;
 
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.ws.rs.GET;
@@ -30,16 +31,17 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
+
+import org.apache.commons.lang.BooleanUtils;
+
 import jp.primecloud.auto.api.response.component.DetachComponentResponse;
 import jp.primecloud.auto.common.status.ComponentInstanceStatus;
 import jp.primecloud.auto.entity.crud.Component;
 import jp.primecloud.auto.entity.crud.ComponentInstance;
+import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.util.MessageUtils;
-
-import org.apache.commons.lang.BooleanUtils;
-
 
 
 @Path("/DetachComponent")
@@ -102,6 +104,20 @@ public class DetachComponent extends ApiSupport {
 
             // サーバの一覧から当該サーバのインスタンス番号を削除
             instanceNos.remove(Long.parseLong(instanceNo));
+
+            // サービス割り当て解除するディスクがアタッチされたままのものがあるかどうかチェック
+            String notSelectedItem;
+            Collection<Object> moveList = new ArrayList<Object>();
+            Instance instance = instanceDao.read(Long.parseLong(instanceNo));
+            // 画面の再選択項目に使用するので値はなんでもよいが、値は必須
+            notSelectedItem = instance.getInstanceName();
+            // サービス画面でも同様の処理が必要の為、サービスに切り出す
+            moveList = componentService.checkAttachDisk(Long.parseLong(farmNo), Long.parseLong(componentNo),
+                    instance.getInstanceName(), notSelectedItem, moveList);
+            if (!moveList.isEmpty()) {
+                // アタッチされたままのものは、解除できない
+                throw new AutoApplicationException("EAPI-100037", componentNo, instanceNo);
+            }
 
             // サービスとサーバの紐づけ解除(プロセス処理)
             componentService.associateInstances(Long.parseLong(componentNo), instanceNos);

@@ -100,7 +100,6 @@ class CloudStackIaasClient(CloudStackNodeDriver):
     def getHypervisor(self, zoneid):
         args = {'zoneid': zoneid}
         result = self._sync_request('listHypervisors', **args)
-        print result
         hypervisor = result.get('hypervisor', [])
         return hypervisor[0]
 
@@ -201,7 +200,7 @@ class CloudStackIaasClient(CloudStackNodeDriver):
 
 
     def describeVolume(self, volumeId):
-        volumes = self.describeVolumes()
+        volumes = self.describeVolumes(volumeId = volumeId)
 
         if not volumes or len(volumes) == 0:
             #インスタンスが存在しない場合

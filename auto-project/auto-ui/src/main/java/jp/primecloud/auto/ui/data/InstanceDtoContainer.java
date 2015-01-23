@@ -27,7 +27,6 @@ import jp.primecloud.auto.service.dto.InstanceDto;
 import jp.primecloud.auto.ui.ServerTable;
 import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.ViewContext;
-
 import com.vaadin.data.Container;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
@@ -109,21 +108,43 @@ public class InstanceDtoContainer extends BeanItemContainer<InstanceDto> impleme
                     if (oldInstance.getInstance().getInstanceNo().equals(newInstance.getInstance().getInstanceNo())) {
                         final BeanItem<InstanceDto> dto = this.getItem(o[i]);
                         dto.getItemProperty("instance").setValue(newInstance.getInstance());
+                        dto.getItemProperty("zabbixInstance").setValue(newInstance.getZabbixInstance());
                         dto.getItemProperty("platform").setValue(newInstance.getPlatform());
                         dto.getItemProperty("image").setValue(newInstance.getImage());
                         dto.getItemProperty("instanceConfigs").setValue(newInstance.getInstanceConfigs());
                         dto.getItemProperty("componentInstances").setValue(newInstance.getComponentInstances());
+                        //TODO CLOUD BRANCHING
+                        //AWS
                         dto.getItemProperty("awsInstance").setValue(newInstance.getAwsInstance());
                         dto.getItemProperty("awsAddress").setValue(newInstance.getAwsAddress());
                         dto.getItemProperty("awsVolumes").setValue(newInstance.getAwsVolumes());
+                        //VMWare
                         dto.getItemProperty("vmwareInstance").setValue(newInstance.getVmwareInstance());
                         dto.getItemProperty("vmwareKeyPair").setValue(newInstance.getVmwareKeyPair());
                         dto.getItemProperty("vmwareDisks").setValue(newInstance.getVmwareDisks());
+                        //Nifty
                         dto.getItemProperty("niftyInstance").setValue(newInstance.getNiftyInstance());
                         dto.getItemProperty("niftyKeyPair").setValue(newInstance.getNiftyKeyPair());
+                        dto.getItemProperty("niftyVolumes").setValue(newInstance.getNiftyVolumes());
+                        //CloudStack
                         dto.getItemProperty("cloudstackInstance").setValue(newInstance.getCloudstackInstance());
                         dto.getItemProperty("cloudstackAddress").setValue(newInstance.getCloudstackAddress());
                         dto.getItemProperty("cloudstackVolumes").setValue(newInstance.getCloudstackVolumes());
+                        //VCloud
+                        dto.getItemProperty("vcloudInstance").setValue(newInstance.getVcloudInstance());
+                        dto.getItemProperty("vcloudKeyPair").setValue(newInstance.getVcloudKeyPair());
+                        dto.getItemProperty("vcloudDisks").setValue(newInstance.getVcloudDisks());
+                        dto.getItemProperty("vcloudInstanceNetworks").setValue(newInstance.getVcloudInstanceNetworks());
+                        dto.getItemProperty("platformVcloudStorageType").setValue(newInstance.getPlatformVcloudStorageType());
+                        //Azure
+                        dto.getItemProperty("azureInstance").setValue(newInstance.getAzureInstance());
+                        dto.getItemProperty("azureCertificate").setValue(newInstance.getAzureCertificate());
+                        dto.getItemProperty("azureDisks").setValue(newInstance.getAzureDisks());
+                        //Openstack
+                        dto.getItemProperty("openstackInstance").setValue(newInstance.getOpenstackInstance());
+                        dto.getItemProperty("openstackCertificate").setValue(newInstance.getOpenstackCertificate());
+                        dto.getItemProperty("openstackVolumes").setValue(newInstance.getOpenstackVolumes());
+
                         dtos.remove(newInstance);
                         break;
                     } else {

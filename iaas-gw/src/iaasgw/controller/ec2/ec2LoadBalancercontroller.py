@@ -201,7 +201,7 @@ class ec2LoadBalancercontroller(object):
             # リスナーの作成
             self.client.createLoadBalancerListeners(listeners, loadBalancerName)
 
-            # 実行ログ
+            #実行ログ
             self.logger.info(None ,"IPROCESS-200121", [awsLoadBalancer["NAME"], listener["LOAD_BALANCER_PORT"]])
 
             # イベントログ出力

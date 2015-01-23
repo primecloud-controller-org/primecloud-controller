@@ -7,7 +7,6 @@ import javax.xml.bind.annotation.XmlType;
 import jp.primecloud.auto.entity.crud.CloudstackInstance;
 
 
-
 @XmlRootElement(name="CloudstackInstanceResponse")
 @XmlType(propOrder = { "keyName", "instanceType", "displayname", "ipaddress", "state", "zoneid" ,"networkid", "securitygroup" })
 public class CloudstackInstanceResponse {

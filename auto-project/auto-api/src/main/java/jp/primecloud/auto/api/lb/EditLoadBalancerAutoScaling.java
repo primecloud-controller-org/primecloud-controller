@@ -30,6 +30,10 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+
 import jp.primecloud.auto.api.response.lb.EditLoadBalancerAutoScalingResponse;
 import jp.primecloud.auto.common.status.LoadBalancerStatus;
 import jp.primecloud.auto.entity.crud.AutoScalingConf;
@@ -37,6 +41,7 @@ import jp.primecloud.auto.entity.crud.Image;
 import jp.primecloud.auto.entity.crud.ImageAws;
 import jp.primecloud.auto.entity.crud.ImageCloudstack;
 import jp.primecloud.auto.entity.crud.ImageNifty;
+import jp.primecloud.auto.entity.crud.ImageVcloud;
 import jp.primecloud.auto.entity.crud.ImageVmware;
 import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.entity.crud.Platform;
@@ -45,10 +50,6 @@ import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.util.MessageUtils;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 
 
 @Path("/EditLoadBalancerAutoScaling")
@@ -135,7 +136,7 @@ public class EditLoadBalancerAutoScaling extends ApiSupport {
                 }
 
                 Platform lbPlatform = platformDao.read(loadBalancer.getPlatformNo());
-                if ("aws".equals(lbPlatform.getPlatformType())) {
+                if (PLATFORM_TYPE_AWS.equals(lbPlatform.getPlatformType())) {
                 	PlatformAws platformAws = platformAwsDao.read(loadBalancer.getPlatformNo());
                 	if(!platformAws.getEuca() && platformAws.getVpc()) {
                 		//ロードバランサがEC2+VPCプラットフォームの場合、同プラットフォーム以外設定不可
@@ -249,6 +250,10 @@ public class EditLoadBalancerAutoScaling extends ApiSupport {
             //CloudStack
             ImageCloudstack imageCloudstack = imageCloudstackDao.read(image.getImageNo());
             instanceTypesText = imageCloudstack.getInstanceTypes();
+        } else if (PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
+            //VCloud
+            ImageVcloud imageVcloud = imageVcloudDao.read(image.getImageNo());
+            instanceTypesText = imageVcloud.getInstanceTypes();
         }
         List<String> instanceTypes = getInstanceTypesFromText(instanceTypesText);
         return instanceTypes;

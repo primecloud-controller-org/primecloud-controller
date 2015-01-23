@@ -25,13 +25,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import jp.primecloud.auto.common.log.LoggingUtils;
-import jp.primecloud.auto.ui.util.ContextUtils;
-import jp.primecloud.auto.ui.util.ViewContext;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import jp.primecloud.auto.common.log.LoggingUtils;
+import jp.primecloud.auto.ui.util.ContextUtils;
+import jp.primecloud.auto.ui.util.ViewContext;
 import com.vaadin.terminal.gwt.server.ApplicationServlet;
 
 /**

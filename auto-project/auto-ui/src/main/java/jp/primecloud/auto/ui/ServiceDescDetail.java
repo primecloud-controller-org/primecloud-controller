@@ -20,7 +20,6 @@ package jp.primecloud.auto.ui;
 
 import jp.primecloud.auto.service.dto.ComponentDto;
 import jp.primecloud.auto.ui.util.ViewProperties;
-
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;

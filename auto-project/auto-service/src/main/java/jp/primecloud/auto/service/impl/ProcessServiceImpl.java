@@ -19,12 +19,19 @@
 package jp.primecloud.auto.service.impl;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+
+import jp.primecloud.auto.common.constant.PCCConstant;
+import jp.primecloud.auto.common.status.InstanceStatus;
 import jp.primecloud.auto.entity.crud.AwsInstance;
+import jp.primecloud.auto.entity.crud.AzureInstance;
 import jp.primecloud.auto.entity.crud.ComponentInstance;
 import jp.primecloud.auto.entity.crud.ComponentLoadBalancer;
 import jp.primecloud.auto.entity.crud.Farm;
@@ -35,10 +42,6 @@ import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.PlatformAws;
 import jp.primecloud.auto.service.ProcessService;
 import jp.primecloud.auto.service.ServiceSupport;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 
 /**
  * <p>
@@ -63,15 +66,33 @@ public class ProcessServiceImpl extends ServiceSupport implements ProcessService
     public void startInstances(Long farmNo, List<Long> instanceNos, boolean startComponent) {
         // インスタンスを有効にする
         List<Instance> instances = instanceDao.readInInstanceNos(instanceNos);
+        boolean skipServer = false;
         for (Instance instance : instances) {
             Platform platform = platformDao.read(instance.getPlatformNo());
-            if ("aws".equals(platform.getPlatformType())) {
+            if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
                 PlatformAws platformAws = platformAwsDao.read(instance.getPlatformNo());
                 AwsInstance awsInstance = awsInstanceDao.read(instance.getInstanceNo());
                 if (platformAws.getVpc() && StringUtils.isEmpty(awsInstance.getSubnetId())) {
                     //EC2+VPCでサブネットが設定されていないサーバは起動不可
                     instanceNos.remove(instance.getInstanceNo());
                     continue;
+                }
+            }
+            if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
+                AzureInstance azureInstance = azureInstanceDao.read(instance.getInstanceNo());
+                if (StringUtils.isEmpty(azureInstance.getSubnetId())) {
+                    //サブネットが設定されていないサーバは起動不可
+                    instanceNos.remove(instance.getInstanceNo());
+                    continue;
+                }
+                // インスタンスが未作成のものは、2件目以降は起動不可
+                if (StringUtils.isEmpty(azureInstance.getInstanceName()) && skipServer == true) {
+                    instanceNos.remove(instance.getInstanceNo());
+                    continue;
+                }
+                // インスタンスが未作成のものは、1件目のみ起動
+                if (StringUtils.isEmpty(azureInstance.getInstanceName()) && skipServer == false) {
+                    skipServer = true;
                 }
             }
             if (BooleanUtils.isNotTrue(instance.getEnabled())) {
@@ -143,6 +164,8 @@ public class ProcessServiceImpl extends ServiceSupport implements ProcessService
     public void startComponents(Long farmNo, List<Long> componentNos) {
         // コンポーネントを有効にする
         List<ComponentInstance> componentInstances = componentInstanceDao.readInComponentNos(componentNos);
+        boolean skipServer = false;
+        Long skipInstanceNo = null;
         for (ComponentInstance componentInstance : componentInstances) {
             if (BooleanUtils.isNotTrue(componentInstance.getAssociate())) {
                 // 関連付けが無効なコンポーネントは無効にする
@@ -156,12 +179,30 @@ public class ProcessServiceImpl extends ServiceSupport implements ProcessService
             }
             Instance instance = instanceDao.read(componentInstance.getInstanceNo());
             Platform platform = platformDao.read(instance.getPlatformNo());
-            if ("aws".equals(platform.getPlatformType())) {
+            if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
                 PlatformAws platformAws = platformAwsDao.read(instance.getPlatformNo());
                 AwsInstance awsInstance = awsInstanceDao.read(instance.getInstanceNo());
                 if (platformAws.getVpc() && StringUtils.isEmpty(awsInstance.getSubnetId())) {
                     //EC2+VPCでサブネットが設定されていないサーバは起動不可
                     continue;
+                }
+            }
+            if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
+                AzureInstance azureInstance = azureInstanceDao.read(instance.getInstanceNo());
+                if (StringUtils.isEmpty(azureInstance.getSubnetId())) {
+                    //サブネットが設定されていないサーバは起動不可
+                    continue;
+                }
+                // インスタンスが未作成のものは、2件目以降は起動不可
+                // 同一インスタンスNoは、除外する
+                if (StringUtils.isEmpty(azureInstance.getInstanceName()) && skipServer == true
+                        && azureInstance.getInstanceNo().equals(skipInstanceNo) == false) {
+                    continue;
+                }
+                // インスタンスが未作成のものは、1件目のみ起動
+                if (StringUtils.isEmpty(azureInstance.getInstanceName()) && skipServer == false) {
+                    skipServer = true;
+                    skipInstanceNo = azureInstance.getInstanceNo();
                 }
             }
             if (BooleanUtils.isNotTrue(componentInstance.getEnabled())
@@ -178,14 +219,30 @@ public class ProcessServiceImpl extends ServiceSupport implements ProcessService
             instanceNos.add(componentInstance.getInstanceNo());
         }
         List<Instance> instances = instanceDao.readInInstanceNos(instanceNos);
+        boolean skipServer2 = false;
         for (Instance instance : instances) {
             Platform platform = platformDao.read(instance.getPlatformNo());
-            if ("aws".equals(platform.getPlatformType())) {
+            if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
                 PlatformAws platformAws = platformAwsDao.read(instance.getPlatformNo());
                 AwsInstance awsInstance = awsInstanceDao.read(instance.getInstanceNo());
                 if (platformAws.getVpc() && StringUtils.isEmpty(awsInstance.getSubnetId())) {
                     //EC2+VPCでサブネットが設定されていないサーバは起動不可
                     continue;
+                }
+            }
+            if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
+                AzureInstance azureInstance = azureInstanceDao.read(instance.getInstanceNo());
+                if (StringUtils.isEmpty(azureInstance.getSubnetId())) {
+                    //サブネットが設定されていないサーバは起動不可
+                    continue;
+                }
+                // インスタンスが未作成のものは、2件目以降は起動不可
+                if (StringUtils.isEmpty(azureInstance.getInstanceName()) && skipServer2 == true) {
+                    continue;
+                }
+                // インスタンスが未作成のものは、1件目のみ起動
+                if (StringUtils.isEmpty(azureInstance.getInstanceName()) && skipServer2 == false) {
+                    skipServer2 = true;
                 }
             }
             if (BooleanUtils.isNotTrue(instance.getEnabled())) {
@@ -532,6 +589,72 @@ public class ProcessServiceImpl extends ServiceSupport implements ProcessService
 
         // ファームを更新処理対象として登録
         scheduleFarm(farmNo);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean checkSubnet(String platformType, Boolean vpc, String subnetId) {
+        if (PCCConstant.PLATFORM_TYPE_AWS.equals(platformType) && vpc && StringUtils.isEmpty(subnetId) ||
+                (PCCConstant.PLATFORM_TYPE_AZURE.equals(platformType) && StringUtils.isEmpty(subnetId))) {
+            //EC2+VPCまたは、Azureの場合、サブネットを設定しないと起動不可
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public HashMap<String, Boolean> checkStartupAll(String platformType, String instanceName, boolean skipServer) {
+        HashMap<String, Boolean> flgMap = new HashMap<String, Boolean>();
+        if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platformType)) {
+            // インスタンスが未作成のものがあった場合（同時起動）
+            // インスタンスが未作成のものは、2件目以降は起動不可
+            if (StringUtils.isEmpty(instanceName)
+                    && skipServer == true) {
+                // インスタンス作成中のものがあった場合は、起動不可
+                flgMap.put("skipServer", skipServer);
+                flgMap.put("startupAllErrFlg", true);
+                return flgMap;
+            }
+            // インスタンスが未作成のものは、1件目のみ起動
+            if (StringUtils.isEmpty(instanceName)
+                    && skipServer == false) {
+                skipServer = true;
+            }
+        }
+        flgMap.put("skipServer", skipServer);
+        flgMap.put("startupAllErrFlg", false);
+        return flgMap;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean checkStartup(String platformType, String instanceName, Long instanceNo) {
+        if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platformType)) {
+            // インスタンスが未作成のものがあった場合（個別起動）
+            if (StringUtils.isEmpty(instanceName)) {
+                List<AzureInstance> azureInstances = azureInstanceDao.readAll();
+                // 全Azureサーバーにインスタンス作成中のものがあるかのチェック
+                for (AzureInstance azureInstance : azureInstances) {
+                    Instance instance = instanceDao.read(azureInstance.getInstanceNo());
+                    if (instanceNo.equals(instance.getInstanceNo()) == false &&
+                            (instance.getStatus().equals(InstanceStatus.STARTING.toString()) ||
+                                    instance.getStatus().equals(InstanceStatus.CONFIGURING.toString())) &&
+                                    StringUtils.isEmpty(azureInstance.getInstanceName())) {
+                        // インスタンス作成中のものがあった場合は、起動不可
+                        // 同一インスタンスNoは、除外する
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     protected void scheduleFarm(Long farmNo) {

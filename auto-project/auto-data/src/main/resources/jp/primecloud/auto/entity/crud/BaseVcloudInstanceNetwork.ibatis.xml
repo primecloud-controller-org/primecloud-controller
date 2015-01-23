@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="VcloudInstanceNetwork">
+
+	<typeAlias alias="VcloudInstanceNetwork" type="jp.primecloud.auto.entity.crud.VcloudInstanceNetwork" />
+
+	<resultMap id="vcloudInstanceNetworkResultMap" class="VcloudInstanceNetwork">
+		<result property="networkNo" column="NETWORK_NO" />
+		<result property="platformNo" column="PLATFORM_NO" />
+		<result property="instanceNo" column="INSTANCE_NO" />
+		<result property="farmNo" column="FARM_NO" />
+		<result property="networkName" column="NETWORK_NAME" nullValue="" />
+		<result property="networkIndex" column="NETWORK_INDEX" />
+		<result property="ipMode" column="IP_MODE" nullValue="" />
+		<result property="ipAddress" column="IP_ADDRESS" nullValue="" />
+		<result property="isPrimary" column="IS_PRIMARY" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.NETWORK_NO as NETWORK_NO,
+			t1.PLATFORM_NO as PLATFORM_NO,
+			t1.INSTANCE_NO as INSTANCE_NO,
+			t1.FARM_NO as FARM_NO,
+			t1.NETWORK_NAME as NETWORK_NAME,
+			t1.NETWORK_INDEX as NETWORK_INDEX,
+			t1.IP_MODE as IP_MODE,
+			t1.IP_ADDRESS as IP_ADDRESS,
+			t1.IS_PRIMARY as IS_PRIMARY
+		from
+			VCLOUD_INSTANCE_NETWORK t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from VCLOUD_INSTANCE_NETWORK t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="vcloudInstanceNetworkResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.NETWORK_NO = #networkNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="vcloudInstanceNetworkResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readByPlatformNo" parameterClass="java.util.Map" resultMap="vcloudInstanceNetworkResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="readByInstanceNo" parameterClass="java.util.Map" resultMap="vcloudInstanceNetworkResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.INSTANCE_NO = #instanceNo#
+		]]>
+	</select>
+
+	<select id="readByFarmNo" parameterClass="java.util.Map" resultMap="vcloudInstanceNetworkResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.FARM_NO = #farmNo#
+		]]>
+	</select>
+
+	<select id="readInNetworkNos" parameterClass="java.util.Map" resultMap="vcloudInstanceNetworkResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.NETWORK_NO in
+		]]>
+		<iterate property="networkNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#networkNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="VcloudInstanceNetwork">
+		<![CDATA[
+		insert into VCLOUD_INSTANCE_NETWORK (
+			NETWORK_NO,
+			PLATFORM_NO,
+			INSTANCE_NO,
+			FARM_NO,
+			NETWORK_NAME,
+			NETWORK_INDEX,
+			IP_MODE,
+			IP_ADDRESS,
+			IS_PRIMARY
+		) values (
+			#networkNo#,
+			#platformNo#,
+			#instanceNo#,
+			#farmNo#,
+			#networkName#,
+			#networkIndex#,
+			#ipMode#,
+			#ipAddress#,
+			#isPrimary#
+		)
+		]]>
+	</insert>
+
+	<insert id="createAuto" parameterClass="VcloudInstanceNetwork">
+		<![CDATA[
+		insert into VCLOUD_INSTANCE_NETWORK (
+			NETWORK_NO,
+			PLATFORM_NO,
+			INSTANCE_NO,
+			FARM_NO,
+			NETWORK_NAME,
+			NETWORK_INDEX,
+			IP_MODE,
+			IP_ADDRESS,
+			IS_PRIMARY
+		) values (
+			#networkNo#,
+			#platformNo#,
+			#instanceNo#,
+			#farmNo#,
+			#networkName#,
+			#networkIndex#,
+			#ipMode#,
+			#ipAddress#,
+			#isPrimary#
+		)
+		]]>
+		<selectKey keyProperty="networkNo" resultClass="java.lang.Long" type="post">
+		<![CDATA[
+			select last_insert_id()
+		]]>
+		</selectKey>
+	</insert>
+
+	<update id="update" parameterClass="VcloudInstanceNetwork">
+		<![CDATA[
+		update VCLOUD_INSTANCE_NETWORK set
+			PLATFORM_NO = #platformNo#,
+			INSTANCE_NO = #instanceNo#,
+			FARM_NO = #farmNo#,
+			NETWORK_NAME = #networkName#,
+			NETWORK_INDEX = #networkIndex#,
+			IP_MODE = #ipMode#,
+			IP_ADDRESS = #ipAddress#,
+			IS_PRIMARY = #isPrimary#
+		where
+			NETWORK_NO = #networkNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="VcloudInstanceNetwork">
+		<![CDATA[
+		delete from VCLOUD_INSTANCE_NETWORK
+		where
+			NETWORK_NO = #networkNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from VCLOUD_INSTANCE_NETWORK
+		]]>
+	</delete>
+
+	<delete id="deleteByNetworkNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from VCLOUD_INSTANCE_NETWORK
+		where
+			NETWORK_NO = #networkNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByPlatformNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from VCLOUD_INSTANCE_NETWORK
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByInstanceNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from VCLOUD_INSTANCE_NETWORK
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByFarmNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from VCLOUD_INSTANCE_NETWORK
+		where
+			FARM_NO = #farmNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByNetworkNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			NETWORK_NO = #networkNo#
+		]]>
+	</select>
+
+	<select id="countByPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="countByInstanceNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</select>
+
+	<select id="countByFarmNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			FARM_NO = #farmNo#
+		]]>
+	</select>
+
+</sqlMap>

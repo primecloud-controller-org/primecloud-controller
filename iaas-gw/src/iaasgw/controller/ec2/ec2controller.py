@@ -86,7 +86,7 @@ class EC2Controller(IaasController):
             if isNotEmpty(volume["COMPONENT_NO"]):
                 # コンポーネント番号がある場合はスキップ
                 continue
-            # Volumeスタート
+            #Volumeスタート
             self.volumecontroller.startVolume(instanceNo, volume["VOLUME_NO"])
 
         # アドレスに関する処理
@@ -115,11 +115,11 @@ class EC2Controller(IaasController):
             tableAWSVOL = self.conn.getTable("AWS_VOLUME")
             volumes = self.conn.select(tableAWSVOL.select(tableAWSVOL.c.INSTANCE_NO==instanceNo))
 
-            # PCC_INSTANCE 取得
+            #PCC_INSTANCE 取得
             tableINS = self.conn.getTable("INSTANCE")
             pccInstance = self.conn.selectOne(tableINS.select(tableINS.c.INSTANCE_NO==instanceNo))
 
-            # イメージの取得  再考の余地あり
+            #イメージの取得  再考の余地あり
             image = getImage(pccInstance["IMAGE_NO"])
 
             for awsVolume in volumes:
@@ -130,7 +130,7 @@ class EC2Controller(IaasController):
                         updateDict = self.conn.selectOne(tableAWSVOL.select(tableAWSVOL.c.VOLUME_NO==awsVolume["VOLUME_NO"]))
                         updateDict["STATUS"] = None
                         updateDict["INSTANCE_ID"] = None
-                        sql = tableAWSVOL.update(tableAWSVOL.c.INSTANCE_NO ==updateDict["INSTANCE_NO"], values=updateDict)
+                        sql = tableAWSVOL.update(tableAWSVOL.c.VOLUME_NO ==updateDict["VOLUME_NO"], values=updateDict)
                         self.conn.execute(sql)
         except Exception:
             self.logger.error(traceback.format_exc())
@@ -141,11 +141,11 @@ class EC2Controller(IaasController):
 
     def terminateInstance(self, instanceId):
 
-        # 1度も起動されていない
+        #1度も起動されていない
         if instanceId is None:
             return
 
-        # AWS_INSTANCE 取得
+        #AWS_INSTANCE 取得
         tableAWSINS = self.conn.getTable("AWS_INSTANCE")
         awsInstance = self.conn.selectOne(tableAWSINS.select(tableAWSINS.c.INSTANCE_ID==instanceId))
 
@@ -207,7 +207,7 @@ class EC2Controller(IaasController):
         loadBalancer = self.conn.selectOne(tableLB.select(tableLB.c.LOAD_BALANCER_NO==loadBalancerNo))
 
         # DNSサーバからの削除
-        # self.loadBalancercontroller.deleteDns(loadBalancerNo);
+        #self.loadBalancercontroller.deleteDns(loadBalancerNo);
 
         # ロードバランサの削除
         self.loadBalancercontroller.deleteLoadBalancer(loadBalancer["FARM_NO"],loadBalancerNo)
@@ -279,7 +279,13 @@ class EC2Controller(IaasController):
 
         #DBへ登録
         table = self.conn.getTable("AWS_ADDRESS")
-        sql = table.insert([None, self.accessInfo["USER"], self.client.getPlatformNo(), publicIp, None, None, None])
+        sql = table.insert({"ADDRESS_NO":None,
+                            "USER_NO":self.accessInfo["USER"],
+                            "PLATFORM_NO":self.client.getPlatformNo(),
+                            "PUBLIC_IP":publicIp,
+                            "COMMENT":None,
+                            "INSTANCE_NO":None,
+                            "INSTANCE_ID":None})
         self.conn.execute(sql)
 
         newAddress = self.conn.selectOne(table.select(table.c.PUBLIC_IP==publicIp))

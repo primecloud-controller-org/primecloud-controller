@@ -27,9 +27,8 @@ import jp.primecloud.auto.entity.crud.VmwareNetwork;
 import jp.primecloud.auto.puppet.PuppetClient;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
-
 import com.vmware.vim25.GuestInfo;
-import com.vmware.vim25.VirtualMachineToolsStatus;
+import com.vmware.vim25.VirtualMachineToolsRunningStatus;
 import com.vmware.vim25.mo.VirtualMachine;
 
 /**
@@ -114,7 +113,7 @@ public class VmwareProcess extends ServiceSupport {
             vmwareInitProcess.initialize(vmwareProcessClient, instanceNo);
 
             // ネットワークの設定
-            vmwareInitProcess.initializeNetwork(vmwareProcessClient, instanceNo);
+            vmwareInitProcess.initializeNetwork(vmwareProcessClient, instanceNo, vmwareNetworkProcess);
 
             // カスタム値の設定
             vmwareMachineProcess.updateCustomValue(vmwareProcessClient, instanceNo);
@@ -167,8 +166,8 @@ public class VmwareProcess extends ServiceSupport {
 
                 try {
                     GuestInfo guestInfo = machine.getGuest();
-                    if (guestInfo.getToolsStatus() == VirtualMachineToolsStatus.toolsOk
-                            || guestInfo.getToolsStatus() == VirtualMachineToolsStatus.toolsOld) {
+                    if (VirtualMachineToolsRunningStatus.guestToolsRunning.toString()
+                            .equals(guestInfo.getToolsRunningStatus())) {
                         // vmware-toolsが起動している場合、ゲストOSをシャットダウン
                         vmwareMachineProcess.shutdownGuest(vmwareProcessClient, instanceNo);
                     } else {

@@ -42,7 +42,7 @@ if [ -n "${USER_NAME}" -a -n "${PLATFORM_NAME}" ]; then
 
         #ユーザーがすでに作成されているかどうかの確認
         SQL_ALREADY_CREATED="SELECT USER_NO FROM USER where USERNAME ='${USER_NAME}'"
-        USER_NO=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -S -sql "${SQL_ALREADY_CREATED}" -columntype int -columnname USER_NO`
+        USER_NO=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -S -sql \"${SQL_ALREADY_CREATED}\" -columntype int -columnname USER_NO"`
 
         if [ "${USER_NO}" = "NULL" ]; then
                 echo "${USER_NAME} は作成されていません。先にPCCのユーザを作成してください。"
@@ -57,8 +57,24 @@ if [ -n "${USER_NAME}" -a -n "${PLATFORM_NAME}" ]; then
                 exit 1
         fi
 
+        #無効化文字列を読む
+        DISABLE_CODE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -config DISABLE_CODE"`
+        if [ "${DISABLE_CODE}" = "NULL" ]; then
+            echo "DISABLE_CODEの読み込みに失敗しました。"
+            exit 1
+        fi
+
+        #無効化されているか確認
+        SQL_USER_DISABLED="SELECT LOCATE('${DISABLE_CODE}',PASSWORD) as LOCATE from USER where USER_NO=${USER_NO}"
+        LOCATE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -S -sql \"${SQL_USER_DISABLED}\" -columntype int -columnname LOCATE"`
+
+        if [ "${LOCATE}" != "0" ]; then
+                echo "${USER_NAME} は無効化されています。"
+                exit 1
+        fi
+
 		#プラットフォーム番号の取得
-		PLATFORM_NO=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -platformname "${PLATFORM_NAME}" -platformkind vmware`
+        PLATFORM_NO=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -platformname \"${PLATFORM_NAME}\" -platformkind vmware"`
 
 		if [ "${PLATFORM_NO}" = "NULL" ]; then
 			echo "${PLATFORM_NAME} というプラットフォームは存在しません。"
@@ -77,7 +93,7 @@ if [ -n "${USER_NAME}" -a -n "${PLATFORM_NAME}" ]; then
 
         #ユーザーがすでに有効化されているかどうかの確認
         SQL_ALREADY_VMWARE_CREATED="SELECT USER_NO FROM VMWARE_KEY_PAIR where USER_NO =${USER_NO} and PLATFORM_NO=${PLATFORM_NO}"
-        USER_NO_CHECK=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -S -sql "${SQL_ALREADY_VMWARE_CREATED}" -columntype int -columnname USER_NO`
+        USER_NO_CHECK=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -S -sql \"${SQL_ALREADY_VMWARE_CREATED}\" -columntype int -columnname USER_NO"`
 
         if [ "${USER_NO_CHECK}" != "NULL" ]; then
                 echo "${USER_NAME} はすでに${PLATFORM_NAME}を使用可能です。"
@@ -86,7 +102,7 @@ if [ -n "${USER_NAME}" -a -n "${PLATFORM_NAME}" ]; then
 
 		#VMwareユーザーの作成
 	    SQL_CREATE_VMWARE_KEY_PAIR="INSERT INTO VMWARE_KEY_PAIR values (null,${USER_NO},'${PLATFORM_NO}','${USER_NAME}','${SSH_KEY_PUB}')"
-        MESSAGE=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -U -sql "${SQL_CREATE_VMWARE_KEY_PAIR}"`
+        MESSAGE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -U -sql \"${SQL_CREATE_VMWARE_KEY_PAIR}\""`
 
         if [ -n "${MESSAGE}" ]; then
                 echo "${MESSAGE}"
