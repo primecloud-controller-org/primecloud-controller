@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.LoadBalancerStatus;
 import jp.primecloud.auto.config.Config;
@@ -35,6 +32,10 @@ import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
 import jp.primecloud.auto.ui.validator.IntegerRangeValidator;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+
 import com.vaadin.Application;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
@@ -72,7 +73,7 @@ import com.vaadin.ui.Window;
 public class WinLoadBalancerEdit extends Window {
     final String COLUMN_HEIGHT = "30px";
 
-    final String TAB_HEIGHT = "450px";
+    final String TAB_HEIGHT = "480px";
 
     Application apl;
 
@@ -175,6 +176,8 @@ public class WinLoadBalancerEdit extends Window {
     }
 
     private class BasicTab extends VerticalLayout {
+        final String INTERNAL_CAPTION_ID = "EnableInternalName";
+
         final String SERVICE_CAPTION_ID = "ServiceName";
 
         final String SUBNET_CAPTION_ID = "subnet";
@@ -194,6 +197,8 @@ public class WinLoadBalancerEdit extends Window {
         TwinColSelect subnetSelect;
 
         ComboBox grpSelect;
+
+        ComboBox internalSelect;
 
         BasicTab() {
             setHeight(TAB_HEIGHT);
@@ -282,11 +287,24 @@ public class WinLoadBalancerEdit extends Window {
             Label descriptionLbl= new Label(ViewProperties.getCaption("field.selectSubnetDescription"));
             belowLayout.addComponent(descriptionLbl);
 
+            //クロスゾーン負荷分散キャプション
+            AbsoluteLayout  belowLayout2 = new AbsoluteLayout();
+            belowLayout2.setWidth("100%");
+            belowLayout2.setHeight("20px");
+            Label descriptionLbl2= new Label(ViewProperties.getCaption("field.crosszone"));
+            belowLayout2.addComponent(descriptionLbl2);
+
             //セキュリティグループ
             grpSelect = new ComboBox();
             grpSelect.setImmediate(true);
             grpSelect.setCaption(ViewProperties.getCaption("field.securityGroup"));
             grpSelect.setNullSelectionAllowed(false);
+
+            //内部ロードバランサ
+            internalSelect = new ComboBox();
+            internalSelect.setImmediate(true);
+            internalSelect.setCaption(ViewProperties.getCaption("field.internallb"));
+            internalSelect.setNullSelectionAllowed(false);
 
             //表示or非表示
             form.getLayout().addComponent(loadBalancerNameField);
@@ -301,19 +319,23 @@ public class WinLoadBalancerEdit extends Window {
 
             PlatformAws platformAws = platformDto.getPlatformAws();
             if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancerDto.getLoadBalancer().getType()) && platformAws.getVpc()) {
+                form.getLayout().addComponent(internalSelect);
                 form.getLayout().addComponent(grpSelect);
                 form.getLayout().addComponent(aboveLayout);
                 form.getLayout().addComponent(subnetSelect);
                 form.getLayout().addComponent(belowLayout);
+                form.getLayout().addComponent(belowLayout2);
             }
 
             //活性or非活性
             LoadBalancerStatus status = LoadBalancerStatus.fromStatus(loadBalancerDto.getLoadBalancer().getStatus());
             if (LoadBalancerStatus.STOPPED != status) {
                 //ロードバランサのステータスがSTOPPED以外の場合
+                internalSelect.setEnabled(false);
                 aboveLayout.setEnabled(false);
                 subnetSelect.setEnabled(false);
                 belowLayout.setEnabled(false);
+                belowLayout2.setEnabled(false);
                 grpSelect.setEnabled(false);
                 editServerButton.setEnabled(false);
             }
@@ -338,6 +360,13 @@ public class WinLoadBalancerEdit extends Window {
         }
 
         private void showData() {
+            // 有効無効コンボ
+            internalSelect.setContainerDataSource(getEnabledList());
+            internalSelect.select("無効");
+            if (loadBalancerDto.getAwsLoadBalancer().getInternal()) {
+                internalSelect.select("有効");
+            }
+
             // ロードバランサー名
             loadBalancerNameField.setReadOnly(false);
             loadBalancerNameField.setValue(loadBalancerDto.getLoadBalancer().getLoadBalancerName());
@@ -420,6 +449,19 @@ public class WinLoadBalancerEdit extends Window {
                 grpSelect.setContainerDataSource(new IndexedContainer(securityGroups));
                 grpSelect.select(loadBalancerDto.getAwsLoadBalancer().getSecurityGroups());
             }
+        }
+
+        private IndexedContainer getEnabledList() {
+            IndexedContainer container = new IndexedContainer();
+            container.addContainerProperty(INTERNAL_CAPTION_ID, String.class, null);
+
+            Item item = container.addItem("有効");
+            item.getItemProperty(INTERNAL_CAPTION_ID).setValue("有効");
+
+            item = container.addItem("無効");
+            item.getItemProperty(INTERNAL_CAPTION_ID).setValue("無効");
+
+            return container;
         }
 
         private IndexedContainer createSubnetContainer() {
@@ -1277,9 +1319,13 @@ public class WinLoadBalancerEdit extends Window {
         String zone = null;
         Collection<SubnetDto> subnets = null;
         String securityGroup = null;
+        boolean isInternalLb = false;
         if (PCCConstant.LOAD_BALANCER_ELB.equals(type) && platformAws.getVpc()) {
             subnets = (Collection<SubnetDto>) basicTab.subnetSelect.getValue();
             securityGroup = (String) basicTab.grpSelect.getValue();
+            if ("有効".equals((String)basicTab.internalSelect.getValue())) {
+                isInternalLb = true;
+            }
         }
         String checkProtocol = (String) healthCheckTab.checkProtocolSelect.getValue();
         String checkPortString = (String) healthCheckTab.checkPortField.getValue();
@@ -1380,7 +1426,8 @@ public class WinLoadBalancerEdit extends Window {
             try {
                 String loadBalancerName = loadBalancerDto.getLoadBalancer().getLoadBalancerName();
                 Long componentNo = componentDto.getComponent().getComponentNo();
-                loadBalancerService.updateAwsLoadBalancer(loadBalancerNo, loadBalancerName, comment, componentNo, subnetId, securityGroup, zone);
+                loadBalancerService.updateAwsLoadBalancer(loadBalancerNo, loadBalancerName, comment, componentNo,
+                        subnetId, securityGroup, zone, isInternalLb);
             } catch (AutoApplicationException e) {
                 String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
                 DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);

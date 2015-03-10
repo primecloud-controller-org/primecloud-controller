@@ -14,6 +14,7 @@
 		<result property="availabilityZone" column="AVAILABILITY_ZONE" nullValue="" />
 		<result property="hostid" column="HOSTID" nullValue="" />
 		<result property="status" column="STATUS" nullValue="" />
+		<result property="internal" column="INTERNAL" />
 	</resultMap>
 
 	<sql id="selectSql">
@@ -24,9 +25,10 @@
 			t1.DNS_NAME as DNS_NAME,
 			t1.SUBNET_ID as SUBNET_ID,
 			t1.SECURITY_GROUPS as SECURITY_GROUPS,
-			t1.AVAILABILITY_ZONE as AVAILABILITY_ZONE, 
-			t1.HOSTID as HOSTID, 
-			t1.STATUS as STATUS
+			t1.AVAILABILITY_ZONE as AVAILABILITY_ZONE,
+			t1.HOSTID as HOSTID,
+			t1.STATUS as STATUS,
+			t1.INTERNAL as INTERNAL
 		from
 			AWS_LOAD_BALANCER t1
 		]]>
@@ -71,18 +73,20 @@
 			DNS_NAME,
 			SUBNET_ID,
 			SECURITY_GROUPS,
-			AVAILABILITY_ZONE, 
-			HOSTID, 
-			STATUS
+			AVAILABILITY_ZONE,
+			HOSTID,
+			STATUS,
+			INTERNAL
 		) values (
 			#loadBalancerNo#,
 			#name#,
 			#dnsName#,
 			#subnetId#,
 			#securityGroups#,
-			#availabilityZone#, 
-			#hostid#, 
-			#status#
+			#availabilityZone#,
+			#hostid#,
+			#status#,
+			#internal#
 		)
 		]]>
 	</insert>
@@ -94,9 +98,10 @@
 			DNS_NAME = #dnsName#,
 			SUBNET_ID = #subnetId#,
 			SECURITY_GROUPS = #securityGroups#,
-			AVAILABILITY_ZONE = #availabilityZone#, 
-			HOSTID = #hostid#, 
-			STATUS = #status#
+			AVAILABILITY_ZONE = #availabilityZone#,
+			HOSTID = #hostid#,
+			STATUS = #status#,
+			INTERNAL = #internal#
 		where
 			LOAD_BALANCER_NO = #loadBalancerNo#
 		]]>

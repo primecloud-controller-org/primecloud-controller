@@ -1,18 +1,18 @@
 /*
  * Copyright 2014 by SCSK Corporation.
- * 
+ *
  * This file is part of PrimeCloud Controller(TM).
- * 
+ *
  * PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
  */
@@ -30,10 +30,6 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.api.response.instance.EditInstanceResponse;
 import jp.primecloud.auto.common.component.Subnet;
 import jp.primecloud.auto.common.status.InstanceStatus;
@@ -59,6 +55,9 @@ import jp.primecloud.auto.service.dto.StorageTypeDto;
 import jp.primecloud.auto.service.dto.SubnetDto;
 import jp.primecloud.auto.service.dto.ZoneDto;
 import jp.primecloud.auto.util.MessageUtils;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 
 
 @Path("/EditInstance")
@@ -256,14 +255,12 @@ public class EditInstance extends ApiSupport {
 
         //IpAddress(ElasticIp)
         Long ipAddressNo = null;
-        if (platformAws.getVpc() == false) {
-            ApiValidate.validateIpAddress(ipAddress, false);
-            if (StringUtils.isNotEmpty(ipAddress)) {
-                ipAddressNo = getIpAddressNo(userNo, instance.getPlatformNo(), instance.getInstanceNo(), ipAddress);
-                if (ipAddressNo == null) {
-                    // IPAddressがDBに存在しない or IPがすでに他のサーバに割り当て済み
-                    throw new AutoApplicationException("EAPI-100016", instance.getInstanceNo(), ipAddress);
-                }
+        ApiValidate.validateIpAddress(ipAddress, false);
+        if (StringUtils.isNotEmpty(ipAddress)) {
+            ipAddressNo = getIpAddressNo(userNo, instance.getPlatformNo(), instance.getInstanceNo(), ipAddress);
+            if (ipAddressNo == null) {
+                // IPAddressがDBに存在しない or IPがすでに他のサーバに割り当て済み
+                throw new AutoApplicationException("EAPI-100016", instance.getInstanceNo(), ipAddress);
             }
         }
 

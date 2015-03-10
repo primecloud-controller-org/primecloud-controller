@@ -1,22 +1,22 @@
  # coding: UTF-8
  #
  # Copyright 2014 by SCSK Corporation.
- # 
+ #
  # This file is part of PrimeCloud Controller(TM).
- # 
+ #
  # PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
  # it under the terms of the GNU General Public License as published by
  # the Free Software Foundation, either version 2 of the License, or
  # (at your option) any later version.
- # 
+ #
  # PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
  # but WITHOUT ANY WARRANTY; without even the implied warranty of
  # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  # GNU General Public License for more details.
- # 
+ #
  # You should have received a copy of the GNU General Public License
  # along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
- # 
+ #
 from iaasgw.exception.iaasException import IaasException
 from iaasgw.log.log import IaasLogger
 from iaasgw.module.ec2.ec2module import TagSet
@@ -354,9 +354,18 @@ class ec2InstanceController(object):
         #インスタンスの確認
         node = self.client.describeInstance(instanceId);
 
-        #インスタンスタイプの変更確認 変更されていればAWSへ通知
+        params = {}
+        #インスタンスタイプの変更確認 変更されていればパラメータセット
         if awsInstance["INSTANCE_TYPE"] != node.extra["instancetype"] :
-            params = {'InstanceType': awsInstance["INSTANCE_TYPE"] }
+            params.update({'InstanceType': awsInstance["INSTANCE_TYPE"] })
+        #セキュリティグループの変更確認 変更されていればパラメータセット
+        if awsInstance["SECURITY_GROUPS"] != node.extra["groups"][0] :
+            #セキュリティグループ取得(基本的に1件のみ取得される)
+            group = self.client.describeSecurityGroups(awsInstance["SECURITY_GROUPS"])[0]
+            params.update({'GroupId': group.groupId })
+
+        #更新がある場合、AWSへ通知
+        if len(params) != 0:
             self.client.modifyInstanceAttribute(instanceId, **params)
 
         # インスタンスの起動
@@ -600,6 +609,7 @@ class ec2InstanceController(object):
                 if self.ERROR_RETRY_COUNT < retryCount:
                     raise
                 else:
+                    retryCount += 1
                     continue
 
             status = instance.extra['status']
@@ -686,7 +696,7 @@ class ec2InstanceController(object):
 
         # クライアント証明書ダウンロードURL
         userData.update({"vpnclienturl": getVpnProperty("vpn.clienturl")})
-        
+
         return userData;
 
 
