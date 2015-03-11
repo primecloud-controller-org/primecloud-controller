@@ -1,29 +1,34 @@
 /*
  * Copyright 2014 by SCSK Corporation.
- * 
+ *
  * This file is part of PrimeCloud Controller(TM).
- * 
+ *
  * PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
  */
-package jp.primecloud.auto.process.nifty;
+package jp.primecloud.auto.nifty.process;
 
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.dao.crud.NiftyCertificateDao;
 import jp.primecloud.auto.dao.crud.PlatformDao;
+import jp.primecloud.auto.dao.crud.PlatformNiftyDao;
 import jp.primecloud.auto.entity.crud.NiftyCertificate;
 import jp.primecloud.auto.entity.crud.Platform;
+import jp.primecloud.auto.entity.crud.PlatformNifty;
 import jp.primecloud.auto.exception.AutoException;
+
+import org.apache.commons.lang.StringUtils;
+
 import com.nifty.cloud.sdk.ClientConfiguration;
 import com.nifty.cloud.sdk.auth.BasicCredentials;
 import com.nifty.cloud.sdk.auth.Credentials;
@@ -43,6 +48,8 @@ public class NiftyProcessClientFactory {
     protected Long apiTimeout;
 
     protected NiftyCertificateDao niftyCertificateDao;
+
+    protected PlatformNiftyDao platformNiftyDao;
 
     protected PlatformDao platformDao;
 
@@ -73,6 +80,11 @@ public class NiftyProcessClientFactory {
         // 設定ファイル
         ClientConfiguration config = new ClientConfiguration();
 
+        PlatformNifty niftyPlatform = platformNiftyDao.read(platform.getPlatformNo());
+        String endpoint = niftyPlatform.getUrl();
+        if (StringUtils.isNotBlank(endpoint)) {
+            config.setConfigEndpoint(endpoint);
+        }
         if (PCCConstant.NIFTYCLIENT_TYPE_SERVER.equals(clientType)) {
             NiftyServerClient niftyServerClient = new NiftyServerClient(credential, config);
             return new NiftyProcessClient(niftyServerClient, platform.getPlatformNo(), describeInterval);
@@ -113,6 +125,15 @@ public class NiftyProcessClientFactory {
     }
 
     /**
+     * platformNiftyDaoを設定します。
+     *
+     * @param platformNiftyDao platformNiftyDao
+     */
+    public void setPlatformNiftyDao(PlatformNiftyDao platformNiftyDao) {
+        this.platformNiftyDao = platformNiftyDao;
+    }
+
+    /**
      * platformDaoを設定します。
      *
      * @param platformDao platformDao
@@ -120,5 +141,4 @@ public class NiftyProcessClientFactory {
     public void setPlatformDao(PlatformDao platformDao) {
         this.platformDao = platformDao;
     }
-
 }

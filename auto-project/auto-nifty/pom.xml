@@ -14,6 +14,16 @@
 			<artifactId>nifty-cloud-api-lib</artifactId>
 			<version>1.17</version>
 		</dependency>
+		<dependency>
+			<groupId>jp.primecloud.auto</groupId>
+			<artifactId>auto-common</artifactId>
+			<version>${pom.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>jp.primecloud.auto</groupId>
+			<artifactId>auto-data</artifactId>
+			<version>${pom.version}</version>
+		</dependency>
 	</dependencies>
 	<repositories>
 		<repository>

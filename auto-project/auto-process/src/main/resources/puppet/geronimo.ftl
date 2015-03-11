@@ -17,6 +17,9 @@ class ${instance.fqdn?replace('.','_')}_${component.componentName} {
       <#elseif vcloudDisk ??>
         geronimo_vgdisk         => "/dev/disk/by-path/pci-0000:00:10.0-scsi-0:0:${vcloudDisk.unitNo}:0",
         geronimo_visor          => "vcloud",
+      <#elseif niftyVolume ??>
+        geronimo_vgdisk         => "/dev/disk/by-path/pci-0000:00:10.0-scsi-0:0:${niftyVolume.scsiId}:0",
+        geronimo_visor          => "nifty",
       <#elseif azureDisk ??>
         geronimo_vgdisk         => "${azureDisk.device}",
         geronimo_visor          => "azure",

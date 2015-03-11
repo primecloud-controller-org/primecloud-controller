@@ -7,14 +7,14 @@
 
 	<resultMap id="platformNiftyResultMap" class="PlatformNifty">
 		<result property="platformNo" column="PLATFORM_NO" />
-		<result property="wsdl" column="WSDL" nullValue="" />
+		<result property="url" column="URL" nullValue="" />
 	</resultMap>
 
 	<sql id="selectSql">
 		<![CDATA[
 		select
 			t1.PLATFORM_NO as PLATFORM_NO,
-			t1.WSDL as WSDL
+			t1.URL as URL
 		from
 			PLATFORM_NIFTY t1
 		]]>
@@ -55,10 +55,10 @@
 		<![CDATA[
 		insert into PLATFORM_NIFTY (
 			PLATFORM_NO,
-			WSDL
+			URL
 		) values (
 			#platformNo#,
-			#wsdl#
+			#url#
 		)
 		]]>
 	</insert>
@@ -66,7 +66,7 @@
 	<update id="update" parameterClass="PlatformNifty">
 		<![CDATA[
 		update PLATFORM_NIFTY set
-			WSDL = #wsdl#
+			URL = #url#
 		where
 			PLATFORM_NO = #platformNo#
 		]]>

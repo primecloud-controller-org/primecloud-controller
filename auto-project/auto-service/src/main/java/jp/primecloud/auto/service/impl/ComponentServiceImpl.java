@@ -1,18 +1,18 @@
 /*
  * Copyright 2014 by SCSK Corporation.
- * 
+ *
  * This file is part of PrimeCloud Controller(TM).
- * 
+ *
  * PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
  */
@@ -30,9 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
 
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.log.LoggingUtils;
@@ -69,9 +66,9 @@ import jp.primecloud.auto.iaasgw.IaasGatewayFactory;
 import jp.primecloud.auto.iaasgw.IaasGatewayWrapper;
 import jp.primecloud.auto.log.EventLogLevel;
 import jp.primecloud.auto.log.EventLogger;
+import jp.primecloud.auto.nifty.process.NiftyProcessClient;
+import jp.primecloud.auto.nifty.process.NiftyProcessClientFactory;
 import jp.primecloud.auto.process.ComponentConstants;
-import jp.primecloud.auto.process.nifty.NiftyProcessClient;
-import jp.primecloud.auto.process.nifty.NiftyProcessClientFactory;
 import jp.primecloud.auto.process.vmware.VmwareDiskProcess;
 import jp.primecloud.auto.process.vmware.VmwareProcessClient;
 import jp.primecloud.auto.process.vmware.VmwareProcessClientFactory;
@@ -83,6 +80,9 @@ import jp.primecloud.auto.service.dto.ComponentDto;
 import jp.primecloud.auto.service.dto.ComponentInstanceDto;
 import jp.primecloud.auto.service.dto.ComponentTypeDto;
 import jp.primecloud.auto.service.dto.InstanceDto;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * <p>
