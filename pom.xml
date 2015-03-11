@@ -4,7 +4,7 @@
 	<groupId>jp.primecloud.auto</groupId>
 	<artifactId>auto</artifactId>
 	<packaging>pom</packaging>
-	<version>2.4.3</version>
+	<version>2.4.5</version>
 	<name>${pom.artifactId}</name>
 	<properties>
 		<github.global.server>github</github.global.server>
@@ -33,7 +33,7 @@
 			<id>central</id>
 			<name>Maven Repository Switchboard</name>
 			<layout>default</layout>
-			<url>http://repo1.maven.org/maven2</url>
+			<url>https://repo1.maven.org/maven2</url>
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
@@ -41,14 +41,14 @@
 		<repository>
 			<id>sonatype</id>
 			<name>Sonatype Repository</name>
-			<url>http://oss.sonatype.org/content/repositories/</url>
+			<url>https://oss.sonatype.org/content/repositories/</url>
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
 		</repository>
 		<repository>
 			<id>vaadin-addons</id>
-			<url>http://maven.vaadin.com/vaadin-addons</url>
+			<url>https://maven.vaadin.com/vaadin-addons</url>
 		</repository>
 		<repository>
 			<id>scsk-oss-mvn-repo</id>
@@ -63,7 +63,7 @@
 		<pluginRepository>
 			<id>central</id>
 			<name>Maven Plugin Repository</name>
-			<url>http://repo1.maven.org/maven2</url>
+			<url>https://repo1.maven.org/maven2</url>
 			<layout>default</layout>
 			<snapshots>
 				<enabled>false</enabled>
@@ -74,7 +74,7 @@
 		</pluginRepository>
 		<pluginRepository>
 			<id>codehaus-snapshots</id>
-			<url>http://nexus.codehaus.org/snapshots</url>
+			<url>https://nexus.codehaus.org/snapshots</url>
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>
