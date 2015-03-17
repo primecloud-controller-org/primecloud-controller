@@ -100,17 +100,14 @@ class ImageManager:
             
             platformNoList.append(str(plData["PLATFORM_NO"]))
             iaasNameList.append(plData["PLATFORM_TYPE"])
-        
-        platformNos = ",".join(platformNoList)
-        iaasNameNos = ",".join(iaasNameList)
 
         #同一プラットフォーム・同一名のイメージデータ存在チェック
-        for platformNo in range(len(platformNos)):
+        for platformNo in platformNoList:
             try:
-                checkImageData = CommonUtils.getImageDataByNameAndPlatformNo(imageName, platformNos[platformNo])
+                checkImageData = CommonUtils.getImageDataByNameAndPlatformNo(imageName, platformNo)
                 #指定されたプラットフォームに既に同名のイメージが存在する場合
                 if checkImageData != None:
-                    return {'result':'1','message':"指定されたプラットフォーム:" + platformList[platformNo] +"には既に同じ名称のイメージ:" + imageName + "が存在します。名称を指定し直して下さい。"}
+                    return {'result':'1','message':"指定されたプラットフォーム:" + str(platformNo) +"には既に同じ名称のイメージ:" + imageName + "が存在します。名称を指定し直して下さい。"}
             except Exception as e:
                 return {'result':'1','message':"イメージ情報の取得に失敗したため処理を中止します。管理者に連絡を行って下さい。"}
         
@@ -147,12 +144,14 @@ class ImageManager:
         if createTemp != True:
             return {'result':'1','message':createTemp}
         
+        cnt = 0
+
         #IMAGEテーブルと各種PLATFORM_TYPE毎のIMAGE系テーブルへのデータ登録
-        for platformNo in range(len(platformNoList)):
+        for platformNo in platformNoList:
             try:
                 #IMAGEテーブル登録処理実行
                 tableImage = self.conn.getTable("IMAGE")
-                sql = tableImage.insert({"PLATFORM_NO":platformNoList[platformNo],
+                sql = tableImage.insert({"PLATFORM_NO":platformNo,
                         "IMAGE_NAME":imageName,
                         "IMAGE_NAME_DISP":imageNameDisp,
                         "OS":osName,
@@ -169,12 +168,12 @@ class ImageManager:
                 self.conn.rollback()
                 return {'result':'1','message':"IMAGEテーブルへの登録に失敗したため処理を中止します。イメージ名:" + imageName}
 
-            imageData = CommonUtils.getImageDataByNameAndPlatformNo(imageName, platformNoList[platformNo])
+            imageData = CommonUtils.getImageDataByNameAndPlatformNo(imageName, platformNo)
             imageNo = imageData["IMAGE_NO"]
             imageNoList.append(str(imageNo))
 
             #IaaS毎のテーブル登録
-            if "aws" == iaasNameList[platformNo]:
+            if "aws" == iaasNameList[cnt]:
                 try:
                     #IMAGE_AWSテーブル登録処理実行
                     tableImageAws = self.conn.getTable("IMAGE_AWS")
@@ -191,7 +190,7 @@ class ImageManager:
                     self.conn.rollback()
                     retDict = {'result':'1','message':"IMAGE_AWSテーブルへのデータ登録に失敗したため処理を中止します。"}
             
-            elif "vmware" == iaasNameList[platformNo]:
+            elif "vmware" == iaasNameList[cnt]:
                 try:
                     #IMAGE_VMWAREテーブル登録処理実行
                     tableImageVmware = self.conn.getTable("IMAGE_VMWARE")
@@ -205,7 +204,7 @@ class ImageManager:
                     self.conn.rollback()
                     retDict = {'result':'1','message':"IMAGE_VMWAREテーブルへのデータ登録に失敗したため処理を中止します。"}
             
-            elif "cloudstack" == iaasNameList[platformNo]:
+            elif "cloudstack" == iaasNameList[cnt]:
                 try:
                     #IMAGE_CLOUDSTACKテーブル登録処理実行
                     tableImageCloudstack = self.conn.getTable("IMAGE_CLOUDSTACK")
@@ -219,7 +218,7 @@ class ImageManager:
                     self.conn.rollback()
                     retDict = {'result':'1','message':"IMAGE_CLOUDSTACKテーブルへのデータ登録に失敗したため処理を中止します。"}
             
-            elif "vcloud" == iaasNameList[platformNo]:
+            elif "vcloud" == iaasNameList[cnt]:
                 try:
                     #IMAGE_VCLOUDテーブル登録処理実行
                     tableImageVcloud = self.conn.getTable("IMAGE_VCLOUD")
@@ -233,7 +232,7 @@ class ImageManager:
                     self.conn.rollback()
                     retDict = {'result':'1','message':"IMAGE_VCLOUDテーブルへのデータ登録に失敗したため処理を中止します。"}
 
-            elif "openstack" == iaasNameList[platformNo]:
+            elif "openstack" == iaasNameList[cnt]:
                 try:
                     #IMAGE_OPENSTACKテーブル登録処理実行
                     tableImageOpenstack = self.conn.getTable("IMAGE_OPENSTACK")
@@ -247,7 +246,7 @@ class ImageManager:
                     self.conn.rollback()
                     retDict = {'result':'1','message':"IMAGE_OPENSTACKテーブルへのデータ登録に失敗したため処理を中止します。"}
             
-            elif "azure" == iaasNameList[platformNo]:
+            elif "azure" == iaasNameList[cnt]:
                 try:
                     #IMAGE_AZUREテーブル登録処理実行
                     tableImageAzure = self.conn.getTable("IMAGE_AZURE")
@@ -261,7 +260,7 @@ class ImageManager:
                     self.conn.rollback()
                     retDict = {'result':'1','message':"IMAGE_AZUREテーブルへのデータ登録に失敗したため処理を中止します。"}
             
-            elif "nifty" == iaasNameList[platformNo]:
+            elif "nifty" == iaasNameList[cnt]:
                 try:
                     #IMAGE_NIFTYテーブル登録処理実行
                     tableImageNifty = self.conn.getTable("IMAGE_NIFTY")
@@ -279,7 +278,9 @@ class ImageManager:
                 image = self.conn.getTable("IMAGE")
                 #エラー終了時、登録したイメージデータを削除
                 image.delete(image.c.IMAGE_NO == imageNo).execute()
-                
+            
+            cnt = cnt + 1
+            
         if icon != None:
             path, ext = os.path.splitext(icon)
             #iconの指定がある場合iconのパスに存在する画像を/opt/adc/app/auto-web/VAADIN/themes/classy/iconsに(引数.imageName)pngの形式にリネームしてコピーする。
