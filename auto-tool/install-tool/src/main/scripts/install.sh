@@ -665,6 +665,10 @@ cd /opt/adc
 ln -s auto-cli-${PCC_VERSION} auto-cli
 chmod a+x /opt/adc/auto-cli/bin/*.sh
 
+## install auto-repo
+tar zxvf ${SOFTWARE_DIR}/pcc/auto-repo-${PCC_VERSION}.tar.gz >> $LOG_FILE 2>&1
+mv auto-repo-${PCC_VERSION}/pccrepo /opt/adc
+cd /opt/adc
 echo "====end :install management-tool ====" >> $LOG_FILE 2>&1
 echo "====end :install management-tool ===="
 
