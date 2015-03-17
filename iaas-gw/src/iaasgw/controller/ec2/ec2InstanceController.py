@@ -348,6 +348,10 @@ class ec2InstanceController(object):
     def start(self, instanceNo, awsInstance, pccInstance):
         instanceId = awsInstance["INSTANCE_ID"]
 
+        platformNo = self.client.getPlatformNo()
+        tablePLAWS = self.conn.getTable("PLATFORM_AWS")
+        awsPlatform = self.conn.selectOne(tablePLAWS.select(tablePLAWS.c.PLATFORM_NO==platformNo))
+
         # イベントログ出力
         self.conn.debug(pccInstance["FARM_NO"], None, None, instanceNo, pccInstance["INSTANCE_NAME"], "AwsInstanceStart",["EC2", instanceId])
 
@@ -358,11 +362,13 @@ class ec2InstanceController(object):
         #インスタンスタイプの変更確認 変更されていればパラメータセット
         if awsInstance["INSTANCE_TYPE"] != node.extra["instancetype"] :
             params.update({'InstanceType': awsInstance["INSTANCE_TYPE"] })
-        #セキュリティグループの変更確認 変更されていればパラメータセット
-        if awsInstance["SECURITY_GROUPS"] != node.extra["groups"][0] :
-            #セキュリティグループ取得(基本的に1件のみ取得される)
-            group = self.client.describeSecurityGroups(awsInstance["SECURITY_GROUPS"])[0]
-            params.update({'GroupId': group.groupId })
+
+        #VPCの場合のみセキュリティグループの変更
+        if awsPlatform["VPC"]:
+            if awsInstance["SECURITY_GROUPS"] != node.extra["groups"][0] :
+                #セキュリティグループ取得(基本的に1件のみ取得される)
+                group = self.client.describeSecurityGroups(awsInstance["SECURITY_GROUPS"])[0]
+                params.update({'GroupId': group.groupId })
 
         #更新がある場合、AWSへ通知
         if len(params) != 0:
