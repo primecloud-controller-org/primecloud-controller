@@ -1,4 +1,0 @@
-[scskrepo]
-name = PCC Outer Repository
-baseurl=http://pcc:pcc@repo.lab.primecloud.jp/pkgrepo/
-enabled=1
