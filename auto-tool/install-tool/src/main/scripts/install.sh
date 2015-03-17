@@ -654,6 +654,7 @@ echo "====START :install management-tool ===="
 echo "====START :install management-tool ====" >> $LOG_FILE 2>&1
 tar zxvf ${SOFTWARE_DIR}/pcc/management-tool-${PCC_VERSION}.tar.gz >> $LOG_FILE 2>&1
 mv management-tool-${PCC_VERSION} /opt/adc
+chmod a+x /opt/adc/management-tool-${PCC_VERSION}/bin/*
 cd /opt/adc
 ln -s management-tool-${PCC_VERSION} management-tool
 chmod a+x /opt/adc/management-tool/bin/*.sh
