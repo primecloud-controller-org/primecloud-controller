@@ -161,14 +161,17 @@ public class EditLoadBalancer extends ApiSupport {
             ApiValidate.validateComment(comment);
 
             // isInternal
-            AwsLoadBalancer awsLoadBalancer = awsLoadBalancerDao.read(Long.parseLong(loadBalancerNo));
-            boolean internal = awsLoadBalancer.getInternal();
-            if (isInternal != null) {
-                ApiValidate.validateIsStaticIp(isInternal);
-                internal = Boolean.parseBoolean(isInternal);
-            }
-            if (!LB_TYPE_ELB.equals(loadBalancer.getType()) || !platformAws.getVpc()) {
-                if (BooleanUtils.isTrue(internal)) {
+            boolean internal = false;
+            if (LB_TYPE_ELB.equals(loadBalancer.getType()) && platformAws.getVpc()) {
+                if (isInternal != null) {
+                    ApiValidate.validateIsStaticIp(isInternal);
+                    internal = Boolean.parseBoolean(isInternal);
+                } else {
+                    AwsLoadBalancer awsLoadBalancer = awsLoadBalancerDao.read(Long.parseLong(loadBalancerNo));
+                    internal = awsLoadBalancer.getInternal();
+                }
+            } else {
+                if (isInternal != null) {
                     // ELB かつ プラットフォームがVPC以外の場合は内部ロードバランサ指定不可
                     throw new AutoApplicationException("EAPI-100040", loadBalancerNo);
                 }

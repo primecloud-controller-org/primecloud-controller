@@ -2323,9 +2323,6 @@ public class WinServerEdit extends Window {
             sizeSelect.setContainerDataSource(new IndexedContainer(instanceTypes));
             sizeSelect.select(instance.getOpenstackInstance().getInstanceType());
 
-            zoneSelect.setContainerDataSource(new IndexedContainer(zoneNames));
-            zoneSelect.select(instance.getOpenstackInstance().getAvailabilityZone());
-
             zoneSelect.setContainerDataSource(createZoneContainer());
             for (ZoneDto zoneDto : zones) {
                 if (StringUtils.equals(zoneDto.getZoneName(), instance.getOpenstackInstance().getAvailabilityZone())) {
@@ -2337,6 +2334,9 @@ public class WinServerEdit extends Window {
                 //ボリュームが存在する場合は編集不可
                 zoneSelect.setEnabled(false);
             }
+
+            grpSelect.setContainerDataSource(new IndexedContainer(securityGroups));
+            grpSelect.select(instance.getOpenstackInstance().getSecurityGroups());
 
             keySelect.setContainerDataSource(new IndexedContainer(keyPairs));
             keySelect.select(instance.getOpenstackInstance().getKeyName());
