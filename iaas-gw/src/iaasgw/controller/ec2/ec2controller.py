@@ -323,8 +323,6 @@ class EC2Controller(IaasController):
         if awsPlatform["VPC"] == 1:
             #アドレス情報取得
             address = self.client.describeAddress(ipaddress)
-            # アドレスのステータスチェック
-            self.addresscontroller.checkAssociatedAddress(instanceNo, addressNo)
             #VPC用のElasticIP解放処理呼び出し
             self.client.releaseVpcAddress(ipaddress, address.allocationId)
         else:
