@@ -360,13 +360,6 @@ public class WinLoadBalancerEdit extends Window {
         }
 
         private void showData() {
-            // 有効無効コンボ
-            internalSelect.setContainerDataSource(getEnabledList());
-            internalSelect.select("無効");
-            if (loadBalancerDto.getAwsLoadBalancer().getInternal()) {
-                internalSelect.select("有効");
-            }
-
             // ロードバランサー名
             loadBalancerNameField.setReadOnly(false);
             loadBalancerNameField.setValue(loadBalancerDto.getLoadBalancer().getLoadBalancerName());
@@ -422,6 +415,15 @@ public class WinLoadBalancerEdit extends Window {
             // リスナーが存在する場合 は選択不可にする
             if (loadBalancerDto.getLoadBalancerListeners().size() > 0) {
                 serviceSelect.setEnabled(false);
+            }
+
+            // 有効無効コンボ
+            if (PCCConstant.LOAD_BALANCER_ELB.equals(type) && platformAws.getVpc()) {
+                internalSelect.setContainerDataSource(getEnabledList());
+                internalSelect.select("無効");
+                if (loadBalancerDto.getAwsLoadBalancer().getInternal()) {
+                    internalSelect.select("有効");
+                }
             }
 
             // サブネット
