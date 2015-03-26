@@ -365,9 +365,11 @@ class ec2InstanceController(object):
 
         #VPCの場合のみセキュリティグループの変更
         if awsPlatform["VPC"]:
-            if awsInstance["SECURITY_GROUPS"] != node.extra["groups"][0] :
-                #セキュリティグループ取得(基本的に1件のみ取得される)
-                group = self.client.describeSecurityGroups(awsInstance["SECURITY_GROUPS"])[0]
+            #セキュリティグループ取得(基本的に1件のみ取得される)
+            group = self.client.describeSecurityGroups(awsInstance["SECURITY_GROUPS"], awsPlatform["VPC_ID"])[0]
+            groupId = group.groupId
+            #インスタンスのSGとPCCDBに登録されたSGが違う場合、情報更新
+            if node.extra["groups"][0] != groupId :
                 params.update({'GroupId': group.groupId })
 
         #更新がある場合、AWSへ通知

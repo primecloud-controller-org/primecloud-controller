@@ -313,13 +313,18 @@ class EC2IaasClient(EC2IaasNodeDriver):
 
 
     #LibCloudで提供されていない為独自実装
-    def describeSecurityGroups(self, groupName=None):
+    def describeSecurityGroups(self, groupName=None, vpcId=None):
         #GroupName, GroupId, Filter(name/Value)で絞る事ができるがPCCでは利用しないデフォルト検索を提供する
         params = {'Action': 'DescribeSecurityGroups'}
 
         #任意パラメータ
         if groupName != None:
-            params.update({'GroupName': groupName})
+            params.update({'Filter.0.Name': 'group-name'})
+            params.update({'Filter.0.Value.0': groupName})
+
+        if vpcId != None:
+            params.update({'Filter.1.Name': 'vpc-id'})
+            params.update({'Filter.1.Value.0': vpcId})
 
         elem = self.connection.request(self.path, params=params).object
 
@@ -328,7 +333,6 @@ class EC2IaasClient(EC2IaasNodeDriver):
             securityGroups.append(self._to_securityGroup(rs))
 
         return securityGroups
-
 
     #ex_list_availability_zonesとして提供されているものをラップ
     def describeAvailabilityZones(self, only_available=True):
@@ -591,8 +595,6 @@ class EC2IaasClient(EC2IaasNodeDriver):
             params['InstanceType.Value'] = kwargs['InstanceType']
         elif 'GroupId' in kwargs and kwargs['GroupId'] is not None and '' != kwargs['GroupId']:
             params['GroupId'] = kwargs['GroupId']
-            self.logger.warn(params)
-
 
         try:
             self.connection.request(self.path, params=params).object
