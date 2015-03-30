@@ -59,11 +59,11 @@
 	<bean id="niftyDnsProcess" class="jp.primecloud.auto.process.nifty.NiftyDnsProcess">
 		<property name="reverseEnabled" value="${dns.reverseEnabled}" />
 	</bean>
-	<bean id="niftyProcessClientFactory" class="jp.primecloud.auto.process.nifty.NiftyProcessClientFactory">
+	<bean id="niftyProcessClientFactory" class="jp.primecloud.auto.nifty.process.NiftyProcessClientFactory">
 		<property name="describeInterval" value="${aws.describeInterval}" />
 		<property name="apiTimeout" value="${nifty.apiTimeout}" />
 	</bean>
-
+	<bean id="niftyVolumeProcess" class="jp.primecloud.auto.process.nifty.NiftyVolumeProcess" />
 
 	<!-- PuppetProcess -->
 	<bean id="puppetNodeProcess" class="jp.primecloud.auto.process.puppet.PuppetNodeProcess">

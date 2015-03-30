@@ -1,18 +1,18 @@
 /*
  * Copyright 2014 by SCSK Corporation.
- * 
+ *
  * This file is part of PrimeCloud Controller(TM).
- * 
+ *
  * PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
  */
@@ -54,6 +54,9 @@ public abstract class BaseAwsLoadBalancer implements Serializable {
 
     /** STATUS [VARCHAR(20,0)] */
     private String status;
+
+    /** INTERNAL [BIT(0,0)] */
+    private Boolean internal;
 
     /**
      * loadBalancerNoを取得します。
@@ -199,6 +202,23 @@ public abstract class BaseAwsLoadBalancer implements Serializable {
         this.status = status;
     }
 
+    /**
+     * internalを取得します。
+     *
+     * @return internal
+     */
+    public Boolean getInternal() {
+        return internal;
+    }
+
+    /**
+     * internalを設定します。
+     *
+     * @param internal internal
+     */
+    public void setInternal(Boolean internal) {
+        this.internal = internal;
+    }
 
     /**
      * {@inheritDoc}
@@ -216,6 +236,7 @@ public abstract class BaseAwsLoadBalancer implements Serializable {
         result = prime * result + ((availabilityZone == null) ? 0 : availabilityZone.hashCode());
         result = prime * result + ((hostid == null) ? 0 : hostid.hashCode());
         result = prime * result + ((status == null) ? 0 : status.hashCode());
+        result = prime * result + ((internal == null) ? 0 : internal.hashCode());
 
         return result;
     }
@@ -270,6 +291,11 @@ public abstract class BaseAwsLoadBalancer implements Serializable {
         } else if (!status.equals(other.status)) {
             return false;
         }
+        if (internal == null) {
+            if (other.internal != null) { return false; }
+        } else if (!internal.equals(other.internal)) {
+            return false;
+        }
 
         return true;
     }
@@ -288,7 +314,8 @@ public abstract class BaseAwsLoadBalancer implements Serializable {
         sb.append("securityGroups=").append(securityGroups).append(", ");
         sb.append("availabilityZone=").append(availabilityZone).append(", ");
         sb.append("hostid=").append(hostid).append(", ");
-        sb.append("status=").append(status);
+        sb.append("status=").append(status).append(", ");
+        sb.append("internal=").append(internal);
         sb.append("]");
         return sb.toString();
     }

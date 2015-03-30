@@ -1,18 +1,18 @@
 /*
  * Copyright 2014 by SCSK Corporation.
- * 
+ *
  * This file is part of PrimeCloud Controller(TM).
- * 
+ *
  * PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
  */
@@ -34,8 +34,8 @@ public abstract class BasePlatformNifty implements Serializable {
     /** PLATFORM_NO [BIGINT(19,0)] */
     private Long platformNo;
 
-    /** WSDL [VARCHAR(300,0)] */
-    private String wsdl;
+    /** URL [VARCHAR(500,0)] */
+    private String url;
 
     /**
      * platformNoを取得します。
@@ -56,21 +56,21 @@ public abstract class BasePlatformNifty implements Serializable {
     }
 
     /**
-     * wsdlを取得します。
+     * urlを取得します。
      *
-     * @return wsdl
+     * @return url
      */
-    public String getWsdl() {
-        return wsdl;
+    public String getUrl() {
+        return url;
     }
 
     /**
-     * wsdlを設定します。
+     * urlを設定します。
      *
-     * @param wsdl wsdl
+     * @param url url
      */
-    public void setWsdl(String wsdl) {
-        this.wsdl = wsdl;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
 
@@ -83,7 +83,7 @@ public abstract class BasePlatformNifty implements Serializable {
 
         final int prime = 31;
         result = prime * result + ((platformNo == null) ? 0 : platformNo.hashCode());
-        result = prime * result + ((wsdl == null) ? 0 : wsdl.hashCode());
+        result = prime * result + ((url == null) ? 0 : url.hashCode());
 
         return result;
     }
@@ -103,9 +103,9 @@ public abstract class BasePlatformNifty implements Serializable {
         } else if (!platformNo.equals(other.platformNo)) {
             return false;
         }
-        if (wsdl == null) {
-            if (other.wsdl != null) { return false; }
-        } else if (!wsdl.equals(other.wsdl)) {
+        if (url == null) {
+            if (other.url != null) { return false; }
+        } else if (!url.equals(other.url)) {
             return false;
         }
 
@@ -120,7 +120,7 @@ public abstract class BasePlatformNifty implements Serializable {
         StringBuffer sb = new StringBuffer();
         sb.append("PlatformNifty").append(" [");
         sb.append("platformNo=").append(platformNo).append(", ");
-        sb.append("wsdl=").append(wsdl);
+        sb.append("url=").append(url);
         sb.append("]");
         return sb.toString();
     }

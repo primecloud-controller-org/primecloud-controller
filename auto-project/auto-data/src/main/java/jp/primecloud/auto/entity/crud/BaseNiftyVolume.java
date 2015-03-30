@@ -1,18 +1,18 @@
 /*
  * Copyright 2014 by SCSK Corporation.
- * 
+ *
  * This file is part of PrimeCloud Controller(TM).
- * 
+ *
  * PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
  */
@@ -60,6 +60,9 @@ public abstract class BaseNiftyVolume implements Serializable {
 
     /** INSTANCE_ID [VARCHAR(20,0)] */
     private String instanceId;
+
+    /** SCSI_ID [INT(10,0)] */
+    private Integer scsiId;
 
     /**
      * volumeNoを取得します。
@@ -241,6 +244,24 @@ public abstract class BaseNiftyVolume implements Serializable {
         this.instanceId = instanceId;
     }
 
+    /**
+     * scsiIdを取得します。
+     *
+     * @return scsiId
+     */
+    public Integer getScsiId() {
+        return scsiId;
+    }
+
+    /**
+     * scsiIdを設定します。
+     *
+     * @param scsiId scsiId
+     */
+    public void setScsiId(Integer scsiId) {
+        this.scsiId = scsiId;
+    }
+
 
     /**
      * {@inheritDoc}
@@ -260,6 +281,7 @@ public abstract class BaseNiftyVolume implements Serializable {
         result = prime * result + ((volumeId == null) ? 0 : volumeId.hashCode());
         result = prime * result + ((status == null) ? 0 : status.hashCode());
         result = prime * result + ((instanceId == null) ? 0 : instanceId.hashCode());
+        result = prime * result + ((scsiId == null) ? 0 : scsiId.hashCode());
 
         return result;
     }
@@ -324,6 +346,11 @@ public abstract class BaseNiftyVolume implements Serializable {
         } else if (!instanceId.equals(other.instanceId)) {
             return false;
         }
+        if (scsiId == null) {
+            if (other.scsiId != null) { return false; }
+        } else if (!scsiId.equals(other.scsiId)) {
+            return false;
+        }
 
         return true;
     }
@@ -344,7 +371,8 @@ public abstract class BaseNiftyVolume implements Serializable {
         sb.append("size=").append(size).append(", ");
         sb.append("volumeId=").append(volumeId).append(", ");
         sb.append("status=").append(status).append(", ");
-        sb.append("instanceId=").append(instanceId);
+        sb.append("instanceId=").append(instanceId).append(", ");
+        sb.append("scsiId=").append(scsiId);
         sb.append("]");
         return sb.toString();
     }

@@ -1,18 +1,18 @@
 /*
  * Copyright 2014 by SCSK Corporation.
- * 
+ *
  * This file is part of PrimeCloud Controller(TM).
- * 
+ *
  * PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
  */
@@ -23,9 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.common.component.Subnet;
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.InstanceStatus;
@@ -35,7 +32,6 @@ import jp.primecloud.auto.entity.crud.NiftyKeyPair;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.PlatformAws;
 import jp.primecloud.auto.entity.crud.PlatformAzure;
-import jp.primecloud.auto.entity.crud.PlatformOpenstack;
 import jp.primecloud.auto.entity.crud.VcloudDisk;
 import jp.primecloud.auto.entity.crud.VcloudInstanceNetwork;
 import jp.primecloud.auto.entity.crud.VmwareAddress;
@@ -70,6 +66,10 @@ import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+
 import com.vaadin.Application;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
@@ -695,19 +695,22 @@ public class WinServerEdit extends Window {
                     // EBSイメージで既に作成済みの場合、いくつかの項目を変更不可とする
                     //sizeSelect.setEnabled(false);
                     keySelect.setEnabled(false);
-                    grpSelect.setEnabled(false);
+                    //VPCを利用していない場合はセキュリティグループ変更不可
+                    if (!platformDto.getPlatformAws().getVpc()) {
+                        grpSelect.setEnabled(false);
+                    }
                     subnetSelect.setEnabled(false);
                     privateIpField.setEnabled(false);
                     zoneSelect.setEnabled(false);
                 }
             }
 
-            if (platformAws.getVpc()) {
-                elasticIpSelect.setEnabled(false);
-                addElasticIp.setEnabled(false);
-                deleteElasticIp.setEnabled(false);
-                //                labelElasticIp.setEnabled(false);
-            }
+//            if (platformAws.getVpc()) {
+//                elasticIpSelect.setEnabled(false);
+//                addElasticIp.setEnabled(false);
+//                deleteElasticIp.setEnabled(false);
+//                labelElasticIp.setEnabled(false);
+//            }
         }
 
         private void addButtonClick() {
@@ -2255,6 +2258,8 @@ public class WinServerEdit extends Window {
 
         ComboBox keySelect;
 
+        final String ZONE_CAPTION_ID = "zoneName";
+
         final String COMBOBOX_WIDTH = "150px";
 
         OpenStackDetailTab() {
@@ -2269,6 +2274,8 @@ public class WinServerEdit extends Window {
             zoneSelect = new ComboBox(ViewProperties.getCaption("field.zone"));
             zoneSelect.setWidth(COMBOBOX_WIDTH);
             zoneSelect.setNullSelectionAllowed(false);
+            zoneSelect.setItemCaptionPropertyId(ZONE_CAPTION_ID);
+            zoneSelect.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
 
             grpSelect = new ComboBox(ViewProperties.getCaption("field.securityGroup"));
             grpSelect.setWidth(COMBOBOX_WIDTH);
@@ -2305,14 +2312,9 @@ public class WinServerEdit extends Window {
             } else {
                 // 停止時は、いくつかの項目を変更不可とする
                 if (StringUtils.isNotEmpty(instance.getOpenstackInstance().getInstanceId())) {
-                // 既に作成済みの場合、いくつかの項目を変更不可とする
+                    // 一度でも起動した場合、項目を変更不可とする
                     form.setEnabled(false);
-                // 変更可 sizeSelect.setEnabled(false);
-                //                    affinityField.setEnabled(false);
-                //                    cloudServiceField.setEnabled(false);
-                //                    subnetField.setEnabled(false);
-                //                    storageAccountField.setEnabled(false);
-                 }
+                }
             }
 
         }
@@ -2321,8 +2323,17 @@ public class WinServerEdit extends Window {
             sizeSelect.setContainerDataSource(new IndexedContainer(instanceTypes));
             sizeSelect.select(instance.getOpenstackInstance().getInstanceType());
 
-            zoneSelect.setContainerDataSource(new IndexedContainer(zoneNames));
-            zoneSelect.select(instance.getOpenstackInstance().getAvailabilityZone());
+            zoneSelect.setContainerDataSource(createZoneContainer());
+            for (ZoneDto zoneDto : zones) {
+                if (StringUtils.equals(zoneDto.getZoneName(), instance.getOpenstackInstance().getAvailabilityZone())) {
+                    zoneSelect.select(zoneDto);
+                    break;
+                }
+            }
+            if (instance.getOpenstackVolumes() != null && instance.getOpenstackVolumes().size() > 0) {
+                //ボリュームが存在する場合は編集不可
+                zoneSelect.setEnabled(false);
+            }
 
             grpSelect.setContainerDataSource(new IndexedContainer(securityGroups));
             grpSelect.select(instance.getOpenstackInstance().getSecurityGroups());
@@ -2330,11 +2341,18 @@ public class WinServerEdit extends Window {
             keySelect.setContainerDataSource(new IndexedContainer(keyPairs));
             keySelect.select(instance.getOpenstackInstance().getKeyName());
 
-            //マッピングされたボリュームが存在する場合は変更不可
-            //            if (instance.getAzureVolumes() != null && instance.getAzureVolumes().size() > 0) {
-            //                zoneSelect.setEnabled(false);
-            //            }
+        }
 
+        private IndexedContainer createZoneContainer() {
+            IndexedContainer zoneContainer = new IndexedContainer();
+            zoneContainer.addContainerProperty(ZONE_CAPTION_ID, String.class, null);
+
+            for (ZoneDto zoneDto : zones) {
+                Item item = zoneContainer.addItem(zoneDto);
+                item.getItemProperty(ZONE_CAPTION_ID).setValue(zoneDto.getZoneName());
+            }
+
+            return zoneContainer;
         }
 
         private void initValidation() {
@@ -2568,8 +2586,6 @@ public class WinServerEdit extends Window {
                     platformAzure.getNetworkName());
 
         } else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platformType)) {
-            // OpenStack情報を取得
-            PlatformOpenstack platformOpenstack = platformDto.getPlatformOpenstack();
             // 情報を取得
             IaasDescribeService describeService = BeanContext.getBean(IaasDescribeService.class);
             //instanceTypes
@@ -2579,10 +2595,7 @@ public class WinServerEdit extends Window {
                 instanceTypes.add(instanceType.trim());
             }
             // Availablility Zone
-            zoneNames = new ArrayList<String>();
-            for (String availabilityZone : platformOpenstack.getAvailabilityZone().split(",")) {
-                zoneNames.add(availabilityZone.trim());
-            }
+            zones = describeService.getAvailabilityZones(ViewContext.getUserNo(), platform.getPlatformNo());
 
             //セキュリティグループ
             securityGroups = new ArrayList<String>();
@@ -2834,9 +2847,12 @@ public class WinServerEdit extends Window {
         } else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platformDto.getPlatform().getPlatformType())) {
             // 入力値を取得
             serverSize = (String) openStackDetailTab.sizeSelect.getValue();
-            zoneName = (String) openStackDetailTab.zoneSelect.getValue();
             groupName = (String) openStackDetailTab.grpSelect.getValue();
             keyName = (String) openStackDetailTab.keySelect.getValue();
+            zoneDto = (ZoneDto) openStackDetailTab.zoneSelect.getValue();
+            if (zoneDto != null) {
+                zoneName = zoneDto.getZoneName();
+            }
 
             // 入力チェック
             try {
@@ -2944,7 +2960,7 @@ public class WinServerEdit extends Window {
             //OpenStackサーバを更新
             try {
                 instanceService.updateOpenStackInstance(instanceNo, instance.getInstance().getInstanceName(), comment,
-                        serverSize, availabilitySet, groupName, keyName);
+                        serverSize, zoneName, groupName, keyName);
             } catch (AutoApplicationException e) {
                 String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
                 DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);

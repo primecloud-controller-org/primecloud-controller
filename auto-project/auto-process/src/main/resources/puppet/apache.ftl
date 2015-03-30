@@ -17,6 +17,9 @@ class ${instance.fqdn?replace('.','_')}_${component.componentName} {
       <#elseif vcloudDisk ??>
         apache_vgdisk         => "/dev/disk/by-path/pci-0000:00:10.0-scsi-0:0:${vcloudDisk.unitNo}:0",
         apache_visor          => "vcloud",
+      <#elseif niftyVolume ??>
+        apache_vgdisk         => "/dev/disk/by-path/pci-0000:00:10.0-scsi-0:0:${niftyVolume.scsiId}:0",
+        apache_visor          => "nifty",
       <#elseif azureDisk ??>
         apache_vgdisk         => "${azureDisk.device}",
         apache_visor          => "azure",

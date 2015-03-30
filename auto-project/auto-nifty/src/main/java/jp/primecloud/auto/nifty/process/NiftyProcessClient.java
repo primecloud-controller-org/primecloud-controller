@@ -1,25 +1,30 @@
 /*
  * Copyright 2014 by SCSK Corporation.
- * 
+ *
  * This file is part of PrimeCloud Controller(TM).
- * 
+ *
  * PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
  */
-package jp.primecloud.auto.process.nifty;
+package jp.primecloud.auto.nifty.process;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import jp.primecloud.auto.exception.AutoException;
+import jp.primecloud.auto.nifty.dto.InstanceDto;
+import jp.primecloud.auto.nifty.dto.VolumeDto;
+import jp.primecloud.auto.util.MessageUtils;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -27,8 +32,6 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.util.MessageUtils;
 import com.nifty.cloud.sdk.NiftyClientException;
 import com.nifty.cloud.sdk.NiftyServiceException;
 import com.nifty.cloud.sdk.disk.NiftyDiskClient;
@@ -42,7 +45,6 @@ import com.nifty.cloud.sdk.disk.model.DescribeVolumesRequest;
 import com.nifty.cloud.sdk.disk.model.DescribeVolumesResult;
 import com.nifty.cloud.sdk.disk.model.DetachVolumeRequest;
 import com.nifty.cloud.sdk.disk.model.DetachVolumeResult;
-import com.nifty.cloud.sdk.disk.model.Volume;
 import com.nifty.cloud.sdk.server.NiftyServerClient;
 import com.nifty.cloud.sdk.server.model.DescribeInstancesRequest;
 import com.nifty.cloud.sdk.server.model.DescribeInstancesResult;
@@ -131,7 +133,7 @@ public class NiftyProcessClient {
         return instances;
     }
 
-    public Instance describeInstance(String instanceId) {
+    public InstanceDto describeInstance(String instanceId) {
         // 単一インスタンスの参照
         DescribeInstancesRequest request = new DescribeInstancesRequest();
         request.withInstanceIds(instanceId);
@@ -169,16 +171,16 @@ public class NiftyProcessClient {
             throw exception;
         }
 
-        return instances.get(0);
+        return new InstanceDto(instances.get(0));
     }
 
-    public Instance waitInstance(String instanceId) {
+    public InstanceDto waitInstance(String instanceId) {
         // インスタンスの処理待ち
         String[] stableStatus = new String[] { "running", "stopped" };
         // TODO: ニフティクラウドAPIの経過観察（インスタンスのステータス warning はAPIリファレンスに記載されていない）
         String[] unstableStatus = new String[] { "pending", "warning" };//
 
-        Instance instance;
+        InstanceDto instance;
         while (true) {
             instance = describeInstance(instanceId);
             String status = instance.getState().getName();
@@ -198,7 +200,7 @@ public class NiftyProcessClient {
         return instance;
     }
 
-    public Instance runInstance(String imageId, String keyName, String instanceType, String password) {
+    public InstanceDto runInstance(String imageId, String keyName, String instanceType, String password) {
         // インスタンスの起動
         RunInstancesRequest request = new RunInstancesRequest();
         request.setImageId(imageId);
@@ -226,7 +228,7 @@ public class NiftyProcessClient {
             throw new AutoException("EPROCESS-000605");
         }
 
-        Instance instance = result.getReservation().getInstances().get(0);
+        InstanceDto instance = new InstanceDto(result.getReservation().getInstances().get(0));
         String instanceId = instance.getInstanceId();
 
         // ログ出力
@@ -237,7 +239,7 @@ public class NiftyProcessClient {
         return instance;
     }
 
-    public Instance waitRunInstance(String instanceId) {
+    public InstanceDto waitRunInstance(String instanceId) {
         // TODO: ニフティクラウドAPIの経過観察（RunInstances直後はインスタンスを参照できないことがあるので、インスタンス情報を取得できるまでは全インスタンス情報を取得する）
         long timeout = 600 * 1000L;
         long startTime = System.currentTimeMillis();
@@ -260,7 +262,7 @@ public class NiftyProcessClient {
             }
         }
 
-        Instance instance = waitInstance(instanceId);
+        InstanceDto instance = waitInstance(instanceId);
 
         String state = instance.getState().getName();
         if (!"running".equals(state)) {
@@ -319,12 +321,12 @@ public class NiftyProcessClient {
         return result.getStartingInstances().get(0);
     }
 
-    public Instance waitStartInstance(String instanceId) {
+    public InstanceDto waitStartInstance(String instanceId) {
         // TODO: ニフティクラウドAPIの経過観察（StartInstances直後はstoppedのステータスを返すことがあるので、stopped以外になるまで待つ）
         long timeout = 600 * 1000L;
         long startTime = System.currentTimeMillis();
         while (true) {
-            Instance instance = describeInstance(instanceId);
+            InstanceDto instance = describeInstance(instanceId);
             if (!"stopped".equals(instance.getState().getName())) {
                 break;
             }
@@ -335,7 +337,7 @@ public class NiftyProcessClient {
             }
         }
 
-        Instance instance = waitInstance(instanceId);
+        InstanceDto instance = waitInstance(instanceId);
 
         String state = instance.getState().getName();
         if (!"running".equals(state)) {
@@ -392,12 +394,12 @@ public class NiftyProcessClient {
         return result.getStoppingInstances().get(0);
     }
 
-    public Instance waitStopInstance(String instanceId) {
+    public InstanceDto waitStopInstance(String instanceId) {
         // TODO: ニフティクラウドAPIの経過観察（StopInstances直後はrunningのステータスを返すことがあるので、running以外になるまで待つ）
         long timeout = 600 * 1000L;
         long startTime = System.currentTimeMillis();
         while (true) {
-            Instance instance = describeInstance(instanceId);
+            InstanceDto instance = describeInstance(instanceId);
             if (!"running".equals(instance.getState().getName())) {
                 break;
             }
@@ -408,7 +410,7 @@ public class NiftyProcessClient {
             }
         }
 
-        Instance instance = waitInstance(instanceId);
+        InstanceDto instance = waitInstance(instanceId);
 
         String state = instance.getState().getName();
         if (!"stopped".equals(state)) {
@@ -491,7 +493,7 @@ public class NiftyProcessClient {
         }
     }
 
-    public Volume createVolume(Integer size, String instanceId) {
+    public VolumeDto createVolume(Integer size, String instanceId) {
         // 最適なサイズに変換する
         int editSize;
         editSize = 0;
@@ -534,7 +536,7 @@ public class NiftyProcessClient {
             throw new AutoException("EPROCESS-000617");
         }
 
-        Volume volume = result.getVolume();
+        VolumeDto volume = new VolumeDto(result.getVolume());
         // ログ出力
         if (log.isInfoEnabled()) {
             log.info(MessageUtils.getMessage("IPROCESS-100521", volume.getVolumeId()));
@@ -543,9 +545,9 @@ public class NiftyProcessClient {
         return volume;
     }
 
-    public Volume waitCreateVolume(String volumeId) {
+    public VolumeDto waitCreateVolume(String volumeId) {
         // ボリュームの作成待ち
-        Volume volume = null;
+        VolumeDto volume = null;
         volume = waitVolume(volumeId);
 
         String status = volume.getStatus();
@@ -564,11 +566,11 @@ public class NiftyProcessClient {
         return volume;
     }
 
-    protected Volume waitVolume(String volumeId) {
+    protected VolumeDto waitVolume(String volumeId) {
         // Volumeの処理待ち
         String[] stableStatus = new String[] { "available", "in-use" };
         String[] unstableStatus = new String[] { "creating" };
-        Volume volume = null;
+        VolumeDto volume = null;
         while (true) {
             volume = describeVolume(volumeId);
             String status;
@@ -589,7 +591,7 @@ public class NiftyProcessClient {
         return volume;
     }
 
-    protected Volume describeVolume(String volumeId) {
+    protected VolumeDto describeVolume(String volumeId) {
         // ディスク情報取得
         DescribeVolumesRequest request = new DescribeVolumesRequest();
         List<String> volumeIds = new ArrayList<String>();
@@ -610,7 +612,7 @@ public class NiftyProcessClient {
             throw exception;
         }
 
-        return result.getVolumes().get(0);
+        return new VolumeDto(result.getVolumes().get(0));
     }
 
     public void attachVolume(String volumeId, String instanceId) {
@@ -641,9 +643,9 @@ public class NiftyProcessClient {
         }
     }
 
-    public Volume waitAttachVolume(String volumeId, String instanceId) {
+    public VolumeDto waitAttachVolume(String volumeId, String instanceId) {
         // TODO: ニフティクラウドAPIの経過観察（アタッチ情報がすぐに更新されない問題に暫定的に対応）
-        Volume volume = null;
+        VolumeDto volume = null;
         long timeout = 600 * 1000L;
         long startTime = System.currentTimeMillis();
         while (true) {
@@ -701,9 +703,9 @@ public class NiftyProcessClient {
         }
     }
 
-    public Volume waitDetachVolume(String volumeId, String instanceId) {
+    public VolumeDto waitDetachVolume(String volumeId, String instanceId) {
         // TODO: ニフティクラウドAPIの経過観察（アタッチ情報がすぐに更新されない問題に暫定的に対応）
-        Volume volume = null;
+        VolumeDto volume = null;
         long timeout = 600 * 1000L;
         long startTime = System.currentTimeMillis();
         while (true) {

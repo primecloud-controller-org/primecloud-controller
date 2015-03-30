@@ -1,18 +1,18 @@
 /*
  * Copyright 2014 by SCSK Corporation.
- * 
+ *
  * This file is part of PrimeCloud Controller(TM).
- * 
+ *
  * PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
  */
@@ -38,7 +38,7 @@ public interface LoadBalancerService {
     public Long getLoadBalancerInstance(Long loadBalancerNo);
 
     public Long createAwsLoadBalancer(Long farmNo, String loadBalancerName, String comment, Long platformNo,
-            Long componentNo);
+            Long componentNo, boolean internal);
 
     public Long createCloudstackLoadBalancer(Long farmNo, String loadBalancerName, String comment, Long platformNo, Long componentNo);
 
@@ -49,7 +49,7 @@ public interface LoadBalancerService {
                                         String algorithm, String pubricPort, String privatePort);
 
     public void updateAwsLoadBalancer(Long loadBalancerNo, String loadBalancerName, String comment,
-            Long componentNo, String subnetId, String securityGroupName, String availabilityZone);
+            Long componentNo, String subnetId, String securityGroupName, String availabilityZone, boolean internal);
 
     public void updateUltraMonkeyLoadBalancer(Long loadBalancerNo, String loadBalancerName, String comment,
             Long componentNo);

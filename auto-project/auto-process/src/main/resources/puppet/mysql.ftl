@@ -17,6 +17,9 @@ class ${instance.fqdn?replace('.','_')}_${component.componentName} {
     <#elseif vcloudDisk ??>
         mysql_vgdisk         => "/dev/disk/by-path/pci-0000:00:10.0-scsi-0:0:${vcloudDisk.unitNo}:0",
         mysql_visor          => "vcloud",
+    <#elseif niftyVolume ??>
+        mysql_vgdisk         => "/dev/disk/by-path/pci-0000:00:10.0-scsi-0:0:${niftyVolume.scsiId}:0",
+        mysql_visor          => "nifty",
     <#elseif azureDisk ??>
         mysql_vgdisk         => "${azureDisk.device}",
         mysql_visor          => "azure",

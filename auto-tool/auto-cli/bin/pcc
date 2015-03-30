@@ -5,8 +5,10 @@ import sys
 import re
 import json
 import subprocess
-from common import CommonUtils
-from help import pcchelp
+import common.CommonUtils as CommonUtils
+#from common import CommonUtils
+import help.pcchelp as pcchelp
+#from help.pcchelp import pcchelp
 import argparse
 from ast import literal_eval
 
@@ -47,7 +49,7 @@ def _execAddPlatform(method, paramDict):
     #APIスクリプト用JSON作成
     paramJson = _createJson(iaasMethod, paramDict)
     #addPlatform呼び出し
-    pccAPI=os.path.join(os.path.dirname(__file__), 'driver/pccdriver.py')
+    pccAPI=os.path.join(os.path.dirname(__file__), '../lib/driver/pccdriver.py')
     ret = subprocess.Popen('python ' + pccAPI + ' ' + method + ' ' + paramJson, stdout=subprocess.PIPE, shell=True)
     #戻り値をディクショナリに変換
     resultDict = json.loads(ret.stdout.readline())
@@ -98,7 +100,7 @@ def _execUpdatePlatform(method, paramDict):
     #APIスクリプト用JSON作成
     paramJson = _createJson(iaasMethod, paramDict)
     #updatePlatform呼び出し
-    pccAPI=os.path.join(os.path.dirname(__file__), 'driver/pccdriver.py')
+    pccAPI=os.path.join(os.path.dirname(__file__), '../lib/driver/pccdriver.py')
     ret = subprocess.Popen('python ' + pccAPI + ' ' + method + ' ' + paramJson, stdout=subprocess.PIPE, shell=True)
     #戻り値をディクショナリに変換
     resultDict = json.loads(ret.stdout.readline())
@@ -212,7 +214,7 @@ def _execAddImage(method, paramDict):
     #APIスクリプト用JSON作成
     paramJson = _createJson(iaasMethod, paramDict)
     #addImage呼び出し
-    pccAPI=os.path.join(os.path.dirname(__file__), 'driver/pccdriver.py')
+    pccAPI=os.path.join(os.path.dirname(__file__), '../lib/driver/pccdriver.py')
     ret = subprocess.Popen('python ' + pccAPI + ' ' + method + ' ' + paramJson, stdout=subprocess.PIPE, shell=True)
     #戻り値をディクショナリに変換
     resultDict = json.loads(ret.stdout.readline())
@@ -258,7 +260,7 @@ def _execUpdateImage(method, paramDict):
     #APIスクリプト用JSON作成
     paramJson = _createJson(iaasMethod, paramDict)
     #updateImage呼び出し
-    pccAPI=os.path.join(os.path.dirname(__file__), 'driver/pccdriver.py')
+    pccAPI=os.path.join(os.path.dirname(__file__), '../lib/driver/pccdriver.py')
     ret = subprocess.Popen('python ' + pccAPI + ' ' + method + ' ' + paramJson, stdout=subprocess.PIPE, shell=True)
     #戻り値をディクショナリに変換
     resultDict = json.loads(ret.stdout.readline())
@@ -315,7 +317,7 @@ def _execDeleteImage(method, paramDict):
     #APIスクリプト用JSON作成
     paramJson = _createJson(method, paramDict)
     #deleteImage呼び出し
-    pccAPI=os.path.join(os.path.dirname(__file__), 'driver/pccdriver.py')
+    pccAPI=os.path.join(os.path.dirname(__file__), '../lib/driver/pccdriver.py')
     ret = subprocess.Popen('python ' + pccAPI + ' ' + method + ' ' + paramJson, stdout=subprocess.PIPE, shell=True)
     #戻り値をディクショナリに変換
     resultDict = json.loads(ret.stdout.readline())
@@ -441,7 +443,7 @@ def _execAddService(method, paramDict):
     #APIスクリプト用JSON作成
     paramJson = _createJson(method, paramDict)
     #addService呼び出し
-    pccAPI=os.path.join(os.path.dirname(__file__), 'driver/pccdriver.py')
+    pccAPI=os.path.join(os.path.dirname(__file__), '../lib/driver/pccdriver.py')
     ret = subprocess.Popen('python ' + pccAPI + ' ' + method + ' ' + paramJson, stdout=subprocess.PIPE, shell=True)
     #戻り値をディクショナリに変換
     resultDict = json.loads(ret.stdout.readline())
@@ -498,7 +500,7 @@ def _execDeleteService(method, paramDict):
     #APIスクリプト用JSON作成
     paramJson = _createJson(method, paramDict)
     #deleteService呼び出し
-    pccAPI=os.path.join(os.path.dirname(__file__), 'driver/pccdriver.py')
+    pccAPI=os.path.join(os.path.dirname(__file__), '../lib/driver/pccdriver.py')
     ret = subprocess.Popen('python ' + pccAPI + ' ' + method + ' ' + paramJson, stdout=subprocess.PIPE, shell=True)
     #戻り値をディクショナリに変換
     resultDict = json.loads(ret.stdout.readline())
@@ -516,7 +518,7 @@ def _execCommand(method, paramDict):
     #APIスクリプト用JSON作成
     paramJson = _createJson(method, paramDict)
     #各種スクリプト呼び出し
-    pccAPI=os.path.join(os.path.dirname(__file__), 'driver/pccdriver.py')
+    pccAPI=os.path.join(os.path.dirname(__file__), '../lib/driver/pccdriver.py')
     ret = subprocess.Popen('python ' + pccAPI + ' ' + method + ' ' + paramJson, stdout=subprocess.PIPE, shell=True)
     #print(ret.stdout.readline())
     #戻り値をディクショナリに変換
@@ -714,7 +716,7 @@ def _execCommand(method, paramDict):
         print (resultDict['message'])
 
 def _showHelp(method):
-    pccAPI=os.path.join(os.path.dirname(__file__), 'help/pcchelp.py')
+    pccAPI=os.path.join(os.path.dirname(__file__), '../lib/help/pcchelp.py')
     ret = subprocess.Popen('python ' + pccAPI+ ' ' + method, stdout=subprocess.PIPE, shell=True)
     while True:
         line = ret.stdout.readline()
@@ -878,7 +880,7 @@ if __name__ == '__main__':
             method = "revokeService"
 
     if method is not None:
-        pcchelp=os.path.join(os.path.dirname(__file__), 'help/pcchelp.py')
+        pcchelp=os.path.join(os.path.dirname(__file__), '../lib/help/pcchelp.py')
         helpmessage = subprocess.Popen('python ' + pcchelp + ' ' + method, stdout=subprocess.PIPE, shell=True)
         helpmessage = helpmessage.communicate()
         parser = argparse.ArgumentParser(add_help=False,usage="誤った引数が指定されています。\n\n" + helpmessage[0])

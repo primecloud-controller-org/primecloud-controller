@@ -1,22 +1,22 @@
  # coding: UTF-8
  #
  # Copyright 2014 by SCSK Corporation.
- # 
+ #
  # This file is part of PrimeCloud Controller(TM).
- # 
+ #
  # PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
  # it under the terms of the GNU General Public License as published by
  # the Free Software Foundation, either version 2 of the License, or
  # (at your option) any later version.
- # 
+ #
  # PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
  # but WITHOUT ANY WARRANTY; without even the implied warranty of
  # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  # GNU General Public License for more details.
- # 
+ #
  # You should have received a copy of the GNU General Public License
  # along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
- # 
+ #
 
 
 from iaasgw.client.openStackiaasclient import OpenStackIaasClient
@@ -86,7 +86,7 @@ class OpenStackController(IaasController):
         except Exception:
             self.logger.error(traceback.format_exc())
             raise
-        
+
         try :
             # ボリュームに関する処理
             tableOSVOL = self.conn.getTable("OPENSTACK_VOLUME")
@@ -157,7 +157,8 @@ class OpenStackController(IaasController):
         for zone in zoneList:
             if rtString != '':
                 rtString = rtString + "##"
-            rtString = rtString + zone.zoneName
+            #必要な情報のみ返却。IDに相当するパラメータがないためNONEをセット
+            rtString = rtString + zone.zoneName + "#NONE"
 
         return "RESULT:" + rtString
 

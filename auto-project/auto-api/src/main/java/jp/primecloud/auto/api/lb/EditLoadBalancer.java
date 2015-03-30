@@ -1,18 +1,18 @@
 /*
  * Copyright 2014 by SCSK Corporation.
- * 
+ *
  * This file is part of PrimeCloud Controller(TM).
- * 
+ *
  * PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
  */
@@ -30,13 +30,10 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.api.response.lb.EditLoadBalancerResponse;
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.LoadBalancerStatus;
+import jp.primecloud.auto.entity.crud.AwsLoadBalancer;
 import jp.primecloud.auto.entity.crud.CloudstackLoadBalancer;
 import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.entity.crud.PlatformAws;
@@ -46,6 +43,9 @@ import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.service.dto.SecurityGroupDto;
 import jp.primecloud.auto.service.dto.SubnetDto;
 import jp.primecloud.auto.util.MessageUtils;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 
 
 @Path("/EditLoadBalancer")
@@ -66,14 +66,15 @@ public class EditLoadBalancer extends ApiSupport {
      */
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-	public EditLoadBalancerResponse editLoadBalancer(
-	        @QueryParam(PARAM_NAME_USER) String userName,
+    public EditLoadBalancerResponse editLoadBalancer(
+            @QueryParam(PARAM_NAME_USER) String userName,
             @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
             @QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo,
             @QueryParam(PARAM_NAME_COMPONENT_NO) String componentNo,
             @QueryParam(PARAM_NAME_SECURITY_GROUPS) String securityGroups,
             @QueryParam(PARAM_NAME_SUBNET) String cidrBlock,
-	        @QueryParam(PARAM_NAME_COMMENT) String comment){
+            @QueryParam(PARAM_NAME_COMMENT) String comment,
+            @QueryParam(PARAM_NAME_IS_INTERNAL) String isInternal) {
 
         EditLoadBalancerResponse response = new EditLoadBalancerResponse();
 
@@ -159,6 +160,23 @@ public class EditLoadBalancer extends ApiSupport {
             // Comment
             ApiValidate.validateComment(comment);
 
+            // isInternal
+            boolean internal = false;
+            if (LB_TYPE_ELB.equals(loadBalancer.getType()) && platformAws.getVpc()) {
+                if (isInternal != null) {
+                    ApiValidate.validateIsStaticIp(isInternal);
+                    internal = Boolean.parseBoolean(isInternal);
+                } else {
+                    AwsLoadBalancer awsLoadBalancer = awsLoadBalancerDao.read(Long.parseLong(loadBalancerNo));
+                    internal = awsLoadBalancer.getInternal();
+                }
+            } else {
+                if (isInternal != null) {
+                    // ELB かつ プラットフォームがVPC以外の場合は内部ロードバランサ指定不可
+                    throw new AutoApplicationException("EAPI-100040", loadBalancerNo);
+                }
+            }
+
             CloudstackLoadBalancer cloudstackLoadBalancer = null;
             if (PCCConstant.LOAD_BALANCER_CLOUDSTACK.equals(loadBalancer.getType())) {
                 cloudstackLoadBalancer = cloudstackLoadBalancerDao.read(Long.parseLong(loadBalancerNo));
@@ -176,7 +194,7 @@ public class EditLoadBalancer extends ApiSupport {
                 //TODO
                 loadBalancerService.updateAwsLoadBalancer(
                         Long.parseLong(loadBalancerNo), loadBalancer.getLoadBalancerName(),
-                        comment, Long.parseLong(componentNo), subnetId, securityGroups, availabilityZone);
+                        comment, Long.parseLong(componentNo), subnetId, securityGroups, availabilityZone, internal);
             } else if (LB_TYPE_ULTRA_MONKEY.equals(loadBalancer.getType())) {
                 //UltraMonkey
                 loadBalancerService.updateUltraMonkeyLoadBalancer(

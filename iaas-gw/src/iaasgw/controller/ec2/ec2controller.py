@@ -1,22 +1,22 @@
  # coding: UTF-8
  #
  # Copyright 2014 by SCSK Corporation.
- # 
+ #
  # This file is part of PrimeCloud Controller(TM).
- # 
+ #
  # PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
  # it under the terms of the GNU General Public License as published by
  # the Free Software Foundation, either version 2 of the License, or
  # (at your option) any later version.
- # 
+ #
  # PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
  # but WITHOUT ANY WARRANTY; without even the implied warranty of
  # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  # GNU General Public License for more details.
- # 
+ #
  # You should have received a copy of the GNU General Public License
  # along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
- # 
+ #
 
 
 from iaasgw.client.ec2iaasclient import EC2IaasClient
@@ -272,7 +272,18 @@ class EC2Controller(IaasController):
 
 
     def allocateAddress(self, farmNo):
-        publicIp = self.client.allocateAddress()
+        publicIp = None
+        platformNo = self.client.getPlatformNo()
+
+        tablePLAWS = self.conn.getTable("PLATFORM_AWS")
+        awsPlatform = self.conn.selectOne(tablePLAWS.select(tablePLAWS.c.PLATFORM_NO==platformNo))
+
+        if awsPlatform["VPC"] == 1:
+            #VPC用のElasticIP発行処理呼び出し
+            publicIp = self.client.allocateVpcAddress()
+        else:
+            #ElasticIP発行処理呼び出し
+            publicIp = self.client.allocateAddress()
 
         #イベントログ出力
         self.conn.debug(farmNo, None, None, None, None, "AwsElasticIpAllocate", ["EC2", publicIp])
@@ -281,7 +292,7 @@ class EC2Controller(IaasController):
         table = self.conn.getTable("AWS_ADDRESS")
         sql = table.insert({"ADDRESS_NO":None,
                             "USER_NO":self.accessInfo["USER"],
-                            "PLATFORM_NO":self.client.getPlatformNo(),
+                            "PLATFORM_NO":platformNo,
                             "PUBLIC_IP":publicIp,
                             "COMMENT":None,
                             "INSTANCE_NO":None,
@@ -294,6 +305,11 @@ class EC2Controller(IaasController):
         return "RESULT:" + str(newAddress["ADDRESS_NO"])
 
     def releaseAddress(self, addressNo, farmNo):
+        platformNo = self.client.getPlatformNo()
+
+        tablePLAWS = self.conn.getTable("PLATFORM_AWS")
+        awsPlatform = self.conn.selectOne(tablePLAWS.select(tablePLAWS.c.PLATFORM_NO==platformNo))
+
         table = self.conn.getTable("AWS_ADDRESS")
         address = self.conn.selectOne(table.select(table.c.ADDRESS_NO==addressNo))
 
@@ -301,7 +317,17 @@ class EC2Controller(IaasController):
             return
 
         ipaddress = address["PUBLIC_IP"]
-        self.client.releaseAddress(ipaddress)
+        instanceId = address["INSTANCE_ID"]
+        instanceNo = address["INSTANCE_NO"]
+
+        if awsPlatform["VPC"] == 1:
+            #アドレス情報取得
+            address = self.client.describeAddress(ipaddress)
+            #VPC用のElasticIP解放処理呼び出し
+            self.client.releaseVpcAddress(ipaddress, address.allocationId)
+        else:
+            #ElasticIP解放処理呼び出し
+            self.client.releaseAddress(ipaddress)
 
         #イベントログ
         self.conn.debug(farmNo, None, None, None, None, "AwsElasticIpRelease", ["EC2", ipaddress])

@@ -1,24 +1,26 @@
 /*
  * Copyright 2014 by SCSK Corporation.
- * 
+ *
  * This file is part of PrimeCloud Controller(TM).
- * 
+ *
  * PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
  */
 package jp.primecloud.auto.process.nifty;
 
-import org.apache.commons.lang.StringUtils;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import jp.primecloud.auto.entity.crud.Component;
 import jp.primecloud.auto.entity.crud.Instance;
@@ -27,9 +29,13 @@ import jp.primecloud.auto.entity.crud.NiftyVolume;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.log.EventLogger;
+import jp.primecloud.auto.nifty.dto.VolumeAttachmentDto;
+import jp.primecloud.auto.nifty.dto.VolumeDto;
+import jp.primecloud.auto.nifty.process.NiftyProcessClient;
 import jp.primecloud.auto.process.ProcessLogger;
 import jp.primecloud.auto.service.ServiceSupport;
-import com.nifty.cloud.sdk.disk.model.Volume;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  * <p>
@@ -54,6 +60,7 @@ public class NiftyVolumeProcess extends ServiceSupport {
      */
     public void startVoiume(NiftyProcessClient niftyProcessClient, Long instanceNo, Long volumeNo) {
         NiftyVolume niftyVolume = niftyVolumeDao.read(volumeNo);
+        Integer scsiId = null;
 
         // インスタンスIDがある場合はスキップ
         if (StringUtils.isNotEmpty(niftyVolume.getInstanceId())) {
@@ -67,7 +74,7 @@ public class NiftyVolumeProcess extends ServiceSupport {
         Instance instance = instanceDao.read(instanceNo);
         Platform platform = platformDao.read(niftyProcessClient.getPlatformNo());
 
-        Volume volume;
+        VolumeDto volume;
         if (StringUtils.isEmpty(niftyVolume.getVolumeId())) {
             try {
                 // 排他制御(apiを同時に実行するとエラーになる対策)
@@ -89,9 +96,22 @@ public class NiftyVolumeProcess extends ServiceSupport {
                     processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, component, instance, "NiftyDiskCreateFinish",
                             new Object[] { platform.getPlatformName(), volume.getVolumeId(), niftyVolume.getSize() });
 
+                    List<VolumeAttachmentDto> attachments = volume.getAttachments();
+                    String device = attachments.get(0).getDevice();
+                    //SCSI(xx:yy)の形式からyyのみを抽出する
+                    Pattern p = Pattern.compile(":([0-9]*)\\)");
+                    Matcher m = p.matcher(device);
+                    if (m.find() && StringUtils.isNumeric(m.group(1))) {
+                        scsiId = Integer.parseInt(m.group(1));
+                    } else {
+                        //正しいscsiIdが存在しない（ボリュームが存在しない）場合
+                        throw new AutoException("EPROCESS-000618", niftyVolume.getVolumeId());
+                    }
+
                     // データベース更新
                     niftyVolume.setSize(Integer.valueOf(volume.getSize()));
                     niftyVolume.setStatus(volume.getStatus());
+                    niftyVolume.setScsiId(scsiId);
                     niftyVolume.setInstanceId(niftyInstance.getInstanceId());
                     niftyVolumeDao.update(niftyVolume);
                 }
@@ -124,8 +144,21 @@ public class NiftyVolumeProcess extends ServiceSupport {
                     processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, component, instance, "NiftyDiskAttachFinish",
                             new Object[] { instance.getInstanceName(), niftyVolume.getVolumeId() });
 
+                    List<VolumeAttachmentDto> attachments = volume.getAttachments();
+                    String device = attachments.get(0).getDevice();
+                    //SCSI(xx:yy)の形式からyyのみを抽出する
+                    Pattern p = Pattern.compile(":([0-9]*)\\)");
+                    Matcher m = p.matcher(device);
+                    if (m.find() && StringUtils.isNumeric(m.group(1))) {
+                        scsiId = Integer.parseInt(m.group(1));
+                    } else {
+                        //正しいscsiIdが存在しない（ボリュームが存在しない）場合
+                        throw new AutoException("EPROCESS-000618", niftyVolume.getVolumeId());
+                    }
+
                     // データベース更新
                     niftyVolume.setStatus(volume.getStatus());
+                    niftyVolume.setScsiId(scsiId);
                     niftyVolumeDao.update(niftyVolume);
                 }
             } catch (AutoException e) {
@@ -170,7 +203,7 @@ public class NiftyVolumeProcess extends ServiceSupport {
                 // ディスクをデタッチ
                 niftyProcessClient.detachVolume(niftyVolume.getVolumeId(), niftyVolume.getInstanceId());
 
-                Volume volume;
+                VolumeDto volume;
                 // ボリュームのデタッチ待ち
                 volume = niftyProcessClient.waitDetachVolume(niftyVolume.getVolumeId(), niftyVolume.getInstanceId());
 
