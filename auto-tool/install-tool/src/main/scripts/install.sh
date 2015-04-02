@@ -666,7 +666,7 @@ tar zxvf ${SOFTWARE_DIR}/pcc/auto-cli-${PCC_VERSION}.tar.gz >> $LOG_FILE 2>&1
 mv auto-cli-${PCC_VERSION} /opt/adc
 cd /opt/adc
 ln -s auto-cli-${PCC_VERSION} auto-cli
-chmod a+x /opt/adc/auto-cli/bin/*.sh
+chmod a+x /opt/adc/auto-cli/bin/*
 
 ## install auto-repo
 tar zxvf ${SOFTWARE_DIR}/pcc/auto-repo-${PCC_VERSION}.tar.gz >> $LOG_FILE 2>&1
