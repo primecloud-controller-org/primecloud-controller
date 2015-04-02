@@ -152,22 +152,24 @@ echo -e "====success\t\t:setting ryncd===="
 #sudoers
 echo "====START :setting sudo====" >> $LOG_FILE 2>&1
 
-mv /etc/sudoers ${BACKUP_DIR}/sudoers.${BACKUP_DATE}
-if [ $? -ne 0 ]; then
-        echo "Error: backup failed /etc/sudoers"
-        echo "Error: backup failed /etc/sudoers" >> $LOG_FILE 2>&1
-        exit 1
-fi
-cp -f ${SOFTWARE_DIR}/sudoers /etc/sudoers
-if [ $? -ne 0 ]; then
-    echo "Error: file copy failed /etc/sudoers"
-    mv ${BACKUP_DIR}/sudoers.${BACKUP_DATE} /etc/sudoers
-    exit 1
-else
-    chmod 440 /etc/sudoers
-fi
-
-echo "====END :setting sudo====" >> $LOG_FILE 2>&1
+#mv /etc/sudoers ${BACKUP_DIR}/sudoers.${BACKUP_DATE}
+#if [ $? -ne 0 ]; then
+#        echo "Error: backup failed /etc/sudoers"
+#        echo "Error: backup failed /etc/sudoers" >> $LOG_FILE 2>&1
+#        exit 1
+#fi
+#cp -f ${SOFTWARE_DIR}/sudoers /etc/sudoers
+#if [ $? -ne 0 ]; then
+#    echo "Error: file copy failed /etc/sudoers"
+#    mv ${BACKUP_DIR}/sudoers.${BACKUP_DATE} /etc/sudoers
+#    exit 1
+#else
+#    chmod 440 /etc/sudoers
+##fi
+#
+#echo "====END :setting sudo====" >> $LOG_FILE 2>&1
+    cp -f ${SOFTWARE_DIR}/sudoers.pcc /etc/sudoers/sudoers.d
+    chmod 440 /etc/sudoers/sudoers.d/sudoers.pcc
 echo -e "====success\t\t:setting sudo===="
 
 #tomcat6 user make
