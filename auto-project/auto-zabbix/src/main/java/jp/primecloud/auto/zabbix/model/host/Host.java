@@ -38,7 +38,7 @@ public class Host implements Serializable {
 
     private String hostid;
 
-    private Integer proxyHostid;
+    private String proxyHostid;
 
     private String host;
 
@@ -133,7 +133,7 @@ public class Host implements Serializable {
      *
      * @return proxyHostid
      */
-    public Integer getProxyHostid() {
+    public String getProxyHostid() {
         return proxyHostid;
     }
 
@@ -142,7 +142,7 @@ public class Host implements Serializable {
      *
      * @param proxyHostid proxyHostid
      */
-    public void setProxyHostid(Integer proxyHostid) {
+    public void setProxyHostid(String proxyHostid) {
         this.proxyHostid = proxyHostid;
     }
 

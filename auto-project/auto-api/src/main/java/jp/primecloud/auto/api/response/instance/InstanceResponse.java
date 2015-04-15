@@ -7,7 +7,6 @@ import javax.xml.bind.annotation.XmlType;
 import jp.primecloud.auto.entity.crud.Instance;
 
 
-
 @XmlRootElement(name="InstanceResponse")
 @XmlType(propOrder = { "instanceNo", "instanceName", "fqdn", "publicIp", "privateIp", "status" })
 public class InstanceResponse {

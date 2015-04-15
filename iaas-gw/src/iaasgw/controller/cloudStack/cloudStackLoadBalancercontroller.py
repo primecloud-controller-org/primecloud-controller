@@ -152,7 +152,7 @@ class CloudStackLoadBalancercontroller(object):
             table = self.conn.getTable("INSTANCE")
             instanceNo = loadBalancerInstance["INSTANCE_NO"]
 
-            # インスタンス獲得
+            #インスタンス獲得
             instance = self.conn.selectOne(table.select(table.c.INSTANCE_NO == instanceNo))
             instanceMap.update({instanceNo:instance})
 
@@ -224,7 +224,7 @@ class CloudStackLoadBalancercontroller(object):
             self.client.attach_members(loadBalancerid, instanceIds)
 
             for instanceid in instanceIds:
-                # 実行ログ
+                #実行ログ
                 self.logger.info(None ,"IPROCESS-200623", [csLoadBalancer["NAME"], instanceid])
                 # イベントログ出力
                 self.conn.debug(farmNo, None, None, None, None, "CloudStackLBInstancesRegist", ["CLOUDSTACK", csLoadBalancer["NAME"], instanceid] )

@@ -1,0 +1,398 @@
+#!/usr/local/bin/python
+# -*- coding: utf-8 -*-
+
+import os
+import sys
+import re
+import json
+import subprocess
+import common.CommonUtils as CommonUtils
+from ast import literal_eval
+from optparse import OptionParser
+import argparse
+from help import pcchelp
+
+def _execInstallModule(method, paramDict):
+    #オプションを辞書型に変換し、ヘルプフラグと値の無いものを削除
+    paramDict = _deleteNoneValue(paramDict)
+    #引数のチェック
+    result = CommonUtils.checkArguments(method, paramDict)
+    if result != True:
+        print(result)
+        exit(1)
+    
+    #変数設定
+    moduleName = paramDict['moduleName']
+
+    #インストール処理実行
+    retInst = subprocess.Popen('yum -y -c /opt/adc/pccrepo/repos.d/pccrepo.conf --nogpgcheck install ' + moduleName, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    #yumの標準出力とエラーを取得
+    yumMes = retInst.stdout.read()
+    yumErr = retInst.stderr.read()
+    #インストールでエラーが発生した場合
+    if len(yumErr) > 0:
+        print("モジュール:" + moduleName + "のインストール処理でエラーが発生したため処理を中止します。")
+        print("管理者に連絡を行って下さい。")
+    #既にインストールされていた場合
+    elif yumMes.find("already installed") != -1:
+        print("指定されたモジュールは既に最新版がインストールされています。")
+    #存在しないパッケージをインストールした場合
+    elif yumMes.find("No package " + moduleName + " available") != -1:
+        print("指定されたモジュールがリポジトリに存在しません。")
+    #rpmパッケージに含まれるファイルが存在しない場合
+    elif _checkRpmFile(moduleName) == False:
+        print("インストール処理が正しく行われなかったため処理を中止します。")
+    #インストール処理が正常に行われた場合
+    else:
+        try:
+            mifDict = CommonUtils.getMif(moduleName)
+        except Exception as e:
+            print ("JSONファイルの読み込みに失敗したため処理を中止します。管理者に連絡を行って下さい。")
+            exit(1)
+        if mifDict is None:
+            print ("JSONファイルの読み込みに失敗したため処理を中止します。")
+            exit(1)
+        if "TemplateModule" in mifDict['moduleInformation']:
+            print ("モジュール:" + moduleName + "のインストールが完了しました。pcc add imageを実行しPCCへ登録を行って下さい。")
+        else:
+            print ("モジュール:" + moduleName + "のインストールが完了しました。pcc add serviceを実行しPCCへ登録を行って下さい。")
+
+def _execRemoveModule(method, paramDict):
+    #オプションを辞書型に変換し、ヘルプフラグと値の無いものを削除
+    paramDict = _deleteNoneValue(paramDict)
+    #引数のチェック
+    result = CommonUtils.checkArguments(method, paramDict)
+    if result != True:
+        print(result)
+        exit(1)
+    
+    #変数設定
+    moduleName = paramDict['moduleName']
+    
+    #モジュールインストール済みチェック
+    ret = subprocess.Popen('yum -c /opt/adc/pccrepo/repos.d/pccrepo.conf --nogpgcheck info ' + moduleName, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    #yumの標準出力とエラーを取得
+    yumMes = ret.stdout.read()
+    yumErr = ret.stderr.read()
+    
+    if "No matching Packages" in yumErr:
+        print("指定されたモジュールがインストールされていないため処理を中止します。")
+        exit(1)
+    elif len(yumErr) > 0:
+        print("モジュール存在チェックでエラーが発生したため処理を中止します。")
+        exit(1)
+    
+    #MIF読み込み
+    try:
+        mifDict = CommonUtils.getMif(moduleName)
+    except Exception as e:
+        print("指定されたモジュールが正しくインストールされていないため処理を終了します。")
+        exit(1)
+    if mifDict is None:
+        print("JSONファイルの読み込みに失敗したため処理を中止します。")
+        exit(1)
+    
+    paramDict.update({"mifDict":mifDict})
+
+    #APIスクリプト用JSON作成
+    paramJson = _createJson(method, paramDict)
+    #addPlatform呼び出し
+    pccAPI=os.path.join(os.path.dirname(__file__), '../lib/driver/pccdriver.py')
+    ret = subprocess.Popen('python ' + pccAPI + ' ' + method + ' ' + paramJson, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    #戻り値をディクショナリに変換
+    resultDict = json.loads(ret.stdout.readline())
+    #戻り値が失敗の場合エラーメッセージを表示
+    if "1" == resultDict['result']:
+        print(resultDict['message'])
+        exit(1)
+    #戻り値が成功の場合yumを発行しモジュール削除
+    else:
+        ret = subprocess.Popen('yum -y -c /opt/adc/pccrepo/repos.d/pccrepo.conf --nogpgcheck remove ' + moduleName,stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        yumErr = ret.stderr.read()
+        #アンインストールでエラーが発生した場合
+        if len(yumErr) > 0:
+            print("モジュール:" + moduleName + "のアンインストール処理でエラーが発生したため処理を中止します。")
+            print("管理者に連絡を行って下さい。")
+        else:
+            print("モジュール:" + moduleName + "のアンインストールが完了しました。")
+
+def _execUpdateModule(method, paramDict):
+    #オプションを辞書型に変換し、ヘルプフラグと値の無いものを削除
+    paramDict = _deleteNoneValue(paramDict)
+    #引数のチェック
+    result = CommonUtils.checkArguments(method, paramDict)
+    if result != True:
+        print(result)
+        exit(1)
+    
+    #変数設定
+    moduleName = paramDict['moduleName']
+    
+    #モジュールインストール済みチェック
+    ret = subprocess.Popen('yum -c /opt/adc/pccrepo/repos.d/pccrepo.conf --nogpgcheck info ' + moduleName, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    #yumの標準出力とエラーを取得
+    yumMes = ret.stdout.read()
+    yumErr = ret.stderr.read()
+    
+    if "No matching Packages" in yumErr:
+        print("指定されたモジュールがインストールされていないため処理を中止します。")
+        exit(1)
+    elif len(yumErr) > 0:
+        print("モジュール存在チェックでエラーが発生したため処理を中止します。")
+        exit(1)
+
+    #MIF読み込み
+    try:
+        mifDict = CommonUtils.getMif(moduleName)
+    except Exception as e:
+        print("指定されたモジュールが正しくインストールされていないため処理を終了します。")
+        exit(1)
+    if mifDict is None:
+        print("JSONファイルの読み込みに失敗したため処理を中止します。")
+        exit(1)
+    
+    paramDict.update({"mifDict":mifDict})
+
+    #APIスクリプト用JSON作成
+    paramJson = _createJson(method, paramDict)
+    #addPlatform呼び出し
+    pccAPI=os.path.join(os.path.dirname(__file__), '../lib/driver/pccdriver.py')
+    ret = subprocess.Popen('python ' + pccAPI + ' ' + method + ' ' + paramJson, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    #戻り値をディクショナリに変換
+    resultDict = json.loads(ret.stdout.readline())
+    #戻り値が失敗の場合エラーメッセージを表示
+    if "1" == resultDict['result']:
+        print(resultDict['message'])
+        exit(1)
+    #戻り値が成功の場合yumを発行しモジュール更新
+    elif "0" == resultDict['result']:
+        ret = subprocess.Popen('yum -y -c /opt/adc/pccrepo/repos.d/pccrepo.conf --nogpgcheck update ' + moduleName,stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        #yumの標準出力とエラーを取得
+        yumMes = ret.stdout.read()
+        yumErr = ret.stderr.read()
+        #インストールでエラーが発生した場合
+        if len(yumErr) > 0:
+            print("モジュール:" + moduleName + "のアップデート処理でエラーが発生したため処理を中止します。")
+            print("管理者に連絡を行って下さい。")
+        #既にインストールされていた場合
+        elif yumMes.find("No Packages marked for Update") != -1:
+            print("指定されたモジュールは既に最新版がインストールされています。")
+        #存在しないパッケージをインストールした場合
+        elif yumMes.find("No package " + moduleName + " available") != -1:
+            print("指定されたモジュールがリポジトリに存在しません。")
+        #rpmパッケージに含まれるファイルが存在しない場合
+        elif _checkRpmFile(moduleName) == False:
+            print("アップデート処理が正しく行われなかったため処理を中止します。")
+        #インストール処理が正常に行われた場合
+        else:
+            print("モジュール:" + moduleName + "のアップデートが完了しました。")
+
+def _execListModule(method, paramDict):
+    #オプションを辞書型に変換し、ヘルプフラグと値の無いものを削除
+    paramDict = _deleteNoneValue(paramDict)
+    #引数のチェック
+    result = CommonUtils.checkArguments(method, paramDict)
+    if result != True:
+        print(result)
+        exit(1)
+    
+    #installedオプションが指定された場合インストール済みのみ表示
+    installedFlg = False
+    if True == paramDict["installed"]:
+        installedFlg = True
+    
+    #PCCレポジトリのパッケージ情報一覧取得
+    if installedFlg:
+        ret = subprocess.Popen('yum -c /opt/adc/pccrepo/repos.d/pccrepo.conf --nogpgcheck list | grep "pcc-im_\|pcc-sm_" |grep "installed"', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    else:
+        ret = subprocess.Popen('yum -c /opt/adc/pccrepo/repos.d/pccrepo.conf --nogpgcheck list | grep "pcc-im_\|pcc-sm_"', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    #yumの標準出力とエラーを取得
+    yumMes = ret.stdout.read()
+    yumErr = ret.stderr.read()
+    if len(yumErr) > 0:
+        print("モジュール情報の一覧取得処理でエラーが発生したため処理を中止します。")
+        print("管理者に連絡を行って下さい。")
+    else:
+        print(yumMes)
+
+def _execShowModule(method, paramDict):
+    #オプションを辞書型に変換し、ヘルプフラグと値の無いものを削除
+    paramDict = _deleteNoneValue(paramDict)
+    #引数のチェック
+    result = CommonUtils.checkArguments(method, paramDict)
+    if result != True:
+        print(result)
+        exit(1)
+    
+    #変数設定
+    moduleName = paramDict["moduleName"]
+    
+    #PCCリポジトリのパッケージ情報取得
+    ret = subprocess.Popen('yum -c /opt/adc/pccrepo/repos.d/pccrepo.conf --nogpgcheck info ' + moduleName, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    yumErr = ret.stderr.read()
+    if len(yumErr) > 0:
+        if yumErr.find("No matching Packages to list") != -1:
+            print ("モジュール:" + moduleName + "はリポジトリに存在しません。")
+        else:
+            print("モジュール:" + moduleName + "の詳細情報表示処理でエラーが発生したため処理を中止します。")
+            print("管理者に連絡を行って下さい。")
+    else:
+        printFlg = False
+        print("モジュール:" + moduleName + "の詳細情報を表示します。")
+        while True:
+            line = ret.stdout.readline()
+            if not line:
+                break
+            if printFlg:
+                print(line.rstrip())
+            else:
+                if "Available Packages" == line.rstrip() or "Installed Packages" == line.rstrip():
+                    printFlg = True
+        if printFlg == False:
+            print(ret.stdout.read())
+
+def _execCleanCache(method, paramDict):
+    #オプションを辞書型に変換し、ヘルプフラグと値の無いものを削除
+    paramDict = _deleteNoneValue(paramDict)
+    #引数のチェック
+    result = CommonUtils.checkArguments(method, paramDict)
+    if result != True:
+        print(result)
+        exit(1)
+
+    #PCCレポジトリのキャッシュ削除
+    ret = subprocess.Popen('yum -c /opt/adc/pccrepo/repos.d/pccrepo.conf clean all', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    yumErr = ret.stderr.read()
+    if len(yumErr) > 0:
+        print("キャッシュ削除処理でエラーが発生したため処理を中止します。")
+        print("管理者に連絡を行って下さい。")
+    else:
+        print("キャッシュ削除処理が完了しました。")
+
+def _showHelp(method):
+    pccAPI=os.path.join(os.path.dirname(__file__), '../lib/help/pcchelp.py')
+    ret = subprocess.Popen('python ' + pccAPI+ ' ' + method, stdout=subprocess.PIPE, shell=True)
+    while True:
+        line = ret.stdout.readline()
+        if not line:
+            break
+        print(line.rstrip ())
+
+def _checkRpmFile(serviceModule):
+    ret = subprocess.Popen('rpm -ql ' + serviceModule, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    status = ret.wait()
+    if status == 0:
+        while True:
+            line = ret.stdout.readline()
+            if not line:
+                break
+            if os.path.exists(line.rstrip()) == False:
+                return False
+        return True
+    else:
+        return False
+
+def _createJson(method, paramDict):
+    paramDict.update({"method":method})
+    return "\'" + json.dumps(paramDict, ensure_ascii=False) + "\'"
+
+def _deleteNoneValue(paramDict):
+    if "helpFlg" in paramDict:
+        del paramDict['helpFlg']
+    for key in paramDict.keys():
+        if paramDict[key] == None:
+            del paramDict[key]
+    return paramDict
+
+if __name__ == '__main__':
+    
+    paramList=[]
+    #--で始まるオプションを小文字に変換
+    for arg in sys.argv:
+        if re.match('^--', arg):
+            arg = arg.lower() 
+        paramList.append(arg)
+
+    if len(paramList) == 2 and ( "-h" == paramList[1].lower() or "--help" == paramList[1].lower()):
+        _showHelp("pccrepoHelp")
+        exit(0)
+    
+    elif len(paramList) < 2:
+        print("PCCコマンドのオプションが不足しています。")
+        exit(1)
+
+    paramList[1] = paramList[1].lower() 
+    method = None
+    paramDict = None
+    
+    #メソッド判定
+    if "install" == paramList[1]:
+        method = "installModule"
+    
+    elif "remove" == paramList[1]:
+        method = "removeModule"
+    
+    elif "update" == paramList[1]:
+        method = "updateModule"
+    
+    elif "list" == paramList[1]:
+        method = "listModule"
+    
+    elif "show" == paramList[1]:
+        method = "showModule"
+    
+    elif "clean" == paramList[1]:
+        method = "cleanCache"
+    
+    if method is not None:
+        pcchelp=os.path.join(os.path.dirname(__file__), '../lib/help/pcchelp.py')
+        helpmessage = subprocess.Popen('python ' + pcchelp + ' ' + method, stdout=subprocess.PIPE, shell=True)
+        helpmessage = helpmessage.communicate()
+        parser = argparse.ArgumentParser(add_help=False,usage="誤った引数が指定されています。\n\n" + helpmessage[0])
+    
+        parser.add_argument('-h', dest='helpFlg', action='store_true')
+        parser.add_argument('--help', dest='helpFlg', action='store_true')
+    
+    #メソッドごとの引数指定
+    if "installModule" == method:
+        parser.add_argument('--modulename', dest='moduleName', help='インストールするモジュール名称')
+    
+    elif "removeModule" == method:
+        parser.add_argument('--modulename', dest='moduleName', help='アンインストールするモジュール名称')
+    
+    elif "updateModule" == method:
+        parser.add_argument('--modulename', dest='moduleName', help='アップデートするモジュール名称')
+    
+    elif "listModule" == method:
+        parser.add_argument('--installed', dest='installed', action='store_true')
+    
+    elif "showModule" == method:
+        parser.add_argument('--modulename', dest='moduleName', help='情報表示対象のモジュール名称')
+    
+    #サポート対象外のコマンドが指定された場合
+    if method is None:
+        print("pccrepoコマンドが正しくありません。実行可能なコマンドは pccrepo -h を参照して下さい。")
+    
+    #各処理実行
+    try:
+        paramDict = vars(parser.parse_args(paramList[2:]))
+    except Exception as e:
+        print(e)
+        exit(2)
+    #ヘルプフラグがONの場合、ヘルプ表示
+    if paramDict['helpFlg'] == True:
+        _showHelp(method)
+    
+    #メソッドごとの各処理呼び出し
+    elif "installModule" == method:
+        _execInstallModule(method, paramDict)
+    elif "removeModule" == method:
+        _execRemoveModule(method, paramDict)
+    elif "updateModule" == method:
+        _execUpdateModule(method, paramDict)
+    elif "listModule" == method:
+        _execListModule(method, paramDict)
+    elif "showModule" == method:
+        _execShowModule(method, paramDict)
+    elif "cleanCache" == method:
+        _execCleanCache(method, paramDict)

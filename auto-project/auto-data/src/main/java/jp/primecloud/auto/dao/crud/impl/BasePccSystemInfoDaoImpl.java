@@ -18,11 +18,10 @@
  */
 package jp.primecloud.auto.dao.crud.impl;
 
-import jp.primecloud.auto.dao.crud.BasePccSystemInfoDao;
-import jp.primecloud.auto.entity.crud.PccSystemInfo;
-
 import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
 
+import jp.primecloud.auto.dao.crud.BasePccSystemInfoDao;
+import jp.primecloud.auto.entity.crud.PccSystemInfo;
 
 /**
  * <p>

@@ -1,22 +1,22 @@
  # coding: UTF-8
  #
  # Copyright 2014 by SCSK Corporation.
- # 
+ #
  # This file is part of PrimeCloud Controller(TM).
- # 
+ #
  # PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
  # it under the terms of the GNU General Public License as published by
  # the Free Software Foundation, either version 2 of the License, or
  # (at your option) any later version.
- # 
+ #
  # PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
  # but WITHOUT ANY WARRANTY; without even the implied warranty of
  # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  # GNU General Public License for more details.
- # 
+ #
  # You should have received a copy of the GNU General Public License
  # along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
- # 
+ #
 from iaasgw.log.log import IaasLogger
 from iaasgw.module.ec2.ec2module import Listener, HealthCheck, \
     LoadBalancerDescription
@@ -70,6 +70,9 @@ class ec2LoadBalancercontroller(object):
         # ロードバランサ作成情報
         loadBalancerName = awsLoadBalancer["NAME"]
 
+        # 内部ロードバランサ
+        internal = awsLoadBalancer["INTERNAL"]
+
         # デフォルトゾーンの特定 デフォルト1件目
         availabilityZone = None
         for zone in availabilityZones:
@@ -101,7 +104,7 @@ class ec2LoadBalancercontroller(object):
         listeners = [listener]
 
         # ロードバランサの作成
-        dnsName = self.client.createLoadBalancer(availabilityZone, listeners, loadBalancerName, subnetIds, securityGroupIds)
+        dnsName = self.client.createLoadBalancer(availabilityZone, listeners, loadBalancerName, subnetIds, securityGroupIds, internal)
 
         #実行ログ
         self.logger.info(None ,"IPROCESS-200111", [awsLoadBalancer["NAME"],])
@@ -111,6 +114,15 @@ class ec2LoadBalancercontroller(object):
 
         # ダミーのリスナーの削除
         self.client.deleteLoadBalancerListeners(["65535",], loadBalancerName)
+
+        #クロスゾーン負荷分散を有効化
+        self.client.modifyLoadBalancer(loadBalancerName)
+
+        #実行ログ
+        self.logger.info(None ,"IPROCESS-200226", [awsLoadBalancer["NAME"],])
+
+        # イベントログ出力
+        self.conn.debug(farmNo, None, None, None, None, "AwsCrossZoneEnabled", ["EC2", loadBalancerName] )
 
         # データベース更新
         updateDict = self.conn.selectOne(tableAWSLB.select(tableAWSLB.c.LOAD_BALANCER_NO==loadBalancerNo))
@@ -201,7 +213,7 @@ class ec2LoadBalancercontroller(object):
             # リスナーの作成
             self.client.createLoadBalancerListeners(listeners, loadBalancerName)
 
-            # 実行ログ
+            #実行ログ
             self.logger.info(None ,"IPROCESS-200121", [awsLoadBalancer["NAME"], listener["LOAD_BALANCER_PORT"]])
 
             # イベントログ出力

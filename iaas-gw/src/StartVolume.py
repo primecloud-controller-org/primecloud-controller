@@ -29,7 +29,7 @@ if __name__ == '__main__':
     logger = IaasLogger()
 
     #ログ用パラメータ
-    logparam = ["StartVolume",os.getpid(), "インスタンスNo:%s, ボリュームNo:%s" %(str(param[3]),str(param[3]))]
+    logparam = ["StartVolume",os.getpid(), "インスタンスNo:%s, ボリュームNo:%s" %(str(param[3]),str(param[4]))]
     logger.start(logparam)
 
     #実行

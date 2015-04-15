@@ -1,33 +1,39 @@
 /*
  * Copyright 2014 by SCSK Corporation.
- * 
+ *
  * This file is part of PrimeCloud Controller(TM).
- * 
+ *
  * PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
  */
 package jp.primecloud.auto.ui;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import jp.primecloud.auto.common.component.Subnet;
+import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.InstanceStatus;
 import jp.primecloud.auto.config.Config;
 import jp.primecloud.auto.entity.crud.ComponentType;
 import jp.primecloud.auto.entity.crud.NiftyKeyPair;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.PlatformAws;
+import jp.primecloud.auto.entity.crud.PlatformAzure;
+import jp.primecloud.auto.entity.crud.VcloudDisk;
+import jp.primecloud.auto.entity.crud.VcloudInstanceNetwork;
 import jp.primecloud.auto.entity.crud.VmwareAddress;
 import jp.primecloud.auto.entity.crud.VmwareKeyPair;
 import jp.primecloud.auto.exception.AutoApplicationException;
@@ -37,11 +43,15 @@ import jp.primecloud.auto.service.NiftyDescribeService;
 import jp.primecloud.auto.service.VmwareDescribeService;
 import jp.primecloud.auto.service.dto.AddressDto;
 import jp.primecloud.auto.service.dto.ComponentInstanceDto;
+import jp.primecloud.auto.service.dto.DataDiskDto;
 import jp.primecloud.auto.service.dto.ImageDto;
 import jp.primecloud.auto.service.dto.InstanceDto;
+import jp.primecloud.auto.service.dto.InstanceNetworkDto;
 import jp.primecloud.auto.service.dto.KeyPairDto;
+import jp.primecloud.auto.service.dto.NetworkDto;
 import jp.primecloud.auto.service.dto.PlatformDto;
 import jp.primecloud.auto.service.dto.SecurityGroupDto;
+import jp.primecloud.auto.service.dto.StorageTypeDto;
 import jp.primecloud.auto.service.dto.SubnetDto;
 import jp.primecloud.auto.service.dto.VmwareAddressDto;
 import jp.primecloud.auto.service.dto.ZoneDto;
@@ -49,6 +59,7 @@ import jp.primecloud.auto.ui.DialogConfirm.Buttons;
 import jp.primecloud.auto.ui.DialogConfirm.Callback;
 import jp.primecloud.auto.ui.DialogConfirm.Result;
 import jp.primecloud.auto.ui.util.BeanContext;
+import jp.primecloud.auto.ui.util.CommonUtils;
 import jp.primecloud.auto.ui.util.ContextUtils;
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.VaadinUtils;
@@ -61,6 +72,7 @@ import org.apache.commons.lang.StringUtils;
 
 import com.vaadin.Application;
 import com.vaadin.data.Item;
+import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.Validator;
@@ -118,6 +130,14 @@ public class WinServerEdit extends Window {
 
     CloudStackDetailTab cloudStackDetailTab;
 
+    VcloudDetailTab vcloudDetailTab;
+
+    VcloudNetworkTab vcloudNetworkTab;
+
+    AzureDetailTab azureDetailTab;
+
+    OpenStackDetailTab openStackDetailTab;
+
     VmwareEditIpTab vmwareEditIpTab;
 
     InstanceDto instance;
@@ -147,6 +167,22 @@ public class WinServerEdit extends Window {
     List<AddressDto> elasticIps;
 
     List<SubnetDto> subnets;
+
+    List<KeyPairDto> vcloudKeyPairs;
+
+    List<StorageTypeDto> storageTypes;
+
+    List<DataDiskDto> dataDisks;
+
+    List<DataDiskDto> deleteDataDisks;
+
+    Map<String, NetworkDto> networkMap;
+
+    List<InstanceNetworkDto> instanceNetworks;
+
+    List<String> availabilitySets;
+
+    List<String> zoneNames;
 
     boolean attachService = false;
 
@@ -178,7 +214,8 @@ public class WinServerEdit extends Window {
 
         //詳細設定Tabの追加
         String platformType = platformDto.getPlatform().getPlatformType();
-        if ("aws".equals(platformType)) {
+        // TODO CLOUD BRANCHING
+        if (PCCConstant.PLATFORM_TYPE_AWS.equals(platformType)) {
             awsDetailTab = new AWSDetailTab();
             tab.addTab(awsDetailTab, ViewProperties.getCaption("tab.detail"), Icons.DETAIL.resource());
             layout.addComponent(tab);
@@ -186,7 +223,7 @@ public class WinServerEdit extends Window {
             awsDetailTab.initValidation();
             // 詳細設定のデータ表示
             awsDetailTab.showData();
-        } else if ("vmware".equals(platformType)) {
+        } else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platformType)) {
             vmwareDetailTab = new VMWareDetailTab();
             tab.addTab(vmwareDetailTab, ViewProperties.getCaption("tab.detail"), Icons.DETAIL.resource());
             // 入力チェックの設定
@@ -204,7 +241,7 @@ public class WinServerEdit extends Window {
 
             layout.addComponent(tab);
 
-        } else if ("nifty".equals(platformType)) {
+        } else if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platformType)) {
             niftyDetailTab = new NiftyDetailTab();
             tab.addTab(niftyDetailTab, ViewProperties.getCaption("tab.detail"), Icons.DETAIL.resource());
             layout.addComponent(tab);
@@ -213,7 +250,7 @@ public class WinServerEdit extends Window {
             // 詳細設定のデータ表示
             niftyDetailTab.showData();
 
-        } else if ("cloudstack".equals(platformType)) {
+        } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platformType)) {
             cloudStackDetailTab = new CloudStackDetailTab();
             tab.addTab(cloudStackDetailTab, ViewProperties.getCaption("tab.detail"), Icons.DETAIL.resource());
             layout.addComponent(tab);
@@ -221,6 +258,37 @@ public class WinServerEdit extends Window {
             cloudStackDetailTab.initValidation();
             // 詳細設定のデータ表示
             cloudStackDetailTab.showData();
+        } else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platformType)) {
+            //詳細設定タブ
+            vcloudDetailTab = new VcloudDetailTab();
+            tab.addTab(vcloudDetailTab, ViewProperties.getCaption("tab.detail"), Icons.DETAIL.resource());
+            // 入力チェックの設定
+            vcloudDetailTab.initValidation();
+            // 詳細設定のデータ表示
+            vcloudDetailTab.showData();
+
+            //ネットワーク設定タブ
+            vcloudNetworkTab = new VcloudNetworkTab();
+            tab.addTab(vcloudNetworkTab, ViewProperties.getCaption("tab.network"), Icons.DETAIL.resource());
+            vcloudNetworkTab.showData();
+
+            layout.addComponent(tab);
+        } else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platformType)) {
+            azureDetailTab = new AzureDetailTab();
+            tab.addTab(azureDetailTab, ViewProperties.getCaption("tab.detail"), Icons.DETAIL.resource());
+            layout.addComponent(tab);
+            // 入力チェックの設定
+            azureDetailTab.initValidation();
+            // 詳細設定のデータ表示
+            azureDetailTab.showData();
+        } else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platformType)) {
+            openStackDetailTab = new OpenStackDetailTab();
+            tab.addTab(openStackDetailTab, ViewProperties.getCaption("tab.detail"), Icons.DETAIL.resource());
+            layout.addComponent(tab);
+            // 入力チェックの設定
+            openStackDetailTab.initValidation();
+            // 詳細設定のデータ表示
+            openStackDetailTab.showData();
         }
 
         //        tab.addTab(new UserTab(), "ユーザ設定", new ThemeResource("icons/user.png"));
@@ -323,46 +391,46 @@ public class WinServerEdit extends Window {
             //LB以外の場合
             if (!isLoadBalancer) {
 
-            // 利用可能サービス
-            Panel panel = new Panel();
-            serviceTable = new AvailableServiceTable();
-            panel.addComponent(serviceTable);
-            form.getLayout().addComponent(panel);
-            panel.setSizeFull();
-            form.setSizeFull();
+                // 利用可能サービス
+                Panel panel = new Panel();
+                serviceTable = new AvailableServiceTable();
+                panel.addComponent(serviceTable);
+                form.getLayout().addComponent(panel);
+                panel.setSizeFull();
+                form.setSizeFull();
 
-            //サービス選択ボタン
-            Button btnService = new Button(ViewProperties.getCaption("button.serverAttachService"));
-            btnService.setDescription(ViewProperties.getCaption("description.serverAttachService"));
-            btnService.setIcon(Icons.SERVICETAB.resource());
-            btnService.addListener(new Button.ClickListener() {
-                @Override
-                public void buttonClick(ClickEvent event) {
-                    WinServerAttachService winServerAttachService = new WinServerAttachService(getApplication(),
-                            instance, image, componentNos);
-                    winServerAttachService.addListener(new Window.CloseListener() {
-                        @Override
-                        public void windowClose(Window.CloseEvent e) {
-                            List<Long> componentNos = (List<Long>) ContextUtils.getAttribute("componentNos");
-                            if (componentNos != null) {
-                                ContextUtils.removeAttribute("componentNos");
-                                WinServerEdit.this.componentNos = componentNos;
-                                attachService = true;
+                //サービス選択ボタン
+                Button btnService = new Button(ViewProperties.getCaption("button.serverAttachService"));
+                btnService.setDescription(ViewProperties.getCaption("description.serverAttachService"));
+                btnService.setIcon(Icons.SERVICETAB.resource());
+                btnService.addListener(new Button.ClickListener() {
+                    @Override
+                    public void buttonClick(ClickEvent event) {
+                        WinServerAttachService winServerAttachService = new WinServerAttachService(getApplication(),
+                                instance, image, componentNos);
+                        winServerAttachService.addListener(new Window.CloseListener() {
+                            @Override
+                            public void windowClose(Window.CloseEvent e) {
+                                List<Long> componentNos = (List<Long>) ContextUtils.getAttribute("componentNos");
+                                if (componentNos != null) {
+                                    ContextUtils.removeAttribute("componentNos");
+                                    WinServerEdit.this.componentNos = componentNos;
+                                    attachService = true;
+                                }
                             }
-                        }
-                    });
-                    getWindow().getApplication().getMainWindow().addWindow(winServerAttachService);
-                }
-            });
-            HorizontalLayout hlay = new HorizontalLayout();
-            hlay.setSpacing(true);
+                        });
+                        getWindow().getApplication().getMainWindow().addWindow(winServerAttachService);
+                    }
+                });
+                HorizontalLayout hlay = new HorizontalLayout();
+                hlay.setSpacing(true);
 
-            Label txt = new Label(ViewProperties.getCaption("label.serverAttachService"));
-            hlay.addComponent(btnService);
-            hlay.addComponent(txt);
-            hlay.setComponentAlignment(txt, Alignment.MIDDLE_LEFT);
+                Label txt = new Label(ViewProperties.getCaption("label.serverAttachService"));
+                hlay.addComponent(btnService);
+                hlay.addComponent(txt);
+                hlay.setComponentAlignment(txt, Alignment.MIDDLE_LEFT);
 
-            form.getLayout().addComponent(hlay);
+                form.getLayout().addComponent(hlay);
             }
             addComponent(form);
 
@@ -382,61 +450,28 @@ public class WinServerEdit extends Window {
                 commentField.setValue(comment);
             }
 
-            // TODO: アイコン名の取得ロジックのリファクタリング
             String cloudName = platformDto.getPlatform().getPlatformNameDisp();
-            Icons cloudIcon = Icons.NONE;
-            String platformType = platformDto.getPlatform().getPlatformType();
-            if ("aws".equals(platformType)) {
-                if (platformDto.getPlatformAws().getEuca()) {
-                    cloudIcon = Icons.EUCALYPTUS;
-                } else {
-                    cloudIcon = Icons.AWS;
-                }
-            } else if ("vmware".equals(platformType)) {
-                cloudIcon = Icons.VMWARE;
-            } else if ("nifty".equals(platformType)) {
-                cloudIcon = Icons.NIFTY;
-            } else if ("cloudstack".equals(platformType)) {
-                cloudIcon = Icons.CLOUD_STACK;
-            }
+            //プラットフォームアイコン名の取得
+            Icons cloudIcon = CommonUtils.getPlatformIcon(platformDto);
             cloudLabel.setCaption(cloudName);
             cloudLabel.setIcon(cloudIcon.resource());
 
             if (image != null) {
-                // TODO: アイコン名の取得ロジックのリファクタリング
                 String imageName = image.getImage().getImageNameDisp();
-                String iconName = StringUtils.substringBefore(image.getImage().getImageName(), "_");
-                Icons imageIcon;
-                if ("application".equals(iconName)) {
-                    imageIcon = Icons.PAAS;
-                } else if ("prjserver".equals(iconName)) {
-                    imageIcon = Icons.PRJSERVER;
-                }else if ("windows".equals(iconName)) {
-                    imageIcon = Icons.WINDOWS_APP;
-                } else if ("ultramonkey".equals(iconName)) {
-                    imageIcon = Icons.LOADBALANCER_TAB;
-                } else {
-                    imageIcon = Icons.fromName(iconName);
-                }
+                Icons imageIcon = CommonUtils.getImageIcon(image);
                 imageLabel.setCaption(imageName);
                 imageLabel.setIcon(imageIcon.resource());
 
-                // TODO: アイコン名の取得ロジックのリファクタリング
                 String osName = image.getImage().getOsDisp();
-                Icons osIcon = Icons.NONE;
-                if (image.getImage().getOs().startsWith("centos")) {
-                    osIcon = Icons.CENTOS;
-                } else if (image.getImage().getOs().startsWith("windows")) {
-                    osIcon = Icons.WINDOWS;
-                }
+                Icons osIcon = CommonUtils.getOsIcon(image);
                 osLabel.setCaption(osName);
                 osLabel.setIcon(osIcon.resource());
             }
 
             //LB以外の場合
             if (!isLoadBalancer) {
-            serviceTable.showData();
-        }
+                serviceTable.showData();
+            }
         }
 
         private void initValidation() {
@@ -477,7 +512,7 @@ public class WinServerEdit extends Window {
 
                     Long componentTypeNo = (Long) itemId;
                     List<ComponentType> componentTypes = image.getComponentTypes();
-                    for (ComponentType componentType: componentTypes) {
+                    for (ComponentType componentType : componentTypes) {
                         if (componentType.getComponentTypeNo().equals(componentTypeNo) &&
                             BooleanUtils.isNotTrue(componentType.getSelectable())) {
                             //無効コンポーネントタイプの場合は、セルの表示をDisableに変更する
@@ -660,19 +695,22 @@ public class WinServerEdit extends Window {
                     // EBSイメージで既に作成済みの場合、いくつかの項目を変更不可とする
                     //sizeSelect.setEnabled(false);
                     keySelect.setEnabled(false);
-                    grpSelect.setEnabled(false);
+                    //VPCを利用していない場合はセキュリティグループ変更不可
+                    if (!platformDto.getPlatformAws().getVpc()) {
+                        grpSelect.setEnabled(false);
+                    }
                     subnetSelect.setEnabled(false);
                     privateIpField.setEnabled(false);
                     zoneSelect.setEnabled(false);
                 }
             }
 
-            if (platformAws.getVpc()) {
-                elasticIpSelect.setEnabled(false);
-                addElasticIp.setEnabled(false);
-                deleteElasticIp.setEnabled(false);
-                //                labelElasticIp.setEnabled(false);
-            }
+//            if (platformAws.getVpc()) {
+//                elasticIpSelect.setEnabled(false);
+//                addElasticIp.setEnabled(false);
+//                deleteElasticIp.setEnabled(false);
+//                labelElasticIp.setEnabled(false);
+//            }
         }
 
         private void addButtonClick() {
@@ -763,14 +801,14 @@ public class WinServerEdit extends Window {
 
             if (platformAws.getEuca() == false && platformAws.getVpc()) {
                 subnetSelect.setContainerDataSource(createSubnetContainer());
-                for (SubnetDto subnetDto: subnets) {
+                for (SubnetDto subnetDto : subnets) {
                     if (subnetDto.getSubnetId().equals(instance.getAwsInstance().getSubnetId())) {
                         subnetSelect.select(subnetDto);
                         break;
                     }
                 }
             }
-            SubnetDto subnetDto = (SubnetDto)subnetSelect.getValue();
+            SubnetDto subnetDto = (SubnetDto) subnetSelect.getValue();
             if (subnetDto != null) {
                 //サブネットが存在する場合は編集不可
                 subnetSelect.setEnabled(false);
@@ -783,7 +821,7 @@ public class WinServerEdit extends Window {
             sizeSelect.select(instance.getAwsInstance().getInstanceType());
 
             zoneSelect.setContainerDataSource(createZoneContainer());
-            for (ZoneDto zoneDto: zones) {
+            for (ZoneDto zoneDto : zones) {
                 if (StringUtils.equals(zoneDto.getZoneName(), instance.getAwsInstance().getAvailabilityZone())) {
                     zoneSelect.select(zoneDto);
                     break;
@@ -798,7 +836,7 @@ public class WinServerEdit extends Window {
 
             elasticIpSelect.setContainerDataSource(createElasticIpContainer());
             if (null != instance.getAwsAddress()) {
-                for (AddressDto addressDto: elasticIps) {
+                for (AddressDto addressDto : elasticIps) {
                     if (addressDto.getAddressNo().equals(instance.getAwsAddress().getAddressNo())) {
                         elasticIpSelect.select(addressDto);
                         break;
@@ -813,7 +851,7 @@ public class WinServerEdit extends Window {
             IndexedContainer subnetContainer = new IndexedContainer();
             subnetContainer.addContainerProperty(CIDR_BLOCK_CAPTION_ID, String.class, null);
 
-            for (SubnetDto subnetDto: subnets) {
+            for (SubnetDto subnetDto : subnets) {
                 Item item = subnetContainer.addItem(subnetDto);
                 item.getItemProperty(CIDR_BLOCK_CAPTION_ID).setValue(subnetDto.getCidrBlock());
             }
@@ -825,7 +863,7 @@ public class WinServerEdit extends Window {
             IndexedContainer zoneContainer = new IndexedContainer();
             zoneContainer.addContainerProperty(ZONE_CAPTION_ID, String.class, null);
 
-            for (ZoneDto zoneDto: zones) {
+            for (ZoneDto zoneDto : zones) {
                 Item item = zoneContainer.addItem(zoneDto);
                 item.getItemProperty(ZONE_CAPTION_ID).setValue(zoneDto.getZoneName());
             }
@@ -919,7 +957,7 @@ public class WinServerEdit extends Window {
             keySelect = new ComboBox(ViewProperties.getCaption("field.keyPair"));
             keySelect.setNullSelectionAllowed(false);
             // Windowsの場合はキーペアを無効にする
-            if (StringUtils.startsWith(image.getImage().getOs(), "windows")) {
+            if (StringUtils.startsWith(image.getImage().getOs(), PCCConstant.OS_NAME_WIN)) {
                 keySelect.setEnabled(false);
             }
             clusterSelect = new ComboBox(ViewProperties.getCaption("field.cluster"));
@@ -935,7 +973,8 @@ public class WinServerEdit extends Window {
             addComponent(form);
 
             // サーバがStopped以外の場合は、変更不可とする
-            if (!instance.getInstance().getStatus().equalsIgnoreCase("STOPPED")) {
+            InstanceStatus status = InstanceStatus.fromStatus(instance.getInstance().getStatus());
+            if (status != InstanceStatus.STOPPED) {
                 form.setEnabled(false);
             }
 
@@ -1032,7 +1071,8 @@ public class WinServerEdit extends Window {
             addComponent(form);
 
             // サーバがStopped以外の場合は、変更不可とする
-            if (!instance.getInstance().getStatus().equalsIgnoreCase("STOPPED")) {
+            InstanceStatus status = InstanceStatus.fromStatus(instance.getInstance().getStatus());
+            if (InstanceStatus.STOPPED != status) {
                 form.setEnabled(false);
             }
         }
@@ -1350,7 +1390,6 @@ public class WinServerEdit extends Window {
             networkSelect.setContainerDataSource(new IndexedContainer(networks));
             networkSelect.select(instance.getCloudstackInstance().getNetworkid());
 
-
             keySelect.setContainerDataSource(new IndexedContainer(keyPairs));
             keySelect.select(instance.getCloudstackInstance().getKeyName());
 
@@ -1362,7 +1401,7 @@ public class WinServerEdit extends Window {
 
             zoneSelect.setContainerDataSource(createZoneContainer());
             for (ZoneDto zone : zones) {
-                if(zone.isSameById(instance.getCloudstackInstance().getZoneid())){
+                if (zone.isSameById(instance.getCloudstackInstance().getZoneid())) {
                     zoneSelect.select(zone);
                 }
             }
@@ -1416,7 +1455,6 @@ public class WinServerEdit extends Window {
             return elasticIpContainer;
         }
 
-
         private void initValidation() {
             String message;
             message = ViewMessages.getMessage("IUI-000100");
@@ -1437,6 +1475,895 @@ public class WinServerEdit extends Window {
         }
     }
 
+    private class VcloudDetailTab extends VerticalLayout {
+        final String CID_STORAGE_TYPE = "StorageType";
+        final String CID_KEY_PAIR = "KeyPair";
+        final String WIDTH_COMBOBOX = "220px";
+        final String KEY_PAIR_WIDTH_COMBOBOX = "150px";
+
+        Form form = new Form();
+        ComboBox storageTypeSelect;
+        ComboBox sizeSelect;
+        ComboBox keySelect;
+        DataDiskTable dataDiskTable;
+        DataDiskTableButtons dataDiskTableButtons;
+
+        VcloudDetailTab() {
+            setHeight(TAB_HEIGHT);
+            setMargin(false, true, false, true);
+            setSpacing(false);
+
+            //ストレージタイプ
+            storageTypeSelect = new ComboBox(ViewProperties.getCaption("field.storageType"));
+            storageTypeSelect.setWidth(WIDTH_COMBOBOX);
+            storageTypeSelect.setNullSelectionAllowed(false);
+            storageTypeSelect.setItemCaptionPropertyId(CID_STORAGE_TYPE);
+            storageTypeSelect.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
+
+            //サーバサイズ
+            sizeSelect = new ComboBox(ViewProperties.getCaption("field.serverSize"));
+            sizeSelect.setWidth(WIDTH_COMBOBOX);
+            sizeSelect.setNullSelectionAllowed(false);
+
+            //キーペア
+            keySelect = new ComboBox(ViewProperties.getCaption("field.keyPair"));
+            keySelect.setWidth(KEY_PAIR_WIDTH_COMBOBOX);
+            keySelect.setNullSelectionAllowed(false);
+            keySelect.setItemCaptionPropertyId(CID_KEY_PAIR);
+            keySelect.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
+            // Windowsの場合はキーペアを無効にする
+            if (StringUtils.startsWith(image.getImage().getOs(), PCCConstant.OS_NAME_WIN)) {
+                keySelect.setEnabled(false);
+            }
+
+            Label spacer = new Label(" ");
+            spacer.addStyleName("desc-padding-horizontal");
+            spacer.setHeight("5px");
+
+            //データディスクテーブル
+            dataDiskTable = new DataDiskTable();
+
+            //データディスクボタン
+            dataDiskTableButtons = new DataDiskTableButtons();
+
+            form.getLayout().addComponent(storageTypeSelect);
+            form.getLayout().addComponent(sizeSelect);
+            form.getLayout().addComponent(keySelect);
+            form.getLayout().addComponent(spacer);
+            form.getLayout().addComponent(dataDiskTable);
+            form.getLayout().addComponent(dataDiskTableButtons);
+
+            addComponent(form);
+
+            // サーバがStopped以外の場合は、変更不可とする
+            InstanceStatus status = InstanceStatus.fromStatus(instance.getInstance().getStatus());
+            if (status != InstanceStatus.STOPPED) {
+                storageTypeSelect.setEnabled(false);
+                sizeSelect.setEnabled(false);
+                keySelect.setEnabled(false);
+            }
+        }
+
+        private void showData() {
+            //ストレージタイプ
+            StorageTypeDto selectedStorageType = null;
+            for (StorageTypeDto storageTypeDto : storageTypes) {
+                if (storageTypeDto.getStorageTypeNo().equals(instance.getVcloudInstance().getStorageTypeNo())) {
+                    selectedStorageType = storageTypeDto;
+                    break;
+                }
+            }
+            storageTypeSelect.setContainerDataSource(createStorageTypeContainer());
+            storageTypeSelect.select(selectedStorageType.getStorageTypeNo());
+
+            //インスタンスタイプ
+            sizeSelect.setContainerDataSource(new IndexedContainer(instanceTypes));
+            sizeSelect.select(instance.getVcloudInstance().getInstanceType());
+
+            //キーペア
+            KeyPairDto selectedKeyPair = null;
+            for (KeyPairDto keyPairDto : vcloudKeyPairs) {
+                if (keyPairDto.getKeyNo().equals(instance.getVcloudInstance().getKeyPairNo())) {
+                    selectedKeyPair = keyPairDto;
+                    break;
+                }
+            }
+            keySelect.setContainerDataSource(createKeyPairContainer());
+            keySelect.select(selectedKeyPair.getKeyNo());
+
+            //データディスク
+            dataDiskTable.showData();
+        }
+
+        private IndexedContainer createKeyPairContainer() {
+            IndexedContainer keyPairContainer = new IndexedContainer();
+            keyPairContainer.addContainerProperty(CID_KEY_PAIR, String.class, null);
+
+            for (KeyPairDto keyPairDto : vcloudKeyPairs) {
+                Item item = keyPairContainer.addItem(keyPairDto.getKeyNo());
+                item.getItemProperty(CID_KEY_PAIR).setValue(keyPairDto.getKeyName());
+            }
+
+            return keyPairContainer;
+        }
+
+        private IndexedContainer createStorageTypeContainer() {
+            IndexedContainer storageTypeContainer = new IndexedContainer();
+            storageTypeContainer.addContainerProperty(CID_STORAGE_TYPE, String.class, null);
+
+            for (StorageTypeDto storageTypeDto : storageTypes) {
+                Item item = storageTypeContainer.addItem(storageTypeDto.getStorageTypeNo());
+                item.getItemProperty(CID_STORAGE_TYPE).setValue(storageTypeDto.getStorageTypeName());
+            }
+
+            return storageTypeContainer;
+        }
+
+        private void initValidation() {
+            String message;
+            //ストレージタイプ
+            message = ViewMessages.getMessage("IUI-000123");
+            storageTypeSelect.setRequired(true);
+            storageTypeSelect.setRequiredError(message);
+
+            //インスタンスタイプ
+            message = ViewMessages.getMessage("IUI-000027");
+            sizeSelect.setRequired(true);
+            sizeSelect.setRequiredError(message);
+
+            //キーペア
+            message = ViewMessages.getMessage("IUI-000028");
+            keySelect.setRequired(true);
+            keySelect.setRequiredError(message);
+        }
+
+        private class DataDiskTable extends Table {
+            final String PID_UNIT_NO = "UnitNo";
+            final String PID_DISK_SIZE = "DiskSize";
+            final int WIDTH_UNIT_NO = 194;
+            final int WIDTH_DISK_SIZE = 194;
+
+            DataDiskTable() {
+                //テーブル基本設定
+                setCaption(ViewProperties.getCaption("table.diskData"));
+                setWidth("100%");
+                setPageLength(3);
+                setSortDisabled(true);
+                setColumnHeaderMode(COLUMN_HEADER_MODE_EXPLICIT);
+                setColumnReorderingAllowed(false);
+                setColumnCollapsingAllowed(false);
+                setSelectable(true);
+                setMultiSelect(false);
+                setNullSelectionAllowed(false);
+                setImmediate(true);
+                addStyleName("win-server-edit-datadisk");
+
+                //カラム設定
+                addContainerProperty(PID_UNIT_NO, String.class, null);
+                addContainerProperty(PID_DISK_SIZE, Integer.class, null);
+
+                //ヘッダー設定
+                setColumnHeaders(new String[] {
+                        ViewProperties.getCaption("field.unitNo"),
+                        ViewProperties.getCaption("field.diskSize") });
+
+                //ヘッダーサイズ設定
+                setColumnWidth(PID_UNIT_NO, WIDTH_UNIT_NO);
+                setColumnWidth(PID_DISK_SIZE, WIDTH_DISK_SIZE);
+
+                //テーブルのカラムに対してStyleNameを設定
+                setCellStyleGenerator(new Table.CellStyleGenerator() {
+                    @Override
+                    public String getStyle(Object itemId, Object propertyId) {
+
+                        if (propertyId == null) {
+                            return "";
+                        }
+                        String ret = propertyId.toString().toLowerCase();
+                        return ret;
+                    }
+                });
+
+                // 行が選択されたときのイベント
+                addListener(new Property.ValueChangeListener() {
+                    @Override
+                    public void valueChange(Property.ValueChangeEvent event) {
+                        DataDiskDto selectDto = (DataDiskDto) getValue();
+                        if (selectDto == null) {
+                            dataDiskTableButtons.btnEdit.setEnabled(false);
+                            dataDiskTableButtons.btnDelete.setEnabled(false);
+                        } else {
+                            dataDiskTableButtons.btnEdit.setEnabled(true);
+                            dataDiskTableButtons.btnDelete.setEnabled(true);
+                        }
+                    }
+                });
+            }
+
+            void showData() {
+                removeAllItems();
+                for (DataDiskDto diskDto : dataDisks) {
+                    String unitNo = ViewProperties.getCaption("field.unattached");
+                    if (diskDto.getUnitNo() != null) {
+                        unitNo = String.valueOf(diskDto.getUnitNo());
+                    }
+                    addItem(new Object[] { unitNo, diskDto.getDiskSize() }, diskDto);
+                }
+            }
+
+            void initData() {
+                //InstanceDto取得
+                //ただし、変数「instance」は変更せず、
+                InstanceService instanceService = BeanContext.getBean(InstanceService.class);
+                InstanceDto instanceDto = instanceService.getInstance(instanceNo);
+
+                //DataDisk
+                dataDisks = new ArrayList<DataDiskDto>();
+                List<VcloudDisk> vcloudDisks = instanceDto.getVcloudDisks();
+                for (VcloudDisk vcloudDisk : vcloudDisks) {
+                    if (BooleanUtils.isTrue(vcloudDisk.getDataDisk())) {
+                        DataDiskDto diskDto = new DataDiskDto();
+                        diskDto.setDiskNo(vcloudDisk.getDiskNo());
+                        diskDto.setDiskSize(vcloudDisk.getSize());
+                        diskDto.setUnitNo(vcloudDisk.getUnitNo());
+                        dataDisks.add(diskDto);
+                    }
+                }
+            }
+        }
+
+        private class DataDiskTableButtons extends HorizontalLayout {
+            Button btnAdd;
+            Button btnEdit;
+            Button btnDelete;
+
+            DataDiskTableButtons() {
+                setMargin(false);
+                setSpacing(true);
+
+                //Addボタン
+                btnAdd = new Button(ViewProperties.getCaption("button.add"));
+                btnAdd.setIcon(Icons.ADD.resource());
+                btnAdd.setDescription(ViewProperties.getCaption("description.add"));
+                btnAdd.addListener(new Button.ClickListener() {
+                    @Override
+                    public void buttonClick(ClickEvent event) {
+                        addButtonClick(event);
+                    }
+                });
+
+                //Editボタン
+                btnEdit = new Button(ViewProperties.getCaption("button.edit"));
+                btnEdit.setIcon(Icons.EDITMINI.resource());
+                btnEdit.setDescription(ViewProperties.getCaption("description.edit"));
+                btnEdit.addListener(new Button.ClickListener() {
+                    @Override
+                    public void buttonClick(ClickEvent event) {
+                        editButtonClick(event);
+                    }
+                });
+                btnEdit.setEnabled(false);
+
+                //Deleteボタン
+                btnDelete = new Button(ViewProperties.getCaption("button.delete"));
+                btnDelete.setIcon(Icons.DELETEMINI.resource());
+                btnDelete.setDescription(ViewProperties.getCaption("description.delete"));
+                btnDelete.addListener(new Button.ClickListener() {
+                    @Override
+                    public void buttonClick(ClickEvent event) {
+                        deleteButtonClick(event);
+                    }
+                });
+                btnDelete.setEnabled(false);
+
+                addComponent(btnAdd);
+                addComponent(btnEdit);
+                addComponent(btnDelete);
+
+                setComponentAlignment(btnAdd, Alignment.MIDDLE_LEFT);
+                setComponentAlignment(btnEdit, Alignment.MIDDLE_LEFT);
+                setComponentAlignment(btnDelete, Alignment.MIDDLE_LEFT);
+            }
+
+            void addButtonClick(ClickEvent event) {
+                WinServerDataDiskConfig winServerDataDiskConfig = new WinServerDataDiskConfig(getApplication(), instanceNo, null);
+                winServerDataDiskConfig.addListener(new Window.CloseListener() {
+                    @Override
+                    public void windowClose(CloseEvent e) {
+                        dataDiskTable.initData();
+                        dataDiskTable.showData();
+                    }
+                });
+                getWindow().getApplication().getMainWindow().addWindow(winServerDataDiskConfig);
+            }
+
+            void editButtonClick(ClickEvent event) {
+                DataDiskDto dataDiskDto = (DataDiskDto) dataDiskTable.getValue();
+                WinServerDataDiskConfig winServerDataDiskConfig = new WinServerDataDiskConfig(getApplication(), instanceNo, dataDiskDto);
+                winServerDataDiskConfig.addListener(new Window.CloseListener() {
+                    @Override
+                    public void windowClose(CloseEvent e) {
+                        dataDiskTable.initData();
+                        dataDiskTable.showData();
+                    }
+                });
+                getWindow().getApplication().getMainWindow().addWindow(winServerDataDiskConfig);
+            }
+
+            void deleteButtonClick(ClickEvent event) {
+                String message = ViewMessages.getMessage("IUI-000124");
+                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message, Buttons.OKCancel);
+                dialog.setCallback(new DialogConfirm.Callback() {
+                    @Override
+                    public void onDialogResult(Result result) {
+                        if (result != Result.OK) {
+                            return;
+                        }
+                        //ディスク削除
+                        // 更新処理 & IaasGateWay処理(ディスクデタッチ)
+                        DataDiskDto dataDiskDto = (DataDiskDto) dataDiskTable.getValue();
+                        InstanceService instanceService = BeanContext.getBean(InstanceService.class);
+                        instanceService.detachDataDisk(instanceNo, dataDiskDto.getDiskNo());
+
+                        //データ取得&テーブル再表示
+                        dataDiskTable.initData();
+                        dataDiskTable.showData();
+                    }
+                });
+                getApplication().getMainWindow().addWindow(dialog);
+            }
+        }
+    }
+
+    private class VcloudNetworkTab extends VerticalLayout {
+
+        Form form = new Form();
+
+        NetworkTable networkTable;
+        NetworkTableButtons networkTableButtons;
+
+        VcloudNetworkTab() {
+            setHeight(TAB_HEIGHT);
+            setMargin(false, true, false, true);
+            setSpacing(false);
+
+            //テーブル
+            networkTable = new NetworkTable();
+            form.getLayout().addComponent(networkTable);
+
+            //ボタン
+            networkTableButtons = new NetworkTableButtons();
+            form.getLayout().addComponent(networkTableButtons);
+
+            addComponent(form);
+
+            // サーバがStopped以外の場合は、変更不可とする
+            InstanceStatus status = InstanceStatus.fromStatus(instance.getInstance().getStatus());
+            if (status != InstanceStatus.STOPPED) {
+                form.setEnabled(false);
+            }
+
+            showData();
+        }
+
+        private void showData() {
+            networkTable.showData();
+        }
+
+        private class NetworkTable extends Table {
+            final String PID_NETWORK_NAME = "NetworkName";
+            final String PID_IP_MODE = "IpMode";
+            final String PID_IP_ADDRESS = "IpAddress";
+            final String PID_PRIMARY = "Primary";
+            final int WIDTH_NETWORK_NAME = 180;
+            final int WIDTH_IP_MOD = 114;
+            final int WIDTH_IP_ADDRESS = 97;
+            final int WIDTH_PRIMARY = 67;
+
+            NetworkTable() {
+                //テーブル基本設定
+                setWidth("100%");
+                setPageLength(3);
+                setSortDisabled(true);
+                setColumnHeaderMode(COLUMN_HEADER_MODE_EXPLICIT);
+                setColumnReorderingAllowed(false);
+                setColumnCollapsingAllowed(false);
+                setSelectable(true);
+                setMultiSelect(false);
+                setNullSelectionAllowed(false);
+                setImmediate(true);
+                addStyleName("win-server-edit-network");
+
+                //カラム設定
+                addContainerProperty(PID_NETWORK_NAME, String.class, null);
+                addContainerProperty(PID_IP_MODE, String.class, null);
+                addContainerProperty(PID_IP_ADDRESS, String.class, null);
+                addContainerProperty(PID_PRIMARY, Label.class, null);
+
+                //ヘッダー設定
+                setColumnHeaders(new String[] {
+                        ViewProperties.getCaption("field.networkName"),
+                        ViewProperties.getCaption("field.ipMode"),
+                        ViewProperties.getCaption("field.ipAddress"),
+                        ViewProperties.getCaption("field.primary") });
+
+                //ヘッダーサイズ設定
+                setColumnWidth(PID_NETWORK_NAME, WIDTH_NETWORK_NAME);
+                setColumnWidth(PID_IP_MODE, WIDTH_IP_MOD);
+                setColumnWidth(PID_IP_ADDRESS, WIDTH_IP_ADDRESS);
+                setColumnWidth(PID_PRIMARY, WIDTH_PRIMARY);
+
+                //テーブルのカラムに対してStyleNameを設定
+                setCellStyleGenerator(new Table.CellStyleGenerator() {
+                    @Override
+                    public String getStyle(Object itemId, Object propertyId) {
+
+                        if (propertyId == null) {
+                            return "";
+                        }
+                        String ret = propertyId.toString().toLowerCase();
+                        return ret;
+                    }
+                });
+
+                // 行が選択されたときのイベント
+                addListener(new Property.ValueChangeListener() {
+                    @Override
+                    public void valueChange(Property.ValueChangeEvent event) {
+                        InstanceNetworkDto selectDto = (InstanceNetworkDto) getValue();
+                        if (selectDto == null) {
+                            networkTableButtons.btnEdit.setEnabled(false);
+                            networkTableButtons.btnDelete.setEnabled(false);
+                        } else {
+                            networkTableButtons.btnEdit.setEnabled(true);
+                            //PCCネットワークまたはプライマリの場合は削除不可
+                            networkTableButtons.btnDelete.setEnabled((!selectDto.isRequired() && !selectDto.isPrimary()));
+                        }
+                    }
+                });
+            }
+
+            void showData() {
+                removeAllItems();
+                for (int i = 0; i < instanceNetworks.size(); i++) {
+                    InstanceNetworkDto instanceNetwork = instanceNetworks.get(i);
+                    if (instanceNetwork.isDelete()) {
+                        //削除対象ネットワーク
+                        continue;
+                    }
+                    NetworkDto network = networkMap.get(instanceNetwork.getNetworkName());
+                    String ipModeName = null;
+                    if ("POOL".equals(instanceNetwork.getIpMode())) {
+                        ipModeName = ViewProperties.getCaption("field.ipMode.pool");
+                    } else if ("MANUAL".equals(instanceNetwork.getIpMode())) {
+                        ipModeName = ViewProperties.getCaption("field.ipMode.manual");
+                    } else if ("DHCP".equals(instanceNetwork.getIpMode())) {
+                        ipModeName = ViewProperties.getCaption("field.ipMode.dhcp");
+                    }
+                    Label slbl = new Label("");
+                    if (BooleanUtils.isTrue(instanceNetwork.isPrimary())) {
+                        slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(apl, Icons.SELECTMINI) + "\">", Label.CONTENT_XHTML);
+                    }
+                    addItem(new Object[] { network.getNetworkName(),  ipModeName, instanceNetwork.getIpAddress(), slbl}, instanceNetwork);
+                }
+            }
+
+            void initData() {
+                //InstanceDto取得
+                //ただし、変数「instance」は変更せず、
+                IaasDescribeService describeService = BeanContext.getBean(IaasDescribeService.class);
+                InstanceService instanceService = BeanContext.getBean(InstanceService.class);
+                InstanceDto instanceDto = instanceService.getInstance(instanceNo);
+
+                //Network
+                networkMap = new HashMap<String, NetworkDto>();
+                List<NetworkDto> networkDtos = describeService.getNetworks(ViewContext.getUserNo(), instanceDto.getInstance().getPlatformNo());
+                for (NetworkDto networkDto : networkDtos) {
+                    networkMap.put(networkDto.getNetworkName(), networkDto);
+                }
+            }
+        }
+
+        private class NetworkTableButtons extends HorizontalLayout {
+            Button btnAdd;
+            Button btnEdit;
+            Button btnDelete;
+
+            NetworkTableButtons() {
+                setMargin(false);
+                setSpacing(true);
+
+                //Addボタン
+                btnAdd = new Button(ViewProperties.getCaption("button.add"));
+                btnAdd.setIcon(Icons.ADD.resource());
+                btnAdd.setDescription(ViewProperties.getCaption("description.add"));
+                btnAdd.addListener(new Button.ClickListener() {
+                    @Override
+                    public void buttonClick(ClickEvent event) {
+                        addButtonClick(event);
+                    }
+                });
+
+                //Editボタン
+                btnEdit = new Button(ViewProperties.getCaption("button.edit"));
+                btnEdit.setIcon(Icons.EDITMINI.resource());
+                btnEdit.setDescription(ViewProperties.getCaption("description.edit"));
+                btnEdit.addListener(new Button.ClickListener() {
+                    @Override
+                    public void buttonClick(ClickEvent event) {
+                        editButtonClick(event);
+                    }
+                });
+                btnEdit.setEnabled(false);
+
+                //Deleteボタン
+                btnDelete = new Button(ViewProperties.getCaption("button.delete"));
+                btnDelete.setIcon(Icons.DELETEMINI.resource());
+                btnDelete.setDescription(ViewProperties.getCaption("description.delete"));
+                btnDelete.addListener(new Button.ClickListener() {
+                    @Override
+                    public void buttonClick(ClickEvent event) {
+                        deleteButtonClick(event);
+                    }
+                });
+                btnDelete.setEnabled(false);
+
+                addComponent(btnAdd);
+                addComponent(btnEdit);
+                addComponent(btnDelete);
+
+                setComponentAlignment(btnAdd, Alignment.MIDDLE_LEFT);
+                setComponentAlignment(btnEdit, Alignment.MIDDLE_LEFT);
+                setComponentAlignment(btnDelete, Alignment.MIDDLE_LEFT);
+            }
+
+            void addButtonClick(ClickEvent event) {
+                WinServerNetworkConfig winServerDataDiskConfig =
+                    new WinServerNetworkConfig(getApplication(), instanceNo, instance.getInstance().getPlatformNo(), null, instanceNetworks);
+                winServerDataDiskConfig.addListener(new Window.CloseListener() {
+                    @Override
+                    public void windowClose(CloseEvent e) {
+                        //テーブル再表示
+                        networkTable.initData();
+                        networkTable.showData();
+                    }
+                });
+                getWindow().getApplication().getMainWindow().addWindow(winServerDataDiskConfig);
+            }
+
+            void editButtonClick(ClickEvent event) {
+                InstanceNetworkDto instanceNetwork = (InstanceNetworkDto) networkTable.getValue();
+                WinServerNetworkConfig winServerDataDiskConfig =
+                    new WinServerNetworkConfig(getApplication(), instanceNo, instance.getInstance().getPlatformNo(), instanceNetwork, instanceNetworks);
+                winServerDataDiskConfig.addListener(new Window.CloseListener() {
+                    @Override
+                    public void windowClose(CloseEvent e) {
+                        //テーブル再表示
+                        networkTable.initData();
+                        networkTable.showData();
+                    }
+                });
+                getWindow().getApplication().getMainWindow().addWindow(winServerDataDiskConfig);
+            }
+
+            void deleteButtonClick(ClickEvent event) {
+                String message = ViewMessages.getMessage("IUI-000127");
+                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message, Buttons.OKCancel);
+                dialog.setCallback(new DialogConfirm.Callback() {
+                    @Override
+                    public void onDialogResult(Result result) {
+                        if (result != Result.OK) {
+                            return;
+                        }
+                        //ディスク削除
+                        InstanceNetworkDto instanceNetwork = (InstanceNetworkDto) networkTable.getValue();
+                        if (instanceNetwork.isNew()) {
+                            //VCloudInstanceNetworkにレコードが存在しない場合(新規追加→削除)
+                            instanceNetworks.remove(instanceNetwork);
+                        } else {
+                            //VCloudInstanceNetworkにレコードが存在する場合(削除)
+                            instanceNetwork.setDelete(true);
+                        }
+
+                        //テーブル再表示
+                        networkTable.initData();
+                        networkTable.showData();
+                    }
+                });
+                getApplication().getMainWindow().addWindow(dialog);
+            }
+        }
+    }
+
+    private class AzureDetailTab extends VerticalLayout {
+        Form form = new Form();
+
+        ComboBox sizeSelect;
+
+        ComboBox availabilitySetSelect;
+
+        TextField locationField;
+
+        TextField affinityField;
+
+        TextField cloudServiceField;
+
+        ComboBox subnetSelect;
+
+        TextField storageAccountField;
+
+        final String COMBOBOX_WIDTH = "150px";
+
+        final String TEXT_WIDTH = "150px";
+
+        final String CIDR_BLOCK_CAPTION_ID = "cidrBlock";
+
+        AzureDetailTab() {
+            setHeight(TAB_HEIGHT);
+            setMargin(false, true, false, true);
+            setSpacing(false);
+
+            sizeSelect = new ComboBox(ViewProperties.getCaption("field.serverSize"));
+            sizeSelect.setWidth(COMBOBOX_WIDTH);
+            sizeSelect.setNullSelectionAllowed(false);
+
+            availabilitySetSelect = new ComboBox(ViewProperties.getCaption("field.availabilitySet"));
+            availabilitySetSelect.setWidth(COMBOBOX_WIDTH);
+            availabilitySetSelect.setNullSelectionAllowed(false);
+
+            locationField = new TextField(ViewProperties.getCaption("field.location"));
+            locationField.setImmediate(true);
+            locationField.setWidth(TEXT_WIDTH);
+
+            affinityField = new TextField(ViewProperties.getCaption("field.affinityGroup"));
+            affinityField.setImmediate(true);
+            affinityField.setWidth(TEXT_WIDTH);
+
+            cloudServiceField = new TextField(ViewProperties.getCaption("field.cloudService"));
+            cloudServiceField.setImmediate(true);
+            cloudServiceField.setWidth(TEXT_WIDTH);
+
+            subnetSelect = new ComboBox(ViewProperties.getCaption("field.subnet"));
+            subnetSelect.setImmediate(true);
+            subnetSelect.setWidth(COMBOBOX_WIDTH);
+            subnetSelect.setNullSelectionAllowed(false);
+            subnetSelect.setItemCaptionPropertyId(CIDR_BLOCK_CAPTION_ID);
+            subnetSelect.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
+
+            storageAccountField = new TextField(ViewProperties.getCaption("field.storageAccount"));
+            storageAccountField.setImmediate(true);
+            storageAccountField.setWidth(COMBOBOX_WIDTH);
+
+            Label spacer = new Label(" ");
+            spacer.addStyleName("desc-padding-horizontal");
+            spacer.setHeight("5px");
+
+            form.getLayout().addComponent(sizeSelect);
+            form.getLayout().addComponent(availabilitySetSelect);
+            //            form.getLayout().addComponent(locationField);
+            //            form.getLayout().addComponent(affinityField);
+            //            form.getLayout().addComponent(cloudServiceField);
+            form.getLayout().addComponent(subnetSelect);
+            form.getLayout().addComponent(spacer);
+            //            form.getLayout().addComponent(storageAccountField);
+
+            HorizontalLayout layout = new HorizontalLayout();
+            layout.setSpacing(true);
+            layout.setMargin(false);
+
+            form.getLayout().addComponent(layout);
+
+            addComponent(form);
+
+            InstanceStatus status = InstanceStatus.fromStatus(instance.getInstance().getStatus());
+            if (status != InstanceStatus.STOPPED) {
+                // サーバがStopped以外の場合は、詳細設定タブ自体を変更不可とする
+                form.setEnabled(false);
+            } else {
+                // 停止時は、いくつかの項目を変更不可とする
+                // if (StringUtils.isNotEmpty(instance.getAzureInstance().getInstanceId())) {
+                // 既に作成済みの場合、いくつかの項目を変更不可とする
+                // 変更可 sizeSelect.setEnabled(false);
+                locationField.setEnabled(false);
+                //                    affinityField.setEnabled(false);
+                //                    cloudServiceField.setEnabled(false);
+                //                    storageAccountField.setEnabled(false);
+                // }
+                // サーバが作成済みのとき、変更不可
+                if (StringUtils.isNotEmpty(instance.getAzureInstance().getInstanceName())) {
+                    subnetSelect.setEnabled(false);
+                    // TODO 可用性セットが設定済みの場合も変更可能かもしれないが、
+                    // 現段階では、APIから可用性セットの情報を取得できないのでサーバー作成済みの場合、変更不可とする
+                    availabilitySetSelect.setEnabled(false);
+                }
+            }
+
+        }
+
+        private void showData() {
+            sizeSelect.setContainerDataSource(new IndexedContainer(instanceTypes));
+            sizeSelect.select(instance.getAzureInstance().getInstanceType());
+
+            availabilitySetSelect.setContainerDataSource(new IndexedContainer(availabilitySets));
+            availabilitySetSelect.select(instance.getAzureInstance().getAvailabilitySet());
+
+            subnetSelect.setContainerDataSource(createSubnetContainer());
+            for (SubnetDto subnetDto : subnets) {
+                if (subnetDto.getSubnetId().equals(instance.getAzureInstance().getSubnetId())) {
+                    subnetSelect.select(subnetDto);
+                    break;
+                }
+            }
+
+            //            locationField.setValue(instance.getAwsInstance().getPrivateIpAddress());
+
+            //            affinityField.setValue(instance.getAwsInstance().getPrivateIpAddress());
+
+            //マッピングされたボリュームが存在する場合は変更不可
+            //            if (instance.getAzureVolumes() != null && instance.getAzureVolumes().size() > 0) {
+            //                zoneSelect.setEnabled(false);
+            //            }
+
+        }
+
+        private IndexedContainer createSubnetContainer() {
+            IndexedContainer subnetContainer = new IndexedContainer();
+            subnetContainer.addContainerProperty(CIDR_BLOCK_CAPTION_ID, String.class, null);
+
+            for (SubnetDto subnetDto : subnets) {
+                Item item = subnetContainer.addItem(subnetDto);
+                item.getItemProperty(CIDR_BLOCK_CAPTION_ID).setValue(subnetDto.getCidrBlock());
+            }
+
+            return subnetContainer;
+        }
+
+        private void initValidation() {
+            String message;
+
+            message = ViewMessages.getMessage("IUI-000027");
+            sizeSelect.setRequired(true);
+            sizeSelect.setRequiredError(message);
+
+            message = ViewMessages.getMessage("IUI-000129");
+            locationField.setRequired(true);
+            locationField.setRequiredError(message);
+
+            message = ViewMessages.getMessage("IUI-000130");
+            affinityField.setRequired(true);
+            affinityField.setRequiredError(message);
+
+            message = ViewMessages.getMessage("IUI-000131");
+            cloudServiceField.setRequired(true);
+            cloudServiceField.setRequiredError(message);
+
+            message = ViewMessages.getMessage("IUI-000108");
+            subnetSelect.setRequired(true);
+            subnetSelect.setRequiredError(message);
+
+            message = ViewMessages.getMessage("IUI-000132");
+            storageAccountField.setRequired(true);
+            storageAccountField.setRequiredError(message);
+        }
+    }
+
+    private class OpenStackDetailTab extends VerticalLayout {
+        Form form = new Form();
+
+        ComboBox sizeSelect;
+
+        ComboBox zoneSelect;
+
+        ComboBox grpSelect;
+
+        ComboBox keySelect;
+
+        final String ZONE_CAPTION_ID = "zoneName";
+
+        final String COMBOBOX_WIDTH = "150px";
+
+        OpenStackDetailTab() {
+            setHeight(TAB_HEIGHT);
+            setMargin(false, true, false, true);
+            setSpacing(false);
+
+            sizeSelect = new ComboBox(ViewProperties.getCaption("field.serverSize"));
+            sizeSelect.setWidth(COMBOBOX_WIDTH);
+            sizeSelect.setNullSelectionAllowed(false);
+
+            zoneSelect = new ComboBox(ViewProperties.getCaption("field.zone"));
+            zoneSelect.setWidth(COMBOBOX_WIDTH);
+            zoneSelect.setNullSelectionAllowed(false);
+            zoneSelect.setItemCaptionPropertyId(ZONE_CAPTION_ID);
+            zoneSelect.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
+
+            grpSelect = new ComboBox(ViewProperties.getCaption("field.securityGroup"));
+            grpSelect.setWidth(COMBOBOX_WIDTH);
+            grpSelect.setImmediate(true);
+            grpSelect.setNullSelectionAllowed(false);
+
+            keySelect = new ComboBox(ViewProperties.getCaption("field.keyPair"));
+            keySelect.setWidth(COMBOBOX_WIDTH);
+            keySelect.setNullSelectionAllowed(false);
+
+            Label spacer = new Label(" ");
+            spacer.addStyleName("desc-padding-horizontal");
+            spacer.setHeight("5px");
+
+            form.getLayout().addComponent(sizeSelect);
+            form.getLayout().addComponent(zoneSelect);
+            form.getLayout().addComponent(grpSelect);
+            form.getLayout().addComponent(keySelect);
+            //            form.getLayout().addComponent(subnetField);
+            form.getLayout().addComponent(spacer);
+
+            HorizontalLayout layout = new HorizontalLayout();
+            layout.setSpacing(true);
+            layout.setMargin(false);
+
+            form.getLayout().addComponent(layout);
+
+            addComponent(form);
+
+            InstanceStatus status = InstanceStatus.fromStatus(instance.getInstance().getStatus());
+            if (status != InstanceStatus.STOPPED) {
+                // サーバがStopped以外の場合は、詳細設定タブ自体を変更不可とする
+                form.setEnabled(false);
+            } else {
+                // 停止時は、いくつかの項目を変更不可とする
+                if (StringUtils.isNotEmpty(instance.getOpenstackInstance().getInstanceId())) {
+                    // 一度でも起動した場合、項目を変更不可とする
+                    form.setEnabled(false);
+                }
+            }
+
+        }
+
+        private void showData() {
+            sizeSelect.setContainerDataSource(new IndexedContainer(instanceTypes));
+            sizeSelect.select(instance.getOpenstackInstance().getInstanceType());
+
+            zoneSelect.setContainerDataSource(createZoneContainer());
+            for (ZoneDto zoneDto : zones) {
+                if (StringUtils.equals(zoneDto.getZoneName(), instance.getOpenstackInstance().getAvailabilityZone())) {
+                    zoneSelect.select(zoneDto);
+                    break;
+                }
+            }
+            if (instance.getOpenstackVolumes() != null && instance.getOpenstackVolumes().size() > 0) {
+                //ボリュームが存在する場合は編集不可
+                zoneSelect.setEnabled(false);
+            }
+
+            grpSelect.setContainerDataSource(new IndexedContainer(securityGroups));
+            grpSelect.select(instance.getOpenstackInstance().getSecurityGroups());
+
+            keySelect.setContainerDataSource(new IndexedContainer(keyPairs));
+            keySelect.select(instance.getOpenstackInstance().getKeyName());
+
+        }
+
+        private IndexedContainer createZoneContainer() {
+            IndexedContainer zoneContainer = new IndexedContainer();
+            zoneContainer.addContainerProperty(ZONE_CAPTION_ID, String.class, null);
+
+            for (ZoneDto zoneDto : zones) {
+                Item item = zoneContainer.addItem(zoneDto);
+                item.getItemProperty(ZONE_CAPTION_ID).setValue(zoneDto.getZoneName());
+            }
+
+            return zoneContainer;
+        }
+
+        private void initValidation() {
+            String message;
+
+            message = ViewMessages.getMessage("IUI-000027");
+            sizeSelect.setRequired(true);
+            sizeSelect.setRequiredError(message);
+
+        }
+    }
 
     private void initData() {
         // サーバ情報を取得
@@ -1445,7 +2372,7 @@ public class WinServerEdit extends Window {
         this.instance = instanceService.getInstance(instanceNo);
 
         //LBかどうか
-        this.isLoadBalancer =  BooleanUtils.isTrue(instance.getInstance().getLoadBalancer());
+        this.isLoadBalancer = BooleanUtils.isTrue(instance.getInstance().getLoadBalancer());
 
         // 利用可能サービス情報を取得
         // TODO: ロジックを必ずリファクタリングすること
@@ -1466,7 +2393,8 @@ public class WinServerEdit extends Window {
 
         Platform platform = platformDto.getPlatform();
         String platformType = platform.getPlatformType();
-        if ("aws".equals(platformType)) {
+        // TODO CLOUD BRANCHING
+        if (PCCConstant.PLATFORM_TYPE_AWS.equals(platformType)) {
             PlatformAws platformAws = platformDto.getPlatformAws();
             // 情報を取得
             // TODO: ロジックを必ずリファクタリングすること
@@ -1493,7 +2421,7 @@ public class WinServerEdit extends Window {
             //インスタンスタイプ
             instanceTypes = new ArrayList<String>();
             for (String instanceType : image.getImageAws().getInstanceTypes().split(",")) {
-                instanceTypes.add(instanceType);
+                instanceTypes.add(instanceType.trim());
             }
 
             //ゾーン
@@ -1515,7 +2443,7 @@ public class WinServerEdit extends Window {
                 elasticIps.add(address);
             }
 
-        } else if ("vmware".equals(platformType)) {
+        } else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platformType)) {
             // VMware情報を取得
             // TODO: ロジックを必ずリファクタリングすること
             VmwareDescribeService vmwareDescribeService = BeanContext.getBean(VmwareDescribeService.class);
@@ -1533,9 +2461,9 @@ public class WinServerEdit extends Window {
 
             instanceTypes = new ArrayList<String>();
             for (String instanceType : image.getImageVmware().getInstanceTypes().split(",")) {
-                instanceTypes.add(instanceType);
+                instanceTypes.add(instanceType.trim());
             }
-        } else if ("nifty".equals(platformType)) {
+        } else if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platformType)) {
             // Nifty情報を取得
             // TODO: ロジックを必ずリファクタリングすること
             NiftyDescribeService niftyDescribeService = BeanContext.getBean(NiftyDescribeService.class);
@@ -1547,9 +2475,9 @@ public class WinServerEdit extends Window {
 
             instanceTypes = new ArrayList<String>();
             for (String instanceType : image.getImageNifty().getInstanceTypes().split(",")) {
-                instanceTypes.add(instanceType);
+                instanceTypes.add(instanceType.trim());
             }
-        } else if ("cloudstack".equals(platformType)){
+        } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platformType)) {
             // CloudStack情報を取得
             // 情報を取得
             // TODO: ロジックを必ずリファクタリングすること
@@ -1575,7 +2503,7 @@ public class WinServerEdit extends Window {
 
             instanceTypes = new ArrayList<String>();
             for (String instanceType : image.getImageCloudstack().getInstanceTypes().split(",")) {
-                instanceTypes.add(instanceType);
+                instanceTypes.add(instanceType.trim());
             }
 
             zones = describeService.getAvailabilityZones(ViewContext.getUserNo(), platform.getPlatformNo());
@@ -1584,6 +2512,104 @@ public class WinServerEdit extends Window {
             List<AddressDto> addresses = describeService.getAddresses(ViewContext.getUserNo(), platform.getPlatformNo());
             for (AddressDto address : addresses) {
                 elasticIps.add(address);
+            }
+
+        } else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platformType)) {
+            // VCloud情報を取得
+            IaasDescribeService describeService = BeanContext.getBean(IaasDescribeService.class);
+            //StorageType
+            storageTypes = describeService.getStorageTypes(ViewContext.getUserNo(), platform.getPlatformNo());
+
+            //KeyPair
+            vcloudKeyPairs = describeService.getKeyPairs(ViewContext.getUserNo(), platform.getPlatformNo());
+
+            //InstanceType
+            instanceTypes = new ArrayList<String>();
+            for (String instanceType : image.getImageVcloud().getInstanceTypes().split(",")) {
+                instanceTypes.add(instanceType.trim());
+            }
+
+            //DataDisk
+            deleteDataDisks = new ArrayList<DataDiskDto>();
+            dataDisks = new ArrayList<DataDiskDto>();
+            List<VcloudDisk> vcloudDisks = instance.getVcloudDisks();
+            for (VcloudDisk vcloudDisk : vcloudDisks) {
+                if (BooleanUtils.isTrue(vcloudDisk.getDataDisk())) {
+                    DataDiskDto diskDto = new DataDiskDto();
+                    diskDto.setDiskNo(vcloudDisk.getDiskNo());
+                    diskDto.setDiskSize(vcloudDisk.getSize());
+                    diskDto.setUnitNo(vcloudDisk.getUnitNo());
+                    dataDisks.add(diskDto);
+                }
+            }
+
+            //Network
+            List<NetworkDto> networkDtos = describeService.getNetworks(ViewContext.getUserNo(), platform.getPlatformNo());
+            networkMap = new HashMap<String, NetworkDto>();
+            for (NetworkDto networkDto : networkDtos) {
+                networkMap.put(networkDto.getNetworkName(), networkDto);
+            }
+
+            //InstanceNetwork
+            instanceNetworks = new ArrayList<InstanceNetworkDto>();
+            List<VcloudInstanceNetwork> tmpInstanceNetworks = this.instance.getVcloudInstanceNetworks();
+            for (VcloudInstanceNetwork instanceNetwork : tmpInstanceNetworks) {
+                InstanceNetworkDto instanceNetworkDto = new InstanceNetworkDto();
+                instanceNetworkDto.setNetworkNo(instanceNetwork.getNetworkNo());
+                instanceNetworkDto.setNetworkName(instanceNetwork.getNetworkName());
+                instanceNetworkDto.setNew(false);
+                instanceNetworkDto.setDelete(false);
+                instanceNetworkDto.setIpMode(instanceNetwork.getIpMode());
+                instanceNetworkDto.setIpAddress(instanceNetwork.getIpAddress());
+                instanceNetworkDto.setRequired(networkMap.get(instanceNetwork.getNetworkName()).isPcc());
+                instanceNetworkDto.setPrimary(BooleanUtils.isTrue(instanceNetwork.getIsPrimary()));
+                instanceNetworks.add(instanceNetworkDto);
+            }
+
+        } else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platformType)) {
+            // Azure情報を取得
+            PlatformAzure platformAzure = platformDto.getPlatformAzure();
+            // 情報を取得
+            IaasDescribeService describeService = BeanContext.getBean(IaasDescribeService.class);
+
+            instanceTypes = new ArrayList<String>();
+            for (String instanceType : image.getImageAzure().getInstanceTypes().split(",")) {
+                instanceTypes.add(instanceType.trim());
+            }
+            // 可用性セット
+            availabilitySets = new ArrayList<String>();
+            for (String availabilitySet : platformAzure.getAvailabilitySets().split(",")) {
+                availabilitySets.add(availabilitySet.trim());
+            }
+            //サブネット
+            subnets = describeService.getAzureSubnets(ViewContext.getUserNo(), platform.getPlatformNo(),
+                    platformAzure.getNetworkName());
+
+        } else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platformType)) {
+            // 情報を取得
+            IaasDescribeService describeService = BeanContext.getBean(IaasDescribeService.class);
+            //instanceTypes
+            instanceTypes = new ArrayList<String>();
+            for (String instanceType : image.getImageOpenstack().getInstanceTypes().split(",")) {
+                //IDで取得されるため、今後名称に変換する必要有り
+                instanceTypes.add(instanceType.trim());
+            }
+            // Availablility Zone
+            zones = describeService.getAvailabilityZones(ViewContext.getUserNo(), platform.getPlatformNo());
+
+            //セキュリティグループ
+            securityGroups = new ArrayList<String>();
+            List<SecurityGroupDto> groups;
+            groups = describeService.getSecurityGroups(ViewContext.getUserNo(), platform.getPlatformNo(), null);
+            for (SecurityGroupDto group : groups) {
+                securityGroups.add(group.getGroupName());
+            }
+
+            //キーペア
+            List<KeyPairDto> infos = describeService.getKeyPairs(ViewContext.getUserNo(), platform.getPlatformNo());
+            keyPairs = new ArrayList<String>();
+            for (KeyPairDto info : infos) {
+                keyPairs.add(info.getKeyName());
             }
 
         }
@@ -1602,6 +2628,7 @@ public class WinServerEdit extends Window {
         // 入力値を取得
         String comment = (String) basicTab.commentField.getValue();
         String keyName = null;
+        Long keyNo = null;
         String groupName = null;
         String serverSize = null;
         String network = null;
@@ -1614,6 +2641,9 @@ public class WinServerEdit extends Window {
         String privateIp = null;
         AddressDto address = null;
         VmwareAddressDto vmwareAddressDto = null;
+        Long storageTypeNo = null;
+        List<InstanceNetworkDto> instanceNetworkDtos = null;
+        String availabilitySet = null;
 
         // TODO: 入力チェック
         try {
@@ -1623,8 +2653,8 @@ public class WinServerEdit extends Window {
             getApplication().getMainWindow().addWindow(dialog);
             return;
         }
-
-        if ("aws".equals(platformDto.getPlatform().getPlatformType())) {
+        // TODO CLOUD BRANCHING
+        if (PCCConstant.PLATFORM_TYPE_AWS.equals(platformDto.getPlatform().getPlatformType())) {
             PlatformAws platformAws = platformDto.getPlatformAws();
             // 入力値を取得
             keyName = (String) awsDetailTab.keySelect.getValue();
@@ -1696,7 +2726,7 @@ public class WinServerEdit extends Window {
                 }
             }
 
-        } else if ("vmware".equals(platformDto.getPlatform().getPlatformType())) {
+        } else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platformDto.getPlatform().getPlatformType())) {
             // 入力値を取得
             keyName = (String) vmwareDetailTab.keySelect.getValue();
             cluster = (String) vmwareDetailTab.clusterSelect.getValue();
@@ -1733,7 +2763,7 @@ public class WinServerEdit extends Window {
                 getApplication().getMainWindow().addWindow(dialog);
                 return;
             }
-        } else if ("nifty".equals(platformDto.getPlatform().getPlatformType())) {
+        } else if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platformDto.getPlatform().getPlatformType())) {
             // 入力値を取得
             keyName = (String) niftyDetailTab.keySelect.getValue();
             serverSize = (String) niftyDetailTab.sizeSelect.getValue();
@@ -1747,7 +2777,7 @@ public class WinServerEdit extends Window {
                 getApplication().getMainWindow().addWindow(dialog);
                 return;
             }
-        } else if ("cloudstack".equals(platformDto.getPlatform().getPlatformType())) {
+        } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platformDto.getPlatform().getPlatformType())) {
             // 入力値を取得
             network = (String) cloudStackDetailTab.networkSelect.getValue();
             keyName = (String) cloudStackDetailTab.keySelect.getValue();
@@ -1780,16 +2810,69 @@ public class WinServerEdit extends Window {
                     return;
                 }
             }
+        } else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platformDto.getPlatform().getPlatformType())) {
+            // 入力値を取得
+            storageTypeNo = (Long) vcloudDetailTab.storageTypeSelect.getValue();
+            keyNo = (Long) vcloudDetailTab.keySelect.getValue();
+            serverSize = (String) vcloudDetailTab.sizeSelect.getValue();
+
+            // 入力チェック
+            try {
+                vcloudDetailTab.storageTypeSelect.validate();
+                vcloudDetailTab.keySelect.validate();
+                vcloudDetailTab.sizeSelect.validate();
+            } catch (InvalidValueException e) {
+                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), e.getMessage());
+                getApplication().getMainWindow().addWindow(dialog);
+                return;
+            }
+        } else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platformDto.getPlatform().getPlatformType())) {
+            // 入力値を取得
+            serverSize = (String) azureDetailTab.sizeSelect.getValue();
+            availabilitySet = (String) azureDetailTab.availabilitySetSelect.getValue();
+            subnetDto = (SubnetDto) azureDetailTab.subnetSelect.getValue();
+            if (subnetDto != null) {
+                subnetId = subnetDto.getSubnetId();
+            }
+
+            // 入力チェック
+            try {
+                azureDetailTab.sizeSelect.validate();
+                azureDetailTab.subnetSelect.validate();
+            } catch (InvalidValueException e) {
+                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), e.getMessage());
+                getApplication().getMainWindow().addWindow(dialog);
+                return;
+            }
+        } else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platformDto.getPlatform().getPlatformType())) {
+            // 入力値を取得
+            serverSize = (String) openStackDetailTab.sizeSelect.getValue();
+            groupName = (String) openStackDetailTab.grpSelect.getValue();
+            keyName = (String) openStackDetailTab.keySelect.getValue();
+            zoneDto = (ZoneDto) openStackDetailTab.zoneSelect.getValue();
+            if (zoneDto != null) {
+                zoneName = zoneDto.getZoneName();
+            }
+
+            // 入力チェック
+            try {
+                openStackDetailTab.sizeSelect.validate();
+            } catch (InvalidValueException e) {
+                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), e.getMessage());
+                getApplication().getMainWindow().addWindow(dialog);
+                return;
+            }
         }
 
-        //TODO LOG
-        AutoApplication aapl =  (AutoApplication)apl;
+        //オペレーションログ
+        AutoApplication aapl = (AutoApplication) apl;
         aapl.doOpLog("SERVER", "Edit Server", instanceNo, null, null, null);
 
         // サーバを更新
         InstanceService instanceService = BeanContext.getBean(InstanceService.class);
 
-        if ("aws".equals(platformDto.getPlatform().getPlatformType())) {
+        // TODO CLOUD BRANCHING
+        if (PCCConstant.PLATFORM_TYPE_AWS.equals(platformDto.getPlatform().getPlatformType())) {
             // AWSサーバを更新
             try {
                 Long addressNo = address.getAddressNo();
@@ -1801,7 +2884,7 @@ public class WinServerEdit extends Window {
                 getApplication().getMainWindow().addWindow(dialog);
                 return;
             }
-        } else if ("vmware".equals(platformDto.getPlatform().getPlatformType())) {
+        } else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platformDto.getPlatform().getPlatformType())) {
             // VMwareサーバを更新
             VmwareKeyPair selectedKeyPair = null;
             for (VmwareKeyPair vmwareKeyPair : vmwareKeyPairs) {
@@ -1820,7 +2903,7 @@ public class WinServerEdit extends Window {
                 getApplication().getMainWindow().addWindow(dialog);
                 return;
             }
-        } else if ("nifty".equals(platformDto.getPlatform().getPlatformType())) {
+        } else if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platformDto.getPlatform().getPlatformType())) {
             // Niftyサーバを更新
             NiftyKeyPair selectedKeyPair = null;
             for (NiftyKeyPair niftyKeyPair : niftyKeyPairs) {
@@ -1839,7 +2922,7 @@ public class WinServerEdit extends Window {
                 getApplication().getMainWindow().addWindow(dialog);
                 return;
             }
-        } else if ("cloudstack".equals(platformDto.getPlatform().getPlatformType())){
+        } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platformDto.getPlatform().getPlatformType())) {
             //CloudStackサーバを更新
             try {
                 Long addressNo = address.getAddressNo();
@@ -1852,6 +2935,38 @@ public class WinServerEdit extends Window {
                 return;
             }
 
+        } else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platformDto.getPlatform().getPlatformType())) {
+            //VCloudサーバを更新
+            try {
+                instanceService.updateVcloudInstance(instanceNo, instance.getInstance().getInstanceName(), comment,
+                        storageTypeNo, keyNo, serverSize, instanceNetworks);
+            } catch (AutoApplicationException e) {
+                String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
+                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
+                getApplication().getMainWindow().addWindow(dialog);
+                return;
+            }
+        } else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platformDto.getPlatform().getPlatformType())) {
+            //Azureサーバを更新
+            try {
+                instanceService.updateAzureInstance(instanceNo, instance.getInstance().getInstanceName(), comment, serverSize, availabilitySet, subnetId);
+            } catch (AutoApplicationException e) {
+                String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
+                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
+                getApplication().getMainWindow().addWindow(dialog);
+                return;
+            }
+        } else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platformDto.getPlatform().getPlatformType())) {
+            //OpenStackサーバを更新
+            try {
+                instanceService.updateOpenStackInstance(instanceNo, instance.getInstance().getInstanceName(), comment,
+                        serverSize, zoneName, groupName, keyName);
+            } catch (AutoApplicationException e) {
+                String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
+                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
+                getApplication().getMainWindow().addWindow(dialog);
+                return;
+            }
         }
 
         // サーバにサービスを関連付ける
@@ -1862,5 +2977,4 @@ public class WinServerEdit extends Window {
         // 画面を閉じる
         close();
     }
-
 }

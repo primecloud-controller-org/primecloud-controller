@@ -80,6 +80,16 @@ def getImage(imageNo):
         csImage = conn.selectOne(csImageTable.select(csImageTable.c.IMAGE_NO==imageNo))
         dict.update({"templateId": csImage["TEMPLATE_ID"]})
         dict.update({"instanceTypes":  csImage["INSTANCE_TYPES"]})
+    elif dict["type"] == "vcloud":
+        vcImageTable = conn.getTable("IMAGE_VCLOUD")
+        vcImage = conn.selectOne(vcImageTable.select(vcImageTable.c.IMAGE_NO==imageNo))
+        dict.update({"templateName": vcImage["TEMPLATE_NAME"]})
+        dict.update({"instanceTypes": vcImage["INSTANCE_TYPES"]})
+    elif dict["type"] == "openstack":
+        osImageTable = conn.getTable("IMAGE_OPENSTACK")
+        osImage = conn.selectOne(osImageTable.select(osImageTable.c.IMAGE_NO==imageNo))
+        dict.update({"imageId": osImage["IMAGE_ID"]})
+        dict.update({"instanceTypes": osImage["INSTANCE_TYPES"]})
 
     return dict
 
@@ -145,10 +155,24 @@ def getVCloudInfo(pltfmNo):
     platformcsTable = conn.getTable("PLATFORM_VCLOUD")
     platformcs = conn.selectOne(platformcsTable.select(platformcsTable.c.PLATFORM_NO == pltfmNo))
     if platformcs is not None:
-        dict.update({"host": platformcs["HOST"]})
-        dict.update({"path": platformcs["PATH"]})
-        dict.update({"port": str(platformcs["PORT"])})
+        dict.update({"host": platformcs["URL"]})
+        dict.update({"org": platformcs["ORG_NAME"]})
+        dict.update({"vdc": str(platformcs["VDC_NAME"])})
         dict.update({"secure": platformcs["SECURE"]})
+        dict.update({"timeout": platformcs["TIMEOUT"]})
+        dict.update({"defnetwork": platformcs["DEF_NETWORK"]})
+
+    return dict
+
+def getOpenStackInfo(pltfmNo):
+    dict = {}
+    conn = MysqlConnector()
+    platformosTable = conn.getTable("PLATFORM_OPENSTACK")
+    platformos = conn.selectOne(platformosTable.select(platformosTable.c.PLATFORM_NO == pltfmNo))
+    if platformos is not None:
+        dict.update({"URL": platformos["URL"]})
+        dict.update({"TENANT_ID": platformos["TENANT_ID"]})
+        dict.update({"TENANT_NM": platformos["TENANT_NM"]})
 
     return dict
 
@@ -156,23 +180,39 @@ def getScriptProperty(keyStr):
     if keyStr in reader:
         return reader[keyStr]
     else:
-        None
+        return None
 
 def getDnsProperty(keyStr):
     if keyStr in reader:
         return reader[keyStr]
     else:
-        None
+        return None
 
 def getPuppetProperty(keyStr):
     if keyStr in reader:
         return reader[keyStr]
     else:
-        None
+        return None
 
 def getVpnProperty(keyStr):
     if keyStr in reader:
         return reader[keyStr]
     else:
-        None
+        return None
+
+def getOtherProperty(keyStr):
+    if keyStr in reader:
+        return reader[keyStr]
+    else:
+        return None
+
+def getTrueFalseProperty(keyStr):
+    if keyStr in reader:
+        isflg = reader[keyStr]
+        if isflg.upper() == "TRUE":
+            return True
+        else:
+            return False
+    else:
+        return False
 

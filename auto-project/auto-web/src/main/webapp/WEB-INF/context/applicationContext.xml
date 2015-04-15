@@ -11,5 +11,6 @@
 	<import resource="applicationProcess.xml" />
 	<import resource="applicationService.xml" />
 	<import resource="applicationLog.xml" />
+	<import resource="file:/opt/adc/app/auto-web/WEB-INF/context/imports/*.xml" />
 
 </beans>

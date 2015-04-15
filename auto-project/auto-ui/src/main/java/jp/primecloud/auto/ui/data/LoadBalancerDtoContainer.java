@@ -27,7 +27,6 @@ import jp.primecloud.auto.service.dto.LoadBalancerDto;
 import jp.primecloud.auto.ui.LoadBalancerTable;
 import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.ViewContext;
-
 import com.vaadin.data.Container;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;

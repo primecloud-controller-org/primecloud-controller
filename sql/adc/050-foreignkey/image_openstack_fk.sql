@@ -1,0 +1,1 @@
+alter table IMAGE_OPENSTACK add constraint IMAGE_OPENSTACK_FK1 foreign key (IMAGE_NO) references IMAGE (IMAGE_NO);

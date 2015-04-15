@@ -23,13 +23,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import jp.primecloud.auto.entity.crud.ComponentConfig;
-import jp.primecloud.auto.entity.crud.ComponentType;
-import jp.primecloud.auto.entity.crud.InstanceConfig;
-import jp.primecloud.auto.service.dto.ComponentDto;
-import jp.primecloud.auto.service.dto.InstanceDto;
-import jp.primecloud.auto.ui.util.ViewProperties;
-
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -38,7 +31,13 @@ import jp.primecloud.auto.component.geronimo.GeronimoConstants;
 import jp.primecloud.auto.component.mysql.MySQLConstants;
 import jp.primecloud.auto.component.prjserver.PrjserverConstants;
 import jp.primecloud.auto.component.tomcat.TomcatConstants;
+import jp.primecloud.auto.entity.crud.ComponentConfig;
+import jp.primecloud.auto.entity.crud.ComponentType;
+import jp.primecloud.auto.entity.crud.InstanceConfig;
 import jp.primecloud.auto.process.ComponentConstants;
+import jp.primecloud.auto.service.dto.ComponentDto;
+import jp.primecloud.auto.service.dto.InstanceDto;
+import jp.primecloud.auto.ui.util.ViewProperties;
 import com.vaadin.data.util.BeanItemContainer;
 
 /**

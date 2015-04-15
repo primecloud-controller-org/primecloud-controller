@@ -1,0 +1,1091 @@
+#!/usr/local/bin/python
+# -*- coding: utf-8 -*-
+import os
+import sys
+import re
+import json
+import subprocess
+import common.CommonUtils as CommonUtils
+#from common import CommonUtils
+import help.pcchelp as pcchelp
+#from help.pcchelp import pcchelp
+import argparse
+from ast import literal_eval
+
+
+def _execAddPlatform(method, paramDict):
+    #オプションを辞書型に変換し、ヘルプフラグと値の無いものを削除
+    paramDict = _deleteNoneValue(paramDict)
+    
+    #有効なIaaS名かチェック
+    result = CommonUtils.checkIaasName(paramDict)
+    if result != True:
+        print(result)
+        exit(1)
+    
+    iaasName = paramDict['iaasName']
+    
+    #IaaS名が有効な場合、IaaSごとの引数チェック
+    if "aws" == iaasName:
+        iaasMethod = "addAwsPlatform"
+    elif "vmware" == iaasName:
+        iaasMethod = "addVmwarePlatform"
+    elif "cloudstack" == iaasName:
+        iaasMethod = "addCloudstackPlatform"
+    elif "vcloud" == iaasName:
+        iaasMethod = "addVcloudPlatform"
+    elif "openstack" == iaasName:
+        iaasMethod = "addOpenstackPlatform"
+    elif "azure" == iaasName:
+        iaasMethod = "addAzurePlatform"
+    elif "nifty" == iaasName:
+        iaasMethod = "addNiftyPlatform"
+
+    result = CommonUtils.checkArguments(iaasMethod, paramDict)
+    if result != True:
+        print(result)
+        exit(1)
+    
+    #APIスクリプト用JSON作成
+    paramJson = _createJson(iaasMethod, paramDict)
+    #addPlatform呼び出し
+    pccAPI=os.path.join(os.path.dirname(__file__), '../lib/driver/pccdriver.py')
+    ret = subprocess.Popen('python ' + pccAPI + ' ' + method + ' ' + paramJson, stdout=subprocess.PIPE, shell=True)
+    #戻り値をディクショナリに変換
+    resultDict = json.loads(ret.stdout.readline())
+    #結果表示
+    print (resultDict['message'])
+
+def _execUpdatePlatform(method, paramDict):
+    #オプションを辞書型に変換し、ヘルプフラグと値の無いものを削除
+    paramDict = _deleteNoneValue(paramDict)
+    
+    #有効なPlatformNo存在チェック
+    result = CommonUtils.checkArguments(method, paramDict)
+    if result != True:
+        print(result)
+        exit(1)
+
+    #platformNoからiaas名取得
+    try:
+        iaasName = CommonUtils.getPlatformTypeByNo(paramDict['platformNo'])
+    except Exception as e:
+        print("プラットフォームのデータ取得に失敗しました。管理者に連絡を行って下さい。")
+        exit(1)
+    if iaasName == None:
+        print("指定されたプラットフォームNoは存在しません。更新対象を確認して下さい。")
+        exit(1)
+    
+    #IaaS名が有効な場合、IaaSごとの引数チェック
+    if "aws" == iaasName:
+        iaasMethod = "updateAwsPlatform"
+    elif "vmware" == iaasName:
+        iaasMethod = "updateVmwarePlatform"
+    elif "cloudstack" == iaasName:
+        iaasMethod = "updateCloudstackPlatform"
+    elif "vcloud" == iaasName:
+        iaasMethod = "updateVcloudPlatform"
+    elif "openstack" == iaasName:
+        iaasMethod = "updateOpenstackPlatform"
+    elif "azure" == iaasName:
+        iaasMethod = "updateAzurePlatform"
+    elif "nifty" == iaasName:
+        iaasMethod = "updateNiftyPlatform"
+
+    result = CommonUtils.checkArguments(iaasMethod, paramDict)
+    if result != True:
+        print(result)
+        exit(1)
+    
+    #APIスクリプト用JSON作成
+    paramJson = _createJson(iaasMethod, paramDict)
+    #updatePlatform呼び出し
+    pccAPI=os.path.join(os.path.dirname(__file__), '../lib/driver/pccdriver.py')
+    ret = subprocess.Popen('python ' + pccAPI + ' ' + method + ' ' + paramJson, stdout=subprocess.PIPE, shell=True)
+    #戻り値をディクショナリに変換
+    resultDict = json.loads(ret.stdout.readline())
+    #結果表示
+    print (resultDict['message'])
+
+def _execAddImage(method, paramDict):
+    #オプションを辞書型に変換し、ヘルプフラグと値の無いものを削除
+    paramDict = _deleteNoneValue(paramDict)
+
+    #変数設定
+    platformList = []
+    iaasList = None
+    iaasMethod = method
+    
+    #引数チェック
+    result = CommonUtils.checkArguments("addImageCheck", paramDict)
+    if result != True:
+        print(result)
+        exit(1)
+    
+    #変数設定
+    moduleName = paramDict['moduleName']
+    mifPlatformList = []
+
+    #モジュールインストール済みチェック
+    ret = subprocess.Popen('yum -c /opt/adc/pccrepo/repos.d/pccrepo.conf --nogpgcheck info ' + moduleName, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    #yumの標準出力とエラーを取得
+    yumMes = ret.stdout.read()
+    yumErr = ret.stderr.read()
+    
+    if "No matching Packages" in yumErr:
+        print("指定されたモジュールがインストールされていないため処理を中止します。")
+        exit(1)
+    elif len(yumErr) > 0:
+        print("モジュール存在チェックでエラーが発生したため処理を中止します。")
+        exit(1)
+
+    #MIF読み込み
+    try:
+        mifDict = CommonUtils.getMif(moduleName)
+    except Exception as e:
+        print("JSONファイルの読み込みに失敗したため処理を中止します。管理者に連絡を行って下さい。")
+        exit(1)
+    if mifDict is None:
+        print("JSONファイルの読み込みに失敗したため処理を中止します。")
+        exit(1)
+    if "TemplateModule" not in mifDict['moduleInformation']:
+        print("指定したモジュールがイメージではないため処理を中止します。")
+        exit(1)
+    tempDict = mifDict['moduleInformation']['TemplateModule']['templeteTableDatabaseRecord']
+    paramDict.update(tempDict)
+    paramDict.update({"imageName":mifDict['moduleInformation']['TemplateModule']['templateModuleInformation']['moduleName']})
+    #templateIDもしくはuploadedTemplateIDがある場合imageIdに指定
+    if "templateID" in mifDict['moduleInformation']['TemplateModule']['templateModuleInformation']:
+        paramDict.update({"imageId":mifDict['moduleInformation']['TemplateModule']['templateModuleInformation']['templateID']})
+    elif "uploadedTemplateID" in mifDict['moduleInformation']['TemplateModule']['templateModuleInformation']:
+        paramDict.update({"imageId":mifDict['moduleInformation']['TemplateModule']['templateModuleInformation']['uploadedTemplateID']})
+    #aws用引数設定
+    if "ebsImageFlg" in mifDict['moduleInformation']['TemplateModule']['templeteTableDatabaseRecord']:
+        paramDict.update({"ebsImageFlg":mifDict['moduleInformation']['TemplateModule']['templeteTableDatabaseRecord']['ebsImageFlg']})
+    if "kernelId" in mifDict['moduleInformation']['TemplateModule']['templeteTableDatabaseRecord']:
+        paramDict.update({"kernelId":mifDict['moduleInformation']['TemplateModule']['templeteTableDatabaseRecord']['kernelId']})
+    if "ramdiskId" in mifDict['moduleInformation']['TemplateModule']['templeteTableDatabaseRecord']:
+        paramDict.update({"ramdiskId":mifDict['moduleInformation']['TemplateModule']['templeteTableDatabaseRecord']['ramdiskId']})
+
+    #MIF中にIaaSが指定されている場合
+    if "IaaS" in mifDict['moduleInformation']['TemplateModule']['templateModuleInformation']:
+        iaasList = mifDict['moduleInformation']['TemplateModule']['templateModuleInformation']['IaaS']
+        iaasList = iaasList.split(',')
+        if "aws" in iaasList:
+            iaasMethod = "addAwsImage"
+    else:
+        print("JSONファイル中でIaaSが指定されていないため処理を中止します。")
+        exit(1)
+
+    #iaasListで指定されたiaasのplatformName名をすべて取得
+    for iaasName in iaasList:
+        try:
+            plDatas = CommonUtils.getPlatformDataByIaas(iaasName)
+        except Exception as e:
+            print("プラットフォーム情報の取得に失敗したため処理を中止します。管理者に連絡を行って下さい。")
+            exit(1)
+        for plData in plDatas:
+            mifPlatformList.append(str(plData["PLATFORM_NAME"]))
+
+    #辞書からモジュール名称削除
+    del paramDict["moduleName"]
+
+    #platformListが指定された場合
+    if "platformList" in paramDict:
+        #platformListをカンマ区切りで分ける
+        platformList = paramDict['platformList'].split(',')
+        for platformName in platformList:
+            if platformName not in mifPlatformList:
+                mifPlatformList = ','.join(mifPlatformList)
+                print("指定されたプラットフォーム名称" + platformName + "は登録できません。登録可能なプラットフォームは " + mifPlatformList + " です。")
+                exit(1)
+        mifPlatformList = platformList
+
+    #platformListを追加
+    mifPlatformList = ','.join(mifPlatformList)
+    paramDict.update({"platformList":mifPlatformList})
+
+    #引数チェック
+    result = CommonUtils.checkArguments(iaasMethod, paramDict)
+    if result != True:
+        print(result)
+        exit(1)
+
+    #APIスクリプト用JSON作成
+    paramJson = _createJson(iaasMethod, paramDict)
+    #addImage呼び出し
+    pccAPI=os.path.join(os.path.dirname(__file__), '../lib/driver/pccdriver.py')
+    ret = subprocess.Popen('python ' + pccAPI + ' ' + method + ' ' + paramJson, stdout=subprocess.PIPE, shell=True)
+    #戻り値をディクショナリに変換
+    resultDict = json.loads(ret.stdout.readline())
+    #結果表示
+    print(resultDict['message'])
+
+def _execUpdateImage(method, paramDict):
+    #オプションを辞書型に変換し、ヘルプフラグと値の無いものを削除
+    paramDict = _deleteNoneValue(paramDict)
+    
+    #PlatformName存在チェック
+    result = CommonUtils.checkArguments("updateImageCheck", paramDict)
+    if result != True:
+        print(result)
+        exit(1)
+    
+    imageNo = paramDict['imageNo']
+    
+    #イメージNoからイメージデータ取得
+    imageData = CommonUtils.getImageDataByNo(imageNo)
+    if imageData is None:
+        print("指定されたプラットフォーム名称は存在しません。登録対象を確認して下さい。")
+        exit(1)
+    platformNo = imageData["PLATFORM_NO"]
+    #プラットフォームNoからIaas名取得
+    iaasName = CommonUtils.getPlatformTypeByNo(platformNo)
+    if "aws" == iaasName:
+        iaasMethod = "updateAwsImage"
+    else:
+        iaasMethod = method
+    
+    #IaaSがAWSの場合のみ、専用チェック
+    if "aws" == iaasName:
+        iaasMethod = "updateAwsImage"
+    else:
+        iaasMethod = method
+
+    result = CommonUtils.checkArguments(iaasMethod, paramDict)
+    if result != True:
+        print(result)
+        exit(1)
+
+    #APIスクリプト用JSON作成
+    paramJson = _createJson(iaasMethod, paramDict)
+    #updateImage呼び出し
+    pccAPI=os.path.join(os.path.dirname(__file__), '../lib/driver/pccdriver.py')
+    ret = subprocess.Popen('python ' + pccAPI + ' ' + method + ' ' + paramJson, stdout=subprocess.PIPE, shell=True)
+    #戻り値をディクショナリに変換
+    resultDict = json.loads(ret.stdout.readline())
+    #結果表示
+    print (resultDict['message'])
+
+def _execDeleteImage(method, paramDict):
+    #オプションを辞書型に変換し、ヘルプフラグと値の無いものを削除
+    paramDict = _deleteNoneValue(paramDict)
+    
+    #PlatformName存在チェック
+    result = CommonUtils.checkArguments("deleteImageCheck", paramDict)
+    if result != True:
+        print(result)
+        exit(1)
+    
+    #変数設定
+    moduleName = paramDict['moduleName']
+    del paramDict['moduleName']
+
+    #モジュールインストール済みチェック
+    ret = subprocess.Popen('yum -c /opt/adc/pccrepo/repos.d/pccrepo.conf --nogpgcheck info ' + moduleName, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    #yumの標準出力とエラーを取得
+    yumMes = ret.stdout.read()
+    yumErr = ret.stderr.read()
+    
+    if "No matching Packages" in yumErr:
+        print("指定されたモジュールがインストールされていないため処理を中止します。")
+        exit(1)
+    elif len(yumErr) > 0:
+        print("モジュール存在チェックでエラーが発生したため処理を中止します。")
+        exit(1)
+
+    #MIF読み込み
+    try:
+        mifDict = CommonUtils.getMif(moduleName)
+    except Exception as e:
+        print("JSONファイルの読み込みに失敗したため処理を中止します。管理者に連絡を行って下さい。")
+        exit(1)
+    if mifDict is None:
+        print("JSONファイルの読み込みに失敗したため処理を中止します。")
+        exit(1)
+    
+    #イメージ名称の取得
+    if "TemplateModule" in mifDict['moduleInformation']:
+        imageName = mifDict['moduleInformation']['TemplateModule']['templateModuleInformation']['moduleName']
+    else:
+        print("指定されたモジュールがイメージでないため処理を中止します。")
+        exit(1)
+
+    #paramDict更新
+    paramDict.update({'imageName':imageName})
+
+    #APIスクリプト用JSON作成
+    paramJson = _createJson(method, paramDict)
+    #deleteImage呼び出し
+    pccAPI=os.path.join(os.path.dirname(__file__), '../lib/driver/pccdriver.py')
+    ret = subprocess.Popen('python ' + pccAPI + ' ' + method + ' ' + paramJson, stdout=subprocess.PIPE, shell=True)
+    #戻り値をディクショナリに変換
+    resultDict = json.loads(ret.stdout.readline())
+    #結果表示
+    print (resultDict['message'])
+
+def _execAddService(method, paramDict):
+    #オプションを辞書型に変換し、ヘルプフラグと値の無いものを削除
+    paramDict = _deleteNoneValue(paramDict)
+    
+    #変数設定
+    platformList = []
+    iaasList = None
+    oss = None
+    mifImageNoList = []
+    imageNoList = []
+
+    #引数チェック
+    result = CommonUtils.checkArguments("addServiceCheck", paramDict)
+    if result != True:
+        print(result)
+        exit(1)
+    
+    moduleName = paramDict['moduleName']
+
+    #モジュールインストール済みチェック
+    ret = subprocess.Popen('yum -c /opt/adc/pccrepo/repos.d/pccrepo.conf --nogpgcheck info ' + moduleName, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    #yumの標準出力とエラーを取得
+    yumMes = ret.stdout.read()
+    yumErr = ret.stderr.read()
+    
+    if "No matching Packages" in yumErr:
+        print("指定されたモジュールがインストールされていないため処理を中止します。")
+        exit(1)
+    elif len(yumErr) > 0:
+        print("モジュール存在チェックでエラーが発生したため処理を中止します。")
+        exit(1)
+
+    #MIF読み込み
+    try:
+        mifDict = CommonUtils.getMif(moduleName)
+    except Exception as e:
+        print("JSONファイルの読み込みに失敗したため処理を中止します。管理者に連絡を行って下さい。")
+        exit(1)
+    if mifDict is None:
+        print("JSONファイルの読み込みに失敗したため処理を中止します。")
+        exit(1)
+    if "ServiceModule" not in mifDict['moduleInformation']:
+        print("指定したモジュールがサービスではないため処理を中止します。")
+        exit(1)
+    tempDict = mifDict['moduleInformation']['ServiceModule']['ServiceTableDatabaseRecord']
+    paramDict.update(tempDict)
+    paramDict.update({"serviceName":mifDict['moduleInformation']['ServiceModule']['ServiceModuleInformation']['moduleName']})
+    
+    ############################
+    #MIFのOSsを使用する処理
+    ############################
+    '''
+    #OSsの取得
+    if "OSs" in mifDict['moduleInformation']['ServiceModule']['ServiceModuleInformation']:
+        oss = mifDict['moduleInformation']['ServiceModule']['ServiceModuleInformation']['OSs']
+        
+        #イメージデータ取得
+        for osName in oss:
+            try:
+                imageData = CommonUtils.getImageDataByName(osName)
+                if imageData is not None:
+                    for imagedatas in imageData:
+                        mifImageNoList.append(str(imagedatas['IMAGE_NO']))
+            except Exception as e:
+                print("イメージデータの取得に失敗したため処理を中止します。管理者に連絡を行って下さい。")
+                exit(1)
+
+    #引数でimageNoListが渡された場合
+    if "imageNoList" in paramDict:
+        imageNoList = paramDict["imageNoList"].split(",")
+        #imageNoList存在チェック
+        for imageNo in imageNoList:
+            try:
+                ret = CommonUtils.getImageDataByNo(imageNo)
+            except Exception as e:
+                print("イメージデータの取得に失敗したため処理を中止します。管理者に連絡を行って下さい。")
+                exit(1)
+        for imageNo in imageNoList:
+            if imageNo not in mifImageNoList:
+                mifImageNoList = ",".join(mifImageNoList)
+                print("イメージNo:" + imageNo + "は登録できません。登録可能なイメージNoは " + mifImageNoList + " です。")
+                exit(1)
+        mifImageNoList = imageNoList
+    '''
+    ###############################################
+    
+    #イメージ情報取得
+    try:
+        mifImageNoList = CommonUtils.getSelectableImageNoList()
+        if mifImageNoList is None:
+            print("イメージ情報の取得に失敗したため処理を中止します。")
+            exit(1)
+    except Exception as e:
+        print("イメージ情報の取得に失敗したため処理を中止します。管理者に連絡を行って下さい。")
+        exit(1)
+
+    #引数でimageNoListが渡された場合
+    if "imageNoList" in paramDict:
+        imageNoList = paramDict["imageNoList"].split(",")
+        #imageNoList登録可能チェック
+        for imageNo in imageNoList:
+            if imageNo not in mifImageNoList:
+                mifImageNoList = ",".join(mifImageNoList)
+                print("イメージNo:" + imageNo + "は登録できません。登録可能なイメージNoは " + mifImageNoList + " です。")
+                exit(1)
+        mifImageNoList = imageNoList
+    
+    paramDict['imageNoList'] = ",".join(mifImageNoList)
+    del paramDict['moduleName']
+    
+    #引数チェック
+    result = CommonUtils.checkArguments(method, paramDict)
+    if result != True:
+        print(result)
+        exit(1)
+    
+    #APIスクリプト用JSON作成
+    paramJson = _createJson(method, paramDict)
+    #addService呼び出し
+    pccAPI=os.path.join(os.path.dirname(__file__), '../lib/driver/pccdriver.py')
+    ret = subprocess.Popen('python ' + pccAPI + ' ' + method + ' ' + paramJson, stdout=subprocess.PIPE, shell=True)
+    #戻り値をディクショナリに変換
+    resultDict = json.loads(ret.stdout.readline())
+    #結果表示
+    print(resultDict['message'])
+
+def _execDeleteService(method, paramDict):
+    #オプションを辞書型に変換し、ヘルプフラグと値の無いものを削除
+    paramDict = _deleteNoneValue(paramDict)
+
+    #引数チェック
+    result = CommonUtils.checkArguments("deleteServiceCheck", paramDict)
+    if result != True:
+        print(result)
+        exit(1)
+    
+    #変数設定
+    moduleName = paramDict['moduleName']
+    del paramDict['moduleName']
+
+    #モジュールインストール済みチェック
+    ret = subprocess.Popen('yum -c /opt/adc/pccrepo/repos.d/pccrepo.conf --nogpgcheck info ' + moduleName, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    #yumの標準出力とエラーを取得
+    yumMes = ret.stdout.read()
+    yumErr = ret.stderr.read()
+    
+    if "No matching Packages" in yumErr:
+        print("指定されたモジュールがインストールされていないため処理を中止します。")
+        exit(1)
+    elif len(yumErr) > 0:
+        print("モジュール存在チェックでエラーが発生したため処理を中止します。")
+        exit(1)
+
+    #MIF読み込み
+    try:
+        mifDict = CommonUtils.getMif(moduleName)
+    except Exception as e:
+        print("JSONファイルの読み込みに失敗したため処理を中止します。管理者に連絡を行って下さい。")
+        exit(1)
+    if mifDict is None:
+        print("JSONファイルの読み込みに失敗したため処理を中止します。")
+        exit(1)
+
+    #イメージ名称の取得
+    if "ServiceModule" in mifDict['moduleInformation']:
+        serviceName = mifDict['moduleInformation']['ServiceModule']['ServiceModuleInformation']['moduleName']
+    else:
+        print("指定されたモジュールがサービスでないため処理を中止します。")
+        exit(1)
+
+    #paramDict更新
+    paramDict.update({'serviceName':serviceName})
+
+    #APIスクリプト用JSON作成
+    paramJson = _createJson(method, paramDict)
+    #deleteService呼び出し
+    pccAPI=os.path.join(os.path.dirname(__file__), '../lib/driver/pccdriver.py')
+    ret = subprocess.Popen('python ' + pccAPI + ' ' + method + ' ' + paramJson, stdout=subprocess.PIPE, shell=True)
+    #戻り値をディクショナリに変換
+    resultDict = json.loads(ret.stdout.readline())
+    #結果表示
+    print (resultDict['message'])
+
+def _execCommand(method, paramDict):
+    #オプションを辞書型に変換し、ヘルプフラグと値の無いものを削除
+    paramDict = _deleteNoneValue(paramDict)
+    #引数チェック
+    result = CommonUtils.checkArguments(method, paramDict)
+    if result != True:
+        print(result)
+        exit(1)
+    #APIスクリプト用JSON作成
+    paramJson = _createJson(method, paramDict)
+    #各種スクリプト呼び出し
+    pccAPI=os.path.join(os.path.dirname(__file__), '../lib/driver/pccdriver.py')
+    ret = subprocess.Popen('python ' + pccAPI + ' ' + method + ' ' + paramJson, stdout=subprocess.PIPE, shell=True)
+    #print(ret.stdout.readline())
+    #戻り値をディクショナリに変換
+    resultDict = json.loads(ret.stdout.readline())
+    #結果表示
+    if "listPlatform" == method:
+        if "0" == resultDict["result"]:
+            retData = resultDict["data"]
+            resultDataList = retData.split("&&")
+            print("PLATFORM_NO\tPLATFORM_NAME\t\tIAAS_NAME\tSELECTABLE")
+            for resultData in resultDataList:
+                resultDic = json.loads(resultData)
+                print(str(resultDic["PLATFORM_NO"]) + "\t\t" + str(resultDic["PLATFORM_NAME"]).ljust(16)
+                 + "\t" + str(resultDic["PLATFORM_TYPE"]).ljust(12) + "\t" + str(resultDic["SELECTABLE"]))
+        else:
+            print (resultDict['message'])
+    elif "showPlatform" == method:
+        if "0" == resultDict["result"]:
+            retData = json.loads(resultDict["data"])
+            iaasName = retData["PLATFORM_TYPE"]
+            
+            print("PLATFORM_NO".ljust(25) + ":" + str(retData["PLATFORM_NO"]))
+            print("PLATFORM_NAME_DISP".ljust(25) + ":" + str(retData["PLATFORM_NAME_DISP"]))
+            print("PLATFORM_SIMPLENAME_DISP".ljust(25) + ":" + str(retData["PLATFORM_SIMPLENAME_DISP"]))
+            print("IAAS_NAME".ljust(25) + ":" + iaasName)
+            print("INTERNAL".ljust(25) + ":" + str(retData["INTERNAL"]))
+            print("PROXY".ljust(25) + ":" + str(retData["PROXY"]))
+            print("SELECTABLE".ljust(25) + ":" + str(retData["SELECTABLE"]))
+            
+            if "aws" == iaasName:
+                print("ENDPOINT".ljust(25) + ":" + str(retData["HOST"]) + ":" + str(retData["PORT"]))
+                print("SECURE".ljust(25) + ":" + str(retData["SECURE"]))
+                print("EUCA".ljust(25) + ":" + str(retData["EUCA"]))
+                print("VPC".ljust(25) + ":" + str(retData["VPC"]))
+                print("REGION".ljust(25) + ":" + str(retData["REGION"]))
+                print("AVAILABILITY_ZONE".ljust(25) + ":" + str(retData["AVAILABILITY_ZONE"]))
+                print("VPC_ID".ljust(25) + ":" + str(retData["VPC_ID"]))
+            elif "vmware" == iaasName:
+                print("ENDPOINT".ljust(25) + ":" + str(retData["URL"]))
+                print("USERNAME".ljust(25) + ":" + str(retData["USERNAME"]))
+                print("PASSWORD".ljust(25) + ":" + str(retData["PASSWORD"]))
+                print("DATACENTER".ljust(25) + ":" + str(retData["DATACENTER"]))
+                print("PUBLIC_NETWORK".ljust(25) + ":" + str(retData["PUBLIC_NETWORK"]))
+                print("PRIVATE_NETWORK".ljust(25) + ":" + str(retData["PRIVATE_NETWORK"]))
+                print("COMPUTE_RESOURCE".ljust(25) + ":" + str(retData["COMPUTE_RESOURCE"]))
+            elif "cloudstack" == iaasName:
+                print("ENDPOINT".ljust(25) + ":" + str(retData["HOST"]) + ":" + str(retData["PORT"]) + str(retData["PATH"]))
+                print("SECURE".ljust(25) + ":" + str(retData["SECURE"]))
+                print("ZONE_ID".ljust(25) + ":" + str(retData["ZONE_ID"]))
+                print("NETWORK_ID".ljust(25) + ":" + str(retData["NETWORK_ID"]))
+                print("TIMEOUT".ljust(25) + ":" + str(retData["TIMEOUT"]))
+                print("DEVICE_TYPE".ljust(25) + ":" + str(retData["DEVICE_TYPE"]))
+                print("HOST_ID".ljust(25) + ":" + str(retData["HOST_ID"]))
+            elif "vcloud" == iaasName:
+                print("ENDPOINT".ljust(25) + ":" + str(retData["URL"]))
+                print("ORG_NAME".ljust(25) + ":" + str(retData["ORG_NAME"]))
+                print("VDC_NAME".ljust(25) + ":" + str(retData["VDC_NAME"]))
+                print("SECURE".ljust(25) + ":" + str(retData["SECURE"]))
+                print("TIMEOUT".ljust(25) + ":" + str(retData["TIMEOUT"]))
+                print("DEF_NETWORK".ljust(25) + ":" + str(retData["DEF_NETWORK"]))
+            elif "openstack" == iaasName:
+                print("ENDPOINT".ljust(25) + ":" + str(retData["URL"]))
+                print("NETWORK_ID".ljust(25) + ":" + str(retData["NETWORK_ID"]))
+                print("TENANT_ID".ljust(25) + ":" + str(retData["TENANT_ID"]))
+                print("TENANT_NM".ljust(25) + ":" + str(retData["TENANT_NM"]))
+                print("AVAILABILITY_ZONE".ljust(25) + ":" + str(retData["AVAILABILITY_ZONE"]))
+            elif "azure" == iaasName:
+                print("REGION".ljust(25) + ":" + str(retData["LOCATION_NAME"]))
+                print("AFFINITY_GROUP_NAME".ljust(25) + ":" + str(retData["AFFINITY_GROUP_NAME"]))
+                print("CLOUD_SERVICE_NAME".ljust(25) + ":" + str(retData["CLOUD_SERVICE_NAME"]))
+                print("STORAGE_ACCOUNT_NAME".ljust(25) + ":" + str(retData["STORAGE_ACCOUNT_NAME"]))
+                print("NETWORK_NAME".ljust(25) + ":" + str(retData["NETWORK_NAME"]))
+                print("AVAILABILITY_SETS".ljust(25) + ":" + str(retData["AVAILABILITY_SETS"]))
+        else:
+            print (resultDict['message'])
+    elif "listInstanceType" == method:
+        if "0" == resultDict["result"]:
+            vmFlg = False
+            vcloudFlg = False
+            retData = resultDict["data"]
+            resultDataList = retData.split("&&")
+            
+            for resultData in resultDataList:
+                resultDic = json.loads(resultData)
+                if "vmware" == resultDic["PLATFORM_TYPE"]:
+                    if vmFlg == False:
+                        print("<IaaS Name : VMware>")
+                        print("INSTANCE_TYPE_NO\tPLATFORM_NAME\t\tINSTANCE_TYPE_NAME\tCPU\tMEMORY")
+                        vmFlg = True
+                    print(str(resultDic["INSTANCE_TYPE_NO"]) + "\t\t\t" + str(resultDic["PLATFORM_NAME"]).ljust(16)
+                        + "\t" + str(resultDic["INSTANCE_TYPE_NAME"]).ljust(16) + "\t" + str(resultDic["CPU"]) + "\t" + str(resultDic["MEMORY"]))
+            for resultData in resultDataList:
+                resultDic = json.loads(resultData)
+                if "vcloud" == resultDic["PLATFORM_TYPE"]:
+                    if vcloudFlg == False:
+                        print("<IaaS Name : vCloud>")
+                        print("INSTANCE_TYPE_NO\tPLATFORM_NAME\t\tINSTANCE_TYPE_NAME\tCPU\tMEMORY")
+                        vcloudFlg = True
+                    print(str(resultDic["INSTANCE_TYPE_NO"]) + "\t\t\t" + str(resultDic["PLATFORM_NAME"]).ljust(16)
+                        + "\t" + str(resultDic["INSTANCE_TYPE_NAME"]).ljust(16) + "\t" + str(resultDic["CPU"]) + "\t" + str(resultDic["MEMORY"]))
+        else:
+            print (resultDict['message'])
+    elif "listStorageType" == method:
+        if "0" == resultDict["result"]:
+            vcloudFlg = False
+            retData = resultDict["data"]
+            resultDataList = retData.split("&&")
+
+            for resultData in resultDataList:
+                resultDic = json.loads(resultData)
+                if "vcloud" == resultDic["PLATFORM_TYPE"]:
+                    if vcloudFlg == False:
+                        print("<IaaS Name : vCloud>")
+                        print("STORAGE_TYPE_NO\t\tPLATFORM_NAME\t\tSTORAGE_TYPE_NAME")
+                        vcloudFlg = True
+                    print(str(resultDic["STORAGE_TYPE_NO"]) + "\t\t\t" + str(resultDic["PLATFORM_NAME"]).ljust(16)
+                        + "\t" + str(resultDic["STORAGE_TYPE_NAME"]).ljust(16))
+        else:
+            print (resultDict['message'])
+    elif "listIaas" == method:
+        if "0" == resultDict["result"]:
+            retData = resultDict["data"]
+            resultDataList = retData.split("&&")
+            print("IAAS_NO\t\tIAAS_NAME")
+            for resultData in resultDataList:
+                resultDic = json.loads(resultData)
+                print(str(resultDic["IAAS_NO"]) + "\t\t" + str(resultDic["IAAS_NAME"]).ljust(16))
+        else:
+            print (resultDict['message'])
+    elif "showIaas" == method:
+        if "0" == resultDict["result"]:
+            retData = json.loads(resultDict["data"])
+            print("IAAS_NO".ljust(10) + ":" + str(retData["IAAS_NO"]))
+            print("IAAS_NAME".ljust(10) + ":" + str(retData["IAAS_NAME"]))
+            print("COMMENT".ljust(10) + ":" + str(retData["COMMENT"]))
+        else:
+            print (resultDict['message'])
+    elif "listImage" == method:
+        if "0" == resultDict["result"]:
+            retData = resultDict["data"]
+            resultDataList = retData.split("&&")
+            print("IMAGE_NO\tIMAGE_NAME\t\t\tSELECTABLE")
+            for resultData in resultDataList:
+                resultDic = json.loads(resultData)
+                print(str(resultDic["IMAGE_NO"]) + "\t\t" + str(resultDic["IMAGE_NAME"]).ljust(25)
+                 + "\t" + str(resultDic["SELECTABLE"]))
+        else:
+            print (resultDict['message'])
+    elif "showImage" == method:
+        if "0" == resultDict["result"]:
+            retData = json.loads(resultDict["data"])
+            print("IMAGE_NO".ljust(20) + ":" + str(retData["IMAGE_NO"]))
+            print("IMAGE_NAME".ljust(20) + ":" + str(retData["IMAGE_NAME"]))
+            print("IMAGE_NAME_DISP".ljust(20) + ":" + str(retData["IMAGE_NAME_DISP"]))
+            print("SELECTABLE".ljust(20) + ":" + str(retData["SELECTABLE"]))
+            print("PLATFORM_NAME".ljust(20) + ":" + str(retData["PLATFORM_NAME"]))
+            print("OS".ljust(20) + ":" + str(retData["OS"]))
+            print("OS_DISP".ljust(20) + ":" + str(retData["OS_DISP"]))
+            print("SERVICE_NAME_LIST".ljust(20) + ":" + str(retData["SERVICE_NAME_LIST"]))
+            print("ZABBIX_TEMPLATE".ljust(20) + ":" + str(retData["ZABBIX_TEMPLATE"]))
+            print("INSTANCE_TYPES".ljust(20) + ":" + str(retData["INSTANCE_TYPES"]))
+            print("IMAGE_ID".ljust(20) + ":" + str(retData["IMAGE_ID"]))
+            if "KERNEL_ID" in retData:
+                print("KERNEL_ID".ljust(20) + ":" + str(retData["KERNEL_ID"]))
+            if "RAMDISK_ID" in retData:
+                print("RAMDISK_ID".ljust(20) + ":" + str(retData["RAMDISK_ID"]))
+        else:
+            print (resultDict['message'])
+    elif "listService" == method:
+        if "0" == resultDict["result"]:
+            retData = resultDict["data"]
+            resultDataList = retData.split("&&")
+            print("COMPONENT_TYPE_NO\tCOMPONENT_TYPE_NAME\tSELECTABLE")
+            for resultData in resultDataList:
+                resultDic = json.loads(resultData)
+                print(str(resultDic["COMPONENT_TYPE_NO"]) + "\t\t\t" + str(resultDic["COMPONENT_TYPE_NAME"]).ljust(25)
+                 + str(resultDic["SELECTABLE"]))
+        else:
+            print (resultDict['message'])
+    elif "showService" == method:
+        if "0" == resultDict["result"]:
+            retData = json.loads(resultDict["data"])
+            print("COMPONENT_TYPE_NO".ljust(25) + ":" + str(retData["COMPONENT_TYPE_NO"]))
+            print("COMPONENT_TYPE_NAME".ljust(25) + ":" + str(retData["COMPONENT_TYPE_NAME"]))
+            print("COMPONENT_TYPE_NAME_DISP".ljust(25) + ":" + str(retData["COMPONENT_TYPE_NAME_DISP"]))
+            print("LAYER".ljust(25) + ":" + str(retData["LAYER"]))
+            print("LAYER_DISP".ljust(25) + ":" + str(retData["LAYER_DISP"]))
+            print("RUN_ORDER".ljust(25) + ":" + str(retData["RUN_ORDER"]))
+            print("SELECTABLE".ljust(25) + ":" + str(retData["SELECTABLE"]))
+            print("ZABBIX_TEMPLATE".ljust(25) + ":" + str(retData["ZABBIX_TEMPLATE"]))
+            print("ADDRESS_URL".ljust(25) + ":" + str(retData["ADDRESS_URL"]))
+        else:
+            print (resultDict['message'])
+    else:
+        print (resultDict['message'])
+
+def _showHelp(method):
+    pccAPI=os.path.join(os.path.dirname(__file__), '../lib/help/pcchelp.py')
+    ret = subprocess.Popen('python ' + pccAPI+ ' ' + method, stdout=subprocess.PIPE, shell=True)
+    while True:
+        line = ret.stdout.readline()
+        if not line:
+            break
+        print(line.rstrip ())
+
+def _createJson(method, paramDict):
+    paramDict.update({"method":method})
+    return "\'" + json.dumps(paramDict, ensure_ascii=False) + "\'"
+
+def _deleteNoneValue(paramDict):
+    if "helpFlg" in paramDict:
+        del paramDict['helpFlg']
+    for key in paramDict.keys():
+        if paramDict[key] == None:
+            del paramDict[key]
+    return paramDict
+
+if __name__ == '__main__':
+    paramList=[]
+    #--で始まるオプションを小文字に変換
+    for arg in sys.argv:
+        if re.match('^--', arg):
+            arg = arg.lower() 
+        paramList.append(arg)
+
+    if len(paramList) == 2 and ( "-h" == paramList[1].lower() or "--help" == paramList[1].lower()):
+        _showHelp("pccHelp")
+        exit(0)
+    elif len(paramList) == 3:
+        if  "-h" == paramList[2].lower() or "--help" == paramList[2].lower():
+            if "add" == paramList[1].lower():
+                _showHelp("addHelp")
+            elif "update" == paramList[1].lower():
+                _showHelp("updateHelp")
+            elif "del" == paramList[1].lower():
+                _showHelp("deleteHelp")
+            elif "enable" == paramList[1].lower():
+                _showHelp("enableHelp")
+            elif "disable" == paramList[1].lower():
+                _showHelp("disableHelp")
+            elif "list" == paramList[1].lower():
+                _showHelp("listHelp")
+            elif "show" == paramList[1].lower():
+                _showHelp("showHelp")
+            exit(0)
+    elif len(paramList) < 3:
+        print("PCCコマンドのオプションが不足しています。")
+        exit(1)
+    
+    paramList[1] = paramList[1].lower() 
+    paramList[2] = paramList[2].lower()
+    method = None
+    paramDict = None
+    
+    #メソッド判定
+    if "platform" == paramList[2]:
+        if "add" == paramList[1]:
+            method = "addPlatform"
+
+        elif "update" == paramList[1]:
+            method = "updatePlatform"
+
+        elif "del" == paramList[1]:
+            method = "deletePlatform"
+
+        elif "enable" == paramList[1]:
+            method = "enablePlatform"
+
+        elif "disable" == paramList[1]:
+            method = "disablePlatform"
+
+        elif "list" == paramList[1]:
+            method = "listPlatform"
+            
+        elif "show" == paramList[1]:
+            method = "showPlatform"
+
+    elif "instancetype" == paramList[2]:
+        if "add" == paramList[1]:
+            method = "addInstanceType"
+
+        elif "update" == paramList[1]:
+            method = "updateInstanceType"
+        
+        elif "del" == paramList[1]:
+            method = "deleteInstanceType"
+        
+        elif "list" == paramList[1]:
+            method = "listInstanceType"
+
+    elif "storagetype" == paramList[2]:
+        if "add" == paramList[1]:
+            method = "addStorageType"
+
+        elif "update" == paramList[1]:
+            method = "updateStorageType"
+        
+        elif "del" == paramList[1]:
+            method = "deleteStorageType"
+        
+        elif "list" == paramList[1]:
+            method = "listStorageType"
+
+    elif "iaas" == paramList[2]:
+        if "list" == paramList[1]:
+            method = "listIaas"
+            
+        elif "show" == paramList[1]:
+            method = "showIaas"
+    
+    elif "image" == paramList[2]:
+        if "add" == paramList[1]:
+            method = "addImage"
+        
+        elif "update" == paramList[1]:
+            method = "updateImage"
+
+        elif "del" == paramList[1]:
+            method = "deleteImage"
+
+        elif "enable" == paramList[1]:
+            method = "enableImage"
+            
+        elif "disable" == paramList[1]:
+            method = "disableImage"
+        
+        elif "list" == paramList[1]:
+            method = "listImage"
+        
+        elif "show" == paramList[1]:
+            method = "showImage"
+
+    elif "service" == paramList[2]:
+        if "add" == paramList[1]:
+            method = "addService"
+
+        elif "update" == paramList[1]:
+            method = "updateService"
+
+        elif "del" == paramList[1]:
+            method = "deleteService"
+
+        elif "enable" == paramList[1]:
+            method = "enableService"
+
+        elif "disable" == paramList[1]:
+            method = "disableService"
+
+        elif "list" == paramList[1]:
+            method = "listService"
+
+        elif "show" == paramList[1]:
+            method = "showService"
+
+        elif "validate" == paramList[1]:
+            method = "validateService"
+
+        elif "revoke" == paramList[1]:
+            method = "revokeService"
+
+    if method is not None:
+        pcchelp=os.path.join(os.path.dirname(__file__), '../lib/help/pcchelp.py')
+        helpmessage = subprocess.Popen('python ' + pcchelp + ' ' + method, stdout=subprocess.PIPE, shell=True)
+        helpmessage = helpmessage.communicate()
+        parser = argparse.ArgumentParser(add_help=False,usage="誤った引数が指定されています。\n\n" + helpmessage[0])
+    
+        parser.add_argument('-h', dest='helpFlg', action='store_true')
+        parser.add_argument('--help', dest='helpFlg', action='store_true')
+    
+    #メソッドごとの引数指定
+    if "addPlatform" == method:
+        parser.add_argument('--iaasname', dest='iaasName', help='IaaSの種類')
+        parser.add_argument('--platformname', dest='platformName', help='プラットフォーム名称')
+        parser.add_argument('--platformnamedisp', dest='platformNameDisp', help='表示用プラットフォーム名称')
+        parser.add_argument('--platformsimpledisp', dest='platformSimpleDisp', help='表示用プラットフォーム短縮名称')
+        parser.add_argument('--internal', dest='internal', help='プライベートクラウドフラグ')
+        parser.add_argument('--proxy', dest='proxy', help='proxy使用フラグ')
+        parser.add_argument('--endpoint', dest='endpoint', help='APIのホストアドレス')
+        parser.add_argument('--secure', dest='secure', help='APIへのアクセス方法のHTTPS使用フラグ')
+        parser.add_argument('--euca', dest='euca', help='Eucalyptus使用フラグ')
+        parser.add_argument('--vpc', dest='vpc', help='VPC利用フラグ')
+        parser.add_argument('--region', dest='region', help='リージョン')
+        parser.add_argument('--availabilityzone', dest='availabilityZone', help='アベイラビリティゾーン')
+        parser.add_argument('--vpcid', dest='vpcId', help='VPC-ID')
+        parser.add_argument('--username', dest='userName', help='APIのユーザ名')
+        parser.add_argument('--password', dest='password', help='APIのパスワード')
+        parser.add_argument('--datacenter', dest='datacenter', help='操作対象のデータセンター名称')
+        parser.add_argument('--publicnetwork', dest='publicNetwork', help='パブリック用デフォルトグループ名称')
+        parser.add_argument('--privatenetwork', dest='privateNetwork', help='プライベート用デフォルトグループ名称')
+        parser.add_argument('--computeresource', dest='computeResource', help='VMwareで使用するサーバのホスト、またはクラスタ名称')
+        parser.add_argument('--instancetypename', dest='instanceTypeName', help='インスタンスのサイズ名称')
+        parser.add_argument('--cpu', dest='cpu', help='インスタンスで使用するCPU数')
+        parser.add_argument('--memory', dest='memory', help='インスタンスで使用するメモリ(Byte)')
+        parser.add_argument('--zoneid', dest='zoneId', help='ゾーンを指定するID')
+        parser.add_argument('--networkid', dest='networkId', help='ネットワークを指定するID カンマ区切りで複数指定可能')
+        parser.add_argument('--timeout', dest='timeout', help='タイムアウト時間')
+        parser.add_argument('--devicetype', dest='deviceType', help='デバイスタイプ')
+        parser.add_argument('--hostid', dest='hostId', help='ホストID')
+        parser.add_argument('--orgname', dest='orgName', help='組織名称')
+        parser.add_argument('--vdcname', dest='vdcName', help='VDC名称')
+        parser.add_argument('--defnetwork', dest='defNetwork', help='使用するネットワーク名の初期値')
+        parser.add_argument('--storagetypename', dest='storageTypeName', help='ストレージタイプ名称')
+        parser.add_argument('--tenantid', dest='tenantId', help='テナントID')
+        parser.add_argument('--tenantname', dest='tenantName', help='テナント名')
+        parser.add_argument('--affinitygroupname', dest='affinityGroupName', help='アフィニティグループ名称')
+        parser.add_argument('--cloudservicename', dest='cloudServiceName', help='クラウドサービス名称')
+        parser.add_argument('--storageaccountname', dest='storageAccountName', help='ストレージアカウント名称')
+        parser.add_argument('--networkname', dest='networkName', help='ネットワーク名称')
+        parser.add_argument('--availabilitysets', dest='availabilitySets', help='可用性セット カンマ区切りで複数指定可能')
+
+    elif "updatePlatform" == method:
+        parser.add_argument('--platformno', dest='platformNo', help='更新対象のプラットフォームNo')
+        parser.add_argument('--platformname', dest='platformName', help='プラットフォーム名称')
+        parser.add_argument('--platformnamedisp', dest='platformNameDisp', help='表示用プラットフォーム名称')
+        parser.add_argument('--platformsimpledisp', dest='platformSimpleDisp', help='表示用プラットフォーム短縮名称')
+        parser.add_argument('--endpoint', dest='endpoint', help='APIのホストアドレス')
+        parser.add_argument('--username', dest='userName', help='APIのユーザ名称')
+        parser.add_argument('--password', dest='password', help='APIのパスワード')
+        parser.add_argument('--publicnetwork', dest='publicNetwork', help='パブリック用デフォルトグループ名称')
+        parser.add_argument('--privatenetwork', dest='privateNetwork', help='プライベート用デフォルトグループ名称')
+        parser.add_argument('--timeout', dest='timeout', help='タイムアウト時間')
+        parser.add_argument('--defnetwork', dest='defNetwork', help='使用するネットワーク名の初期値')
+
+    elif "deletePlatform" == method:
+        parser.add_argument('--platformname', dest='platformName', help='削除対象のプラットフォーム名称')
+
+    elif "enablePlatform" == method:
+        parser.add_argument('--platformname', dest='platformName', help='有効化対象のプラットフォーム名称')
+
+    elif "disablePlatform" == method:
+        parser.add_argument('--platformname', dest='platformName', help='無効化対象のプラットフォーム名称')
+
+    elif "showPlatform" == method:
+        parser.add_argument('--platformname', dest='platformName', help='参照対象のプラットフォーム名称')
+
+    elif "addInstanceType" == method:
+        parser.add_argument('--platformname', dest='platformName', help='インスタンスタイプ追加対象のプラットフォーム名称')
+        parser.add_argument('--instancetypename', dest='instanceTypeName', help='インスタンスのサイズ名称')
+        parser.add_argument('--cpu', dest='cpu', help='インスタンスで使用するCPU数')
+        parser.add_argument('--memory', dest='memory', help='インスタンスで使用するメモリ(Byte)')
+
+    elif "updateInstanceType" == method:
+        parser.add_argument('--platformname', dest='platformName', help='更新対象インスタンスタイプのプラットフォーム名称')
+        parser.add_argument('--instancetypeno', dest='instanceTypeNo', help='更新対象インスタンスタイプNo')
+        parser.add_argument('--instancetypename', dest='instanceTypeName', help='インスタンスのサイズ名称')
+        parser.add_argument('--cpu', dest='cpu', help='インスタンスで使用するCPU数')
+        parser.add_argument('--memory', dest='memory', help='インスタンスで使用するメモリ(Byte)')
+    
+    elif "deleteInstanceType" == method:
+        parser.add_argument('--platformname', dest='platformName', help='削除対象インスタンスタイプのプラットフォーム名称')
+        parser.add_argument('--instancetypeno', dest='instanceTypeNo', help='削除対象インスタンスタイプNo')
+    
+    elif "listInstanceType" == method:
+        parser.add_argument('--platformname', dest='platformName', help='参照対象インスタンスタイプのプラットフォーム名称')
+
+    elif "addStorageType" == method:
+        parser.add_argument('--platformname', dest='platformName', help='ストレージタイプ追加対象のプラットフォーム名称')
+        parser.add_argument('--storagetypename', dest='storageTypeName', help='ストレージタイプ名称')
+
+    elif "updateStorageType" == method:
+        parser.add_argument('--platformname', dest='platformName', help='更新対象ストレージタイプのプラットフォーム名称')
+        parser.add_argument('--storagetypeno', dest='storageTypeNo', help='更新対象ストレージタイプNo')
+        parser.add_argument('--storagetypename', dest='storageTypeName', help='ストレージタイプ名称')
+    
+    elif "deleteStorageType" == method:
+        parser.add_argument('--platformname', dest='platformName', help='削除対象ストレージタイプのプラットフォーム名称')
+        parser.add_argument('--storagetypeno', dest='storageTypeNo', help='削除対象ストレージタイプNo')
+    
+    elif "listStorageType" == method:
+        parser.add_argument('--platformname', dest='platformName', help='参照対象ストレージタイプのプラットフォーム名称')
+            
+    elif "showIaas" == method:
+        parser.add_argument('--iaasname', dest='iaasName', help='参照対象IaaS名称')
+    
+    elif "addImage" == method:
+        parser.add_argument('--modulename', dest='moduleName', help='登録するイメージ名称')
+        parser.add_argument('--platformlist', dest='platformList', help='プラットフォーム名称')
+        parser.add_argument('--icon', dest='icon', help='アイコンファイルのパス')
+        
+    elif "updateImage" == method:
+        parser.add_argument('--imageno', dest='imageNo', help='更新対象のイメージNo')
+        parser.add_argument('--imagename', dest='imageName', help='イメージ名称')
+        parser.add_argument('--imagenamedisp', dest='imageNameDisp', help='画面表示用のイメージ名称')
+        parser.add_argument('--osname', dest='osName', help='OS名称')
+        parser.add_argument('--osnamedisp', dest='osNameDisp', help='画面表示用のOS名称')
+        parser.add_argument('--servicelist', dest='serviceList', help='使用可能なサービス名 カンマ区切りで複数指定可能')
+        parser.add_argument('--instancetypelist', dest='instanceTypeList', help='使用可能なインスタンスタイプを指定 カンマ区切りで複数指定可能')
+        parser.add_argument('--zabbixtemplate', dest='zabbixTemplate', help='使用するZabbixのテンプレート名称')
+        parser.add_argument('--kernelid', dest='kernelId', help='カーネルID AWSプラットフォームの場合のみ指定可能')
+        parser.add_argument('--ramdiskid', dest='ramdiskId', help='RAMDISK ID AWSプラットフォームの場合のみ指定可能')
+        parser.add_argument('--icon', dest='icon', help='アイコンファイルのパス')
+
+    elif "deleteImage" == method:
+        parser.add_argument('--modulename', dest='moduleName', help='削除対象のモジュール名称')
+        parser.add_argument('--platformlist', dest='platformList', help='削除対象のプラットフォーム名称')
+
+    elif "enableImage" == method:
+        parser.add_argument('--imageno', dest='imageNo', help='有効化対象のイメージNo')
+        
+    elif "disableImage" == method:
+        parser.add_argument('--imageno', dest='imageNo', help='無効化対象のイメージNo')
+    
+    elif "showImage" == method:
+        parser.add_argument('--imageno', dest='imageNo', help='参照対象のイメージNo')
+
+    elif "addService" == method:
+        parser.add_argument('--modulename', dest='moduleName', help='更新するサービス名称')
+        parser.add_argument('--imagenolist', dest='imageNoList', help='追加対象のイメージNoリスト')
+
+    elif "updateService" == method:
+        parser.add_argument('--servicename', dest='serviceName', help='更新するサービス名称')
+        parser.add_argument('--servicenamedisp', dest='serviceNameDisp', help='画面表示用サービス名称')
+        parser.add_argument('--layer', dest='layer', help='レイヤー名称')
+        parser.add_argument('--layernamedisp', dest='layerNameDisp', help='画面表示用レイヤー名称')
+        parser.add_argument('--runorder', dest='runOrder', help='起動優先順')
+        parser.add_argument('--zabbixtemplate', dest='zabbixTemplate', help='ZABBIX用テンプレート名称')
+        parser.add_argument('--addressurl', dest='addressUrl', help='アドレスURL')
+    
+    elif "deleteService" == method:
+        parser.add_argument('--modulename', dest='moduleName', help='削除するモジュール名称')
+        parser.add_argument('--imagenolist', dest='imageNoList', help='サービスを削除するイメージNoリスト')
+
+    elif "enableService" == method:
+        parser.add_argument('--servicename', dest='serviceName', help='有効化対象のサービス名称')
+
+    elif "disableService" == method:
+        parser.add_argument('--servicename', dest='serviceName', help='無効化対象のサービス名称')
+
+    elif "showService" == method:
+        parser.add_argument('--servicename', dest='serviceName', help='詳細情報表示対象サービス名称')
+
+    elif "validateService" == method:
+        parser.add_argument('--imageno', dest='imageNo', help='サービス情報追加対象のイメージNo')
+        parser.add_argument('--servicelist', dest='serviceList', help='追加するサービス名称 カンマ区切りで複数指定可能')
+
+    elif "revokeService" == method:
+        parser.add_argument('--imageno', dest='imageNo', help='サービス情報削除対象のイメージNo')
+        parser.add_argument('--servicelist', dest='serviceList', help='削除するサービス名称 カンマ区切りで複数指定可能')
+
+    #サポート対象外のコマンドが指定された場合
+    if method is None:
+        print("pccコマンドが正しくありません。実行可能なコマンドは pcc -h を参照して下さい。")
+    else:
+        #各処理実行
+        try:
+            paramDict = vars(parser.parse_args(paramList[3:]))
+        except Exception as e:
+            print(e)
+            exit(2)
+        
+        #ヘルプフラグがONの場合、ヘルプ表示
+        if paramDict['helpFlg'] == True:
+            _showHelp(method)
+        #プラットフォーム追加/更新 及び イメージ追加/更新 は専用メソッド呼び出し
+        elif "addPlatform" == method:
+            _execAddPlatform(method, paramDict)
+        elif "updatePlatform" == method:
+            _execUpdatePlatform(method, paramDict)
+        elif "addImage" == method:
+            _execAddImage(method, paramDict)
+        elif "updateImage" == method:
+            _execUpdateImage(method, paramDict)
+        elif "deleteImage" == method:
+            _execDeleteImage(method, paramDict)
+        elif "addService" == method:
+            _execAddService(method, paramDict)
+        elif "deleteService" == method:
+            _execDeleteService(method, paramDict)
+        else:
+            _execCommand(method, paramDict)

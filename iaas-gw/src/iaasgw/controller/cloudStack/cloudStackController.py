@@ -208,22 +208,21 @@ class CloudStackController(IaasController):
 
         #DBへ登録
         table = self.conn.getTable("CLOUDSTACK_ADDRESS")
-        sql = table.insert([None,
-                      self.accessInfo["USER"],
-                      self.client.getPlatformNo(),
-                      None,
-                      None,
-                      addressid,
-                      ipaddress,
-                      addressinfo["networkid"],
-                      addressinfo["state"],
-                      addressinfo["zoneid"],
-                      ])
+        sql = table.insert({"ADDRESS_NO":None,
+                      "ACCOUNT":self.accessInfo["USER"],
+                      "PLATFORM_NO":self.client.getPlatformNo(),
+                      "INSTANCE_NO":None,
+                      "INSTANCE_ID":None,
+                      "ADDRESS_ID":addressid,
+                      "IPADDRESS":ipaddress,
+                      "NETWORKID":addressinfo["networkid"],
+                      "STATE":addressinfo["state"],
+                      "ZONEID":addressinfo["zoneid"],
+                      })
 
         self.conn.execute(sql)
 
         newAddress = self.conn.selectOne(table.select(table.c.IPADDRESS==ipaddress))
-        print newAddress
         self.conn.commit()
         return "RESULT:" + str(newAddress["ADDRESS_NO"])
 

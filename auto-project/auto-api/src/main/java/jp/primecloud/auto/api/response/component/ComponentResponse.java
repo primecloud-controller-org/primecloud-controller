@@ -7,7 +7,6 @@ import javax.xml.bind.annotation.XmlType;
 import jp.primecloud.auto.entity.crud.Component;
 
 
-
 @XmlRootElement(name="Component")
 @XmlType(propOrder = { "componentNo", "componentName", "componentTypeNo", "instanceCount", "loadBalancerName", "status"})
 public class ComponentResponse {

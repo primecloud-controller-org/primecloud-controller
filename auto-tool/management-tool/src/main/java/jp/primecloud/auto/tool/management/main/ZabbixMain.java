@@ -25,9 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import jp.primecloud.auto.tool.management.db.SQLExecuter;
 import jp.primecloud.auto.tool.management.zabbix.ZabbixScriptService;
-import jp.primecloud.auto.tool.management.zabbix.ZabbixSqlService;
 import jp.primecloud.auto.zabbix.model.user.User;
 import jp.primecloud.auto.zabbix.model.usergroup.Usergroup;
 
@@ -127,47 +125,6 @@ public class ZabbixMain {
         } catch (Exception e) {
             log.error(username + " ユーザーが見つかりません", e);
             System.out.println(username + " ユーザーが見つかりません");
-        }
-    }
-
-    public static void selectExecute(CommandLine commandLine) {
-        ZabbixSqlService zabbixSqlService = new ZabbixSqlService();
-        SQLExecuter sqlExecuter = zabbixSqlService.getSqlExecuter();
-        String sql = commandLine.getOptionValue("sql");
-
-        if (commandLine.hasOption("columntype") && commandLine.hasOption("columnname")) {
-            String columnName = commandLine.getOptionValue("columnname");
-            String columnType = commandLine.getOptionValue("columntype");
-
-            try {
-                Object result = sqlExecuter.getColumn(sql, columnName, columnType);
-                if (result == null) {
-                    System.out.println("NULL");
-                } else {
-                    System.out.print(result.toString());
-                }
-            } catch (Exception e) {
-                log.error("[" + sql + "] の実行に失敗しました", e);
-                System.out.println("[" + sql + "] の実行に失敗しました");
-                return;
-            }
-        } else {
-            try {
-                List<List<Object>> results = sqlExecuter.showColumn(sql);
-                for (List<Object> columns : results) {
-                    for (Object object : columns) {
-                        if (object == null) {
-                            object = "NULL";
-                        }
-                        System.out.print(object.toString() + " ");
-                    }
-                    System.out.println();
-                }
-            } catch (Exception e) {
-                log.error("[" + sql + "] の実行に失敗しました", e);
-                System.out.println("[" + sql + "] の実行に失敗しました");
-                return;
-            }
         }
     }
 

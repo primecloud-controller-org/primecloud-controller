@@ -26,15 +26,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.util.MessageUtils;
-import jp.primecloud.auto.vmware.VmwareClient;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import jp.primecloud.auto.exception.AutoException;
+import jp.primecloud.auto.util.MessageUtils;
+import jp.primecloud.auto.vmware.VmwareClient;
 import com.vmware.vim25.AlreadyExists;
 import com.vmware.vim25.CustomFieldDef;
 import com.vmware.vim25.CustomizationSpec;
@@ -45,6 +44,7 @@ import com.vmware.vim25.HostNetworkPolicy;
 import com.vmware.vim25.HostPortGroupConfig;
 import com.vmware.vim25.HostPortGroupSpec;
 import com.vmware.vim25.InvalidArgument;
+import com.vmware.vim25.NetIpConfigInfoIpAddress;
 import com.vmware.vim25.NotFound;
 import com.vmware.vim25.OptionValue;
 import com.vmware.vim25.TaskInfo;
@@ -67,11 +67,13 @@ import com.vmware.vim25.VirtualMachineToolsVersionStatus;
 import com.vmware.vim25.VirtualSCSIController;
 import com.vmware.vim25.mo.ComputeResource;
 import com.vmware.vim25.mo.CustomFieldsManager;
+import com.vmware.vim25.mo.Datacenter;
 import com.vmware.vim25.mo.Datastore;
+import com.vmware.vim25.mo.FileManager;
 import com.vmware.vim25.mo.Folder;
-import com.vmware.vim25.mo.HostDatastoreBrowser;
 import com.vmware.vim25.mo.HostNetworkSystem;
 import com.vmware.vim25.mo.HostSystem;
+import com.vmware.vim25.mo.ManagedEntity;
 import com.vmware.vim25.mo.ResourcePool;
 import com.vmware.vim25.mo.Task;
 import com.vmware.vim25.mo.VirtualMachine;
@@ -539,7 +541,7 @@ public class VmwareProcessClient {
 
             // VMware Toolsがインストールされていること
             if (VirtualMachineToolsVersionStatus.guestToolsNotInstalled.toString().equals(
-                    guestInfo.getToolsVersionStatus())) {
+                    guestInfo.getToolsVersionStatus2())) {
                 throw new AutoException("EPROCESS-000509", machineName);
             }
 
@@ -563,16 +565,16 @@ public class VmwareProcessClient {
             int count = 0;
             for (GuestNicInfo nicInfo : guestInfo.getNet()) {
                 // NIC情報からIPv4のアドレスを取得
-                String[] tmpAddresses = nicInfo.getIpAddress();
+                NetIpConfigInfoIpAddress[] tmpAddresses = nicInfo.getIpConfig().getIpAddress();
                 if (tmpAddresses == null) {
                     continue;
                 }
                 String ipAddress = null;
-                for (String tmpAdress : tmpAddresses) {
+                for (NetIpConfigInfoIpAddress tmpAdress : tmpAddresses) {
                     try {
-                        InetAddress inetAddress = InetAddress.getByName(tmpAdress);
+                        InetAddress inetAddress = InetAddress.getByName(tmpAdress.getIpAddress());
                         if (inetAddress instanceof Inet4Address) {
-                            ipAddress = tmpAdress;
+                            ipAddress = tmpAdress.getIpAddress();
                             break;
                         }
                     } catch (UnknownHostException ignore) {
@@ -960,6 +962,9 @@ public class VmwareProcessClient {
     }
 
     public void deleteDisk(String datastoreName, String fileName) {
+        // Datacenter
+        ManagedEntity datacenter = vmwareClient.getRootEntity();
+
         // Datastore
         Datastore datastore = vmwareClient.search(Datastore.class, datastoreName);
         if (datastore == null) {
@@ -968,9 +973,19 @@ public class VmwareProcessClient {
         }
 
         // ディスクの削除
-        HostDatastoreBrowser datastoreBrowser = datastore.getBrowser();
+        FileManager fileManager = vmwareClient.getServiceInstance().getFileManager();
+        if (fileManager == null) {
+            // fileManagerが利用できない場合
+            throw new AutoException("EPROCESS-000533");
+        }
+
         try {
-            datastoreBrowser.deleteFile(fileName);
+            // ディスク削除
+            fileManager.deleteDatastoreFile_Task(fileName, (Datacenter) datacenter);
+            // ディスク削除後にごみができ、再度アタッチするとエラーになるので削除
+            String flatname;
+            flatname = fileName.substring(0, fileName.length() - 5) + "-flat.vmdk";
+            fileManager.deleteDatastoreFile_Task(flatname, (Datacenter) datacenter);
         } catch (RemoteException e) {
             throw new AutoException("EPROCESS-000522", e, fileName);
         }

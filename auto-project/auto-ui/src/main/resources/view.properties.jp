@@ -451,6 +451,19 @@ caption.param.instance.datastore=データストア
 caption.param.instance.publicIp=パブリックIPアドレス
 caption.param.instance.privateIp=プライベートIPアドレス
 caption.param.instance.staticIp=固定IPアドレス
+caption.param.instance.zoneId=ゾーンID
+caption.param.instance.networkId=ネットワークID
+caption.param.instance.organization=組織
+caption.param.instance.vdc=vDC
+caption.param.instance.vapp=vAPP
+caption.param.instance.network=ネットワーク
+caption.param.instance.storageType=ストレージタイプ
+caption.param.instance.subscriptionId=サブスクリプションID
+caption.param.instance.affinityGroup=アフィニティグループ
+caption.param.instance.cloudService=クラウドサービス
+caption.param.instance.networkName=ネットワーク名
+caption.param.instance.subnetName=サブネット名
+caption.param.instance.storageAccount=ストレージアカウント名
 
 # Message
 ECOMMON-000000=予期しないエラーが発生しました。

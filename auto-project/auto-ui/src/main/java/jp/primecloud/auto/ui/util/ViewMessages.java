@@ -18,10 +18,9 @@
  */
 package jp.primecloud.auto.ui.util;
 
-import jp.primecloud.auto.util.MessageUtils;
-
 import org.apache.commons.lang.StringUtils;
 
+import jp.primecloud.auto.util.MessageUtils;
 
 /**
  * <p>

@@ -27,6 +27,9 @@ import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.entity.crud.LoadBalancerInstance;
 import jp.primecloud.auto.entity.crud.LoadBalancerListener;
 import jp.primecloud.auto.entity.crud.NiftyKeyPair;
+import jp.primecloud.auto.entity.crud.PlatformVcloudStorageType;
+import jp.primecloud.auto.entity.crud.VcloudInstanceNetwork;
+import jp.primecloud.auto.entity.crud.VcloudKeyPair;
 import jp.primecloud.auto.entity.crud.VmwareKeyPair;
 import jp.primecloud.auto.service.dto.ComponentDto;
 import jp.primecloud.auto.service.dto.ComponentInstanceDto;
@@ -34,7 +37,6 @@ import jp.primecloud.auto.service.dto.ComponentTypeDto;
 import jp.primecloud.auto.service.dto.FarmDto;
 import jp.primecloud.auto.service.dto.InstanceDto;
 import jp.primecloud.auto.service.dto.LoadBalancerDto;
-
 import com.vmware.vim25.mo.ComputeResource;
 
 /**
@@ -67,6 +69,8 @@ public class Comparators {
 
     public static final Comparator<NiftyKeyPair> COMPARATOR_NIFTY_KEY_PAIR;
 
+    public static final Comparator<VcloudKeyPair>  COMPARATOR_VCLOUD_KEY_PAIR;
+
     public static final Comparator<LoadBalancerDto> COMPARATOR_LOAD_BALANCER_DTO;
 
     public static final Comparator<LoadBalancer> COMPARATOR_LOAD_BALANCER;
@@ -74,6 +78,10 @@ public class Comparators {
     public static final Comparator<LoadBalancerListener> COMPARATOR_LOAD_BALANCER_LISTENER;
 
     public static final Comparator<LoadBalancerInstance> COMPARATOR_LOAD_BALANCER_INSTANCE;
+
+    public static final Comparator<VcloudInstanceNetwork> COMPARATOR_VCLOUD_INSTANCE_NETWORK;
+
+    public static final Comparator<PlatformVcloudStorageType> COMPARATOR_PLATFORM_VCLOUD_STORAGE_TYPE;
 
     static {
         COMPARATOR_FARM_DTO = new Comparator<FarmDto>() {
@@ -193,6 +201,13 @@ public class Comparators {
             }
         };
 
+        COMPARATOR_VCLOUD_KEY_PAIR = new Comparator<VcloudKeyPair>() {
+            @Override
+            public int compare(VcloudKeyPair o1, VcloudKeyPair o2) {
+                return o1.getKeyNo().compareTo(o2.getKeyNo());
+            }
+        };
+
         COMPARATOR_LOAD_BALANCER_DTO = new Comparator<LoadBalancerDto>() {
             @Override
             public int compare(LoadBalancerDto o1, LoadBalancerDto o2) {
@@ -226,6 +241,31 @@ public class Comparators {
                     comp = o1.getInstanceNo().compareTo(o2.getInstanceNo());
                 }
                 return comp;
+            }
+        };
+
+        COMPARATOR_VCLOUD_INSTANCE_NETWORK = new Comparator<VcloudInstanceNetwork>() {
+            @Override
+            public int compare(VcloudInstanceNetwork o1, VcloudInstanceNetwork o2) {
+                if (o1.getNetworkIndex() == null && o2.getNetworkIndex() == null) {
+                    return o1.getNetworkNo().compareTo(o2.getNetworkNo());
+                } else if (o1.getNetworkIndex() != null && o2.getNetworkIndex() == null) {
+                    return -1;
+                } else if (o1.getNetworkIndex() == null && o2.getNetworkIndex() != null) {
+                    return 1;
+                }
+                return o1.getNetworkIndex().compareTo(o2.getNetworkIndex());
+            }
+        };
+
+        COMPARATOR_PLATFORM_VCLOUD_STORAGE_TYPE = new Comparator<PlatformVcloudStorageType>() {
+            @Override
+            public int compare(PlatformVcloudStorageType o1, PlatformVcloudStorageType o2) {
+                if (!o1.getPlatformNo().equals(o2.getPlatformNo())) {
+                    return o1.getPlatformNo().compareTo(o2.getPlatformNo());
+                } else {
+                    return o1.getStorageTypeNo().compareTo(o2.getStorageTypeNo());
+                }
             }
         };
     }

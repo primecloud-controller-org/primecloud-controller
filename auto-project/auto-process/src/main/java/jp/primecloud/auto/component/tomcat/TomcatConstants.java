@@ -32,4 +32,5 @@ public class TomcatConstants {
 
     public static final Integer VMWARE_DISK_SCSI_ID = 4;
 
+    //VCloudのUnitNoは動的に変更される為、PCC側では設定しない
 }

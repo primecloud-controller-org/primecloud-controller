@@ -18,11 +18,10 @@
  */
 package jp.primecloud.auto.dao.crud.impl;
 
-import jp.primecloud.auto.dao.crud.BaseProxyDao;
-import jp.primecloud.auto.entity.crud.Proxy;
-
 import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
 
+import jp.primecloud.auto.dao.crud.BaseProxyDao;
+import jp.primecloud.auto.entity.crud.Proxy;
 
 /**
  * <p>

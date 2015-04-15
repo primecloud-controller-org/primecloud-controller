@@ -18,6 +18,7 @@
  */
 package jp.primecloud.auto.process.vmware;
 
+import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.dao.crud.PlatformDao;
 import jp.primecloud.auto.dao.crud.PlatformVmwareDao;
 import jp.primecloud.auto.entity.crud.Platform;
@@ -25,7 +26,6 @@ import jp.primecloud.auto.entity.crud.PlatformVmware;
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.vmware.VmwareClient;
 import jp.primecloud.auto.vmware.VmwareClientFactory;
-
 
 /**
  * <p>
@@ -50,7 +50,7 @@ public class VmwareProcessClientFactory {
 
     protected VmwareProcessClient createVmwareProcessClient(Platform platform) {
         PlatformVmware platformVmware = platformVmwareDao.read(platform.getPlatformNo());
-        if ("vmware".equals(platform.getPlatformType()) == false || platformVmware == null) {
+        if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType()) == false || platformVmware == null) {
             throw new AutoException("EPROCESS-000007", platform.getPlatformNo());
         }
 

@@ -14,6 +14,10 @@ node '${instance.fqdn}' inherits default {
     $platform_name  = "vmware"
   <#elseif platform.platformType == "nifty">
     $platform_name  = "nifty"
+  <#elseif platform.platformType == "vcloud">
+    $platform_name  = "vcloud"
+  <#elseif platform.platformType == "azure">
+    $platform_name  = "azure"
   </#if>
 
     $component_names = "<#list associatedComponents as associatedComponents>${associatedComponents.componentName}<#if associatedComponents_has_next>,</#if></#list>"

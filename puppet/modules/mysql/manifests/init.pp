@@ -17,7 +17,7 @@ define mysql::stop(
     notice ("db_servers = ${db_servers}")
     notice ("ap_servers = ${ap_servers}")
     notice ("web_servers = ${web_servers}")
-
+    
     $db_home = $name
     $rsyncFlag = "${db_home}/${fact_rsyncflagfile}"
 
@@ -62,7 +62,7 @@ define mysql::config(
     notice ("db_servers = ${db_servers}")
     notice ("ap_servers = ${ap_servers}")
     notice ("web_servers = ${web_servers}")
-
+    
     $db_home = $name
     $rsyncFlag = "${db_home}/${fact_rsyncflagfile}"
 
@@ -130,7 +130,7 @@ define mysql::config(
         require => Mount["${db_home}"],
     }
 
-    exec { "SetMySQLpassword":
+    exec { "SetMySQLpassword": 
         command => "mysqladmin -u${root_username}  --password='${root_password_org}' password '${root_password}'",
         unless  => "mysqladmin -u${root_username} --password='${root_password}' status",
         require => Service["mysqld"],
@@ -141,24 +141,24 @@ define mysql::config(
         require => [Service["mysqld"],Exec["SetMySQLpassword"]]
     }
 
-    exec { "DeleteDefautDB":
+    exec { "DeleteDefautDB": 
         command => "mysql -u${root_username} --password='${root_password}' -e \"DROP DATABASE IF EXISTS TEST;\"",
         require => [Service["mysqld"],Exec["SetMySQLpassword"]]
     }
 
     case $server_type {
-        'MASTER' : {
-            $del_master_info = "true"
+        'MASTER' : { 
+            $del_master_info = "true" 
             createMNGUser{ "${mng_username}":
                 password       => "${mng_password}",
                 host           => "localhost",
                 root_username  => "${root_username}",
                 root_password  => "${root_password}",
-            }
+            } 
         }
-        'SLAVE'  : {
-            $del_master_info = $reset_slave
-        }
+        'SLAVE'  : { 
+            $del_master_info = $reset_slave 
+        } 
         default  : {}
     }
 
@@ -263,6 +263,31 @@ define mysql::startSlave(
 
 }
 
+define mysql::sampleDB (
+    $root_password    
+){
+    $db_home = $name
+    notice ("db_home = ${db_home}")
+
+    file { "${db_home}/sampledb":
+       owner   => "root",
+       group   => "root",
+       mode    => "750",
+       recurse => true,
+       replace => "false",
+       source  => "puppet:///mysql/sampledb",
+       require => Mount["${db_home}"],
+       notify  => Exec["createSampleDB"]
+    }
+
+    exec { "createSampleDB" :
+        cwd     => "${db_home}/sampledb",
+        command => "${db_home}/sampledb/createSampleDB.sh ${root_password}",
+        refreshonly => "true",
+        require     => [Exec["SetMySQLpassword"]],
+    }
+}
+
 define mysql::registerSlave(
     $dump_username,
     $dump_password,
@@ -276,15 +301,15 @@ define mysql::registerSlave(
         host     => "${host}",
         username => "${dump_username}",
         password => "${dump_password}",
-        root_username => "${root_username}",
-        root_password => "${root_password}",
+        root_username => "${root_username}", 
+        root_password => "${root_password}", 
     }
     mysql::createReplUser { "${repl_username}@${host}":
         host     => "${host}",
         username => "${repl_username}",
         password => "${repl_password}",
-        root_username => "${root_username}",
-        root_password => "${root_password}",
+        root_username => "${root_username}", 
+        root_password => "${root_password}", 
     }
 }
 
@@ -298,14 +323,14 @@ define mysql::unregisterSlave(
     mysql::revokeUser { "${dump_username}@${host}":
         host          => "${host}",
         username      => "${dump_username}",
-        root_username => "${root_username}",
-        root_password => "${root_password}",
-    }
+        root_username => "${root_username}", 
+        root_password => "${root_password}", 
+    } 
 
     mysql::revokeUser { "${repl_username}@${host}":
         host => "${host}",
         username      => "${repl_username}",
-        root_username => "${root_username}",
+        root_username => "${root_username}", 
         root_password => "${root_password}",
     }
 }
@@ -386,7 +411,7 @@ define mysql::revokeUser (
     $host = "localhost",
     $username,
     $root_username = "root",
-    $root_password
+    $root_password 
 ){
     exec { "revokeUser-${name}":
         command => "echo \"REVOKE ALL ON *.* FROM '${username}'@'${host}'; FLUSH PRIVILEGES; \" | mysql -u${root_username} --password='${root_password}'",
@@ -402,7 +427,7 @@ define mysql::grantUser (
     $objects = "*.*",
     $withGrantOpt = false,
     $root_username = "root",
-    $root_password
+    $root_password 
 ){
     if $withGrantOpt=="true" { $withoption="WITH GRANT OPTION" } else {  $withoption="" }
     exec { "grantUser-${name}":

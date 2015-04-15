@@ -1,0 +1,1 @@
+alter table OPENSTACK_VOLUME add constraint OPENSTACK_VOLUME_UK1 unique (COMPONENT_NO, INSTANCE_NO);

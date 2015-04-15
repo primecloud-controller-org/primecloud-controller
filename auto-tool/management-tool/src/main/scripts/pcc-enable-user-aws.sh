@@ -44,7 +44,7 @@ if [ -n "${USER_NAME}" -a -n "${PLATFORM_NAME}" ]; then
 
         #ユーザーがすでに作成されているかどうかの確認
         SQL_ALREADY_CREATED="SELECT USER_NO FROM USER where USERNAME ='${USER_NAME}'"
-        USER_NO=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -S -sql "${SQL_ALREADY_CREATED}" -columntype int -columnname USER_NO`
+        USER_NO=`su tomcat -c "java $JAVA_OPTS -cp ${CLASSPATH} ${MAIN} -S -sql \"${SQL_ALREADY_CREATED}\" -columntype int -columnname USER_NO"`
 
         if [ "${USER_NO}" = "NULL" ]; then
                 echo "${USER_NAME} は作成されていません。先にPCCのユーザを作成してください。"
@@ -59,7 +59,7 @@ if [ -n "${USER_NAME}" -a -n "${PLATFORM_NAME}" ]; then
         fi
 
 		#無効化文字列を読む
-        DISABLE_CODE=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -config DISABLE_CODE`
+        DISABLE_CODE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -config DISABLE_CODE"`
 		if [ "${DISABLE_CODE}" = "NULL" ]; then
 			echo "DISABLE_CODEの読み込みに失敗しました。"
 			exit 1
@@ -67,7 +67,7 @@ if [ -n "${USER_NAME}" -a -n "${PLATFORM_NAME}" ]; then
 
         #無効化されているか確認
         SQL_USER_DISABLED="SELECT LOCATE('${DISABLE_CODE}',PASSWORD) as LOCATE from USER where USER_NO=${USER_NO}"
-        LOCATE=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -S -sql "${SQL_USER_DISABLED}" -columntype int -columnname LOCATE`
+        LOCATE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -S -sql \"${SQL_USER_DISABLED}\" -columntype int -columnname LOCATE"`
 
         if [ "${LOCATE}" != "0" ]; then
                 echo "${USER_NAME} は無効化されています。"
@@ -76,13 +76,13 @@ if [ -n "${USER_NAME}" -a -n "${PLATFORM_NAME}" ]; then
 
 		#ACCESS_IDとSECRET_KEYをオプションに付けていない場合は、コンフィグから読む
         if [ -z "${AWS_ACCESS_ID}" -a -z "${AWS_SECRET_KEY}" ]; then
-        	AWS_ACCESS_ID=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -config AWS_ACCESS_ID`
+            AWS_ACCESS_ID=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -config AWS_ACCESS_ID"`
 			if [ "${AWS_ACCESS_ID}" = "NULL" ]; then
 				echo "AWS_ACCESS_IDの読み込みに失敗しました。"
 				exit 1
 			fi
 
-			AWS_SECRET_KEY=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -config AWS_SECRET_KEY`
+            AWS_SECRET_KEY=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -config AWS_SECRET_KEY"`
 			if [ "${AWS_SECRET_KEY}" = "NULL" ]; then
 				echo "AWS_SECRET_KEYの読み込みに失敗しました。"
 				exit 1
@@ -100,7 +100,7 @@ if [ -n "${USER_NAME}" -a -n "${PLATFORM_NAME}" ]; then
         fi
 
 		#プラットフォーム番号の取得
-		PLATFORM_NO=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -platformname "${PLATFORM_NAME}" -platformkind ec2`
+        PLATFORM_NO=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -platformname \"${PLATFORM_NAME}\" -platformkind ec2"`
 
 		if [ "${PLATFORM_NO}" = "NULL" ]; then
 			echo ${PLATFORM_NAME}" というプラットフォームは存在しません。"
@@ -119,7 +119,7 @@ if [ -n "${USER_NAME}" -a -n "${PLATFORM_NAME}" ]; then
 
         #ユーザーがすでに有効化されているかどうかの確認
         SQL_ALREADY_AWS_CREATED="SELECT USER_NO FROM AWS_CERTIFICATE where USER_NO =${USER_NO} and PLATFORM_NO=${PLATFORM_NO}"
-        USER_NO_CHECK=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -S -sql "${SQL_ALREADY_AWS_CREATED}" -columntype int -columnname USER_NO`
+        USER_NO_CHECK=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -S -sql \"${SQL_ALREADY_AWS_CREATED}\" -columntype int -columnname USER_NO"`
 
         if [ "${USER_NO_CHECK}" != "NULL" ]; then
                 echo "${USER_NAME} はすでに${PLATFORM_NAME}を使用可能です。"
@@ -128,7 +128,7 @@ if [ -n "${USER_NAME}" -a -n "${PLATFORM_NAME}" ]; then
 
         #AWSユーザー認証情報の作成
         SQL_CREATE_AWS_CERTIFICATE="INSERT INTO AWS_CERTIFICATE values (${USER_NO}, '${PLATFORM_NO}','${AWS_ACCESS_ID}','${AWS_SECRET_KEY}',NULL,NULL,NULL)"
-        MESSAGE=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -U -sql "${SQL_CREATE_AWS_CERTIFICATE}"`
+        MESSAGE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -U -sql \"${SQL_CREATE_AWS_CERTIFICATE}\""`
 
         if [ -n "${MESSAGE}" ]; then
                 echo "${MESSAGE}"
@@ -136,7 +136,7 @@ if [ -n "${USER_NAME}" -a -n "${PLATFORM_NAME}" ]; then
         fi
 
 		#AWS用のキーペアをAPIを通して送る
-        MESSAGE=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -I -iaasgwAccessId "${AWS_ACCESS_ID}" -iaasgwSecretKey "${AWS_SECRET_KEY}" -keyName "${USER_NAME}" -publicKey "${SSH_KEY_PUB}" -userno "${USER_NO}" -platformno "${PLATFORM_NO}"`
+        MESSAGE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -I -keyname \"${USER_NAME}\" -publickey \"${SSH_KEY_PUB}\" -userno \"${USER_NO}\" -platformno \"${PLATFORM_NO}\" -platformkind ec2"`
 
         if [ -n "${MESSAGE}" ]; then
             SQL_DELETE_AWS_CERTIFICATE="DELETE FROM AWS_CERTIFICATE where USER_NO = ${USER_NO} and PLATFORM_NO = ${PLATFORM_NO}"
@@ -145,7 +145,7 @@ if [ -n "${USER_NAME}" -a -n "${PLATFORM_NAME}" ]; then
         	elif [ "${MESSAGE}" = "VPCID_EMPTY" ]; then
         	    echo "VPCを利用する場合はVPC_IDをPLATFORM_AWSテーブルに設定して下さい。"
         	    #エラーの場合はAWSユーザー認証情報を削除する
-        	    MESSAGE=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -U -sql "${SQL_DELETE_AWS_CERTIFICATE}"`
+                MESSAGE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -U -sql \"${SQL_DELETE_AWS_CERTIFICATE}\""`
                 if [ -n "${MESSAGE}" ]; then
                         echo "${MESSAGE}"
                 fi
@@ -153,7 +153,7 @@ if [ -n "${USER_NAME}" -a -n "${PLATFORM_NAME}" ]; then
         	elif [ "${MESSAGE}" = "SUBNET_EMPTY" ]; then
         	    echo "指定されたACCESS_IDではVPCを使用することが出来ません。"
         	    #エラーの場合はAWSユーザー認証情報を削除する
-        	    MESSAGE=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -U -sql "${SQL_DELETE_AWS_CERTIFICATE}"`
+                MESSAGE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -U -sql \"${SQL_DELETE_AWS_CERTIFICATE}\""`
                 if [ -n "${MESSAGE}" ]; then
                         echo "${MESSAGE}"
                 fi
@@ -161,7 +161,7 @@ if [ -n "${USER_NAME}" -a -n "${PLATFORM_NAME}" ]; then
         	elif [ "${MESSAGE}" = "IMPORT_ERROR" ]; then
         		echo "${USER_NAME} キーのインポートに失敗しました。ACCESS_ID、SECRET_KEYの値を確認して下さい。"
                 #エラーの場合はAWSユーザー認証情報を削除する
-                MESSAGE=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -U -sql "${SQL_DELETE_AWS_CERTIFICATE}"`
+                MESSAGE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -U -sql \"${SQL_DELETE_AWS_CERTIFICATE}\""`
                 if [ -n "${MESSAGE}" ]; then
                         echo "${MESSAGE}"
                 fi
@@ -169,7 +169,7 @@ if [ -n "${USER_NAME}" -a -n "${PLATFORM_NAME}" ]; then
         	else
         	    echo "${MESSAGE}"
                 #エラーの場合はAWSユーザー認証情報を削除する
-                MESSAGE=`java $JAVA_OPTS -cp $CLASSPATH $MAIN -U -sql "${SQL_DELETE_AWS_CERTIFICATE}"`
+                MESSAGE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -U -sql \"${SQL_DELETE_AWS_CERTIFICATE}\""`
                 if [ -n "${MESSAGE}" ]; then
                         echo "${MESSAGE}"
                 fi

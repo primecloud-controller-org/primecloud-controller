@@ -20,11 +20,11 @@
 		margin-top: -2px;
 }
 .v-table .v-selected {
-/*	background: #b7ab95;*/
+/*	background: #b7ab95; */
 	background: #BEB29C;
 }
 .v-table .v-selected .v-table-cell-content {
-/*	border-color: #877b65;*/
+/*	border-color: #877b65; */
 	border-right-color: #D3D4D5;
 }
 .v-table .v-selected .v-table-cell-content:last-child {
@@ -51,7 +51,7 @@
 	border: 1px solid #b3b3b3;
 	}
 
-/* ACRÂ‚x */
+/* ƒAƒCƒRƒ“‚Â‚«ƒ‰ƒxƒ‹ */
 .icon-label img{
 	float: left;
 	position: relative;
@@ -61,7 +61,7 @@
 	top: 4px;
 }
 
-/* dØ‚ */
+/* dØ‚èü */
 .desc-padding , .desc-padding-vertical {
 	border-right: 1px solid #D3D4D5;
 }
@@ -69,12 +69,12 @@
 	border-top: 1px solid #D3D4D5;
 }
 
-/* _CAO */
+/* ƒ_ƒCƒAƒƒO */
 .v-label-dialog-message{
 	text-align: center;
 }
 
-/* [hoT[Ê‘JÚ—p{^ */
+/* ƒ[ƒhƒoƒ‰ƒ“ƒT[‰æ–Ê‘JˆÚ—pƒ{ƒ^ƒ“ */
 .loadbalancer-button .v-button-caption{
 	color: -webkit-link;
 	text-decoration: underline;
@@ -82,7 +82,7 @@
 	font-size: 12px;
 }
 
-/* ^uÌ•\İ’*/
+/* ƒ^ƒu‚Ì•\¦İ’è */
 .v-tabsheet-tabitem .v-captiontext{
 	font-size: 13px;
 }
@@ -106,23 +106,23 @@
 	margin-top: -2px;
 }
 
-/*Login*/
+/* Login */
 .form-login .v-required-field-indicator{
 	display:none;
 }
 
-/*Êã•” Top Menu*/
+/* ‰æ–Êã•” Top Menu */
 	.v-csslayout-TopBar .v-horizontallayout-margin{
 		padding-left: 5px;
 	}
 	.v-csslayout-TopBar {
 		background:	#0A2986;
 		color:#F5F5F5;
-/*		text-shadow:1px 1px 0 #909090;*/
+/*		text-shadow:1px 1px 0 #909090; */
 		text-shadow: #3B5A7A 0px 1px 0px;
 	}
 	.v-csslayout-TopBar .v-label-logo img{
-/*		margin-top: 2px;*/
+/*		margin-top: 2px; */
 		float: left;
 	}
 /*	.v-csslayout-TopBar .v-label-logo div{
@@ -130,7 +130,7 @@
 		margin-left: 8px;
 		font-size:24px;
 		float: left;
-	}*/
+	} */
 
 	.v-csslayout-TopBar .v-label-versionNoNone p{
 		margin-left : 80px;
@@ -161,7 +161,7 @@
 		margin-right: 2px;
 	}
 	.v-csslayout-TopBar .eventlog{
-/*		margin-top :  5px;*/
+/*		margin-top :  5px; */
 		margin-top :  4px;
 		margin-left: 30px;
 		float: left;
@@ -189,7 +189,7 @@
 		float: right;
 	}
 	.v-csslayout-TopBar .v-button-caption {
-/*		font-size:12px;*/
+/*		font-size:12px; */
 		font-size:13px;
 		font-weight:bold;
 		line-height:17px;
@@ -201,10 +201,10 @@
 		color:#F5F5F5;
 	}
 
-/*myCloud\*/
+/* myCloud–¼•\¦•” */
 	.v-csslayout-mycloud-name{
 		background: #DCE5EE;
-/*		background: #fbfaec;*/
+/*		background: #fbfaec; */
 		font-weight: bold;
 		font-size:14px;
 	}
@@ -224,7 +224,7 @@
 		padding-bottom: 0px;
 	}
 
-	/* Edit {^*/
+	/* Edit ƒ{ƒ^ƒ“ */
 	.v-csslayout-mycloud-name .v-button-edit-button{
 		margin-right: 10px;
 		position: relative;
@@ -237,7 +237,7 @@
 		text-shadow: none;
 	}
 
-	/*Reload{^*/
+	/* Reloadƒ{ƒ^ƒ“ */
 	.v-csslayout-mycloud-name .sync-button{
 		margin-top: 2px;
 		float: right;
@@ -250,7 +250,7 @@
 		text-shadow: none;
 	}
 
-/* Service Table , Server Table , LoadBalancer Table*/
+/* Service Table , Server Table , LoadBalancer Table‹¤’Ê */
 	.service-table .v-table-header-wrap , .server-table .v-table-header-wrap ,  .loadbalancer-table .v-table-header-wrap{
 		font-size:11px;
 		font-weight:normal;
@@ -264,7 +264,7 @@
 	.service-table  .v-label {
 		cursor: pointer;
 	}
-	/* ÚFNO */
+	/* €–ÚFNO */
 	.service-table .v-table-cell-content-no {
 		cursor: pointer;
 		text-align: center;
@@ -273,7 +273,7 @@
 /*		text-decoration: underline; */
 		width: 35px;
 	}
-	/* ÚFNAME */
+	/* €–ÚFNAME */
 	.service-table .v-table-cell-content-name{
 		vertical-align: middle;
 		line-height: 1.3em;
@@ -282,7 +282,7 @@
 	.service-table .v-table-cell-content-name .v-label{
 		line-height: 1.3em;
 	}
-	/* ÚFSTATUS */
+	/* €–ÚFSTATUS */
 	.service-table .v-table-cell-content-status{
 		vertical-align: middle;
 		width: 140px;
@@ -298,13 +298,13 @@
 		position: relative;
 		top: 6px;
 	}
-	/* ÚFSRVS */
+	/* €–ÚFSRVS */
 	.service-table .v-table-cell-content-srvs {
 		text-align: center;
 		vertical-align: middle;
 		width: 50px;
 	}
-	/* :loadBalancer */
+	/* €–Ú:loadBalancer */
 	.service-table .v-table-cell-content-loadbalancer{
 		text-align: center;
 		width: 120px;
@@ -313,7 +313,7 @@
 		vertical-align: middle;
 		padding-top: 6px;
 	}
-	/* ÚFSERVCIEDETAIL */
+	/* €–ÚFSERVCIEDETAIL */
 	.service-table .v-table-cell-content-servicedetail{
 		vertical-align: middle;
 	}
@@ -329,14 +329,14 @@
 		left: 3px;
 	}
 
-/*Server-Table*/
-	/*.server-table .v-table-cell-content-no .v-label{
+/* Server-Table */
+	/* .server-table .v-table-cell-content-no .v-label{
 		cursor: pointer;
-	}*/
+	} */
 	.server-table .v-label{
 		cursor: pointer;
 	}
-	/* ÚFNO */
+	/* €–ÚFNO */
 	.server-table .v-table-cell-content-no {
 		cursor: pointer;
 		text-align: center;
@@ -345,7 +345,7 @@
 /*		text-decoration: underline; */
 		width: 35px;
 	}
-	/* ÚFNAME */
+	/* €–ÚFNAME */
 	.server-table .v-table-cell-content-name{
 		vertical-align: middle;
 		width: 170px;
@@ -362,18 +362,18 @@
 	}
 	.server-table .v-table-cell-content-fqdn {
 		cursor: pointer;
-/*		text-align: center;*/
+/*		text-align: center; */
 		vertical-align: middle;
 		width: 180px;
 	}
 
-	/* ÚFPUBLICIP */
+	/* €–ÚFPUBLICIP */
 	.server-table .v-table-cell-content-publicip{
 		vertical-align: middle;
 		text-align: center;
 		width: 130px;
 	}
-	/* ÚFSTATUS */
+	/* €–ÚFSTATUS */
 	.server-table .v-table-cell-content-status{
 		vertical-align: middle;
 		width: 140px;
@@ -390,7 +390,7 @@
 		top: 6px;
 		left: 3px;
 	}
-	/* ÚFSERVICES */
+	/* €–ÚFSERVICES */
 
 	.server-table .v-table-cell-content-services{
 		vertical-align: middle;
@@ -404,7 +404,7 @@
 		top: 2px;
 		position: relative;
 	}
-	/* ÚFOPERATION */
+	/* €–ÚFOPERATION */
 	.server-table .v-table-cell-content-operation{
 		vertical-align: middle;
 		width: 125px;
@@ -418,7 +418,7 @@
 	.loadbalancer-table  .v-label {
 		cursor: pointer;
 	}
-	/* ÚFNO */
+	/* €–ÚFNO */
 	.loadbalancer-table .v-table-cell-content-no {
 		cursor: pointer;
 		text-align: center;
@@ -427,7 +427,7 @@
 /*		text-decoration: underline; */
 		width: 35px;
 	}
-	/* ÚFNAME */
+	/* €–ÚFNAME */
 	.loadbalancer-table .v-table-cell-content-name{
 		vertical-align: middle;
 		line-height: 1.3em;
@@ -437,13 +437,13 @@
 		line-height: 1.3em;
 	}
 
-	/* :zXg */
+	/* €–Ú:ƒzƒXƒg–¼ */
 	.loadbalancer-table .v-table-cell-content-hostname {
 		vertical-align: middle;
 		/* width: 170px;*/
 	}
 
-	/* ÚFSTATUS */
+	/* €–ÚFSTATUS */
 	.loadbalancer-table .v-table-cell-content-status{
 		cursor: pointer;
 		vertical-align: middle;
@@ -461,7 +461,7 @@
 		top: 6px;
 	}
 
-	/* ÚFTYPE */
+	/* €–ÚFTYPE */
 	.loadbalancer-table .v-table-cell-content-type{
 		cursor: pointer;
 		vertical-align: middle;
@@ -478,7 +478,7 @@
 		top: 4px;
 	}
 
-	/* ÚFè“–ÄƒT[rX */
+	/* €–ÚFŠ„‚è“–‚ÄƒT[ƒrƒX–¼ */
 	.loadbalancer-table .v-table-cell-content-servicename{
 		vertical-align: middle;
 		line-height: 1.3em;
@@ -488,7 +488,7 @@
 		line-height: 1.3em;
 	}
 
-/* Service Table  ServerTable  LoadBalancerTable  ã•”E  {^Ê•*/
+/* Service Table ‚Æ ServerTable ‚Æ LoadBalancerTable  ã•”E‰º•”  ‘€ìƒ{ƒ^ƒ“‹¤’Ê•”•ª */
 	.service-buttons .v-csslayout-margin , .server-buttons .v-csslayout-margin , .loadbalancer-table-operation .v-csslayout-margin{
 		padding-left: 6px;
 		padding-right: 5px;
@@ -518,7 +518,7 @@
 		margin-right: 20px;
 	}
 
-	/* Service Table  ServerTable  LoadBalancerTable  ã•” {^*/
+	/* Service Table ‚Æ ServerTable ‚Æ LoadBalancerTable  ã•” ‘€ìƒ{ƒ^ƒ“•”•ª */
 	.service-table-label .v-csslayout-margin , .server-table-label .v-csslayout-margin {
 		padding-left: 6px;
 		padding-right: 25px;
@@ -534,7 +534,7 @@
 		font-weight: normal;
 	}
 	.service-table-label .v-button-caption , .server-table-label .v-button-caption, .loadbalancer-table-label .v-button-caption{
-/*		color: #990000;*/
+/*		color: #990000; */
 		text-decoration: underline;
 	}
 	.service-table-label  {
@@ -544,11 +544,11 @@
 		background: #d9f5d3;
 	}
 	.loadbalancer-table-label {
-/*		background: #dde8d7;*/
+/*		background: #dde8d7; */
 		background: #FAEDD4;
 	}
 
-/* Service  ServerÌŒÂ•Ê\ ã•” Label*/
+/* Service ‚Æ Server‚ÌŒÂ•Êî•ñ•\¦ ã•” Label */
 	.service-desc-panel .v-panel-caption, .server-desc-panel .v-panel-caption , .loadbalancer-desc-panel .v-panel-caption{
 		font-size: 13px;
 		font-weight: normal;
@@ -568,11 +568,11 @@
 		background: #d9f5d3;
 	}
 	.loadbalancer-desc-panel .v-panel-caption{
-/*		background: #dde8d7;*/
+/*		background: #dde8d7; */
 		background: #FAEDD4;
 	}
 
-/* Service Desc Basic (T[rX Â• {)*/
+/* Service Desc Basic (ƒT[ƒrƒX ŒÂ•Ê Šî–{î•ñ) */
 
 	.server-desc-basic .v-table-cell-content-status{
 		width: 95px;
@@ -681,9 +681,9 @@
 		position: relative;
 		top: 6px;
 	}
-	/* Check All{^*/
+	/* Check Allƒ{ƒ^ƒ“ */
 	.v-button-checkall .v-button-caption{
-		/* text-shadow: none;*/
+		/* text-shadow: none; */
 		/* font-weight: normal; */
 		text-decoration: underline;
 	}
@@ -691,7 +691,7 @@
 		margin-right: 0px;
 	}
 
-/* Service Desc Basic (T[rX Â• Ú×)*/
+/* Service Desc Basic (ƒT[ƒrƒX ŒÂ•Ê Ú×î•ñ) */
 	.service-desc-detail .v-table-resizer {
 		display:none;
 	}
@@ -716,7 +716,7 @@
 		width: 50%;
 	}
 
-/* Server Desc Basic (T[o Â• {)*/
+/* Server Desc Basic (ƒT[ƒo ŒÂ•Ê Šî–{î•ñ) */
 	.server-desc-basic .v-horizontallayout-margin{
 		padding-left: 10px;
 		padding-right: 10px;
@@ -812,7 +812,7 @@
 		top: 6px;
 		left: 3px;
 	}
-/* Desc Desc Basic (T[o Â• Ú×)*/
+/* Desc Desc Basic (ƒT[ƒo ŒÂ•Ê Ú×î•ñ) */
 	.server-desc-detail .v-horizontallayout-margin{
 		padding-left: 10px;
 		padding-right: 10px;
@@ -849,7 +849,7 @@
 		width: 50%;
 	}
 
-/* myNEhVK*/
+/* myƒNƒ‰ƒEƒhV‹K */
 	.win-mycloud-add-temp .v-table-cell-content{
 		vertical-align: middle;
 	}
@@ -873,14 +873,14 @@
 		padding: 5px;
 	}
 
-/* myNEhÒW*/
+/* myƒNƒ‰ƒEƒh•ÒW */
 	.win-mycloud-edit-table .v-table-cell-content{
 		vertical-align: middle;
 	}
 	.win-mycloud-edit-table .v-table-cell-content-no{
 		font-weight: bold;
 		text-align: center;
-/*		text-decoration: underline;*/
+/*		text-decoration: underline; */
 		width: 30px;
 	}
 /*	.win-mycloud-edit-table .v-table-cell-content-name{
@@ -899,7 +899,7 @@
 		top: 6px;
 	}
 
-/* T[rXÇ‰ */
+/* ƒT[ƒrƒX’Ç‰Á */
 	.win-service-add-service .v-table-cell-content{
 		vertical-align: middle;
 	}
@@ -929,7 +929,7 @@
 		margin-top: -5px;
 	}
 
-	/* T[rXÒW */
+	/* ƒT[ƒrƒX•ÒW */
 
 	.win-service-edit-form .v-captiontext{
 		margin-top: 3px;
@@ -941,8 +941,8 @@
 		margin-top: -8px;
 	}
 
-/* T[oÇ‰*/
-	/* NEhIe[u */
+/* ƒT[ƒo’Ç‰Á */
+	/* ƒNƒ‰ƒEƒh‘I‘ğƒe[ƒuƒ‹ */
 	.win-server-add-cloud .v-table-cell-content{
 		vertical-align: middle;
 	}
@@ -963,7 +963,7 @@
 		top: 6px;
 	}
 
-	/* T[oÊ‘Ie[u */
+	/* ƒT[ƒoí•Ê‘I‘ğƒe[ƒuƒ‹ */
 	.win-server-add-os .v-table-cell-content{
 		vertical-align: middle;
 	}
@@ -998,7 +998,7 @@
 		top: 6px;
 	}
 
-	 /* pÂ”\T[rX\ */
+	 /* —˜—p‰Â”\ƒT[ƒrƒX•\¦ */
 	.v-csslayout-win-server-add-panel .v-csslayout-margin{
 		padding: 5px;
 	}
@@ -1028,15 +1028,21 @@
 		top: 4px;
 	}
 
-/* T[oÒW */
+/* ƒT[ƒo•ÒW */
 	.win-server-edit-form .v-captiontext{
 		margin-top: 3px;
 	}
 	.v-caption-win-server-add-service .v-captiontext{
 		margin-top: 0px;
 	}
-
-/* T[o-T[rXÇ‰*/
+	/* ƒf[ƒ^ƒfƒBƒXƒNAƒlƒbƒgƒ[ƒN */
+	.win-server-edit-datadisk .v-table-resizer, .win-server-edit-network .v-table-resizer {
+        display:none;
+    }
+    .win-server-edit-network .v-table-cell-content{
+        vertical-align: middle;
+    }
+/* ƒT[ƒo-ƒT[ƒrƒX’Ç‰Á */
 	.win-server-attach-service .v-table-header-wrap{
 		font-weight:normal;
 		text-align: center;
@@ -1069,7 +1075,7 @@
 		opacity: 0.8px;
 	}
 
-/* O\ */
+/* ƒƒO•\¦ */
 /*
 	.win-log-view .label{
 		float: left;
@@ -1088,7 +1094,7 @@
 	}
 */
 
-/* [U[Ç—@@@ */
+/* ƒ†[ƒU[ŠÇ—@@@ */
 	.win-user-view {
 	}
 
@@ -1157,7 +1163,7 @@
         text-transform: none;
 	}
 
-/* VK[UÇ‰E[UÒWÊA[Ue[u */
+/* V‹Kƒ†[ƒU’Ç‰ÁEƒ†[ƒU•ÒW‰æ–ÊAƒ†[ƒUŒ ŒÀƒe[ƒuƒ‹ */
     .win-user-auth-table .v-table-cell-content {
         vertical-align: middle;
     }
@@ -1165,7 +1171,7 @@
         text-transform: none;
     }
 
-/* mFp_CAO  */
+/* Šm”F—pƒ_ƒCƒAƒƒO */
 	.dialog-confirm .v-window-outerheader {
 		Height: 20px;
 		background: #0A2986;
@@ -1200,9 +1206,9 @@
 	}
 /*	.v-filterselect-suggestpopup-dialog-confirm .v-filterselect-suggestmenu .gwt-MenuItem-selected{
 		color: #b22222;
-	}*/
+	} */
 
-	/* Nortification*/
+	/* Nortification */
 	.v-Notification-search{
 		background: #fdf3b5;
 		border: 3px solid #fee3af;
@@ -1213,7 +1219,7 @@
 		color: #ca9a61;
 	}
 
-/* LoadBalancer Desc Basic*/
+/* LoadBalancer Desc Basic */
 	.loadbalancer-desc-basic-panel .v-panel-caption{
 		font-size: 12px;
 		background: #ffffff;
@@ -1232,7 +1238,7 @@
 		padding-bottom: 0px;
 	}
 
-/* Loadbalancer Add Window*/
+/* Loadbalancer Add Window */
 	/* platform table */
 	.loadbalancer-add-table .v-table-cell-content{
 		vertical-align: middle;
@@ -1288,7 +1294,7 @@
 	}
 
 
-/*[hoT { */
+/* ƒ[ƒhƒoƒ‰ƒ“ƒT Šî–{î•ñ */
 	.loadbalancer-desc-basic-panel .v-panel-caption{
 		font-size: 12px;
 		background: #ffffff;
@@ -1357,7 +1363,7 @@
 		line-height: 1.3em;
 	}
 	.loadbalancer-desc-basic-listener .v-table-cell-content-status {
-		/*width: 110px;*/
+		/* width: 110px; */
 		vertical-align: middle;
 	}
 	.loadbalancer-desc-basic-listener .v-table-cell-content-status img{
@@ -1398,7 +1404,7 @@
 		vertical-align: middle;
 	}
 
-/* [hoT[è“–ÄƒT[rXÚ */
+/* ƒ[ƒhƒoƒ‰ƒ“ƒT[Š„‚è“–‚ÄƒT[ƒrƒXÚ× */
 	.loadbalancer-desc-server-right .v-verticallayout-margin{
 		padding-left: 0px;
 		padding-right: 0px;
@@ -1491,7 +1497,7 @@
 		top: 6px;
 	}
 
-/* T[rX{   [hoT{ [hoT[Ú E{^ì•” */
+/* ƒT[ƒrƒXŠî–{ ƒ[ƒhƒoƒ‰ƒ“ƒTŠî–{ ƒ[ƒhƒoƒ‰ƒ“ƒT[Ú× ‰E‰ºƒ{ƒ^ƒ“‘€ì•” */
 	.operation-buttons .v-horizontallayout-margin{
 		padding-left: 0px;
 		padding-right: 80px;
@@ -1508,7 +1514,7 @@
 		padding-bottom: 0px;
 	}
 
-/* WindowspX[hæ“¾*/
+/* WindowsƒpƒXƒ[ƒhæ“¾ */
 	.v-verticallayout-win-password {
 
 	}

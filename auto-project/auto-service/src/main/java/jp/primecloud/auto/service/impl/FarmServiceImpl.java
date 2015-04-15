@@ -1,18 +1,18 @@
 /*
  * Copyright 2014 by SCSK Corporation.
- * 
+ *
  * This file is part of PrimeCloud Controller(TM).
- * 
+ *
  * PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
  */
@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.ComponentInstanceStatus;
 import jp.primecloud.auto.common.status.InstanceStatus;
 import jp.primecloud.auto.common.status.LoadBalancerStatus;
@@ -40,8 +41,14 @@ import jp.primecloud.auto.entity.crud.UserAuth;
 import jp.primecloud.auto.entity.crud.VmwareNetwork;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.exception.AutoException;
+import jp.primecloud.auto.iaasgw.IaasGatewayFactory;
+import jp.primecloud.auto.iaasgw.IaasGatewayWrapper;
 import jp.primecloud.auto.log.EventLogLevel;
 import jp.primecloud.auto.log.EventLogger;
+import jp.primecloud.auto.process.vmware.VmwareNetworkProcess;
+import jp.primecloud.auto.process.vmware.VmwareProcessClient;
+import jp.primecloud.auto.process.vmware.VmwareProcessClientFactory;
+import jp.primecloud.auto.process.zabbix.ZabbixHostProcess;
 import jp.primecloud.auto.service.ComponentService;
 import jp.primecloud.auto.service.FarmService;
 import jp.primecloud.auto.service.InstanceService;
@@ -51,13 +58,6 @@ import jp.primecloud.auto.service.dto.FarmDto;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
-
-import jp.primecloud.auto.iaasgw.IaasGatewayFactory;
-import jp.primecloud.auto.iaasgw.IaasGatewayWrapper;
-import jp.primecloud.auto.process.vmware.VmwareNetworkProcess;
-import jp.primecloud.auto.process.vmware.VmwareProcessClient;
-import jp.primecloud.auto.process.vmware.VmwareProcessClientFactory;
-import jp.primecloud.auto.process.zabbix.ZabbixHostProcess;
 
 /**
  * <p>
@@ -120,14 +120,14 @@ public class FarmServiceImpl extends ServiceSupport implements FarmService {
                 }
             }
 
-        for (Farm farm : farms) {
+            for (Farm farm : farms) {
                 //利用可能なファームのみ登録する ※マスターユーザーは全て
                 if ((loginUserNo.equals(userNo))
                         || authMap.containsKey(farm.getFarmNo())) {
-            FarmDto dto = new FarmDto();
-            dto.setFarm(farm);
-            dtos.add(dto);
-        }
+                    FarmDto dto = new FarmDto();
+                    dto.setFarm(farm);
+                    dtos.add(dto);
+                }
             }
         }
 
@@ -196,49 +196,65 @@ public class FarmServiceImpl extends ServiceSupport implements FarmService {
         farm.setComponentProcessing(false);
         farmDao.create(farm);
 
+        List<Platform> platforms = platformDao.readAll();
+        for (Platform platform : platforms) {
+            // TODO CLOUD BRANCHING
+            // VMware関連情報の作成
+            if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
+                if (vmwareKeyPairDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) > 0) {
+                    // 空いているVLANを取得
+                    VmwareNetwork publicNetwork = null;
+                    VmwareNetwork privateNetwork = null;
+                    List<VmwareNetwork> vmwareNetworks = vmwareNetworkDao.readByPlatformNo(platform.getPlatformNo());
+                    for (VmwareNetwork vmwareNetwork : vmwareNetworks) {
+                        if (vmwareNetwork.getFarmNo() != null) {
+                            continue;
+                        }
+                        if (BooleanUtils.isTrue(vmwareNetwork.getPublicNetwork())) {
+                            if (publicNetwork == null) {
+                                publicNetwork = vmwareNetwork;
+                            }
+                        } else {
+                            if (privateNetwork == null) {
+                                privateNetwork = vmwareNetwork;
+                            }
+                        }
+                    }
+
+                    // VLANを割り当て
+                    if (publicNetwork != null) {
+                        publicNetwork.setFarmNo(farm.getFarmNo());
+                        vmwareNetworkDao.update(publicNetwork);
+                    }
+                    if (privateNetwork != null) {
+                        privateNetwork.setFarmNo(farm.getFarmNo());
+                        vmwareNetworkDao.update(privateNetwork);
+                    }
+                }
+            // VCloud関連情報の作成
+            } else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
+                //プラットフォームが有効で認証情報、キーペア情報を保持している場合、空のvAppを作成する
+                if (BooleanUtils.isTrue(platform.getSelectable()) &&
+                    vcloudCertificateDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) > 0 &&
+                    vcloudKeyPairDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) > 0) {
+                    //vApp作成
+                    IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(userNo, platform.getPlatformNo());
+                    gateway.createMyCloud(farmName);
+                }
+            // Azure関連情報の作成
+            } else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
+                // 現状処理なし
+            // OpenStack関連情報の作成
+            } else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
+                // 現状処理なし
+            }
+        }
+
+        // ※VCloud対応の為(iaasGateWayの呼び出しを行うので)、最後にZabbix処理を行うように修正しました。
         // ファームごとのホストグループ作成
         Boolean useZabbix = BooleanUtils.toBooleanObject(Config.getProperty("zabbix.useZabbix"));
         if (BooleanUtils.isTrue(useZabbix)) {
             zabbixHostProcess.createFarmHostgroup(farm.getFarmNo());
-        }
-
-        // VMware関連情報の作成
-        List<Platform> platforms = platformDao.readAll();
-        for (Platform platform : platforms) {
-            if ("vmware".equals(platform.getPlatformType()) == false) {
-                continue;
-            }
-
-            if (vmwareKeyPairDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) > 0) {
-                // 空いているVLANを取得
-                VmwareNetwork publicNetwork = null;
-                VmwareNetwork privateNetwork = null;
-                List<VmwareNetwork> vmwareNetworks = vmwareNetworkDao.readByPlatformNo(platform.getPlatformNo());
-                for (VmwareNetwork vmwareNetwork : vmwareNetworks) {
-                    if (vmwareNetwork.getFarmNo() != null) {
-                        continue;
-                    }
-                    if (BooleanUtils.isTrue(vmwareNetwork.getPublicNetwork())) {
-                        if (publicNetwork == null) {
-                            publicNetwork = vmwareNetwork;
-                        }
-                    } else {
-                        if (privateNetwork == null) {
-                            privateNetwork = vmwareNetwork;
-                        }
-                    }
-                }
-
-                // VLANを割り当て
-                if (publicNetwork != null) {
-                    publicNetwork.setFarmNo(farm.getFarmNo());
-                    vmwareNetworkDao.update(publicNetwork);
-                }
-                if (privateNetwork != null) {
-                    privateNetwork.setFarmNo(farm.getFarmNo());
-                    vmwareNetworkDao.update(privateNetwork);
-                }
-            }
         }
 
         // イベントログ出力
@@ -380,6 +396,7 @@ public class FarmServiceImpl extends ServiceSupport implements FarmService {
             instanceService.deleteInstance(instance.getInstanceNo());
         }
 
+        // TODO CLOUD BRANCHING
         // AWS関連の削除処理
         // AWSボリュームの削除処理
         // TODO: ボリューム自体の削除処理を別で行うようにする
@@ -418,6 +435,35 @@ public class FarmServiceImpl extends ServiceSupport implements FarmService {
             vmwareNetwork.setFarmNo(null);
             vmwareNetworkDao.update(vmwareNetwork);
         }
+
+        // VCloud関連の削除処理
+        // VCloud vAppの削除処理
+        List<Platform> platforms = platformDao.readAll();
+        for (Platform platform: platforms) {
+            if (!PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
+                //VCloudのみ処理を行う
+                continue;
+            }
+
+            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), platform.getPlatformNo());
+            try {
+                if (BooleanUtils.isTrue(platform.getSelectable()) &&
+                        vcloudCertificateDao.countByUserNoAndPlatformNo(farm.getUserNo(), platform.getPlatformNo()) > 0 &&
+                        vcloudKeyPairDao.countByUserNoAndPlatformNo(farm.getUserNo(), platform.getPlatformNo()) > 0) {
+                    // myCloud(vApp)の削除
+                    gateway.deleteMyCloud(farmNo);
+                }
+            } catch (AutoException ignore) {
+                // 全てのVCloudプラットフォームが対象なので
+                // ボリュームが存在しない場合などに備えて例外を握りつぶす
+            }
+        }
+
+        // Azure関連の削除処理
+        // 現状処理なし
+
+        // OpenStack関連の削除処理
+        // 現状処理なし
 
         //ユーザ権限の削除
         userAuthDao.deleteByFarmNo(farmNo);

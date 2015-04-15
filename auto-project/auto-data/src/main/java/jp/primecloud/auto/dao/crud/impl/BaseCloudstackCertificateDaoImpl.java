@@ -23,11 +23,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
 import jp.primecloud.auto.dao.crud.BaseCloudstackCertificateDao;
 import jp.primecloud.auto.entity.crud.CloudstackCertificate;
-
-import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
 
 /**
  * <p>

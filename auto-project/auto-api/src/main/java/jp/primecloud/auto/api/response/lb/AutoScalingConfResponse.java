@@ -4,10 +4,9 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import jp.primecloud.auto.entity.crud.AutoScalingConf;
-
 import org.apache.commons.lang.BooleanUtils;
 
+import jp.primecloud.auto.entity.crud.AutoScalingConf;
 
 
 @XmlRootElement(name="LoadBalancerAutoScalingResponse")

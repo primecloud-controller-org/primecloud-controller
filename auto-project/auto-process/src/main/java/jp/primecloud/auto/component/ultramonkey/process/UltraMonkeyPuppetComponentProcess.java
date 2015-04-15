@@ -25,6 +25,7 @@ import java.util.Map;
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.PlatformAws;
+import jp.primecloud.auto.common.constant.PCCConstant;
 
 import jp.primecloud.auto.component.ultramonkey.UltraMonkeyConstants;
 import jp.primecloud.auto.process.ComponentProcessContext;
@@ -54,25 +55,39 @@ public class UltraMonkeyPuppetComponentProcess extends PuppetComponentProcess {
         List<String> listenIps = new ArrayList<String>();
         Instance instance = instanceDao.read(instanceNo);
         Platform platform = platformDao.read(instance.getPlatformNo());
-        if ("aws".equals(platform.getPlatformType())) {
+        // TODO CLOUD BRANCHING
+        if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
             // AWSの場合
             listenIps.add(instance.getPrivateIp());
             PlatformAws platformAws = platformAwsDao.read(instance.getPlatformNo());
             if (platform.getInternal() == false && platformAws.getVpc() == false) {
                 // 外部のAWSプラットフォームでVPNを利用する場合、PublicIpでも待ち受ける
+                // この分岐に来るパターンは、VPC+VPN もしくは 通常のVPNの場合
                 listenIps.add(instance.getPublicIp());
             }
-        } else if ("cloudstack".equals(platform.getPlatformType())) {
+        } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
             // Cloudstackの場合
             // VPN利用前提のため、PublicIpで待ち受ける
             listenIps.add(instance.getPublicIp());
             listenIps.add(instance.getPrivateIp());
-        }  else if ("vmware".equals(platform.getPlatformType())) {
+        }  else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
             // VMwareの場合
             listenIps.add(instance.getPublicIp());
             listenIps.add(instance.getPrivateIp());
-        } else if ("nifty".equals(platform.getPlatformType())) {
+        } else if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platform.getPlatformType())) {
             // Niftyの場合
+            listenIps.add(instance.getPublicIp());
+            listenIps.add(instance.getPrivateIp());
+        } else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
+            // VCloudの場合
+            listenIps.add(instance.getPublicIp());
+            listenIps.add(instance.getPrivateIp());
+        } else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
+            // Azureの場合
+            listenIps.add(instance.getPublicIp());
+            listenIps.add(instance.getPrivateIp());
+        } else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
+            // Openstackの場合
             listenIps.add(instance.getPublicIp());
             listenIps.add(instance.getPrivateIp());
         }

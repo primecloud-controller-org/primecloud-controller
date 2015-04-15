@@ -1,18 +1,18 @@
 /*
  * Copyright 2014 by SCSK Corporation.
- * 
+ *
  * This file is part of PrimeCloud Controller(TM).
- * 
+ *
  * PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
  */
@@ -31,11 +31,14 @@ import java.util.concurrent.Future;
 
 import jp.primecloud.auto.common.component.FreeMarkerGenerator;
 import jp.primecloud.auto.common.component.PasswordEncryptor;
+import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.log.LoggingUtils;
 import jp.primecloud.auto.common.status.ComponentInstanceStatus;
 import jp.primecloud.auto.config.Config;
 import jp.primecloud.auto.entity.crud.AwsInstance;
 import jp.primecloud.auto.entity.crud.AwsVolume;
+import jp.primecloud.auto.entity.crud.AzureDisk;
+import jp.primecloud.auto.entity.crud.AzureInstance;
 import jp.primecloud.auto.entity.crud.CloudstackInstance;
 import jp.primecloud.auto.entity.crud.CloudstackVolume;
 import jp.primecloud.auto.entity.crud.Component;
@@ -47,16 +50,33 @@ import jp.primecloud.auto.entity.crud.Image;
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.InstanceConfig;
 import jp.primecloud.auto.entity.crud.NiftyInstance;
+import jp.primecloud.auto.entity.crud.NiftyVolume;
+import jp.primecloud.auto.entity.crud.OpenstackInstance;
+import jp.primecloud.auto.entity.crud.OpenstackVolume;
 import jp.primecloud.auto.entity.crud.PccSystemInfo;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.PlatformAws;
 import jp.primecloud.auto.entity.crud.PuppetInstance;
 import jp.primecloud.auto.entity.crud.User;
+import jp.primecloud.auto.entity.crud.VcloudDisk;
+import jp.primecloud.auto.entity.crud.VcloudInstance;
 import jp.primecloud.auto.entity.crud.VmwareDisk;
 import jp.primecloud.auto.entity.crud.VmwareInstance;
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.exception.MultiCauseException;
+import jp.primecloud.auto.iaasgw.IaasGatewayFactory;
+import jp.primecloud.auto.iaasgw.IaasGatewayWrapper;
 import jp.primecloud.auto.log.EventLogger;
+import jp.primecloud.auto.nifty.process.NiftyProcessClient;
+import jp.primecloud.auto.nifty.process.NiftyProcessClientFactory;
+import jp.primecloud.auto.process.ComponentConstants;
+import jp.primecloud.auto.process.ComponentProcessContext;
+import jp.primecloud.auto.process.ProcessLogger;
+import jp.primecloud.auto.process.nifty.NiftyVolumeProcess;
+import jp.primecloud.auto.process.vmware.VmwareDiskProcess;
+import jp.primecloud.auto.process.vmware.VmwareProcessClient;
+import jp.primecloud.auto.process.vmware.VmwareProcessClientFactory;
+import jp.primecloud.auto.process.zabbix.ZabbixHostProcess;
 import jp.primecloud.auto.puppet.PuppetClient;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
@@ -65,16 +85,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
-
-import jp.primecloud.auto.iaasgw.IaasGatewayFactory;
-import jp.primecloud.auto.iaasgw.IaasGatewayWrapper;
-import jp.primecloud.auto.process.ComponentConstants;
-import jp.primecloud.auto.process.ComponentProcessContext;
-import jp.primecloud.auto.process.ProcessLogger;
-import jp.primecloud.auto.process.vmware.VmwareDiskProcess;
-import jp.primecloud.auto.process.vmware.VmwareProcessClient;
-import jp.primecloud.auto.process.vmware.VmwareProcessClientFactory;
-import jp.primecloud.auto.process.zabbix.ZabbixHostProcess;
 
 /**
  * <p>
@@ -113,6 +123,12 @@ public class PuppetComponentProcess extends ServiceSupport {
     protected String cloudStackDiskofferingid;
 
     protected Integer vmwareDiskScsiId;
+
+    protected Integer vcloudDiskUnitNo;
+
+    protected NiftyProcessClientFactory niftyProcessClientFactory;
+
+    protected NiftyVolumeProcess niftyVolumeProcess;
 
     public String getComponentTypeName() {
         return componentTypeName;
@@ -194,7 +210,7 @@ public class PuppetComponentProcess extends ServiceSupport {
 
             //OSがwindowsの場合は作成しない
             Image image = imageDao.read(instance.getImageNo());
-            if (StringUtils.startsWithIgnoreCase(image.getOs(), "windows")) {
+            if (StringUtils.startsWithIgnoreCase(image.getOs(), PCCConstant.OS_NAME_WIN)) {
                 continue;
             }
 
@@ -220,9 +236,9 @@ public class PuppetComponentProcess extends ServiceSupport {
 
                 Component component = componentMap.get(componentInstance.getComponentNo());
                 ComponentType componentType = componentTypeMap.get(component.getComponentTypeNo());
-                        associatedComponents.add(component);
-                        associatedComponentTypes.add(componentType);
-                    }
+                associatedComponents.add(component);
+                associatedComponentTypes.add(componentType);
+            }
 
             rootMap.put("associatedComponents", associatedComponents);
             rootMap.put("associatedComponentTypes", associatedComponentTypes);
@@ -708,8 +724,8 @@ public class PuppetComponentProcess extends ServiceSupport {
         // Platform
         Platform platform = platformDao.read(instance.getPlatformNo());
         map.put("platform", platform);
-
-        if ("aws".equals(platform.getPlatformType())) {
+        // TODO CLOUD BRANCHING
+        if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
             // AwsInstance
             AwsInstance awsInstance = awsInstanceDao.read(instanceNo);
             map.put("awsInstance", awsInstance);
@@ -719,7 +735,7 @@ public class PuppetComponentProcess extends ServiceSupport {
             if (awsVolume != null) {
                 map.put("awsVolume", awsVolume);
             }
-        } else if ("cloudstack".equals(platform.getPlatformType())) {
+        } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
             // CloudStackInstance
             CloudstackInstance cloudstackInstance = cloudstackInstanceDao.read(instanceNo);
             map.put("cloudstackInstance", cloudstackInstance);
@@ -729,7 +745,7 @@ public class PuppetComponentProcess extends ServiceSupport {
             if (cloudstackVolume != null) {
                 map.put("cloudstackVolume", cloudstackVolume);
             }
-        } else if ("vmware".equals(platform.getPlatformType())) {
+        } else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
             // VmwareInstance
             VmwareInstance vmwareInstance = vmwareInstanceDao.read(instanceNo);
             map.put("vmwareInstance", vmwareInstance);
@@ -739,35 +755,86 @@ public class PuppetComponentProcess extends ServiceSupport {
             if (vmwareDisk != null) {
                 map.put("vmwareDisk", vmwareDisk);
             }
-        } else if ("nifty".equals(platform.getPlatformType())) {
+        } else if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platform.getPlatformType())) {
             // NiftyInstance
             NiftyInstance niftyInstance = niftyInstanceDao.read(instanceNo);
             map.put("niftyInstance", niftyInstance);
+            // NiftyVolume
+            NiftyVolume niftyVolume = niftyVolumeDao.readByComponentNoAndInstanceNo(componentNo, instanceNo);
+            if (niftyVolume != null) {
+                map.put("niftyVolume", niftyVolume);
+            }
+        } else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
+            // VcloudInstance
+            VcloudInstance vcloudInstance = vcloudInstanceDao.read(instanceNo);
+            map.put("vcloudInstance", vcloudInstance);
+
+            // VcloudDisk
+            VcloudDisk vcloudDisk = null;
+            List<VcloudDisk> vcloudDisks = vcloudDiskDao.readByComponentNo(componentNo);
+            for (VcloudDisk tmpVcloudDisk: vcloudDisks) {
+                if (tmpVcloudDisk.getInstanceNo().equals(instanceNo)) {
+                    vcloudDisk = tmpVcloudDisk;
+                    break;
+                }
+            }
+            if (vcloudDisk != null) {
+                map.put("vcloudDisk", vcloudDisk);
+            }
+        } else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
+            // AzureInstance
+            AzureInstance azureInstance = azureInstanceDao.read(instanceNo);
+            map.put("azureInstance", azureInstance);
+
+            // AzureDisk
+            AzureDisk azureDisk = azureDiskDao.readByComponentNoAndInstanceNo(componentNo, instanceNo);
+            if (azureDisk != null) {
+                map.put("azureDisk", azureDisk);
+            }
+        } else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
+            // OpenstackInstance
+            OpenstackInstance openstackInstance = openstackInstanceDao.read(instanceNo);
+            map.put("openstackInstance", openstackInstance);
+            // OpenstackVolume
+            OpenstackVolume openstackVolume = openstackVolumeDao.readByComponentNoAndInstanceNo(componentNo, instanceNo);
+            if(openstackVolume != null) {
+                map.put("openstackVolume", openstackVolume);
+            }
         }
 
         // アクセスIP
         List<Instance> runningInstances = instanceDao.readInInstanceNos(context.getRunningInstanceNos());
         Map<String, String> accessIps = new HashMap<String, String>();
         for (Instance runningInstance : runningInstances) {
-            // 基本はpublicIpでアクセスする  TODO cloudstackもパブリック?
+            // 基本はpublicIpでアクセスする
             String accessIp = runningInstance.getPublicIp();
             if (instance.getPlatformNo().equals(runningInstance.getPlatformNo())) {
                 // 同一のプラットフォームの場合
-                if ("aws".equals(platform.getPlatformType())) {
+                // TODO CLOUD BRANCHING
+                if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
                     PlatformAws platformAws = platformAwsDao.read(runningInstance.getPlatformNo());
                     if (BooleanUtils.isFalse(platformAws.getVpc())) {
                         // VPCを使用しない場合はprivateIpでアクセスする
                         accessIp = runningInstance.getPrivateIp();
                     }
-                } else if ("cloudstack".equals(platform.getPlatformType())) {
+                } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
                     // CloudstackはpublicIpでアクセスする
                     accessIp = runningInstance.getPublicIp();
-                } else if ("vmware".equals(platform.getPlatformType())) {
+                } else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
                     // VMwareプラットフォームの場合はprivateIpでアクセスする
                     accessIp = runningInstance.getPrivateIp();
-                } else if ("nifty".equals(platform.getPlatformType())) {
+                } else if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platform.getPlatformType())) {
                     // ニフティクラウドプラットフォームの場合はprivateIpでアクセスする
                     accessIp = runningInstance.getPrivateIp();
+                } else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
+                    // VCloudプラットフォームの場合はprivateIpでアクセスする
+                    accessIp = runningInstance.getPrivateIp();
+                } else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
+                    // Azureプラットフォームの場合はprivateIpでアクセスする
+                    accessIp = runningInstance.getPrivateIp();
+                } else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
+                    // OpenstackはpublicIpでアクセスする
+                    accessIp = runningInstance.getPublicIp();
                 }
             }
             accessIps.put(runningInstance.getInstanceNo().toString(), accessIp);
@@ -884,17 +951,28 @@ public class PuppetComponentProcess extends ServiceSupport {
         return cloudStackDiskofferingid;
     }
 
+    protected Integer getVcloudDiskUnitNo() {
+        return vcloudDiskUnitNo;
+    }
 
     protected void startVolume(Long componentNo, Long instanceNo) {
         Instance instance = instanceDao.read(instanceNo);
         Platform platform = platformDao.read(instance.getPlatformNo());
-
-        if ("aws".equals(platform.getPlatformType())) {
+        // TODO CLOUD BRANCHING
+        if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
             startAwsVolume(componentNo, instanceNo);
-        }else if ("cloudstack".equals(platform.getPlatformType())) {
+        }else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
             startCloudStackVolume(componentNo, instanceNo);
-        } else if ("vmware".equals(platform.getPlatformType())) {
+        } else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
             startVmwareDisk(componentNo, instanceNo);
+        } else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
+            startVcloudDisk(componentNo, instanceNo);
+        } else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
+            startAzureDisk(componentNo, instanceNo);
+        } else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
+            startOpenstackVolume(componentNo, instanceNo);
+        } else if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platform.getPlatformType())) {
+            startNiftyVolume(componentNo, instanceNo);
         }
     }
 
@@ -1082,6 +1160,234 @@ public class PuppetComponentProcess extends ServiceSupport {
         }
     }
 
+    protected void startVcloudDisk(Long componentNo, Long instanceNo) {
+        // ディスク情報の取得
+        VcloudDisk vcloudDisk = null;
+        List<VcloudDisk> vcloudDisks = vcloudDiskDao.readByComponentNo(componentNo);
+        for (VcloudDisk tmpVcloudDisk: vcloudDisks) {
+            if (tmpVcloudDisk.getInstanceNo().equals(instanceNo)) {
+                vcloudDisk = tmpVcloudDisk;
+                break;
+            }
+        }
+
+        // ディスク情報がない場合は作成する
+        if (vcloudDisk == null) {
+            // ディスクサイズの取得
+            Integer diskSize = null;
+            ComponentConfig diskSizeConfig = componentConfigDao.readByComponentNoAndConfigName(componentNo,
+                    ComponentConstants.CONFIG_NAME_DISK_SIZE);
+            if (diskSizeConfig != null) {
+                try {
+                    diskSize = Integer.valueOf(diskSizeConfig.getConfigValue());
+                } catch (NumberFormatException ignore) {
+                }
+            }
+            if (diskSize == null) {
+                // ディスクサイズが指定されていない場合はスキップ
+                return;
+            }
+
+            Instance instance = instanceDao.read(instanceNo);
+
+            vcloudDisk = new VcloudDisk();
+            vcloudDisk.setFarmNo(instance.getFarmNo());
+            vcloudDisk.setPlatformNo(instance.getPlatformNo());
+            vcloudDisk.setComponentNo(componentNo);
+            vcloudDisk.setInstanceNo(instanceNo);
+            vcloudDisk.setSize(diskSize);
+            //UNIT NOはIaasGateWayでディスクをアタッチした後に動的に決定するので、NULLで登録
+            vcloudDisk.setUnitNo(null);
+            vcloudDisk.setAttached(false);
+            //サービスで追加されるディスクはデータディスクではないのでfalseを設定
+            vcloudDisk.setDataDisk(false);
+            vcloudDiskDao.create(vcloudDisk);
+        }
+        // ディスクがアタッチされていない場合は UNIT NO が変わる可能性があるので明示的にNULLに変更する
+        // IaasGateWayでアタッチ後UNIT NOが設定される
+        else if (BooleanUtils.isNotTrue(vcloudDisk.getAttached())) {
+            vcloudDisk.setUnitNo(null);
+            vcloudDiskDao.update(vcloudDisk);
+        }
+
+        // IaasGatewayWrapperの作成
+        Farm farm = farmDao.read(vcloudDisk.getFarmNo());
+        IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), vcloudDisk.getPlatformNo());
+
+        // ボリューム(ディスク)の開始処理
+        gateway.startVolume(instanceNo, vcloudDisk.getDiskNo());
+    }
+
+    protected void startAzureDisk(Long componentNo, Long instanceNo) {
+        // ボリューム情報の取得
+        AzureDisk azureDisk = azureDiskDao.readByComponentNoAndInstanceNo(componentNo, instanceNo);
+
+        // ボリューム情報がない場合は作成する
+        if (azureDisk == null) {
+            // ディスクサイズの取得
+            Integer diskSize = null;
+            ComponentConfig diskSizeConfig = componentConfigDao.readByComponentNoAndConfigName(componentNo,
+                    ComponentConstants.CONFIG_NAME_DISK_SIZE);
+            if (diskSizeConfig != null) {
+                try {
+                    diskSize = Integer.valueOf(diskSizeConfig.getConfigValue());
+                } catch (NumberFormatException ignore) {
+                }
+            }
+
+            if (diskSize == null) {
+                // ディスクサイズが指定されていない場合はスキップ
+                return;
+            }
+
+            Instance instance = instanceDao.read(instanceNo);
+            //AzureInstance azureInstance = azureInstanceDao.read(instanceNo);
+
+            //NAME ZONEID SIZE SNAPSHOTID DISKOFFERINGID が必要
+            // DISKOFFERINGID と SNAPSHOTID のいずれか一方が必要
+            azureDisk = new AzureDisk();
+            azureDisk.setFarmNo(instance.getFarmNo());
+            azureDisk.setPlatformNo(instance.getPlatformNo());
+            azureDisk.setComponentNo(componentNo);
+            azureDisk.setInstanceNo(instanceNo);
+            //azureDisk.setDiskName(diskName);
+            //azureDisk.setInstanceName(azureInstance.getInstanceName());
+            //azureDisk.setLun(lun);
+            azureDisk.setSize(diskSize);
+            azureDiskDao.create(azureDisk);
+        }else if (azureDisk.getInstanceName() != null && !"".equals(azureDisk.getInstanceName())){
+            //すでにアタッチ済みの場合は処理を行わない
+            //AWS等はGWでチェックし何もせずリターンするがPuppetの処理の都合上ここでリターンする
+            return;
+        }
+
+        // IaasGatewayWrapperの作成
+        Farm farm = farmDao.read(azureDisk.getFarmNo());
+        IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), azureDisk.getPlatformNo());
+
+        // ボリュームの開始処理
+        gateway.startVolume(instanceNo, azureDisk.getDiskNo());
+
+    }
+
+    protected void startOpenstackVolume(Long componentNo, Long instanceNo) {
+        // ボリューム情報の取得
+        OpenstackVolume openstackVolume = openstackVolumeDao.readByComponentNoAndInstanceNo(componentNo, instanceNo);
+
+        // ボリューム情報がない場合は作成する
+        if (openstackVolume == null) {
+            // ディスクサイズの取得
+            Integer diskSize = null;
+            ComponentConfig diskSizeConfig = componentConfigDao.readByComponentNoAndConfigName(componentNo,
+                    ComponentConstants.CONFIG_NAME_DISK_SIZE);
+            if (diskSizeConfig != null) {
+                try {
+                    diskSize = Integer.valueOf(diskSizeConfig.getConfigValue());
+                } catch (NumberFormatException ignore) {
+                }
+            }
+            if (diskSize == null) {
+                // ディスクサイズが指定されていない場合はスキップ
+                return;
+            }
+            StringBuilder sb = new StringBuilder();
+            Instance instance = instanceDao.read(instanceNo);
+            OpenstackInstance openstackInstance = openstackInstanceDao.read(instanceNo);
+            //コンポーネント情報の取得
+            Component component = componentDao.read(componentNo);
+            String compName = null;
+            //FQDNが設定されている場合
+            if (StringUtils.isNotEmpty(instance.getFqdn())) {
+                //ボリューム名称としてFQDNを設定
+                sb.append(instance.getFqdn());
+                //コンポーネント名称がある場合、FQDN_コンポーネント名称の形式に編集
+                if (StringUtils.isNotEmpty(component.getComponentName())) {
+                    sb.append("_");
+                    sb.append(component.getComponentName());
+                }
+                compName = sb.toString();
+            } else {
+                compName = "vol";
+            }
+
+            openstackVolume = new OpenstackVolume();
+            openstackVolume.setFarmNo(instance.getFarmNo());
+            openstackVolume.setVolumeName(compName);
+            openstackVolume.setPlatformNo(instance.getPlatformNo());
+            openstackVolume.setComponentNo(componentNo);
+            openstackVolume.setInstanceNo(instanceNo);
+            openstackVolume.setSize(diskSize);
+            openstackVolume.setAvailabilityZone(openstackInstance.getAvailabilityZone());
+            openstackVolumeDao.create(openstackVolume);
+        }
+
+        // AwsProcessClientの作成
+        Farm farm = farmDao.read(openstackVolume.getFarmNo());
+        IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), openstackVolume.getPlatformNo());
+
+        // ボリュームの開始処理
+        gateway.startVolume(instanceNo, openstackVolume.getVolumeNo());
+    }
+
+    protected void startNiftyVolume(Long componentNo, Long instanceNo) {
+        // ボリューム情報の取得
+        NiftyVolume niftyVolume = niftyVolumeDao.readByComponentNoAndInstanceNo(componentNo, instanceNo);
+
+        Instance instance = instanceDao.read(instanceNo);
+        Farm farm = farmDao.read(instance.getFarmNo());
+        // ボリューム情報がない場合は作成する
+        if (niftyVolume == null) {
+            // ディスクサイズの取得
+            Integer diskSize = null;
+            ComponentConfig diskSizeConfig = componentConfigDao.readByComponentNoAndConfigName(componentNo,
+                    ComponentConstants.CONFIG_NAME_DISK_SIZE);
+            if (diskSizeConfig != null) {
+                try {
+                    diskSize = Integer.valueOf(diskSizeConfig.getConfigValue());
+                } catch (NumberFormatException ignore) {
+                }
+            }
+            if (diskSize == null) {
+                // ディスクサイズが指定されていない場合はスキップ
+                return;
+            }
+            StringBuilder sb = new StringBuilder();
+            //コンポーネント情報の取得
+            Component component = componentDao.read(componentNo);
+            String compName = null;
+            //FQDNが設定されている場合
+            if (StringUtils.isNotEmpty(instance.getFqdn())) {
+                //ボリューム名称としてFQDNを設定
+                sb.append(instance.getFqdn());
+                //コンポーネント名称がある場合、FQDN_コンポーネント名称の形式に編集
+                if (StringUtils.isNotEmpty(component.getComponentName())) {
+                    sb.append("_");
+                    sb.append(component.getComponentName());
+                }
+                compName = sb.toString();
+            } else {
+                compName = "vol";
+            }
+
+            niftyVolume = new NiftyVolume();
+            niftyVolume.setFarmNo(instance.getFarmNo());
+            niftyVolume.setVolumeName(compName);
+            niftyVolume.setPlatformNo(instance.getPlatformNo());
+            niftyVolume.setComponentNo(componentNo);
+            niftyVolume.setInstanceNo(instanceNo);
+            niftyVolume.setSize(diskSize);
+            niftyVolumeDao.create(niftyVolume);
+        }
+
+        // NiftyProcessClientの作成
+        String clientType;
+        clientType = PCCConstant.NIFTYCLIENT_TYPE_DISK;
+        NiftyProcessClient niftyProcessClient = niftyProcessClientFactory.createNiftyProcessClient(farm.getUserNo(),
+                niftyVolume.getPlatformNo(), clientType);
+        // ディスクの開始処理
+        niftyVolumeProcess.startVoiume(niftyProcessClient, instanceNo, niftyVolume.getVolumeNo());
+    }
+
     protected void stopVolume(Long componentNo, Long instanceNo) {
         // デタッチ処理を行わない場合はスキップ
         boolean unDetachVolume = BooleanUtils.toBoolean(Config.getProperty("unDetachVolume"));
@@ -1091,13 +1397,21 @@ public class PuppetComponentProcess extends ServiceSupport {
 
         Instance instance = instanceDao.read(instanceNo);
         Platform platform = platformDao.read(instance.getPlatformNo());
-
-        if ("aws".equals(platform.getPlatformType())) {
+        // TODO CLOUD BRANCHING
+        if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
             stopAwsVolume(componentNo, instanceNo);
-        } else if ("cloudstack".equals(platform.getPlatformType())) {
+        } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
             stopCloudStackVolume(componentNo, instanceNo);
-        } else if ("vmware".equals(platform.getPlatformType())) {
+        } else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
             stopVmwareDisk(componentNo, instanceNo);
+        } else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
+            stopVcloudDisk(componentNo, instanceNo);
+        } else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
+            stopAzureDisk(componentNo, instanceNo);
+        } else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
+            stopOpenstackVolume(componentNo, instanceNo);
+        } else if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platform.getPlatformType())) {
+            stopNiftyVolume(componentNo, instanceNo);
         }
     }
 
@@ -1148,6 +1462,76 @@ public class PuppetComponentProcess extends ServiceSupport {
         } finally {
             vmwareProcessClient.getVmwareClient().logout();
         }
+    }
+
+    protected void stopVcloudDisk(Long componentNo, Long instanceNo) {
+        VcloudDisk vcloudDisk = null;
+        List<VcloudDisk> vcloudDisks = vcloudDiskDao.readByComponentNo(componentNo);
+        for (VcloudDisk tmpVcloudDisk: vcloudDisks) {
+            if (tmpVcloudDisk.getInstanceNo().equals(instanceNo)) {
+                vcloudDisk = tmpVcloudDisk;
+                break;
+            }
+        }
+
+        if (vcloudDisk == null) {
+            // ディスクがない場合はスキップ
+            return;
+        }
+
+        // IaasGatewayWrapperの作成
+        Farm farm = farmDao.read(vcloudDisk.getFarmNo());
+        IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), vcloudDisk.getPlatformNo());
+
+        // ボリューム(ディスク)の停止処理
+        gateway.stopVolume(instanceNo, vcloudDisk.getDiskNo());
+    }
+
+    protected void stopAzureDisk(Long componentNo, Long instanceNo) {
+        AzureDisk azureDisk = azureDiskDao.readByComponentNoAndInstanceNo(componentNo, instanceNo);
+        if (azureDisk == null) {
+            // ボリュームがない場合はスキップ
+            return;
+        }
+
+        // IaasGatewayWrapperの作成
+        Farm farm = farmDao.read(azureDisk.getFarmNo());
+        IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), azureDisk.getPlatformNo());
+
+        // ボリュームの終了処理
+        gateway.stopVolume(instanceNo, azureDisk.getDiskNo());
+    }
+
+    protected void stopOpenstackVolume(Long componentNo, Long instanceNo) {
+        OpenstackVolume openstackVolume = openstackVolumeDao.readByComponentNoAndInstanceNo(componentNo, instanceNo);
+        if (openstackVolume == null) {
+            // ボリュームがない場合はスキップ
+            return;
+        }
+
+        // AwsProcessClientの作成
+        Farm farm = farmDao.read(openstackVolume.getFarmNo());
+        IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), openstackVolume.getPlatformNo());
+
+        // ボリュームの終了処理
+        gateway.stopVolume(instanceNo, openstackVolume.getVolumeNo());
+    }
+
+    protected void stopNiftyVolume(Long componentNo, Long instanceNo) {
+        NiftyVolume niftyVolume = niftyVolumeDao.readByComponentNoAndInstanceNo(componentNo, instanceNo);
+        if (niftyVolume == null) {
+            // ボリュームがない場合はスキップ
+            return;
+        }
+
+        // NiftyProcessClientの作成
+        Farm farm = farmDao.read(niftyVolume.getFarmNo());
+        String clientType;
+        clientType = PCCConstant.NIFTYCLIENT_TYPE_DISK;
+        NiftyProcessClient niftyProcessClient = niftyProcessClientFactory.createNiftyProcessClient(farm.getUserNo(),
+                niftyVolume.getPlatformNo(), clientType);
+        // デタッチ処理
+        niftyVolumeProcess.stopVolume(niftyProcessClient, instanceNo, niftyVolume.getVolumeNo());
     }
 
     protected void startZabbixTemplate(Long componentNo, Long instanceNo) {
@@ -1292,7 +1676,6 @@ public class PuppetComponentProcess extends ServiceSupport {
         this.cloudStackDiskofferingid = cloudStackDiskofferingid;
     }
 
-
     /**
      * vmwareDiskScsiIdを設定します。
      *
@@ -1300,6 +1683,31 @@ public class PuppetComponentProcess extends ServiceSupport {
      */
     public void setVmwareDiskScsiId(Integer vmwareDiskScsiId) {
         this.vmwareDiskScsiId = vmwareDiskScsiId;
+    }
+
+    /**
+     * vcloudDiskUnitNoを設定します。
+     *
+     * @param vcloudDiskUnitNo vcloudDiskUnitNo
+     */
+    public void setVcloudDiskUnitNo(Integer vcloudDiskUnitNo) {
+        this.vcloudDiskUnitNo = vcloudDiskUnitNo;
+    }
+
+    /**
+     * niftyProcessClientFactoryを設定します。
+     * @param niftyProcessClientFactory niftyProcessClientFactory
+     */
+    public void setNiftyProcessClientFactory(NiftyProcessClientFactory niftyProcessClientFactory) {
+        this.niftyProcessClientFactory = niftyProcessClientFactory;
+    }
+
+    /**
+     * niftyVolumeProcessを設定します。
+     * @param niftyVolumeProcess niftyVolumeProcess
+     */
+    public void setNiftyVolumeProcess(NiftyVolumeProcess niftyVolumeProcess) {
+        this.niftyVolumeProcess = niftyVolumeProcess;
     }
 
 }

@@ -19,7 +19,6 @@
 package jp.primecloud.auto.ui;
 
 import jp.primecloud.auto.config.Config;
-
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.terminal.ExternalResource;
 import com.vaadin.ui.Alignment;
@@ -103,12 +102,6 @@ public class MainMenu extends Panel {
                 "<a href='http://www.csk.com/systems/services/technology/technology03.html'  target='_blank'><img width='147' alt='先進技術調査・評価' src='./VAADIN/themes/classy/images/technology_menu3.jpg'></a>");
         ad4.setContentMode(Label.CONTENT_XHTML);
         adlayout.addComponent(ad4);
-
-        Label adcsk = new Label(
-        "<a href='http://www.csk.com/systems/'  target='_blank'><img width='147' alt='CSKシステムズ' src='./VAADIN/themes/classy/images/csksyslogo.png' >" );
-        adcsk.setContentMode(Label.CONTENT_XHTML);
-        adcsk.addStyleName("bottom-csklogo");
-        adlayout.addComponent(adcsk);
 
         layout.addComponent(adlayout);
         layout.setComponentAlignment(adlayout, Alignment.MIDDLE_CENTER);

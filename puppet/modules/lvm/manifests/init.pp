@@ -14,17 +14,17 @@ define lvm::detach (
 #        require   => [ Mount["${name}"] ],
 #    }
 
-
+    
     if $vgdisk =~ /^\/dev\/disk\/by-path\/.*/ {
-        #Delete Block Device
+        #Delete Block Device 
         exec { "deleteDev-${vgdisk}":
             command => "echo 1 > /sys/block/`readlink -f ${vgdisk} | sed 's/^\/.*\///'`/device/delete",
             require => Logical_volume["${lvname}"],
             onlyif  => "test -b `readlink -f ${vgdisk}`",
-        }
+        } 
     } else {
         if "${visor}" == "VMware" or "${visor}" == "KVM" {
-            #Delete Block Device
+            #Delete Block Device 
             exec { "deleteDev-${vgdisk}":
                 command => "echo 1 > /sys/block/`readlink -f ${vgdisk} | sed 's/^\/.*\///'`/device/delete",
                 require => Logical_volume["${lvname}"],
@@ -39,12 +39,12 @@ define lvm::detach (
          volume_group => "${vgname}",
          require      => [ Mount["${name}"] ],
     }
-
+    
     mount { "${name}":
         ensure    => "absent",
         require => Exec["killProc-${name}"],
     }
-
+    
     exec { "killProc-${name}":
         command => "fuser -muk ${name} || true ",
         onlyif  => "mount | grep ${name}",
@@ -59,11 +59,11 @@ define lvm::detach (
 }
 
 define lvm::config (
-    $vgdisk ,
+    $vgdisk ,         
     $vgname ,      # Name of volume group
     $lvname ,      # Name of logical volume
     $lvsize   = "",      # Size of the logical volume as understood by lvcreate
-    $visor    = "",
+    $visor    = "", 
     $fstype   = "ext3",               # Filesystem type as understood by mkfs
     $owner    = "root",
     $group    = "root",
@@ -91,7 +91,7 @@ define lvm::config (
             group  => "root" ,
             source => "puppet:///modules/lvm/scanscsidev.sh",
         }
-
+        
         $vgdev = "${vgdisk}1"
         exec { "scanscsidev":
             before  => [ Exec["fdisk-${vgdev}"] ],
@@ -145,7 +145,7 @@ sleep 10",
             }
         }
     }
-
+ 
 #    filesystem { "/dev/$vgname/$lvname":
 #        ensure  => "${fstype}",
 #        require => [ Logical_Volume["${lvname}"] ],

@@ -29,8 +29,13 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.BooleanUtils;
+
 import jp.primecloud.auto.common.component.FreeMarkerGenerator;
 import jp.primecloud.auto.common.component.PasswordEncryptor;
+import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.log.LoggingUtils;
 import jp.primecloud.auto.common.status.InstanceStatus;
 import jp.primecloud.auto.entity.crud.Component;
@@ -49,15 +54,10 @@ import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.exception.MultiCauseException;
 import jp.primecloud.auto.log.EventLogger;
+import jp.primecloud.auto.process.ProcessLogger;
 import jp.primecloud.auto.puppet.PuppetClient;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
-
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.BooleanUtils;
-
-import jp.primecloud.auto.process.ProcessLogger;
 
 /**
  * <p>
@@ -327,22 +327,32 @@ public class PuppetLoadBalancerProcess extends ServiceSupport {
             String accessIp = instance2.getPublicIp();
             if (instance.getPlatformNo().equals(instance2.getPlatformNo())) {
                 // 同一のプラットフォームの場合
-                if ("aws".equals(platform.getPlatformType())) {
+                // TODO CLOUD BRANCHING
+                if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
                     PlatformAws platformAws = platformAwsDao.read(instance2.getPlatformNo());
                     if (BooleanUtils.isFalse(platformAws.getVpc())) {
                         // VPCを使用しない場合はprivateIpでアクセスする
                         accessIp = instance2.getPrivateIp();
                     }
-                } else if ("cloudstack".equals(platform.getPlatformType())) {
-                    // CloudStackプラットフォームの場合はgetPrivateIpでアクセスする
+                } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
+                    // CloudStackプラットフォームの場合はgetPublicIpでアクセスする
                     accessIp = instance2.getPublicIp();
-                } else if ("vmware".equals(platform.getPlatformType())) {
+                } else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
                     // VMwareプラットフォームの場合はprivateIpでアクセスする
                     accessIp = instance2.getPrivateIp();
                     //nifty
-                } else if ("nifty".equals(platform.getPlatformType())) {
+                } else if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platform.getPlatformType())) {
                     // ニフティクラウドプラットフォームの場合はprivateIpでアクセスする
                     accessIp = instance2.getPrivateIp();
+                } else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
+                    // VCloudプラットフォームの場合はprivateIpでアクセスする
+                    accessIp = instance2.getPrivateIp();
+                } else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
+                    // Azureプラットフォームの場合はgetPublicIpでアクセスする
+                    accessIp = instance2.getPublicIp();
+                } else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
+                    // Openstackプラットフォームの場合はgetPublicIpでアクセスする
+                    accessIp = instance2.getPublicIp();
                 }
             }
             accessIps.put(instance2.getInstanceNo().toString(), accessIp);
@@ -351,25 +361,37 @@ public class PuppetLoadBalancerProcess extends ServiceSupport {
 
         // 待ち受けIP
         List<String> listenIps = new ArrayList<String>();
-
-        if ("aws".equals(platform.getPlatformType())) {
+        // TODO CLOUD BRANCHING
+        if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
             // AWSの場合
             listenIps.add(instance.getPrivateIp());
             PlatformAws platformAws = platformAwsDao.read(instance.getPlatformNo());
             if (BooleanUtils.isFalse(platform.getInternal()) && BooleanUtils.isFalse(platformAws.getVpc())) {
-                // 外部のAWSプラットフォームでVPNを利用する場合、PublicIpでも待ち受ける
+                // 外部のAWSプラットフォームでVPNを利用する場合(VPC+VPNでは無い、通常のVPNの場合)、PublicIpでも待ち受ける
                 listenIps.add(instance.getPublicIp());
             }
-        } else if ("cloudstack".equals(platform.getPlatformType())) {
+        } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
             // CloudStackの場合
             listenIps.add(instance.getPublicIp());
             listenIps.add(instance.getPrivateIp());
-        } else if ("vmware".equals(platform.getPlatformType())) {
+        } else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
             // VMwareの場合
             listenIps.add(instance.getPublicIp());
             listenIps.add(instance.getPrivateIp());
-        } else if ("nifty".equals(platform.getPlatformType())) {
+        } else if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platform.getPlatformType())) {
             // Niftyの場合
+            listenIps.add(instance.getPublicIp());
+            listenIps.add(instance.getPrivateIp());
+        } else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
+            // VCloudの場合
+            listenIps.add(instance.getPublicIp());
+            listenIps.add(instance.getPrivateIp());
+        } else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
+            // Azureの場合
+            listenIps.add(instance.getPublicIp());
+            listenIps.add(instance.getPrivateIp());
+        } else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
+            // Openstackの場合
             listenIps.add(instance.getPublicIp());
             listenIps.add(instance.getPrivateIp());
         }

@@ -6,8 +6,8 @@
 
 	<settings useStatementNamespaces="true" />
 
-	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseAuthoritySet.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseApiCertificate.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseAuthoritySet.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseAutoScalingConf.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseAwsAddress.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseAwsCertificate.ibatis.xml" />
@@ -16,6 +16,10 @@
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseAwsSnapshot.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseAwsSslKey.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseAwsVolume.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseAzureCertificate.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseAzureDisk.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseAzureInstance.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseAzureSubnet.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseCloudstackAddress.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseCloudstackCertificate.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseCloudstackInstance.ibatis.xml" />
@@ -30,8 +34,11 @@
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseFarm.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseImage.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseImageAws.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseImageAzure.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseImageCloudstack.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseImageNifty.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseImageOpenstack.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseImageVcloud.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseImageVmware.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseInstance.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseInstanceConfig.ibatis.xml" />
@@ -42,10 +49,20 @@
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseNiftyCertificate.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseNiftyInstance.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseNiftyKeyPair.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseNiftyVolume.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseOpenstackCertificate.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseOpenstackInstance.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseOpenstackSslKey.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseOpenstackVolume.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BasePlatform.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BasePlatformAws.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/BasePlatformAzure.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BasePlatformCloudstack.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BasePlatformNifty.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/BasePlatformOpenstack.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/BasePlatformVcloud.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/BasePlatformVcloudInstanceType.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/BasePlatformVcloudStorageType.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BasePlatformVmware.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BasePlatformVmwareInstanceType.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BasePuppetInstance.ibatis.xml" />
@@ -54,6 +71,11 @@
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseTemplateInstance.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseUser.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseUserAuth.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseVcloudCertificate.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseVcloudDisk.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseVcloudInstance.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseVcloudInstanceNetwork.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseVcloudKeyPair.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseVmwareAddress.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseVmwareDisk.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseVmwareInstance.ibatis.xml" />
@@ -61,11 +83,13 @@
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseVmwareNetwork.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseZabbixData.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseZabbixInstance.ibatis.xml" />
+
+
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BasePccSystemInfo.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseProxy.ibatis.xml" />
 
-	<sqlMap resource="jp/primecloud/auto/entity/crud/AuthoritySet.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/ApiCertificate.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/AuthoritySet.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/AutoScalingConf.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/AwsAddress.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/AwsCertificate.ibatis.xml" />
@@ -74,6 +98,10 @@
 	<sqlMap resource="jp/primecloud/auto/entity/crud/AwsSnapshot.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/AwsSslKey.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/AwsVolume.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/AzureCertificate.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/AzureDisk.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/AzureInstance.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/AzureSubnet.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/CloudstackAddress.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/CloudstackCertificate.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/CloudstackInstance.ibatis.xml" />
@@ -88,8 +116,11 @@
 	<sqlMap resource="jp/primecloud/auto/entity/crud/Farm.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/Image.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/ImageAws.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/ImageAzure.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/ImageCloudstack.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/ImageNifty.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/ImageOpenstack.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/ImageVcloud.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/ImageVmware.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/Instance.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/InstanceConfig.ibatis.xml" />
@@ -100,10 +131,20 @@
 	<sqlMap resource="jp/primecloud/auto/entity/crud/NiftyCertificate.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/NiftyInstance.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/NiftyKeyPair.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/NiftyVolume.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/OpenstackCertificate.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/OpenstackInstance.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/OpenstackSslKey.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/OpenstackVolume.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/Platform.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/PlatformAws.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/PlatformAzure.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/PlatformCloudstack.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/PlatformNifty.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/PlatformOpenstack.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/PlatformVcloud.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/PlatformVcloudInstanceType.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/PlatformVcloudStorageType.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/PlatformVmware.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/PlatformVmwareInstanceType.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/PuppetInstance.ibatis.xml" />
@@ -112,6 +153,11 @@
 	<sqlMap resource="jp/primecloud/auto/entity/crud/TemplateInstance.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/User.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/UserAuth.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/VcloudCertificate.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/VcloudDisk.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/VcloudInstance.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/VcloudInstanceNetwork.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/VcloudKeyPair.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/VmwareAddress.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/VmwareDisk.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/VmwareInstance.ibatis.xml" />
@@ -119,6 +165,8 @@
 	<sqlMap resource="jp/primecloud/auto/entity/crud/VmwareNetwork.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/ZabbixData.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/ZabbixInstance.ibatis.xml" />
+
+
 	<sqlMap resource="jp/primecloud/auto/entity/crud/PccSystemInfo.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/Proxy.ibatis.xml" />
 

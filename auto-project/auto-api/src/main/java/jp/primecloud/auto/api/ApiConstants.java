@@ -1,18 +1,18 @@
 /*
  * Copyright 2014 by SCSK Corporation.
- * 
+ *
  * This file is part of PrimeCloud Controller(TM).
- * 
+ *
  * PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
  */
@@ -73,7 +73,6 @@ public class ApiConstants {
     protected static final String PARAM_NAME_INSTANCE_NOS = "InstanceNos";
     protected static final String PARAM_NAME_SUBNET = "Subnet";
     protected static final String PARAM_NAME_PRIVATE_IP = "PrivateIpAddress";
-
     protected static final String PARAM_NAME_IS_FROM_CURRENT = "IsFromCurrent";
     protected static final String PARAM_NAME_FROM_CURRENT = "FromCurrent";
     protected static final String PARAM_NAME_FROM_DATE = "FromDate";
@@ -85,14 +84,18 @@ public class ApiConstants {
     protected static final String PARAM_NAME_CUSTOM_PARAM_1 = "CustomParam1";
     protected static final String PARAM_NAME_CUSTOM_PARAM_2 = "CustomParam2";
     protected static final String PARAM_NAME_CUSTOM_PARAM_3 = "CustomParam3";
-
     protected static final String PARAM_NAME_SSL_KEY_NO = "SslKeyNo";
+    protected static final String PARAM_NAME_STORAGE_TYPE = "StorageType";
+    protected static final String PARAM_NAME_IS_INTERNAL = "IsInternal";
 
     //PLATFORM_TYPE
     protected static final String PLATFORM_TYPE_AWS = "aws";
     protected static final String PLATFORM_TYPE_VMWARE = "vmware";
     protected static final String PLATFORM_TYPE_NIFTY = "nifty";
     protected static final String PLATFORM_TYPE_CLOUDSTACK = "cloudstack";
+    protected static final String PLATFORM_TYPE_VCLOUD = "vcloud";
+    protected static final String PLATFORM_TYPE_AZURE = "azure";
+    protected static final String PLATFORM_TYPE_OPENSTACK = "openstack";
 
     //LOAD_BALANCER_TYPE
     protected static final String LB_TYPE_ELB = "aws";

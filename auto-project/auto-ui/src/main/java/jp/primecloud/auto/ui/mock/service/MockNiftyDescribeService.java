@@ -24,7 +24,6 @@ import java.util.List;
 import jp.primecloud.auto.entity.crud.NiftyKeyPair;
 import jp.primecloud.auto.service.NiftyDescribeService;
 
-
 /**
  * <p>
  * TODO: クラスコメントを記述

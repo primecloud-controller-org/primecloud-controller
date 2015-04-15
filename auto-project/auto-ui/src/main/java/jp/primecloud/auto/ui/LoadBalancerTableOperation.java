@@ -3,6 +3,9 @@ package jp.primecloud.auto.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
+import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.LoadBalancerStatus;
 import jp.primecloud.auto.service.LoadBalancerService;
 import jp.primecloud.auto.service.ProcessService;
@@ -16,14 +19,11 @@ import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
-
-import org.apache.commons.lang.StringUtils;
-
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Window.CloseEvent;
 
 /**
@@ -239,7 +239,7 @@ public class LoadBalancerTableOperation extends CssLayout {
         final LoadBalancerDto dto = (LoadBalancerDto) myCloudTabs.loadBalancerTable.getValue();
         final int index = myCloudTabs.loadBalancerTable.getCurrentPageFirstItemIndex();
 
-        if ("aws".equals(dto.getLoadBalancer().getType())) {
+        if (PCCConstant.LOAD_BALANCER_ELB.equals(dto.getLoadBalancer().getType())) {
             PlatformDto platform = dto.getPlatform();
             if (platform.getPlatformAws().getVpc() && StringUtils.isEmpty(dto.getAwsLoadBalancer().getSubnetId())) {
                 //ELB+VPCの場合、サブネットを設定しないと起動不可
@@ -264,7 +264,7 @@ public class LoadBalancerTableOperation extends CssLayout {
                 Long farmNo = ViewContext.getFarmNo();
                 List<Long> list = new ArrayList<Long>();
 
-                //TODO LOG
+                //オペレーションログ
                 AutoApplication apl = (AutoApplication)getApplication();
                 apl.doOpLog("LOAD_BALANCER", "Start Load_Balancer", null, null, dto.getLoadBalancer().getLoadBalancerNo(), null);
 
@@ -305,7 +305,7 @@ public class LoadBalancerTableOperation extends CssLayout {
                 List<Long> list = new ArrayList<Long>();
                 list.add(dto.getLoadBalancer().getLoadBalancerNo());
 
-                //TODO LOG
+                //オペレーションログ
                 AutoApplication apl = (AutoApplication)getApplication();
                 apl.doOpLog("LOAD_BALANCER", "Stop Load_Balancer", null, null, dto.getLoadBalancer().getLoadBalancerNo(), null);
 
@@ -333,7 +333,7 @@ public class LoadBalancerTableOperation extends CssLayout {
         final int index = myCloudTabs.loadBalancerTable.getCurrentPageFirstItemIndex();
 
         Long loadBalancerNo = dto.getLoadBalancer().getLoadBalancerNo();
-        if( "cloudstack".equals(dto.getLoadBalancer().getType())){
+        if(PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(dto.getLoadBalancer().getType())){
             WinCloudStackLoadBalancerEdit winLoadBalancerEdit = new WinCloudStackLoadBalancerEdit(getApplication(), loadBalancerNo);
             winLoadBalancerEdit.addListener(new Window.CloseListener() {
                 @Override
@@ -391,7 +391,7 @@ public class LoadBalancerTableOperation extends CssLayout {
                     return;
                 }
 
-                //TODO LOG
+                //オペレーションログ
                 AutoApplication apl = (AutoApplication)getApplication();
                 apl.doOpLog("LOAD_BALANCER", "Delete Load_Balancer", null, null, dto.getLoadBalancer().getLoadBalancerNo(), null);
 

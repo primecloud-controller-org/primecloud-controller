@@ -32,6 +32,10 @@ import javax.ws.rs.core.UriInfo;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+
 import jp.primecloud.auto.api.response.instance.EditInstanceNiftyResponse;
 import jp.primecloud.auto.common.status.InstanceStatus;
 import jp.primecloud.auto.entity.crud.Image;
@@ -42,10 +46,6 @@ import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.util.MessageUtils;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 
 
 @Path("/EditInstanceNifty")
@@ -118,7 +118,7 @@ public class EditInstanceNifty extends ApiSupport {
                 throw new AutoApplicationException("EAPI-100000", "Platform",
                         PARAM_NAME_PLATFORM_NO, instance.getPlatformNo());
             }
-            if ("nifty".equals(platform.getPlatformType()) == false) {
+            if (!PLATFORM_TYPE_NIFTY.equals(platform.getPlatformType())) {
                 //プラットフォームがNifty以外
                 throw new AutoApplicationException("EAPI-100031", "Nifty", instanceNo, instance.getPlatformNo());
             }

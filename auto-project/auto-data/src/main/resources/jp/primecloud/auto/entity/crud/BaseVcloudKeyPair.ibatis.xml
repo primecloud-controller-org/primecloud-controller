@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="VcloudKeyPair">
+
+	<typeAlias alias="VcloudKeyPair" type="jp.primecloud.auto.entity.crud.VcloudKeyPair" />
+
+	<resultMap id="vcloudKeyPairResultMap" class="VcloudKeyPair">
+		<result property="keyNo" column="KEY_NO" />
+		<result property="userNo" column="USER_NO" />
+		<result property="platformNo" column="PLATFORM_NO" />
+		<result property="keyName" column="KEY_NAME" nullValue="" />
+		<result property="keyPublic" column="KEY_PUBLIC" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.KEY_NO as KEY_NO,
+			t1.USER_NO as USER_NO,
+			t1.PLATFORM_NO as PLATFORM_NO,
+			t1.KEY_NAME as KEY_NAME,
+			t1.KEY_PUBLIC as KEY_PUBLIC
+		from
+			VCLOUD_KEY_PAIR t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from VCLOUD_KEY_PAIR t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="vcloudKeyPairResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.KEY_NO = #keyNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="vcloudKeyPairResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readByUserNoAndPlatformNoAndKeyName" parameterClass="java.util.Map" resultMap="vcloudKeyPairResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.USER_NO = #userNo# and
+			t1.PLATFORM_NO = #platformNo# and
+			t1.KEY_NAME = #keyName#
+		]]>
+	</select>
+
+	<select id="readByUserNo" parameterClass="java.util.Map" resultMap="vcloudKeyPairResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.USER_NO = #userNo#
+		]]>
+	</select>
+
+	<select id="readByUserNoAndPlatformNo" parameterClass="java.util.Map" resultMap="vcloudKeyPairResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.USER_NO = #userNo# and
+			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="readInKeyNos" parameterClass="java.util.Map" resultMap="vcloudKeyPairResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.KEY_NO in
+		]]>
+		<iterate property="keyNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#keyNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="VcloudKeyPair">
+		<![CDATA[
+		insert into VCLOUD_KEY_PAIR (
+			KEY_NO,
+			USER_NO,
+			PLATFORM_NO,
+			KEY_NAME,
+			KEY_PUBLIC
+		) values (
+			#keyNo#,
+			#userNo#,
+			#platformNo#,
+			#keyName#,
+			#keyPublic#
+		)
+		]]>
+	</insert>
+
+	<insert id="createAuto" parameterClass="VcloudKeyPair">
+		<![CDATA[
+		insert into VCLOUD_KEY_PAIR (
+			KEY_NO,
+			USER_NO,
+			PLATFORM_NO,
+			KEY_NAME,
+			KEY_PUBLIC
+		) values (
+			#keyNo#,
+			#userNo#,
+			#platformNo#,
+			#keyName#,
+			#keyPublic#
+		)
+		]]>
+		<selectKey keyProperty="keyNo" resultClass="java.lang.Long" type="post">
+		<![CDATA[
+			select last_insert_id()
+		]]>
+		</selectKey>
+	</insert>
+
+	<update id="update" parameterClass="VcloudKeyPair">
+		<![CDATA[
+		update VCLOUD_KEY_PAIR set
+			USER_NO = #userNo#,
+			PLATFORM_NO = #platformNo#,
+			KEY_NAME = #keyName#,
+			KEY_PUBLIC = #keyPublic#
+		where
+			KEY_NO = #keyNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="VcloudKeyPair">
+		<![CDATA[
+		delete from VCLOUD_KEY_PAIR
+		where
+			KEY_NO = #keyNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from VCLOUD_KEY_PAIR
+		]]>
+	</delete>
+
+	<delete id="deleteByKeyNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from VCLOUD_KEY_PAIR
+		where
+			KEY_NO = #keyNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByUserNoAndPlatformNoAndKeyName" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from VCLOUD_KEY_PAIR
+		where
+			USER_NO = #userNo# and
+			PLATFORM_NO = #platformNo# and
+			KEY_NAME = #keyName#
+		]]>
+	</delete>
+
+	<delete id="deleteByUserNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from VCLOUD_KEY_PAIR
+		where
+			USER_NO = #userNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByUserNoAndPlatformNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from VCLOUD_KEY_PAIR
+		where
+			USER_NO = #userNo# and
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByKeyNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			KEY_NO = #keyNo#
+		]]>
+	</select>
+
+	<select id="countByUserNoAndPlatformNoAndKeyName" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			USER_NO = #userNo# and
+			PLATFORM_NO = #platformNo# and
+			KEY_NAME = #keyName#
+		]]>
+	</select>
+
+	<select id="countByUserNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			USER_NO = #userNo#
+		]]>
+	</select>
+
+	<select id="countByUserNoAndPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			USER_NO = #userNo# and
+			PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+</sqlMap>

@@ -1,22 +1,22 @@
  # coding: UTF-8
  #
  # Copyright 2014 by SCSK Corporation.
- # 
+ #
  # This file is part of PrimeCloud Controller(TM).
- # 
+ #
  # PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
  # it under the terms of the GNU General Public License as published by
  # the Free Software Foundation, either version 2 of the License, or
  # (at your option) any later version.
- # 
+ #
  # PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
  # but WITHOUT ANY WARRANTY; without even the implied warranty of
  # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  # GNU General Public License for more details.
- # 
+ #
  # You should have received a copy of the GNU General Public License
  # along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
- # 
+ #
 from hashlib import sha1
 from iaasgw.log.log import IaasLogger
 from iaasgw.utils.propertyUtil import getProxy
@@ -25,11 +25,17 @@ from libcloud.common.cloudstack import CloudStackConnection
 from libcloud.compute.drivers.ec2 import EC2Connection, EC2_EU_WEST_HOST, \
     EC2_US_WEST_HOST, EC2_US_WEST_OREGON_HOST, EC2_AP_SOUTHEAST_HOST, \
     EC2_AP_NORTHEAST_HOST, EC2Response
-from libcloud.compute.drivers.vcloud import VCloudConnection
+from libcloud.compute.drivers.vcloud import VCloud_1_5_Connection
+from libcloud.utils.py3 import b
 import base64
 import hmac
+import libcloud
 import time
 import urllib
+
+#SSH認証するー
+libcloud.security.VERIFY_SSL_CERT = False
+
 
 proxyinfo = getProxy()
 proxy_host = ""
@@ -41,7 +47,7 @@ if "port" in proxyinfo:
 
 
 #EC2 ロードバランサ用の設定
-API_VERSION = '2011-11-15'
+API_VERSION = '2012-06-01'
 NAMESPACE = 'http://elasticloadbalancing.amazonaws.com/doc/%s/' % API_VERSION
 LBHOSTS = {"NORTHEAST":'elasticloadbalancing.ap-northeast-1.amazonaws.com',
          "US_EAST":'elasticloadbalancing.us-east-1.amazonaws.com',
@@ -176,8 +182,8 @@ class PCCCloudStackConnection(CloudStackConnection):
         self.connection = connection
 
 #VCloud用カスタムコネクション
-class PCCVCloudConnection(VCloudConnection):
-    logger = IaasLogger()
+class PCCVCloudConnection(VCloud_1_5_Connection):
+    host =  ""
     useProxy = False
     def connect(self, host=None, port=None, base_url = None):
         # prefer the attribute base_url if its set or sent
@@ -205,6 +211,22 @@ class PCCVCloudConnection(VCloudConnection):
 
         self.connection = connection
 
+    #5.1対応
+    def _get_auth_headers(self):
+        """Compatibility for using v1.5 API under vCloud Director 5.1"""
+
+        return {
+            'Authorization': "Basic %s" % base64.b64encode(
+                b('%s:%s' % (self.user_id, self.key))).decode('utf-8'),
+            'Content-Length': '0',
+            'Accept': 'application/*+xml;version=5.1'
+        }
+
+    #5.1対応
+    def add_default_headers(self, headers):
+        headers['Accept'] = 'application/*+xml;version=5.1'
+        headers['x-vcloud-authorization'] = self.token
+        return headers
 
 
 ############################################################################################################

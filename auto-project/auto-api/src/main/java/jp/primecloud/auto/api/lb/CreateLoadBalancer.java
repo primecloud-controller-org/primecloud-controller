@@ -1,18 +1,18 @@
 /*
  * Copyright 2014 by SCSK Corporation.
- * 
+ *
  * This file is part of PrimeCloud Controller(TM).
- * 
+ *
  * PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
  */
@@ -39,7 +39,6 @@ import jp.primecloud.auto.util.MessageUtils;
 import org.apache.commons.lang.BooleanUtils;
 
 
-
 @Path("/CreateLoadBalancer")
 public class CreateLoadBalancer extends ApiSupport {
 
@@ -59,14 +58,15 @@ public class CreateLoadBalancer extends ApiSupport {
      */
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-	public CreateLoadBalancerResponse createLoadBalancer(
+    public CreateLoadBalancerResponse createLoadBalancer(
             @QueryParam(PARAM_NAME_USER) String userName,
             @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
-	        @QueryParam(PARAM_NAME_LOAD_BALANCER_NAME) String loadBalancerName,
-	        @QueryParam(PARAM_NAME_PLATFORM_NO) String platformNo,
-	        @QueryParam(PARAM_NAME_LOAD_BALANCER_TYPE) String loadBalancerType,
-	        @QueryParam(PARAM_NAME_COMPONENT_NO) String componentNo,
-	        @QueryParam(PARAM_NAME_COMMENT) String comment){
+            @QueryParam(PARAM_NAME_LOAD_BALANCER_NAME) String loadBalancerName,
+            @QueryParam(PARAM_NAME_PLATFORM_NO) String platformNo,
+            @QueryParam(PARAM_NAME_LOAD_BALANCER_TYPE) String loadBalancerType,
+            @QueryParam(PARAM_NAME_COMPONENT_NO) String componentNo,
+            @QueryParam(PARAM_NAME_COMMENT) String comment,
+            @QueryParam(PARAM_NAME_IS_INTERNAL) String isInternal){
 
         CreateLoadBalancerResponse response = new CreateLoadBalancerResponse();
 
@@ -105,6 +105,18 @@ public class CreateLoadBalancer extends ApiSupport {
             ApiValidate.validateComponentNo(componentNo);
             // Comment
             ApiValidate.validateComment(comment);
+            // isInternal
+            boolean internal = false;
+            if (isInternal !=  null) {
+                ApiValidate.validateIsInternal(isInternal);
+                internal = Boolean.parseBoolean(isInternal);
+            }
+            if (!LB_TYPE_ELB.equals(loadBalancerType) || !platformAws.getVpc()) {
+                if (BooleanUtils.isTrue(internal)) {
+                    // ELB かつプラットフォームがVPC以外の場合は内部ロードバランサ指定不可
+                    throw new AutoApplicationException("EAPI -100041", loadBalancerName);
+                }
+            }
 
             // コンポーネント取得
             Component component = componentDao.read(Long.parseLong(componentNo));
@@ -123,7 +135,7 @@ public class CreateLoadBalancer extends ApiSupport {
                 //AWS ELB(Elastic Load Balancing)
                 newLoadBalancerNo = loadBalancerService.createAwsLoadBalancer(
                         Long.parseLong(farmNo), loadBalancerName, comment,
-                        Long.parseLong(platformNo), Long.parseLong(componentNo));
+                        Long.parseLong(platformNo), Long.parseLong(componentNo), internal);
             } else if (LB_TYPE_ULTRA_MONKEY.equals(loadBalancerType)) {
                 //ultraMonkey
                 newLoadBalancerNo = loadBalancerService.createUltraMonkeyLoadBalancer(
@@ -152,5 +164,6 @@ public class CreateLoadBalancer extends ApiSupport {
         }
 
         return  response;
-	}
+
+    }
 }

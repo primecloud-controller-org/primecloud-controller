@@ -4,6 +4,7 @@ class ${instance.fqdn?replace('.','_')}_${component.componentName} {
 
     class { "apserver::tomcat":
         tomcat_service_name     => "${component.componentName}",
+      <#comment>TODO CLOUD BRANCHING</#comment>
       <#if awsVolume ??>
         tomcat_vgdisk           => "${awsVolume.device}",
         tomcat_visor            => "aws",
@@ -13,6 +14,18 @@ class ${instance.fqdn?replace('.','_')}_${component.componentName} {
       <#elseif vmwareDisk ??>
         tomcat_vgdisk           => "/dev/disk/by-path/pci-0000:00:10.0-scsi-0:0:${vmwareDisk.scsiId}:0",
         tomcat_visor            => "vmware",
+      <#elseif vcloudDisk ??>
+        tomcat_vgdisk           => "/dev/disk/by-path/pci-0000:00:10.0-scsi-0:0:${vcloudDisk.unitNo}:0",
+        tomcat_visor            => "vcloud",
+      <#elseif niftyVolume ??>
+        tomcat_vgdisk           => "/dev/disk/by-path/pci-0000:00:10.0-scsi-0:0:${niftyVolume.scsiId}:0",
+        tomcat_visor            => "nifty",
+      <#elseif azureDisk ??>
+        tomcat_vgdisk           => "${azureDisk.device}",
+        tomcat_visor            => "azure",
+      <#elseif openstackVolume ??>
+        tomcat_vgdisk           => "${openstackVolume.device}",
+        tomcat_visor            => "openstack",
       <#else>
         tomcat_vgdisk           => "",
         tomcat_visor            => "",
@@ -68,6 +81,13 @@ class ${instance.fqdn?replace('.','_')}_${component.componentName} {
       </#if>
     }
     </#list>
+  </#if>
+
+  <#if sampleDbInstance ??>
+    # for arvicio Sample
+    tomcat::dbhost { "AppDS-master":
+        ip => "${accessIps[sampleDbInstance.instanceNo?string]}"
+    }
   </#if>
 
     class { "apserver::tomcat::mount": }

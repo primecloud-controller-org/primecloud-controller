@@ -19,14 +19,16 @@
 package jp.primecloud.auto.process;
 
 import jp.primecloud.auto.entity.crud.AwsInstance;
+import jp.primecloud.auto.entity.crud.AzureInstance;
 import jp.primecloud.auto.entity.crud.CloudstackInstance;
 import jp.primecloud.auto.entity.crud.Component;
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.NiftyInstance;
+import jp.primecloud.auto.entity.crud.OpenstackInstance;
+import jp.primecloud.auto.entity.crud.VcloudInstance;
 import jp.primecloud.auto.entity.crud.VmwareInstance;
 import jp.primecloud.auto.log.EventLogger;
 import jp.primecloud.auto.service.ServiceSupport;
-
 
 /**
  * <p>
@@ -118,7 +120,25 @@ public class ProcessLogger extends ServiceSupport {
             return niftyInstance.getInstanceType();
         }
 
-        return null;
+        VcloudInstance vcloudInstance = vcloudInstanceDao.read(instanceNo);
+        if (vcloudInstance != null){
+            return vcloudInstance.getInstanceType();
+        }
+
+        AzureInstance azureInstance = azureInstanceDao.read(instanceNo);
+        if (azureInstance != null){
+            return azureInstance.getInstanceType();
+        }
+
+        OpenstackInstance osInstance = openstackInstanceDao.read(instanceNo);
+        if (osInstance != null){
+            return osInstance.getInstanceType();
+        }
+
+        //上記にクラウドに該当しない時に、OpenStackのm1.tinyを返す
+        return "m1.tiny";
+
+        //return null;
     }
 
 }

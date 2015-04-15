@@ -20,11 +20,16 @@
 from iaasgw.controller.cloudStack.cloudStackController import \
     CloudStackController
 from iaasgw.controller.ec2.ec2controller import EC2Controller
+from iaasgw.controller.vcloud.vCloudController import VCloudController
+from iaasgw.controller.azure.azurecontroller import AzureController
+from iaasgw.controller.openStack.openStackController import OpenStackController
 from iaasgw.db.mysqlConnector import MysqlConnector
 from iaasgw.exception.iaasException import IaasException
 from iaasgw.log.log import IaasLogger
 from iaasgw.utils.propertyUtil import getPlatformProperty
 from sqlalchemy.sql.expression import and_
+import datetime
+import os
 
 
 def iaasSelect(user, platformNo, isLb = False):
@@ -66,6 +71,24 @@ def iaasSelect(user, platformNo, isLb = False):
         certificate = conn.selectOne(certificateTable.select(and_(certificateTable.c.ACCOUNT==user, certificateTable.c.PLATFORM_NO==platformNo)))
         accessInfo = {"ACCESS_ID": str(certificate["CLOUDSTACK_ACCESS_ID"]), "SECRET_KEY": str(certificate["CLOUDSTACK_SECRET_KEY"]), "USER": user, "USER_NAME": userinfo["USERNAME"]}
         iaasController = CloudStackController(conn, accessInfo, platforminfo)
+    elif platformType == "vcloud":
+        #vCloud
+        certificateTable = conn.getTable("VCLOUD_CERTIFICATE")
+        certificate = conn.selectOne(certificateTable.select(and_(certificateTable.c.USER_NO==user, certificateTable.c.PLATFORM_NO==platformNo)))
+        accessInfo = {"ACCESS_ID": str(certificate["VCLOUD_ACCESS_ID"]), "SECRET_KEY": str(certificate["VCLOUD_SECRET_KEY"]), "USER": user, "USER_NAME": userinfo["USERNAME"]}
+        iaasController = VCloudController(conn, accessInfo, platforminfo)
+    elif platformType == "azure":
+        #Azure
+        certificateTable = conn.getTable("AZURE_CERTIFICATE")
+        certificate = conn.selectOne(certificateTable.select(and_(certificateTable.c.USER_NO==user, certificateTable.c.PLATFORM_NO==platformNo)))
+        accessInfo = {"SUBSCRIPTION_ID": certificate["SUBSCRIPTION_ID"], "CERTIFICATE": certificate["CERTIFICATE"], "USER": user, "USER_NAME": userinfo["USERNAME"]}
+        iaasController = AzureController(conn, accessInfo, platforminfo)
+    elif platformType == "openstack":
+        #OpenStack
+        certificateTable = conn.getTable("OPENSTACK_CERTIFICATE")
+        certificate = conn.selectOne(certificateTable.select(and_(certificateTable.c.USER_NO==user, certificateTable.c.PLATFORM_NO==platformNo)))
+        accessInfo = {"OS_ACCESS_ID": certificate["OS_ACCESS_ID"], "OS_SECRET_KEY": certificate["OS_SECRET_KEY"]}
+        iaasController = OpenStackController(conn, accessInfo, platforminfo)
     else:
         raise IaasException("PlatformError", platformNo)
 

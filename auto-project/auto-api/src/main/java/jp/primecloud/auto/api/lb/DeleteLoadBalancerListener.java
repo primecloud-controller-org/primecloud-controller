@@ -27,15 +27,15 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
+
+import org.apache.commons.lang.BooleanUtils;
+
 import jp.primecloud.auto.api.response.lb.DeleteLoadBalancerListenerResponse;
 import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.util.MessageUtils;
-
-import org.apache.commons.lang.BooleanUtils;
-
 
 
 @Path("/DeleteLoadBalancerListener")
@@ -85,7 +85,7 @@ public class DeleteLoadBalancerListener extends ApiSupport {
                         PARAM_NAME_PLATFORM_NO, loadBalancer.getPlatformNo());
             }
 
-            if ("cloudstack".equals(platform.getPlatformType())) {
+            if (PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
                 // プラットフォームがCloudStackの場合は処理を行わず終了
                 response.setSuccess(true);
                 return response;

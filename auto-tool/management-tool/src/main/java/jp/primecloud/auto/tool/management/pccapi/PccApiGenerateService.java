@@ -18,40 +18,39 @@
  */
 package jp.primecloud.auto.tool.management.pccapi;
 
+import java.util.List;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import jp.primecloud.auto.api.ApiConstants;
 import jp.primecloud.auto.api.util.SecureRandamGenerator;
-import jp.primecloud.auto.dao.crud.ApiCertificateDao;
-import jp.primecloud.auto.dao.crud.UserDao;
 import jp.primecloud.auto.entity.crud.ApiCertificate;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.AutoException;
+import jp.primecloud.auto.tool.management.main.SQLMain;
 
 public class PccApiGenerateService extends ApiConstants {
 
     private static Log log = LogFactory.getLog(PccApiGenerateService.class);
 
     public static void genarate(CommandLine commandLine) throws AutoException {
-        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
-
         Long userNo = Long.parseLong(commandLine.getOptionValue("userno"));
-        String generateType = commandLine.getOptionValue("generateType");
+        String generateType = commandLine.getOptionValue("generatetype");
 
         try {
-            UserDao userDao = (UserDao) context.getBean("userDao");
-            User user = userDao.read(userNo);
+            String userSql = "SELECT * FROM USER WHERE USER_NO =" + userNo;
+            List<User> users = SQLMain.selectExecuteWithResult(userSql, User.class);
+            User user = users.get(0);
 
-            ApiCertificateDao apiCertificateDao = (ApiCertificateDao) context.getBean("apiCertificateDao");
             if (generateType != null && generateType.equals("accessId")) {
                 String apiAccessId = "";
                 while (true) {
-                    apiAccessId = genAccessId();
-                    ApiCertificate apiCertificate = apiCertificateDao.readByApiAccessId(apiAccessId);
-                    if (apiCertificate == null) {
+                    apiAccessId = generateAccessId();
+                    String apiSql = "SELECT * FROM API_CERTIFICATE WHERE API_ACCESS_ID ='" + apiAccessId + "'";
+                    List<ApiCertificate> apiCertificates = SQLMain.selectExecuteWithResult(apiSql, ApiCertificate.class);
+                    if (apiCertificates.isEmpty()) {
                         break;
                     }
                 }
@@ -60,14 +59,14 @@ public class PccApiGenerateService extends ApiConstants {
             } else if (generateType != null && generateType.equals("secretKey")) {
                 String apiSecretKey = "";
                 while (true) {
-                    apiSecretKey = genSecretKey();
-                    ApiCertificate apiCertificate = apiCertificateDao.readByApiSecretKey(apiSecretKey);
-                    if (apiCertificate == null) {
+                    apiSecretKey = generateSecretKey();
+                    String apiSql = "SELECT * FROM API_CERTIFICATE WHERE API_SECRET_KEY ='" + apiSecretKey + "'";
+                    List<ApiCertificate> apiCertificates = SQLMain.selectExecuteWithResult(apiSql, ApiCertificate.class);
+                    if (apiCertificates.isEmpty()) {
                         break;
                     }
-
                 }
-                log.info(user.getUsername() + " の apiSecretKey を生成しました");
+                log.info(user.getUsername() + " の secretKey を生成しました");
                 System.out.println(apiSecretKey);
             } else {
                 log.error("generateType が不正な値です");
@@ -76,17 +75,15 @@ public class PccApiGenerateService extends ApiConstants {
         } catch (Exception e) {
             log.error("PCC-APIのキー生成でエラーが発生しました。userNo:" + userNo + " generateType:" + generateType, e);
             System.out.println("GENERATE_ERROR");
-        } finally {
-            context.destroy();
         }
     }
 
-    public static String genAccessId() throws AutoException {
+    public static String generateAccessId() throws AutoException {
         SecureRandamGenerator generator = new SecureRandamGenerator();
         return generator.generate(ACCESS_ID_LENGTH).toUpperCase();
     }
 
-    private static String genSecretKey() {
+    private static String generateSecretKey() {
         SecureRandamGenerator generator = new SecureRandamGenerator();
         return generator.generate(SECRET_KEY_LENGTH);
     }

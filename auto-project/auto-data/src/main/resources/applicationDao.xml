@@ -4,11 +4,11 @@
 	xsi:schemaLocation="
 	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-	<bean id="authoritySetDao" class="jp.primecloud.auto.dao.crud.impl.AuthoritySetDaoImpl">
+	<bean id="apiCertificateDao" class="jp.primecloud.auto.dao.crud.impl.ApiCertificateDaoImpl">
 		<property name="sqlMapClient" ref="sqlMapClient" />
 	</bean>
 
-	<bean id="apiCertificateDao" class="jp.primecloud.auto.dao.crud.impl.ApiCertificateDaoImpl">
+	<bean id="authoritySetDao" class="jp.primecloud.auto.dao.crud.impl.AuthoritySetDaoImpl">
 		<property name="sqlMapClient" ref="sqlMapClient" />
 	</bean>
 
@@ -41,6 +41,22 @@
 	</bean>
 
 	<bean id="awsVolumeDao" class="jp.primecloud.auto.dao.crud.impl.AwsVolumeDaoImpl">
+		<property name="sqlMapClient" ref="sqlMapClient" />
+	</bean>
+
+	<bean id="azureCertificateDao" class="jp.primecloud.auto.dao.crud.impl.AzureCertificateDaoImpl">
+		<property name="sqlMapClient" ref="sqlMapClient" />
+	</bean>
+
+	<bean id="azureDiskDao" class="jp.primecloud.auto.dao.crud.impl.AzureDiskDaoImpl">
+		<property name="sqlMapClient" ref="sqlMapClient" />
+	</bean>
+
+	<bean id="azureInstanceDao" class="jp.primecloud.auto.dao.crud.impl.AzureInstanceDaoImpl">
+		<property name="sqlMapClient" ref="sqlMapClient" />
+	</bean>
+
+	<bean id="azureSubnetDao" class="jp.primecloud.auto.dao.crud.impl.AzureSubnetDaoImpl">
 		<property name="sqlMapClient" ref="sqlMapClient" />
 	</bean>
 
@@ -100,11 +116,23 @@
 		<property name="sqlMapClient" ref="sqlMapClient" />
 	</bean>
 
+	<bean id="imageAzureDao" class="jp.primecloud.auto.dao.crud.impl.ImageAzureDaoImpl">
+		<property name="sqlMapClient" ref="sqlMapClient" />
+	</bean>
+
 	<bean id="imageCloudstackDao" class="jp.primecloud.auto.dao.crud.impl.ImageCloudstackDaoImpl">
 		<property name="sqlMapClient" ref="sqlMapClient" />
 	</bean>
 
 	<bean id="imageNiftyDao" class="jp.primecloud.auto.dao.crud.impl.ImageNiftyDaoImpl">
+		<property name="sqlMapClient" ref="sqlMapClient" />
+	</bean>
+
+	<bean id="imageOpenstackDao" class="jp.primecloud.auto.dao.crud.impl.ImageOpenstackDaoImpl">
+		<property name="sqlMapClient" ref="sqlMapClient" />
+	</bean>
+
+	<bean id="imageVcloudDao" class="jp.primecloud.auto.dao.crud.impl.ImageVcloudDaoImpl">
 		<property name="sqlMapClient" ref="sqlMapClient" />
 	</bean>
 
@@ -148,6 +176,26 @@
 		<property name="sqlMapClient" ref="sqlMapClient" />
 	</bean>
 
+	<bean id="niftyVolumeDao" class="jp.primecloud.auto.dao.crud.impl.NiftyVolumeDaoImpl">
+		<property name="sqlMapClient" ref="sqlMapClient" />
+	</bean>
+
+	<bean id="openstackCertificateDao" class="jp.primecloud.auto.dao.crud.impl.OpenstackCertificateDaoImpl">
+		<property name="sqlMapClient" ref="sqlMapClient" />
+	</bean>
+
+	<bean id="openstackInstanceDao" class="jp.primecloud.auto.dao.crud.impl.OpenstackInstanceDaoImpl">
+		<property name="sqlMapClient" ref="sqlMapClient" />
+	</bean>
+
+	<bean id="openstackSslKeyDao" class="jp.primecloud.auto.dao.crud.impl.OpenstackSslKeyDaoImpl">
+		<property name="sqlMapClient" ref="sqlMapClient" />
+	</bean>
+
+	<bean id="openstackVolumeDao" class="jp.primecloud.auto.dao.crud.impl.OpenstackVolumeDaoImpl">
+		<property name="sqlMapClient" ref="sqlMapClient" />
+	</bean>
+
 	<bean id="platformDao" class="jp.primecloud.auto.dao.crud.impl.PlatformDaoImpl">
 		<property name="sqlMapClient" ref="sqlMapClient" />
 	</bean>
@@ -156,11 +204,31 @@
 		<property name="sqlMapClient" ref="sqlMapClient" />
 	</bean>
 
+	<bean id="platformAzureDao" class="jp.primecloud.auto.dao.crud.impl.PlatformAzureDaoImpl">
+		<property name="sqlMapClient" ref="sqlMapClient" />
+	</bean>
+
 	<bean id="platformCloudstackDao" class="jp.primecloud.auto.dao.crud.impl.PlatformCloudstackDaoImpl">
 		<property name="sqlMapClient" ref="sqlMapClient" />
 	</bean>
 
 	<bean id="platformNiftyDao" class="jp.primecloud.auto.dao.crud.impl.PlatformNiftyDaoImpl">
+		<property name="sqlMapClient" ref="sqlMapClient" />
+	</bean>
+
+	<bean id="platformOpenstackDao" class="jp.primecloud.auto.dao.crud.impl.PlatformOpenstackDaoImpl">
+		<property name="sqlMapClient" ref="sqlMapClient" />
+	</bean>
+
+	<bean id="platformVcloudDao" class="jp.primecloud.auto.dao.crud.impl.PlatformVcloudDaoImpl">
+		<property name="sqlMapClient" ref="sqlMapClient" />
+	</bean>
+
+	<bean id="platformVcloudInstanceTypeDao" class="jp.primecloud.auto.dao.crud.impl.PlatformVcloudInstanceTypeDaoImpl">
+		<property name="sqlMapClient" ref="sqlMapClient" />
+	</bean>
+
+	<bean id="platformVcloudStorageTypeDao" class="jp.primecloud.auto.dao.crud.impl.PlatformVcloudStorageTypeDaoImpl">
 		<property name="sqlMapClient" ref="sqlMapClient" />
 	</bean>
 
@@ -193,6 +261,26 @@
 	</bean>
 
 	<bean id="userAuthDao" class="jp.primecloud.auto.dao.crud.impl.UserAuthDaoImpl">
+		<property name="sqlMapClient" ref="sqlMapClient" />
+	</bean>
+
+	<bean id="vcloudCertificateDao" class="jp.primecloud.auto.dao.crud.impl.VcloudCertificateDaoImpl">
+		<property name="sqlMapClient" ref="sqlMapClient" />
+	</bean>
+
+	<bean id="vcloudDiskDao" class="jp.primecloud.auto.dao.crud.impl.VcloudDiskDaoImpl">
+		<property name="sqlMapClient" ref="sqlMapClient" />
+	</bean>
+
+	<bean id="vcloudInstanceDao" class="jp.primecloud.auto.dao.crud.impl.VcloudInstanceDaoImpl">
+		<property name="sqlMapClient" ref="sqlMapClient" />
+	</bean>
+
+	<bean id="vcloudInstanceNetworkDao" class="jp.primecloud.auto.dao.crud.impl.VcloudInstanceNetworkDaoImpl">
+		<property name="sqlMapClient" ref="sqlMapClient" />
+	</bean>
+
+	<bean id="vcloudKeyPairDao" class="jp.primecloud.auto.dao.crud.impl.VcloudKeyPairDaoImpl">
 		<property name="sqlMapClient" ref="sqlMapClient" />
 	</bean>
 

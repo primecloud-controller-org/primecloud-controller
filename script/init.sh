@@ -16,6 +16,11 @@ elif [ "$PLATFORM" = "VMWARE" ]; then
 elif [ "$PLATFORM" = "CS" ]; then
     ROUTERIP=`cat /var/lib/dhclient/dhclient-eth0.leases | grep dhcp-server-identifier | tail -1 | awk '{print $3}' | sed -e "s/;//"`
     INSTANCEDATA=`curl -s -f http://$ROUTERIP/latest/user-data`
+elif [ "$PLATFORM" = "VCLOUD" ]; then
+    INSTANCEDATA=`vmware-guestd --cmd "info-get guestinfo.ovfEnv" | awk -F"\"" ' /guestinfo.userdata/ {print $4}'`
+    if [ -z "$INSTANCEDATA" ]; then
+        INSTANCEDATA=`vmtoolsd --cmd "info-get guestinfo.ovfEnv" | awk -F"\"" ' /guestinfo.userdata/ {print $4}'`
+    fi
 fi
 
 FILE_INSTANCEDATA=/root/instancedata
@@ -91,20 +96,21 @@ done
 
 
 #set hostname
+${LOG_FILE}
 if [ -n "$HOSTNAME" ]; then
     /bin/hostname $HOSTNAME
 fi
 
+#set edit hosts file
+if [ "$PLATFORM" = "VCLOUD" ]; then
+    /usr/bin/perl -p -i.bak -e "s/^.*# NIC <eth.*\n//g" /etc/hosts
+fi
 
 #set puppet server
 if [ -n "$PUPPETMASTER" ]; then
     export PUPPETMASTER
     /usr/bin/perl -p -i.bak -e 's/server *\= *(.*)/server \= $ENV{PUPPETMASTER}/i' /etc/puppet/puppet.conf
     /usr/bin/perl -p -i.bak -e 's/^[^#].*allow *(.*)/ allow $ENV{PUPPETMASTER}/i'  /etc/puppet/namespaceauth.conf
-    #set prerun_command
-    #grep -q -e "^\s*prerun_command" /etc/puppet/puppet.conf
-    #[ $? != 0 ] && echo -e '    prerun_command = "/sbin/service puppet reload"\n' >> /etc/puppet/puppet.conf
-    #postrun_command = "/sbin/service puppet reload"
     #set postrun_command
     grep -q -e "^\s*postrun_command" /etc/puppet/puppet.conf
     [ $? != 0 ] && echo -e '    postrun_command = "/sbin/service puppet reload"\n' >> /etc/puppet/puppet.conf
@@ -218,11 +224,12 @@ fi
 # delete DNS script
 wget -q --connect-timeout=10 --tries=1 --spider http://$SCRIPTSERVER/script/deleteDns.sh
 if [ $? = 0 ]; then
-    wget -q --tries=1 -O /etc/init.d/deleteDns http://$SCRIPTSERVER/script/deleteDns.sh
-    chmod 755 /etc/init.d/deleteDns
-    /etc/init.d/deleteDns start
+    if [ "$PLATFORM" != "VCLOUD" ]; then
+        wget -q --tries=1 -O /etc/init.d/deleteDns http://$SCRIPTSERVER/script/deleteDns.sh
+        chmod 755 /etc/init.d/deleteDns
+        /etc/init.d/deleteDns start
+    fi
 fi
-
 
 # create swap
 if [ "$PLATFORM" = "EC2" ]; then

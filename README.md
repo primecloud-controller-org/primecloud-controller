@@ -1,4 +1,6 @@
 
+Develop branch [![Build Status](https://travis-ci.org/primecloud-controller-org/primecloud-controller.svg?branch=develop)](https://travis-ci.org/primecloud-controller-org/primecloud-controller)
+
 ### PrimeCloud Controllerついて
 「PrimeCloud Controller（プライム クラウド コントローラー）」は、プライベートクラウド/パブリッククラウドを簡単なGUI操作で統一的に管理・制御できる、
 ハイブリッドクラウド対応ソフトウェアです。
@@ -24,6 +26,9 @@ GNU General Public License Version 2で提供しています。
 PrimeCloudはSCSK株式会社の商標または登録商標です。
 
 PrimeCloud ControllerのロゴはSCSK株式会社の商標または登録商標です。
+
+### クレジット
+Some icons by [Yusuke Kamiyamane](http://p.yusukekamiyamane.com/). Licensed under a Creative Commons Attribution 3.0 License.
 
 ### 問い合わせ
 メールによる問い合わせ

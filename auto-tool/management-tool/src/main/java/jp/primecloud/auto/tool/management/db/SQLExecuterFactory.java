@@ -18,6 +18,9 @@
  */
 package jp.primecloud.auto.tool.management.db;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import jp.primecloud.auto.config.Config;
 
 public class SQLExecuterFactory {
@@ -28,10 +31,23 @@ public class SQLExecuterFactory {
 
     private String DBPassword;
 
+    protected static Log log = LogFactory.getLog(SQLExecuterFactory.class);
+
     public SQLExecuter createPCCSQLExecuter() {
+//        setDB(Config.getProperty("db.url"));
+//        setDBUsername(Config.getProperty("db.username"));
+//        setDBPassword(Config.getProperty("db.password"));
+//        setDB(Config.getProperty("PCC_DB"));
+        log.info(SQLExecuterFactory.class.toString());
         setDB(Config.getProperty("db.url"));
+        log.info(Config.getProperty("db.url"));
         setDBUsername(Config.getProperty("db.username"));
+        log.info(Config.getProperty("db.username"));
         setDBPassword(Config.getProperty("db.password"));
+        log.info(Config.getProperty("db.password"));
+//        setDB("jdbc:mysql://localhost/adc");
+//        setDBUsername("root");
+//        setDBPassword("root");
         return new SQLExecuter(DB, DBUsername, DBPassword);
     }
 

@@ -28,13 +28,12 @@ import java.util.Map;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import jp.primecloud.auto.ui.util.BeanContext;
-
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.ContextLoaderListener;
 
+import jp.primecloud.auto.ui.util.BeanContext;
 
 /**
  * <p>

@@ -29,30 +29,40 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+
 import jp.primecloud.auto.api.response.instance.AwsInstanceResponse;
+import jp.primecloud.auto.api.response.instance.AzureInstanceResponse;
 import jp.primecloud.auto.api.response.instance.CloudstackInstanceResponse;
 import jp.primecloud.auto.api.response.instance.DescribeInstanceResponse;
 import jp.primecloud.auto.api.response.instance.NiftyInstanceResponse;
+import jp.primecloud.auto.api.response.instance.OpenstackInstanceResponse;
+import jp.primecloud.auto.api.response.instance.VcloudInstanceNetworkResponse;
+import jp.primecloud.auto.api.response.instance.VcloudInstanceResponse;
 import jp.primecloud.auto.api.response.instance.VmwareInstanceResponse;
 import jp.primecloud.auto.entity.crud.AwsInstance;
+import jp.primecloud.auto.entity.crud.AzureInstance;
 import jp.primecloud.auto.entity.crud.CloudstackInstance;
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.NiftyInstance;
 import jp.primecloud.auto.entity.crud.NiftyKeyPair;
+import jp.primecloud.auto.entity.crud.OpenstackInstance;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.PlatformAws;
+import jp.primecloud.auto.entity.crud.PlatformVcloudStorageType;
 import jp.primecloud.auto.entity.crud.User;
+import jp.primecloud.auto.entity.crud.VcloudInstance;
+import jp.primecloud.auto.entity.crud.VcloudInstanceNetwork;
 import jp.primecloud.auto.entity.crud.VmwareAddress;
 import jp.primecloud.auto.entity.crud.VmwareInstance;
 import jp.primecloud.auto.entity.crud.VmwareKeyPair;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.exception.AutoException;
+import jp.primecloud.auto.service.dto.KeyPairDto;
 import jp.primecloud.auto.service.dto.SubnetDto;
 import jp.primecloud.auto.util.MessageUtils;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 
 
 @Path("/DescribeInstance")
@@ -113,7 +123,7 @@ public class DescribeInstance extends ApiSupport {
 
             //インスタンス情報設定
             response = new DescribeInstanceResponse(instance);
-
+            // TODO CLOUD BRANCHING
             if (PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
                 //AWS
                 PlatformAws platformAws = platformAwsDao.read(instance.getPlatformNo());
@@ -194,7 +204,69 @@ public class DescribeInstance extends ApiSupport {
 
                 //Niftyインスタンス情報設定
                 response.setNifty(niftyResponse);
+            } else if (PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
+                //VCLOUD_INSTANCE
+                VcloudInstance vcloudInstance = vcloudInstanceDao.read(Long.parseLong(instanceNo));
+                if (vcloudInstance == null) {
+                    // VMWareインスタンスが存在しない
+                    throw new AutoApplicationException("EAPI-100000", "VcloudInstance", PARAM_NAME_INSTANCE_NO, instanceNo);
+                }
+                VcloudInstanceResponse vcloudInstanceResponse = new VcloudInstanceResponse(vcloudInstance);
+
+                //PLATFORM_VCLOUD_STORAGE_TYPE取得
+                List<PlatformVcloudStorageType> storageTypes = platformVcloudStorageTypeDao.readByPlatformNo(platform.getPlatformNo());
+                for (PlatformVcloudStorageType storageType: storageTypes) {
+                    if (storageType.getStorageTypeNo().equals(vcloudInstance.getStorageTypeNo())) {
+                        vcloudInstanceResponse.setStorageTypeName(storageType.getStorageTypeName());
+                        break;
+                    }
+                }
+
+                //VCLOUD_KEYPAIR取得
+                List<KeyPairDto> keyPairs = iaasDescribeService.getKeyPairs(user.getUserNo(), instance.getPlatformNo());
+                for (KeyPairDto keyPair: keyPairs) {
+                    if (keyPair.getKeyNo().equals(vcloudInstance.getKeyPairNo())) {
+                        vcloudInstanceResponse.setKeyName(keyPair.getKeyName());
+                        break;
+                    }
+                }
+
+                // VCloudNetwork取得
+                List<VcloudInstanceNetwork> vcloudInstanceNetworks = vcloudInstanceNetworkDao.readByInstanceNo(Long.parseLong(instanceNo));
+                for (VcloudInstanceNetwork vcloudInstanceNetwork : vcloudInstanceNetworks) {
+                    // VCloudNetwork情報設定
+                    VcloudInstanceNetworkResponse vcloudInstanceNetworkResponse = new VcloudInstanceNetworkResponse(vcloudInstanceNetwork);
+                    // プライマリ判定設定
+                    if (BooleanUtils.isTrue(vcloudInstanceNetwork.getIsPrimary())) {
+                        vcloudInstanceNetworkResponse.setIsPrimary(true);
+                    } else {
+                        vcloudInstanceNetworkResponse.setIsPrimary(false);
+                    }
+                    vcloudInstanceResponse.addVcloudNetwok(vcloudInstanceNetworkResponse);
+                }
+
+                //VCloudインスタンス情報設定
+                response.setVcloud(vcloudInstanceResponse);
+            }else if (PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
+                //OpenStack
+                OpenstackInstance openstackInstance = openstackInstanceDao.read(Long.parseLong(instanceNo));
+                if (openstackInstance == null) {
+                    // OpenStackインスタンスが存在しない
+                    throw new AutoApplicationException("EAPI-100000", "OpenstackInstance", PARAM_NAME_INSTANCE_NO, instanceNo);
+                }
+                //OpenStackインスタンス情報設定
+                response.setOpenstack(new OpenstackInstanceResponse(openstackInstance));
+            }else if (PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
+                //Azure
+                AzureInstance azureInstance = azureInstanceDao.read(Long.parseLong(instanceNo));
+                if (azureInstance == null) {
+                    // Azureインスタンスが存在しない
+                    throw new AutoApplicationException("EAPI-100000", "AzureInstance", PARAM_NAME_INSTANCE_NO, instanceNo);
             }
+                //Azureインスタンス情報設定
+                response.setAzure(new AzureInstanceResponse(azureInstance));
+            }
+
             response.setSuccess(true);
         } catch (Throwable e){
             String message = "";

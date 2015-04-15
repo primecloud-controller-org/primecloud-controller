@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="VcloudDisk">
+
+	<typeAlias alias="VcloudDisk" type="jp.primecloud.auto.entity.crud.VcloudDisk" />
+
+	<resultMap id="vcloudDiskResultMap" class="VcloudDisk">
+		<result property="diskNo" column="DISK_NO" />
+		<result property="diskId" column="DISK_ID" nullValue="" />
+		<result property="farmNo" column="FARM_NO" />
+		<result property="platformNo" column="PLATFORM_NO" />
+		<result property="componentNo" column="COMPONENT_NO" />
+		<result property="instanceNo" column="INSTANCE_NO" />
+		<result property="size" column="SIZE" />
+		<result property="unitNo" column="UNIT_NO" />
+		<result property="attached" column="ATTACHED" />
+		<result property="dataDisk" column="DATA_DISK" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.DISK_NO as DISK_NO,
+			t1.DISK_ID as DISK_ID,
+			t1.FARM_NO as FARM_NO,
+			t1.PLATFORM_NO as PLATFORM_NO,
+			t1.COMPONENT_NO as COMPONENT_NO,
+			t1.INSTANCE_NO as INSTANCE_NO,
+			t1.SIZE as SIZE,
+			t1.UNIT_NO as UNIT_NO,
+			t1.ATTACHED as ATTACHED,
+			t1.DATA_DISK as DATA_DISK
+		from
+			VCLOUD_DISK t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from VCLOUD_DISK t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="vcloudDiskResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.DISK_NO = #diskNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="vcloudDiskResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readByFarmNo" parameterClass="java.util.Map" resultMap="vcloudDiskResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.FARM_NO = #farmNo#
+		]]>
+	</select>
+
+	<select id="readByComponentNo" parameterClass="java.util.Map" resultMap="vcloudDiskResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.COMPONENT_NO = #componentNo#
+		]]>
+	</select>
+
+	<select id="readByInstanceNo" parameterClass="java.util.Map" resultMap="vcloudDiskResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.INSTANCE_NO = #instanceNo#
+		]]>
+	</select>
+
+	<select id="readByPlatformNo" parameterClass="java.util.Map" resultMap="vcloudDiskResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="readInDiskNos" parameterClass="java.util.Map" resultMap="vcloudDiskResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.DISK_NO in
+		]]>
+		<iterate property="diskNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#diskNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="VcloudDisk">
+		<![CDATA[
+		insert into VCLOUD_DISK (
+			DISK_NO,
+			DISK_ID,
+			FARM_NO,
+			PLATFORM_NO,
+			COMPONENT_NO,
+			INSTANCE_NO,
+			SIZE,
+			UNIT_NO,
+			ATTACHED,
+			DATA_DISK
+		) values (
+			#diskNo#,
+			#diskId#,
+			#farmNo#,
+			#platformNo#,
+			#componentNo#,
+			#instanceNo#,
+			#size#,
+			#unitNo#,
+			#attached#,
+			#dataDisk#
+		)
+		]]>
+	</insert>
+
+	<insert id="createAuto" parameterClass="VcloudDisk">
+		<![CDATA[
+		insert into VCLOUD_DISK (
+			DISK_NO,
+			DISK_ID,
+			FARM_NO,
+			PLATFORM_NO,
+			COMPONENT_NO,
+			INSTANCE_NO,
+			SIZE,
+			UNIT_NO,
+			ATTACHED,
+			DATA_DISK
+		) values (
+			#diskNo#,
+			#diskId#,
+			#farmNo#,
+			#platformNo#,
+			#componentNo#,
+			#instanceNo#,
+			#size#,
+			#unitNo#,
+			#attached#,
+			#dataDisk#
+		)
+		]]>
+		<selectKey keyProperty="diskNo" resultClass="java.lang.Long" type="post">
+		<![CDATA[
+			select last_insert_id()
+		]]>
+		</selectKey>
+	</insert>
+
+	<update id="update" parameterClass="VcloudDisk">
+		<![CDATA[
+		update VCLOUD_DISK set
+			DISK_ID = #diskId#,
+			FARM_NO = #farmNo#,
+			PLATFORM_NO = #platformNo#,
+			COMPONENT_NO = #componentNo#,
+			INSTANCE_NO = #instanceNo#,
+			SIZE = #size#,
+			UNIT_NO = #unitNo#,
+			ATTACHED = #attached#,
+			DATA_DISK = #dataDisk#
+		where
+			DISK_NO = #diskNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="VcloudDisk">
+		<![CDATA[
+		delete from VCLOUD_DISK
+		where
+			DISK_NO = #diskNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from VCLOUD_DISK
+		]]>
+	</delete>
+
+	<delete id="deleteByDiskNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from VCLOUD_DISK
+		where
+			DISK_NO = #diskNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByFarmNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from VCLOUD_DISK
+		where
+			FARM_NO = #farmNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByComponentNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from VCLOUD_DISK
+		where
+			COMPONENT_NO = #componentNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByInstanceNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from VCLOUD_DISK
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByPlatformNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from VCLOUD_DISK
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByDiskNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			DISK_NO = #diskNo#
+		]]>
+	</select>
+
+	<select id="countByFarmNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			FARM_NO = #farmNo#
+		]]>
+	</select>
+
+	<select id="countByComponentNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			COMPONENT_NO = #componentNo#
+		]]>
+	</select>
+
+	<select id="countByInstanceNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</select>
+
+	<select id="countByPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+</sqlMap>

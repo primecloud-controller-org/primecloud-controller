@@ -29,11 +29,17 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
+
 import jp.primecloud.auto.common.component.FreeMarkerGenerator;
 import jp.primecloud.auto.common.component.PasswordEncryptor;
+import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.log.LoggingUtils;
 import jp.primecloud.auto.common.status.InstanceCoodinateStatus;
 import jp.primecloud.auto.entity.crud.Farm;
+import jp.primecloud.auto.entity.crud.Image;
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.PccSystemInfo;
 import jp.primecloud.auto.entity.crud.Platform;
@@ -43,15 +49,11 @@ import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.exception.MultiCauseException;
 import jp.primecloud.auto.log.EventLogger;
+import jp.primecloud.auto.process.InstancesProcessContext;
+import jp.primecloud.auto.process.ProcessLogger;
 import jp.primecloud.auto.puppet.PuppetClient;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
-
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FileUtils;
-
-import jp.primecloud.auto.process.InstancesProcessContext;
-import jp.primecloud.auto.process.ProcessLogger;
 
 /**
  * <p>
@@ -314,12 +316,20 @@ public class PuppetNodesProcess extends ServiceSupport {
     }
 
     protected void runPuppet(Instance instance) {
+        Image image = imageDao.read(instance.getImageNo());
         // Puppetクライアントの設定更新処理を実行
         try {
             processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance, "PuppetManifestApply",
                     new String[] { instance.getFqdn(), "base_coordinate" });
 
             puppetClient.runClient(instance.getFqdn());
+            if (StringUtils.startsWithIgnoreCase(image.getOs(), PCCConstant.OS_NAME_WIN)) {
+                // TODO 協調設定が反映されない不具合対応
+                // 1回の「puppet run」だと協調設定が空振りする事があるので、同じマニフェストの内容で2回実行する。
+                // Linux系OSに関しては、puppetの「postrun_command」で対応可能なので実行は1回のみ
+                log.debug(MessageUtils.format("run the puppet process(base_coordinate) twice for windows instance. (fqdn={0})", instance.getFqdn()));
+                puppetClient.runClient(instance.getFqdn());
+            }
 
         } catch (RuntimeException e) {
             processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance,
@@ -375,21 +385,31 @@ public class PuppetNodesProcess extends ServiceSupport {
             String accessIp = startInstance.getPublicIp();
             if (instance.getPlatformNo().equals(startInstance.getPlatformNo())) {
                 // 同一のプラットフォームの場合
-                if ("aws".equals(platform.getPlatformType())) {
+                // TODO CLOUD BRANCHING
+                if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
                     PlatformAws platformAws = platformAwsDao.read(startInstance.getPlatformNo());
                     if (platformAws.getVpc() == false) {
                         // VPCを使用しない場合はprivateIpでアクセスする
                         accessIp = startInstance.getPrivateIp();
                     }
-                } else if ("cloudstack".equals(platform.getPlatformType())) {
+                } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
                     // Cloudstackプラットフォームの場合はpublicIpでアクセスする
                     accessIp = startInstance.getPublicIp();
-                } else if ("vmware".equals(platform.getPlatformType())) {
+                } else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
                     // VMwareプラットフォームの場合はprivateIpでアクセスする
                     accessIp = startInstance.getPrivateIp();
-                } else if ("nifty".equals(platform.getPlatformType())) {
+                } else if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platform.getPlatformType())) {
                     // ニフティクラウドプラットフォームの場合はprivateIpでアクセスする
                     accessIp = startInstance.getPrivateIp();
+                } else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
+                    // VCloudプラットフォームの場合はprivateIpでアクセスする
+                    accessIp = startInstance.getPrivateIp();
+                } else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
+                    // Azureプラットフォームの場合はpublicIpでアクセスする
+                    accessIp = startInstance.getPublicIp();
+                } else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
+                    // Openstackプラットフォームの場合はpublicIpでアクセスする
+                    accessIp = startInstance.getPublicIp();
                 }
             }
             accessIps.put(startInstance.getInstanceNo().toString(), accessIp);

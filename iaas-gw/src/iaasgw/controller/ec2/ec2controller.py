@@ -1,22 +1,22 @@
  # coding: UTF-8
  #
  # Copyright 2014 by SCSK Corporation.
- # 
+ #
  # This file is part of PrimeCloud Controller(TM).
- # 
+ #
  # PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
  # it under the terms of the GNU General Public License as published by
  # the Free Software Foundation, either version 2 of the License, or
  # (at your option) any later version.
- # 
+ #
  # PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
  # but WITHOUT ANY WARRANTY; without even the implied warranty of
  # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  # GNU General Public License for more details.
- # 
+ #
  # You should have received a copy of the GNU General Public License
  # along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
- # 
+ #
 
 
 from iaasgw.client.ec2iaasclient import EC2IaasClient
@@ -86,7 +86,7 @@ class EC2Controller(IaasController):
             if isNotEmpty(volume["COMPONENT_NO"]):
                 # コンポーネント番号がある場合はスキップ
                 continue
-            # Volumeスタート
+            #Volumeスタート
             self.volumecontroller.startVolume(instanceNo, volume["VOLUME_NO"])
 
         # アドレスに関する処理
@@ -115,11 +115,11 @@ class EC2Controller(IaasController):
             tableAWSVOL = self.conn.getTable("AWS_VOLUME")
             volumes = self.conn.select(tableAWSVOL.select(tableAWSVOL.c.INSTANCE_NO==instanceNo))
 
-            # PCC_INSTANCE 取得
+            #PCC_INSTANCE 取得
             tableINS = self.conn.getTable("INSTANCE")
             pccInstance = self.conn.selectOne(tableINS.select(tableINS.c.INSTANCE_NO==instanceNo))
 
-            # イメージの取得  再考の余地あり
+            #イメージの取得  再考の余地あり
             image = getImage(pccInstance["IMAGE_NO"])
 
             for awsVolume in volumes:
@@ -130,7 +130,7 @@ class EC2Controller(IaasController):
                         updateDict = self.conn.selectOne(tableAWSVOL.select(tableAWSVOL.c.VOLUME_NO==awsVolume["VOLUME_NO"]))
                         updateDict["STATUS"] = None
                         updateDict["INSTANCE_ID"] = None
-                        sql = tableAWSVOL.update(tableAWSVOL.c.INSTANCE_NO ==updateDict["INSTANCE_NO"], values=updateDict)
+                        sql = tableAWSVOL.update(tableAWSVOL.c.VOLUME_NO ==updateDict["VOLUME_NO"], values=updateDict)
                         self.conn.execute(sql)
         except Exception:
             self.logger.error(traceback.format_exc())
@@ -141,11 +141,11 @@ class EC2Controller(IaasController):
 
     def terminateInstance(self, instanceId):
 
-        # 1度も起動されていない
+        #1度も起動されていない
         if instanceId is None:
             return
 
-        # AWS_INSTANCE 取得
+        #AWS_INSTANCE 取得
         tableAWSINS = self.conn.getTable("AWS_INSTANCE")
         awsInstance = self.conn.selectOne(tableAWSINS.select(tableAWSINS.c.INSTANCE_ID==instanceId))
 
@@ -207,7 +207,7 @@ class EC2Controller(IaasController):
         loadBalancer = self.conn.selectOne(tableLB.select(tableLB.c.LOAD_BALANCER_NO==loadBalancerNo))
 
         # DNSサーバからの削除
-        # self.loadBalancercontroller.deleteDns(loadBalancerNo);
+        #self.loadBalancercontroller.deleteDns(loadBalancerNo);
 
         # ロードバランサの削除
         self.loadBalancercontroller.deleteLoadBalancer(loadBalancer["FARM_NO"],loadBalancerNo)
@@ -272,14 +272,31 @@ class EC2Controller(IaasController):
 
 
     def allocateAddress(self, farmNo):
-        publicIp = self.client.allocateAddress()
+        publicIp = None
+        platformNo = self.client.getPlatformNo()
+
+        tablePLAWS = self.conn.getTable("PLATFORM_AWS")
+        awsPlatform = self.conn.selectOne(tablePLAWS.select(tablePLAWS.c.PLATFORM_NO==platformNo))
+
+        if awsPlatform["VPC"] == 1:
+            #VPC用のElasticIP発行処理呼び出し
+            publicIp = self.client.allocateVpcAddress()
+        else:
+            #ElasticIP発行処理呼び出し
+            publicIp = self.client.allocateAddress()
 
         #イベントログ出力
         self.conn.debug(farmNo, None, None, None, None, "AwsElasticIpAllocate", ["EC2", publicIp])
 
         #DBへ登録
         table = self.conn.getTable("AWS_ADDRESS")
-        sql = table.insert([None, self.accessInfo["USER"], self.client.getPlatformNo(), publicIp, None, None, None])
+        sql = table.insert({"ADDRESS_NO":None,
+                            "USER_NO":self.accessInfo["USER"],
+                            "PLATFORM_NO":platformNo,
+                            "PUBLIC_IP":publicIp,
+                            "COMMENT":None,
+                            "INSTANCE_NO":None,
+                            "INSTANCE_ID":None})
         self.conn.execute(sql)
 
         newAddress = self.conn.selectOne(table.select(table.c.PUBLIC_IP==publicIp))
@@ -288,6 +305,11 @@ class EC2Controller(IaasController):
         return "RESULT:" + str(newAddress["ADDRESS_NO"])
 
     def releaseAddress(self, addressNo, farmNo):
+        platformNo = self.client.getPlatformNo()
+
+        tablePLAWS = self.conn.getTable("PLATFORM_AWS")
+        awsPlatform = self.conn.selectOne(tablePLAWS.select(tablePLAWS.c.PLATFORM_NO==platformNo))
+
         table = self.conn.getTable("AWS_ADDRESS")
         address = self.conn.selectOne(table.select(table.c.ADDRESS_NO==addressNo))
 
@@ -295,7 +317,17 @@ class EC2Controller(IaasController):
             return
 
         ipaddress = address["PUBLIC_IP"]
-        self.client.releaseAddress(ipaddress)
+        instanceId = address["INSTANCE_ID"]
+        instanceNo = address["INSTANCE_NO"]
+
+        if awsPlatform["VPC"] == 1:
+            #アドレス情報取得
+            address = self.client.describeAddress(ipaddress)
+            #VPC用のElasticIP解放処理呼び出し
+            self.client.releaseVpcAddress(ipaddress, address.allocationId)
+        else:
+            #ElasticIP解放処理呼び出し
+            self.client.releaseAddress(ipaddress)
 
         #イベントログ
         self.conn.debug(farmNo, None, None, None, None, "AwsElasticIpRelease", ["EC2", ipaddress])

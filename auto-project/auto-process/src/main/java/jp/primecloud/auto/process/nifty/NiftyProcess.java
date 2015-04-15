@@ -1,28 +1,30 @@
 /*
  * Copyright 2014 by SCSK Corporation.
- * 
+ *
  * This file is part of PrimeCloud Controller(TM).
- * 
+ *
  * PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
  */
 package jp.primecloud.auto.process.nifty;
 
+import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.Instance;
+import jp.primecloud.auto.nifty.process.NiftyProcessClient;
+import jp.primecloud.auto.nifty.process.NiftyProcessClientFactory;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
-
 
 /**
  * <p>
@@ -52,8 +54,10 @@ public class NiftyProcess extends ServiceSupport {
         }
 
         // NiftyProcessClientの作成
+        String clientType;
+        clientType = PCCConstant.NIFTYCLIENT_TYPE_SERVER;
         NiftyProcessClient niftyProcessClient = niftyProcessClientFactory.createNiftyProcessClient(farm.getUserNo(),
-                instance.getPlatformNo());
+                instance.getPlatformNo(), clientType);
 
         // インスタンス作成処理
         niftyInstanceProcess.createInstance(niftyProcessClient, instanceNo);
@@ -83,8 +87,10 @@ public class NiftyProcess extends ServiceSupport {
         }
 
         // NiftyProcessClientの作成
+        String clientType;
+        clientType = PCCConstant.NIFTYCLIENT_TYPE_SERVER;
         NiftyProcessClient niftyProcessClient = niftyProcessClientFactory.createNiftyProcessClient(farm.getUserNo(),
-                instance.getPlatformNo());
+                instance.getPlatformNo(), clientType);
 
         try {
             // DNSに関する処理

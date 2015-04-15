@@ -338,7 +338,7 @@ class CloudStackInstanceController(object):
 
         # ZIPパスワード
         userData.update({"vpnzippass": getVpnProperty("vpn.zippass")})
-
+        
         # クライアント証明書ダウンロードURL
         userData.update({"vpnclienturl": getVpnProperty("vpn.clienturl")})
 

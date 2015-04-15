@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap      
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="AzureInstance">
+
+	<typeAlias alias="AzureInstance" type="jp.primecloud.auto.entity.crud.AzureInstance" />
+
+	<resultMap id="azureInstanceResultMap" class="AzureInstance">
+		<result property="instanceNo" column="INSTANCE_NO" />
+		<result property="instanceName" column="INSTANCE_NAME" nullValue="" />
+		<result property="affinityGroupName" column="AFFINITY_GROUP_NAME" nullValue="" />
+		<result property="cloudServiceName" column="CLOUD_SERVICE_NAME" nullValue="" />
+		<result property="storageAccountName" column="STORAGE_ACCOUNT_NAME" nullValue="" />
+		<result property="networkName" column="NETWORK_NAME" nullValue="" />
+		<result property="instanceType" column="INSTANCE_TYPE" nullValue="" />
+		<result property="status" column="STATUS" nullValue="" />
+		<result property="subnetId" column="SUBNET_ID" nullValue="" />
+		<result property="privateIpAddress" column="PRIVATE_IP_ADDRESS" nullValue="" />
+		<result property="locationName" column="LOCATION_NAME" nullValue="" />
+		<result property="availabilitySet" column="AVAILABILITY_SET" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.INSTANCE_NO as INSTANCE_NO, 
+			t1.INSTANCE_NAME as INSTANCE_NAME, 
+			t1.AFFINITY_GROUP_NAME as AFFINITY_GROUP_NAME, 
+			t1.CLOUD_SERVICE_NAME as CLOUD_SERVICE_NAME, 
+			t1.STORAGE_ACCOUNT_NAME as STORAGE_ACCOUNT_NAME, 
+			t1.NETWORK_NAME as NETWORK_NAME, 
+			t1.INSTANCE_TYPE as INSTANCE_TYPE, 
+			t1.STATUS as STATUS, 
+			t1.SUBNET_ID as SUBNET_ID, 
+			t1.PRIVATE_IP_ADDRESS as PRIVATE_IP_ADDRESS, 
+			t1.LOCATION_NAME as LOCATION_NAME, 
+			t1.AVAILABILITY_SET as AVAILABILITY_SET
+		from
+			AZURE_INSTANCE t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from AZURE_INSTANCE t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="azureInstanceResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.INSTANCE_NO = #instanceNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="azureInstanceResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readInInstanceNos" parameterClass="java.util.Map" resultMap="azureInstanceResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.INSTANCE_NO in
+		]]>
+		<iterate property="instanceNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#instanceNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="AzureInstance">
+		<![CDATA[
+		insert into AZURE_INSTANCE (
+			INSTANCE_NO, 
+			INSTANCE_NAME, 
+			AFFINITY_GROUP_NAME, 
+			CLOUD_SERVICE_NAME, 
+			STORAGE_ACCOUNT_NAME, 
+			NETWORK_NAME, 
+			INSTANCE_TYPE, 
+			STATUS, 
+			SUBNET_ID, 
+			PRIVATE_IP_ADDRESS, 
+			LOCATION_NAME, 
+			AVAILABILITY_SET
+		) values (
+			#instanceNo#, 
+			#instanceName#, 
+			#affinityGroupName#, 
+			#cloudServiceName#, 
+			#storageAccountName#, 
+			#networkName#, 
+			#instanceType#, 
+			#status#, 
+			#subnetId#, 
+			#privateIpAddress#, 
+			#locationName#, 
+			#availabilitySet#
+		)
+		]]>
+	</insert>
+
+	<update id="update" parameterClass="AzureInstance">
+		<![CDATA[
+		update AZURE_INSTANCE set
+			INSTANCE_NAME = #instanceName#, 
+			AFFINITY_GROUP_NAME = #affinityGroupName#, 
+			CLOUD_SERVICE_NAME = #cloudServiceName#, 
+			STORAGE_ACCOUNT_NAME = #storageAccountName#, 
+			NETWORK_NAME = #networkName#, 
+			INSTANCE_TYPE = #instanceType#, 
+			STATUS = #status#, 
+			SUBNET_ID = #subnetId#, 
+			PRIVATE_IP_ADDRESS = #privateIpAddress#, 
+			LOCATION_NAME = #locationName#, 
+			AVAILABILITY_SET = #availabilitySet#
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="AzureInstance">
+		<![CDATA[
+		delete from AZURE_INSTANCE
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from AZURE_INSTANCE
+		]]>
+	</delete>
+
+	<delete id="deleteByInstanceNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from AZURE_INSTANCE
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByInstanceNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			INSTANCE_NO = #instanceNo#
+		]]>
+	</select>
+
+</sqlMap>

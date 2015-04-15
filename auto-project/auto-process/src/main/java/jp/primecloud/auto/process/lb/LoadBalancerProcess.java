@@ -20,26 +20,22 @@ package jp.primecloud.auto.process.lb;
 
 import java.util.List;
 
+import org.apache.commons.lang.BooleanUtils;
+
 import jp.primecloud.auto.common.component.DnsStrategy;
+import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.LoadBalancerInstanceStatus;
 import jp.primecloud.auto.common.status.LoadBalancerListenerStatus;
 import jp.primecloud.auto.common.status.LoadBalancerStatus;
-import jp.primecloud.auto.entity.crud.AwsLoadBalancer;
-import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.entity.crud.LoadBalancerInstance;
 import jp.primecloud.auto.entity.crud.LoadBalancerListener;
 import jp.primecloud.auto.exception.AutoException;
+import jp.primecloud.auto.iaasgw.IaasGatewayFactory;
 import jp.primecloud.auto.log.EventLogger;
+import jp.primecloud.auto.process.ProcessLogger;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
-import jp.primecloud.auto.iaasgw.IaasGatewayFactory;
-import jp.primecloud.auto.iaasgw.IaasGatewayWrapper;
-import jp.primecloud.auto.process.ProcessLogger;
 
 /**
  * <p>
@@ -303,27 +299,27 @@ public class LoadBalancerProcess extends ServiceSupport {
 
     protected void startLoadBalancer(LoadBalancer loadBalancer) {
         String type = loadBalancer.getType();
-        if ("ultramonkey".equals(type)) {
+        if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(type)) {
             componentLoadBalancerProcess.start(loadBalancer.getLoadBalancerNo());
-        } else if ("aws".equals(type) || "cloudstack".equals(type)) {
+        } else if (PCCConstant.LOAD_BALANCER_ELB.equals(type) || PCCConstant.LOAD_BALANCER_CLOUDSTACK.equals(type)) {
             elasticLoadBalancerProcess.start(loadBalancer.getLoadBalancerNo());
         }
     }
 
     protected void stopLoadBalancer(LoadBalancer loadBalancer) {
         String type = loadBalancer.getType();
-        if ("ultramonkey".equals(type)) {
+        if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(type)) {
             componentLoadBalancerProcess.stop(loadBalancer.getLoadBalancerNo());
-        } else if ("aws".equals(type) || "cloudstack".equals(type)) {
+        } else if (PCCConstant.LOAD_BALANCER_ELB.equals(type) || PCCConstant.LOAD_BALANCER_CLOUDSTACK.equals(type)) {
             elasticLoadBalancerProcess.stop(loadBalancer.getLoadBalancerNo());
         }
     }
 
     protected void configureLoadBalancer(LoadBalancer loadBalancer) {
         String type = loadBalancer.getType();
-        if ("ultramonkey".equals(type)) {
+        if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(type)) {
             componentLoadBalancerProcess.configure(loadBalancer.getLoadBalancerNo());
-        } else if ("aws".equals(type) || "cloudstack".equals(type)) {
+        } else if (PCCConstant.LOAD_BALANCER_ELB.equals(type) || PCCConstant.LOAD_BALANCER_CLOUDSTACK.equals(type)) {
             elasticLoadBalancerProcess.configure(loadBalancer.getLoadBalancerNo());
         }
     }

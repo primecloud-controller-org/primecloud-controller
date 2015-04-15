@@ -24,6 +24,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.PlatformVmware;
 import jp.primecloud.auto.entity.crud.VmwareInstance;
@@ -32,11 +36,9 @@ import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
 import jp.primecloud.auto.vmware.VmwareClient;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-
+import com.vmware.vim25.ConfigTarget;
+import com.vmware.vim25.DistributedVirtualPortgroupInfo;
+import com.vmware.vim25.DistributedVirtualSwitchPortConnection;
 import com.vmware.vim25.TaskInfo;
 import com.vmware.vim25.TaskInfoState;
 import com.vmware.vim25.VirtualDevice;
@@ -44,11 +46,14 @@ import com.vmware.vim25.VirtualDeviceConfigSpec;
 import com.vmware.vim25.VirtualDeviceConfigSpecOperation;
 import com.vmware.vim25.VirtualE1000;
 import com.vmware.vim25.VirtualEthernetCard;
+import com.vmware.vim25.VirtualEthernetCardDistributedVirtualPortBackingInfo;
 import com.vmware.vim25.VirtualEthernetCardNetworkBackingInfo;
 import com.vmware.vim25.VirtualMachineConfigInfo;
 import com.vmware.vim25.VirtualMachineConfigSpec;
 import com.vmware.vim25.mo.ComputeResource;
+import com.vmware.vim25.mo.EnvironmentBrowser;
 import com.vmware.vim25.mo.HostSystem;
+import com.vmware.vim25.mo.InventoryNavigator;
 import com.vmware.vim25.mo.ManagedEntity;
 import com.vmware.vim25.mo.Task;
 import com.vmware.vim25.mo.VirtualMachine;
@@ -170,7 +175,7 @@ public class VmwareNetworkProcess extends ServiceSupport {
         });
 
         // 新しい設定のVirtualEthernetCardを用意
-        List<VirtualEthernetCard> newEthernetCards = createEthernetCards(vmwareProcessClient, instanceNo);
+        List<VirtualEthernetCard> newEthernetCards = createEthernetCards(vmwareProcessClient, instanceNo, machine);
 
         // 設定変更仕様を作成
         List<VirtualDeviceConfigSpec> deviceConfigSpecs = new ArrayList<VirtualDeviceConfigSpec>();
@@ -183,7 +188,12 @@ public class VmwareNetworkProcess extends ServiceSupport {
             if (i < ethernetCards.size()) {
                 // 既存のVirtualEthernetCardと同じネットワークの場合は編集しない
                 VirtualEthernetCard ethernetCard = ethernetCards.get(i);
-                if (checkSameNetwork(ethernetCard, newEthernetCard)) {
+                // 標準ポートグループの場合
+                if (checkSameNormalNetwork(ethernetCard, newEthernetCard)) {
+                    continue;
+                }
+                // 分散ポートグループの場合
+                if (checkSameDistributedNetwork(ethernetCard, newEthernetCard)) {
                     continue;
                 }
 
@@ -249,7 +259,7 @@ public class VmwareNetworkProcess extends ServiceSupport {
         }
     }
 
-    protected List<VirtualEthernetCard> createEthernetCards(VmwareProcessClient vmwareProcessClient, Long instanceNo) {
+    protected List<VirtualEthernetCard> createEthernetCards(VmwareProcessClient vmwareProcessClient, Long instanceNo, VirtualMachine machine) {
         Instance instance = instanceDao.read(instanceNo);
         List<VmwareNetwork> vmwareNetworks = vmwareNetworkDao.readByFarmNo(instance.getFarmNo());
 
@@ -267,25 +277,109 @@ public class VmwareNetworkProcess extends ServiceSupport {
 
         // イーサネット設定の作成
         List<VirtualEthernetCard> ethernetCards = new ArrayList<VirtualEthernetCard>();
+        VmwareClient vmwareClient = vmwareProcessClient.getVmwareClient();
+        // rootFolder取得
+        ManagedEntity rootFolder = vmwareClient.getRootEntity();
+        InventoryNavigator rootNavi = new InventoryNavigator(rootFolder);
+        ManagedEntity[] targets;
 
+        try {
+            // ネットワーク一覧情報を取得
+            targets = rootNavi.searchManagedEntities("Network");
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+
+        VirtualEthernetCard pulicEthernetCard = new VirtualEthernetCard();
+        VirtualEthernetCard privateEthernetCard = new VirtualEthernetCard();
+        for (ManagedEntity target : targets) {
+            // Public側イーサネット設定
+            if (StringUtils.equals(target.getName(), publicNetworkName)) {
+                pulicEthernetCard = editEthernetCards(machine, publicNetworkName);
+            }
+            // Private側イーサネット設定
+            if (StringUtils.equals(target.getName(), privateNetworkName)) {
+                privateEthernetCard = editEthernetCards(machine, privateNetworkName);
+            }
+        }
         // Public側イーサネット設定
-        VirtualEthernetCard ethernetCard = new VirtualE1000();
-        VirtualEthernetCardNetworkBackingInfo backingInfo = new VirtualEthernetCardNetworkBackingInfo();
-        backingInfo.setDeviceName(publicNetworkName);
-        ethernetCard.setBacking(backingInfo);
-        ethernetCards.add(ethernetCard);
-
+        ethernetCards.add(pulicEthernetCard);
         // Private側イーサネット設定
-        VirtualEthernetCard ethernetCard2 = new VirtualE1000();
-        VirtualEthernetCardNetworkBackingInfo backingInfo2 = new VirtualEthernetCardNetworkBackingInfo();
-        backingInfo2.setDeviceName(privateNetworkName);
-        ethernetCard2.setBacking(backingInfo2);
-        ethernetCards.add(ethernetCard2);
+        ethernetCards.add(privateEthernetCard);
 
         return ethernetCards;
     }
 
-    protected boolean checkSameNetwork(VirtualEthernetCard ethernetCard1, VirtualEthernetCard ethernetCard2) {
+    protected VirtualEthernetCard editEthernetCards(VirtualMachine machine, String networkName) {
+        DistributedVirtualPortgroupInfo dvPortgroupInfo = null;
+        // ネットワークアダプタ E1000を使用する
+        VirtualEthernetCard ethernetCard = new VirtualE1000();
+
+        // 分散ポートグループ情報取得
+        dvPortgroupInfo = getDVPortgroupInfo(machine, networkName);
+
+        if (dvPortgroupInfo != null)
+        {
+            // 分散ポートグループの場合
+          VirtualEthernetCardDistributedVirtualPortBackingInfo nicBacking = new VirtualEthernetCardDistributedVirtualPortBackingInfo();
+          nicBacking.setPort(new DistributedVirtualSwitchPortConnection());
+          // portgroupKey設定
+          nicBacking.getPort().setPortgroupKey(dvPortgroupInfo.getPortgroupKey());
+          // switchUuid設定
+          nicBacking.getPort().setSwitchUuid(dvPortgroupInfo.getSwitchUuid());
+          ethernetCard.setBacking(nicBacking);
+        } else {
+            // 標準ポートグループの場合
+            VirtualEthernetCardNetworkBackingInfo backingInfo = new VirtualEthernetCardNetworkBackingInfo();
+            // deviceName設定
+            backingInfo.setDeviceName(networkName);
+            ethernetCard.setBacking(backingInfo);
+        }
+        return ethernetCard;
+    }
+
+    public DistributedVirtualPortgroupInfo getDVPortgroupInfo(VirtualMachine machine, String networkName) {
+        // host取得
+        HostSystem host = new HostSystem(machine.getServerConnection(), machine.getRuntime().getHost());
+        // computeResource取得
+        ComputeResource computeResource = (ComputeResource) host.getParent();
+        // envBrowser取得
+        EnvironmentBrowser envBrowser = computeResource.getEnvironmentBrowser();
+        ConfigTarget configTarget;
+        DistributedVirtualPortgroupInfo dvPortgroupInfo = null;
+
+        try {
+            // configTarget取得
+            configTarget = envBrowser.queryConfigTarget(host);
+            // 分散ポートグループの場合
+            if (configTarget.getDistributedVirtualPortgroup() != null)
+            {
+                // 分散ポートグループ情報を取得
+                dvPortgroupInfo = findDVPortgroupInfo(configTarget.getDistributedVirtualPortgroup(), networkName);
+            }
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+        return dvPortgroupInfo;
+    }
+
+    protected DistributedVirtualPortgroupInfo findDVPortgroupInfo(DistributedVirtualPortgroupInfo[] hostDistributedVirtualPortgroupInfo,
+            String portgroupName) {
+        DistributedVirtualPortgroupInfo result = null;
+
+        // 分散ポートグループの場合、該当するネットワークの分散ポートグループ情報を返却する
+        if (hostDistributedVirtualPortgroupInfo != null) {
+            for (DistributedVirtualPortgroupInfo portgroupInfo : hostDistributedVirtualPortgroupInfo) {
+                if (portgroupInfo.getPortgroupName().equalsIgnoreCase(portgroupName)) {
+                    result = portgroupInfo;
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
+    protected boolean checkSameNormalNetwork(VirtualEthernetCard ethernetCard1, VirtualEthernetCard ethernetCard2) {
         if (!(ethernetCard1.getBacking() instanceof VirtualEthernetCardNetworkBackingInfo)) {
             return false;
         }
@@ -301,6 +395,24 @@ public class VmwareNetworkProcess extends ServiceSupport {
                 .cast(ethernetCard2.getBacking());
 
         return StringUtils.equals(backingInfo1.getDeviceName(), backingInfo2.getDeviceName());
+    }
+
+    protected boolean checkSameDistributedNetwork(VirtualEthernetCard ethernetCard1, VirtualEthernetCard ethernetCard2) {
+        if (!(ethernetCard1.getBacking() instanceof VirtualEthernetCardDistributedVirtualPortBackingInfo)) {
+            return false;
+        }
+
+        if (!(ethernetCard2.getBacking() instanceof VirtualEthernetCardDistributedVirtualPortBackingInfo)) {
+            return false;
+        }
+
+        VirtualEthernetCardDistributedVirtualPortBackingInfo backingInfo1 = VirtualEthernetCardDistributedVirtualPortBackingInfo.class
+                .cast(ethernetCard1.getBacking());
+
+        VirtualEthernetCardDistributedVirtualPortBackingInfo backingInfo2 = VirtualEthernetCardDistributedVirtualPortBackingInfo.class
+                .cast(ethernetCard2.getBacking());
+
+        return StringUtils.equals(backingInfo1.getPort().getPortgroupKey(), backingInfo2.getPort().getPortgroupKey());
     }
 
 }

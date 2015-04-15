@@ -25,11 +25,12 @@ import jp.primecloud.auto.entity.crud.AwsAddress;
 import jp.primecloud.auto.service.IaasDescribeService;
 import jp.primecloud.auto.service.dto.AddressDto;
 import jp.primecloud.auto.service.dto.KeyPairDto;
+import jp.primecloud.auto.service.dto.NetworkDto;
 import jp.primecloud.auto.service.dto.SecurityGroupDto;
+import jp.primecloud.auto.service.dto.StorageTypeDto;
 import jp.primecloud.auto.service.dto.SubnetDto;
 import jp.primecloud.auto.service.dto.ZoneDto;
 import jp.primecloud.auto.ui.mock.XmlDataLoader;
-
 
 /**
  * <p>
@@ -111,4 +112,27 @@ public class MockIaasDescribeService implements IaasDescribeService {
         return "password";
     }
 
+    @Override
+    public List<StorageTypeDto> getStorageTypes(Long userNo, Long platformNo) {
+        // TODO 自動生成されたメソッド・スタブ
+        return null;
+    }
+
+    @Override
+    public List<NetworkDto> getNetworks(Long userNo, Long platformNo) {
+        // TODO 自動生成されたメソッド・スタブ
+        return null;
+    }
+
+    @Override
+    public String hasIpAddresse(Long platformNo, Long instanceNo, String ipAddress) {
+        // TODO 自動生成されたメソッド・スタブ
+        return null;
+    }
+
+    @Override
+    public List<SubnetDto> getAzureSubnets(Long userNo, Long platformNo, String networkName) {
+        // TODO 自動生成されたメソッド・スタブ
+        return null;
+    }
 }

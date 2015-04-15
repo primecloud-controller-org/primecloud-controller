@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.lang.BooleanUtils;
+
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.ComponentService;
 import jp.primecloud.auto.service.InstanceService;
@@ -35,9 +37,6 @@ import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
-
-import org.apache.commons.lang.BooleanUtils;
-
 import com.vaadin.Application;
 import com.vaadin.data.Property;
 import com.vaadin.data.Validator.InvalidValueException;
@@ -410,7 +409,14 @@ public class WinServiceAdd extends Window {
             commentField.validate();
             diskSizeField.validate();
         } catch (InvalidValueException e) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), e.getMessage());
+            String errMes = e.getMessage();
+            if (null == errMes){
+                //メッセージが取得できない場合は複合エラー 先頭を表示する
+                InvalidValueException[] exceptions =  e.getCauses();
+                errMes = exceptions[0].getMessage();
+            }
+
+            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), errMes);
             getApplication().getMainWindow().addWindow(dialog);
             return;
         }
@@ -442,7 +448,7 @@ public class WinServiceAdd extends Window {
             return;
         }
 
-        //TODO LOG
+        //オペレーションログ
         AutoApplication aapl =  (AutoApplication)apl;
         aapl.doOpLog("SERVICE", "Make Service", null, componentNo, null, null);
 

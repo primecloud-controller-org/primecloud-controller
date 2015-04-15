@@ -1,0 +1,156 @@
+#!/bin/bash
+LOG_FILE=/tmp/hostinit.log
+if [ -e ${LOG_FILE} ]; then
+    rm -rf ${LOG_FILE}
+fi
+touch ${LOG_FILE}
+
+INSTANCEDATA=`vmware-guestd --cmd "info-get guestinfo.ovfEnv" | awk -F"\"" ' /guestinfo.userdata/ {print $4}'`
+if [ -z "$INSTANCEDATA" ]; then
+    INSTANCEDATA=`vmtoolsd --cmd "info-get guestinfo.ovfEnv" | awk -F"\"" ' /guestinfo.userdata/ {print $4}'`
+fi
+
+
+FILE_INSTANCEDATA=/root/instancedata
+if [ -n "$INSTANCEDATA" ]; then
+    echo "$INSTANCEDATA" > "$FILE_INSTANCEDATA"
+elif [ -e $FILE_INSTANCEDATA ]; then
+    INSTANCEDATA=`cat $FILE_INSTANCEDATA`
+fi
+
+if [ -z "$INSTANCEDATA" ]; then
+    exit 1
+fi
+
+count=0
+USERDATA=$INSTANCEDATA
+while [ -n "$USERDATA" ]
+do
+    DATALINES[$count]=`echo "$USERDATA" | cut -d ";" -f 1`
+    USERDATA=`echo "$USERDATA" | cut -d ";" -f 2-`
+    if [ "${DATALINES[$count]}" = "$USERDATA" ]; then
+        break
+    fi
+    count=`expr $count + 1`
+done
+
+max=$count
+count=0
+while [ $count -le $max ]
+do
+    DATALINE=${DATALINES[$count]}
+    OPTION_NAME=`echo "$DATALINE" | cut -d "=" -f 1`
+    OPTION_VAL=`echo "$DATALINE" | cut -d "=" -f 2-`
+    
+    case "$OPTION_NAME" in
+        "scriptserver")
+            SCRIPTSERVER=$OPTION_VAL
+            ;;
+        "vpnserver")
+            VPNSERVER=$OPTION_VAL
+            ;;
+        "vpnport")
+            VPNPORT=$OPTION_VAL
+            ;;
+        "vpnuser")
+            VPNUSER=$OPTION_VAL
+            ;;
+        "vpnuserpass")
+            VPNUSERPASS=$OPTION_VAL
+            ;;
+        "vpnzippass")
+            VPNZIPPASS=$OPTION_VAL
+            ;;
+        "pccgateway")
+            PCCGATEWAY=$OPTION_VAL
+            ;;
+        "zabbixserver")
+            ZABBIXSERVERS=$OPTION_VAL
+            ;;
+        "routeAddserver")
+            ROUTEADDSERVERS=$OPTION_VAL
+            ;;
+        "vpnclienturl")
+            VPNCLIENTURL=$OPTION_VAL
+            ;;
+    esac    
+    count=`expr $count + 1`
+done
+
+sleep 10
+
+#download client.zip form http-server
+OPENVPNDIR=/etc/openvpn
+mkdir -p $OPENVPNDIR/zip
+if [ -n "$VPNCLIENTURL" ]; then
+    wget -q --connect-timeout=30 --tries=4 --spider $VPNCLIENTURL --no-check-certificate --http-user=client --http-passwd=$VPNZIPPASS
+    if [ $? = 0 ]; then
+        wget -q --tries=4 -O $OPENVPNDIR/zip/client.zip $VPNCLIENTURL --no-check-certificate --http-user=client --http-passwd=$VPNZIPPASS
+    fi
+fi
+
+#connect openvpn server
+if [ -n "$VPNUSER" ]; then
+
+    #unzip openvpn certs
+    if [ -n "$VPNZIPPASS" ]; then
+        unzip -P $VPNZIPPASS -qo -d /etc/openvpn /etc/openvpn/zip/client.zip
+    fi
+
+    #create openvpn config
+    if [ -n "$VPNSERVER" ]; then
+        cat << EOF >> /etc/openvpn/client.conf
+remote $VPNSERVER $VPNPORT
+EOF
+    fi
+
+    #start openvpn
+    expect -c "
+spawn /etc/init.d/openvpn start
+expect Username:
+send $VPNUSER\n
+expect Password:
+send $VPNUSERPASS\n
+interact"
+    sleep 3
+
+    #wait for getting vpnip
+    count=1
+    while [ $count -le 10 ];
+    do
+        VPNIP=`/usr/bin/facter | grep "^ipaddress_tun0" | gawk '{print $3;}'`
+        if [ -n "$VPNIP" ]; then
+            break
+        fi
+        count=`expr $count + 1`;
+
+        sleep 3
+    done
+
+    if [ -z "$VPNIP" ]; then
+        exit 1
+    fi
+fi
+
+
+#execute init script
+SCRIPTDIR=/root/script
+
+if [ -n "$SCRIPTSERVER" ]; then
+    #get script
+    WGET_LOG=/tmp/hostinit-wget.log
+    route -n >> ${LOG_FILE}
+    wget -q --connect-timeout=30 --tries=10 --spider http://$SCRIPTSERVER/script/init.sh
+    if [ $? = 0 ]; then
+        echo "conected pcc scriptserver" >> ${LOG_FILE}
+        wget --connect-timeout=30 --tries=10 -o ${WGET_LOG} -O $SCRIPTDIR/init.sh http://$SCRIPTSERVER/script/init.sh
+        echo "got init.sh" >> ${LOG_FILE}
+    fi
+fi
+
+INIT_DATA=`cat $SCRIPTDIR/init.sh`
+if [ -e $SCRIPTDIR/init.sh -a -n "$INIT_DATA" ]; then
+    chmod a+x $SCRIPTDIR/init.sh
+    $SCRIPTDIR/init.sh "VCLOUD"
+fi
+

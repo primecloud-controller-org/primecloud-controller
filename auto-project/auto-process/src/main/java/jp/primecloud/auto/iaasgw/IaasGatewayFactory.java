@@ -1,5 +1,6 @@
 package jp.primecloud.auto.iaasgw;
 
+import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.dao.crud.AwsCertificateDao;
 import jp.primecloud.auto.dao.crud.PlatformDao;
 import jp.primecloud.auto.entity.crud.Platform;
@@ -26,7 +27,13 @@ public class IaasGatewayFactory {
             throw new AutoException("EPROCESS-000004", platformNo);
         }
 
-        if ("aws".equals(platform.getPlatformType()) == false && "cloudstack".equals(platform.getPlatformType()) == false) {
+
+        // TODO CLOUD BRANCHING
+        if (!PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())&&
+            !PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType()) &&
+            !PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType()) &&
+            !PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType()) &&
+            !PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
             throw new AutoException("EPROCESS-000005", platform.getPlatformNo());
         }
 

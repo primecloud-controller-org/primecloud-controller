@@ -8,7 +8,6 @@ import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.entity.crud.LoadBalancerHealthCheck;
 
 
-
 @XmlRootElement(name="DescribeLoadBalancerHealthCheckResponse")
 @XmlType(propOrder = {"success", "message", "loadBalancerNo", "loadBalancerName", "protocol", "port", "path", "timeout", "interval", "healthyThreshold", "unhealthyThreshold"})
 public class DescribeLoadBalancerHealthCheckResponse {

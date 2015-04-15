@@ -22,6 +22,11 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import jp.primecloud.auto.common.status.InstanceCoodinateStatus;
 import jp.primecloud.auto.common.status.InstanceStatus;
 import jp.primecloud.auto.entity.crud.AwsAddress;
@@ -54,16 +59,13 @@ import jp.primecloud.auto.entity.crud.VmwareInstance;
 import jp.primecloud.auto.entity.crud.VmwareKeyPair;
 import jp.primecloud.auto.service.InstanceService;
 import jp.primecloud.auto.service.dto.ComponentInstanceDto;
+import jp.primecloud.auto.service.dto.DataDiskDto;
 import jp.primecloud.auto.service.dto.ImageDto;
 import jp.primecloud.auto.service.dto.InstanceDto;
+import jp.primecloud.auto.service.dto.InstanceNetworkDto;
 import jp.primecloud.auto.service.dto.PlatformDto;
 import jp.primecloud.auto.service.dto.VmwareAddressDto;
 import jp.primecloud.auto.ui.mock.XmlDataLoader;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * <p>
@@ -86,8 +88,7 @@ public class MockInstanceService implements InstanceService {
         List<VmwareInstance> vmwareInstances = XmlDataLoader.getData("vmwareInstance.xml", VmwareInstance.class);
         List<NiftyInstance> niftyInstances = XmlDataLoader.getData("niftyInstance.xml", NiftyInstance.class);
         List<Component> components = XmlDataLoader.getData("component.xml", Component.class);
-        List<CloudstackInstance> cloudstackInstances = XmlDataLoader.getData("cloudstackInstance.xml",
-                CloudstackInstance.class);
+        List<CloudstackInstance> cloudstackInstances = XmlDataLoader.getData("cloudstackInstance.xml", CloudstackInstance.class);
 
         //Platform
         LinkedHashMap<Long, Platform> platformMap = getPlatformMap();
@@ -144,7 +145,7 @@ public class MockInstanceService implements InstanceService {
             List<AwsVolume> awsVolumes = null;
 
             CloudstackInstance cloudstackInstance = null;
-            for (CloudstackInstance tempCsInstance : cloudstackInstances) {
+            for (CloudstackInstance tempCsInstance: cloudstackInstances) {
                 if (instance.getInstanceNo().equals(tempCsInstance.getInstanceNo())) {
                     cloudstackInstance = tempCsInstance;
                 }
@@ -283,8 +284,7 @@ public class MockInstanceService implements InstanceService {
 
     @Override
     public void updateAwsInstance(Long instanceNo, String instanceName, String comment, String keyName,
-            String instanceType, String securityGroupName, String availabilityZone, Long addressNo, String subnetId,
-            String privateIpAddress) {
+            String instanceType, String securityGroupName, String availabilityZone, Long addressNo, String subnetId, String privateIpAddress) {
         System.out.println("updateAwsInstance: instanceName=" + instanceName);
     }
 
@@ -304,10 +304,10 @@ public class MockInstanceService implements InstanceService {
     @Override
     public void updateVmwareInstance(Long instanceNo, String instanceName, String comment, String instanceType,
             String computeResource, String resourcePool, Long keyPairNo, VmwareAddressDto vmwareAddressDto) {
-        if (vmwareAddressDto == null) {
+        if(vmwareAddressDto == null){
             System.out.println("updateVmwareInstance: instanceName=" + instanceName);
 
-        } else {
+        }else{
             System.out.println("updateVmwareInstance: instanceName=" + instanceName + " ipAddress="
                     + vmwareAddressDto.getIpAddress() + " subnetMsak=" + vmwareAddressDto.getSubnetMask()
                     + " defaultGateway=" + vmwareAddressDto.getDefaultGateway());
@@ -389,7 +389,7 @@ public class MockInstanceService implements InstanceService {
         // サーバステータス(Running)かつ協調設定ステータス(Coodinating)⇒「Configuring」
         if (instanceStatus == InstanceStatus.RUNNING && insCoodiStatus == InstanceCoodinateStatus.COODINATING) {
             instance.setStatus(InstanceStatus.CONFIGURING.toString());
-            // サーバステータス(Running)かつ協調設定ステータス(Warning)⇒「Warning」
+        // サーバステータス(Running)かつ協調設定ステータス(Warning)⇒「Warning」
         } else if (instanceStatus == InstanceStatus.RUNNING && insCoodiStatus == InstanceCoodinateStatus.WARNING) {
             instance.setStatus(InstanceStatus.WARNING.toString());
         }
@@ -407,7 +407,8 @@ public class MockInstanceService implements InstanceService {
         LinkedHashMap<Long, ImageCloudstack> imageCloudstackMap = getImageCloudstackMap();
         for (Image image : images) {
             // プラットフォームが異なる場合はスキップ
-            if (platform.getPlatformNo().equals(image.getPlatformNo()) == false || image.getSelectable() == false) {
+            if (platform.getPlatformNo().equals(image.getPlatformNo()) == false ||
+                image.getSelectable() == false) {
                 continue;
             }
 
@@ -457,16 +458,17 @@ public class MockInstanceService implements InstanceService {
     private LinkedHashMap<Long, Platform> getPlatformMap() {
         List<Platform> platforms = XmlDataLoader.getData("platform.xml", Platform.class);
         LinkedHashMap<Long, Platform> map = new LinkedHashMap<Long, Platform>();
-        for (Platform platform : platforms) {
+        for (Platform platform: platforms) {
             map.put(platform.getPlatformNo(), platform);
         }
         return map;
     }
 
+
     private LinkedHashMap<Long, PlatformAws> getPlatformAwsMap() {
         List<PlatformAws> platformAwss = XmlDataLoader.getData("platformAws.xml", PlatformAws.class);
         LinkedHashMap<Long, PlatformAws> map = new LinkedHashMap<Long, PlatformAws>();
-        for (PlatformAws platformAws : platformAwss) {
+        for (PlatformAws platformAws: platformAwss) {
             map.put(platformAws.getPlatformNo(), platformAws);
         }
         return map;
@@ -475,7 +477,7 @@ public class MockInstanceService implements InstanceService {
     private LinkedHashMap<Long, PlatformVmware> getPlatformVmwareMap() {
         List<PlatformVmware> platformVmwares = XmlDataLoader.getData("platformVmware.xml", PlatformVmware.class);
         LinkedHashMap<Long, PlatformVmware> map = new LinkedHashMap<Long, PlatformVmware>();
-        for (PlatformVmware platformVmware : platformVmwares) {
+        for (PlatformVmware platformVmware: platformVmwares) {
             map.put(platformVmware.getPlatformNo(), platformVmware);
         }
         return map;
@@ -484,17 +486,16 @@ public class MockInstanceService implements InstanceService {
     private LinkedHashMap<Long, PlatformNifty> getPlatformNiftyMap() {
         List<PlatformNifty> platformNifties = XmlDataLoader.getData("platformNifty.xml", PlatformNifty.class);
         LinkedHashMap<Long, PlatformNifty> map = new LinkedHashMap<Long, PlatformNifty>();
-        for (PlatformNifty platformNifty : platformNifties) {
+        for (PlatformNifty platformNifty: platformNifties) {
             map.put(platformNifty.getPlatformNo(), platformNifty);
         }
         return map;
     }
 
     private LinkedHashMap<Long, PlatformCloudstack> getPlatformCloudstackMap() {
-        List<PlatformCloudstack> platformCloudstacks = XmlDataLoader.getData("platformCloudstack.xml",
-                PlatformCloudstack.class);
+        List<PlatformCloudstack> platformCloudstacks= XmlDataLoader.getData("platformCloudstack.xml", PlatformCloudstack.class);
         LinkedHashMap<Long, PlatformCloudstack> map = new LinkedHashMap<Long, PlatformCloudstack>();
-        for (PlatformCloudstack platformCloudstack : platformCloudstacks) {
+        for (PlatformCloudstack platformCloudstack: platformCloudstacks) {
             map.put(platformCloudstack.getPlatformNo(), platformCloudstack);
         }
         return map;
@@ -503,7 +504,7 @@ public class MockInstanceService implements InstanceService {
     private LinkedHashMap<Long, Image> getImageMap() {
         List<Image> images = XmlDataLoader.getData("image.xml", Image.class);
         LinkedHashMap<Long, Image> map = new LinkedHashMap<Long, Image>();
-        for (Image image : images) {
+        for (Image image: images) {
             map.put(image.getImageNo(), image);
         }
         return map;
@@ -512,7 +513,7 @@ public class MockInstanceService implements InstanceService {
     private LinkedHashMap<Long, ImageAws> getImageAwsMap() {
         List<ImageAws> imageAwss = XmlDataLoader.getData("imageAws.xml", ImageAws.class);
         LinkedHashMap<Long, ImageAws> map = new LinkedHashMap<Long, ImageAws>();
-        for (ImageAws imageAws : imageAwss) {
+        for (ImageAws imageAws: imageAwss) {
             map.put(imageAws.getImageNo(), imageAws);
         }
         return map;
@@ -521,7 +522,7 @@ public class MockInstanceService implements InstanceService {
     private LinkedHashMap<Long, ImageCloudstack> getImageCloudstackMap() {
         List<ImageCloudstack> imageCloudstacks = XmlDataLoader.getData("imageCloudstack.xml", ImageCloudstack.class);
         LinkedHashMap<Long, ImageCloudstack> map = new LinkedHashMap<Long, ImageCloudstack>();
-        for (ImageCloudstack imageCloudstack : imageCloudstacks) {
+        for (ImageCloudstack imageCloudstack: imageCloudstacks) {
             map.put(imageCloudstack.getImageNo(), imageCloudstack);
         }
         return map;
@@ -530,7 +531,7 @@ public class MockInstanceService implements InstanceService {
     private LinkedHashMap<Long, ImageVmware> getImageVmwareMap() {
         List<ImageVmware> imageVmwares = XmlDataLoader.getData("imageVmware.xml", ImageVmware.class);
         LinkedHashMap<Long, ImageVmware> map = new LinkedHashMap<Long, ImageVmware>();
-        for (ImageVmware imageVmware : imageVmwares) {
+        for (ImageVmware imageVmware: imageVmwares) {
             map.put(imageVmware.getImageNo(), imageVmware);
         }
         return map;
@@ -539,7 +540,7 @@ public class MockInstanceService implements InstanceService {
     private LinkedHashMap<Long, ImageNifty> getImageNiftyMap() {
         List<ImageNifty> imageNifties = XmlDataLoader.getData("imageNifty.xml", ImageNifty.class);
         LinkedHashMap<Long, ImageNifty> map = new LinkedHashMap<Long, ImageNifty>();
-        for (ImageNifty imageNifty : imageNifties) {
+        for (ImageNifty imageNifty: imageNifties) {
             map.put(imageNifty.getImageNo(), imageNifty);
         }
         return map;
@@ -548,7 +549,7 @@ public class MockInstanceService implements InstanceService {
     private LinkedHashMap<Long, ComponentType> getComponentTypeMap() {
         List<ComponentType> componentTypes = XmlDataLoader.getData("componentType.xml", ComponentType.class);
         LinkedHashMap<Long, ComponentType> map = new LinkedHashMap<Long, ComponentType>();
-        for (ComponentType componentType : componentTypes) {
+        for (ComponentType componentType: componentTypes) {
             map.put(componentType.getComponentTypeNo(), componentType);
         }
         return map;
@@ -556,7 +557,53 @@ public class MockInstanceService implements InstanceService {
 
     @Override
     public InstanceDto getInstance(Long instanceNo) {
-        return getInstances(instanceNo).get(0);
+        // TODO 自動生成されたメソッド・スタブ
+        return null;
+    }
+
+    @Override
+    public Long createDataDisk(Long instanceNo, DataDiskDto dataDiskDto) {
+        // TODO 自動生成されたメソッド・スタブ
+        return null;
+    }
+
+    @Override
+    public void updateDataDisk(Long instanceNo, DataDiskDto dataDiskDto) {
+        // TODO 自動生成されたメソッド・スタブ
+
+    }
+
+    @Override
+    public void attachDataDisk(Long instanceNo, Long diskNo) {
+        // TODO 自動生成されたメソッド・スタブ
+
+}
+
+    @Override
+    public void detachDataDisk(Long instanceNo, Long diskNo) {
+        // TODO 自動生成されたメソッド・スタブ
+
+    }
+
+    @Override
+    public void updateVcloudInstance(Long instanceNo, String instanceName, String comment, Long storageTypeNo,
+            Long keyPairNo, String instanceType, List<InstanceNetworkDto> instanceNetworkDtos) {
+        // TODO 自動生成されたメソッド・スタブ
+
+    }
+
+    @Override
+    public void updateAzureInstance(Long instanceNo, String instanceName, String comment, String instanceType,
+            String availabilitySet, String subnetId) {
+        // TODO 自動生成されたメソッド・スタブ
+
+    }
+
+    @Override
+    public void updateOpenStackInstance(Long instanceNo, String instanceName, String comment, String instanceType,
+            String availabilityZoneName, String securityGroupName, String keyName) {
+        // TODO 自動生成されたメソッド・スタブ
+
     }
 
 }

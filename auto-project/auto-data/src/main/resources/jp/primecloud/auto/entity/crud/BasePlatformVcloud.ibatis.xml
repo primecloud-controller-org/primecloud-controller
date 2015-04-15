@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="PlatformVcloud">
+
+	<typeAlias alias="PlatformVcloud" type="jp.primecloud.auto.entity.crud.PlatformVcloud" />
+
+	<resultMap id="platformVcloudResultMap" class="PlatformVcloud">
+		<result property="platformNo" column="PLATFORM_NO" />
+		<result property="url" column="URL" nullValue="" />
+		<result property="orgName" column="ORG_NAME" nullValue="" />
+		<result property="vdcName" column="VDC_NAME" nullValue="" />
+		<result property="secure" column="SECURE" />
+		<result property="timeout" column="TIMEOUT" />
+		<result property="defNetwork" column="DEF_NETWORK" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.PLATFORM_NO as PLATFORM_NO,
+			t1.URL as URL,
+			t1.ORG_NAME as ORG_NAME,
+			t1.VDC_NAME as VDC_NAME,
+			t1.SECURE as SECURE,
+			t1.TIMEOUT as TIMEOUT,
+			t1.DEF_NETWORK as DEF_NETWORK
+		from
+			PLATFORM_VCLOUD t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from PLATFORM_VCLOUD t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="platformVcloudResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="platformVcloudResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readInPlatformNos" parameterClass="java.util.Map" resultMap="platformVcloudResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO in
+		]]>
+		<iterate property="platformNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#platformNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="PlatformVcloud">
+		<![CDATA[
+		insert into PLATFORM_VCLOUD (
+			PLATFORM_NO,
+			URL,
+			ORG_NAME,
+			VDC_NAME,
+			SECURE,
+			TIMEOUT,
+			DEF_NETWORK
+		) values (
+			#platformNo#,
+			#url#,
+			#orgName#,
+			#vdcName#,
+			#secure#,
+			#timeout#,
+			#defNetwork#
+		)
+		]]>
+	</insert>
+
+	<update id="update" parameterClass="PlatformVcloud">
+		<![CDATA[
+		update PLATFORM_VCLOUD set
+			URL = #url#,
+			ORG_NAME = #orgName#,
+			VDC_NAME = #vdcName#,
+			SECURE = #secure#,
+			TIMEOUT = #timeout#,
+			DEF_NETWORK = #defNetwork#
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="PlatformVcloud">
+		<![CDATA[
+		delete from PLATFORM_VCLOUD
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from PLATFORM_VCLOUD
+		]]>
+	</delete>
+
+	<delete id="deleteByPlatformNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from PLATFORM_VCLOUD
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+</sqlMap>

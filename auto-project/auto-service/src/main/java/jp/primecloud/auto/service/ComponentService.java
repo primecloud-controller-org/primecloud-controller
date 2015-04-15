@@ -18,6 +18,7 @@
  */
 package jp.primecloud.auto.service;
 
+import java.util.Collection;
 import java.util.List;
 
 import jp.primecloud.auto.service.dto.ComponentDto;
@@ -47,5 +48,8 @@ public interface ComponentService {
     public List<ComponentTypeDto> getComponentTypes(Long farmNo);
 
     public ComponentTypeDto getComponentType(Long componentNo);
+
+    public Collection<Object> checkAttachDisk(Long farmNo, Long componentNo, String instanceName,
+            String notSelectedItem, Collection<Object> moveList);
 
 }

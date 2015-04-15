@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS IAAS_INFO (
+    IAAS_NO bigint(19) NOT NULL,
+    IAAS_NAME varchar(50) NOT NULL,
+    COMMENT varchar(300) default NULL,
+    PRIMARY KEY (IAAS_NO)
+);
