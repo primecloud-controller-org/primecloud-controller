@@ -1,0 +1,1 @@
+tomcat  ALL=NOPASSWD: /usr/sbin/puppetrun, /usr/sbin/puppetca
