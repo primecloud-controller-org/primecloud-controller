@@ -9,5 +9,6 @@ create table NIFTY_VOLUME (
     VOLUME_ID varchar(20),
     STATUS varchar(20),
     INSTANCE_ID varchar(20),
+    SCSI_ID INT(11),
     constraint NIFTY_VOLUME_PK primary key(VOLUME_NO)
 );

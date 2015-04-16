@@ -1,18 +1,18 @@
 /*
  * Copyright 2014 by SCSK Corporation.
- * 
+ *
  * This file is part of PrimeCloud Controller(TM).
- * 
+ *
  * PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
  */
@@ -28,11 +28,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
 
 import jp.primecloud.auto.common.component.FreeMarkerGenerator;
 import jp.primecloud.auto.common.component.PasswordEncryptor;
@@ -72,11 +67,11 @@ import jp.primecloud.auto.exception.MultiCauseException;
 import jp.primecloud.auto.iaasgw.IaasGatewayFactory;
 import jp.primecloud.auto.iaasgw.IaasGatewayWrapper;
 import jp.primecloud.auto.log.EventLogger;
+import jp.primecloud.auto.nifty.process.NiftyProcessClient;
+import jp.primecloud.auto.nifty.process.NiftyProcessClientFactory;
 import jp.primecloud.auto.process.ComponentConstants;
 import jp.primecloud.auto.process.ComponentProcessContext;
 import jp.primecloud.auto.process.ProcessLogger;
-import jp.primecloud.auto.process.nifty.NiftyProcessClient;
-import jp.primecloud.auto.process.nifty.NiftyProcessClientFactory;
 import jp.primecloud.auto.process.nifty.NiftyVolumeProcess;
 import jp.primecloud.auto.process.vmware.VmwareDiskProcess;
 import jp.primecloud.auto.process.vmware.VmwareProcessClient;
@@ -85,6 +80,11 @@ import jp.primecloud.auto.process.zabbix.ZabbixHostProcess;
 import jp.primecloud.auto.puppet.PuppetClient;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
+
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * <p>
@@ -759,6 +759,11 @@ public class PuppetComponentProcess extends ServiceSupport {
             // NiftyInstance
             NiftyInstance niftyInstance = niftyInstanceDao.read(instanceNo);
             map.put("niftyInstance", niftyInstance);
+            // NiftyVolume
+            NiftyVolume niftyVolume = niftyVolumeDao.readByComponentNoAndInstanceNo(componentNo, instanceNo);
+            if (niftyVolume != null) {
+                map.put("niftyVolume", niftyVolume);
+            }
         } else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
             // VcloudInstance
             VcloudInstance vcloudInstance = vcloudInstanceDao.read(instanceNo);

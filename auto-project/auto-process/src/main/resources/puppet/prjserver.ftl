@@ -16,9 +16,15 @@ class ${instance.fqdn?replace('.','_')}_${component.componentName} {
       <#elseif vcloudDisk ??>
         prjserver_vgdisk       => "/dev/disk/by-path/pci-0000:00:10.0-scsi-0:0:${vcloudDisk.unitNo}:0",
         prjserver_visor        => "vcloud",
+      <#elseif niftyVolume ??>
+        prjserver_vgdisk       => "/dev/disk/by-path/pci-0000:00:10.0-scsi-0:0:${niftyVolume.scsiId}:0",
+        prjserver_vgdisk       => "nifty",
       <#elseif azureDisk ??>
-        geronimo_vgdisk         => "${azureDisk.lun}",
-        geronimo_visor          => "azure",
+        prjserver_vgdisk       => "${azureDisk.device}",
+        prjserver_visor        => "azure",
+      <#elseif openstackVolume ??>
+        prjserver_vgdisk       => "${openstackVolume.device}",
+        prjserver_visor        => "openstack",
       <#else>
         prjserver_vgdisk       => "",
         prjserver_visor        => "",

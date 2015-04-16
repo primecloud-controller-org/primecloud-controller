@@ -1,18 +1,18 @@
 /*
  * Copyright 2014 by SCSK Corporation.
- * 
+ *
  * This file is part of PrimeCloud Controller(TM).
- * 
+ *
  * PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
  */
@@ -28,9 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
 
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.LoadBalancerInstanceStatus;
@@ -89,6 +86,9 @@ import jp.primecloud.auto.service.dto.PlatformDto;
 import jp.primecloud.auto.service.dto.SecurityGroupDto;
 import jp.primecloud.auto.service.dto.SslKeyDto;
 import jp.primecloud.auto.service.dto.SubnetDto;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * <p>
@@ -460,7 +460,7 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
      */
     @Override
     public Long createAwsLoadBalancer(Long farmNo, String loadBalancerName, String comment, Long platformNo,
-            Long componentNo) {
+            Long componentNo, boolean internal) {
         // 引数チェック
         if (farmNo == null) {
             throw new AutoApplicationException("ECOMMON-000003", "farmNo");
@@ -600,6 +600,7 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         awsLoadBalancer.setSubnetId(subnetId);
         awsLoadBalancer.setSecurityGroups(groupName);
         awsLoadBalancer.setAvailabilityZone(availabilityZone);
+        awsLoadBalancer.setInternal(internal);
         awsLoadBalancerDao.create(awsLoadBalancer);
 
         // 標準のヘルスチェック情報を作成
@@ -1066,7 +1067,7 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
      */
     @Override
     public void updateAwsLoadBalancer(Long loadBalancerNo, String loadBalancerName, String comment,
-            Long componentNo, String subnetId, String securityGroupName, String availabilityZone) {
+            Long componentNo, String subnetId, String securityGroupName, String availabilityZone, boolean internal) {
         // 引数チェック
         if (loadBalancerNo == null) {
             throw new AutoApplicationException("ECOMMON-000003", "loadBalancerNo");
@@ -1162,6 +1163,7 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         awsLoadBalancer.setSubnetId(subnetId);
         awsLoadBalancer.setSecurityGroups(securityGroupName);
         awsLoadBalancer.setAvailabilityZone(availabilityZone);
+        awsLoadBalancer.setInternal(internal);
         awsLoadBalancerDao.update(awsLoadBalancer);
 
         // ロードバランサの更新
@@ -1941,26 +1943,26 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
                 }
             }
 
-            //VPCの場合、サブネットのゾーンがロードバランサのサブネットのゾーンに含まれているかのチェック
-            PlatformAws platformAws = platformAwsDao.read(platformNo);
-            if (platformAws.getVpc()) {
-                AwsLoadBalancer awsLoadBalancer = awsLoadBalancerDao.read(loadBalancerNo);
-                List<String> zones = new ArrayList<String>();
-                if (StringUtils.isEmpty(awsLoadBalancer.getAvailabilityZone())) {
-                    //ELBにゾーン(サブネット)が設定されていない場合→どのサーバとも紐付け不可
-                    throw new AutoApplicationException("ESERVICE-000630", loadBalancer.getLoadBalancerName());
-                }
-                for (String zone: awsLoadBalancer.getAvailabilityZone().split(",")) {
-                    zones.add(zone.trim());
-                }
-                for (Instance instance : instances) {
-                    AwsInstance awsInstance = awsInstanceDao.read(instance.getInstanceNo());
-                    if (zones.contains(awsInstance.getAvailabilityZone()) == false) {
-                        //ロードバランサーのゾーンにサーバのゾーンが含まれていない
-                        throw new AutoApplicationException("ESERVICE-000629", instance.getInstanceName());
-                    }
-                }
-            }
+//            //VPCの場合、サブネットのゾーンがロードバランサのサブネットのゾーンに含まれているかのチェック
+//            PlatformAws platformAws = platformAwsDao.read(platformNo);
+//            if (platformAws.getVpc()) {
+//                AwsLoadBalancer awsLoadBalancer = awsLoadBalancerDao.read(loadBalancerNo);
+//                List<String> zones = new ArrayList<String>();
+//                if (StringUtils.isEmpty(awsLoadBalancer.getAvailabilityZone())) {
+//                    //ELBにゾーン(サブネット)が設定されていない場合→どのサーバとも紐付け不可
+//                    throw new AutoApplicationException("ESERVICE-000630", loadBalancer.getLoadBalancerName());
+//                }
+//                for (String zone: awsLoadBalancer.getAvailabilityZone().split(",")) {
+//                    zones.add(zone.trim());
+//                }
+//                for (Instance instance : instances) {
+//                    AwsInstance awsInstance = awsInstanceDao.read(instance.getInstanceNo());
+//                    if (zones.contains(awsInstance.getAvailabilityZone()) == false) {
+//                        //ロードバランサーのゾーンにサーバのゾーンが含まれていない
+//                        throw new AutoApplicationException("ESERVICE-000629", instance.getInstanceName());
+//                    }
+//                }
+//            }
         }
 
         // ロードバランサとインスタンスの関連を更新

@@ -2,9 +2,6 @@ package jp.primecloud.auto.ui;
 
 import java.util.List;
 
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.entity.crud.ComponentType;
 import jp.primecloud.auto.exception.AutoApplicationException;
@@ -19,6 +16,10 @@ import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+
 import com.vaadin.Application;
 import com.vaadin.data.Property;
 import com.vaadin.data.Validator.InvalidValueException;
@@ -404,7 +405,7 @@ public class WinLoadBalancerAdd extends Window {
                     + "</div>", Label.CONTENT_XHTML);
             typeLabel.setHeight(COLUMN_HEIGHT);
 
-            //            serviceTable.addItem(new Object[] { (i + 1), name, typeLabel }, componentDto.getComponent().getComponentNo());
+//            serviceTable.addItem(new Object[] { (i + 1), name, typeLabel }, componentDto.getComponent().getComponentNo());
 
             serviceTable.addItem(new Object[] { nameLabel, typeLabel }, componentDto.getComponent().getComponentNo());
         }
@@ -476,7 +477,8 @@ public class WinLoadBalancerAdd extends Window {
         if (PCCConstant.LOAD_BALANCER_ELB.equals(type)) {
             // AWSロードバランサを作成
             try {
-                loadBalancerNo = loadBalancerService.createAwsLoadBalancer(farmNo, loadBalancerName, comment, platformNo, componentNo);
+                loadBalancerNo = loadBalancerService.createAwsLoadBalancer(farmNo, loadBalancerName, comment,
+                        platformNo, componentNo, false);
             } catch (AutoApplicationException e) {
                 String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
                 DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
@@ -486,8 +488,8 @@ public class WinLoadBalancerAdd extends Window {
         } else if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(type)) {
             // UltraMonkeyロードバランサを作成
             try {
-                loadBalancerNo = loadBalancerService.createUltraMonkeyLoadBalancer(farmNo, loadBalancerName, comment, platformNo,
-                        componentNo);
+                loadBalancerNo = loadBalancerService.createUltraMonkeyLoadBalancer(farmNo, loadBalancerName, comment,
+                        platformNo, componentNo);
             } catch (AutoApplicationException e) {
                 String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
                 DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
@@ -497,8 +499,8 @@ public class WinLoadBalancerAdd extends Window {
         } else if (PCCConstant.LOAD_BALANCER_CLOUDSTACK.equals(type)) {
             // cloudstackロードバランサを作成
             try {
-                loadBalancerNo = loadBalancerService.createCloudstackLoadBalancer(farmNo, loadBalancerName, comment, platformNo,
-                        componentNo);
+                loadBalancerNo = loadBalancerService.createCloudstackLoadBalancer(farmNo, loadBalancerName, comment,
+                        platformNo, componentNo);
             } catch (AutoApplicationException e) {
                 String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
                 DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);

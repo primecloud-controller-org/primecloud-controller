@@ -1,18 +1,18 @@
 /*
  * Copyright 2014 by SCSK Corporation.
- * 
+ *
  * This file is part of PrimeCloud Controller(TM).
- * 
+ *
  * PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
  */
@@ -23,9 +23,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
 
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.ComponentInstanceStatus;
@@ -58,6 +55,9 @@ import jp.primecloud.auto.service.InstanceService;
 import jp.primecloud.auto.service.LoadBalancerService;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.service.dto.FarmDto;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * <p>
@@ -447,8 +447,12 @@ public class FarmServiceImpl extends ServiceSupport implements FarmService {
 
             IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), platform.getPlatformNo());
             try {
-                // myCloud(vApp)の削除
-                gateway.deleteMyCloud(farmNo);
+                if (BooleanUtils.isTrue(platform.getSelectable()) &&
+                        vcloudCertificateDao.countByUserNoAndPlatformNo(farm.getUserNo(), platform.getPlatformNo()) > 0 &&
+                        vcloudKeyPairDao.countByUserNoAndPlatformNo(farm.getUserNo(), platform.getPlatformNo()) > 0) {
+                    // myCloud(vApp)の削除
+                    gateway.deleteMyCloud(farmNo);
+                }
             } catch (AutoException ignore) {
                 // 全てのVCloudプラットフォームが対象なので
                 // ボリュームが存在しない場合などに備えて例外を握りつぶす

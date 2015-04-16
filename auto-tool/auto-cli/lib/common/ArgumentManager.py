@@ -343,7 +343,7 @@ class ArgumentManager:
         {"argument":"osName", "length":300, "format":"halfAlpha"},
         {"argument":"osNameDisp", "length":300, "format":None},
         {"argument":"serviceList", "length":300, "format":"halfAlpha"},
-        {"argument":"instanceTypeList", "length":300, "format":"halfAlpha"},
+        {"argument":"instanceTypeList", "length":300, "format":None},
         {"argument":"zabbixTemplate", "length":300, "format":"halfAlpha"},
         {"argument":"imageId", "length":300, "format":"halfAlpha"},
         {"argument":"kernelId", "length":300, "format":"halfAlpha"},

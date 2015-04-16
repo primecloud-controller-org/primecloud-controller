@@ -152,22 +152,24 @@ echo -e "====success\t\t:setting ryncd===="
 #sudoers
 echo "====START :setting sudo====" >> $LOG_FILE 2>&1
 
-mv /etc/sudoers ${BACKUP_DIR}/sudoers.${BACKUP_DATE}
-if [ $? -ne 0 ]; then
-        echo "Error: backup failed /etc/sudoers"
-        echo "Error: backup failed /etc/sudoers" >> $LOG_FILE 2>&1
-        exit 1
-fi
-cp -f ${SOFTWARE_DIR}/sudoers /etc/sudoers
-if [ $? -ne 0 ]; then
-    echo "Error: file copy failed /etc/sudoers"
-    mv ${BACKUP_DIR}/sudoers.${BACKUP_DATE} /etc/sudoers
-    exit 1
-else
-    chmod 440 /etc/sudoers
-fi
-
-echo "====END :setting sudo====" >> $LOG_FILE 2>&1
+#mv /etc/sudoers ${BACKUP_DIR}/sudoers.${BACKUP_DATE}
+#if [ $? -ne 0 ]; then
+#        echo "Error: backup failed /etc/sudoers"
+#        echo "Error: backup failed /etc/sudoers" >> $LOG_FILE 2>&1
+#        exit 1
+#fi
+#cp -f ${SOFTWARE_DIR}/sudoers /etc/sudoers
+#if [ $? -ne 0 ]; then
+#    echo "Error: file copy failed /etc/sudoers"
+#    mv ${BACKUP_DIR}/sudoers.${BACKUP_DATE} /etc/sudoers
+#    exit 1
+#else
+#    chmod 440 /etc/sudoers
+##fi
+#
+#echo "====END :setting sudo====" >> $LOG_FILE 2>&1
+    cp -f ${SOFTWARE_DIR}/sudoers.pcc /etc/sudoers/sudoers.d
+    chmod 440 /etc/sudoers/sudoers.d/sudoers.pcc
 echo -e "====success\t\t:setting sudo===="
 
 #tomcat6 user make
@@ -654,10 +656,22 @@ echo "====START :install management-tool ===="
 echo "====START :install management-tool ====" >> $LOG_FILE 2>&1
 tar zxvf ${SOFTWARE_DIR}/pcc/management-tool-${PCC_VERSION}.tar.gz >> $LOG_FILE 2>&1
 mv management-tool-${PCC_VERSION} /opt/adc
+chmod a+x /opt/adc/management-tool-${PCC_VERSION}/bin/*
 cd /opt/adc
 ln -s management-tool-${PCC_VERSION} management-tool
 chmod a+x /opt/adc/management-tool/bin/*.sh
 
+## install auto-cli
+tar zxvf ${SOFTWARE_DIR}/pcc/auto-cli-${PCC_VERSION}.tar.gz >> $LOG_FILE 2>&1
+mv auto-cli-${PCC_VERSION} /opt/adc
+cd /opt/adc
+ln -s auto-cli-${PCC_VERSION} auto-cli
+chmod a+x /opt/adc/auto-cli/bin/*
+
+## install auto-repo
+tar zxvf ${SOFTWARE_DIR}/pcc/auto-repo-${PCC_VERSION}.tar.gz >> $LOG_FILE 2>&1
+mv auto-repo-${PCC_VERSION}/pccrepo /opt/adc
+cd /opt/adc
 echo "====end :install management-tool ====" >> $LOG_FILE 2>&1
 echo "====end :install management-tool ===="
 

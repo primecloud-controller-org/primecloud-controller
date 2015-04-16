@@ -1,0 +1,4 @@
+[pccrepo]
+name = PCC module repository
+baseurl=http://pccrepo.s3-website-ap-northeast-1.amazonaws.com/pkgrepo
+enabled=1

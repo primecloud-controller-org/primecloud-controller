@@ -1,22 +1,22 @@
  # coding: UTF-8
  #
  # Copyright 2014 by SCSK Corporation.
- # 
+ #
  # This file is part of PrimeCloud Controller(TM).
- # 
+ #
  # PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
  # it under the terms of the GNU General Public License as published by
  # the Free Software Foundation, either version 2 of the License, or
  # (at your option) any later version.
- # 
+ #
  # PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
  # but WITHOUT ANY WARRANTY; without even the implied warranty of
  # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  # GNU General Public License for more details.
- # 
+ #
  # You should have received a copy of the GNU General Public License
  # along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
- # 
+ #
 from iaasgw.common.pccConnections import PCCEC2APNEConnection, PCCEC2Connection, \
     PCCEC2EUConnection, PCCEC2USWestConnection, PCCEC2USWestOregonConnection, \
     PCCEC2APSEConnection
@@ -187,10 +187,9 @@ class EC2IaasClient(EC2IaasNodeDriver):
         nodes = []
         for rs in findall(element=elem, xpath='reservationSet/item',
                           namespace=NAMESPACE):
-            groups = [g.findtext('')
-                      for g in findall(element=rs,
-                                       xpath='groupSet/item/groupId',
-                                       namespace=NAMESPACE)]
+            groups = []
+            for g in findall(element=rs, xpath='instancesSet/item/networkInterfaceSet/item/groupSet/item', namespace=NAMESPACE):
+                groups.append(findattr(element=g, xpath='groupId', namespace=NAMESPACE))
 
             nodes += self._to_nodes(rs, 'instancesSet/item', groups)
         nodes_elastic_ips_mappings = self.ex_describe_addresses(nodes)
@@ -261,6 +260,28 @@ class EC2IaasClient(EC2IaasNodeDriver):
 
         return address[0]
 
+    def describeVpcAddress(self, publicIp=None):
+        params = {'Action': 'DescribeAddresses'}
+        #任意パラメータ
+        if publicIp != None:
+            params.update({'PublicIp.0': publicIp})
+
+        elem = self.connection.request(self.path, params=params).object
+
+        address = []
+        for rs in findall(element=elem, xpath='addressesSet/item', namespace=NAMESPACE):
+            address.append(self._to_vpcaddress(rs))
+
+        if not address or len(address) == 0:
+            #アドレスが存在しない場合
+            raise IaasException("EPROCESS-000117", [publicIp,])
+
+        if len(address) > 1:
+            #アドレスを複数参照できた場合
+            raise IaasException("EPROCESS-000118", [publicIp,])
+
+        return address[0]
+
     #LibCloudで提供されているDescribeAddressesラップ関数は利用形態がマッチしないので独自実装とする
     #本来はpublicIpを省略する事も可能だが用途的に固定する
     def describeAddresses(self, publicIp=None):
@@ -292,9 +313,18 @@ class EC2IaasClient(EC2IaasNodeDriver):
 
 
     #LibCloudで提供されていない為独自実装
-    def describeSecurityGroups(self):
+    def describeSecurityGroups(self, groupName=None, vpcId=None):
         #GroupName, GroupId, Filter(name/Value)で絞る事ができるがPCCでは利用しないデフォルト検索を提供する
         params = {'Action': 'DescribeSecurityGroups'}
+
+        #任意パラメータ
+        if groupName != None:
+            params.update({'Filter.0.Name': 'group-name'})
+            params.update({'Filter.0.Value.0': groupName})
+
+        if vpcId != None:
+            params.update({'Filter.1.Name': 'vpc-id'})
+            params.update({'Filter.1.Value.0': vpcId})
 
         elem = self.connection.request(self.path, params=params).object
 
@@ -303,7 +333,6 @@ class EC2IaasClient(EC2IaasNodeDriver):
             securityGroups.append(self._to_securityGroup(rs))
 
         return securityGroups
-
 
     #ex_list_availability_zonesとして提供されているものをラップ
     def describeAvailabilityZones(self, only_available=True):
@@ -564,6 +593,8 @@ class EC2IaasClient(EC2IaasNodeDriver):
         #現状はインスタンスタイプのみ変更に対応する
         if 'InstanceType' in kwargs and kwargs['InstanceType'] is not None and '' != kwargs['InstanceType']:
             params['InstanceType.Value'] = kwargs['InstanceType']
+        elif 'GroupId' in kwargs and kwargs['GroupId'] is not None and '' != kwargs['GroupId']:
+            params['GroupId'] = kwargs['GroupId']
 
         try:
             self.connection.request(self.path, params=params).object
@@ -657,12 +688,35 @@ class EC2IaasClient(EC2IaasNodeDriver):
 
 
     #LibCloudで提供されていない為独自実装
+    def allocateVpcAddress(self):
+        params = {'Action': 'AllocateAddress', 'Domain':'vpc'}
+
+        elem = self.connection.request(self.path, params=params).object
+
+        publicIp = findattr(element=elem, xpath="publicIp", namespace=NAMESPACE)
+
+        # ログ出力
+        self.logger.info(None, "IPROCESS-100133", [publicIp,])
+
+        return publicIp
+
+
+    #LibCloudで提供されていない為独自実装
     def associateAddress(self,  publicIp, instanceId):
         params = {'Action': 'AssociateAddress', 'PublicIp':publicIp, 'InstanceId':instanceId}
 
         self.connection.request(self.path, params=params).object
         # ログ出力
         self.logger.info(None, "IPROCESS-100131", [publicIp, instanceId,])
+
+
+    #LibCloudで提供されていない為独自実装
+    def associateVpcAddress(self,  publicIp, instanceId, allocationId):
+        params = {'Action': 'AssociateAddress', 'InstanceId':instanceId, 'AllocationId':allocationId}
+
+        self.connection.request(self.path, params=params).object
+        # ログ出力
+        self.logger.info(None, "IPROCESS-100131", [publicIp, instanceId, allocationId,])
 
 
     #LibCloudで提供されていない為独自実装
@@ -676,12 +730,31 @@ class EC2IaasClient(EC2IaasNodeDriver):
 
 
     #LibCloudで提供されていない為独自実装
+    def disassociateVpcAddress(self, publicIp, instanceId, associationId):
+        params = {'Action': 'DisassociateAddress', 'AssociationId':associationId}
+
+        self.connection.request(self.path, params=params).object
+
+        # ログ出力
+        self.logger.info(None, "IPROCESS-100132", [publicIp, instanceId, associationId,])
+
+
+    #LibCloudで提供されていない為独自実装
     def releaseAddress(self, publicIp):
         params = {'Action': 'ReleaseAddress', 'PublicIp':publicIp}
 
         self.connection.request(self.path, params=params).object
         # ログ出力
         self.logger.info(None, "IPROCESS-100134", [publicIp,])
+
+
+    #LibCloudで提供されていない為独自実装
+    def releaseVpcAddress(self, publicIp, allocationId):
+        params = {'Action': 'ReleaseAddress', 'AllocationId':allocationId}
+
+        self.connection.request(self.path, params=params).object
+        # ログ出力
+        self.logger.info(None, "IPROCESS-100134", [publicIp, allocationId,])
 
 
     ############################################################
@@ -976,6 +1049,8 @@ class EC2IaasClient(EC2IaasNodeDriver):
             publicIp = findattr(element=element, xpath="publicIp", namespace=NAMESPACE),
             domain = findattr(element=element, xpath="domain", namespace=NAMESPACE),
             instanceId = findattr(element=element, xpath="instanceId", namespace=NAMESPACE),
+            allocationId = findattr(element=element, xpath="allocationId", namespace=NAMESPACE),
+            associationId = findattr(element=element, xpath="associationId", namespace=NAMESPACE),
         )
         return n
 

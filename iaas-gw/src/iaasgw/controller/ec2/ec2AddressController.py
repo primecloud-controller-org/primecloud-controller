@@ -1,22 +1,22 @@
  # coding: UTF-8
  #
  # Copyright 2014 by SCSK Corporation.
- # 
+ #
  # This file is part of PrimeCloud Controller(TM).
- # 
+ #
  # PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
  # it under the terms of the GNU General Public License as published by
  # the Free Software Foundation, either version 2 of the License, or
  # (at your option) any later version.
- # 
+ #
  # PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
  # but WITHOUT ANY WARRANTY; without even the implied warranty of
  # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  # GNU General Public License for more details.
- # 
+ #
  # You should have received a copy of the GNU General Public License
  # along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
- # 
+ #
 from iaasgw.exception.iaasException import IaasException
 from iaasgw.log.log import IaasLogger
 from iaasgw.utils.stringUtils import isNotEmpty, getCurrentTimeMillis, isEmpty
@@ -127,8 +127,19 @@ class ec2AddressController(object):
         awsInstance = self.conn.selectOne(tableAWSINS.select(tableAWSINS.c.INSTANCE_NO==instanceNo))
         instanceId = awsInstance["INSTANCE_ID"]
 
+        platformNo = self.client.getPlatformNo()
+        tablePLAWS = self.conn.getTable("PLATFORM_AWS")
+        awsPlatform = self.conn.selectOne(tablePLAWS.select(tablePLAWS.c.PLATFORM_NO==platformNo))
 
-        self.client.associateAddress(publicIp, instanceId)
+        if awsPlatform["VPC"] == 1:
+            #アドレス情報取得
+            address = self.client.describeAddress(publicIp)
+
+            #VPC用のElasticIP割り当て処理呼び出し
+            self.client.associateVpcAddress(publicIp, instanceId, address.allocationId)
+        else:
+            #ElasticIP割り当て処理呼び出し
+            self.client.associateAddress(publicIp, instanceId)
 
         #イベントログ出力
         tableINS = self.conn.getTable("INSTANCE")
@@ -193,7 +204,18 @@ class ec2AddressController(object):
         publicIp = awsAddress["PUBLIC_IP"]
         instanceId = awsAddress["INSTANCE_ID"]
 
-        self.client.disassociateAddress(publicIp, instanceId)
+        platformNo = self.client.getPlatformNo()
+        tablePLAWS = self.conn.getTable("PLATFORM_AWS")
+        awsPlatform = self.conn.selectOne(tablePLAWS.select(tablePLAWS.c.PLATFORM_NO==platformNo))
+
+        if awsPlatform["VPC"] == 1:
+            #アドレス情報取得
+            address = self.client.describeAddress(publicIp)
+            #VPC用のElasticIP取り外し処理呼び出し
+            self.client.disassociateVpcAddress(publicIp, instanceId, address.associationId)
+        else:
+            #ElasticIP取り外し処理呼び出し
+            self.client.disassociateAddress(publicIp, instanceId)
 
         #イベントログ出力
         tableINS = self.conn.getTable("INSTANCE")
