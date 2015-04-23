@@ -229,7 +229,7 @@ echo "==== START :install puppet module" >> $LOG_FILE 2>&1
 
 #install customized puppetlabs-lvm from github
 yum -y install git >> $LOG_FILE 2>&1
-git clone https://github.com/scsk-oss/puppetlabs-lvm.git >> $LOG_FILE 2>&1
+git clone https://github.com/primecloud-controller-org/puppetlabs-lvm.git >> $LOG_FILE 2>&1
 
 mkdir /etc/puppet/modules/lvm
 cp -r puppetlabs-lvm/* /etc/puppet/modules/lvm/
