@@ -153,7 +153,7 @@ echo -e "====success\t\t:setting ryncd===="
 echo "====START :setting sudo====" >> $LOG_FILE 2>&1
 
 
-fgrep -q "#includedir /etc/sudoers.d" /etc/sudoers
+grep -Fq "#includedir /etc/sudoers.d" /etc/sudoers
 if [ $? -ne 0 ]; then
     cp /etc/sudoers ${BACKUP_DIR}/sudoers.${BACKUP_DATE}
     if [ $? -ne 0 ]; then
@@ -163,8 +163,8 @@ if [ $? -ne 0 ]; then
     fi
     echo "#includedir /etc/sudoers.d" >> /etc/sudoers
     if [ $? -ne 0 ]; then
-        echo "Error: additionally failed /etc/sudoers"
-        echo "Error: additionally failed /etc/sudoers" >> $LOG_FILE 2>&1
+        echo "Error: add to /etc/sudoers failed"
+        echo "Error: add to /etc/sudoers failed" >> $LOG_FILE 2>&1
         exit 1
     fi
 fi
