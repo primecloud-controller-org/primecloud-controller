@@ -229,7 +229,7 @@ echo "==== START :install puppet module" >> $LOG_FILE 2>&1
 
 #install customized puppetlabs-lvm from github
 yum -y install git >> $LOG_FILE 2>&1
-git clone https://github.com/primecloud-controller-org/puppetlabs-lvm.git >> $LOG_FILE 2>&1
+git clone --branch "patch_v0.1.0" https://github.com/primecloud-controller-org/puppetlabs-lvm.git >> $LOG_FILE 2>&1
 
 mkdir /etc/puppet/modules/lvm
 cp -r puppetlabs-lvm/* /etc/puppet/modules/lvm/
@@ -571,10 +571,22 @@ fi
 cp -p ${SOFTWARE_DIR}/python/python-${PYTHON_VERSION}.conf /etc/ld.so.conf.d/python-${PYTHON_VERSION}.conf
 ldconfig
 
-#install ez_setup
-#python ${SOFTWARE_DIR}/python/ez_setup.py >> $LOG_FILE 2>&1
-wget http://peak.telecommunity.com/dist/ez_setup.py >> $LOG_FILE 2>&1
-python ez_setup.py >> $LOG_FILE 2>&1
+#install ez_setup and pip
+which pip > /dev/null
+if [ $? -ne 0 ]; then
+    wget https://bootstrap.pypa.io/ez_setup.py -O - | python >> $LOG_FILE 2>&1
+    if [ $? -ne 0 ]; then
+        echo "Error: python ez_setup install failed." >> $LOG_FILE 2>&1
+        echo "Error: python ez_setup install failed."
+        exit 1
+    fi
+    easy_install pip >> $LOG_FILE 2>&1
+    if [ $? -ne 0 ]; then
+        echo "Error: python pip install failed." >> $LOG_FILE 2>&1
+        echo "Error: python pip install failed."
+        exit 1
+    fi
+fi
 
 #install SQLAlchemy
 easy_install SQLAlchemy\=\=${SQLALCHEMY_VERSION} >> $LOG_FILE 2&>1
@@ -594,6 +606,41 @@ easy_install apache-libcloud\=\=${LIBCLOUD_VERSION} >> $LOG_FILE 2&>1
 wget https://launchpad.net/myconnpy/0.3/0.3.2/+download/mysql-connector-python-0.3.2-devel.tar.gz
 easy_install -Z mysql-connector-python-0.3.2-devel.tar.gz >> $LOG_FILE 2>&1
 #easy_install mysql-connector-python\=\=${MYSQL_CONNECTOR_PYTHON_VERSION} >> $LOG_FILE 2&>1
+
+#install pycrypto
+pip install pycrypto==2.6.1 >> $LOG_FILE 2>&1
+if [ $? -ne 0 ]; then
+    echo "Error: python pycrypto install failed." >> $LOG_FILE 2>&1
+    echo "Error: python pycrypto install failed."
+    exit 1
+fi
+
+#install OpenStack liblary
+pip install python-cinderclient==1.0.8 python-novaclient==2.15.0 >> $LOG_FILE 2>&1
+if [ $? -ne 0 ]; then
+    echo "Error: python cinderclient/novaclient install failed." >> $LOG_FILE 2>&1
+    echo "Error: python cinderclient/novaclient install failed."
+    exit 1
+fi
+
+#install Azure SDK
+cd /tmp
+if [ -e /tmp/azure-sdk-for-python ]; then
+    mv -f /tmp/azure-sdk-for-python /tmp/azure-sdk-for-python.bak
+fi
+git clone --branch "patch_0.8.1" https://github.com/primecloud-controller-org/azure-sdk-for-python.git >> $LOG_FILE 2>&1
+if [ $? -ne 0 ]; then
+    echo "Error: Azure SDK clone failed." >> $LOG_FILE 2>&1
+    echo "Error: Azure SDK clone failed."
+    exit 1
+fi
+cd /tmp/azure-sdk-for-python
+python setup.py install >> $LOG_FILE 2>&1
+if [ $? -ne 0 ]; then
+    echo "Error: python Azure SDK install failed." >> $LOG_FILE 2>&1
+    echo "Error: python Azure SDK install failed."
+    exit 1
+fi
 
 #sitecustomize.py(utf8)
 if [ -e /usr/local/lib/python2.7/site-packages/sitecustomize.py ]; then
