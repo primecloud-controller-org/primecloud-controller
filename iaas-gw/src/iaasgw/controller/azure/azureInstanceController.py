@@ -91,8 +91,7 @@ class azureInstanceController(object):
         userPassword = self.passwordencryptor.decrypt(userInfo['PASSWORD'], pccSystemInfo['SECRET_KEY'])
 
         if osType == 'Linux':
-            # XXX: rootのsshキー認証が設定できるのが望ましい
-            # Linuxのユーザ名
+            # Linuxのユーザ名 (rootのsshキー認証が設定できるのが望ましい)
             userName = userInfo['USERNAME']
 
             return self.client.generateLinuxConfig(hostName, userName, userPassword, customData)
@@ -171,20 +170,18 @@ class azureInstanceController(object):
         osHardDisk = self._generateOsHardDisk(storageAccount, instanceName, imageName)
 
         # VM作成
-        # XXX: AZURE_INSTANCEテーブルには存在していないが、Azureに存在する場合はどうするか？
         status = self.client.createVirtualMachine(cloudService, instanceName, \
             osConfig, osHardDisk, instanceType, networkConfig, networkName, availabilitySet)
-        # XXX: プライベートIPを取得する前に、VMの作成成功を確認する
+        # プライベートIPを取得する前に、VMの作成成功を確認する
         privateIp = self.client.getVirtualMachineIpAddress(cloudService, instanceName)
         self.logger.debug('      Instance: %s, Status: %s, Private IP Address: %s' \
             % (instanceName, status, privateIp))
 
         # 異常系テストコード
         #status = 'None'
-        # XXX: 非同期操作のステータスを見るべき？
         if status != 'ReadyRole':
             # 新規作成時、VMが起動成功しなかったら、データベースを更新せずに終了
-            # XXX: status ReadyRoleになる前にタイムアウトした場合と、最終的にReadyRoleにならない場合に分けて検討する必要あり。
+            # status ReadyRoleになる前にタイムアウトした場合と、最終的にReadyRoleにならない場合に分けて検討する必要あり。
             raise IaasException("EPROCESS-000918", [instanceName, status])
 
         # データベース更新
@@ -375,7 +372,7 @@ class azureInstanceController(object):
             raise IaasException("EPROCESS-000904", [instanceName])
 
         # データベース更新
-        # XXX: テスト目的で、terminate後のDB状態でstart(作成)できるようにしている
+        # テスト目的で、terminate後のDB状態でstart(作成)できるようにしている
         table = self.conn.getTable("AZURE_INSTANCE")
         updateDict = self.conn.selectOne(table.select(table.c.INSTANCE_NO==instanceNo))
         updateDict["INSTANCE_NAME"] = None
@@ -410,7 +407,7 @@ class azureInstanceController(object):
         userData.update(self.createPuppetUserData())
 
         # VPN情報
-        # XXX: VPNについては別途検討とする
+        #     VPNについては別途検討とする
         #internal = self.platforminfo["internal"]
         #if (internal == 0):
         #    userData.update(self.createVpnUserData(pccInstance))

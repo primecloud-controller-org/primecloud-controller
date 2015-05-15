@@ -101,8 +101,6 @@ class azureVolumeController(object):
         self.logger.info('      Attached DISK_NO: %s to %s, Job Status: %s' % (volumeNo, instanceName, status))
 
         # データベース更新
-        # XXX: もし、AZURE_DISK.INSTANCE_NOとStartVolume instanceNoが異なった場合は？
-        # XXX: 空ボリューム作成時、DISK_NAMEは自動生成だが、後から名前変えた方が管理しやすい
         table = self.conn.getTable("AZURE_DISK")
         updateDict = self.conn.selectOne(table.select(table.c.DISK_NO==volumeNo))
         updateDict["DISK_NAME"] = self.client.getDiskNameAttachedTo(cloudService, instanceName, lun)
@@ -161,7 +159,6 @@ class azureVolumeController(object):
         self.logger.info('      Attached DISK_NO: %s to %s, Job Status: %s' % (volumeNo, instanceName, status))
 
         # データベース更新
-        # XXX: もし、AZURE_DISK.INSTANCE_NOとStartVolume instanceNoが異なった場合は？
         table = self.conn.getTable("AZURE_DISK")
         updateDict = self.conn.selectOne(table.select(table.c.DISK_NO==volumeNo))
         updateDict["INSTANCE_NAME"] = instanceName
@@ -243,7 +240,6 @@ class azureVolumeController(object):
         volume = self.conn.selectOne(table.select(table.c.DISK_NO==volumeNo))
 
         # ボリューム名がない場合はスキップ
-        # XXX: 念のため実機のチェックをするか？
         if (isEmpty(volume['DISK_NAME'])) :
             return
 
