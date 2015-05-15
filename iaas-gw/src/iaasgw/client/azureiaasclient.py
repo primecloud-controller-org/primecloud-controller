@@ -41,10 +41,10 @@ class AzureIaasClient:
 
         self.platformNo = platforminfo["platformNo"]
         self.username = username
-        # XXX: proxyのコード
+        # proxyのコード
 
         # 証明書ファイルを作成
-        # XXX: テンポラリファイルの削除をどうするか要検討
+        #    テンポラリファイルの削除をどうするか要検討
         fd = tempfile.NamedTemporaryFile(prefix='pccazurecert',delete=False)
         fd.writelines(certificate)
         fd.close()
@@ -58,7 +58,7 @@ class AzureIaasClient:
     def waitAsyncOperationFinished(self, asyncOperation, flg=None):
         requestId = asyncOperation.request_id
         while True:
-            # XXX: socket.error: [Errno 104] Connection reset by peer が発生したことがあるので、対処必要
+            #     socket.error: [Errno 104] Connection reset by peer が発生したことがあるので、対処必要
             try:
                 operation = self.sms.get_operation_status(requestId)
                 self.logger.debug('      Asynchronous Request ID: %s, Status: %s' % \
@@ -105,10 +105,9 @@ class AzureIaasClient:
         return network
 
     def getOsImage(self, imageName):
-        # XXX: なぜか、WindowsAzureConflictErrorが発生することがある
         osImages = self.sms.list_os_images()
         for osImage in osImages:
-            # XXX: カテゴリが"User"の場合、ストレージアカウントの考慮も必要
+            #     カテゴリが"User"の場合、ストレージアカウントの考慮も必要
             if osImage.name == imageName:
                 return osImage
         # 名前の一致するイメージが存在しない
@@ -189,7 +188,7 @@ class AzureIaasClient:
             self.logger.error(traceback.format_exc())
             raise IaasException("EPROCESS-000916", [osHardDiskName])
         except WindowsAzureError as e:
-            # XXX: Blobがロックされている場合を想定しているが、他にもこのエラーにかかる可能性あり
+            # Blobがロックされている場合を想定しているが、他にもこのエラーにかかる可能性あり
             self.logger.error(traceback.format_exc())
             raise IaasException("EPROCESS-000916", [osHardDiskName])
         except Exception:
@@ -395,7 +394,7 @@ class AzureIaasClient:
         except WindowsAzureMissingResourceError as e:
             # クラウドサービス/デプロイメントが存在しない(_ERROR_NOT_FOUND)
             return None
-        # XXX: socket.error: [Errno 104] Connection reset by peer が発生したことがあるので、対処必要
+        # socket.error: [Errno 104] Connection reset by peer が発生したことがあるので、対処必要
         else:
             for role in systemProperty.role_instance_list:
                 if role.role_name == roleName:
@@ -405,7 +404,7 @@ class AzureIaasClient:
             return None
 
     def waitVirtualMachineStatus(self, cloudService, roleName, expectedStatus):
-        # XXX: タイムアウト実装必要
+        # タイムアウト実装必要
         while True:
             status = self.getVirtualMachineStatus(cloudService, roleName)
             self.logger.debug('      Virtual machine: %s, Status: %s' % (roleName, status))
@@ -552,7 +551,6 @@ class AzureIaasClient:
 
     def addRole(self, cloudService, instanceName, osConfig, osHardDisk, \
         instanceType, networkConfig, networkName, availabilitySet):
-        # XXX: ネットワーク名が既存デプロイメントのネットワークと一致することを確認すべきか。
         deploymentName = cloudService
         try:
               asyncOperation = self.sms.add_role( \
@@ -579,7 +577,7 @@ class AzureIaasClient:
         #return self.getVirtualMachineStatus(cloudService, instanceName)
 
     def startVirtualMachine(self, cloudService, roleName):
-        # XXX: クラウドサービス名＝デプロイメント名を前提
+        # クラウドサービス名＝デプロイメント名を前提
         deploymentName = cloudService
         try:
           asyncOperation = self.sms.start_role( \
@@ -602,7 +600,7 @@ class AzureIaasClient:
         return self.waitVirtualMachineStatusReadyRole(cloudService, roleName)
 
     def stopVirtualMachine(self, cloudService, roleName):
-        # XXX: クラウドサービス名＝デプロイメント名を前提
+        # クラウドサービス名＝デプロイメント名を前提
         deploymentName = cloudService
         try:
           asyncOperation = self.sms.shutdown_role( \
@@ -616,8 +614,7 @@ class AzureIaasClient:
             self.logger.error(traceback.format_exc())
             raise IaasException("EPROCESS-000907", [roleName])
         else:
-            # XXX: 非同期操作が Failed したことがあった。Failしたあと、VMの状態がStoppedVMになるまで待つのは不適切。
-            # XXX: 非同期操作は Failed になったのに、最終的にVMは停止したことがあった。ただし、しばらくの間、VMのstatusはReadyRoleだった。
+            #  非同期操作が Failed したことがあった。Failしたあと、VMの状態がStoppedVMになるまで待つのは不適切。
             operationStatus = self.waitAsyncOperationFinished(asyncOperation)
             # 異常系テストコード
             #operationStatus = 'Failed'
@@ -702,15 +699,12 @@ class AzureIaasClient:
         if deploymentStatus is None:
             return self.createVirtualMachineDeployment(cloudService, instanceName, osConfig, osHardDisk, instanceType, networkConfig, networkName, availabilitySet)
         else:
-            # XXX: Running以外の時の扱いを決める必要あり
+            # Running以外の時の扱いを決める必要あり
             return self.addRole(cloudService, instanceName, osConfig, osHardDisk, instanceType, networkConfig, networkName, availabilitySet)
 
     def deleteDataVolume(self, storageAccount, mediaLink):
         self._leaseBlob(storageAccount, mediaLink)
         time.sleep(120)
-        #XXX: 下記エラーへの対処
-        #WindowsAzureError: Unknown error (Bad Request)
-        #<Error xmlns="http://schemas.microsoft.com/windowsazure" xmlns:i="http://www.w3.org/2001/XMLSchema-instance"><Code>BadRequest</Code><Message>A disk with name cloud-pccdev10-azure-dev10-user01_AZURE-J02-0-201311181315360171 is currently in use by virtual machine azure-dev10-user01_AZURE-J02 running within hosted service cloud-pccdev10, deployment cloud-pccdev10.</Message></Error>
 
         self._deleteBlob(storageAccount, mediaLink)
 
