@@ -1,1 +1,2 @@
+Defaults:tomcat !requiretty
 tomcat  ALL=NOPASSWD: /usr/sbin/puppetrun, /usr/sbin/puppetca
