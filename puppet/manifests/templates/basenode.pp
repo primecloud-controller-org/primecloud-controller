@@ -86,8 +86,8 @@ class basenode::resource (
                 groups   => ["webmaster","tomcat"],
                 require  => [Class["Basenode"]],
             }
-            }
         }
+    }
     
     ntp::config{ "Default Config" : 
         require  => [Class["Basenode"], Basenode::Node_user ["${puppet_ssh_user}"]],
