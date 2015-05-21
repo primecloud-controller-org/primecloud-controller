@@ -49,7 +49,7 @@ define lvm::detach (
         command => "fuser -muk ${name} || true ",
         onlyif  => "mount | grep ${name}",
     }
-
+    
 #    $syslog_pri="local1.info"
 #    exec { "Log:lvm_${name}" :
 #       command    => "logger -t puppet-manifest -p ${syslog_pri} '${fqdn} : lvmdetach[${name}] is completed'",
@@ -69,7 +69,7 @@ define lvm::config (
     $group    = "root",
     $mode     = "755") {
 
-    file { "${name}":
+    file { "${name}": 
         ensure => directory,
         owner  => "${owner}",
         group  => "${group}",
@@ -78,11 +78,19 @@ define lvm::config (
 
     #for vmware
     if $vgdisk =~ /^\/dev\/disk\/by-path\/.*/ {
-        $vgdev = "${vgdisk}-part1"
-        exec { "scan-scsidisk-${vgdev}" :
-            before  => [ Exec["fdisk-${vgdev}"] ],
-            command => "echo \"- - -\" > /sys/class/scsi_host/host0/scan && sleep 5",
+        file { "/usr/local/bin/scanvmscsidev.sh" :
+            before  => Exec[ "scanvmscsidev" ],
+            mode   => "755" ,
+            owner  => "root" ,
+            group  => "root" ,
+            source => "puppet:///modules/lvm/scanvmscsidev.sh",
         }
+        $vgdev = "${vgdisk}-part1"
+        exec { "scanvmscsidev":
+            before  => [ Exec["fdisk-${vgdev}"] ],
+            command => "/usr/local/bin/scanvmscsidev.sh",
+        }
+
     } else {
         file { "/usr/local/bin/scanscsidev.sh" :
             before  => Exec[ "scanscsidev" ],
@@ -95,7 +103,7 @@ define lvm::config (
         $vgdev = "${vgdisk}1"
         exec { "scanscsidev":
             before  => [ Exec["fdisk-${vgdev}"] ],
-            command => "/usr/local/bin/scanscsidev.sh",
+            command => "/usr/local/bin/scanscsidev.sh ${vgdisk}",
         }
     }
 
@@ -111,7 +119,7 @@ t
 w
 EOF
 sleep 10",
-	creates     => "${vgdev}",
+    creates     => "${vgdev}",
     }
 
     physical_volume { "${vgdev}":
@@ -156,7 +164,7 @@ sleep 10",
         fs_type => "${fstype}",
         require => Logical_volume["${lvname}"]
     }
-
+    
     mount { "${name}":
         device    => "/dev/$vgname/$lvname",
         ensure    => mounted,
