@@ -183,7 +183,7 @@ class apserver::tomcat (
     $tomcat_custom_param_3 =""
 
 ) inherits apserver {
-    $tomcat_version        = "apache-tomcat-6.0.26"
+    $tomcat_version        = "apache-tomcat-6.0.37"
     $tomcat_vgname         = "VGap1"
     $tomcat_lvname         = "LVap01"
     $tomcat_session_type   = "sticky" #for server.xml.erb
