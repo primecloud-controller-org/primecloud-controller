@@ -5,6 +5,9 @@ import sys
 import re
 import json
 import subprocess
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/../lib')
+
 import common.CommonUtils as CommonUtils
 #from common import CommonUtils
 import help.pcchelp as pcchelp
