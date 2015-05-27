@@ -103,7 +103,6 @@ if __name__ == "__main__":
         logger.error(traceback.format_exc())
         sys.exit()
     except WindowsAzureError as e:
-        # XXX: Blobがロックされている場合を想定しているが、他にもこのエラーにかかる可能性あり
         logger.error("deleteOSandDataDisk.py: OS Disk locked.(%s)" % osHardDiskName)
         logger.error(traceback.format_exc())
         sys.exit()
