@@ -176,14 +176,14 @@ if ! [ -e /etc/sudoers.d ]; then
         exit 1
     fi
 fi
-if ! [ -e /etc/sudoers.d/sudoers.pcc ]; then
-    cp -f ${SOFTWARE_DIR}/sudoers.pcc /etc/sudoers.d/
+if ! [ -e /etc/sudoers.d/pcc ]; then
+    cp -f ${SOFTWARE_DIR}/sudoers_pcc /etc/sudoers.d/pcc
     if [ $? -ne 0 ]; then
-        echo "Error: copy failed /etc/sudoers.d/sudoers.pcc"
-        echo "Error: copy failed /etc/sudoers.d/sudoers.pcc" >> $LOG_FILE 2>&1
+        echo "Error: copy failed /etc/sudoers.d/sudoers_pcc"
+        echo "Error: copy failed /etc/sudoers.d/sudoers_pcc" >> $LOG_FILE 2>&1
         exit 1
     fi
-    chmod 440 /etc/sudoers.d/sudoers.pcc
+    chmod 440 /etc/sudoers.d/pcc
 fi
 echo "====END :setting sudo====" >> $LOG_FILE 2>&1
 
@@ -229,10 +229,20 @@ echo "==== START :install puppet module" >> $LOG_FILE 2>&1
 
 #install customized puppetlabs-lvm from github
 yum -y install git >> $LOG_FILE 2>&1
+cd /etc/puppet/modules
 git clone --branch "patch_v0.1.0" https://github.com/primecloud-controller-org/puppetlabs-lvm.git >> $LOG_FILE 2>&1
+if [ $? -ne 0 ]; then
+    echo "Error: LVM puppet module clone failed."
+    echo "Error: LVM puppet module clone failed." >> $LOG_FILE 2>&1
+    exit 1
+fi
 
-mkdir /etc/puppet/modules/lvm
-cp -r puppetlabs-lvm/* /etc/puppet/modules/lvm/
+mv /etc/puppet/modules/puppetlabs-lvm /etc/puppet/modules/lvm >> $LOG_FILE 2>&1
+if [ $? -ne 0 ]; then
+    echo "Error: rename dir /etc/puppet/modules/lvm"
+    echo "Error: rename dir /etc/puppet/modules/lvm" >> $LOG_FILE 2>&1
+    exit 1
+fi
 
 
 echo "==== END :install puppet module"
@@ -745,6 +755,7 @@ chown tomcat:tomcat /opt/adc/log/iaasgw/app.log
 
 #create adc tables;
 cd ${BASE_DIR}
+chmod +x ${BASE_DIR}/createTables.sh
 ${BASE_DIR}/createTables.sh
 
 if [ $? -eq 0 ]; then
@@ -772,6 +783,7 @@ echo "====END :set mysql root password====" >> $LOG_FILE 2>&1
 
 
 #insert Sample Image Data
+chmod +x ${BASE_DIR}/insertSampledata.sh
 ${BASE_DIR}/insertSampledata.sh
 if [ $? -eq 0 ]; then
     echo "success: insert default sample data"  >> $LOG_FILE 2>&1

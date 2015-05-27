@@ -83,12 +83,18 @@ define tomcat::config(
                 owner   => "tomcat",
                 group   => "tomcat",
                 mode    => "755",
-                source  => "puppet:///modules/tomcat/jsvc.i386" ,
+                source  => "puppet:///modules/tomcat/jsvc.i386",
                 require => Exec["rsync-tomcat"],
-                #replace => "${replaceoption}",
         }
     } else {
-        file { "${ap_home}/default/bin/jsvc" : }
+        file { "${ap_home}/default/bin/jsvc" :
+                before  => Service["tomcat"],
+                owner   => "tomcat",
+                group   => "tomcat",
+                mode    => "755",
+                source  => "puppet:///modules/tomcat/jsvc",
+                require => Exec["rsync-tomcat"],
+        }
     }
 
     if $rsync_server {
