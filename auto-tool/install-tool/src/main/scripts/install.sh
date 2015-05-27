@@ -790,6 +790,20 @@ if [ $? -eq 0 ]; then
     echo -e "====success\t\t: insert default sample data"
 fi
 
+#install Niftyimage files
+if ! [ -e ${BASE_DIR}/createNiftyFiles.sh ]; then
+    echo "Error: createNiftyFiles.sh not exist.."
+    echo "Error: createNiftyFiles.sh not exist."  >> $LOG_FILE 2>&1
+    exit 1
+fi
+chmod +x ${BASE_DIR}/createNiftyFiles.sh
+${BASE_DIR}/createNiftyFiles.sh
+if [ $? -ne 0 ]; then
+    echo "Error: failed nifty image files copy."
+    echo "Error: failed nifty image files copy."  >> $LOG_FILE 2>&1
+    exit 1
+fi
+
 #
 #
 #install cron  scripts

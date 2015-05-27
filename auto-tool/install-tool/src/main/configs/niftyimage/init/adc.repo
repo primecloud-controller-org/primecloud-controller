@@ -1,0 +1,41 @@
+[centos-os]
+name=CentOS - Os
+#baseurl=http://172.22.0.23/repository/centos/os/$basearch/
+baseurl=http://repo.primecloud.jp/repository/centos/os/$basearch/
+enabled=0
+gpgcheck=0
+
+[centos-updates]
+name=CentOS - Updates
+#baseurl=http://172.22.0.23/repository/centos/updates/$basearch/
+baseurl=http://repo.primecloud.jp/repository/centos/updates/$basearch/
+enabled=0
+gpgcheck=0
+
+[centos-extras]
+name=CentOS - Extras
+#baseurl=http://172.22.0.23/repository/centos/extras/$basearch/
+baseurl=http://repo.primecloud.jp/repository/centos/extras/$basearch/
+enabled=0
+gpgcheck=0
+
+[epel]
+name=epel
+#baseurl=http://172.22.0.23/repository/epel/$basearch/
+baseurl=http://repo.primecloud.jp/repository/epel/$basearch/
+enabled=0
+gpgcheck=0
+
+[rpmforge]
+name=rpmforge
+#baseurl=http://172.22.0.23/repository/rpmforge/$basearch/
+baseurl=http://repo.primecloud.jp/repository/rpmforge/$basearch/
+enabled=0
+gpgcheck=0
+
+[other]
+name=Other
+#baseurl=http://172.22.0.23/repository/other/$basearch/
+baseurl=http://repo.primecloud.jp/repository/other/$basearch/
+enabled=0
+gpgcheck=0
