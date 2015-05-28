@@ -33,6 +33,7 @@ if [ $? -ne 0 ]; then
     echo "Error: copy failed. niftyimage dir."  >> $LOG_FILE 2>&1
     exit 1
 fi
+mkdir -p ${NIFTYDIR}/niftyimage/geronimo >> $LOG_FILE 2>&1
 cp ${SOFTWARE_DIR}/puppet-server/puppet/modules/geronimo/files/geronimo ${NIFTYDIR}/niftyimage/geronimo >> $LOG_FILE 2>&1
 if [ $? -ne 0 ]; then
     echo "Error: copy failed. geronimo."
@@ -51,6 +52,7 @@ if [ $? -ne 0 ]; then
     echo "Error: copy failed. jdk."  >> $LOG_FILE 2>&1
     exit 1
 fi
+mkdir -p ${NIFTYDIR}/niftyimage/openvpn >> $LOG_FILE 2>&1
 cp /etc/openvpn/easy-rsa/keys/client/client.zip ${NIFTYDIR}/niftyimage/openvpn >> $LOG_FILE 2>&1
 if [ $? -ne 0 ]; then
     echo "Error: copy failed. client.zip."
