@@ -1,9 +1,9 @@
 #Install parameter
 #Change parameters your environment
-PCC_VERSION=2.4.3
+PCC_VERSION=2.4.5
 NIFTY_PARAM=NO
 DOMAIN_NAME="primecloud.jp"
-CLOUD1_SERVICE="172.16.0.0/16"
+CLOUD1_SERVICE="172.16.0.0/16,192.168.1.0/24"
 HOST_NAME=`hostname`
 
 TOMCAT_PASS="tomcat"
