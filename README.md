@@ -1,5 +1,5 @@
 
-Develop branch [![Build Status](https://travis-ci.org/primecloud-controller-org/primecloud-controller.svg?branch=develop)](https://travis-ci.org/primecloud-controller-org/primecloud-controller)
+[![Build Status](https://travis-ci.org/primecloud-controller-org/primecloud-controller.svg?branch=master)](https://travis-ci.org/primecloud-controller-org/primecloud-controller)
 
 ### PrimeCloud Controllerついて
 「PrimeCloud Controller（プライム クラウド コントローラー）」は、プライベートクラウド/パブリッククラウドを簡単なGUI操作で統一的に管理・制御できる、
