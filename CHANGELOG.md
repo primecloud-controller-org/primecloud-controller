@@ -34,6 +34,6 @@ PCC用リポジトリの提供を開始しました。
 ビルド環境
 ----------
 
-[こちら](https://github.com/primecloud-controller-org/primecloud-controller-build)のプロジェクトを使い、ビルドしたものを[公開](http://www.primecloud-controller.org/download/index.html)
+[こちら](https://github.com/primecloud-controller-org/primecloud-controller-build)のプロジェクトを使い、ビルドしたものを[公開](http://www.primecloud-controller.org/download.html)
 しています。
 
