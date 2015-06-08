@@ -14,7 +14,7 @@ fi
 
 cd ${SOFTWARE_DIR}/pcc/sampledata/default
 
-find . -maxdepth 1 -name '*.sql' | while read sql; do
+find . -maxdepth 1 -name '*.sql' | sort -n | while read sql; do
 	mysql adc -u ${ADC_DATABASE_USER} -p${ADC_DATABASE_PASS} < $sql
 done
 
