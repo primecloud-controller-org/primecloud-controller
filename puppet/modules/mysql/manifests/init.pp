@@ -38,8 +38,8 @@ define mysql::stop(
 }
 
 define mysql::config(
-    $server_type   ,
-    $server_id      ="1" ,
+    $server_type,
+    $server_id      ="1",
     $root_username  ="root",
     $root_password_org = "" ,
     $root_password  = "" ,
