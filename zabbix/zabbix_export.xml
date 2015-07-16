@@ -2306,7 +2306,7 @@
         <trigger>
           <description>Ntpd is not running on {HOSTNAME}</description>
           <type>0</type>
-          <expression>{Template_OS_Linux:proc.num[ntpd].last(0)}&lt;0</expression>
+          <expression>{Template_OS_Linux:proc.num[ntpd].last(0)}=0</expression>
           <url></url>
           <status>0</status>
           <priority>3</priority>
@@ -2333,7 +2333,7 @@
         <trigger>
           <description>SSH is not running on {HOSTNAME}</description>
           <type>0</type>
-          <expression>{Template_OS_Linux:proc.num[sshd].last(0)}&lt;0</expression>
+          <expression>{Template_OS_Linux:proc.num[sshd].last(0)}=0</expression>
           <url></url>
           <status>0</status>
           <priority>3</priority>
@@ -2342,7 +2342,7 @@
         <trigger>
           <description>Zabbix_agent is not running on {HOSTNAME}</description>
           <type>0</type>
-          <expression>{Template_OS_Linux:proc.num[zabbix_agentd].last(0)}&lt;0</expression>
+          <expression>{Template_OS_Linux:proc.num[zabbix_agentd].last(0)}=0</expression>
           <url></url>
           <status>0</status>
           <priority>3</priority>
@@ -3593,7 +3593,7 @@
         <trigger>
           <description>Ntpd is not running on {HOSTNAME}</description>
           <type>0</type>
-          <expression>{Template_OS_Linux_AWS:proc.num[ntpd].last(0)}&lt;0</expression>
+          <expression>{Template_OS_Linux_AWS:proc.num[ntpd].last(0)}=0</expression>
           <url></url>
           <status>0</status>
           <priority>3</priority>
@@ -3620,7 +3620,7 @@
         <trigger>
           <description>SSH is not running on {HOSTNAME}</description>
           <type>0</type>
-          <expression>{Template_OS_Linux_AWS:proc.num[sshd].last(0)}&lt;0</expression>
+          <expression>{Template_OS_Linux_AWS:proc.num[sshd].last(0)}=0</expression>
           <url></url>
           <status>0</status>
           <priority>3</priority>
@@ -3629,7 +3629,7 @@
         <trigger>
           <description>Zabbix_agent is not running on {HOSTNAME}</description>
           <type>0</type>
-          <expression>{Template_OS_Linux_AWS:proc.num[zabbix_agentd].last(0)}&lt;0</expression>
+          <expression>{Template_OS_Linux_AWS:proc.num[zabbix_agentd].last(0)}=0</expression>
           <url></url>
           <status>0</status>
           <priority>3</priority>
@@ -4880,7 +4880,7 @@
         <trigger>
           <description>Ntpd is not running on {HOSTNAME}</description>
           <type>0</type>
-          <expression>{Template_OS_Linux_VMware:proc.num[ntpd].last(0)}&lt;0</expression>
+          <expression>{Template_OS_Linux_VMware:proc.num[ntpd].last(0)}=0</expression>
           <url></url>
           <status>0</status>
           <priority>3</priority>
@@ -4907,7 +4907,7 @@
         <trigger>
           <description>SSH is not running on {HOSTNAME}</description>
           <type>0</type>
-          <expression>{Template_OS_Linux_VMware:proc.num[sshd].last(0)}&lt;0</expression>
+          <expression>{Template_OS_Linux_VMware:proc.num[sshd].last(0)}=0</expression>
           <url></url>
           <status>0</status>
           <priority>3</priority>
@@ -4916,7 +4916,7 @@
         <trigger>
           <description>Zabbix_agent is not running on {HOSTNAME}</description>
           <type>0</type>
-          <expression>{Template_OS_Linux_VMware:proc.num[zabbix_agentd].last(0)}&lt;0</expression>
+          <expression>{Template_OS_Linux_VMware:proc.num[zabbix_agentd].last(0)}=0</expression>
           <url></url>
           <status>0</status>
           <priority>3</priority>
