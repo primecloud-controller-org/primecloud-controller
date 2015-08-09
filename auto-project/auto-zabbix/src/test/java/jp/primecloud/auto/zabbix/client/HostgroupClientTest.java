@@ -19,9 +19,9 @@
 package jp.primecloud.auto.zabbix.client;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -30,7 +30,8 @@ import java.util.Properties;
 
 import jp.primecloud.auto.zabbix.ZabbixClient;
 import jp.primecloud.auto.zabbix.ZabbixClientFactory;
-import jp.primecloud.auto.zabbix.client.HostgroupClient;
+import jp.primecloud.auto.zabbix.model.host.Host;
+import jp.primecloud.auto.zabbix.model.host.HostGetParam;
 import jp.primecloud.auto.zabbix.model.hostgroup.Hostgroup;
 import jp.primecloud.auto.zabbix.model.hostgroup.HostgroupCreateParam;
 import jp.primecloud.auto.zabbix.model.hostgroup.HostgroupGetParam;
@@ -41,9 +42,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-
 
 /**
  * <p>
@@ -74,79 +73,118 @@ public class HostgroupClientTest {
     }
 
     @Test
-    @Ignore
-    public void testGet() {
+    public void testGetAll() {
         // 全件取得
         HostgroupGetParam param = new HostgroupGetParam();
         param.setOutput("extend");
+
         List<Hostgroup> hostgroups = client.hostgroup().get(param);
         for (Hostgroup hostgroup : hostgroups) {
             log.trace(ReflectionToStringBuilder.toString(hostgroup, ToStringStyle.SHORT_PREFIX_STYLE));
         }
 
-        if (hostgroups.size() > 0) {
-            // hostgroupidを指定して取得
-            List<String> hostgroupids = new ArrayList<String>();
-            hostgroupids.add(hostgroups.get(0).getGroupid());
-            param.setGroupids(hostgroupids);
-            List<Hostgroup> hostgroups2 = client.hostgroup().get(param);
-
-            assertEquals(1, hostgroups2.size());
-            assertEquals(hostgroups.get(0).getGroupid(), hostgroups2.get(0).getGroupid());
-        }
+        assertTrue(hostgroups.size() > 0);
     }
 
     @Test
-    @Ignore
-    public void testGet2() {
-        // 存在しないhostgroupidを指定した場合
+    public void testGet() {
+        // groupidを指定して取得
         HostgroupGetParam param = new HostgroupGetParam();
-        List<String> hostgroupids = new ArrayList<String>();
-        hostgroupids.add("999999");
-        param.setGroupids(hostgroupids);
+        param.setGroupids(Arrays.asList("2"));
+        param.setOutput("extend");
+
         List<Hostgroup> hostgroups = client.hostgroup().get(param);
-        assertEquals(0, hostgroups.size());
+        assertEquals(1, hostgroups.size());
+        assertEquals("2", hostgroups.get(0).getGroupid());
     }
 
     @Test
-    @Ignore
+    public void testGetNotExist() {
+        // 存在しないhostidを指定した場合
+        HostGetParam param = new HostGetParam();
+        param.setHostids(Arrays.asList("999999"));
+        param.setOutput("extend");
+
+        List<Host> hosts = client.host().get(param);
+        assertEquals(0, hosts.size());
+    }
+
+    @Test
     public void testCreateUpdateDelete() {
         // Create
-        HostgroupCreateParam param = new HostgroupCreateParam();
-        param.setName("TestServer");
-        List<String> hostgroupids = client.hostgroup().create(param);
-        for (String id : hostgroupids) {
-            log.trace(id);
-        }
-        assertEquals(1, hostgroupids.size());
+        String groupid;
+        {
+            HostgroupCreateParam param = new HostgroupCreateParam();
+            param.setName("name1");
 
-        String groupid = hostgroupids.get(0);
+            List<String> groupids = client.hostgroup().create(param);
+            assertEquals(1, groupids.size());
+
+            groupid = groupids.get(0);
+        }
+
+        // Get
+        {
+            HostgroupGetParam param = new HostgroupGetParam();
+            param.setGroupids(Arrays.asList(groupid));
+            param.setOutput("extend");
+
+            List<Hostgroup> hostgroups = client.hostgroup().get(param);
+            assertEquals(1, hostgroups.size());
+
+            Hostgroup hostgroup = hostgroups.get(0);
+            assertEquals(groupid, hostgroup.getGroupid());
+            assertEquals("name1", hostgroup.getName());
+        }
 
         // Update
-        HostgroupUpdateParam param2 = new HostgroupUpdateParam();
-        param2.setGroupid(groupid);
-        param2.setName("TestServerUpdate");
-        List<String> hostgroupids2 = client.hostgroup().update(param2);
-        for (String id : hostgroupids2) {
-            log.trace(id);
+        {
+            HostgroupUpdateParam param = new HostgroupUpdateParam();
+            param.setGroupid(groupid);
+            param.setName("name2");
+
+            List<String> groupids = client.hostgroup().update(param);
+            assertEquals(1, groupids.size());
+            assertEquals(groupid, groupids.get(0));
         }
-        assertEquals(1, hostgroupids2.size());
-        assertEquals(groupid, hostgroupids2.get(0));
+
+        // Get
+        {
+            HostgroupGetParam param = new HostgroupGetParam();
+            param.setGroupids(Arrays.asList(groupid));
+            param.setOutput("extend");
+
+            List<Hostgroup> hostgroups = client.hostgroup().get(param);
+            assertEquals(1, hostgroups.size());
+
+            Hostgroup hostgroup = hostgroups.get(0);
+            assertEquals(groupid, hostgroup.getGroupid());
+            assertEquals("name2", hostgroup.getName());
+        }
 
         // Delete
-        List<String> hostgroupids3 = client.hostgroup().delete(Arrays.asList(groupid));
-        for (String id : hostgroupids3) {
-            log.trace(id);
+        {
+            List<String> groupids = client.hostgroup().delete(Arrays.asList(groupid));
+            assertEquals(1, groupids.size());
+            assertEquals(groupid, groupids.get(0));
         }
-        assertEquals(1, hostgroupids3.size());
-        assertEquals(groupid, hostgroupids3.get(0));
+
+        // Get
+        {
+            HostgroupGetParam param = new HostgroupGetParam();
+            param.setGroupids(Arrays.asList(groupid));
+            param.setOutput("extend");
+
+            List<Hostgroup> hostgroups = client.hostgroup().get(param);
+            assertEquals(0, hostgroups.size());
+        }
     }
 
     @Test
-    @Ignore
-    public void testCreate() {
+    public void testCreateIllegalArgument() {
         // nameを指定していない場合
         HostgroupCreateParam param = new HostgroupCreateParam();
+
         try {
             client.hostgroup().create(param);
             fail();
@@ -156,33 +194,36 @@ public class HostgroupClientTest {
     }
 
     @Test
-    @Ignore
-    public void testCreate2() {
+    public void testCreateExistName() {
         // 事前準備
-        HostgroupCreateParam param = new HostgroupCreateParam();
-        param.setName("TestServer");
-        List<String> hostgroupids = client.hostgroup().create(param);
-        String groupid = hostgroupids.get(0);
+        String groupid;
+        {
+            HostgroupCreateParam param = new HostgroupCreateParam();
+            param.setName("name1");
+            List<String> hostgroupids = client.hostgroup().create(param);
+            groupid = hostgroupids.get(0);
+        }
 
         // 存在するnameを指定した場合
         try {
-            HostgroupCreateParam param2 = new HostgroupCreateParam();
-            param2.setName("TestServer");
-            client.hostgroup().create(param2);
+            HostgroupCreateParam param = new HostgroupCreateParam();
+            param.setName("name1");
+            client.hostgroup().create(param);
             fail();
         } catch (Exception ignore) {
             log.trace(ignore.getMessage());
         } finally {
+            // 事後始末
             client.hostgroup().delete(Arrays.asList(groupid));
         }
     }
 
     @Test
-    @Ignore
-    public void testUpdate() {
+    public void testUpdateIllegalArgument() {
         // groupidを指定していない場合
         HostgroupUpdateParam param = new HostgroupUpdateParam();
-        param.setName("TestServer");
+        param.setName("name1");
+
         try {
             client.hostgroup().update(param);
             fail();
@@ -192,39 +233,45 @@ public class HostgroupClientTest {
     }
 
     @Test
-    @Ignore
-    public void testUpdate2() {
+    public void testUpdateExistName() {
         // 事前準備
-        HostgroupCreateParam param = new HostgroupCreateParam();
-        param.setName("TestServer");
-        List<String> hostgroupids = client.hostgroup().create(param);
-        String groupid = hostgroupids.get(0);
+        String groupid;
+        {
+            HostgroupCreateParam param = new HostgroupCreateParam();
+            param.setName("name1");
+            List<String> hostgroupids = client.hostgroup().create(param);
+            groupid = hostgroupids.get(0);
+        }
 
-        HostgroupCreateParam param2 = new HostgroupCreateParam();
-        param2.setName("TestServer2");
-        List<String> hostgroupids2 = client.hostgroup().create(param2);
-        String groupid2 = hostgroupids2.get(0);
+        String groupid2;
+        {
+            HostgroupCreateParam param = new HostgroupCreateParam();
+            param.setName("name2");
+            List<String> hostgroupids2 = client.hostgroup().create(param);
+            groupid2 = hostgroupids2.get(0);
+        }
 
-        // 存在するgroupidを指定した場合
+        // 存在するnameを指定した場合
         try {
-            HostgroupUpdateParam param3 = new HostgroupUpdateParam();
-            param3.setGroupid(groupid2);
-            param3.setName("TestServer");
-            client.hostgroup().update(param3);
+            HostgroupUpdateParam param = new HostgroupUpdateParam();
+            param.setGroupid(groupid2);
+            param.setName("name1");
+            client.hostgroup().update(param);
         } catch (Exception ignore) {
             log.trace(ignore.getMessage());
         } finally {
-            client.hostgroup().delete(Arrays.asList(groupid));
-            client.hostgroup().delete(Arrays.asList(groupid2));
+            // 事後始末
+            client.hostgroup().delete(Arrays.asList(groupid, groupid2));
         }
     }
 
     @Test
-    @Ignore
-    public void testUpdate3() {
+    public void testUpdateNotExist() {
         // 存在しないgroupidを指定した場合
         HostgroupUpdateParam param = new HostgroupUpdateParam();
         param.setGroupid("999999");
+        param.setName("name1");
+
         try {
             client.hostgroup().update(param);
             fail();
@@ -234,19 +281,18 @@ public class HostgroupClientTest {
     }
 
     @Test
-    @Ignore
-    public void testDelete() {
+    public void testDeleteIllegalArgument() {
         // groupidを指定していない場合
         try {
             client.hostgroup().delete(null);
+            fail();
         } catch (IllegalArgumentException ignore) {
             log.trace(ignore.getMessage());
         }
     }
 
     @Test
-    @Ignore
-    public void testDelete2() {
+    public void testDeleteNotExist() {
         // 存在しないgroupidを指定した場合
         try {
             client.hostgroup().delete(Arrays.asList("999999"));
@@ -257,34 +303,32 @@ public class HostgroupClientTest {
     }
 
     @Test
-    @Ignore
-    public void testGet3() {
+    public void testGetByFilter() {
         // 存在するgroup名を指定した場合
         HostgroupGetParam param = new HostgroupGetParam();
-        Map<String, List<Object>> filter = new HashMap<String, List<Object>>();
-        filter.put("name", Arrays.asList((Object)"Linux servers"));
-        param.setFilter(filter);
         param.setOutput("extend");
 
-        List<Hostgroup> hostgroups = client.hostgroup().get(param);
+        Map<String, List<Object>> filter = new HashMap<String, List<Object>>();
+        filter.put("name", Arrays.asList((Object) "Linux servers"));
+        param.setFilter(filter);
 
+        List<Hostgroup> hostgroups = client.hostgroup().get(param);
         assertEquals(1, hostgroups.size());
         assertEquals("2", hostgroups.get(0).getGroupid());
         assertEquals("Linux servers", hostgroups.get(0).getName());
     }
 
     @Test
-    @Ignore
-    public void testGet4() {
+    public void testGetByFilter2() {
         // 存在しないgroup名を指定した場合
         HostgroupGetParam param = new HostgroupGetParam();
-        Map<String, List<Object>> filter = new HashMap<String, List<Object>>();
-        filter.put("name", Arrays.asList((Object)"dummy"));
-        param.setFilter(filter);
         param.setOutput("extend");
 
-        List<Hostgroup> hostgroups = client.hostgroup().get(param);
+        Map<String, List<Object>> filter = new HashMap<String, List<Object>>();
+        filter.put("name", Arrays.asList((Object) "dummy"));
+        param.setFilter(filter);
 
+        List<Hostgroup> hostgroups = client.hostgroup().get(param);
         assertEquals(0, hostgroups.size());
     }
 

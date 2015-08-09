@@ -19,16 +19,15 @@
 package jp.primecloud.auto.zabbix.client;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
 import jp.primecloud.auto.zabbix.ZabbixClient;
 import jp.primecloud.auto.zabbix.ZabbixClientFactory;
-import jp.primecloud.auto.zabbix.client.HostClient;
 import jp.primecloud.auto.zabbix.model.host.Host;
 import jp.primecloud.auto.zabbix.model.host.HostCreateParam;
 import jp.primecloud.auto.zabbix.model.host.HostGetParam;
@@ -41,9 +40,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-
 
 /**
  * <p>
@@ -74,99 +71,185 @@ public class HostClientTest {
     }
 
     @Test
-    @Ignore
-    public void testGet() {
+    public void testGetAll() {
         // 全件取得
         HostGetParam param = new HostGetParam();
         param.setOutput("extend");
+        param.setSelectGroups("extend");
+        param.setSelectParentTemplates("extend");
+
         List<Host> hosts = client.host().get(param);
         for (Host host : hosts) {
             log.trace(ReflectionToStringBuilder.toString(host, ToStringStyle.SHORT_PREFIX_STYLE));
         }
 
-        if (hosts.size() > 0) {
-            // hostidを指定して取得
-            List<String> hostids = new ArrayList<String>();
-            hostids.add(hosts.get(0).getHostid().toString());
-            param.setHostids(hostids);
-            param.setSelectParentTemplates("extend");
-            param.setSelectGroups("extend");
-            List<Host> hosts2 = client.host().get(param);
-
-            assertEquals(1, hosts2.size());
-            assertEquals(hosts.get(0).getHostid(), hosts2.get(0).getHostid());
-
-            Host host = hosts2.get(0);
-            log.trace(ReflectionToStringBuilder.toString(host, ToStringStyle.SHORT_PREFIX_STYLE));
-            //for (Template template : host.getTemplates()) {
-            for (Template template : host.getParenttemplates()) {
-                log.trace(ReflectionToStringBuilder.toString(template, ToStringStyle.SHORT_PREFIX_STYLE));
-            }
-            for (Hostgroup hostgroup : host.getGroups()) {
-                log.trace(ReflectionToStringBuilder.toString(hostgroup, ToStringStyle.SHORT_PREFIX_STYLE));
-            }
-        }
+        assertTrue(hosts.size() > 0);
     }
 
     @Test
-    @Ignore
-    public void testGet2() {
+    public void testGet() {
+        // hostidを指定して取得
+        HostGetParam param = new HostGetParam();
+        param.setHostids(Arrays.asList("10017"));
+        param.setOutput("extend");
+        param.setSelectGroups("extend");
+        param.setSelectParentTemplates("extend");
+
+        List<Host> hosts = client.host().get(param);
+        assertEquals(1, hosts.size());
+        assertEquals("10017", hosts.get(0).getHostid());
+        assertEquals(1, hosts.get(0).getGroups().size());
+        assertEquals(1, hosts.get(0).getParenttemplates().size());
+    }
+
+    @Test
+    public void testGetNotExist() {
         // 存在しないhostidを指定した場合
         HostGetParam param = new HostGetParam();
-        List<String> hostids = new ArrayList<String>();
-        hostids.add("999999");
-        param.setHostids(hostids);
+        param.setHostids(Arrays.asList("999999"));
+        param.setOutput("extend");
+        param.setSelectGroups("extend");
+        param.setSelectParentTemplates("extend");
+
         List<Host> hosts = client.host().get(param);
         assertEquals(0, hosts.size());
     }
 
     @Test
-    @Ignore
     public void testCreateUpdateDelete() {
         // Create
-        Hostgroup hostgroup = new Hostgroup();
-        hostgroup.setGroupid("4");
-        
-        HostCreateParam param = new HostCreateParam();
-        param.setGroups(Arrays.asList(hostgroup));
-        param.setHost("test.scsk.jp");
-        List<String> hostids = client.host().create(param);
-        for (String id : hostids) {
-            log.trace(id);
-        }
-        assertEquals(1, hostids.size());
+        String hostid;
+        {
+            HostCreateParam param = new HostCreateParam();
+            param.setHost("host1");
+            param.setDns("dns1");
+            param.setIp("127.0.1.1");
+            param.setPort(10001);
+            param.setStatus(1);
+            param.setUseip(1);
 
-        String hostid = hostids.get(0);
+            Hostgroup hostgroup = new Hostgroup();
+            hostgroup.setGroupid("2");
+            param.setGroups(Arrays.asList(hostgroup));
+
+            Template template = new Template();
+            template.setTemplateid("10001");
+            param.setTemplates(Arrays.asList(template));
+
+            List<String> hostids = client.host().create(param);
+            assertEquals(1, hostids.size());
+
+            hostid = hostids.get(0);
+        }
+
+        // Get
+        {
+            HostGetParam param = new HostGetParam();
+            param.setHostids(Arrays.asList(hostid));
+            param.setOutput("extend");
+            param.setSelectGroups("extend");
+            param.setSelectParentTemplates("extend");
+
+            List<Host> hosts = client.host().get(param);
+            assertEquals(1, hosts.size());
+
+            Host host = hosts.get(0);
+            assertEquals(hostid, host.getHostid());
+            assertEquals("host1", host.getHost());
+            assertEquals("dns1", host.getDns());
+            assertEquals("127.0.1.1", host.getIp());
+            assertEquals(10001, host.getPort().intValue());
+            assertEquals(1, host.getStatus().intValue());
+            assertEquals(1, host.getUseip().intValue());
+
+            assertEquals(1, host.getGroups().size());
+            assertEquals("2", host.getGroups().get(0).getGroupid());
+
+            assertEquals(1, host.getParenttemplates().size());
+            assertEquals("10001", host.getParenttemplates().get(0).getTemplateid());
+        }
 
         // Update
-        HostUpdateParam param2 = new HostUpdateParam();
-        param2.setHostid(hostid);
-        param2.setHost("test.scsk.jp.update");
-        List<String> hostids2 = client.host().update(param2);
-        for (String id : hostids2) {
-            log.trace(id);
+        {
+            HostUpdateParam param = new HostUpdateParam();
+            param.setHostid(hostid);
+            param.setHost("host2");
+            param.setDns("dns2");
+            param.setIp("127.0.1.2");
+            param.setPort(10002);
+            param.setStatus(0);
+            param.setUseip(0);
+
+            Hostgroup hostgroup = new Hostgroup();
+            hostgroup.setGroupid("4");
+            param.setGroups(Arrays.asList(hostgroup));
+
+            Template template = new Template();
+            template.setTemplateid("10002");
+            param.setTemplates(Arrays.asList(template));
+
+            List<String> hostids = client.host().update(param);
+            assertEquals(1, hostids.size());
+            assertEquals(hostid, hostids.get(0));
         }
-        assertEquals(1, hostids2.size());
-        assertEquals(hostid, hostids2.get(0));
+
+        // Get
+        {
+            HostGetParam param = new HostGetParam();
+            param.setHostids(Arrays.asList(hostid));
+            param.setOutput("extend");
+            param.setSelectGroups("extend");
+            param.setSelectParentTemplates("extend");
+
+            List<Host> hosts = client.host().get(param);
+            assertEquals(1, hosts.size());
+
+            Host host = hosts.get(0);
+            assertEquals(hostid, host.getHostid());
+            assertEquals("host2", host.getHost());
+            assertEquals("dns2", host.getDns());
+            assertEquals("127.0.1.2", host.getIp());
+            assertEquals(10002, host.getPort().intValue());
+            assertEquals(0, host.getStatus().intValue());
+            assertEquals(0, host.getUseip().intValue());
+
+            assertEquals(1, host.getGroups().size());
+            assertEquals("4", host.getGroups().get(0).getGroupid());
+
+            assertEquals(1, host.getParenttemplates().size());
+            assertEquals("10002", host.getParenttemplates().get(0).getTemplateid());
+        }
 
         // Delete
-        List<String> hostids3 = client.host().delete(Arrays.asList(hostid));
-        for (String id : hostids3) {
-            log.trace(id);
+        {
+            List<String> hostids = client.host().delete(Arrays.asList(hostid));
+            assertEquals(1, hostids.size());
+            assertEquals(hostid, hostids.get(0));
         }
-        assertEquals(1, hostids3.size());
-        assertEquals(hostid, hostids3.get(0));
+
+        // Get
+        {
+            HostGetParam param = new HostGetParam();
+            param.setHostids(Arrays.asList(hostid));
+            param.setOutput("extend");
+            param.setSelectGroups("extend");
+            param.setSelectParentTemplates("extend");
+
+            List<Host> hosts = client.host().get(param);
+            assertEquals(0, hosts.size());
+        }
     }
 
     @Test
-    @Ignore
-    public void testCreate() {
+    public void testCreateIllegalArgument() {
         // hostを指定していない場合
-        Hostgroup hostgroup = new Hostgroup();
-        hostgroup.setGroupid("4");
-        
         HostCreateParam param = new HostCreateParam();
+        param.setDns("dns1");
+
+        Hostgroup hostgroup = new Hostgroup();
+        hostgroup.setGroupid("2");
         param.setGroups(Arrays.asList(hostgroup));
+
         try {
             client.host().create(param);
             fail();
@@ -176,11 +259,12 @@ public class HostClientTest {
     }
 
     @Test
-    @Ignore
-    public void testCreate2() {
+    public void testCreateIllegalArgument2() {
         // groupsを指定していない場合
         HostCreateParam param = new HostCreateParam();
-        param.setHost("test.scsk.jp");
+        param.setHost("host1");
+        param.setDns("dns1");
+
         try {
             client.host().create(param);
             fail();
@@ -190,38 +274,49 @@ public class HostClientTest {
     }
 
     @Test
-    @Ignore
-    public void testCreate3() {
+    public void testCreateExistHost() {
         // 事前準備
-        Hostgroup hostgroup = new Hostgroup();
-        hostgroup.setGroupid("4");
-        
-        HostCreateParam param = new HostCreateParam();
-        param.setGroups(Arrays.asList(hostgroup));
-        param.setHost("test.scsk.jp");
-        List<String> hostids = client.host().create(param);
-        String hostid = hostids.get(0);
+        String hostid;
+        {
+            HostCreateParam param = new HostCreateParam();
+            param.setHost("host1");
+            param.setDns("dns1");
+
+            Hostgroup hostgroup = new Hostgroup();
+            hostgroup.setGroupid("2");
+            param.setGroups(Arrays.asList(hostgroup));
+
+            List<String> hostids = client.host().create(param);
+            hostid = hostids.get(0);
+        }
 
         // 存在するhostを指定した場合
         try {
-            HostCreateParam param2 = new HostCreateParam();
-            param2.setGroups(Arrays.asList(hostgroup));
-            param2.setHost("test.scsk.jp");
-            client.host().create(param2);
+            HostCreateParam param = new HostCreateParam();
+            param.setHost("host1");
+            param.setDns("dns2");
+
+            Hostgroup hostgroup = new Hostgroup();
+            hostgroup.setGroupid("2");
+            param.setGroups(Arrays.asList(hostgroup));
+
+            client.host().create(param);
             fail();
         } catch (Exception ignore) {
             log.trace(ignore.getMessage());
         } finally {
+            // 事後始末
             client.host().delete(Arrays.asList(hostid));
         }
     }
 
     @Test
-    @Ignore
-    public void testUpdate() {
+    public void testUpdateIllegalArgument() {
         // hostidを指定していない場合
         HostUpdateParam param = new HostUpdateParam();
-        param.setHost("test.scsk.jp.update");
+        param.setHost("host1");
+        param.setDns("dns1");
+
         try {
             client.host().update(param);
             fail();
@@ -231,44 +326,58 @@ public class HostClientTest {
     }
 
     @Test
-    @Ignore
-    public void testUpdate2() {
+    public void testUpdateExistHost() {
         // 事前準備
-        Hostgroup hostgroup = new Hostgroup();
-        hostgroup.setGroupid("4");
-        
-        HostCreateParam param = new HostCreateParam();
-        param.setGroups(Arrays.asList(hostgroup));
-        param.setHost("test.scsk.jp");
-        List<String> hostids = client.host().create(param);
-        String hostid = hostids.get(0);
+        String hostid;
+        {
+            HostCreateParam param = new HostCreateParam();
+            param.setHost("host1");
+            param.setDns("dns1");
 
-        HostCreateParam param2 = new HostCreateParam();
-        param2.setGroups(Arrays.asList(hostgroup));
-        param2.setHost("create.test.scsk.jp");
-        List<String> hostids2 = client.host().create(param2);
-        String hostid2 = hostids2.get(0);
+            Hostgroup hostgroup = new Hostgroup();
+            hostgroup.setGroupid("2");
+            param.setGroups(Arrays.asList(hostgroup));
+
+            List<String> hostids = client.host().create(param);
+            hostid = hostids.get(0);
+        }
+
+        String hostid2;
+        {
+            HostCreateParam param = new HostCreateParam();
+            param.setHost("host2");
+            param.setDns("dns2");
+
+            Hostgroup hostgroup = new Hostgroup();
+            hostgroup.setGroupid("2");
+            param.setGroups(Arrays.asList(hostgroup));
+
+            List<String> hostids = client.host().create(param);
+            hostid2 = hostids.get(0);
+        }
 
         // 存在するhostを指定した場合
         try {
-            HostUpdateParam param3 = new HostUpdateParam();
-            param3.setHostid(hostid2);
-            param3.setHost("test.scsk.jp");
-            client.host().update(param3);
+            HostUpdateParam param = new HostUpdateParam();
+            param.setHostid(hostid2);
+            param.setHost("host1");
+            param.setDns("dns2");
+            client.host().update(param);
+            fail();
         } catch (Exception ignore) {
             log.trace(ignore.getMessage());
         } finally {
-            client.host().delete(Arrays.asList(hostid));
-            client.host().delete(Arrays.asList(hostid2));
+            // 事後始末
+            client.host().delete(Arrays.asList(hostid, hostid2));
         }
     }
 
     @Test
-    @Ignore
-    public void testUpdate3() {
+    public void testUpdateNotExist() {
         // 存在しないhostidを指定した場合
         HostUpdateParam param = new HostUpdateParam();
         param.setHostid("999999");
+
         try {
             client.host().update(param);
             fail();
@@ -278,19 +387,18 @@ public class HostClientTest {
     }
 
     @Test
-    @Ignore
-    public void testDelete() {
+    public void testDeleteIllegalArgument() {
         // hostidを指定していない場合
         try {
             client.host().delete(null);
+            fail();
         } catch (IllegalArgumentException ignore) {
             log.trace(ignore.getMessage());
         }
     }
 
     @Test
-    @Ignore
-    public void testDelete2() {
+    public void testDeleteNotExist() {
         // 存在しないhostidを指定した場合
         try {
             client.host().delete(Arrays.asList("999999"));

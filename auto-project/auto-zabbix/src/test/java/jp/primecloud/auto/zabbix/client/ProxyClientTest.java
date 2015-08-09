@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 by SCSK Corporation.
+ * Copyright 2015 by SCSK Corporation.
  * 
  * This file is part of PrimeCloud Controller(TM).
  * 
@@ -22,30 +22,33 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import jp.primecloud.auto.zabbix.ZabbixClient;
 import jp.primecloud.auto.zabbix.ZabbixClientFactory;
-import jp.primecloud.auto.zabbix.model.application.Application;
-import jp.primecloud.auto.zabbix.model.application.ApplicationGetParam;
+import jp.primecloud.auto.zabbix.model.proxy.Proxy;
+import jp.primecloud.auto.zabbix.model.proxy.ProxyGetParam;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * <p>
- * {@link ApplicationClient}のテストクラスです。
+ * {@link ProxyClient}のテストクラスです。
  * </p>
  *
  */
-public class ApplicationClientTest {
+public class ProxyClientTest {
 
-    private Log log = LogFactory.getLog(ApplicationClientTest.class);
+    private Log log = LogFactory.getLog(ProxyClientTest.class);
 
     private ZabbixClient client;
 
@@ -66,57 +69,34 @@ public class ApplicationClientTest {
     }
 
     @Test
+    @Ignore
     public void testGetAll() {
         // 全件取得
-        ApplicationGetParam param = new ApplicationGetParam();
+        ProxyGetParam param = new ProxyGetParam();
         param.setOutput("extend");
 
-        List<Application> applications = client.application().get(param);
-        for (Application application : applications) {
-            log.trace(ReflectionToStringBuilder.toString(application, ToStringStyle.SHORT_PREFIX_STYLE));
+        List<Proxy> proxies = client.proxy().get(param);
+        for (Proxy proxy : proxies) {
+            log.trace(ReflectionToStringBuilder.toString(proxy, ToStringStyle.SHORT_PREFIX_STYLE));
         }
 
-        assertTrue(applications.size() > 0);
+        assertTrue(proxies.size() > 0);
     }
 
     @Test
-    public void testGet() {
-        // applicationidを指定して取得
-        ApplicationGetParam param = new ApplicationGetParam();
-        param.setApplicationids(Arrays.asList("1"));
+    @Ignore
+    public void testGetByFilter() {
+        // 存在するproxy名を指定した場合
+        ProxyGetParam param = new ProxyGetParam();
         param.setOutput("extend");
 
-        List<Application> applications = client.application().get(param);
-        assertEquals(1, applications.size());
-        assertEquals("1", applications.get(0).getApplicationid());
-    }
+        Map<String, List<Object>> filter = new HashMap<String, List<Object>>();
+        filter.put("host", Arrays.asList((Object) "proxy1"));
+        param.setFilter(filter);
 
-    @Test
-    public void testGetNotExist() {
-        // 存在しないapplicationidを指定した場合
-        ApplicationGetParam param = new ApplicationGetParam();
-        param.setApplicationids(Arrays.asList("999999"));
-        param.setOutput("extend");
-
-        List<Application> applications = client.application().get(param);
-        assertEquals(0, applications.size());
-    }
-
-    @Test
-    public void testGetByTemplateid() {
-        String templateid = "10001";
-
-        ApplicationGetParam param = new ApplicationGetParam();
-        // templateidをhostidに指定する
-        param.setHostids(Arrays.asList(templateid));
-        param.setOutput("extend");
-
-        List<Application> applications = client.application().get(param);
-        for (Application application : applications) {
-            log.trace(ReflectionToStringBuilder.toString(application, ToStringStyle.SHORT_PREFIX_STYLE));
-        }
-
-        assertTrue(applications.size() > 0);
+        List<Proxy> proxies = client.proxy().get(param);
+        assertEquals(1, proxies.size());
+        assertEquals("proxy1", proxies.get(0).getHost());
     }
 
 }

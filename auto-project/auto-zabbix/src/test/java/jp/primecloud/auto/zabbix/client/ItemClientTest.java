@@ -18,28 +18,31 @@
  */
 package jp.primecloud.auto.zabbix.client;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-import jp.primecloud.auto.util.MessageUtils;
 import jp.primecloud.auto.zabbix.ZabbixClient;
 import jp.primecloud.auto.zabbix.ZabbixClientFactory;
-import jp.primecloud.auto.zabbix.model.application.Application;
-import jp.primecloud.auto.zabbix.model.application.ApplicationGetParam;
+import jp.primecloud.auto.zabbix.model.host.HostCreateParam;
+import jp.primecloud.auto.zabbix.model.host.HostUpdateParam;
+import jp.primecloud.auto.zabbix.model.hostgroup.Hostgroup;
 import jp.primecloud.auto.zabbix.model.item.Item;
 import jp.primecloud.auto.zabbix.model.item.ItemGetParam;
 import jp.primecloud.auto.zabbix.model.item.ItemUpdateParam;
+import jp.primecloud.auto.zabbix.model.template.Template;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-
 
 public class ItemClientTest {
 
@@ -64,140 +67,185 @@ public class ItemClientTest {
     }
 
     @Test
-    @Ignore
+    public void testGetAll() {
+        // 全件取得
+        ItemGetParam param = new ItemGetParam();
+        param.setHostids(Arrays.asList("10001"));
+        param.setOutput("extend");
+
+        List<Item> items = client.item().get(param);
+        for (Item item : items) {
+            log.trace(ReflectionToStringBuilder.toString(item, ToStringStyle.SHORT_PREFIX_STYLE));
+        }
+
+        assertTrue(items.size() > 0);
+    }
+
+    @Test
     public void testGet() {
-        // 全件取得
+        // itemidを指定して取得
         ItemGetParam param = new ItemGetParam();
-        // List<String> list = new ArrayList<String>();
-        //  list.add("18359");
-        //  param.setItemids(list);
+        param.setItemids(Arrays.asList("10009"));
         param.setOutput("extend");
-        List<String> hostids = new ArrayList<String>();
-        hostids.add("10001");
-        param.setHostids(hostids);
+
         List<Item> items = client.item().get(param);
 
-        for (Item item : items) {
-            log.debug(ReflectionToStringBuilder.toString(item, ToStringStyle.SHORT_PREFIX_STYLE));
-
-        }
-        /*        if (items.size() > 0) {
-                    // ItemIdを指定して取得
-                    List<Integer> itemIds = new ArrayList<Integer>();
-                    itemIds.add(items.get(0).getItemId());
-                    param.set(tempids);
-                    List<Template> templates2 = client.template().get(param);
-
-                    assertEquals(1, templates2.size());
-                    assertEquals(templates.get(0).getTemplateid(), templates2.get(0).getTemplateid());
-                }*/
+        assertTrue(items.size() > 0);
+        assertEquals(1, items.size());
+        assertEquals("10009", items.get(0).getItemid());
     }
 
     @Test
-    @Ignore
-    public void testGetFromItemid() {
+    public void testGetByApplication() {
         ItemGetParam param = new ItemGetParam();
-        List<String> itemids = new ArrayList<String>();
-        itemids.add("83062");
-
-        List<String> hostids = new ArrayList<String>();
-        hostids.add("11367");
-
-        //   param.setItemids(itemids);
-        param.setHostids(hostids);
+        param.setHostids(Arrays.asList("10001"));
+        param.setApplication("OS");
         param.setOutput("extend");
+
         List<Item> items = client.item().get(param);
-        log.debug("itemSize: " + items.size());
+        assertTrue(items.size() > 0);
         for (Item item : items) {
-            log.debug(ReflectionToStringBuilder.toString(item, ToStringStyle.SHORT_PREFIX_STYLE));
+            assertEquals("OS", item.getApplication());
         }
     }
 
     @Test
-    @Ignore
-    public void testGetItemFromTemplateid() {
-        // 全件取得
-        ItemGetParam param = new ItemGetParam();
+    public void testUpdateDelete() {
+        // 事前準備（ホストにテンプレートをリンクして作成）
+        String hostid;
+        {
+            HostCreateParam param = new HostCreateParam();
+            param.setHost("host1");
+            param.setDns("dns1");
 
-        List<String> hostids = new ArrayList<String>();
-        hostids.add("11749");
-        param.setHostids(hostids);
-        param.setApplication("tomcat");
+            Hostgroup hostgroup = new Hostgroup();
+            hostgroup.setGroupid("2");
+            param.setGroups(Arrays.asList(hostgroup));
 
-        param.setOutput("extend");
-        List<Item> items = client.item().get(param);
-        log.debug("item_size :" + items.size());
-        for (Item item : items) {
-            log.debug(ReflectionToStringBuilder.toString(item, ToStringStyle.SHORT_PREFIX_STYLE));
+            Template template = new Template();
+            template.setTemplateid("10001");
+            param.setTemplates(Arrays.asList(template));
 
+            List<String> hostids = client.host().create(param);
+            hostid = hostids.get(0);
+        }
+
+        String itemid;
+        {
+            ItemGetParam param = new ItemGetParam();
+            param.setHostids(Arrays.asList(hostid));
+            param.setOutput("extend");
+
+            List<Item> items = client.item().get(param);
+            itemid = items.get(0).getItemid();
+        }
+
+        // Update
+        {
+            ItemUpdateParam param = new ItemUpdateParam();
+            param.setItemid(itemid);
+            param.setStatus(ItemUpdateParam.DISABLE);
+
+            List<String> itemids = client.item().update(param);
+            assertEquals(1, itemids.size());
+            assertEquals(itemid, itemids.get(0));
+        }
+
+        // Get
+        {
+            ItemGetParam param = new ItemGetParam();
+            param.setItemids(Arrays.asList(itemid));
+            param.setOutput("extend");
+
+            List<Item> items = client.item().get(param);
+            assertEquals(1, items.size());
+
+            Item item = items.get(0);
+            assertEquals(ItemUpdateParam.DISABLE, item.getStatus());
+        }
+
+        // Update
+        {
+            ItemUpdateParam param = new ItemUpdateParam();
+            param.setItemid(itemid);
+            param.setStatus(ItemUpdateParam.ENABLE);
+
+            List<String> itemids = client.item().update(param);
+            assertEquals(1, itemids.size());
+            assertEquals(itemid, itemids.get(0));
+        }
+
+        // Get
+        {
+            ItemGetParam param = new ItemGetParam();
+            param.setItemids(Arrays.asList(itemid));
+            param.setOutput("extend");
+
+            List<Item> items = client.item().get(param);
+            assertEquals(1, items.size());
+
+            Item item = items.get(0);
+            assertEquals(ItemUpdateParam.ENABLE, item.getStatus());
+        }
+
+        // 事前準備（ホストからテンプレートのリンクを削除）
+        {
+            HostUpdateParam param = new HostUpdateParam();
+            param.setHostid(hostid);
+            param.setDns("dns1");
+
+            Hostgroup hostgroup = new Hostgroup();
+            hostgroup.setGroupid("2");
+            param.setGroups(Arrays.asList(hostgroup));
+
+            param.setTemplates(new ArrayList<Template>());
+
+            client.host().update(param);
+        }
+
+        // Delete
+        {
+            List<String> itemids = client.item().delete(Arrays.asList(itemid));
+            assertEquals(1, itemids.size());
+            assertEquals(itemid, itemids.get(0));
+        }
+
+        // Get
+        {
+            ItemGetParam param = new ItemGetParam();
+            param.setItemids(Arrays.asList(itemid));
+            param.setOutput("extend");
+
+            List<Item> items = client.item().get(param);
+            assertEquals(0, items.size());
+        }
+
+        // 事後始末（ホストを削除）
+        {
+            client.host().delete(Arrays.asList(hostid));
         }
     }
 
     @Test
-    @Ignore
-    public void testGetFromApplication() {
-        // 全件取得
-        ItemGetParam param = new ItemGetParam();
-
-        List<String> hostids = new ArrayList<String>();
-        hostids.add("10283");
-        param.setHostids(hostids);
-        param.setApplication("syslog-ng");
-        param.setOutput("extend");
-        List<Item> items = client.item().get(param);
-        log.debug("item_size :" + items.size());
-        for (Item item : items) {
-            log.debug(ReflectionToStringBuilder.toString(item, ToStringStyle.SHORT_PREFIX_STYLE));
-
+    public void testDeleteIllegalArgument() {
+        // itemidを指定していない場合
+        try {
+            client.item().delete(null);
+            fail();
+        } catch (IllegalArgumentException ignore) {
+            log.trace(ignore.getMessage());
         }
     }
 
     @Test
-    @Ignore
-    public void testUpdate() {
-        ItemUpdateParam param = new ItemUpdateParam();
-        param.setItemid("22285");
-        //有効:0 無効にする：1
-        param.setStatus(ItemUpdateParam.ENABLE);
-
-        List<String> items = client.item().update(param);
-        for (String item : items) {
-            log.debug(ReflectionToStringBuilder.toString(item, ToStringStyle.SHORT_PREFIX_STYLE));
-
+    public void testDeleteNotExist() {
+        // 存在しないitemidを指定した場合
+        try {
+            client.item().delete(Arrays.asList("99999999"));
+            fail();
+        } catch (Exception ignore) {
+            log.trace(ignore.getMessage());
         }
-    }
-
-    @Test
-    @Ignore
-    public void testIroiro() {
-
-        //テンプレートIDに紐づくアイテムを取得
-        ApplicationGetParam applicationGetParam = new ApplicationGetParam();
-        //ZabbixAPIのバグでhostidにtemplateidをセットする必要がある
-        applicationGetParam.setHostids(Arrays.asList("10057"));
-        applicationGetParam.setOutput("extend");
-        List<Application> applications = client.application().get(applicationGetParam);
-
-        List<Item> items = new ArrayList<Item>();
-        ItemGetParam itemGetParam = new ItemGetParam();
-        for (Application application : applications) {
-            itemGetParam.setApplication(application.getName());
-            itemGetParam.setHostids(Arrays.asList("11749"));
-            itemGetParam.setOutput("extend");
-            if (log.isInfoEnabled()) {
-                log.info(MessageUtils.getMessage("IPROCESS-100325", "11749", application.getName()));
-            }
-            List<Item> applicationItems = client.item().get(itemGetParam);
-            items.addAll(applicationItems);
-        }
-
-    }
-
-    @Test
-    @Ignore
-    public void testDelete() {
-        List<String> itemids = client.item().delete(Arrays.asList("99999999"));
-        log.debug(itemids);
     }
 
 }
