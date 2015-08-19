@@ -33,6 +33,7 @@ import jp.primecloud.auto.zabbix.model.user.UserAuthenticateParam;
 import jp.primecloud.auto.zabbix.model.user.UserCreateParam;
 import jp.primecloud.auto.zabbix.model.user.UserGetParam;
 import jp.primecloud.auto.zabbix.model.user.UserUpdateParam;
+import jp.primecloud.auto.zabbix.model.usergroup.Usergroup;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -104,10 +105,14 @@ public class UserClientTest {
         // 全件取得
         UserGetParam param = new UserGetParam();
         param.setOutput("extend");
+        param.setSelectUsrgrps("extend");
 
         List<User> users = client.user().get(param);
         for (User user : users) {
             log.trace(ReflectionToStringBuilder.toString(user, ToStringStyle.SHORT_PREFIX_STYLE));
+            for (Usergroup usergroup : user.getUsrgrps()) {
+                log.trace("    " + ReflectionToStringBuilder.toString(usergroup, ToStringStyle.SHORT_PREFIX_STYLE));
+            }
         }
 
         assertTrue(users.size() > 0);
@@ -119,10 +124,12 @@ public class UserClientTest {
         UserGetParam param = new UserGetParam();
         param.setUserids(Arrays.asList("1"));
         param.setOutput("extend");
+        param.setSelectUsrgrps("extend");
 
         List<User> users = client.user().get(param);
         assertEquals(1, users.size());
         assertEquals("1", users.get(0).getUserid());
+        assertTrue(users.get(0).getUsrgrps().size() > 0);
     }
 
     @Test
@@ -149,11 +156,22 @@ public class UserClientTest {
             param.setUrl("url1");
             param.setAutologin(0);
             param.setAutologout(1200);
-            param.setLang("ja_jp");
             param.setRefresh(60);
             param.setType(2);
-            param.setTheme("css_ob.css");
             param.setRowsPerPage(100);
+
+            if (client.checkVersion("2.0.0") < 0) {
+                param.setLang("ja_jp");
+                param.setTheme("css_ob.css");
+            } else {
+                param.setLang("jp_JP");
+                param.setTheme("originalblue");
+
+                // 2.0からusrgrpsの指定が必須
+                Usergroup usergroup = new Usergroup();
+                usergroup.setUsrgrpid("8");
+                param.setUsrgrps(Arrays.asList(usergroup));
+            }
 
             List<String> userids = client.user().create(param);
             assertEquals(1, userids.size());
@@ -166,6 +184,7 @@ public class UserClientTest {
             UserGetParam param = new UserGetParam();
             param.setUserids(Arrays.asList(userid));
             param.setOutput("extend");
+            param.setSelectUsrgrps("extend");
 
             List<User> users = client.user().get(param);
             assertEquals(1, users.size());
@@ -179,11 +198,20 @@ public class UserClientTest {
             assertEquals("url1", user.getUrl());
             assertEquals(0, user.getAutologin().intValue());
             assertEquals(1200, user.getAutologout().intValue());
-            assertEquals("ja_jp", user.getLang());
             assertEquals(60, user.getRefresh().intValue());
             assertEquals(2, user.getType().intValue());
-            assertEquals("css_ob.css", user.getTheme());
             assertEquals(100, user.getRowsPerPage().intValue());
+
+            if (client.checkVersion("2.0.0") < 0) {
+                assertEquals("ja_jp", user.getLang());
+                assertEquals("css_ob.css", user.getTheme());
+            } else {
+                assertEquals("jp_JP", user.getLang());
+                assertEquals("originalblue", user.getTheme());
+
+                assertEquals(1, user.getUsrgrps().size());
+                assertEquals("8", user.getUsrgrps().get(0).getUsrgrpid());
+            }
         }
 
         // Update
@@ -197,11 +225,17 @@ public class UserClientTest {
             param.setUrl("url2");
             param.setAutologin(1);
             param.setAutologout(0);
-            param.setLang("en_gb");
             param.setRefresh(120);
             param.setType(3);
-            param.setTheme("css_bb.css");
             param.setRowsPerPage(200);
+
+            if (client.checkVersion("2.0.0") < 0) {
+                param.setLang("en_gb");
+                param.setTheme("css_bb.css");
+            } else {
+                param.setLang("en_GB");
+                param.setTheme("darkblue");
+            }
 
             List<String> userids = client.user().update(param);
             assertEquals(1, userids.size());
@@ -213,6 +247,7 @@ public class UserClientTest {
             UserGetParam param = new UserGetParam();
             param.setUserids(Arrays.asList(userid));
             param.setOutput("extend");
+            param.setSelectUsrgrps("extend");
 
             List<User> users = client.user().get(param);
             assertEquals(1, users.size());
@@ -225,11 +260,20 @@ public class UserClientTest {
             assertEquals("url2", user.getUrl());
             assertEquals(1, user.getAutologin().intValue());
             assertEquals(0, user.getAutologout().intValue());
-            assertEquals("en_gb", user.getLang());
             assertEquals(120, user.getRefresh().intValue());
             assertEquals(3, user.getType().intValue());
-            assertEquals("css_bb.css", user.getTheme());
             assertEquals(200, user.getRowsPerPage().intValue());
+
+            if (client.checkVersion("2.0.0") < 0) {
+                assertEquals("en_gb", user.getLang());
+                assertEquals("css_bb.css", user.getTheme());
+            } else {
+                assertEquals("en_GB", user.getLang());
+                assertEquals("darkblue", user.getTheme());
+
+                assertEquals(1, user.getUsrgrps().size());
+                assertEquals("8", user.getUsrgrps().get(0).getUsrgrpid());
+            }
         }
 
         // Delete
@@ -244,6 +288,7 @@ public class UserClientTest {
             UserGetParam param = new UserGetParam();
             param.setUserids(Arrays.asList(userid));
             param.setOutput("extend");
+            param.setSelectUsrgrps("extend");
 
             List<User> users = client.user().get(param);
             assertEquals(0, users.size());
@@ -254,6 +299,10 @@ public class UserClientTest {
     public void testCreateIllegalArgument() {
         // aliasを指定していない場合
         UserCreateParam param = new UserCreateParam();
+        param.setPasswd("passwd1");
+        Usergroup usergroup = new Usergroup();
+        usergroup.setUsrgrpid("8");
+        param.setUsrgrps(Arrays.asList(usergroup));
 
         try {
             client.user().create(param);
@@ -264,12 +313,61 @@ public class UserClientTest {
     }
 
     @Test
+    public void testCreateIllegalArgument2() {
+        // passwdを指定していない場合
+        UserCreateParam param = new UserCreateParam();
+        param.setAlias("alias1");
+        Usergroup usergroup = new Usergroup();
+        usergroup.setUsrgrpid("8");
+        param.setUsrgrps(Arrays.asList(usergroup));
+
+        // passwdの指定は2.0から必須になったため、1.8ではユーザを作成でき、2.0以降ではエラーになる
+        if (client.checkVersion("2.0") < 0) {
+            List<String> userids = client.user().create(param);
+            client.user().delete(userids);
+        } else {
+            try {
+                client.user().create(param);
+                fail();
+            } catch (IllegalArgumentException ignore) {
+                log.trace(ignore.getMessage());
+            }
+        }
+    }
+
+    @Test
+    public void testCreateIllegalArgument3() {
+        // usrgrpsを指定していない場合
+        UserCreateParam param = new UserCreateParam();
+        param.setAlias("alias1");
+        param.setPasswd("passwd1");
+
+        // usrgrpsの指定は2.0から必須になったため、1.8ではユーザを作成でき、2.0以降ではエラーになる
+        if (client.checkVersion("2.0") < 0) {
+            List<String> userids = client.user().create(param);
+            client.user().delete(userids);
+        } else {
+            try {
+                client.user().create(param);
+                fail();
+            } catch (IllegalArgumentException ignore) {
+                log.trace(ignore.getMessage());
+            }
+        }
+    }
+
+    @Test
     public void testCreateExistAlias() {
         // 事前準備
         String userid;
         {
             UserCreateParam param = new UserCreateParam();
             param.setAlias("alias1");
+            param.setPasswd("passwd1");
+            Usergroup usergroup = new Usergroup();
+            usergroup.setUsrgrpid("8");
+            param.setUsrgrps(Arrays.asList(usergroup));
+
             List<String> userids = client.user().create(param);
             userid = userids.get(0);
         }
@@ -278,6 +376,11 @@ public class UserClientTest {
         try {
             UserCreateParam param = new UserCreateParam();
             param.setAlias("alias1");
+            param.setPasswd("passwd1");
+            Usergroup usergroup = new Usergroup();
+            usergroup.setUsrgrpid("8");
+            param.setUsrgrps(Arrays.asList(usergroup));
+
             client.user().create(param);
             fail();
         } catch (Exception ignore) {
@@ -309,6 +412,11 @@ public class UserClientTest {
         {
             UserCreateParam param = new UserCreateParam();
             param.setAlias("alias1");
+            param.setPasswd("passwd1");
+            Usergroup usergroup = new Usergroup();
+            usergroup.setUsrgrpid("8");
+            param.setUsrgrps(Arrays.asList(usergroup));
+
             List<String> userids = client.user().create(param);
             userid = userids.get(0);
         }
@@ -317,6 +425,11 @@ public class UserClientTest {
         {
             UserCreateParam param = new UserCreateParam();
             param.setAlias("alias2");
+            param.setPasswd("passwd2");
+            Usergroup usergroup = new Usergroup();
+            usergroup.setUsrgrpid("8");
+            param.setUsrgrps(Arrays.asList(usergroup));
+
             List<String> userids = client.user().create(param);
             userid2 = userids.get(0);
         }

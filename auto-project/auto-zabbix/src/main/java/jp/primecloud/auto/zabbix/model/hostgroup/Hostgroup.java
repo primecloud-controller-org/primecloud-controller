@@ -34,6 +34,8 @@ public class Hostgroup implements Serializable {
 
     private String name;
 
+    private Integer flags;
+
     private Integer internal;
 
     /**
@@ -70,6 +72,24 @@ public class Hostgroup implements Serializable {
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * flagsを取得します。
+     *
+     * @return flags
+     */
+    public Integer getFlags() {
+        return flags;
+    }
+
+    /**
+     * flagsを設定します。
+     *
+     * @param flags Integer
+     */
+    public void setFlags(Integer flags) {
+        this.flags = flags;
     }
 
     /**

@@ -107,16 +107,23 @@ public class TemplateClientTest {
     @Test
     public void testGetByFilter() {
         // 存在するtemplate名を指定した場合
+        String templateName;
+        if (client.checkVersion("2.0") < 0) {
+            templateName = "Template_Linux";
+        } else {
+            templateName = "Template OS Linux";
+        }
+
         TemplateGetParam param = new TemplateGetParam();
         param.setOutput("extend");
 
         Map<String, List<Object>> filter = new HashMap<String, List<Object>>();
-        filter.put("host", Arrays.asList((Object) "Template_Linux"));
+        filter.put("host", Arrays.asList((Object) templateName));
         param.setFilter(filter);
 
         List<Template> templates = client.template().get(param);
         assertEquals(1, templates.size());
-        assertEquals("Template_Linux", templates.get(0).getHost());
+        assertEquals(templateName, templates.get(0).getHost());
     }
 
     @Test

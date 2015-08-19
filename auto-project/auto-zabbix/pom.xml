@@ -51,6 +51,7 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.18.1</version>
 				<configuration>
 					<excludes>
 						<exclude>jp/primecloud/auto/zabbix/client/APIInfoClientTest.java</exclude>

@@ -24,7 +24,7 @@ import net.sf.json.processors.PropertyNameProcessor;
 
 /**
  * <p>
- * TODO: クラスコメントを記述
+ * JSONのキーをJavaのプロパティ名にマッピングするクラスです。
  * </p>
  *
  */
@@ -34,7 +34,7 @@ public class JavaPropertyNameProcessor implements PropertyNameProcessor {
      * {@inheritDoc}
      */
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     public String processPropertyName(Class beanClass, String name) {
         if (name == null || name.length() == 0) {
             return name;

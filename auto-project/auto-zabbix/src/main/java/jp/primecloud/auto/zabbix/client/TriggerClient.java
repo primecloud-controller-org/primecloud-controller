@@ -18,18 +18,15 @@
  */
 package jp.primecloud.auto.zabbix.client;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import jp.primecloud.auto.zabbix.ZabbixAccessor;
 import jp.primecloud.auto.zabbix.model.trigger.Trigger;
 import jp.primecloud.auto.zabbix.model.trigger.TriggerGetParam;
-
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
 import net.sf.json.util.PropertyFilter;
-
 
 /**
  * <p>
@@ -62,24 +59,22 @@ public class TriggerClient {
      */
     @SuppressWarnings("unchecked")
     public List<Trigger> get(TriggerGetParam param) {
-        //2012.10.24 現在、PCCでは使用していない
-//        JSONObject params = JSONObject.fromObject(param, defaultConfig);
-//        JSONArray result = (JSONArray) accessor.execute("trigger.get", params);
-//
-//        JsonConfig config = defaultConfig.copy();
-//        config.setCollectionType(List.class);
-//        config.setRootClass(Trigger.class);
-//        config.setJavaPropertyFilter(new PropertyFilter() {
-//            @Override
-//            public boolean apply(Object source, String name, Object value) {
-//                if ("hosts".equals(name)) {
-//                    return true;
-//                }
-//                return false;
-//            }
-//        });
-//
-//        return (List<Trigger>) JSONArray.toCollection(result, config);
-        return new ArrayList<Trigger>();
+        JSONObject params = JSONObject.fromObject(param, defaultConfig);
+        JSONArray result = (JSONArray) accessor.execute("trigger.get", params);
+
+        JsonConfig config = defaultConfig.copy();
+        config.setCollectionType(List.class);
+        config.setRootClass(Trigger.class);
+        config.setJavaPropertyFilter(new PropertyFilter() {
+            @Override
+            public boolean apply(Object source, String name, Object value) {
+                if ("hosts".equals(name)) {
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        return (List<Trigger>) JSONArray.toCollection(result, config);
     }
 }

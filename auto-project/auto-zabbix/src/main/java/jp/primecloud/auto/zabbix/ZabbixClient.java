@@ -90,7 +90,7 @@ public class ZabbixClient {
         JsonConfig config = new JsonConfig();
         PropertyNameProcessorMatcher matcher = new PropertyNameProcessorMatcher() {
             @Override
-            @SuppressWarnings("unchecked")
+            @SuppressWarnings("rawtypes")
             public Object getMatch(Class target, Set set) {
                 Object key = DEFAULT.getMatch(target, set);
                 if (key == null) {
@@ -105,6 +105,17 @@ public class ZabbixClient {
         config.registerJsonPropertyNameProcessor(Object.class, new JsonPropertyNameProcessor());
         config.setJsonPropertyFilter(new NullPropertyFilter());
         return config;
+    }
+
+    /**
+     * API実行対象のZabbix Serverのバージョンと指定したバージョンを比較します。<br/>
+     * 指定したバージョンと同じであれば0、指定したバージョンより後であれば0より大きい値、指定したバージョンより前であれば0より小さい値を返します。
+     * 
+     * @param zabbixVersion Zabbixバージョン
+     * @return
+     */
+    public int checkVersion(String zabbixVersion) {
+        return accessor.checkVersion(zabbixVersion);
     }
 
     public ZabbixAccessor getAccessor() {

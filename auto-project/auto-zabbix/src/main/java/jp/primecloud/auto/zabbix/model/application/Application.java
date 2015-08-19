@@ -23,7 +23,6 @@ import java.util.List;
 
 import jp.primecloud.auto.zabbix.model.host.Host;
 
-
 /**
  * <p>
  * Applicationのエンティティクラスです。
@@ -36,9 +35,13 @@ public class Application implements Serializable {
 
     private String applicationid;
 
+    private String hostid;
+
     private List<Host> hosts;
 
     private String name;
+
+    private List<String> templateids;
 
     private String templateid;
 
@@ -58,6 +61,24 @@ public class Application implements Serializable {
      */
     public void setApplicationid(String applicationid) {
         this.applicationid = applicationid;
+    }
+
+    /**
+     * hostidを取得します。
+     *
+     * @return hostid
+     */
+    public String getHostid() {
+        return hostid;
+    }
+
+    /**
+     * hostidを設定します。
+     *
+     * @param hostid String
+     */
+    public void setHostid(String hostid) {
+        this.hostid = hostid;
     }
 
     /**
@@ -94,6 +115,24 @@ public class Application implements Serializable {
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * templateidsを取得します。
+     *
+     * @return templateids
+     */
+    public List<String> getTemplateids() {
+        return templateids;
+    }
+
+    /**
+     * templateidsを設定します。
+     *
+     * @param templateids List<String>
+     */
+    public void setTemplateids(List<String> templateids) {
+        this.templateids = templateids;
     }
 
     /**

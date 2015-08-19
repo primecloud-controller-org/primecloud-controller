@@ -19,6 +19,9 @@
 package jp.primecloud.auto.zabbix.model.user;
 
 import java.io.Serializable;
+import java.util.List;
+
+import jp.primecloud.auto.zabbix.model.usergroup.Usergroup;
 
 /**
  * <p>
@@ -61,6 +64,8 @@ public class User implements Serializable {
     private Integer attemptClock;
 
     private Integer rowsPerPage;
+
+    private List<Usergroup> usrgrps;
 
     /**
      * useridを取得します。
@@ -348,6 +353,25 @@ public class User implements Serializable {
      */
     public void setRowsPerPage(Integer rowsPerPage) {
         this.rowsPerPage = rowsPerPage;
+    }
+
+    /**
+     * usrgrpsを取得します。
+     *
+     * @return usrgrps
+     */
+
+    public List<Usergroup> getUsrgrps() {
+        return usrgrps;
+    }
+
+    /**
+     * usrgrpsを設定します。
+     *
+     * @param usrgrps usrgrps
+     */
+    public void setUsrgrps(List<Usergroup> usrgrps) {
+        this.usrgrps = usrgrps;
     }
 
 }

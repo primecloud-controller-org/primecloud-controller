@@ -25,7 +25,6 @@ import java.util.Map;
 
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.zabbix.model.ResponseError;
-
 import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 
@@ -38,7 +37,6 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 
 /**
  * <p>
@@ -64,13 +62,14 @@ public class ZabbixAccessor {
 
     private int id;
 
+    private String apiVersion;
+
     private ZabbixAccessor(){}
 
     public static ZabbixAccessor getInstance(HttpClient httpClient, String apiUrl, String username, String password) {
         zAccessor.init(httpClient, apiUrl, username, password);
         return zAccessor;
     }
-
 
     public void init(HttpClient httpClient, String apiUrl, String username, String password) {
         //設定されていなければ設定する
@@ -183,6 +182,53 @@ public class ZabbixAccessor {
         }
 
         return jsonResponse;
+    }
+
+    /**
+     * API実行対象のZabbix Serverのバージョンと指定したバージョンを比較します。<br/>
+     * 指定したバージョンと同じであれば0、指定したバージョンより後であれば0より大きい値、指定したバージョンより前であれば0より小さい値を返します。
+     * 
+     * @param zabbixVersion Zabbixバージョン
+     * @return
+     */
+    public int checkVersion(String zabbixVersion) {
+        if (apiVersion == null) {
+            apiVersion = (String) this.execute("apiinfo.version", null);
+        }
+
+        return compareVersion(apiVersion, zabbixVersion);
+    }
+
+    protected int compareVersion(String apiVersion, String zabbixVersion) {
+        int version1;
+        {
+            String[] array = apiVersion.split("\\.");
+            version1 = Integer.parseInt(array[0]) * 1000 * 1000;
+            version1 += Integer.parseInt(array[1]) * 1000;
+            version1 += (array.length == 3) ? Integer.parseInt(array[2]) : 0;
+        }
+
+        int version2;
+        {
+            String[] array = zabbixVersion.split("\\.");
+            version2 = Integer.parseInt(array[0]) * 1000 * 1000;
+            version2 += Integer.parseInt(array[1]) * 1000;
+            version2 += (array.length == 3) ? Integer.parseInt(array[2]) : 0;
+
+            if (version2 <= 1008000) {
+                version2 = 1000000;
+            } else if (version2 == 1008001) {
+                version2 = 1001000;
+            } else if (version2 == 1008002) {
+                version2 = 1002000;
+            } else if (version2 < 2000000) {
+                version2 = 1003000;
+            } else if (version2 <= 2000003) {
+                version2 = 1004000;
+            }
+        }
+
+        return version1 - version2;
     }
 
 }

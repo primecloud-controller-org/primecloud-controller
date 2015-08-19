@@ -18,7 +18,10 @@
  */
 package jp.primecloud.auto.zabbix.client;
 
-import java.util.ArrayList;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -32,12 +35,15 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
-
+/**
+ * <p>
+ * {@link TriggerClient}のテストクラスです。
+ * </p>
+ *
+ */
 public class TriggerClientTest {
-
 
     private Log log = LogFactory.getLog(TriggerClientTest.class);
 
@@ -60,32 +66,32 @@ public class TriggerClientTest {
     }
 
     @Test
-    @Ignore
-    public void testGet() {
+    public void testGetAll() {
         // 全件取得
         TriggerGetParam param = new TriggerGetParam();
-     //    List<String> list = new ArrayList<String>();
-      //    list.add("19944");
-     //     param.setTriggerids(list);
+        param.setHostids(Arrays.asList("10001"));
         param.setOutput("extend");
-        List<String> hostids = new ArrayList<String>();
-        hostids.add("10001");
-        param.setHostids(hostids);
+
+        List<Trigger> triggers = client.trigger().get(param);
+        for (Trigger trigger : triggers) {
+            log.trace(ReflectionToStringBuilder.toString(trigger, ToStringStyle.SHORT_PREFIX_STYLE));
+        }
+
+        assertTrue(triggers.size() > 0);
+    }
+
+    @Test
+    public void testGet() {
+        // itemidを指定して取得
+        TriggerGetParam param = new TriggerGetParam();
+        param.setTriggerids(Arrays.asList("10010", "10011"));
+        param.setOutput("extend");
+
         List<Trigger> triggers = client.trigger().get(param);
 
-        for (Trigger trigger : triggers) {
-            log.debug(ReflectionToStringBuilder.toString(trigger, ToStringStyle.SHORT_PREFIX_STYLE));
-
-        }
-        /*        if (triggers.size() > 0) {
-                    // TriggerIdを指定して取得
-                    List<Integer> triggerIds = new ArrayList<Integer>();
-                    triggerIds.add(triggers.get(0).getTriggerId());
-                    param.set(tempids);
-                    List<Template> templates2 = client.template().get(param);
-
-                    assertEquals(1, templates2.size());
-                    assertEquals(templates.get(0).getTemplateid(), templates2.get(0).getTemplateid());
-                }*/
+        assertEquals(2, triggers.size());
+        assertTrue("10010".equals(triggers.get(0).getTriggerid()) || "10011".equals(triggers.get(0).getTriggerid()));
+        assertTrue("10010".equals(triggers.get(1).getTriggerid()) || "10011".equals(triggers.get(1).getTriggerid()));
     }
+
 }

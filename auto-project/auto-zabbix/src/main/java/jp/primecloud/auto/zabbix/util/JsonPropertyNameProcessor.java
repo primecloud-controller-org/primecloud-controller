@@ -20,11 +20,13 @@ package jp.primecloud.auto.zabbix.util;
 
 import java.util.Locale;
 
+import jp.primecloud.auto.zabbix.model.host.HostGetParam;
+import jp.primecloud.auto.zabbix.model.user.UserGetParam;
 import net.sf.json.processors.PropertyNameProcessor;
 
 /**
  * <p>
- * TODO: クラスコメントを記述
+ * Javaのプロパティ名をJSONのキーにマッピングするクラスです。
  * </p>
  *
  */
@@ -34,10 +36,25 @@ public class JsonPropertyNameProcessor implements PropertyNameProcessor {
      * {@inheritDoc}
      */
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     public String processPropertyName(Class beanClass, String name) {
-        if (name == null || name.length() == 0 || "selectParentTemplates".equals(name)) {
+        if (name == null || name.length() == 0) {
             return name;
+        }
+
+        if (beanClass != null) {
+            if (HostGetParam.class.isAssignableFrom(beanClass)) {
+                if (name.equals("selectParentTemplates")) {
+                    return name;
+                } else if (name.equals("selectGroups")) {
+                    return name;
+                }
+            }
+            if (UserGetParam.class.isAssignableFrom(beanClass)) {
+                if (name.equals("selectUsrgrps")) {
+                    return name;
+                }
+            }
         }
 
         StringBuilder sb = new StringBuilder();

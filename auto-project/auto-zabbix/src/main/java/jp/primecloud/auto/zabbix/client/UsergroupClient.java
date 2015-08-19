@@ -18,6 +18,7 @@
  */
 package jp.primecloud.auto.zabbix.client;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jp.primecloud.auto.zabbix.ZabbixAccessor;
@@ -26,11 +27,9 @@ import jp.primecloud.auto.zabbix.model.usergroup.UsergroupCreateParam;
 import jp.primecloud.auto.zabbix.model.usergroup.UsergroupGetParam;
 import jp.primecloud.auto.zabbix.model.usergroup.UsergroupMassAddParam;
 import jp.primecloud.auto.zabbix.model.usergroup.UsergroupUpdateParam;
-
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
-
 
 /**
  * <p>
@@ -74,17 +73,27 @@ public class UsergroupClient {
     }
 
     /**
-     * TODO: メソッドコメントを記述
+     * ユーザグループ情報を作成します。<br/>
+     * nameパラメータを必ず指定する必要があります。<br/>
+     * 既に存在するユーザグループのnameを指定した場合、例外をスローします。
      *
-     * @param param
-     * @return
+     * @param param {@link UsergroupCreateParam}
+     * @return 作成されたユーザグループ情報のusrgrpidのリスト
      */
     @SuppressWarnings("unchecked")
     public List<String> create(UsergroupCreateParam param) {
         if (param.getName() == null || param.getName().length() == 0) {
             throw new IllegalArgumentException("name is required.");
         }
+
         JSONObject params = JSONObject.fromObject(param, defaultConfig);
+        if (accessor.checkVersion("2.0") >= 0) {
+            // api_accessは2.0以降で廃止されたパラメータ
+            if (params.containsKey("api_access")) {
+                params.remove("api_access");
+            }
+        }
+
         JSONObject result = (JSONObject) accessor.execute("usergroup.create", params);
 
         JSONArray usrgrpids = result.getJSONArray("usrgrpids");
@@ -100,7 +109,6 @@ public class UsergroupClient {
      * @param param {@link UsergroupMassAddParam}
      * @return 更新されたユーザグループ情報のusrgrpidのリスト
      */
-    @SuppressWarnings("unchecked")
     public List<String> massAdd(UsergroupMassAddParam param) {
         if (param.getUserids() == null || param.getUserids().isEmpty()) {
             throw new IllegalArgumentException("userids is required.");
@@ -115,7 +123,14 @@ public class UsergroupClient {
         JsonConfig config = defaultConfig.copy();
         config.setCollectionType(List.class);
         config.setRootClass(String.class);
-        return (List<String>) JSONArray.toCollection(usrgrpids, config);
+
+        // Zabbix 2.2.9でusrgrpidsが数値のArrayとして返ってくることへの対応
+        List<?> ids = (List<?>) JSONArray.toCollection(usrgrpids, config);
+        List<String> resultIds = new ArrayList<String>();
+        for (Object id : ids) {
+            resultIds.add(id.toString());
+        }
+        return resultIds;
     }
 
     /**
@@ -129,7 +144,15 @@ public class UsergroupClient {
         if (param.getUsrgrpid() == null || param.getUsrgrpid().length() == 0) {
             throw new IllegalArgumentException("usrgrpid is required.");
         }
+
         JSONObject params = JSONObject.fromObject(param, defaultConfig);
+        if (accessor.checkVersion("2.0") >= 0) {
+            // api_accessは2.0以降で廃止されたパラメータ
+            if (params.containsKey("api_access")) {
+                params.remove("api_access");
+            }
+        }
+
         JSONObject result = (JSONObject) accessor.execute("usergroup.update", params);
 
         JSONArray usrgrpids = result.getJSONArray("usrgrpids");
@@ -140,23 +163,25 @@ public class UsergroupClient {
     }
 
     /**
-     * TODO: メソッドコメントを記述
+     * ユーザグループ情報を削除します。<br/>
+     * usrgrpidsパラメータを必ず指定する必要があります。<br/>
+     * 存在しないusrgrpidを指定した場合、空のリストを返します。
      *
-     * @param param
-     * @return
+     * @param usrgrpids usrgrpids
+     * @return 削除したユーザグループ情報のusrgrpidのリスト
      */
     @SuppressWarnings("unchecked")
-    public List<String> delete(List<String> groupids) {
-        if (groupids == null || groupids.isEmpty()) {
-            throw new IllegalArgumentException("groupid is required.");
-    }
-        JSONArray params = JSONArray.fromObject(groupids, defaultConfig);
+    public List<String> delete(List<String> usrgrpids) {
+        if (usrgrpids == null || usrgrpids.isEmpty()) {
+            throw new IllegalArgumentException("usrgrpid is required.");
+        }
+        JSONArray params = JSONArray.fromObject(usrgrpids, defaultConfig);
         JSONObject result = (JSONObject) accessor.execute("usergroup.delete", params);
 
-        JSONArray usrgrpids = result.getJSONArray("usrgrpids");
+        JSONArray resultUsrgrpids = result.getJSONArray("usrgrpids");
         JsonConfig config = defaultConfig.copy();
         config.setCollectionType(List.class);
         config.setRootClass(String.class);
-        return (List<String>) JSONArray.toCollection(usrgrpids, config);
+        return (List<String>) JSONArray.toCollection(resultUsrgrpids, config);
     }
 }

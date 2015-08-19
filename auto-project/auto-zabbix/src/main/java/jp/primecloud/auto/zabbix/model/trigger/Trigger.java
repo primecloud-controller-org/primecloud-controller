@@ -32,6 +32,8 @@ public class Trigger implements Serializable {
 
     private String triggerid;
 
+    private String hostid;
+
     private String expression;
 
     private String description;
@@ -56,6 +58,12 @@ public class Trigger implements Serializable {
 
     private Integer type;
 
+    private Integer state;
+
+    private Integer flags;
+
+    private Integer valueFlags;
+
     /**
      * triggeridを取得します。
      *
@@ -72,6 +80,25 @@ public class Trigger implements Serializable {
      */
     public void setTriggerid(String triggerid) {
         this.triggerid = triggerid;
+    }
+
+    /**
+     * hostidを取得します。
+     *
+     * @return hostid
+     */
+
+    public String getHostid() {
+        return hostid;
+    }
+
+    /**
+     * hostidを設定します。
+     *
+     * @param hostid hostid
+     */
+    public void setHostid(String hostid) {
+        this.hostid = hostid;
     }
 
     /**
@@ -288,6 +315,63 @@ public class Trigger implements Serializable {
      */
     public void setType(Integer type) {
         this.type = type;
+    }
+
+    /**
+     * stateを取得します。
+     *
+     * @return state
+     */
+
+    public Integer getState() {
+        return state;
+    }
+
+    /**
+     * stateを設定します。
+     *
+     * @param state state
+     */
+    public void setState(Integer state) {
+        this.state = state;
+    }
+
+    /**
+     * flagsを取得します。
+     *
+     * @return flags
+     */
+
+    public Integer getFlags() {
+        return flags;
+    }
+
+    /**
+     * flagsを設定します。
+     *
+     * @param flags flags
+     */
+    public void setFlags(Integer flags) {
+        this.flags = flags;
+    }
+
+    /**
+     * valueFlagsを取得します。
+     *
+     * @return valueFlags
+     */
+
+    public Integer getValueFlags() {
+        return valueFlags;
+    }
+
+    /**
+     * valueFlagsを設定します。
+     *
+     * @param valueFlags valueFlags
+     */
+    public void setValueFlags(Integer valueFlags) {
+        this.valueFlags = valueFlags;
     }
 
 }

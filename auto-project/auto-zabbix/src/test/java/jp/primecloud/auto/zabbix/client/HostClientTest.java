@@ -33,6 +33,7 @@ import jp.primecloud.auto.zabbix.model.host.HostCreateParam;
 import jp.primecloud.auto.zabbix.model.host.HostGetParam;
 import jp.primecloud.auto.zabbix.model.host.HostUpdateParam;
 import jp.primecloud.auto.zabbix.model.hostgroup.Hostgroup;
+import jp.primecloud.auto.zabbix.model.hostinterface.Hostinterface;
 import jp.primecloud.auto.zabbix.model.template.Template;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
@@ -89,17 +90,28 @@ public class HostClientTest {
     @Test
     public void testGet() {
         // hostidを指定して取得
+        String hostid;
+        if (client.checkVersion("2.0") < 0) {
+            hostid = "10017";
+        } else {
+            hostid = "10084";
+        }
+
         HostGetParam param = new HostGetParam();
-        param.setHostids(Arrays.asList("10017"));
+        param.setHostids(Arrays.asList(hostid));
         param.setOutput("extend");
         param.setSelectGroups("extend");
         param.setSelectParentTemplates("extend");
 
         List<Host> hosts = client.host().get(param);
         assertEquals(1, hosts.size());
-        assertEquals("10017", hosts.get(0).getHostid());
+        assertEquals(hostid, hosts.get(0).getHostid());
         assertEquals(1, hosts.get(0).getGroups().size());
-        assertEquals(1, hosts.get(0).getParenttemplates().size());
+        if (client.checkVersion("2.0") < 0) {
+            assertEquals(1, hosts.get(0).getParenttemplates().size());
+        } else {
+            assertEquals(2, hosts.get(0).getParenttemplates().size());
+        }
     }
 
     @Test
@@ -115,6 +127,9 @@ public class HostClientTest {
         assertEquals(0, hosts.size());
     }
 
+    /*
+     * Zabbix 1.8のインターフェースによる動作テスト
+     */
     @Test
     public void testCreateUpdateDelete() {
         // Create
@@ -169,6 +184,14 @@ public class HostClientTest {
             assertEquals("10001", host.getParenttemplates().get(0).getTemplateid());
         }
 
+        // 更新後のtemplateid
+        String templateid2;
+        if (client.checkVersion("2.0") < 0) {
+            templateid2 = "10002";
+        } else {
+            templateid2 = "10104";
+        }
+
         // Update
         {
             HostUpdateParam param = new HostUpdateParam();
@@ -185,7 +208,7 @@ public class HostClientTest {
             param.setGroups(Arrays.asList(hostgroup));
 
             Template template = new Template();
-            template.setTemplateid("10002");
+            template.setTemplateid(templateid2);
             param.setTemplates(Arrays.asList(template));
 
             List<String> hostids = client.host().update(param);
@@ -217,7 +240,256 @@ public class HostClientTest {
             assertEquals("4", host.getGroups().get(0).getGroupid());
 
             assertEquals(1, host.getParenttemplates().size());
-            assertEquals("10002", host.getParenttemplates().get(0).getTemplateid());
+            assertEquals(templateid2, host.getParenttemplates().get(0).getTemplateid());
+        }
+
+        // Update (minimal)
+        {
+            HostUpdateParam param = new HostUpdateParam();
+            param.setHostid(hostid);
+            param.setHost("host3");
+
+            List<String> hostids = client.host().update(param);
+            assertEquals(1, hostids.size());
+            assertEquals(hostid, hostids.get(0));
+        }
+
+        // Get
+        {
+            HostGetParam param = new HostGetParam();
+            param.setHostids(Arrays.asList(hostid));
+            param.setOutput("extend");
+            param.setSelectGroups("extend");
+            param.setSelectParentTemplates("extend");
+
+            List<Host> hosts = client.host().get(param);
+            assertEquals(1, hosts.size());
+
+            Host host = hosts.get(0);
+            assertEquals(hostid, host.getHostid());
+            assertEquals("host3", host.getHost());
+            assertEquals("dns2", host.getDns());
+            assertEquals("127.0.1.2", host.getIp());
+            assertEquals(10002, host.getPort().intValue());
+            assertEquals(0, host.getStatus().intValue());
+            assertEquals(0, host.getUseip().intValue());
+
+            assertEquals(1, host.getGroups().size());
+            assertEquals("4", host.getGroups().get(0).getGroupid());
+
+            assertEquals(1, host.getParenttemplates().size());
+            assertEquals(templateid2, host.getParenttemplates().get(0).getTemplateid());
+        }
+
+        // Delete
+        {
+            List<String> hostids = client.host().delete(Arrays.asList(hostid));
+            assertEquals(1, hostids.size());
+            assertEquals(hostid, hostids.get(0));
+        }
+
+        // Get
+        {
+            HostGetParam param = new HostGetParam();
+            param.setHostids(Arrays.asList(hostid));
+            param.setOutput("extend");
+            param.setSelectGroups("extend");
+            param.setSelectParentTemplates("extend");
+
+            List<Host> hosts = client.host().get(param);
+            assertEquals(0, hosts.size());
+        }
+    }
+
+    /*
+     * Zabbix 2.0以降のインターフェースによる動作テスト
+     */
+    @Test
+    public void testCreateUpdateDelete2() {
+        // Create
+        String hostid;
+        {
+            HostCreateParam param = new HostCreateParam();
+            param.setHost("host1");
+            param.setStatus(1);
+
+            Hostinterface hostinterface = new Hostinterface();
+            hostinterface.setDns("dns1");
+            hostinterface.setIp("127.0.1.1");
+            hostinterface.setPort(10001);
+            hostinterface.setUseip(1);
+            hostinterface.setType(1);
+            hostinterface.setMain(1);
+            param.setInterfaces(Arrays.asList(hostinterface));
+
+            Hostgroup hostgroup = new Hostgroup();
+            hostgroup.setGroupid("2");
+            param.setGroups(Arrays.asList(hostgroup));
+
+            Template template = new Template();
+            template.setTemplateid("10001");
+            param.setTemplates(Arrays.asList(template));
+
+            List<String> hostids = client.host().create(param);
+            assertEquals(1, hostids.size());
+
+            hostid = hostids.get(0);
+        }
+
+        // Get
+        Hostinterface hostinterface;
+        {
+            HostGetParam param = new HostGetParam();
+            param.setHostids(Arrays.asList(hostid));
+            param.setOutput("extend");
+            param.setSelectGroups("extend");
+            param.setSelectParentTemplates("extend");
+
+            List<Host> hosts = client.host().get(param);
+            assertEquals(1, hosts.size());
+
+            Host host = hosts.get(0);
+            assertEquals(hostid, host.getHostid());
+            assertEquals("host1", host.getHost());
+            assertEquals(1, host.getStatus().intValue());
+
+            assertEquals(1, host.getInterfaces().size());
+            assertEquals("dns1", host.getInterfaces().get(0).getDns());
+            assertEquals("127.0.1.1", host.getInterfaces().get(0).getIp());
+            assertEquals(10001, host.getInterfaces().get(0).getPort().intValue());
+            assertEquals(1, host.getInterfaces().get(0).getUseip().intValue());
+
+            // typeとmainは2.0以降でのみ指定できるパラメータ
+            if (client.checkVersion("2.0") >= 0) {
+                assertEquals(1, host.getInterfaces().get(0).getType().intValue());
+                assertEquals(1, host.getInterfaces().get(0).getMain().intValue());
+            }
+
+            assertEquals(1, host.getGroups().size());
+            assertEquals("2", host.getGroups().get(0).getGroupid());
+
+            assertEquals(1, host.getParenttemplates().size());
+            assertEquals("10001", host.getParenttemplates().get(0).getTemplateid());
+
+            hostinterface = host.getInterfaces().get(0);
+        }
+
+        // 更新後のtemplateid
+        String templateid2;
+        if (client.checkVersion("2.0") < 0) {
+            templateid2 = "10002";
+        } else {
+            templateid2 = "10104";
+        }
+
+        // Update
+        {
+            HostUpdateParam param = new HostUpdateParam();
+            param.setHostid(hostid);
+            param.setHost("host2");
+            param.setStatus(0);
+
+            hostinterface.setDns("dns2");
+            hostinterface.setIp("127.0.1.2");
+            hostinterface.setPort(10002);
+            hostinterface.setUseip(0);
+            hostinterface.setType(2);
+            //hostinterface.setMain(0);
+            param.setInterfaces(Arrays.asList(hostinterface));
+
+            Hostgroup hostgroup = new Hostgroup();
+            hostgroup.setGroupid("4");
+            param.setGroups(Arrays.asList(hostgroup));
+
+            Template template = new Template();
+            template.setTemplateid(templateid2);
+            param.setTemplates(Arrays.asList(template));
+
+            List<String> hostids = client.host().update(param);
+            assertEquals(1, hostids.size());
+            assertEquals(hostid, hostids.get(0));
+        }
+
+        // Get
+        {
+            HostGetParam param = new HostGetParam();
+            param.setHostids(Arrays.asList(hostid));
+            param.setOutput("extend");
+            param.setSelectGroups("extend");
+            param.setSelectParentTemplates("extend");
+
+            List<Host> hosts = client.host().get(param);
+            assertEquals(1, hosts.size());
+
+            Host host = hosts.get(0);
+            assertEquals(hostid, host.getHostid());
+            assertEquals("host2", host.getHost());
+            assertEquals(0, host.getStatus().intValue());
+
+            assertEquals(1, host.getInterfaces().size());
+            assertEquals("dns2", host.getInterfaces().get(0).getDns());
+            assertEquals("127.0.1.2", host.getInterfaces().get(0).getIp());
+            assertEquals(10002, host.getInterfaces().get(0).getPort().intValue());
+            assertEquals(0, host.getInterfaces().get(0).getUseip().intValue());
+
+            // typeとmainは2.0以降でのみ指定できるパラメータ
+            if (client.checkVersion("2.0") >= 0) {
+                assertEquals(2, host.getInterfaces().get(0).getType().intValue());
+                //assertEquals(0, host.getInterfaces().get(0).getMain().intValue());
+            }
+
+            assertEquals(1, host.getGroups().size());
+            assertEquals("4", host.getGroups().get(0).getGroupid());
+
+            assertEquals(1, host.getParenttemplates().size());
+            assertEquals(templateid2, host.getParenttemplates().get(0).getTemplateid());
+        }
+
+        // Update (minimal)
+        {
+            HostUpdateParam param = new HostUpdateParam();
+            param.setHostid(hostid);
+            param.setHost("host3");
+            param.setStatus(0);
+
+            List<String> hostids = client.host().update(param);
+            assertEquals(1, hostids.size());
+            assertEquals(hostid, hostids.get(0));
+        }
+
+        // Get
+        {
+            HostGetParam param = new HostGetParam();
+            param.setHostids(Arrays.asList(hostid));
+            param.setOutput("extend");
+            param.setSelectGroups("extend");
+            param.setSelectParentTemplates("extend");
+
+            List<Host> hosts = client.host().get(param);
+            assertEquals(1, hosts.size());
+
+            Host host = hosts.get(0);
+            assertEquals(hostid, host.getHostid());
+            assertEquals("host3", host.getHost());
+            assertEquals(0, host.getStatus().intValue());
+
+            assertEquals(1, host.getInterfaces().size());
+            assertEquals("dns2", host.getInterfaces().get(0).getDns());
+            assertEquals("127.0.1.2", host.getInterfaces().get(0).getIp());
+            assertEquals(10002, host.getInterfaces().get(0).getPort().intValue());
+            assertEquals(0, host.getInterfaces().get(0).getUseip().intValue());
+
+            // typeとmainは2.0以降でのみ指定できるパラメータ
+            if (client.checkVersion("2.0") >= 0) {
+                assertEquals(2, host.getInterfaces().get(0).getType().intValue());
+                //assertEquals(0, host.getInterfaces().get(0).getMain().intValue());
+            }
+
+            assertEquals(1, host.getGroups().size());
+            assertEquals("4", host.getGroups().get(0).getGroupid());
+
+            assertEquals(1, host.getParenttemplates().size());
+            assertEquals(templateid2, host.getParenttemplates().get(0).getTemplateid());
         }
 
         // Delete

@@ -135,13 +135,19 @@ public class HostgroupClient {
             throw new IllegalArgumentException("groupid is required.");
         }
 
-        List<Map<String, String>> list = new ArrayList<Map<String,String>>();
-        for (String groupid: groupids) {
-            Map<String, String> map = new HashMap<String, String>();
-            map.put("groupid", groupid);
-            list.add(map);
+        JSONArray params;
+        if (accessor.checkVersion("2.0") < 0) {
+            List<Map<String, String>> list = new ArrayList<Map<String, String>>();
+            for (String groupid : groupids) {
+                Map<String, String> map = new HashMap<String, String>();
+                map.put("groupid", groupid);
+                list.add(map);
+            }
+            params = JSONArray.fromObject(list, defaultConfig);
+        } else {
+            params = JSONArray.fromObject(groupids, defaultConfig);
         }
-        JSONArray params = JSONArray.fromObject(list, defaultConfig);
+
         JSONObject result = (JSONObject) accessor.execute("hostgroup.delete", params);
 
         JSONArray hostgroupids = result.getJSONArray("groupids");

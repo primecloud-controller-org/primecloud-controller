@@ -22,8 +22,8 @@ import java.io.Serializable;
 import java.util.List;
 
 import jp.primecloud.auto.zabbix.model.hostgroup.Hostgroup;
+import jp.primecloud.auto.zabbix.model.hostinterface.Hostinterface;
 import jp.primecloud.auto.zabbix.model.template.Template;
-
 
 /**
  * <p>
@@ -38,6 +38,8 @@ public class HostCreateParam implements Serializable {
     private String host;
 
     private List<Hostgroup> groups;
+
+    private List<Hostinterface> interfaces;
 
     private List<Template> templates;
 
@@ -87,6 +89,24 @@ public class HostCreateParam implements Serializable {
      */
     public void setGroups(List<Hostgroup> groups) {
         this.groups = groups;
+    }
+
+    /**
+     * interfacesを取得します。
+     *
+     * @return interfaces
+     */
+    public List<Hostinterface> getInterfaces() {
+        return interfaces;
+    }
+
+    /**
+     * interfacesを設定します。
+     *
+     * @param interfaces List<Hostinterface>
+     */
+    public void setInterfaces(List<Hostinterface> interfaces) {
+        this.interfaces = interfaces;
     }
 
     /**

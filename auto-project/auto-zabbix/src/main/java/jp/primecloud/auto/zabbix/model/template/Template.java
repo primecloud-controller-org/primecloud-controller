@@ -100,6 +100,18 @@ public class Template implements Serializable {
 
     private String snmpError;
 
+    private String jmxDisableUntil;
+
+    private String jmxAvailable;
+
+    private String jmxErrorsFrom;
+
+    private String jmxError;
+
+    private String name;
+
+    private String flags;
+
     /**
      * templateidを取得します。
      *
@@ -728,6 +740,114 @@ public class Template implements Serializable {
      */
     public void setSnmpError(String snmpError) {
         this.snmpError = snmpError;
+    }
+
+    /**
+     * jmxDisableUntilを取得します。
+     *
+     * @return jmxDisableUntil
+     */
+    public String getJmxDisableUntil() {
+        return jmxDisableUntil;
+    }
+
+    /**
+     * jmxDisableUntilを設定します。
+     *
+     * @param jmxDisableUntil String
+     */
+    public void setJmxDisableUntil(String jmxDisableUntil) {
+        this.jmxDisableUntil = jmxDisableUntil;
+    }
+
+    /**
+     * jmxAvailableを取得します。
+     *
+     * @return jmxAvailable
+     */
+    public String getJmxAvailable() {
+        return jmxAvailable;
+    }
+
+    /**
+     * jmxAvailableを設定します。
+     *
+     * @param jmxAvailable String
+     */
+    public void setJmxAvailable(String jmxAvailable) {
+        this.jmxAvailable = jmxAvailable;
+    }
+
+    /**
+     * jmxErrorsFromを取得します。
+     *
+     * @return jmxErrorsFrom
+     */
+    public String getJmxErrorsFrom() {
+        return jmxErrorsFrom;
+    }
+
+    /**
+     * jmxErrorsFromを設定します。
+     *
+     * @param jmxErrorsFrom String
+     */
+    public void setJmxErrorsFrom(String jmxErrorsFrom) {
+        this.jmxErrorsFrom = jmxErrorsFrom;
+    }
+
+    /**
+     * jmxErrorを取得します。
+     *
+     * @return jmxError
+     */
+    public String getJmxError() {
+        return jmxError;
+    }
+
+    /**
+     * jmxErrorを設定します。
+     *
+     * @param jmxError String
+     */
+    public void setJmxError(String jmxError) {
+        this.jmxError = jmxError;
+    }
+
+    /**
+     * nameを取得します。
+     *
+     * @return name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * nameを設定します。
+     *
+     * @param name String
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * flagsを取得します。
+     *
+     * @return flags
+     */
+    public String getFlags() {
+        return flags;
+    }
+
+    /**
+     * flagsを設定します。
+     *
+     * @param flags String
+     */
+    public void setFlags(String flags) {
+        this.flags = flags;
     }
 
 }

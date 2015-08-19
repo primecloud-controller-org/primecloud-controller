@@ -28,9 +28,13 @@ import java.util.Properties;
 
 import jp.primecloud.auto.zabbix.ZabbixClient;
 import jp.primecloud.auto.zabbix.ZabbixClientFactory;
+import jp.primecloud.auto.zabbix.model.user.User;
+import jp.primecloud.auto.zabbix.model.user.UserCreateParam;
+import jp.primecloud.auto.zabbix.model.user.UserGetParam;
 import jp.primecloud.auto.zabbix.model.usergroup.Usergroup;
 import jp.primecloud.auto.zabbix.model.usergroup.UsergroupCreateParam;
 import jp.primecloud.auto.zabbix.model.usergroup.UsergroupGetParam;
+import jp.primecloud.auto.zabbix.model.usergroup.UsergroupMassAddParam;
 import jp.primecloud.auto.zabbix.model.usergroup.UsergroupUpdateParam;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
@@ -137,9 +141,12 @@ public class UsergroupClientTest {
             assertEquals("name1", usergroup.getName());
             assertEquals(1, usergroup.getGuiAccess().intValue());
             assertEquals(1, usergroup.getUsersStatus().intValue());
-            assertEquals(1, usergroup.getApiAccess().intValue());
             assertEquals(1, usergroup.getDebugMode().intValue());
 
+            // apiAccessは2.0以降で廃止されたパラメータ
+            if (client.checkVersion("2.0") < 0) {
+                assertEquals(1, usergroup.getApiAccess().intValue());
+            }
         }
 
         // Update
@@ -171,8 +178,12 @@ public class UsergroupClientTest {
             assertEquals("name2", usergroup.getName());
             assertEquals(0, usergroup.getGuiAccess().intValue());
             assertEquals(0, usergroup.getUsersStatus().intValue());
-            assertEquals(0, usergroup.getApiAccess().intValue());
             assertEquals(0, usergroup.getDebugMode().intValue());
+
+            // apiAccessは2.0以降で廃止されたパラメータ
+            if (client.checkVersion("2.0") < 0) {
+                assertEquals(0, usergroup.getApiAccess().intValue());
+            }
         }
 
         // Delete
@@ -314,4 +325,64 @@ public class UsergroupClientTest {
         }
     }
 
+    @Test
+    public void testMassAdd() {
+        // 事前準備
+        String userid;
+        {
+            UserCreateParam param = new UserCreateParam();
+            param.setAlias("alias1");
+            param.setPasswd("passwd1");
+            Usergroup usergroup = new Usergroup();
+            usergroup.setUsrgrpid("8");
+            param.setUsrgrps(Arrays.asList(usergroup));
+
+            List<String> userids = client.user().create(param);
+            userid = userids.get(0);
+        }
+
+        String usrgrpid;
+        {
+            UsergroupCreateParam param = new UsergroupCreateParam();
+            param.setName("name1");
+            List<String> usrgrpids = client.usergroup().create(param);
+            usrgrpid = usrgrpids.get(0);
+        }
+
+        try {
+            // MassAdd
+            {
+                UsergroupMassAddParam param = new UsergroupMassAddParam();
+                param.setUserids(Arrays.asList(userid));
+                param.setUsrgrpids(Arrays.asList(usrgrpid));
+
+                List<String> usrgrpids = client.usergroup().massAdd(param);
+
+                assertEquals(1, usrgrpids.size());
+                assertEquals(usrgrpid, usrgrpids.get(0));
+            }
+
+            // User Get
+            {
+                UserGetParam param = new UserGetParam();
+                param.setUserids(Arrays.asList(userid));
+                param.setOutput("extend");
+                param.setSelectUsrgrps("extend");
+
+                List<User> users = client.user().get(param);
+
+                assertEquals(1, users.size());
+
+                User user = users.get(0);
+                assertEquals(userid, user.getUserid());
+                assertEquals(2, user.getUsrgrps().size());
+                assertTrue(Arrays.asList("8", usrgrpid).contains(user.getUsrgrps().get(0).getUsrgrpid()));
+                assertTrue(Arrays.asList("8", usrgrpid).contains(user.getUsrgrps().get(1).getUsrgrpid()));
+            }
+        } finally {
+            // 事後始末
+            client.usergroup().delete(Arrays.asList(usrgrpid));
+            client.user().delete(Arrays.asList(userid));
+        }
+    }
 }
