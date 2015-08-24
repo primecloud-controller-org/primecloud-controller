@@ -71,9 +71,9 @@ public class ZabbixProcessClient {
 
     public Proxy getProxy(String proxyName) {
         ProxyGetParam param = new ProxyGetParam();
-        Map<String, List<Object>> search = new HashMap<String, List<Object>>();
-        search.put("host", Arrays.asList((Object)proxyName));
-        param.setSearch(search);
+        Map<String, List<Object>> filter = new HashMap<String, List<Object>>();
+        filter.put("host", Arrays.asList((Object)proxyName));
+        param.setFilter(filter);
         param.setOutput("extend");
 
         List<Proxy> proxies = zabbixClient.proxy().get(param);
