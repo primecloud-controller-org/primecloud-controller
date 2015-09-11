@@ -65,9 +65,14 @@ public class ZabbixScriptService {
         userCreateParam.setName(name);
         userCreateParam.setSurname(surname);
         userCreateParam.setPasswd(password);
-        userCreateParam.setLang("ja_jp");
         userCreateParam.setUrl("overview.php");
         userCreateParam.setUsrgrps(usergroups);
+
+        if (zabbixClient.checkVersion("2.0.0") < 0) {
+            userCreateParam.setLang("ja_jp");
+        } else {
+            userCreateParam.setLang("ja_JP");
+        }
 
         List<String> users = zabbixClient.user().create(userCreateParam);
        

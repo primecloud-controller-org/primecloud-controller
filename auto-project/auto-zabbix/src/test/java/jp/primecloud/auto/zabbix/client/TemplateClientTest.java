@@ -19,8 +19,8 @@
 package jp.primecloud.auto.zabbix.client;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +29,6 @@ import java.util.Properties;
 
 import jp.primecloud.auto.zabbix.ZabbixClient;
 import jp.primecloud.auto.zabbix.ZabbixClientFactory;
-import jp.primecloud.auto.zabbix.client.TemplateClient;
 import jp.primecloud.auto.zabbix.model.template.Template;
 import jp.primecloud.auto.zabbix.model.template.TemplateGetParam;
 
@@ -38,9 +37,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-
 
 /**
  * <p>
@@ -71,84 +68,73 @@ public class TemplateClientTest {
     }
 
     @Test
-    @Ignore
+    public void testGetAll() {
+        // 全件取得
+        TemplateGetParam param = new TemplateGetParam();
+        param.setOutput("extend");
+
+        List<Template> templates = client.template().get(param);
+        for (Template template : templates) {
+            log.trace(ReflectionToStringBuilder.toString(template, ToStringStyle.SHORT_PREFIX_STYLE));
+        }
+
+        assertTrue(templates.size() > 0);
+    }
+
+    @Test
     public void testGet() {
-        // 全件取得
+        // templateidを指定して取得
         TemplateGetParam param = new TemplateGetParam();
-        param.setOutput("extend");
-        List<Template> templates = client.template().get(param);
-
-        for (Template template : templates) {
-            log.trace(ReflectionToStringBuilder.toString(template, ToStringStyle.SHORT_PREFIX_STYLE));
-        }
-
-        if (templates.size() > 0) {
-            // templateidを指定して取得
-            List<String> tempids = new ArrayList<String>();
-            tempids.add(templates.get(0).getTemplateid());
-            param.setTemplateids(tempids);
-            List<Template> templates2 = client.template().get(param);
-
-            assertEquals(1, templates2.size());
-            assertEquals(templates.get(0).getTemplateid(), templates2.get(0).getTemplateid());
-        }
-    }
-
-    @Test
-    @Ignore
-    public void testGet5() {
-        // 全件取得
-        TemplateGetParam param = new TemplateGetParam();
-        List<String> templateids = new ArrayList<String>();
-        //templateids.add("11022");
-        templateids.add("10057");
-        param.setTemplateids(templateids);
-        param.setOutput("extend");
-        List<Template> templates = client.template().get(param);
-
-        for (Template template : templates) {
-            log.trace(ReflectionToStringBuilder.toString(template, ToStringStyle.SHORT_PREFIX_STYLE));
-        }
-
-    }
-
-    @Test
-    @Ignore
-    public void testGet2() {
-        // 存在しないtemplateidを指定した場合
-        TemplateGetParam param = new TemplateGetParam();
-        List<String> templateids = new ArrayList<String>();
-        templateids.add("999999");
-        param.setTemplateids(templateids);
-        List<Template> temps = client.template().get(param);
-        assertEquals(0, temps.size());
-    }
-
-    @Test
-    @Ignore
-    public void testGet3() {
-        // 存在するtemplate名を指定した場合
-        TemplateGetParam param = new TemplateGetParam();
-        Map<String, List<Object>> filter = new HashMap<String, List<Object>>();
-        filter.put("host", Arrays.asList((Object)"Template_OS_Linux"));
-        param.setFilter(filter);
+        param.setTemplateids(Arrays.asList("10001"));
         param.setOutput("extend");
 
         List<Template> templates = client.template().get(param);
         assertEquals(1, templates.size());
-        assertEquals("10057", templates.get(0).getTemplateid());
-        assertEquals("Template_OS_Linux", templates.get(0).getHost());
+        assertEquals("10001", templates.get(0).getTemplateid());
     }
 
     @Test
-    @Ignore
-    public void testGet4() {
+    public void testGetNotExist() {
+        // 存在しないtemplateidを指定した場合
+        TemplateGetParam param = new TemplateGetParam();
+        param.setTemplateids(Arrays.asList("999999"));
+        param.setOutput("extend");
+
+        List<Template> templates = client.template().get(param);
+        assertEquals(0, templates.size());
+    }
+
+    @Test
+    public void testGetByFilter() {
+        // 存在するtemplate名を指定した場合
+        String templateName;
+        if (client.checkVersion("2.0") < 0) {
+            templateName = "Template_Linux";
+        } else {
+            templateName = "Template OS Linux";
+        }
+
+        TemplateGetParam param = new TemplateGetParam();
+        param.setOutput("extend");
+
+        Map<String, List<Object>> filter = new HashMap<String, List<Object>>();
+        filter.put("host", Arrays.asList((Object) templateName));
+        param.setFilter(filter);
+
+        List<Template> templates = client.template().get(param);
+        assertEquals(1, templates.size());
+        assertEquals(templateName, templates.get(0).getHost());
+    }
+
+    @Test
+    public void testGetByFilter2() {
         // 存在しないtemplate名を指定した場合
         TemplateGetParam param = new TemplateGetParam();
-        Map<String, List<Object>> filter = new HashMap<String, List<Object>>();
-        filter.put("host", Arrays.asList((Object)"dummy"));
-        param.setFilter(filter);
         param.setOutput("extend");
+
+        Map<String, List<Object>> filter = new HashMap<String, List<Object>>();
+        filter.put("host", Arrays.asList((Object) "dummy"));
+        param.setFilter(filter);
 
         List<Template> templates = client.template().get(param);
         assertEquals(0, templates.size());

@@ -22,9 +22,9 @@ import java.io.Serializable;
 import java.util.List;
 
 import jp.primecloud.auto.zabbix.model.hostgroup.Hostgroup;
+import jp.primecloud.auto.zabbix.model.hostinterface.Hostinterface;
 import jp.primecloud.auto.zabbix.model.maintenance.Maintenance;
 import jp.primecloud.auto.zabbix.model.template.Template;
-
 
 /**
  * <p>
@@ -104,11 +104,27 @@ public class Host implements Serializable {
 
     private String snmpError;
 
+    private String jmxDisableUntil;
+
+    private String jmxAvailable;
+
+    private String jmxErrorsFrom;
+
+    private String jmxError;
+
+    private String name;
+
+    private String flags;
+
+    private String templateid;
+
     private List<Template> parenttemplates;
 
     private List <Hostgroup> groups;
 
     private List<Maintenance> maintenances;
+
+    private List<Hostinterface> interfaces;
 
     /**
      * hostidを取得します。
@@ -723,6 +739,132 @@ public class Host implements Serializable {
     }
 
     /**
+     * jmxDisableUntilを取得します。
+     *
+     * @return jmxDisableUntil
+     */
+    public String getJmxDisableUntil() {
+        return jmxDisableUntil;
+    }
+
+    /**
+     * jmxDisableUntilを設定します。
+     *
+     * @param jmxDisableUntil String
+     */
+    public void setJmxDisableUntil(String jmxDisableUntil) {
+        this.jmxDisableUntil = jmxDisableUntil;
+    }
+
+    /**
+     * jmxAvailableを取得します。
+     *
+     * @return jmxAvailable
+     */
+    public String getJmxAvailable() {
+        return jmxAvailable;
+    }
+
+    /**
+     * jmxAvailableを設定します。
+     *
+     * @param jmxAvailable String
+     */
+    public void setJmxAvailable(String jmxAvailable) {
+        this.jmxAvailable = jmxAvailable;
+    }
+
+    /**
+     * jmxErrorsFromを取得します。
+     *
+     * @return jmxErrorsFrom
+     */
+    public String getJmxErrorsFrom() {
+        return jmxErrorsFrom;
+    }
+
+    /**
+     * jmxErrorsFromを設定します。
+     *
+     * @param jmxErrorsFrom String
+     */
+    public void setJmxErrorsFrom(String jmxErrorsFrom) {
+        this.jmxErrorsFrom = jmxErrorsFrom;
+    }
+
+    /**
+     * jmxErrorを取得します。
+     *
+     * @return jmxError
+     */
+    public String getJmxError() {
+        return jmxError;
+    }
+
+    /**
+     * jmxErrorを設定します。
+     *
+     * @param jmxError String
+     */
+    public void setJmxError(String jmxError) {
+        this.jmxError = jmxError;
+    }
+
+    /**
+     * nameを取得します。
+     *
+     * @return name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * nameを設定します。
+     *
+     * @param name String
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * flagsを取得します。
+     *
+     * @return flags
+     */
+    public String getFlags() {
+        return flags;
+    }
+
+    /**
+     * flagsを設定します。
+     *
+     * @param flags String
+     */
+    public void setFlags(String flags) {
+        this.flags = flags;
+    }
+
+    /**
+     * templateidを取得します。
+     *
+     * @return templateid
+     */
+    public String getTemplateid() {
+        return templateid;
+    }
+
+    /**
+     * templateidを設定します。
+     *
+     * @param templateid String
+     */
+    public void setTemplateid(String templateid) {
+        this.templateid = templateid;
+    }
+
+    /**
      * parenttemplatesを取得します。
      *
      * @return parenttemplates
@@ -775,4 +917,23 @@ public class Host implements Serializable {
     public void setMaintenances(List<Maintenance> maintenances) {
         this.maintenances = maintenances;
     }
+
+    /**
+     * interfacesを取得します。
+     *
+     * @return interfaces
+     */
+    public List<Hostinterface> getInterfaces() {
+        return interfaces;
+    }
+
+    /**
+     * interfacesを設定します。
+     *
+     * @param interfaces List<Hostinterface>
+     */
+    public void setInterfaces(List<Hostinterface> interfaces) {
+        this.interfaces = interfaces;
+    }
+
 }

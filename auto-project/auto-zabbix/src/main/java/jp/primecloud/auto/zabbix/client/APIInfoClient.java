@@ -51,7 +51,7 @@ public class APIInfoClient {
      * @return 取得したバージョン情報
      */
     public String version() {
-        return (String) accessor.execute("APIInfo.version", null);
+        return (String) accessor.execute("apiinfo.version", null);
     }
 
 }

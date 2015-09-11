@@ -38,6 +38,8 @@ public class HostGetParam implements Serializable {
 
     private String selectGroups;
 
+    private String selectInterfaces;
+
     private String selectParentTemplates;
 
     private Map<String, List<Object>> filter;
@@ -112,6 +114,24 @@ public class HostGetParam implements Serializable {
      */
     public void setSelectGroups(String selectGroups) {
         this.selectGroups = selectGroups;
+    }
+
+    /**
+     * selectInterfacesを取得します。
+     *
+     * @return selectInterfaces
+     */
+    public String getSelectInterfaces() {
+        return selectInterfaces;
+    }
+
+    /**
+     * selectInterfacesを設定します。
+     *
+     * @param selectInterfaces String
+     */
+    public void setSelectInterfaces(String selectInterfaces) {
+        this.selectInterfaces = selectInterfaces;
     }
 
     /**

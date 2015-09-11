@@ -47,4 +47,26 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.18.1</version>
+				<configuration>
+					<excludes>
+						<exclude>jp/primecloud/auto/zabbix/client/APIInfoClientTest.java</exclude>
+						<exclude>jp/primecloud/auto/zabbix/client/ApplicationClientTest.java</exclude>
+						<exclude>jp/primecloud/auto/zabbix/client/HostClientTest.java</exclude>
+						<exclude>jp/primecloud/auto/zabbix/client/HostgroupClientTest.java</exclude>
+						<exclude>jp/primecloud/auto/zabbix/client/ItemClientTest.java</exclude>
+						<exclude>jp/primecloud/auto/zabbix/client/ProxyClientTest.java</exclude>
+						<exclude>jp/primecloud/auto/zabbix/client/TemplateClientTest.java</exclude>
+						<exclude>jp/primecloud/auto/zabbix/client/TriggerClientTest.java</exclude>
+						<exclude>jp/primecloud/auto/zabbix/client/UserClientTest.java</exclude>
+						<exclude>jp/primecloud/auto/zabbix/client/UsergroupClientTest.java</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>

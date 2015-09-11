@@ -19,6 +19,7 @@
 package jp.primecloud.auto.zabbix.model.item;
 
 import java.io.Serializable;
+
 /**
  * <p>
  * Itemのエンティティクラスです。
@@ -112,6 +113,30 @@ public class Item implements Serializable {
     private Integer mtime;
 
     private String application;
+
+    private String name;
+
+    private Integer flags;
+
+    private String interfaceid;
+
+    private String port;
+
+    private Integer inventoryLink;
+
+    private Integer state;
+
+    private Integer snmpv3Authprotocol;
+
+    private Integer snmpv3Privprotocol;
+
+    private String snmpv3Contextname;
+
+    private Integer lastns;
+
+    private String filter;
+
+    private Integer lifetime;
 
     /**
      * itemidを取得します。
@@ -867,6 +892,234 @@ public class Item implements Serializable {
      */
     public void setApplication(String application) {
         this.application = application;
+    }
+
+    /**
+     * nameを取得します。
+     *
+     * @return name
+     */
+
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * nameを設定します。
+     *
+     * @param name name
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * flagsを取得します。
+     *
+     * @return flags
+     */
+
+    public Integer getFlags() {
+        return flags;
+    }
+
+    /**
+     * flagsを設定します。
+     *
+     * @param flags flags
+     */
+    public void setFlags(Integer flags) {
+        this.flags = flags;
+    }
+
+    /**
+     * interfaceidを取得します。
+     *
+     * @return interfaceid
+     */
+
+    public String getInterfaceid() {
+        return interfaceid;
+    }
+
+    /**
+     * interfaceidを設定します。
+     *
+     * @param interfaceid interfaceid
+     */
+    public void setInterfaceid(String interfaceid) {
+        this.interfaceid = interfaceid;
+    }
+
+    /**
+     * portを取得します。
+     *
+     * @return port
+     */
+
+    public String getPort() {
+        return port;
+    }
+
+    /**
+     * portを設定します。
+     *
+     * @param port port
+     */
+    public void setPort(String port) {
+        this.port = port;
+    }
+
+    /**
+     * inventoryLinkを取得します。
+     *
+     * @return inventoryLink
+     */
+
+    public Integer getInventoryLink() {
+        return inventoryLink;
+    }
+
+    /**
+     * inventoryLinkを設定します。
+     *
+     * @param inventoryLink inventoryLink
+     */
+    public void setInventoryLink(Integer inventoryLink) {
+        this.inventoryLink = inventoryLink;
+    }
+
+    /**
+     * stateを取得します。
+     *
+     * @return state
+     */
+
+    public Integer getState() {
+        return state;
+    }
+
+    /**
+     * stateを設定します。
+     *
+     * @param state state
+     */
+    public void setState(Integer state) {
+        this.state = state;
+    }
+
+    /**
+     * snmpv3Authprotocolを取得します。
+     *
+     * @return snmpv3Authprotocol
+     */
+
+    public Integer getSnmpv3Authprotocol() {
+        return snmpv3Authprotocol;
+    }
+
+    /**
+     * snmpv3Authprotocolを設定します。
+     *
+     * @param snmpv3Authprotocol snmpv3Authprotocol
+     */
+    public void setSnmpv3Authprotocol(Integer snmpv3Authprotocol) {
+        this.snmpv3Authprotocol = snmpv3Authprotocol;
+    }
+
+    /**
+     * snmpv3Privprotocolを取得します。
+     *
+     * @return snmpv3Privprotocol
+     */
+
+    public Integer getSnmpv3Privprotocol() {
+        return snmpv3Privprotocol;
+    }
+
+    /**
+     * snmpv3Privprotocolを設定します。
+     *
+     * @param snmpv3Privprotocol snmpv3Privprotocol
+     */
+    public void setSnmpv3Privprotocol(Integer snmpv3Privprotocol) {
+        this.snmpv3Privprotocol = snmpv3Privprotocol;
+    }
+
+    /**
+     * snmpv3Contextnameを取得します。
+     *
+     * @return snmpv3Contextname
+     */
+
+    public String getSnmpv3Contextname() {
+        return snmpv3Contextname;
+    }
+
+    /**
+     * snmpv3Contextnameを設定します。
+     *
+     * @param snmpv3Contextname snmpv3Contextname
+     */
+    public void setSnmpv3Contextname(String snmpv3Contextname) {
+        this.snmpv3Contextname = snmpv3Contextname;
+    }
+
+    /**
+     * lastnsを取得します。
+     *
+     * @return lastns
+     */
+
+    public Integer getLastns() {
+        return lastns;
+    }
+
+    /**
+     * lastnsを設定します。
+     *
+     * @param lastns lastns
+     */
+    public void setLastns(Integer lastns) {
+        this.lastns = lastns;
+    }
+
+    /**
+     * filterを取得します。
+     *
+     * @return filter
+     */
+
+    public String getFilter() {
+        return filter;
+    }
+
+    /**
+     * filterを設定します。
+     *
+     * @param filter filter
+     */
+    public void setFilter(String filter) {
+        this.filter = filter;
+    }
+
+    /**
+     * lifetimeを取得します。
+     *
+     * @return lifetime
+     */
+
+    public Integer getLifetime() {
+        return lifetime;
+    }
+
+    /**
+     * lifetimeを設定します。
+     *
+     * @param lifetime lifetime
+     */
+    public void setLifetime(Integer lifetime) {
+        this.lifetime = lifetime;
     }
 
 }

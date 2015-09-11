@@ -29,11 +29,10 @@ import jp.primecloud.auto.zabbix.model.user.UserAuthenticateParam;
 import jp.primecloud.auto.zabbix.model.user.UserCreateParam;
 import jp.primecloud.auto.zabbix.model.user.UserGetParam;
 import jp.primecloud.auto.zabbix.model.user.UserUpdateParam;
-
+import jp.primecloud.auto.zabbix.model.usergroup.Usergroup;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
-
 
 /**
  * <p>
@@ -68,25 +67,20 @@ public class UserClient {
     @SuppressWarnings("unchecked")
     public List<User> get(UserGetParam param) {
         JSONObject params = JSONObject.fromObject(param, defaultConfig);
+        if (accessor.checkVersion("2.0") < 0) {
+            if (params.containsKey("selectUsrgrps")) {
+                params.put("select_usrgrps", params.remove("selectUsrgrps"));
+            }
+        }
+
         JSONArray result = (JSONArray) accessor.execute("user.get", params);
 
         JsonConfig config = defaultConfig.copy();
         config.setCollectionType(List.class);
         config.setRootClass(User.class);
+        config.getClassMap().put("usrgrps", Usergroup.class);
         return (List<User>) JSONArray.toCollection(result, config);
     }
-
-//    /**
-//     * Zabbixサーバへ認証を行います。<br/>
-//     * 認証情報が正しくない場合、例外をスローします。
-//     *
-//     * @param param {@link UserAuthenticateParam}
-//     * @return セッションID
-//     */
-//    public String authenticate(UserAuthenticateParam param) {
-//        JSONObject params = JSONObject.fromObject(param, defaultConfig);
-//        return (String) accessor.execute("user.authenticate", params);
-//    }
 
     /**
      * Zabbixサーバへ認証を行います。<br/>
@@ -113,6 +107,16 @@ public class UserClient {
         if (param.getAlias() == null || param.getAlias().length() == 0) {
             throw new IllegalArgumentException("alias is required.");
         }
+        if (accessor.checkVersion("2.0") >= 0) {
+            if (param.getPasswd() == null || param.getPasswd().length() == 0) {
+                throw new IllegalArgumentException("passwd is required.");
+            }
+
+            if (param.getUsrgrps() == null || param.getUsrgrps().isEmpty()) {
+                throw new IllegalArgumentException("usrgrps is required.");
+            }
+        }
+
         JSONObject params = JSONObject.fromObject(param, defaultConfig);
         JSONObject result = (JSONObject) accessor.execute("user.create", params);
 
@@ -161,13 +165,19 @@ public class UserClient {
             throw new IllegalArgumentException("userid is required.");
         }
 
-        List<Map<String, String>> list = new ArrayList<Map<String,String>>();
-        for (String userid: userids) {
-            Map<String, String> map = new HashMap<String, String>();
-            map.put("userid", userid);
-            list.add(map);
+        JSONArray params;
+        if (accessor.checkVersion("2.0") < 0) {
+            List<Map<String, String>> list = new ArrayList<Map<String, String>>();
+            for (String userid : userids) {
+                Map<String, String> map = new HashMap<String, String>();
+                map.put("userid", userid);
+                list.add(map);
+            }
+            params = JSONArray.fromObject(list, defaultConfig);
+        } else {
+            params = JSONArray.fromObject(userids, defaultConfig);
         }
-        JSONArray params = JSONArray.fromObject(list, defaultConfig);
+
         JSONObject result = (JSONObject) accessor.execute("user.delete", params);
 
         JSONArray resultUserids = result.getJSONArray("userids");

@@ -35,6 +35,8 @@ public class UserGetParam implements Serializable {
 
     private String output;
 
+    private String selectUsrgrps;
+
     /**
      * useridsを取得します。
      *
@@ -70,4 +72,24 @@ public class UserGetParam implements Serializable {
     public void setOutput(String output) {
         this.output = output;
     }
+
+    /**
+     * selectUsrgrpsを取得します。
+     *
+     * @return selectUsrgrps
+     */
+
+    public String getSelectUsrgrps() {
+        return selectUsrgrps;
+    }
+
+    /**
+     * selectUsrgrpsを設定します。
+     *
+     * @param selectUsrgrps selectUsrgrps
+     */
+    public void setSelectUsrgrps(String selectUsrgrps) {
+        this.selectUsrgrps = selectUsrgrps;
+    }
+
 }

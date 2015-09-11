@@ -18,20 +18,15 @@
  */
 package jp.primecloud.auto.zabbix.client;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.Properties;
 
 import jp.primecloud.auto.zabbix.ZabbixClient;
 import jp.primecloud.auto.zabbix.ZabbixClientFactory;
-import jp.primecloud.auto.zabbix.client.APIInfoClient;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-
 
 /**
  * <p>
@@ -62,11 +57,9 @@ public class APIInfoClientTest {
     }
 
     @Test
-    @Ignore
     public void testVersion() {
         String version = client.APIInfo().version();
         log.trace(version);
-        assertEquals("1.2", version);
     }
 
 }

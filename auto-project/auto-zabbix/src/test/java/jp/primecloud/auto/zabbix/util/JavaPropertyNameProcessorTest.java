@@ -25,7 +25,7 @@ import org.junit.Test;
 
 /**
  * <p>
- * TODO: クラスコメントを記述
+ * {@link JavaPropertyNameProcessor}のテストクラスです。
  * </p>
  *
  */
