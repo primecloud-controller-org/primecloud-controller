@@ -67,7 +67,7 @@ class MysqlConnector(object):
         table_object = Table(tableName, METADATA, autoload=True)
         return table_object
 
-    def execute(self, sql, autocommit = False):
+    def execute(self, sql, autocommit = True):
         res = self.session.execute(sql)
         if autocommit == True:
             self.commit();
