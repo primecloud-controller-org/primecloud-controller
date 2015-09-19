@@ -20,6 +20,7 @@
 from iaasgw.exception.iaasException import IaasException
 from iaasgw.log.log import IaasLogger
 from iaasgw.utils.stringUtils import isNotEmpty, getCurrentTimeMillis, isEmpty
+import time
 
 
 class ec2AddressController(object):
@@ -158,10 +159,15 @@ class ec2AddressController(object):
         timeout = 180 * 1000L
         startTime = getCurrentTimeMillis()
         while (True) :
+            time.sleep(3)
             instance = self.client.describeInstance(instanceId);
 
             if (instance.extra["dns_name"] != awsInstance["DNS_NAME"]) and (instance.extra["dns_name"] != instance.extra["private_dns"]):
                 # DnsNameが変更されており、かつPrivateDnsNameと違っていれば最新インスタンス情報を取得できたとみなす
+                break;
+
+            if (len(instance.public_ip[0]) > 0) and (instance.public_ip[0] == publicIp):
+                # PublicIPがElasticIPと同じであれば、最新インスタンス情報を取得できたとみなす
                 break;
 
             if (getCurrentTimeMillis() - startTime > timeout) :
