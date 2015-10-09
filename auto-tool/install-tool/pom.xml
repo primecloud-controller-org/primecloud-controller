@@ -4,7 +4,7 @@
 	<groupId>jp.primecloud.auto.install</groupId>
 	<artifactId>install-tool</artifactId>
 	<name>${project.artifactId}</name>
-	<version>2.4.5</version>
+	<version>2.5.0</version>
 	<dependencies>
 	</dependencies>
 	<build>
