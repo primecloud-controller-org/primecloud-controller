@@ -20,8 +20,6 @@ package jp.primecloud.auto.service.dto;
 
 import java.io.Serializable;
 
-import com.amazonaws.services.ec2.model.AvailabilityZone;
-
 public class ZoneDto implements Serializable {
 
     /** TODO: フィールドコメントを記述 */
