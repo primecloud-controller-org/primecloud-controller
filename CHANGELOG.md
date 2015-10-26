@@ -1,3 +1,34 @@
+
+[こちら](https://github.com/primecloud-controller-org/primecloud-controller-build)のプロジェクトを使い、ビルドしたものを[公開](http://www.primecloud-controller.org/download.html)
+しています。
+
+
+#2015-10-03 PrimeCloud Controller 2.5.0リリース
+============================================
+
+##主な新機能
+
+### Zabbix Server 2.2のサポート
+
+連携先の監視システムとしてて、Zabbix Server 2.2をサポート
+
+Zabbix Server 2.2対応の実装には、下記の方からの提供頂いたコードを参考とさせて頂き、
+現在のPCCで実装されている機能と統合しています。ありがとうございました。
+
+浅倉氏  
+鈴木氏  
+
+
+### 既知の不具合の修正
+
+* issues #34 :サービス用のDISKが追加できない。
+* issues #36 :zabbix 1.8用のテンプレートに設定されているトリガーの条件式の変更
+* issues #31 :インストールスクリプト内でのサンプルデータの投入時にSQLの投入順番が正しくない
+* issues #41 :DBセットアップに必要なddlが存在しない問題
+
+
+
+
 2015-05-29 PrimeCloud Controller 2.4.5リリース
 ==============================================
 
@@ -30,10 +61,4 @@ PCC用リポジトリの提供を開始しました。
 そのリポジトリをコマンドラインから利用するためのコマンドを実装しました。
 
 ### その他、多くのバグを修正
-
-ビルド環境
-----------
-
-[こちら](https://github.com/primecloud-controller-org/primecloud-controller-build)のプロジェクトを使い、ビルドしたものを[公開](http://www.primecloud-controller.org/download.html)
-しています。
 
