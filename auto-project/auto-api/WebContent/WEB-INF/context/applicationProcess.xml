@@ -4,6 +4,13 @@
 	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd"
 	default-autowire="autodetect">
 
-
+	<!-- IaasGateway -->
+	<!--
+	<bean id="iaasGatewayFactory" class="jp.primecloud.auto.iaasgw.IaasGatewayFactory">
+		<property name="describeInterval" value="${aws.describeInterval}" />
+		<property name="sync" value="${aws.synchronized}" />
+	</bean>
+	-->
+	<bean id="iaasGatewayFactory" class="jp.primecloud.auto.api.mock.MockIaasGatewayFactory" />
 
 </beans>

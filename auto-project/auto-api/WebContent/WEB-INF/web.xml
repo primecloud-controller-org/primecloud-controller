@@ -18,6 +18,11 @@
     <param-value>/WEB-INF/context/applicationContext.xml</param-value>
   </context-param>
 
+  <context-param>
+    <param-name>configPath</param-name>
+    <param-value>WEB-INF/config.properties</param-value>
+  </context-param>
+
   <listener>
     <listener-class>jp.primecloud.auto.config.ConfigLoaderListener</listener-class>
   </listener>

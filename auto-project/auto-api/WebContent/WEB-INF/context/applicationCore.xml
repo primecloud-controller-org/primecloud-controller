@@ -15,9 +15,9 @@
 	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
 		destroy-method="close">
 		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
-		<property name="url" value="jdbc:mysql://localhost/adc" />
-		<property name="username" value="root" />
-		<property name="password" value="" />
+		<property name="url" value="${db.url}" />
+		<property name="username" value="${db.username}" />
+		<property name="password" value="${db.password}" />
 		<property name="validationQuery" value="select 1 from dual" />
 	</bean>
 
