@@ -50,7 +50,7 @@ public class StartAllComponent extends ApiSupport{
      * @return StartAllComponentResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
 	public StartAllComponentResponse startAllComponent(
 	        @QueryParam(PARAM_NAME_FARM_NO) String farmNo){
 

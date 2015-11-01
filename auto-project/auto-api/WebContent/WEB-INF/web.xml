@@ -34,16 +34,18 @@
 
   <servlet>
     <servlet-name>Jersey REST Service</servlet-name>
-    <servlet-class>
-      com.sun.jersey.spi.container.servlet.ServletContainer
-    </servlet-class>
+    <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+    <init-param>
+      <param-name>com.sun.jersey.api.json.POJOMappingFeature</param-name>
+      <param-value>true</param-value>
+    </init-param>
     <init-param>
       <param-name>com.sun.jersey.config.property.packages</param-name>
       <param-value>jp.primecloud.auto.api</param-value>
     </init-param>
     <init-param>
-        <param-name>com.sun.jersey.spi.container.ContainerRequestFilters</param-name>
-        <param-value>jp.primecloud.auto.api.ApiFilter</param-value>
+      <param-name>com.sun.jersey.spi.container.ContainerRequestFilters</param-name>
+      <param-value>jp.primecloud.auto.api.ApiFilter</param-value>
     </init-param>
     <load-on-startup>1</load-on-startup>
   </servlet>

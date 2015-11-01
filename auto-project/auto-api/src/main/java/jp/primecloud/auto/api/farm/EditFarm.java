@@ -46,7 +46,7 @@ public class EditFarm extends ApiSupport {
      * @return EditFarmResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
     public EditFarmResponse editFarm(
             @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
             @QueryParam(PARAM_NAME_COMMENT) String comment){

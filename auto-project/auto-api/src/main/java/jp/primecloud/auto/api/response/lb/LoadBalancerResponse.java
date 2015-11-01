@@ -1,44 +1,46 @@
 package jp.primecloud.auto.api.response.lb;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import jp.primecloud.auto.entity.crud.LoadBalancer;
 
 
-@XmlRootElement(name="LoadBalancerResponse")
-@XmlType(propOrder = {"loadBalancerNo", "loadBalancerName", "fqdn", "status", "componentNo", "componentName"})
 public class LoadBalancerResponse {
 
     /**
      * ロードバランサ番号
      */
+    @JsonProperty("LoadBalancerNo")
     private Long loadBalancerNo;
 
     /**
      * ロードバランサ名
      */
+    @JsonProperty("LoadBalancerName")
     private String loadBalancerName;
 
     /**
      * FQDN
      */
+    @JsonProperty("FQDN")
     private String fqdn;
 
     /**
      * ロードバランサのステータス
      */
+    @JsonProperty("Status")
     private String status;
 
     /**
      * コンポーネント番号
      */
+    @JsonProperty("ComponentNo")
     private Long componentNo;
 
     /**
      * コンポーネント名
      */
+    @JsonProperty("ComponentName")
     private String componentName;
 
     public LoadBalancerResponse() {}
@@ -57,7 +59,6 @@ public class LoadBalancerResponse {
     *
     * @return loadBalancerNo
     */
-    @XmlElement(name="LoadBalancerNo")
     public Long getLoadBalancerNo() {
         return loadBalancerNo;
     }
@@ -78,7 +79,6 @@ public class LoadBalancerResponse {
     *
     * @return loadBalancerName
     */
-    @XmlElement(name="LoadBalancerName")
     public String getLoadBalancerName() {
         return loadBalancerName;
     }
@@ -99,7 +99,6 @@ public class LoadBalancerResponse {
     *
     * @return fqdn
     */
-    @XmlElement(name="FQDN")
     public String getFqdn() {
         return fqdn;
     }
@@ -120,7 +119,6 @@ public class LoadBalancerResponse {
     *
     * @return status
     */
-    @XmlElement(name="Status")
     public String getStatus() {
         return status;
     }
@@ -141,7 +139,6 @@ public class LoadBalancerResponse {
     *
     * @return componentNo
     */
-    @XmlElement(name="ComponentNo")
     public Long getComponentNo() {
         return componentNo;
     }
@@ -162,7 +159,6 @@ public class LoadBalancerResponse {
     *
     * @return componentName
     */
-    @XmlElement(name="ComponentName")
     public String getComponentName() {
         return componentName;
     }

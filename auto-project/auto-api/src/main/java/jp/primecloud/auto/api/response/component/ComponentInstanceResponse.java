@@ -1,31 +1,29 @@
 package jp.primecloud.auto.api.response.component;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
 import org.apache.commons.lang.BooleanUtils;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import jp.primecloud.auto.entity.crud.ComponentInstance;
 
 
-@XmlRootElement(name="ComponentInstanceResponse")
-@XmlType(propOrder = { "instanceNo", "associate", "status"})
 public class ComponentInstanceResponse {
 
     /**
      * インスタンス番号
      */
+    @JsonProperty("InstanceNo")
     private Long instanceNo;
 
     /**
      * アソシエイト インスタンスと関連づけられているか否かのフラグ
      */
+    @JsonProperty("Associate")
     private Boolean associate;
 
     /**
      * ステータス インスタンスに割り当てられているコンポーネントのステータス
      */
+    @JsonProperty("Status")
     private String status;
 
     public ComponentInstanceResponse() {}
@@ -42,7 +40,6 @@ public class ComponentInstanceResponse {
     *
     * @return instanceNo
     */
-    @XmlElement(name="InstanceNo")
     public Long getInstanceNo() {
         return instanceNo;
     }
@@ -63,7 +60,6 @@ public class ComponentInstanceResponse {
     *
     * @return associate
     */
-    @XmlElement(name="Associate")
     public Boolean getAssociate() {
         return associate;
     }
@@ -84,7 +80,6 @@ public class ComponentInstanceResponse {
     *
     * @return status
     */
-    @XmlElement(name="Status")
     public String getStatus() {
         return status;
     }

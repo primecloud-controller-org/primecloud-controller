@@ -57,7 +57,7 @@ public class AttachComponent extends ApiSupport {
      * @return AttachComponentResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
 	public AttachComponentResponse attachComponent(
 	        @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
             @QueryParam(PARAM_NAME_COMPONENT_NO) String componentNo,

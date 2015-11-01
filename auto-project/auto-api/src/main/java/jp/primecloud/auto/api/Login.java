@@ -40,7 +40,7 @@ public class Login extends ApiSupport {
      * @return LoginResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
 	public LoginResponse login(
 	        @QueryParam(PARAM_NAME_USER) String userName,
 	        @QueryParam(PARAM_NAME_PASSWORD) String password){

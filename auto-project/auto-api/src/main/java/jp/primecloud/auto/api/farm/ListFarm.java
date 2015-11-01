@@ -48,7 +48,7 @@ public class ListFarm extends ApiSupport {
      * @return ListFarmResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
     public ListFarmResponse listFarm(
             @QueryParam(PARAM_NAME_USER) String userName){
 

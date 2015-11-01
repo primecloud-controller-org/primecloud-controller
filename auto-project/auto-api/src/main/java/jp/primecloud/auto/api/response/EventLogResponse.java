@@ -1,46 +1,49 @@
 package jp.primecloud.auto.api.response;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import jp.primecloud.auto.log.entity.crud.EventLog;
 
 
 
 
-@XmlRootElement(name="EventLogResponse")
-@XmlType(propOrder = { "date", "logLevel", "farmName", "componentName", "instanceName", "message" })
 public class EventLogResponse {
 
     /**
      * 日時
      */
+    @JsonProperty("Date")
     private String date;
 
     /**
      * ログレベル
      */
+    @JsonProperty("LogLevel")
     private String logLevel;
 
     /**
      * myCloud名
      */
+    @JsonProperty("FarmName")
     private String farmName;
 
     /**
      * サービス名
      */
+    @JsonProperty("ComponentName")
     private String componentName;
 
     /**
      * サーバ名
      */
+    @JsonProperty("InstanceName")
     private String instanceName;
 
     /**
      * メッセージ
      */
+    @JsonProperty("Message")
     private String message;
 
     public EventLogResponse() {}
@@ -58,7 +61,6 @@ public class EventLogResponse {
     *
     * @return date
     */
-    @XmlElement(name="Date")
     public String getDate() {
         return date;
     }
@@ -79,7 +81,6 @@ public class EventLogResponse {
     *
     * @return logLevel
     */
-    @XmlElement(name="LogLevel")
     public String getLogLevel() {
         return logLevel;
     }
@@ -100,7 +101,6 @@ public class EventLogResponse {
     *
     * @return farmName
     */
-    @XmlElement(name="FarmName")
     public String getFarmName() {
         return farmName;
     }
@@ -121,7 +121,6 @@ public class EventLogResponse {
     *
     * @return componentName
     */
-    @XmlElement(name="ComponentName")
     public String getComponentName() {
         return componentName;
     }
@@ -142,7 +141,6 @@ public class EventLogResponse {
     *
     * @return instanceName
     */
-    @XmlElement(name="InstanceName")
     public String getInstanceName() {
         return instanceName;
     }
@@ -163,7 +161,6 @@ public class EventLogResponse {
     *
     * @return message
     */
-    @XmlElement(name="Message")
     public String getMessage() {
         return message;
     }

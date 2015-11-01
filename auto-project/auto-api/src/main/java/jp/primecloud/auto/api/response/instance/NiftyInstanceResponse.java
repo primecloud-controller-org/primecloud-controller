@@ -1,56 +1,59 @@
 package jp.primecloud.auto.api.response.instance;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
 import org.apache.commons.lang.BooleanUtils;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import jp.primecloud.auto.entity.crud.NiftyInstance;
 
 
-@XmlRootElement(name="NiftyInstanceResponse")
-@XmlType(propOrder = {"keyName","instanceType","status","dnsName","privateDnsName","ipAddress","privateIpAddress","initialized" })
 public class NiftyInstanceResponse {
 
     /**
      * キーペア名
      */
+    @JsonProperty("KeyName")
     private String keyName;
 
     /**
      * インスタンスタイプ
      */
+    @JsonProperty("InstanceType")
     private String instanceType;
 
     /**
      * ステータス
      */
+    @JsonProperty("Status")
     private String status;
 
     /**
      * パブリックDNS
      */
+    @JsonProperty("DnsName")
     private String dnsName;
 
     /**
      * プライベートDNS
      */
+    @JsonProperty("PrivateDnsName")
     private String privateDnsName;
 
     /**
      * パブリックIPアドレス
      */
+    @JsonProperty("IpAddress")
     private String ipAddress;
 
     /**
      * プライベートIPアドレス
      */
+    @JsonProperty("PrivateIpAddress")
     private String privateIpAddress;
 
     /**
      * 初期化済みかどうか true:初期化済み、false:初期化済みではない
      */
+    @JsonProperty("Initialized")
     private Boolean initialized;
 
     public NiftyInstanceResponse() {}
@@ -71,7 +74,6 @@ public class NiftyInstanceResponse {
     *
     * @return keyName
     */
-    @XmlElement(name="KeyName")
     public String getKeyName() {
         return keyName;
     }
@@ -92,7 +94,6 @@ public class NiftyInstanceResponse {
     *
     * @return instanceType
     */
-    @XmlElement(name="InstanceType")
     public String getInstanceType() {
         return instanceType;
     }
@@ -113,7 +114,6 @@ public class NiftyInstanceResponse {
     *
     * @return status
     */
-    @XmlElement(name="Status")
     public String getStatus() {
         return status;
     }
@@ -134,7 +134,6 @@ public class NiftyInstanceResponse {
     *
     * @return dnsName
     */
-    @XmlElement(name="DnsName")
     public String getDnsName() {
         return dnsName;
     }
@@ -155,7 +154,6 @@ public class NiftyInstanceResponse {
     *
     * @return privateDnsName
     */
-    @XmlElement(name="PrivateDnsName")
     public String getPrivateDnsName() {
         return privateDnsName;
     }
@@ -176,7 +174,6 @@ public class NiftyInstanceResponse {
     *
     * @return ipAddress
     */
-    @XmlElement(name="IpAddress")
     public String getIpAddress() {
         return ipAddress;
     }
@@ -197,7 +194,6 @@ public class NiftyInstanceResponse {
     *
     * @return privateIpAddress
     */
-    @XmlElement(name="PrivateIpAddress")
     public String getPrivateIpAddress() {
         return privateIpAddress;
     }
@@ -218,7 +214,6 @@ public class NiftyInstanceResponse {
     *
     * @return initialized
     */
-    @XmlElement(name="Initialized")
     public Boolean getInitialized() {
         return initialized;
     }

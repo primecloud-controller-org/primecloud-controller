@@ -3,86 +3,84 @@ package jp.primecloud.auto.api.response.lb;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import org.codehaus.jackson.annotate.JsonProperty;
 
+import jp.primecloud.auto.api.response.AbstractResponse;
 import jp.primecloud.auto.entity.crud.LoadBalancer;
 
 
-@XmlRootElement(name="DescribeLoadBalancerResponse")
-@XmlType(propOrder={ "success", "message", "loadBalancerNo", "loadBalancerName", "fqdn", "platformNo", "type", "status", "componentNo", "componentName", "listeners", "healthCheck", "instances", "autoScaling" })
-public class DescribeLoadBalancerResponse {
-
-    /**
-     * 処理の成否 true:正常終了、false:エラー
-     */
-    private boolean success;
-
-    /**
-     * メッセージ 正常終了の場合：Null、エラーの場合：エラーメッセージ
-     */
-    private String message;
+public class DescribeLoadBalancerResponse extends AbstractResponse {
 
     /**
      * ロードバランサ番号
      */
+    @JsonProperty("LoadBalancerNo")
     private Long loadBalancerNo;
 
     /**
      * ロードバランサ名
      */
+    @JsonProperty("LoadBalancerName")
     private String loadBalancerName;
 
     /**
      * FQDN
      */
+    @JsonProperty("FQDN")
     private String fqdn;
 
     /**
      * プラットフォーム番号
      */
+    @JsonProperty("PlatformNo")
     private Long platformNo;
 
     /**
      * ロードバランサタイプ
      */
+    @JsonProperty("Type")
     private String type;
 
     /**
      * ロードバランサのステータス
      */
+    @JsonProperty("Status")
     private String status;
 
     /**
      * コンポーネント番号
      */
+    @JsonProperty("ComponentNo")
     private Long componentNo;
 
     /**
      * コンポーネント名
      */
+    @JsonProperty("ComponentName")
     private String componentName;
 
     /**
      * ロードバランサ リスナー情報のリスト
      */
+    @JsonProperty("LISTENERS")
     private List<LoadBalancerListenerResponse> listeners;
 
     /**
      * ロードバランサ ヘルスチェック情報
      */
+    @JsonProperty("HEALTHCHECK")
     private LoadBalancerHealthCheckResponse healthCheck;
 
     /**
      * ロードバランサインスタンス情報のリスト
      */
+    @JsonProperty("INSTANCES")
     private List<LoadBalancerInstanceResponse> instances;
 
     /**
      * ロードバランサ オートスケーリング情報
      */
+    @JsonProperty("AUTOSCALING")
     private AutoScalingConfResponse autoScaling;
 
     public DescribeLoadBalancerResponse() {}
@@ -97,53 +95,10 @@ public class DescribeLoadBalancerResponse {
 
    /**
     *
-    * successを取得します。
-    *
-    * @return success
-    */
-    @XmlElement(name="SUCCESS")
-    public boolean isSuccess() {
-        return success;
-    }
-
-   /**
-    *
-    * successを設定します。
-    *
-    * @param success
-    */
-    public void setSuccess(boolean success) {
-        this.success = success;
-    }
-
-   /**
-    *
-    * messageを取得します。
-    *
-    * @return success
-    */
-    @XmlElement(name="Message")
-    public String getMessage() {
-        return message;
-    }
-
-   /**
-    *
-    * messageを設定します。
-    *
-    * @param message
-    */
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-   /**
-    *
     * loadBalancerNoを取得します。
     *
     * @return loadBalancerNo
     */
-    @XmlElement(name="LoadBalancerNo")
     public Long getLoadBalancerNo() {
         return loadBalancerNo;
     }
@@ -164,7 +119,6 @@ public class DescribeLoadBalancerResponse {
     *
     * @return loadBalancerName
     */
-    @XmlElement(name="LoadBalancerName")
     public String getLoadBalancerName() {
         return loadBalancerName;
     }
@@ -185,7 +139,6 @@ public class DescribeLoadBalancerResponse {
     *
     * @return platformNo
     */
-    @XmlElement(name="PlatformNo")
     public Long getPlatformNo() {
         return platformNo;
     }
@@ -206,7 +159,6 @@ public class DescribeLoadBalancerResponse {
     *
     * @return type
     */
-    @XmlElement(name="Type")
     public String getType() {
         return type;
     }
@@ -227,7 +179,6 @@ public class DescribeLoadBalancerResponse {
     *
     * @return fqdn
     */
-    @XmlElement(name="FQDN")
     public String getFqdn() {
         return fqdn;
     }
@@ -248,7 +199,6 @@ public class DescribeLoadBalancerResponse {
     *
     * @return status
     */
-    @XmlElement(name="Status")
     public String getStatus() {
         return status;
     }
@@ -269,7 +219,6 @@ public class DescribeLoadBalancerResponse {
     *
     * @return componentNo
     */
-    @XmlElement(name="ComponentNo")
     public Long getComponentNo() {
         return componentNo;
     }
@@ -290,7 +239,6 @@ public class DescribeLoadBalancerResponse {
     *
     * @return componentName
     */
-    @XmlElement(name="ComponentName")
     public String getComponentName() {
         return componentName;
     }
@@ -311,8 +259,6 @@ public class DescribeLoadBalancerResponse {
     *
     * @return listeners
     */
-    @XmlElementWrapper(name="LISTENERS")
-    @XmlElement(name="LISTENER")
     public List<LoadBalancerListenerResponse> getListeners() {
         return listeners;
     }
@@ -346,7 +292,6 @@ public class DescribeLoadBalancerResponse {
     *
     * @return healthCheck
     */
-    @XmlElement(name="HEALTHCHECK")
     public LoadBalancerHealthCheckResponse getHealthCheck() {
         return healthCheck;
     }
@@ -367,8 +312,6 @@ public class DescribeLoadBalancerResponse {
     *
     * @return instances
     */
-    @XmlElementWrapper(name="INSTANCES")
-    @XmlElement(name="INSTANCE")
     public List<LoadBalancerInstanceResponse> getInstances() {
         return instances;
     }
@@ -402,7 +345,6 @@ public class DescribeLoadBalancerResponse {
     *
     * @return autoScaling
     */
-    @XmlElement(name="AUTOSCALING")
     public AutoScalingConfResponse getAutoScaling() {
         return autoScaling;
     }

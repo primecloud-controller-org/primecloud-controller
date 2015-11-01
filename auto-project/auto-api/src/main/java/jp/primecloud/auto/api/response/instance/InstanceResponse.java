@@ -1,44 +1,46 @@
 package jp.primecloud.auto.api.response.instance;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import jp.primecloud.auto.entity.crud.Instance;
 
 
-@XmlRootElement(name="InstanceResponse")
-@XmlType(propOrder = { "instanceNo", "instanceName", "fqdn", "publicIp", "privateIp", "status" })
 public class InstanceResponse {
 
     /**
      * インスタンス番号
      */
+    @JsonProperty("InstanceNo")
     private Long instanceNo;
 
     /**
      * インスタンス名
      */
+    @JsonProperty("InstanceName")
     private String instanceName;
 
     /**
      * FQDN
      */
+    @JsonProperty("Fqdn")
     private String fqdn;
 
     /**
      * PublicIp
      */
+    @JsonProperty("PublicIp")
     private String publicIp;
 
     /**
      * PrivateIp
      */
+    @JsonProperty("PrivateIp")
     private String privateIp;
 
     /**
      * Status サーバのステータス
      */
+    @JsonProperty("Status")
     private String status;
 
     public InstanceResponse() {}
@@ -58,7 +60,6 @@ public class InstanceResponse {
     *
     * @return instanceNo
     */
-    @XmlElement(name="InstanceNo")
     public Long getInstanceNo() {
         return instanceNo;
     }
@@ -79,7 +80,6 @@ public class InstanceResponse {
     *
     * @return instanceName
     */
-    @XmlElement(name="InstanceName")
     public String getInstanceName() {
         return instanceName;
     }
@@ -100,7 +100,6 @@ public class InstanceResponse {
     *
     * @return fqdn
     */
-    @XmlElement(name="Fqdn")
     public String getFqdn() {
         return fqdn;
     }
@@ -121,7 +120,6 @@ public class InstanceResponse {
     *
     * @return publicIp
     */
-    @XmlElement(name="PublicIp")
     public String getPublicIp() {
         return publicIp;
     }
@@ -142,7 +140,6 @@ public class InstanceResponse {
     *
     * @return privateIp
     */
-    @XmlElement(name="PrivateIp")
     public String getPrivateIp() {
         return privateIp;
     }
@@ -163,7 +160,6 @@ public class InstanceResponse {
     *
     * @return status
     */
-    @XmlElement(name="Status")
     public String getStatus() {
         return status;
     }

@@ -54,7 +54,7 @@ public class AttachLoadBalancer extends ApiSupport {
      * @return AttachLoadBalancerResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
 	public AttachLoadBalancerResponse attachLoadBalancer(
             @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
 	        @QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo,

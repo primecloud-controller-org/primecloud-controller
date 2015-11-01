@@ -63,7 +63,7 @@ public class EditInstanceNifty extends ApiSupport {
      * @return EditInstanceNiftyResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
     public EditInstanceNiftyResponse editInstanceNifty(
             @Context UriInfo uriInfo,
             @QueryParam(PARAM_NAME_USER) String userName,

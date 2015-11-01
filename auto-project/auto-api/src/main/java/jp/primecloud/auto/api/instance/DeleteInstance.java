@@ -47,7 +47,7 @@ public class DeleteInstance extends ApiSupport {
      * @return DeleteInstanceResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
 	public DeleteInstanceResponse deleteInstance(
 	        @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
 	        @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo) {

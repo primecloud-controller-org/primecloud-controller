@@ -1,66 +1,71 @@
 package jp.primecloud.auto.api.response.lb;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
 import org.apache.commons.lang.BooleanUtils;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import jp.primecloud.auto.entity.crud.AutoScalingConf;
 
 
-@XmlRootElement(name="LoadBalancerAutoScalingResponse")
-@XmlType(propOrder = { "enabled", "platformNo", "imageNo", "instanceType", "namingRule", "idleTimeMax", "idleTimeMin", "continueLimit", "addCount", "delCount" })
 public class AutoScalingConfResponse {
 
     /**
      * 有効/無効 true:有効、false:無効
      */
+    @JsonProperty("Enabled")
     private Boolean enabled;
 
     /**
      * プラットフォーム番号
      */
+    @JsonProperty("PlatformNo")
     private Long platformNo;
 
     /**
      * イメージ番号
      */
+    @JsonProperty("ImageNo")
     private Long imageNo;
 
     /**
      * インスタンスタイプ
      */
+    @JsonProperty("InstanceType")
     private String instanceType;
 
     /**
      * ネーミングルール
      */
+    @JsonProperty("NamingRule")
     private String namingRule;
 
     /**
      * 増加指標CPU使用率(%)
      */
+    @JsonProperty("IdleTimeMax")
     private Long idleTimeMax;
 
     /**
      * 削減指標CPU使用率(%)
      */
+    @JsonProperty("IdleTimeMin")
     private Long idleTimeMin;
 
     /**
      * 監視継続時間(秒)
      */
+    @JsonProperty("ContinueLimit")
     private Long continueLimit;
 
     /**
      * 増加サーバー数(台)
      */
+    @JsonProperty("AddCount")
     private Long addCount;
 
     /**
      * 削減サーバ数(台)
      */
+    @JsonProperty("DelCount")
     private Long delCount;
 
     public AutoScalingConfResponse() {}
@@ -84,7 +89,6 @@ public class AutoScalingConfResponse {
     *
     * @return enabled
     */
-    @XmlElement(name="Enabled")
     public Boolean getEnabled() {
         return enabled;
     }
@@ -105,7 +109,6 @@ public class AutoScalingConfResponse {
     *
     * @return platformNo
     */
-    @XmlElement(name="PlatformNo")
     public Long getPlatformNo() {
         return platformNo;
     }
@@ -126,7 +129,6 @@ public class AutoScalingConfResponse {
     *
     * @return imageNo
     */
-    @XmlElement(name="ImageNo")
     public Long getImageNo() {
         return imageNo;
     }
@@ -147,7 +149,6 @@ public class AutoScalingConfResponse {
     *
     * @return instanceType
     */
-    @XmlElement(name="InstanceType")
     public String getInstanceType() {
         return instanceType;
     }
@@ -168,7 +169,6 @@ public class AutoScalingConfResponse {
     *
     * @return namingRule
     */
-    @XmlElement(name="NamingRule")
     public String getNamingRule() {
         return namingRule;
     }
@@ -189,7 +189,6 @@ public class AutoScalingConfResponse {
     *
     * @return idleTimeMax
     */
-    @XmlElement(name="IdleTimeMax")
     public Long getIdleTimeMax() {
         return idleTimeMax;
     }
@@ -210,7 +209,6 @@ public class AutoScalingConfResponse {
     *
     * @return idleTimeMin
     */
-    @XmlElement(name="IdleTimeMin")
     public Long getIdleTimeMin() {
         return idleTimeMin;
     }
@@ -231,7 +229,6 @@ public class AutoScalingConfResponse {
     *
     * @return continueLimit
     */
-    @XmlElement(name="ContinueLimit")
     public Long getContinueLimit() {
         return continueLimit;
     }
@@ -252,7 +249,6 @@ public class AutoScalingConfResponse {
     *
     * @return addCount
     */
-    @XmlElement(name="AddCount")
     public Long getAddCount() {
         return addCount;
     }
@@ -273,7 +269,6 @@ public class AutoScalingConfResponse {
     *
     * @return delCount
     */
-    @XmlElement(name="DelCount")
     public Long getDelCount() {
         return delCount;
     }

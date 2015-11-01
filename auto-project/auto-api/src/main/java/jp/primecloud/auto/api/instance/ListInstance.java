@@ -53,7 +53,7 @@ public class ListInstance extends ApiSupport {
      * @return ListInstanceResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
 	public ListInstanceResponse listInstance(
 	        @QueryParam(PARAM_NAME_FARM_NO) String farmNo){
 

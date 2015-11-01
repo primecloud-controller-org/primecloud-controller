@@ -1,39 +1,40 @@
 package jp.primecloud.auto.api.response;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import jp.primecloud.auto.entity.crud.PlatformVmware;
 
 
-@XmlRootElement(name="PlatformVmwareResponse")
-@XmlType(propOrder = {"url","datacenter","publicNetwork","privateNetwork","computresource"})
 public class PlatformVmwareResponse {
 
     /**
      * ホストURL
      */
+    @JsonProperty("Url")
     private String url;
 
     /**
      * データセンター
      */
+    @JsonProperty("Datacenter")
     private String datacenter;
 
     /**
      * パブリックネットワーク
      */
+    @JsonProperty("PublicNetwork")
     private String publicNetwork;
 
     /**
      * プライベートネットワーク
      */
+    @JsonProperty("PrivateNetwork")
     private String privateNetwork;
 
     /**
      * コンピュートリソース
      */
+    @JsonProperty("Computresource")
     private String computresource;
 
     public PlatformVmwareResponse() {}
@@ -52,7 +53,6 @@ public class PlatformVmwareResponse {
     *
     * @return url
     */
-    @XmlElement(name="Url")
     public String getUrl() {
         return url;
     }
@@ -73,7 +73,6 @@ public class PlatformVmwareResponse {
     *
     * @return datacenter
     */
-    @XmlElement(name="Datacenter")
     public String getDatacenter() {
         return datacenter;
     }
@@ -94,7 +93,6 @@ public class PlatformVmwareResponse {
     *
     * @return publicNetwork
     */
-    @XmlElement(name="PublicNetwork")
     public String getPublicNetwork() {
         return publicNetwork;
     }
@@ -115,7 +113,6 @@ public class PlatformVmwareResponse {
     *
     * @return privateNetwork
     */
-    @XmlElement(name="PrivateNetwork")
     public String getPrivateNetwork() {
         return privateNetwork;
     }
@@ -136,7 +133,6 @@ public class PlatformVmwareResponse {
     *
     * @return computresource
     */
-    @XmlElement(name="Computresource")
     public String getComputresource() {
         return computresource;
     }

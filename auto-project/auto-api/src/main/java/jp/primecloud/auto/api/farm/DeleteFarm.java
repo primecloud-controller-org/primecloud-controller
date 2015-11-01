@@ -42,7 +42,7 @@ public class DeleteFarm extends ApiSupport {
      * @return DeleteFarmResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
     public DeleteFarmResponse deleteFarm(
             @QueryParam(PARAM_NAME_FARM_NO) String farmNo){
 

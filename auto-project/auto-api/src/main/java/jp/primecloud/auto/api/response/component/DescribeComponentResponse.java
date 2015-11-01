@@ -3,51 +3,42 @@ package jp.primecloud.auto.api.response.component;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import org.codehaus.jackson.annotate.JsonProperty;
 
+import jp.primecloud.auto.api.response.AbstractResponse;
 import jp.primecloud.auto.entity.crud.Component;
 
 
-@XmlRootElement(name="DescribeComponentResponse")
-@XmlType(propOrder = {"success", "message", "componentNo", "componentName", "componentTypeNo", "comment", "instances"})
-public class DescribeComponentResponse {
-
-    /**
-     * 処理の成否 true:正常終了、false:エラー
-     */
-    private boolean success;
-
-    /**
-     * メッセージ 正常終了の場合：Null、エラーの場合：エラーメッセージ
-     */
-    private String message;
+public class DescribeComponentResponse extends AbstractResponse {
 
     /**
      * コンポーネント番号
      */
+    @JsonProperty("ComponentNo")
     private Long componentNo;
 
     /**
      * コンポーネント名
      */
+    @JsonProperty("ComponentName")
     private String componentName;
 
     /**
      * コンポーネントタイプ番号
      */
+    @JsonProperty("ComponentTypeNo")
     private Long componentTypeNo;
 
     /**
      * コメント
      */
+    @JsonProperty("Comment")
     private String comment;
 
     /**
      * コンポーネントインスタンス情報のリスト
      */
+    @JsonProperty("Instances")
     private List<ComponentInstanceResponse> instances;
 
 
@@ -62,53 +53,10 @@ public class DescribeComponentResponse {
 
    /**
     *
-    * successを取得します。
-    *
-    * @return success
-    */
-    @XmlElement(name="SUCCESS")
-    public boolean isSuccess() {
-        return success;
-    }
-
-   /**
-    *
-    * successを設定します。
-    *
-    * @param success
-    */
-    public void setSuccess(boolean success) {
-        this.success = success;
-    }
-
-   /**
-    *
-    * messageを取得します。
-    *
-    * @return success
-    */
-    @XmlElement(name="Message")
-    public String getMessage() {
-        return message;
-    }
-
-   /**
-    *
-    * messageを設定します。
-    *
-    * @param message
-    */
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-   /**
-    *
     * componentNoを取得します。
     *
     * @return componentNo
     */
-    @XmlElement(name="ComponentNo")
     public Long getComponentNo() {
         return componentNo;
     }
@@ -129,7 +77,6 @@ public class DescribeComponentResponse {
     *
     * @return componentName
     */
-    @XmlElement(name="ComponentName")
     public String getComponentName() {
         return componentName;
     }
@@ -150,7 +97,6 @@ public class DescribeComponentResponse {
     *
     * @return componentTypeNo
     */
-    @XmlElement(name="ComponentTypeNo")
     public Long getComponentTypeNo() {
         return componentTypeNo;
     }
@@ -171,7 +117,6 @@ public class DescribeComponentResponse {
     *
     * @return comment
     */
-    @XmlElement(name="Comment")
     public String getComment() {
         return comment;
     }
@@ -192,8 +137,6 @@ public class DescribeComponentResponse {
     *
     * @return instances
     */
-    @XmlElementWrapper(name="Instances")
-    @XmlElement(name="Instance")
     public List<ComponentInstanceResponse> getInstances() {
         return instances;
     }

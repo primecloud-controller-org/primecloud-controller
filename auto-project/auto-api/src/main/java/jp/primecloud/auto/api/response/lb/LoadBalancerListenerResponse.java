@@ -1,46 +1,47 @@
 package jp.primecloud.auto.api.response.lb;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
 import org.apache.commons.lang.BooleanUtils;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import jp.primecloud.auto.entity.crud.LoadBalancerListener;
 
 
-@XmlRootElement(name="LoadBalancerListenerResponse")
-@XmlType(propOrder = { "loadBalancerNo", "loadBalancerPort", "servicePort", "protocol", "enabled", "status" })
 public class LoadBalancerListenerResponse {
 
     /**
      * ロードバランサ番号
      */
+    @JsonProperty("LoadBalancerNo")
     private Long loadBalancerNo;
 
     /**
      * ロードバランサポート
      */
+    @JsonProperty("LoadBalancerPort")
     private Integer loadBalancerPort;
 
     /**
      * サービスポート
      */
+    @JsonProperty("ServicePort")
     private Integer servicePort;
 
     /**
      * プロトコル
      */
+    @JsonProperty("Protocol")
     private String protocol;
 
     /**
      * 有効/無効
      */
+    @JsonProperty("Enabled")
     private Boolean enabled;
 
     /**
      * ステータス
      */
+    @JsonProperty("Status")
     private String status;
 
     public LoadBalancerListenerResponse() {}
@@ -60,7 +61,6 @@ public class LoadBalancerListenerResponse {
     *
     * @return loadBalancerNo
     */
-    @XmlElement(name="LoadBalancerNo")
     public Long getLoadBalancerNo() {
         return loadBalancerNo;
     }
@@ -81,7 +81,6 @@ public class LoadBalancerListenerResponse {
     *
     * @return loadBalancerPort
     */
-    @XmlElement(name="LoadBalancerPort")
     public Integer getLoadBalancerPort() {
         return loadBalancerPort;
     }
@@ -102,7 +101,6 @@ public class LoadBalancerListenerResponse {
     *
     * @return servicePort
     */
-    @XmlElement(name="ServicePort")
     public Integer getServicePort() {
         return servicePort;
     }
@@ -123,7 +121,6 @@ public class LoadBalancerListenerResponse {
     *
     * @return protocol
     */
-    @XmlElement(name="Protocol")
     public String getProtocol() {
         return protocol;
     }
@@ -144,7 +141,6 @@ public class LoadBalancerListenerResponse {
     *
     * @return enabled
     */
-    @XmlElement(name="Enabled")
     public Boolean getEnabled() {
         return enabled;
     }
@@ -165,7 +161,6 @@ public class LoadBalancerListenerResponse {
     *
     * @return status
     */
-    @XmlElement(name="Status")
     public String getStatus() {
         return status;
     }

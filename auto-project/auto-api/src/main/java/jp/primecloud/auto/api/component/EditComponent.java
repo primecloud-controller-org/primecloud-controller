@@ -61,7 +61,7 @@ public class EditComponent extends ApiSupport{
      * @return EditComponentResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
 	public EditComponentResponse editComponent(
 	        @Context UriInfo uriInfo,
             @QueryParam(PARAM_NAME_FARM_NO) String farmNo,

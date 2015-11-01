@@ -49,7 +49,7 @@ public class DescribeLoadBalancerHealthCheck extends ApiSupport {
      * @return DescribeLoadBalancerHealthCheckResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
     public DescribeLoadBalancerHealthCheckResponse describeLoadBalancerHealthCheck(
             @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
             @QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo){

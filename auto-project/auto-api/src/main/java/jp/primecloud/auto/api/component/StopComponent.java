@@ -59,7 +59,7 @@ public class StopComponent extends ApiSupport{
      * @return StopComponentResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
 	public StopComponentResponse stopComponent(
             @Context UriInfo uriInfo,
 	        @QueryParam(PARAM_NAME_FARM_NO) String farmNo,

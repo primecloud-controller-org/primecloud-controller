@@ -70,7 +70,7 @@ public class EditInstanceVmware extends ApiSupport {
      * @return EditInstanceVmwareResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
     public EditInstanceVmwareResponse editInstanceVmware(
             @Context UriInfo uriInfo,
             @QueryParam(PARAM_NAME_USER) String userName,

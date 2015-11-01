@@ -1,89 +1,89 @@
 package jp.primecloud.auto.api.response.instance;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import org.codehaus.jackson.annotate.JsonProperty;
 
+import jp.primecloud.auto.api.response.AbstractResponse;
 import jp.primecloud.auto.entity.crud.Instance;
 
 
-@XmlRootElement(name="DescribeInstanceResponse")
-@XmlType(propOrder = { "success", "message", "instanceNo", "instanceName", "fqdn", "publicIp", "privateIp", "status", "aws", "nifty", "vmware", "cloudstack", "vcloud" , "openstack" , "azure"})
-public class DescribeInstanceResponse {
-
-    /**
-     * 処理の成否 true:正常終了、false:エラー
-     */
-    private boolean success;
-
-    /**
-     * メッセージ 正常終了の場合：Null、エラーの場合：エラーメッセージ
-     */
-    private String message;
+public class DescribeInstanceResponse extends AbstractResponse {
 
     /**
      * インスタンス番号
      */
+    @JsonProperty("InstanceNo")
     private Long instanceNo;
 
     /**
      * インスタンス名
      */
+    @JsonProperty("InstanceName")
     private String instanceName;
 
     /**
      * FQDN
      */
+    @JsonProperty("Fqdn")
     private String fqdn;
 
     /**
      * PublicIp
      */
+    @JsonProperty("PublicIp")
     private String publicIp;
 
     /**
      * PrivateIp
      */
+    @JsonProperty("PrivateIp")
     private String privateIp;
 
     /**
      * Status サーバのステータス
      */
+    @JsonProperty("Status")
     private String status;
 
     /**
      * AWSインスタンス情報
      */
+    @JsonProperty("AWS")
     private AwsInstanceResponse aws;
 
     /**
      * Niftyインスタンス情報
      */
+    @JsonProperty("NIFTY")
     private NiftyInstanceResponse nifty;
 
     /**
      * VMWareインスタンス情報
      */
+    @JsonProperty("VMWARE")
     private VmwareInstanceResponse vmware;
 
     /**
      * CloudStackインスタンス情報
      */
+    @JsonProperty("CLOUDSTACK")
     private CloudstackInstanceResponse cloudstack;
 
     /**
      * VCloudインスタンス情報
      */
+    @JsonProperty("VCLOUD")
     private VcloudInstanceResponse vcloud;
 
     /**
      * Openstackインスタンス情報
      */
+    @JsonProperty("OPENSTACK")
     private OpenstackInstanceResponse openstack;
 
     /**
      * Azureインスタンス情報
      */
+    @JsonProperty("AZURE")
     private AzureInstanceResponse azure;
 
     public DescribeInstanceResponse() {}
@@ -99,53 +99,10 @@ public class DescribeInstanceResponse {
 
    /**
     *
-    * successを取得します。
-    *
-    * @return success
-    */
-    @XmlElement(name="SUCCESS")
-    public boolean isSuccess() {
-        return success;
-    }
-
-   /**
-    *
-    * successを設定します。
-    *
-    * @param success
-    */
-    public void setSuccess(boolean success) {
-        this.success = success;
-    }
-
-   /**
-    *
-    * messageを取得します。
-    *
-    * @return success
-    */
-    @XmlElement(name="Message")
-    public String getMessage() {
-        return message;
-    }
-
-   /**
-    *
-    * messageを設定します。
-    *
-    * @param message
-    */
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-   /**
-    *
     * instanceNoを取得します。
     *
     * @return instanceNo
     */
-    @XmlElement(name="InstanceNo")
     public Long getInstanceNo() {
         return instanceNo;
     }
@@ -166,7 +123,6 @@ public class DescribeInstanceResponse {
     *
     * @return instanceName
     */
-    @XmlElement(name="InstanceName")
     public String getInstanceName() {
         return instanceName;
     }
@@ -187,7 +143,6 @@ public class DescribeInstanceResponse {
     *
     * @return fqdn
     */
-    @XmlElement(name="Fqdn")
     public String getFqdn() {
         return fqdn;
     }
@@ -208,7 +163,6 @@ public class DescribeInstanceResponse {
     *
     * @return publicIp
     */
-    @XmlElement(name="PublicIp")
     public String getPublicIp() {
         return publicIp;
     }
@@ -229,7 +183,6 @@ public class DescribeInstanceResponse {
     *
     * @return privateIp
     */
-    @XmlElement(name="PrivateIp")
     public String getPrivateIp() {
         return privateIp;
     }
@@ -250,7 +203,6 @@ public class DescribeInstanceResponse {
     *
     * @return status
     */
-    @XmlElement(name="Status")
     public String getStatus() {
         return status;
     }
@@ -271,7 +223,6 @@ public class DescribeInstanceResponse {
     *
     * @return aws
     */
-    @XmlElement(name="AWS")
     public AwsInstanceResponse getAws() {
         return aws;
     }
@@ -292,7 +243,6 @@ public class DescribeInstanceResponse {
     *
     * @return nifty
     */
-    @XmlElement(name="NIFTY")
     public NiftyInstanceResponse getNifty() {
         return nifty;
     }
@@ -313,7 +263,6 @@ public class DescribeInstanceResponse {
     *
     * @return vmware
     */
-    @XmlElement(name="VMWARE")
     public VmwareInstanceResponse getVmware() {
         return vmware;
     }
@@ -334,7 +283,6 @@ public class DescribeInstanceResponse {
     *
     * @return cloudstack
     */
-    @XmlElement(name="CLOUDSTACK")
     public CloudstackInstanceResponse getCloudstack() {
         return cloudstack;
     }
@@ -355,7 +303,6 @@ public class DescribeInstanceResponse {
     *
     * @return vcloud
     */
-    @XmlElement(name="VCLOUD")
     public VcloudInstanceResponse getVcloud() {
         return vcloud;
     }
@@ -376,7 +323,6 @@ public class DescribeInstanceResponse {
     *
     * @return openstack
     */
-    @XmlElement(name="OPENSTACK")
     public OpenstackInstanceResponse getOpenstack() {
         return openstack;
     }
@@ -397,7 +343,6 @@ public class DescribeInstanceResponse {
     *
     * @return azure
     */
-    @XmlElement(name="AZURE")
     public AzureInstanceResponse getAzure() {
         return azure;
     }

@@ -56,7 +56,7 @@ public class ListComponent extends ApiSupport {
      * @return ListComponentResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
     public ListComponentResponse listComponent(
             @QueryParam(PARAM_NAME_FARM_NO) String farmNo){
 

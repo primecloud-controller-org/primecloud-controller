@@ -1,69 +1,76 @@
 package jp.primecloud.auto.api.response.instance;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import jp.primecloud.auto.entity.crud.AzureInstance;
 
 
-@XmlRootElement(name="NiftyInstanceResponse")
-@XmlType(propOrder = {"instanceName","affinityGroupName","cloudServiceName","storageAccountName","networkName","instanceType", "status" , "subnetId","privateIpAddress" , "locationName" , "availabilitySet" })
 public class AzureInstanceResponse {
 
     /**
      * インスタンス名
      */
+    @JsonProperty("InstanceName")
     private String instanceName;
 
     /**
      * アフィニティグループ名
      */
+    @JsonProperty("CloudServiceName")
     private String affinityGroupName;
 
     /**
      * クラウドサービス名
      */
+    @JsonProperty("CloudServiceName")
     private String cloudServiceName;
 
     /**
      * ストレージアカウント名
      */
+    @JsonProperty("StorageAccountName")
     private String storageAccountName;
 
     /**
      * ネットワーク名
      */
+    @JsonProperty("NetworkName")
     private String networkName;
 
     /**
      * インスタンスタイプ
      */
+    @JsonProperty("InstanceType")
     private String instanceType;
 
     /**
      * ステータス
      */
+    @JsonProperty("Status")
     private String status;
 
     /**
      * サブネットID
      */
+    @JsonProperty("SubnetId")
     private String subnetId;
 
     /**
      * プライベートIPアドレス
      */
+    @JsonProperty("PrivateIpAddress")
     private String privateIpAddress;
 
     /**
      * ロケーション名
      */
+    @JsonProperty("LocationName")
     private String locationName;
 
     /**
      * ゾーン
      */
+    @JsonProperty("AvailabilitySet")
     private String availabilitySet;
 
     public AzureInstanceResponse() {}
@@ -88,7 +95,6 @@ public class AzureInstanceResponse {
     *
     * @return InstanceName
     */
-    @XmlElement(name="InstanceName")
     public String getInstanceName() {
         return instanceName;
     }
@@ -110,7 +116,6 @@ public class AzureInstanceResponse {
     *
     * @return CloudServiceName
     */
-    @XmlElement(name="CloudServiceName")
     public String getAffinityGroupName() {
         return affinityGroupName;
     }
@@ -131,7 +136,6 @@ public class AzureInstanceResponse {
     *
     * @return CloudServiceName
     */
-    @XmlElement(name="CloudServiceName")
     public String getCloudServiceName() {
         return cloudServiceName;
     }
@@ -152,7 +156,6 @@ public class AzureInstanceResponse {
     *
     * @return StorageAccountName
     */
-    @XmlElement(name="StorageAccountName")
     public String getStorageAccountName() {
         return storageAccountName;
     }
@@ -173,7 +176,6 @@ public class AzureInstanceResponse {
     *
     * @return NetworkName
     */
-    @XmlElement(name="NetworkName")
     public String getNetworkName() {
         return networkName;
     }
@@ -194,7 +196,6 @@ public class AzureInstanceResponse {
     *
     * @return InstnaceType
     */
-    @XmlElement(name="InstanceType")
     public String getInstanceType() {
         return instanceType;
     }
@@ -215,7 +216,6 @@ public class AzureInstanceResponse {
     *
     * @return status
     */
-    @XmlElement(name="Status")
     public String getStatus() {
         return status;
     }
@@ -236,7 +236,6 @@ public class AzureInstanceResponse {
     *
     * @return SubnetId
     */
-    @XmlElement(name="SubnetId")
     public String getSubnetId() {
         return subnetId;
     }
@@ -257,7 +256,6 @@ public class AzureInstanceResponse {
     *
     * @return PrivateIpAddress
     */
-    @XmlElement(name="PrivateIpAddress")
     public String getPrivateIpAddress() {
         return privateIpAddress;
     }
@@ -278,7 +276,6 @@ public class AzureInstanceResponse {
     *
     * @return LocationName
     */
-    @XmlElement(name="LocationName")
     public String getLocationName() {
         return locationName;
     }
@@ -299,7 +296,6 @@ public class AzureInstanceResponse {
     *
     * @return AvailabilitySet
     */
-    @XmlElement(name="AvailabilitySet")
     public String getAvailabilitySet() {
         return availabilitySet;
     }

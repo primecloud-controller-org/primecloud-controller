@@ -76,7 +76,7 @@ public class ListEventLog extends ApiSupport {
      * @return
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
 	public ListEventLogResponse login(
 	        @QueryParam(PARAM_NAME_USER) String userName,
 	        @QueryParam(PARAM_NAME_IS_FROM_CURRENT) String isFromCurrent,

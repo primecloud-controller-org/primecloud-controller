@@ -55,7 +55,7 @@ public class DescribeComponent extends ApiSupport {
      * @return DescribeComponentResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
     public DescribeComponentResponse describeComponent(
             @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
             @QueryParam(PARAM_NAME_COMPONENT_NO) String componentNo){

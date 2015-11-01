@@ -1,44 +1,46 @@
 package jp.primecloud.auto.api.response.component;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import jp.primecloud.auto.entity.crud.Component;
 
 
-@XmlRootElement(name="Component")
-@XmlType(propOrder = { "componentNo", "componentName", "componentTypeNo", "instanceCount", "loadBalancerName", "status"})
 public class ComponentResponse {
 
     /**
      * コンポーネント番号
      */
+    @JsonProperty("ComponentNo")
     private Long componentNo;
 
     /**
      * コンポーネント名
      */
+    @JsonProperty("ComponentName")
     private String componentName;
 
     /**
      * コンポーネントタイプ番号
      */
+    @JsonProperty("ComponentTypeNo")
     private Long componentTypeNo;
 
     /**
      * インスタンス数(紐付いているインスタンスの数)
      */
+    @JsonProperty("InstanceCount")
     private Integer instanceCount;
 
     /**
      * ロードバランサ名(設定されているLBの名称(1件目))
      */
+    @JsonProperty("LoadBalancerName")
     private String loadBalancerName;
 
     /**
      * ステータス
      */
+    @JsonProperty("Status")
     private String status;
 
     public ComponentResponse() {}
@@ -55,7 +57,6 @@ public class ComponentResponse {
     *
     * @return componentNo
     */
-    @XmlElement(name="ComponentNo")
     public Long getComponentNo() {
         return componentNo;
     }
@@ -76,7 +77,6 @@ public class ComponentResponse {
     *
     * @return componentName
     */
-    @XmlElement(name="ComponentName")
     public String getComponentName() {
         return componentName;
     }
@@ -97,7 +97,6 @@ public class ComponentResponse {
     *
     * @return componentTypeNo
     */
-    @XmlElement(name="ComponentTypeNo")
     public Long getComponentTypeNo() {
         return componentTypeNo;
     }
@@ -118,7 +117,6 @@ public class ComponentResponse {
     *
     * @return instanceCount
     */
-    @XmlElement(name="InstanceCount")
     public Integer getInstanceCount() {
         return instanceCount;
     }
@@ -139,7 +137,6 @@ public class ComponentResponse {
     *
     * @return loadBalancerName
     */
-    @XmlElement(name="LoadBalancerName")
     public String getLoadBalancerName() {
         return loadBalancerName;
     }
@@ -160,7 +157,6 @@ public class ComponentResponse {
     *
     * @return status
     */
-    @XmlElement(name="Status")
     public String getStatus() {
         return status;
     }

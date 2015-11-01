@@ -56,7 +56,7 @@ public class CreateLoadBalancerListener extends ApiSupport {
      * @return CreateLoadBalancerListenerResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
 	public CreateLoadBalancerListenerResponse createLoadBalancerListener(
             @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
 	        @QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo,

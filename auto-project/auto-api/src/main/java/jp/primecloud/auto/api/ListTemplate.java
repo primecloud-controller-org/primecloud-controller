@@ -52,7 +52,7 @@ public class ListTemplate extends ApiSupport {
      * @return ListTemplateResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
 	public ListTemplateResponse listTemplate(
 	        @QueryParam(PARAM_NAME_USER) String userName){
 

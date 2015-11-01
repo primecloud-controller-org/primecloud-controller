@@ -74,7 +74,7 @@ public class EditLoadBalancerAutoScaling extends ApiSupport {
      * @return EditLoadBalancerAutoScalingResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
 	public EditLoadBalancerAutoScalingResponse editLoadBalancer(
 	        @QueryParam(PARAM_NAME_USER) String userName,
             @QueryParam(PARAM_NAME_FARM_NO) String farmNo,

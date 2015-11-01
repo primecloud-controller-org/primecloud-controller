@@ -64,7 +64,7 @@ public class StartComponent extends ApiSupport{
      * @return StartComponentResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
 	public StartComponentResponse startComponent(
             @Context UriInfo uriInfo,
 	        @QueryParam(PARAM_NAME_FARM_NO) String farmNo,

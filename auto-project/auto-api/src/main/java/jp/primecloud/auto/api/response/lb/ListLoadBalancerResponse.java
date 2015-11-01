@@ -3,74 +3,20 @@ package jp.primecloud.auto.api.response.lb;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import org.codehaus.jackson.annotate.JsonProperty;
+
+import jp.primecloud.auto.api.response.AbstractResponse;
 
 
-@XmlRootElement(name="ListLoadBalancerResponse")
-@XmlType(propOrder = {"success", "message", "loadBalancers"})
-public class ListLoadBalancerResponse {
-
-    /**
-     * 処理の成否 true:正常終了、false:エラー
-     */
-    private boolean success;
-
-    /**
-     * メッセージ 正常終了の場合：Null、エラーの場合：エラーメッセージ
-     */
-    private String message;
+public class ListLoadBalancerResponse extends AbstractResponse {
 
     /**
      * インスタンス情報のリスト
      */
+    @JsonProperty("LoadBalancers")
     private List<LoadBalancerResponse> loadBalancers;
 
     public ListLoadBalancerResponse() {}
-
-   /**
-    *
-    * successを取得します。
-    *
-    * @return success
-    */
-    @XmlElement(name="SUCCESS")
-    public boolean isSuccess() {
-        return success;
-    }
-
-   /**
-    *
-    * successを設定します。
-    *
-    * @param success
-    */
-    public void setSuccess(boolean success) {
-        this.success = success;
-    }
-
-   /**
-    *
-    * messageを取得します。
-    *
-    * @return success
-    */
-    @XmlElement(name="Message")
-    public String getMessage() {
-        return message;
-    }
-
-   /**
-    *
-    * messageを設定します。
-    *
-    * @param message
-    */
-    public void setMessage(String message) {
-        this.message = message;
-    }
 
    /**
     *
@@ -78,8 +24,6 @@ public class ListLoadBalancerResponse {
     *
     * @return loadBalancers
     */
-    @XmlElementWrapper(name="LoadBalancers")
-    @XmlElement(name="LoadBalancer")
     public List<LoadBalancerResponse> getLoadBalancers() {
         return loadBalancers;
     }

@@ -55,7 +55,7 @@ public class DetachComponent extends ApiSupport {
      * @return DetachComponentResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
     public DetachComponentResponse detachComponent(
             @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
             @QueryParam(PARAM_NAME_COMPONENT_NO) String componentNo,

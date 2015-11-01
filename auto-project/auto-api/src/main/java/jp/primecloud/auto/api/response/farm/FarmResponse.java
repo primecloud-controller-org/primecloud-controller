@@ -1,34 +1,34 @@
 package jp.primecloud.auto.api.response.farm;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import jp.primecloud.auto.entity.crud.Farm;
 
 
-@XmlRootElement(name="FarmResponse")
-@XmlType(propOrder = {"farmNo", "farmName", "domainName", "comment"})
 public class FarmResponse {
 
     /**
      * ファーム番号
      */
+    @JsonProperty("FarmNo")
     private Long farmNo;
 
     /**
      * ファーム名
      */
+    @JsonProperty("FarmName")
     private String farmName;
 
     /**
      * ドメイン名
      */
+    @JsonProperty("DomainName")
     private String domainName;
 
     /**
      * コメント
      */
+    @JsonProperty("Comment")
     private String comment;
 
     public FarmResponse() {}
@@ -46,7 +46,6 @@ public class FarmResponse {
     *
     * @return farmNo
     */
-    @XmlElement(name="FarmNo")
     public Long getFarmNo() {
         return farmNo;
     }
@@ -67,7 +66,6 @@ public class FarmResponse {
     *
     * @return farmName
     */
-    @XmlElement(name="FarmName")
     public String getFarmName() {
         return farmName;
     }
@@ -88,7 +86,6 @@ public class FarmResponse {
     *
     * @return domainName
     */
-    @XmlElement(name="DomainName")
     public String getDomainName() {
         return domainName;
     }
@@ -109,7 +106,6 @@ public class FarmResponse {
     *
     * @return comment
     */
-    @XmlElement(name="Comment")
     public String getComment() {
         return comment;
     }

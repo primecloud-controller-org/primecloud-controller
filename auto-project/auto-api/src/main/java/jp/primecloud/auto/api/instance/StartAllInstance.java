@@ -54,7 +54,7 @@ public class StartAllInstance extends ApiSupport {
      * @return StartAllInstanceResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
     public StartAllInstanceResponse startAllInstance(
             @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
             @QueryParam(PARAM_NAME_IS_START_SERVICE) String isStartService){

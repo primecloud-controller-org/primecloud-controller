@@ -55,7 +55,7 @@ public class DisableLBListener extends ApiSupport {
      * @return DisableLBListenerResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
 	public DisableLBListenerResponse disableLBListener(
             @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
 	        @QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo,

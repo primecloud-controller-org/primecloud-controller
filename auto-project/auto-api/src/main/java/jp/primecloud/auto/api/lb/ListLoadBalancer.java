@@ -52,7 +52,7 @@ public class ListLoadBalancer extends ApiSupport {
      * @return ListLoadBalancerResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
     public ListLoadBalancerResponse listLoadBalancer(
             @QueryParam(PARAM_NAME_FARM_NO) String farmNo){
 

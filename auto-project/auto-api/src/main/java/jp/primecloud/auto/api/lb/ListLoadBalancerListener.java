@@ -52,7 +52,7 @@ public class ListLoadBalancerListener extends ApiSupport {
      * @return ListLoadBalancerListenerResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
     public ListLoadBalancerListenerResponse describeLoadBalancerHealthCheck(
             @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
             @QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo){

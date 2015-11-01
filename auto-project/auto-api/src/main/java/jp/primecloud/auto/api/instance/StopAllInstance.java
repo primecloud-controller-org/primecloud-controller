@@ -52,7 +52,7 @@ public class StopAllInstance extends ApiSupport {
      * @return StopAllInstanceResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
     public StopAllInstanceResponse stoptAllInstance(
             @QueryParam(PARAM_NAME_FARM_NO) String farmNo){
 

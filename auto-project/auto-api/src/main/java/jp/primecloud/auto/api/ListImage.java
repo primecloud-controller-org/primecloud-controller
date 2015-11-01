@@ -50,7 +50,7 @@ public class ListImage extends ApiSupport {
      * @return ListImageResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
 	public ListImageResponse listImage(
 	        @QueryParam(PARAM_NAME_USER) String userName,
 	        @QueryParam(PARAM_NAME_FARM_NO) String farmNo,

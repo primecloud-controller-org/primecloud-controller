@@ -45,7 +45,7 @@ public class DisableZabbixMonitoringInstance extends ApiSupport {
      * @return DisableZabbixMonitoringInstanceResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
 	public DisableZabbixMonitoringInstanceResponse disableZabbixMonitoringInstance(
 	        @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
 	        @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo) {

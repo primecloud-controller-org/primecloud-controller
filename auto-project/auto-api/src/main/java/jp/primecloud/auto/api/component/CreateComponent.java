@@ -50,7 +50,7 @@ public class CreateComponent extends ApiSupport{
      * @return CreateComponentResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
 	public CreateComponentResponse createComponent(
 	        @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
 	        @QueryParam(PARAM_NAME_COMPONENT_NAME) String componentName,
