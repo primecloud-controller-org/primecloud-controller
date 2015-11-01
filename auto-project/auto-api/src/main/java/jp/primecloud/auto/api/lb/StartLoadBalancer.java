@@ -40,8 +40,6 @@ import jp.primecloud.auto.entity.crud.AwsLoadBalancer;
 import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.entity.crud.PlatformAws;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.util.MessageUtils;
 
 
 @Path("/StartLoadBalancer")
@@ -64,7 +62,6 @@ public class StartLoadBalancer extends ApiSupport {
 
         StartLoadBalancerResponse response = new StartLoadBalancerResponse();
 
-        try {
             // 入力チェック
             // FarmNo
             ApiValidate.validateFarmNo(farmNo);
@@ -106,17 +103,6 @@ public class StartLoadBalancer extends ApiSupport {
             processService.startLoadBalancers(Long.parseLong(farmNo), lbNos);
 
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
     }

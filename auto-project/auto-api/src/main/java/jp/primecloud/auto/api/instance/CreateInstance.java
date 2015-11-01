@@ -46,8 +46,6 @@ import jp.primecloud.auto.entity.crud.ImageAzure;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.util.MessageUtils;
 
 
 @Path("/CreateInstance")
@@ -80,7 +78,6 @@ public class CreateInstance extends ApiSupport {
 
         CreateInstanceResponse response = new CreateInstanceResponse();
 
-        try {
             // 入力チェック
             // Key(ユーザ名)
             ApiValidate.validateUser(userName);
@@ -152,17 +149,6 @@ public class CreateInstance extends ApiSupport {
 
             response.setInstanceNo(newInstanceNo);
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
     }

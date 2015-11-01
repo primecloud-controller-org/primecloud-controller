@@ -51,10 +51,7 @@ import jp.primecloud.auto.entity.crud.PlatformVmware;
 import jp.primecloud.auto.entity.crud.PlatformOpenstack;
 import jp.primecloud.auto.entity.crud.PlatformAzure;
 import jp.primecloud.auto.entity.crud.User;
-import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.service.dto.SubnetDto;
-import jp.primecloud.auto.util.MessageUtils;
 
 
 @Path("/ListPlatform")
@@ -76,7 +73,6 @@ public class ListPlatform extends ApiSupport {
 
         ListPlatformResponse response = new ListPlatformResponse();
 
-        try {
             // 入力チェック
             // Key(ユーザ名)
             ApiValidate.validateUser(userName);
@@ -122,17 +118,6 @@ public class ListPlatform extends ApiSupport {
             }
 
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
 	}

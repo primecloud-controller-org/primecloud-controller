@@ -42,8 +42,6 @@ import jp.primecloud.auto.entity.crud.ComponentType;
 import jp.primecloud.auto.entity.crud.Image;
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.util.MessageUtils;
 
 
 @Path("/AttachComponent")
@@ -67,7 +65,6 @@ public class AttachComponent extends ApiSupport {
 
         AttachComponentResponse response = new AttachComponentResponse();
 
-        try {
             // 入力チェック
             // FarmNo
             ApiValidate.validateFarmNo(farmNo);
@@ -145,17 +142,6 @@ public class AttachComponent extends ApiSupport {
             componentService.associateInstances(Long.parseLong(componentNo), instanceNos);
 
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
 	}

@@ -39,8 +39,6 @@ import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.entity.crud.LoadBalancerListener;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.util.MessageUtils;
 
 
 @Path("/DisableLBListener")
@@ -65,7 +63,6 @@ public class DisableLBListener extends ApiSupport {
 
         DisableLBListenerResponse response = new DisableLBListenerResponse();
 
-        try {
             // 入力チェック
             // FarmNo
             ApiValidate.validateFarmNo(farmNo);
@@ -122,17 +119,6 @@ public class DisableLBListener extends ApiSupport {
                     Long.parseLong(farmNo), Long.parseLong(loadBalancerNo), lbPorts);
 
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
 	}

@@ -45,7 +45,6 @@ import jp.primecloud.auto.entity.crud.NiftyKeyPair;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.util.MessageUtils;
 
 
 @Path("/EditInstanceNifty")
@@ -76,7 +75,6 @@ public class EditInstanceNifty extends ApiSupport {
 
         EditInstanceNiftyResponse response = new EditInstanceNiftyResponse();
 
-        try {
             // 入力チェック
             // Key(ユーザ名)
             ApiValidate.validateUser(userName);
@@ -154,17 +152,6 @@ public class EditInstanceNifty extends ApiSupport {
                     Long.parseLong(instanceNo), instance.getInstanceName(), comment, instanceType, keyPairNo);
 
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (StringUtils.isEmpty(e.getMessage())) {
-                message = MessageUtils.getMessage("EAPI-000000");
-            } else {
-                message = e.getMessage();
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
     }

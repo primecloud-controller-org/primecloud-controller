@@ -47,9 +47,7 @@ import jp.primecloud.auto.entity.crud.LoadBalancerHealthCheck;
 import jp.primecloud.auto.entity.crud.LoadBalancerInstance;
 import jp.primecloud.auto.entity.crud.LoadBalancerListener;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.service.impl.Comparators;
-import jp.primecloud.auto.util.MessageUtils;
 
 
 @Path("/DescribeLoadBalancer")
@@ -72,7 +70,6 @@ public class DescribeLoadBalancer extends ApiSupport {
 
         DescribeLoadBalancerResponse response = new DescribeLoadBalancerResponse();
 
-        try {
             // 入力チェック
             // FarmNo
             ApiValidate.validateFarmNo(farmNo);
@@ -153,17 +150,6 @@ public class DescribeLoadBalancer extends ApiSupport {
             }
 
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
     }

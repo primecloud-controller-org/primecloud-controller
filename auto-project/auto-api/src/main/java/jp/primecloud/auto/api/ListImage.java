@@ -35,8 +35,6 @@ import jp.primecloud.auto.entity.crud.Image;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.util.MessageUtils;
 
 
 @Path("/ListImage")
@@ -60,7 +58,6 @@ public class ListImage extends ApiSupport {
 
         ListImageResponse response = new ListImageResponse();
 
-        try {
             // 入力チェック
             // Key(ユーザ名)
             ApiValidate.validateUser(userName);
@@ -97,17 +94,6 @@ public class ListImage extends ApiSupport {
             }
 
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
 	}

@@ -31,8 +31,6 @@ import jp.primecloud.auto.api.ApiValidate;
 import jp.primecloud.auto.api.response.farm.EditFarmResponse;
 import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.util.MessageUtils;
 
 
 @Path("/EditFarm")
@@ -55,7 +53,6 @@ public class EditFarm extends ApiSupport {
 
         EditFarmResponse response = new EditFarmResponse();
 
-        try {
             // 入力チェック
             // FarmNo
             ApiValidate.validateFarmNo(farmNo);
@@ -71,17 +68,6 @@ public class EditFarm extends ApiSupport {
             farmService.updateFarm(Long.parseLong(farmNo), comment, farm.getDomainName());
 
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
     }

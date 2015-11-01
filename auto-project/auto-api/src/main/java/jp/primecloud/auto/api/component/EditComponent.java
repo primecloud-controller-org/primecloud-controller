@@ -41,8 +41,6 @@ import jp.primecloud.auto.common.status.ComponentStatus;
 import jp.primecloud.auto.entity.crud.Component;
 import jp.primecloud.auto.entity.crud.ComponentInstance;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.util.MessageUtils;
 
 
 @Path("/EditComponent")
@@ -76,7 +74,6 @@ public class EditComponent extends ApiSupport{
 
         EditComponentResponse response = new EditComponentResponse();
 
-        try {
             // 入力チェック
             //FarmNo
             ApiValidate.validateFarmNo(farmNo);
@@ -117,17 +114,6 @@ public class EditComponent extends ApiSupport{
                     customParam1, customParam2, customParam3);
 
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
 	}

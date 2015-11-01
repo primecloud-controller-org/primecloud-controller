@@ -25,19 +25,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import jp.primecloud.auto.api.response.LoginResponse;
-import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.util.MessageUtils;
 
 
 @Path("/Login")
 public class Login extends ApiSupport {
-
-    private Log log = LogFactory.getLog(getClass());
 
     /**
      *
@@ -55,7 +47,6 @@ public class Login extends ApiSupport {
 
         LoginResponse response = new LoginResponse();
 
-        try {
             // 入力チェック
             // User
             ApiValidate.validateUser(userName);
@@ -66,17 +57,6 @@ public class Login extends ApiSupport {
             userService.authenticate(userName, password);
 
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
     }

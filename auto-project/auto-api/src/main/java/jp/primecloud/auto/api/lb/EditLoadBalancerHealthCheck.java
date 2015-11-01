@@ -36,8 +36,6 @@ import jp.primecloud.auto.common.status.LoadBalancerStatus;
 import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.entity.crud.LoadBalancerHealthCheck;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.util.MessageUtils;
 
 
 @Path("/EditLoadBalancerHealthCheck")
@@ -73,7 +71,6 @@ public class EditLoadBalancerHealthCheck extends ApiSupport {
 
         EditLoadBalancerHealthCheckResponse response = new EditLoadBalancerHealthCheckResponse();
 
-        try {
             // 入力チェック
             // LoadBalancerNo
             ApiValidate.validateLoadBalancerNo(loadBalancerNo);
@@ -126,17 +123,6 @@ public class EditLoadBalancerHealthCheck extends ApiSupport {
                     Integer.parseInt(healthyThreshold), Integer.parseInt(unhealthyThreshold));
 
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
     }

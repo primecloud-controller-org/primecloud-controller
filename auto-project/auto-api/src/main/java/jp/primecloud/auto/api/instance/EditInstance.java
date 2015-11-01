@@ -54,7 +54,6 @@ import jp.primecloud.auto.service.dto.SecurityGroupDto;
 import jp.primecloud.auto.service.dto.StorageTypeDto;
 import jp.primecloud.auto.service.dto.SubnetDto;
 import jp.primecloud.auto.service.dto.ZoneDto;
-import jp.primecloud.auto.util.MessageUtils;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -99,7 +98,6 @@ public class EditInstance extends ApiSupport {
 
         EditInstanceResponse response = new EditInstanceResponse();
 
-        try {
             // ユーザ名
             ApiValidate.validateUser(userName);
 
@@ -171,17 +169,6 @@ public class EditInstance extends ApiSupport {
             }
 
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (StringUtils.isEmpty(e.getMessage())) {
-                message = MessageUtils.getMessage("EAPI-000000");
-            } else {
-                message = e.getMessage();
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
     }

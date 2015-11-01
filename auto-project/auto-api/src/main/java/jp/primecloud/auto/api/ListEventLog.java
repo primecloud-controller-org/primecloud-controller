@@ -19,6 +19,7 @@
 package jp.primecloud.auto.api;
 
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -43,11 +44,9 @@ import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.log.EventLogLevel;
 import jp.primecloud.auto.log.dao.crud.EventLogDao.SearchCondition;
 import jp.primecloud.auto.log.entity.crud.EventLog;
-import jp.primecloud.auto.util.MessageUtils;
 
 
 @Path("/ListEventLog")
@@ -93,7 +92,6 @@ public class ListEventLog extends ApiSupport {
 
         ListEventLogResponse response = new ListEventLogResponse();
 
-        try {
             // 入力チェック
             // isFromCurrent
             ApiValidate.validateIsFromCurrent(isFromCurrent);
@@ -179,10 +177,19 @@ public class ListEventLog extends ApiSupport {
                 searchCondition.setFromDate(getFromCurrentDate(fromCurrent));
             } else {
                 //fromDate
-                searchCondition.setFromDate(sdf.parse(fromDate));
+                try {
+                    searchCondition.setFromDate(sdf.parse(fromDate));
+                } catch (ParseException e) {
+                    throw new RuntimeException(e);
+                }
+
                 //toDate
                 if (StringUtils.isNotEmpty(toDate)) {
-                    searchCondition.setToDate(sdf.parse(toDate));
+                    try {
+                        searchCondition.setToDate(sdf.parse(toDate));
+                    } catch (ParseException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
 
@@ -218,17 +225,6 @@ public class ListEventLog extends ApiSupport {
 
             response.setEventLogs(eventLogResponceList);
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
     }

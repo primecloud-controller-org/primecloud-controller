@@ -48,8 +48,6 @@ import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.PlatformAws;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.util.MessageUtils;
 
 
 @Path("/StartComponent")
@@ -75,7 +73,6 @@ public class StartComponent extends ApiSupport{
 
         StartComponentResponse response = new StartComponentResponse();
 
-        try {
             // 入力チェック
             // FarmNo
             ApiValidate.validateFarmNo(farmNo);
@@ -177,17 +174,6 @@ public class StartComponent extends ApiSupport{
             processService.startComponents(Long.valueOf(farmNo), Long.valueOf(componentNo), instanceNoList);
 
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
 	}

@@ -40,8 +40,8 @@ import jp.primecloud.auto.entity.crud.ApiCertificate;
 import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.util.MessageUtils;
+
 import com.sun.jersey.spi.container.ContainerRequest;
 import com.sun.jersey.spi.container.ContainerRequestFilter;
 
@@ -68,7 +68,6 @@ public class ApiFilter extends ApiSupport implements ContainerRequestFilter {
      */
     public ContainerRequest filter(ContainerRequest request) {
 
-        try {
             // URI(フルパス)
             URI uri = request.getRequestUri();
 
@@ -105,7 +104,10 @@ public class ApiFilter extends ApiSupport implements ContainerRequestFilter {
             ApiCertificate apiCertificate = apiCertificateDao.readByApiAccessId(accessId);
             if (apiCertificate == null) {
                 // PCC-API認証情報が存在しない
-                Thread.sleep(SECURE_WAIT_TIME.intValue() * 1000);
+                try {
+                    Thread.sleep(SECURE_WAIT_TIME.intValue() * 1000);
+                } catch (InterruptedException ignore) {
+                }
                 throw new AutoApplicationException("EAPI-000008", PARAM_NAME_ACCESS_ID, accessId);
             }
 
@@ -128,7 +130,10 @@ public class ApiFilter extends ApiSupport implements ContainerRequestFilter {
             String encodeUriText = encodeSHA256(uriText, apiCertificate.getApiSecretKey());
             if (BooleanUtils.isFalse(encodeUriText.equals(signature))) {
                 //Signatureが合致しない場合
-                Thread.sleep(SECURE_WAIT_TIME.intValue() * 1000);
+                try {
+                    Thread.sleep(SECURE_WAIT_TIME.intValue() * 1000);
+                } catch (InterruptedException ignore) {
+                }
                 throw new AutoApplicationException("EAPI-000008", "URL", uri.toString());
             }
 
@@ -190,21 +195,6 @@ public class ApiFilter extends ApiSupport implements ContainerRequestFilter {
 
             // アクセスログ出力
             log.info(MessageUtils.getMessage("IAPI-000001", accessUser.getUsername(), apiName));
-        } catch (Throwable e) {
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            // エラーログ出力
-            log.error(message, e);
-
-            // ErrorApiへリダイレクト
-            URI errorUri = URI.create(request.getBaseUri() + "Error");
-            request.setUris(request.getBaseUri(), errorUri);
-            request.getQueryParameters().putSingle("Message", message);
-        }
 
         return request;
     }
@@ -216,11 +206,9 @@ public class ApiFilter extends ApiSupport implements ContainerRequestFilter {
     *
     * @param url URL
     * @return LinkedHashMap<パラメータ名, パラメータ値>
-    * @throws UnsupportedEncodingException
     */
    @SuppressWarnings("static-access")
-private LinkedHashMap<String, String> getDecodedParamMap(URI uri)
-   throws UnsupportedEncodingException {
+private LinkedHashMap<String, String> getDecodedParamMap(URI uri) {
        LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
        String queryUrlText = uri.getQuery();
        if (StringUtils.isNotEmpty(queryUrlText)) {
@@ -250,12 +238,9 @@ private LinkedHashMap<String, String> getDecodedParamMap(URI uri)
      * @param plainText エンコード対象の文字列
      * @param keyText
      * @return
-     * @throws InvalidKeyException
-     * @throws NoSuchAlgorithmException
-     * @throws UnsupportedEncodingException
      */
-    private static String encodeSHA256(String plainText, String keyText)
-    throws NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
+    private static String encodeSHA256(String plainText, String keyText) {
+        try {
         SecretKey secretKey = new SecretKeySpec(keyText.getBytes("UTF-8"),"HmacSHA256");
         Mac mac = Mac.getInstance("HmacSHA256");
         mac.init(secretKey);
@@ -265,6 +250,13 @@ private LinkedHashMap<String, String> getDecodedParamMap(URI uri)
         byte[] hexBytes = new Hex().encode(encodedBytes);
 
         return new String(hexBytes, "UTF-8");
+        } catch (InvalidKeyException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

@@ -33,8 +33,6 @@ import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.PlatformAws;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.util.MessageUtils;
 
 import org.apache.commons.lang.BooleanUtils;
 
@@ -70,7 +68,6 @@ public class CreateLoadBalancer extends ApiSupport {
 
         CreateLoadBalancerResponse response = new CreateLoadBalancerResponse();
 
-        try {
             User user = userDao.readByUsername(userName);
 
             // 入力チェック
@@ -151,17 +148,6 @@ public class CreateLoadBalancer extends ApiSupport {
 
             response.setLoadBalancerNo(newLoadBalancerNo);
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
 

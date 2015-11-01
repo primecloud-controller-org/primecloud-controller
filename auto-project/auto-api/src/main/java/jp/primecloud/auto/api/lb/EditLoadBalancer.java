@@ -39,10 +39,8 @@ import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.entity.crud.PlatformAws;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.service.dto.SecurityGroupDto;
 import jp.primecloud.auto.service.dto.SubnetDto;
-import jp.primecloud.auto.util.MessageUtils;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -78,7 +76,6 @@ public class EditLoadBalancer extends ApiSupport {
 
         EditLoadBalancerResponse response = new EditLoadBalancerResponse();
 
-        try {
             // 入力チェック
             // Key(ユーザ名)
             ApiValidate.validateUser(userName);
@@ -209,17 +206,6 @@ public class EditLoadBalancer extends ApiSupport {
             }
 
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
     }

@@ -33,8 +33,6 @@ import org.apache.commons.lang.BooleanUtils;
 import jp.primecloud.auto.api.response.component.CreateComponentResponse;
 import jp.primecloud.auto.entity.crud.ComponentType;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.util.MessageUtils;
 
 
 @Path("/CreateComponent")
@@ -62,7 +60,6 @@ public class CreateComponent extends ApiSupport{
 
         CreateComponentResponse response = new CreateComponentResponse();
 
-        try {
             // 入力チェック
             // farmNo
             ApiValidate.validateFarmNo(farmNo);
@@ -91,17 +88,6 @@ public class CreateComponent extends ApiSupport{
 
             response.setComponentNo(componentNo);
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
 	}

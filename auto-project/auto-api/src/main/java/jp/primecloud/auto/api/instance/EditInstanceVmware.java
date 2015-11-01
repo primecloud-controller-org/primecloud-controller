@@ -46,7 +46,6 @@ import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.entity.crud.VmwareKeyPair;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.dto.VmwareAddressDto;
-import jp.primecloud.auto.util.MessageUtils;
 import com.vmware.vim25.mo.ComputeResource;
 
 
@@ -88,7 +87,6 @@ public class EditInstanceVmware extends ApiSupport {
 
         EditInstanceVmwareResponse response = new EditInstanceVmwareResponse();
 
-        try {
             // 入力チェック
             // Key(ユーザ名)
             ApiValidate.validateUser(userName);
@@ -190,17 +188,6 @@ public class EditInstanceVmware extends ApiSupport {
                     instanceType, computeResource, null, keyPairNo, addressDto);
 
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (StringUtils.isEmpty(e.getMessage())) {
-                message = MessageUtils.getMessage("EAPI-000000");
-            } else {
-                message = e.getMessage();
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
     }

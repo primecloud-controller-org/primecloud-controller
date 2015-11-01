@@ -38,8 +38,6 @@ import jp.primecloud.auto.api.response.component.StopAllComponentResponse;
 import jp.primecloud.auto.entity.crud.Component;
 import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.util.MessageUtils;
 
 
 @Path("/StopAllComponent")
@@ -60,7 +58,6 @@ public class StopAllComponent extends ApiSupport{
 
         StopAllComponentResponse response = new StopAllComponentResponse();
 
-        try {
             // 入力チェック
             // FarmNo
             ApiValidate.validateFarmNo(farmNo);
@@ -94,17 +91,6 @@ public class StopAllComponent extends ApiSupport{
             }
 
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
 	}

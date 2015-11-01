@@ -34,8 +34,6 @@ import jp.primecloud.auto.api.response.lb.DeleteLoadBalancerListenerResponse;
 import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.util.MessageUtils;
 
 
 @Path("/DeleteLoadBalancerListener")
@@ -60,7 +58,6 @@ public class DeleteLoadBalancerListener extends ApiSupport {
 
         DeleteLoadBalancerListenerResponse response = new DeleteLoadBalancerListenerResponse();
 
-        try {
             // 入力チェック
             // FarmNo
             ApiValidate.validateFarmNo(farmNo);
@@ -99,17 +96,6 @@ public class DeleteLoadBalancerListener extends ApiSupport {
             loadBalancerService.deleteListener(Long.parseLong(loadBalancerNo), Integer.parseInt(loadBalancerPort));
 
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
 	}
