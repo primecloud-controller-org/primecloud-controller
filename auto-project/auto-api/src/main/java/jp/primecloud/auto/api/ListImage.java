@@ -43,8 +43,6 @@ public class ListImage extends ApiSupport {
     /**
      *
      * イメージ一覧取得
-     * @param userName ユーザ名
-     * @param farmNo ファーム番号
      * @param platformNo プラットフォーム番号
      *
      * @return ListImageResponse
@@ -52,22 +50,16 @@ public class ListImage extends ApiSupport {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
 	public ListImageResponse listImage(
-	        @QueryParam(PARAM_NAME_USER) String userName,
-	        @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
 	        @QueryParam(PARAM_NAME_PLATFORM_NO) String platformNo){
 
         ListImageResponse response = new ListImageResponse();
 
             // 入力チェック
-            // Key(ユーザ名)
-            ApiValidate.validateUser(userName);
-            // FarmNo
-            ApiValidate.validateFarmNo(farmNo);
             // PlatformNo
             ApiValidate.validatePlatformNo(platformNo);
 
             //ユーザ取得
-            User user = userDao.readByUsername(userName);
+            User user = checkAndGetUser();
 
             //プラットフォーム取得
             Platform platform = platformDao.read(Long.parseLong(platformNo));

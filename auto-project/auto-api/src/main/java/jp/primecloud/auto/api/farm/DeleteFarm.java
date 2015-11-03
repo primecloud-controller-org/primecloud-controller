@@ -28,6 +28,7 @@ import javax.ws.rs.core.MediaType;
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
 import jp.primecloud.auto.api.response.farm.DeleteFarmResponse;
+import jp.primecloud.auto.entity.crud.Farm;
 
 
 @Path("/DeleteFarm")
@@ -51,6 +52,10 @@ public class DeleteFarm extends ApiSupport {
             // 入力チェック
             // FarmNo
             ApiValidate.validateFarmNo(farmNo);
+            Farm farm = getFarm(Long.parseLong(farmNo));
+
+            // 権限チェック
+            checkAndGetUser(farm);
 
             // ファーム削除
             farmService.deleteFarm(Long.parseLong(farmNo));

@@ -28,8 +28,6 @@ import javax.ws.rs.core.MediaType;
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
 
-import org.apache.commons.lang.BooleanUtils;
-
 import jp.primecloud.auto.api.response.instance.DeleteInstanceResponse;
 import jp.primecloud.auto.common.status.InstanceStatus;
 import jp.primecloud.auto.entity.crud.Instance;
@@ -42,36 +40,25 @@ public class DeleteInstance extends ApiSupport {
      *
      * サーバ削除
      *
-     * @param farmNo ファーム番号
      * @param instanceNo インスタンス番号
      * @return DeleteInstanceResponse
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
 	public DeleteInstanceResponse deleteInstance(
-	        @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
 	        @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo) {
 
         DeleteInstanceResponse response = new DeleteInstanceResponse();
 
             // 入力チェック
-            // FarmNo
-            ApiValidate.validateFarmNo(farmNo);
             // InstanceNo
             ApiValidate.validateInstanceNo(instanceNo);
 
             // インスタンス取得
-            Instance instance = instanceDao.read(Long.parseLong(instanceNo));
-            if (instance == null) {
-                // インスタンスが存在しない
-                throw new AutoApplicationException("EAPI-100000", "Instance",
-                        PARAM_NAME_INSTANCE_NO, instanceNo);
-            }
+            Instance instance = getInstance(Long.parseLong(instanceNo));
 
-            if (BooleanUtils.isFalse(instance.getFarmNo().equals(Long.parseLong(farmNo)))) {
-                //ファームとインスタンスが一致しない
-                throw new AutoApplicationException("EAPI-100022", "Instance", farmNo, PARAM_NAME_INSTANCE_NO, instanceNo);
-            }
+            // 権限チェック
+            checkAndGetUser(instance);
 
             // インスタンスの停止チェック
             InstanceStatus status = InstanceStatus.fromStatus(instance.getStatus());

@@ -37,7 +37,6 @@ import jp.primecloud.auto.api.response.instance.InstanceResponse;
 import jp.primecloud.auto.api.response.instance.ListInstanceResponse;
 import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.Instance;
-import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.impl.Comparators;
 
 
@@ -64,11 +63,10 @@ public class ListInstance extends ApiSupport {
             ApiValidate.validateFarmNo(farmNo);
 
             // ファーム取得
-            Farm farm = farmDao.read(Long.parseLong(farmNo));
-            if (farm == null) {
-                // ファームが存在しない
-                throw new AutoApplicationException("EAPI-100000", "Farm", PARAM_NAME_FARM_NO, farmNo);
-            }
+            Farm farm = getFarm(Long.parseLong(farmNo));
+
+            // 権限チェック
+            checkAndGetUser(farm);
 
             // インスタンス取得
             List<Instance> instances = instanceDao.readByFarmNo(Long.parseLong(farmNo));

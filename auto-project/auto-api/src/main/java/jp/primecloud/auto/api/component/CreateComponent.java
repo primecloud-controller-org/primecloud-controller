@@ -32,6 +32,7 @@ import org.apache.commons.lang.BooleanUtils;
 
 import jp.primecloud.auto.api.response.component.CreateComponentResponse;
 import jp.primecloud.auto.entity.crud.ComponentType;
+import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.exception.AutoApplicationException;
 
 
@@ -71,6 +72,10 @@ public class CreateComponent extends ApiSupport{
             ApiValidate.validateDiskSize(diskSize);
             // comments
             ApiValidate.validateComment(comment);
+
+            // 権限チェック
+            Farm farm = farmDao.read(Long.parseLong(farmNo));
+            checkAndGetUser(farm);
 
             ComponentType componentType = componentTypeDao.read(Long.parseLong(componentTypeNo));
             if (componentType == null) {

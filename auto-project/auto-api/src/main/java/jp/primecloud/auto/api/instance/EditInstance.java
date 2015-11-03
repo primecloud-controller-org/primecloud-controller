@@ -55,7 +55,6 @@ import jp.primecloud.auto.service.dto.StorageTypeDto;
 import jp.primecloud.auto.service.dto.SubnetDto;
 import jp.primecloud.auto.service.dto.ZoneDto;
 
-import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
 
@@ -65,8 +64,6 @@ public class EditInstance extends ApiSupport {
     /**
      *
      * サーバ編集
-     * @param userName PCCユーザ名
-     * @param farmNo ファーム番号
      * @param instanceNo インスタンス番号
      * @param instanceType インスタンスタイプ
      * @param keyName キーペア名(AWSのみ)
@@ -83,8 +80,6 @@ public class EditInstance extends ApiSupport {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public EditInstanceResponse editInstance(
-            @QueryParam(PARAM_NAME_USER) String userName,
-            @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
             @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo,
             @QueryParam(PARAM_NAME_INSTANCE_TYPE) String instanceType,
             @QueryParam(PARAM_NAME_KEY_NAME) String keyName,
@@ -98,34 +93,20 @@ public class EditInstance extends ApiSupport {
 
         EditInstanceResponse response = new EditInstanceResponse();
 
-            // ユーザ名
-            ApiValidate.validateUser(userName);
-
-            // ユーザ取得
-            User user = userDao.readByUsername(userName);
-
-            // FarmNo
-            ApiValidate.validateFarmNo(farmNo);
-
             // InstanceNo
             ApiValidate.validateInstanceNo(instanceNo);
 
             //インスタンス取得
-            Instance instance = instanceDao.read(Long.valueOf(instanceNo));
-            if (instance == null || BooleanUtils.isTrue(instance.getLoadBalancer())) {
-                // インスタンスが存在しない or インスタンスがロードバランサ
-                throw new AutoApplicationException("EAPI-100000", "Instance", PARAM_NAME_INSTANCE_NO, instanceNo);
-            }
+            Instance instance = getInstance(Long.parseLong(instanceNo));
+
+            // 権限チェック
+            User user = checkAndGetUser(instance);
+
             // インスタンスのステータスチェック
             InstanceStatus status = InstanceStatus.fromStatus(instance.getStatus());
             if (InstanceStatus.STOPPED != status) {
                 // インスタンスが停止済み以外
                 throw new AutoApplicationException("EAPI-100014", instanceNo);
-            }
-            // インスタンスとファーム番号のチェック
-            if (instance.getFarmNo().equals(Long.valueOf(farmNo)) == false) {
-                //ファームとインスタンスが一致しない
-                throw new AutoApplicationException("EAPI-100022", "Instance", farmNo, PARAM_NAME_INSTANCE_NO, instanceNo);
             }
 
             //プラットフォーム取得

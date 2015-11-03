@@ -35,6 +35,8 @@ import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
 import jp.primecloud.auto.api.response.instance.CreateInstanceResponse;
+import jp.primecloud.auto.common.constant.PCCConstant;
+import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.Image;
 import jp.primecloud.auto.entity.crud.ImageAws;
 import jp.primecloud.auto.entity.crud.ImageCloudstack;
@@ -55,9 +57,7 @@ public class CreateInstance extends ApiSupport {
      *
      * サーバ作成
      *
-     * @param userName ユーザ名
      * @param farmNo ファーム番号
-     * @param platformNo プラットフォーム番号
      * @param imageNo イメージ番号
      * @param instanceName インスタンス名
      * @param instanceType インスタンスタイプ
@@ -68,9 +68,7 @@ public class CreateInstance extends ApiSupport {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public CreateInstanceResponse createInstance(
-            @QueryParam(PARAM_NAME_USER) String userName,
             @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
-            @QueryParam(PARAM_NAME_PLATFORM_NO) String platformNo,
             @QueryParam(PARAM_NAME_IMAGE_NO) String imageNo,
             @QueryParam(PARAM_NAME_INSTANCE_NAME) String instanceName,
             @QueryParam(PARAM_NAME_INSTANCE_TYPE) String instanceType,
@@ -79,30 +77,17 @@ public class CreateInstance extends ApiSupport {
         CreateInstanceResponse response = new CreateInstanceResponse();
 
             // 入力チェック
-            // Key(ユーザ名)
-            ApiValidate.validateUser(userName);
-            User user = userDao.readByUsername(userName);
             // FarmNo
             ApiValidate.validateFarmNo(farmNo);
-            // PlatformNo
-            ApiValidate.validatePlatformNo(platformNo);
+            Farm farm = getFarm(Long.parseLong(farmNo));
 
-            //プラットフォーム取得
-            Platform platform = platformDao.read(Long.parseLong(platformNo));
-            if (platform == null) {
-                //プラットフォームが存在しない
-                throw new AutoApplicationException("EAPI-100000", "Platform", PARAM_NAME_PLATFORM_NO, platformNo);
-            }
-            if (!platformService.isUseablePlatforms(user.getUserNo(), platform) ||
-            	BooleanUtils.isNotTrue(platform.getSelectable())) {
-                //認証情報が存在しない or 有効ではないプラットフォーム
-                throw new AutoApplicationException("EAPI-000020", "Platform", PARAM_NAME_PLATFORM_NO, platformNo);
-            }
+            // 権限チェック
+            User user = checkAndGetUser(farm);
 
             // ImageNo
             ApiValidate.validateImageNo(imageNo);
             Image image = imageDao.read(Long.parseLong(imageNo));
-            if (image == null || !image.getPlatformNo().equals(platform.getPlatformNo())) {
+            if (image == null) {
                 //イメージが存在しない or プラットフォームとイメージが一致しない
                 throw new AutoApplicationException("EAPI-100000", "Image", PARAM_NAME_IMAGE_NO, imageNo);
             }
@@ -110,6 +95,23 @@ public class CreateInstance extends ApiSupport {
                 //選択不可イメージ
                 throw new AutoApplicationException("EAPI-000020", "Image", PARAM_NAME_IMAGE_NO, imageNo);
             }
+            if (PCCConstant.IMAGE_NAME_ELB.equals(image.getImageName())
+                    || PCCConstant.IMAGE_NAME_ULTRAMONKEY.equals(image.getImageName())) {
+                // ロードバランサイメージの場合
+                throw new AutoApplicationException("EAPI-000020", "Image", PARAM_NAME_IMAGE_NO, imageNo);
+            }
+
+            // プラットフォーム
+            Platform platform = platformDao.read(image.getPlatformNo());
+            if (BooleanUtils.isNotTrue(platform.getSelectable())) {
+                // プラットフォームが使用可能でない場合
+                throw new AutoApplicationException("EAPI-000020", "Image", PARAM_NAME_IMAGE_NO, imageNo);
+            }
+            if (!platformService.isUseablePlatforms(user.getUserNo(), platform)) {
+                // プラットフォームが使用可能でない場合
+                throw new AutoApplicationException("EAPI-000020", "Image", PARAM_NAME_IMAGE_NO, imageNo);
+            }
+
             // InstanceName
             ApiValidate.validateInstanceName(instanceName);
             // InstanceType

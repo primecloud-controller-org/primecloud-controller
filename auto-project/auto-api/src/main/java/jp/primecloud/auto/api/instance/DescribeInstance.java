@@ -69,8 +69,6 @@ public class DescribeInstance extends ApiSupport {
     /**
      *
      * サーバ情報取得
-     * @param userName ユーザ名
-     * @param farmNo ファーム番号
      * @param instanceNo インスタンス番号
      *
      * @return DescribeInstanceResponse
@@ -78,38 +76,19 @@ public class DescribeInstance extends ApiSupport {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
 	public DescribeInstanceResponse describeInstance(
-	        @QueryParam(PARAM_NAME_USER) String userName,
-	        @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
 	        @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo){
 
         DescribeInstanceResponse response = new DescribeInstanceResponse();
 
             // 入力チェック
-            //Key
-            ApiValidate.validateUser(userName);
-            //FarmNo
-            ApiValidate.validateFarmNo(farmNo);
             // InstanceNo
             ApiValidate.validateInstanceNo(instanceNo);
 
-            //ユーザ情報取得
-            User user = userDao.readByUsername(userName);
-            if (user == null) {
-                // ユーザが存在しない
-                throw new AutoApplicationException("EAPI-100000", "User", PARAM_NAME_USER, userName);
-            }
-
             // サーバ情報取得
-            Instance instance = instanceDao.read(Long.parseLong(instanceNo));
-            if (instance == null || BooleanUtils.isTrue(instance.getLoadBalancer())) {
-                // インスタンスが存在しない or インスタンスがロードバランサ
-                throw new AutoApplicationException("EAPI-100000", "Instance", PARAM_NAME_INSTANCE_NO, instanceNo);
-            }
+            Instance instance = getInstance(Long.parseLong(instanceNo));
 
-            if (BooleanUtils.isFalse(instance.getFarmNo().equals(Long.parseLong(farmNo)))) {
-                //ファームとインスタンスが一致しない
-                throw new AutoApplicationException("EAPI-100022", "Instance", farmNo, PARAM_NAME_INSTANCE_NO, instanceNo);
-            }
+            // 権限チェック
+            User user = checkAndGetUser(instance);
 
             //プラットフォーム取得
             Platform platform = platformDao.read(instance.getPlatformNo());

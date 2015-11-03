@@ -78,7 +78,6 @@ public class ListEventLog extends ApiSupport {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
 	public ListEventLogResponse login(
-	        @QueryParam(PARAM_NAME_USER) String userName,
 	        @QueryParam(PARAM_NAME_IS_FROM_CURRENT) String isFromCurrent,
 	        @QueryParam(PARAM_NAME_FROM_CURRENT) String fromCurrent,
 	        @QueryParam(PARAM_NAME_FROM_DATE) String fromDate,
@@ -167,7 +166,7 @@ public class ListEventLog extends ApiSupport {
             }
 
             // ユーザ取得
-            User user = userDao.readByUsername(userName);
+            User user = checkAndGetUser();
 
             //検索条件設定
             SearchCondition searchCondition = new SearchCondition();

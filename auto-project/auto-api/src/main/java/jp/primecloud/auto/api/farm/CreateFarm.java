@@ -51,7 +51,6 @@ public class CreateFarm extends ApiSupport {
      *
      * ファーム作成
      *
-     * @param userName ユーザ名
      * @param farmName ファーム名
      * @param templateNo テンプレート番号
      * @param comment コメント
@@ -61,29 +60,22 @@ public class CreateFarm extends ApiSupport {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public CreateFarmResponse createFarm(
-            @QueryParam(PARAM_NAME_USER) String userName,
-            @QueryParam(PARAM_NAME_CLOUD_NAME) String cloudName,
+            @QueryParam(PARAM_NAME_FARM_NAME) String farmName,
             @QueryParam(PARAM_NAME_TEMPLATE_NO) String templateNo,
             @QueryParam(PARAM_NAME_COMMENT) String comment){
 
         CreateFarmResponse response = new CreateFarmResponse();
 
             // 入力チェック
-            // User
-            ApiValidate.validateUser(userName);
-            // CloudName
-            ApiValidate.validateCloudName(cloudName);
+            // FarmName
+            ApiValidate.validateFarmName(farmName);
             // TemplateNo
             ApiValidate.validateTemplateNo(templateNo);
             // Comment
             ApiValidate.validateComment(comment);
 
             // ユーザの取得
-            User user = userDao.readByUsername(userName);
-            if (user == null) {
-                // ユーザが存在しない場合、エラー
-                throw new AutoApplicationException("EAPI-100000", "User", PARAM_NAME_USER, userName);
-            }
+            User user = checkAndGetUser();
 
             // テンプレートの取得
             Template template = templateDao.read(Long.parseLong(templateNo));
@@ -99,7 +91,7 @@ public class CreateFarm extends ApiSupport {
             }
 
             // ファームを作成
-            Long newFarmNo = farmService.createFarm(user.getUserNo(), cloudName, comment);
+            Long newFarmNo = farmService.createFarm(user.getUserNo(), farmName, comment);
 
             // テンプレートを元にサーバ、サービスを作成
             templateService.applyTemplate(newFarmNo, Long.parseLong(templateNo));

@@ -24,11 +24,9 @@ import java.util.List;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
-import jp.primecloud.auto.api.ApiValidate;
 
 import jp.primecloud.auto.api.response.farm.FarmResponse;
 import jp.primecloud.auto.api.response.farm.ListFarmResponse;
@@ -43,23 +41,16 @@ public class ListFarm extends ApiSupport {
      *
      * ファーム一覧取得
      *
-     * @param userName ユーザ名
-     *
      * @return ListFarmResponse
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public ListFarmResponse listFarm(
-            @QueryParam(PARAM_NAME_USER) String userName){
+    public ListFarmResponse listFarm(){
 
         ListFarmResponse response = new ListFarmResponse();
 
-            // 入力チェック
-            // User
-            ApiValidate.validateUser(userName);
-
             // ユーザの取得
-            User user = userDao.readByUsername(userName);
+            User user = checkAndGetUser();
 
             // ファームの取得
             List<Farm> farms = farmDao.readByUserNo(user.getUserNo());

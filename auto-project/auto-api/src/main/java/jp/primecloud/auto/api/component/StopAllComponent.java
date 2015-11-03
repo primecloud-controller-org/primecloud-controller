@@ -37,7 +37,6 @@ import org.apache.commons.lang.StringUtils;
 import jp.primecloud.auto.api.response.component.StopAllComponentResponse;
 import jp.primecloud.auto.entity.crud.Component;
 import jp.primecloud.auto.entity.crud.Farm;
-import jp.primecloud.auto.exception.AutoApplicationException;
 
 
 @Path("/StopAllComponent")
@@ -65,12 +64,10 @@ public class StopAllComponent extends ApiSupport{
             ApiValidate.validateIsStopInstance(isStopInstance);
 
             // ファーム取得
-            Farm farm = farmDao.read(Long.parseLong(farmNo));
-            if (farm == null) {
-                // ファームが存在しない
-                throw new AutoApplicationException("EAPI-100000", "Farm",
-                        PARAM_NAME_FARM_NO, farmNo);
-            }
+            Farm farm = getFarm(Long.parseLong(farmNo));
+
+            // 権限チェック
+            checkAndGetUser(farm);
 
             // コンポーネント取得
             List<Component> components = componentDao.readByFarmNo(Long.parseLong(farmNo));

@@ -40,7 +40,6 @@ import jp.primecloud.auto.entity.crud.Component;
 import jp.primecloud.auto.entity.crud.ComponentInstance;
 import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.LoadBalancer;
-import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.impl.Comparators;
 
 
@@ -67,11 +66,10 @@ public class ListComponent extends ApiSupport {
             ApiValidate.validateFarmNo(farmNo);
 
             // ファーム取得
-            Farm farm = farmDao.read(Long.parseLong(farmNo));
-            if (farm == null) {
-                // ファームが存在しない
-                throw new AutoApplicationException("EAPI-100000", "Farm", PARAM_NAME_FARM_NO, farmNo);
-            }
+            Farm farm = getFarm(Long.parseLong(farmNo));
+
+            // 権限チェック
+            checkAndGetUser(farm);
 
             // コンポーネント取得
             List<Component> components = componentDao.readByFarmNo(Long.valueOf(farmNo));

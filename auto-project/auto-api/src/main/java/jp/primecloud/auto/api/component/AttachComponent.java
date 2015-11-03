@@ -51,7 +51,6 @@ public class AttachComponent extends ApiSupport {
      *
      * サービスのインスタンスへの紐づけ
      *
-     * @param farmNo ファーム番号
      * @param componentNo コンポーネント番号
      * @param instanceNo インスタンス番号
      * @return AttachComponentResponse
@@ -59,42 +58,29 @@ public class AttachComponent extends ApiSupport {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
 	public AttachComponentResponse attachComponent(
-	        @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
             @QueryParam(PARAM_NAME_COMPONENT_NO) String componentNo,
 	        @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo) {
 
         AttachComponentResponse response = new AttachComponentResponse();
 
             // 入力チェック
-            // FarmNo
-            ApiValidate.validateFarmNo(farmNo);
             // ComponentNo
             ApiValidate.validateComponentNo(componentNo);
             // InstanceNo
             ApiValidate.validateInstanceNo(instanceNo);
 
             // コンポーネント取得
-            Component component = componentDao.read(Long.parseLong(componentNo));
-            if (component == null) {
-                // コンポーネントが存在しない
-                throw new AutoApplicationException("EAPI-100000", "Component", PARAM_NAME_COMPONENT_NO, componentNo);
-            }
+            Component component = getComponent(Long.parseLong(componentNo));
 
-            if (BooleanUtils.isFalse(component.getFarmNo().equals(Long.parseLong(farmNo)))) {
-                //ファームとコンポーネントが一致しない
-                throw new AutoApplicationException("EAPI-100022", "Component", farmNo, PARAM_NAME_COMPONENT_NO, componentNo);
-            }
+            // 権限チェック
+            checkAndGetUser(component);
 
             // インスタンス取得
-            Instance instance = instanceDao.read(Long.parseLong(instanceNo));
-            if (instance == null) {
-                // インスタンスが存在しない
-                throw new AutoApplicationException("EAPI-100000", "Instance", "InstanceNo", instanceNo);
-            }
+            Instance instance = getInstance(Long.parseLong(instanceNo));
 
-            if (BooleanUtils.isFalse(instance.getFarmNo().equals(Long.parseLong(farmNo)))) {
+            if (BooleanUtils.isFalse(instance.getFarmNo().equals(component.getFarmNo()))) {
                 //ファームとインスタンスが一致しない
-                throw new AutoApplicationException("EAPI-100022", "Instance", farmNo, PARAM_NAME_INSTANCE_NO, instanceNo);
+                throw new AutoApplicationException("EAPI-100022", "Instance", component.getFarmNo(), PARAM_NAME_INSTANCE_NO, instanceNo);
             }
 
             // イメージ取得

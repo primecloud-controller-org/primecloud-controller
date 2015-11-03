@@ -28,8 +28,6 @@ import javax.ws.rs.core.MediaType;
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
 
-import org.apache.commons.lang.BooleanUtils;
-
 import jp.primecloud.auto.api.response.lb.CreateLoadBalancerListenerResponse;
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.entity.crud.AwsSslKey;
@@ -46,7 +44,6 @@ public class CreateLoadBalancerListener extends ApiSupport {
      *
      * ロードバランサリスナ作成
      *
-     * @param farmNo ファーム番号
      * @param loadBalancerNo ロードバランサ番号
      * @param loadBalancerPort ポート番号
      * @param servicePort サービス用ポート番号
@@ -58,7 +55,6 @@ public class CreateLoadBalancerListener extends ApiSupport {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
 	public CreateLoadBalancerListenerResponse createLoadBalancerListener(
-            @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
 	        @QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo,
 	        @QueryParam(PARAM_NAME_LOAD_BALANCER_PORT) String loadBalancerPort,
 	        @QueryParam(PARAM_NAME_SERVICE_PORT) String servicePort,
@@ -68,21 +64,14 @@ public class CreateLoadBalancerListener extends ApiSupport {
         CreateLoadBalancerListenerResponse response = new CreateLoadBalancerListenerResponse();
 
             // 入力チェック
-            // FarmNo
-            ApiValidate.validateFarmNo(farmNo);
             // LoadBalancerNo
             ApiValidate.validateLoadBalancerNo(loadBalancerNo);
 
             // ロードバランサ取得
-            LoadBalancer loadBalancer = loadBalancerDao.read(Long.parseLong(loadBalancerNo));
-            if(loadBalancer == null) {
-                throw new AutoApplicationException("EAPI-100000", "LoadBalancer",
-                        PARAM_NAME_LOAD_BALANCER_NO, loadBalancerNo);
-            }
-            if (BooleanUtils.isFalse(loadBalancer.getFarmNo().equals(Long.parseLong(farmNo)))) {
-                //ファームとロードバランサが一致しない
-                throw new AutoApplicationException("EAPI-100022", "LoadBalancer", farmNo, PARAM_NAME_LOAD_BALANCER_NO, loadBalancerNo);
-            }
+            LoadBalancer loadBalancer = getLoadBalancer(Long.parseLong(loadBalancerNo));
+
+            // 権限チェック
+            checkAndGetUser(loadBalancer);
 
             // プラットフォーム取得
             Platform platform = platformDao.read(loadBalancer.getPlatformNo());

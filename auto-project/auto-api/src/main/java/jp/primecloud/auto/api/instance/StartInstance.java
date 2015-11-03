@@ -31,7 +31,6 @@ import javax.ws.rs.core.MediaType;
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
 
-import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
 import jp.primecloud.auto.api.response.instance.StartInstanceResponse;
@@ -52,7 +51,6 @@ public class StartInstance extends ApiSupport {
      *
      * サーバ起動
      *
-     * @param farmNo ファーム番号
      * @param instanceNo インスタンス番号
      * @param isStartService サービス起動有無 true:サービスも起動、false:サーバのみ起動、null:サーバのみ起動
      *
@@ -61,32 +59,22 @@ public class StartInstance extends ApiSupport {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
 	public StartInstanceResponse startInstance(
-	        @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
 	        @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo,
 	        @QueryParam(PARAM_NAME_IS_START_SERVICE) String isStartService){
 
         StartInstanceResponse response = new StartInstanceResponse();
 
             // 入力チェック
-            // FarmNo
-            ApiValidate.validateFarmNo(farmNo);
             // InstanceNo
             ApiValidate.validateInstanceNo(instanceNo);
             // IsStartService
             ApiValidate.validateIsStartService(isStartService);
 
             // インスタンス取得
-            Instance instance = instanceDao.read(Long.parseLong(instanceNo));
-            if (instance == null || BooleanUtils.isTrue(instance.getLoadBalancer())) {
-                // インスタンスが存在しない or インスタンスがロードバランサの場合
-                throw new AutoApplicationException("EAPI-100000", "Instance",
-                        PARAM_NAME_INSTANCE_NO, instanceNo);
-            }
+            Instance instance = getInstance(Long.parseLong(instanceNo));
 
-            if (BooleanUtils.isFalse(instance.getFarmNo().equals(Long.valueOf(farmNo)))) {
-                //ファームとインスタンスが一致しない
-                throw new AutoApplicationException("EAPI-100022", "Instance", farmNo, PARAM_NAME_INSTANCE_NO, instanceNo);
-            }
+            // 権限チェック
+            checkAndGetUser(instance);
 
             // インスタンスのステータスチェック(停止状態のインスタンスのみ起動対象)
             InstanceStatus status = InstanceStatus.fromStatus(instance.getStatus());
@@ -137,9 +125,9 @@ public class StartInstance extends ApiSupport {
             List<Long> instanceNos = new ArrayList<Long>();
             instanceNos.add(Long.parseLong(instanceNo));
             if (StringUtils.isEmpty(isStartService)) {
-                processService.startInstances(Long.parseLong(farmNo), instanceNos);
+                processService.startInstances(instance.getFarmNo(), instanceNos);
             } else {
-                processService.startInstances(Long.parseLong(farmNo), instanceNos, Boolean.parseBoolean(isStartService));
+                processService.startInstances(instance.getFarmNo(), instanceNos, Boolean.parseBoolean(isStartService));
             }
 
             response.setSuccess(true);

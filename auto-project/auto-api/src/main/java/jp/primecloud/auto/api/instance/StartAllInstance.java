@@ -38,7 +38,6 @@ import jp.primecloud.auto.api.response.instance.StartAllInstanceResponse;
 import jp.primecloud.auto.common.status.InstanceStatus;
 import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.Instance;
-import jp.primecloud.auto.exception.AutoApplicationException;
 
 
 @Path("/StartAllInstance")
@@ -69,11 +68,10 @@ public class StartAllInstance extends ApiSupport {
 
             // データチェック
             // ファーム
-            Farm farm = farmDao.read(Long.parseLong(farmNo));
-            if (farm == null) {
-                // ファームが存在しない場合
-                throw new AutoApplicationException("EAPI-100000", "Farm", PARAM_NAME_FARM_NO, farmNo);
-            }
+            Farm farm = getFarm(Long.parseLong(farmNo));
+
+            // 権限チェック
+            checkAndGetUser(farm);
 
             // インスタンス取得
             List<Long> instanceNos = new ArrayList<Long>();

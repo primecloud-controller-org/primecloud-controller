@@ -30,8 +30,6 @@ import javax.ws.rs.core.MediaType;
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
 
-import org.apache.commons.lang.BooleanUtils;
-
 import jp.primecloud.auto.api.response.component.DeleteComponentResponse;
 import jp.primecloud.auto.common.status.ComponentInstanceStatus;
 import jp.primecloud.auto.entity.crud.Component;
@@ -46,7 +44,6 @@ public class DeleteComponent extends ApiSupport {
      *
      * サービス削除
      *
-     * @param farmNo ファーム番号
      * @param componentNo コンポーネント番号
      *
      * @return StopComponentResponse
@@ -54,28 +51,19 @@ public class DeleteComponent extends ApiSupport {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public DeleteComponentResponse deleteComponent(
-            @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
             @QueryParam(PARAM_NAME_COMPONENT_NO) String componentNo){
 
         DeleteComponentResponse response = new DeleteComponentResponse();
 
             // 入力チェック
-            //FarmNo
-            ApiValidate.validateFarmNo(farmNo);
             //ComponentNo
             ApiValidate.validateComponentNo(componentNo);
 
             // コンポーネント取得
-            Component component = componentDao.read(Long.parseLong(componentNo));
-            if (component == null) {
-                // コンポーネントが存在しない
-                throw new AutoApplicationException("EAPI-100000", "Component", PARAM_NAME_COMPONENT_NO, componentNo);
-            }
+            Component component = getComponent(Long.parseLong(componentNo));
 
-            if (BooleanUtils.isFalse(component.getFarmNo().equals(Long.parseLong(farmNo)))) {
-                //ファームとコンポーネントが一致しない
-                throw new AutoApplicationException("EAPI-100022", "Component", farmNo, PARAM_NAME_COMPONENT_NO, componentNo);
-            }
+            // 権限チェック
+            checkAndGetUser(component);
 
             // コンポーネントインスタンス取得
             List<ComponentInstance> componentInstances = componentInstanceDao.readByComponentNo(Long.parseLong(componentNo));

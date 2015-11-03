@@ -33,7 +33,6 @@ import javax.ws.rs.core.UriInfo;
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
 
-import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
 import jp.primecloud.auto.api.response.instance.EditInstanceNiftyResponse;
@@ -53,8 +52,6 @@ public class EditInstanceNifty extends ApiSupport {
     /**
      *
      * サーバ編集(Nifty)
-     * @param userName PCCユーザ名
-     * @param farmNo ファーム番号
      * @param instanceNo インスタンス番号
      * @param instanceType インスタンスタイプ
      * @param keyName キーペア名
@@ -66,8 +63,6 @@ public class EditInstanceNifty extends ApiSupport {
     @Produces(MediaType.APPLICATION_JSON)
     public EditInstanceNiftyResponse editInstanceNifty(
             @Context UriInfo uriInfo,
-            @QueryParam(PARAM_NAME_USER) String userName,
-            @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
             @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo,
             @QueryParam(PARAM_NAME_INSTANCE_TYPE) String instanceType,
             @QueryParam(PARAM_NAME_KEY_NAME) String keyName,
@@ -76,37 +71,19 @@ public class EditInstanceNifty extends ApiSupport {
         EditInstanceNiftyResponse response = new EditInstanceNiftyResponse();
 
             // 入力チェック
-            // Key(ユーザ名)
-            ApiValidate.validateUser(userName);
-            // FarmNo
-            ApiValidate.validateFarmNo(farmNo);
             // InstanceNo
             ApiValidate.validateInstanceNo(instanceNo);
 
-            // ユーザ取得
-            User user = userDao.readByUsername(userName);
-            if (user == null) {
-                // ユーザが存在しない
-                throw new AutoApplicationException("EAPI-100000", "User",
-                        "UserName", userName);
-            }
-
             //インスタンス取得
-            Instance instance = instanceDao.read(Long.parseLong(instanceNo));
-            if (instance == null || BooleanUtils.isTrue(instance.getLoadBalancer())) {
-                // インスタンスが存在しない or インスタンスがロードバランサ
-                throw new AutoApplicationException("EAPI-100000", "Instance",
-                        PARAM_NAME_INSTANCE_NO, instanceNo);
-            }
+            Instance instance = getInstance(Long.parseLong(instanceNo));
+            
+            // 権限チェック
+            User user = checkAndGetUser(instance);
+
             InstanceStatus status = InstanceStatus.fromStatus(instance.getStatus());
             if (InstanceStatus.STOPPED != status) {
                 // インスタンスが停止済み以外
                 throw new AutoApplicationException("EAPI-100014", instanceNo);
-            }
-
-            if (BooleanUtils.isFalse(instance.getFarmNo().equals(Long.parseLong(farmNo)))) {
-                //ファームとインスタンスが一致しない
-                throw new AutoApplicationException("EAPI-100022", "Instance", farmNo, PARAM_NAME_INSTANCE_NO, instanceNo);
             }
 
             //プラットフォーム取得

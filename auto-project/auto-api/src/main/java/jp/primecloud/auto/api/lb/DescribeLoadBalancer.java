@@ -46,7 +46,6 @@ import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.entity.crud.LoadBalancerHealthCheck;
 import jp.primecloud.auto.entity.crud.LoadBalancerInstance;
 import jp.primecloud.auto.entity.crud.LoadBalancerListener;
-import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.impl.Comparators;
 
 
@@ -57,7 +56,6 @@ public class DescribeLoadBalancer extends ApiSupport {
      *
      * ロードバランサ情報取得
      *
-     * @param farmNo ファーム番号
      * @param loadBalancerNo ロードバランサ番号
      *
      * @return DescribeLoadBalancerResponse
@@ -65,28 +63,19 @@ public class DescribeLoadBalancer extends ApiSupport {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public DescribeLoadBalancerResponse describeLoadBalancer(
-            @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
             @QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo){
 
         DescribeLoadBalancerResponse response = new DescribeLoadBalancerResponse();
 
             // 入力チェック
-            // FarmNo
-            ApiValidate.validateFarmNo(farmNo);
             // LoadBalancerNo
             ApiValidate.validateLoadBalancerNo(loadBalancerNo);
 
             // ロードバランサ取得
-            LoadBalancer loadBalancer = loadBalancerDao.read(Long.parseLong(loadBalancerNo));
-            if (loadBalancer == null) {
-                // ロードバランサが存在しない
-                throw new AutoApplicationException("EAPI-100000", "LoadBalancer", PARAM_NAME_LOAD_BALANCER_NO, loadBalancerNo);
-            }
+            LoadBalancer loadBalancer = getLoadBalancer(Long.parseLong(loadBalancerNo));
 
-            if (BooleanUtils.isFalse(loadBalancer.getFarmNo().equals(Long.parseLong(farmNo)))) {
-                //ファームとロードバランサが一致しない
-                throw new AutoApplicationException("EAPI-100022", "LoadBalancer", farmNo, PARAM_NAME_LOAD_BALANCER_NO, loadBalancerNo);
-            }
+            // 権限チェック
+            checkAndGetUser(loadBalancer);
 
             //ロードバランサ情報設定
             response = new DescribeLoadBalancerResponse(loadBalancer);

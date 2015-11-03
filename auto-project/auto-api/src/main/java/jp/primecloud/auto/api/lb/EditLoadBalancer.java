@@ -35,6 +35,7 @@ import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.LoadBalancerStatus;
 import jp.primecloud.auto.entity.crud.AwsLoadBalancer;
 import jp.primecloud.auto.entity.crud.CloudstackLoadBalancer;
+import jp.primecloud.auto.entity.crud.Component;
 import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.entity.crud.PlatformAws;
 import jp.primecloud.auto.entity.crud.User;
@@ -53,7 +54,6 @@ public class EditLoadBalancer extends ApiSupport {
      *
      * ロードバランサ編集
      *
-     * @param farmNo ファーム番号
      * @param loadBalancerNo ロードバランサ番号
      * @param componentNo コンポーネント番号
      * @param securityGroups セキュリティグループ(カンマ区切り、複数)
@@ -65,8 +65,6 @@ public class EditLoadBalancer extends ApiSupport {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public EditLoadBalancerResponse editLoadBalancer(
-            @QueryParam(PARAM_NAME_USER) String userName,
-            @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
             @QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo,
             @QueryParam(PARAM_NAME_COMPONENT_NO) String componentNo,
             @QueryParam(PARAM_NAME_SECURITY_GROUPS) String securityGroups,
@@ -77,34 +75,23 @@ public class EditLoadBalancer extends ApiSupport {
         EditLoadBalancerResponse response = new EditLoadBalancerResponse();
 
             // 入力チェック
-            // Key(ユーザ名)
-            ApiValidate.validateUser(userName);
-            // ユーザ取得
-            User user = userDao.readByUsername(userName);
-            if (user == null) {
-                // ユーザが存在しない
-                throw new AutoApplicationException("EAPI-100000", "User",
-                        "UserName", userName);
-            }
-            // FarmNo
-            ApiValidate.validateFarmNo(farmNo);
             // LoadBalancerNo
             ApiValidate.validateLoadBalancerNo(loadBalancerNo);
 
-            LoadBalancer loadBalancer = loadBalancerDao.read(Long.parseLong(loadBalancerNo));
-            if (loadBalancer == null) {
-                // ロードバランサが存在しない
-                throw new AutoApplicationException("EAPI-100000", "LoadBalancer",
-                        PARAM_NAME_LOAD_BALANCER_NO, loadBalancerNo);
-            }
+            LoadBalancer loadBalancer = getLoadBalancer(Long.parseLong(loadBalancerNo));
 
-            if (BooleanUtils.isFalse(loadBalancer.getFarmNo().equals(Long.parseLong(farmNo)))) {
-                //ファームとロードバランサが一致しない
-                throw new AutoApplicationException("EAPI-100022", "LoadBalancer", farmNo, PARAM_NAME_LOAD_BALANCER_NO, loadBalancerNo);
-            }
+            // 権限チェック
+            User user = checkAndGetUser(loadBalancer);
 
             // ComponentNo
             ApiValidate.validateComponentNo(componentNo);
+
+            Component component = getComponent(Long.parseLong(componentNo));
+
+            if (BooleanUtils.isFalse(component.getFarmNo().equals(loadBalancer.getFarmNo()))) {
+                //ファームとコンポーネントが一致しない
+                throw new AutoApplicationException("EAPI-100022", "Component", loadBalancer.getFarmNo(), PARAM_NAME_COMPONENT_NO, componentNo);
+            }
 
             //vpcId取得
             PlatformAws platformAws = null;

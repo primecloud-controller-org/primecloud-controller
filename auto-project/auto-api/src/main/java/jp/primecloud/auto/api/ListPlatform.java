@@ -25,7 +25,6 @@ import java.util.List;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang.BooleanUtils;
@@ -60,27 +59,17 @@ public class ListPlatform extends ApiSupport {
     /**
      *
      * プラットフォーム一覧取得
-     * @param userName ユーザ名
-     * @param farmNo ファーム番号
      *
      * @return ListPlatformResponse
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-	public ListPlatformResponse listPlatform(
-	        @QueryParam(PARAM_NAME_USER) String userName,
-	        @QueryParam(PARAM_NAME_FARM_NO) String farmNo){
+	public ListPlatformResponse listPlatform(){
 
         ListPlatformResponse response = new ListPlatformResponse();
 
-            // 入力チェック
-            // Key(ユーザ名)
-            ApiValidate.validateUser(userName);
-            // FarmNo
-            ApiValidate.validateFarmNo(farmNo);
-
             //ユーザ取得
-            User user = userDao.readByUsername(userName);
+            User user = checkAndGetUser();
 
             // プラットフォーム情報取得
             List<Platform> platforms = platformDao.readAll();

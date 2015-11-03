@@ -7,7 +7,6 @@ import javax.ws.rs.ext.Provider;
 
 import jp.primecloud.auto.api.response.ErrorResponse;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.util.MessageUtils;
 
 import org.apache.commons.logging.Log;
@@ -21,13 +20,13 @@ public class ApiExceptionMapper implements ExceptionMapper<Throwable> {
     @Override
     public Response toResponse(Throwable e) {
         String message;
-        if (e instanceof AutoException || e instanceof AutoApplicationException) {
+        if (e instanceof AutoApplicationException) {
             message = e.getMessage();
         } else {
             message = MessageUtils.getMessage("EAPI-000000");
-        }
 
-        log.error(message, e);
+            log.error(message, e);
+        }
 
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setMessage(message);

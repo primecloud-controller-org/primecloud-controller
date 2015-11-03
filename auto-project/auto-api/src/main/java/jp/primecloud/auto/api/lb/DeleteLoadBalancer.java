@@ -28,8 +28,6 @@ import javax.ws.rs.core.MediaType;
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
 
-import org.apache.commons.lang.BooleanUtils;
-
 import jp.primecloud.auto.api.response.lb.DeleteLoadBalancerResponse;
 import jp.primecloud.auto.common.status.LoadBalancerStatus;
 import jp.primecloud.auto.entity.crud.LoadBalancer;
@@ -43,7 +41,6 @@ public class DeleteLoadBalancer extends ApiSupport {
      *
      * ロードバランサ削除
      *
-     * @param farmNo ファーム番号
      * @param loadBalancerNo ロードバランサ番号
      *
      * @return DeleteLoadBalancerResponse
@@ -51,28 +48,19 @@ public class DeleteLoadBalancer extends ApiSupport {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
 	public DeleteLoadBalancerResponse deleteLoadBalancer(
-            @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
 	        @QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo){
 
         DeleteLoadBalancerResponse response = new DeleteLoadBalancerResponse();
 
             // 入力チェック
-            // FarmNo
-            ApiValidate.validateFarmNo(farmNo);
             // LoadBalancerNo
             ApiValidate.validateLoadBalancerNo(loadBalancerNo);
 
             // ロードバランサ取得
-            LoadBalancer loadBalancer = loadBalancerDao.read(Long.parseLong(loadBalancerNo));
-            if (loadBalancer == null) {
-                // ロードバランサが存在しない
-                throw new AutoApplicationException("EAPI-100000", "LoadBalancer",
-                        PARAM_NAME_LOAD_BALANCER_NO, loadBalancerNo);
-            }
-            if (BooleanUtils.isFalse(loadBalancer.getFarmNo().equals(Long.parseLong(farmNo)))) {
-                //ファームとロードバランサが一致しない
-                throw new AutoApplicationException("EAPI-100022", "LoadBalancer", farmNo, PARAM_NAME_LOAD_BALANCER_NO, loadBalancerNo);
-            }
+            LoadBalancer loadBalancer = getLoadBalancer(Long.parseLong(loadBalancerNo));
+
+            // 権限チェック
+            checkAndGetUser(loadBalancer);
 
             // ロードバランサーのステータスチェック
             LoadBalancerStatus status = LoadBalancerStatus.fromStatus(loadBalancer.getStatus());

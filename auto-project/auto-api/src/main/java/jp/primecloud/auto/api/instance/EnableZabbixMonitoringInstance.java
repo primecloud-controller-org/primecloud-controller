@@ -28,9 +28,8 @@ import javax.ws.rs.core.MediaType;
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
 
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.api.response.instance.EnableZabbixMonitoringInstanceResponse;
+import jp.primecloud.auto.entity.crud.Instance;
 
 
 @Path("/EnableZabbixMonitoringInstance")
@@ -40,29 +39,26 @@ public class EnableZabbixMonitoringInstance extends ApiSupport {
      *
      * Zabbix監視有効化(サーバ)
      *
-     * @param farmNo ファーム番号
      * @param instanceNo インスタンス番号
      * @return EnableZabbixMonitoringInstanceResponse
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
 	public EnableZabbixMonitoringInstanceResponse enableZabbixMonitoringInstance(
-	        @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
 	        @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo) {
 
         EnableZabbixMonitoringInstanceResponse response = new EnableZabbixMonitoringInstanceResponse();
 
             // 入力チェック
-            // FarmNo
-            ApiValidate.validateFarmNo(farmNo);
             // InstanceNo
-            // TODO モック用にコメントアウト
-            //ApiValidate.validateInstanceNo(instanceNo);
+            ApiValidate.validateInstanceNo(instanceNo);
+
+            // 権限チェック
+            Instance instance = getInstance(Long.parseLong(instanceNo));
+            checkAndGetUser(instance);
 
             // Zabbix監視有効化(サーバ)
-            //instanceService.enableZabbixMonitoring(Long.parseLong(instanceNo));
-            // TODO モック用の処理
-            instanceService.enableZabbixMonitoring((StringUtils.isEmpty(instanceNo)) ? null: Long.parseLong(instanceNo));
+            instanceService.enableZabbixMonitoring(Long.parseLong(instanceNo));
 
             response.setSuccess(true);
 

@@ -36,7 +36,6 @@ import org.apache.commons.lang.BooleanUtils;
 import jp.primecloud.auto.api.response.component.StartAllComponentResponse;
 import jp.primecloud.auto.entity.crud.Component;
 import jp.primecloud.auto.entity.crud.Farm;
-import jp.primecloud.auto.exception.AutoApplicationException;
 
 
 @Path("/StartAllComponent")
@@ -61,11 +60,10 @@ public class StartAllComponent extends ApiSupport{
             ApiValidate.validateFarmNo(farmNo);
 
             // ファーム取得
-            Farm farm = farmDao.read(Long.parseLong(farmNo));
-            if (farm == null) {
-                // ファームが存在しない
-                throw new AutoApplicationException("EAPI-100000", "Farm", PARAM_NAME_FARM_NO, farmNo);
-            }
+            Farm farm = getFarm(Long.parseLong(farmNo));
+
+            // 権限チェック
+            checkAndGetUser(farm);
 
             // コンポーネント取得
             List<Component> components = componentDao.readByFarmNo(Long.parseLong(farmNo));

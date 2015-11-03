@@ -36,6 +36,7 @@ import org.apache.commons.lang.BooleanUtils;
 import jp.primecloud.auto.api.response.lb.ListLoadBalancerResponse;
 import jp.primecloud.auto.api.response.lb.LoadBalancerResponse;
 import jp.primecloud.auto.entity.crud.Component;
+import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.service.impl.Comparators;
 
@@ -61,6 +62,10 @@ public class ListLoadBalancer extends ApiSupport {
             // 入力チェック
             // LoadBalancerNo
             ApiValidate.validateFarmNo(farmNo);
+
+            // 権限チェック
+            Farm farm = farmDao.read(Long.parseLong(farmNo));
+            checkAndGetUser(farm);
 
             // ロードバランサ取得
             List<LoadBalancer> loadBalancers = loadBalancerDao.readByFarmNo(Long.parseLong(farmNo));

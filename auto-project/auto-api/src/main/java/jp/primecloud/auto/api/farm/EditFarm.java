@@ -30,7 +30,6 @@ import jp.primecloud.auto.api.ApiValidate;
 
 import jp.primecloud.auto.api.response.farm.EditFarmResponse;
 import jp.primecloud.auto.entity.crud.Farm;
-import jp.primecloud.auto.exception.AutoApplicationException;
 
 
 @Path("/EditFarm")
@@ -56,13 +55,12 @@ public class EditFarm extends ApiSupport {
             // 入力チェック
             // FarmNo
             ApiValidate.validateFarmNo(farmNo);
-            Farm farm = farmDao.read(Long.parseLong(farmNo));
-            if (farm == null) {
-                // ファームが存在しない場合
-                throw new AutoApplicationException("EAPI-100000", "Farm", PARAM_NAME_FARM_NO, farmNo);
-            }
+            Farm farm = getFarm(Long.parseLong(farmNo));
             // Comment
             ApiValidate.validateComment(comment);
+
+            // 権限チェック
+            checkAndGetUser(farm);
 
             // ファーム更新
             farmService.updateFarm(Long.parseLong(farmNo), comment, farm.getDomainName());

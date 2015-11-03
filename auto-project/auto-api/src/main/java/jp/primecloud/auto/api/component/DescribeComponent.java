@@ -38,7 +38,6 @@ import jp.primecloud.auto.api.response.component.DescribeComponentResponse;
 import jp.primecloud.auto.common.status.ComponentInstanceStatus;
 import jp.primecloud.auto.entity.crud.Component;
 import jp.primecloud.auto.entity.crud.ComponentInstance;
-import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.impl.Comparators;
 
 
@@ -49,7 +48,6 @@ public class DescribeComponent extends ApiSupport {
      *
      * サービス情報取得
      *
-     * @param farmNo ファーム番号
      * @param componentNo コンポーネント番号
      *
      * @return DescribeComponentResponse
@@ -57,28 +55,19 @@ public class DescribeComponent extends ApiSupport {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public DescribeComponentResponse describeComponent(
-            @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
             @QueryParam(PARAM_NAME_COMPONENT_NO) String componentNo){
 
         DescribeComponentResponse response = new DescribeComponentResponse();
 
             // 入力チェック
-            // FarmNo
-            ApiValidate.validateFarmNo(farmNo);
             // ComponentNo
             ApiValidate.validateComponentNo(componentNo);
 
             // コンポーネント取得
-            Component component = componentDao.read(Long.parseLong(componentNo));
-            if (component == null || BooleanUtils.isTrue(component.getLoadBalancer())) {
-                // コンポーネントが存在しない または ロードバランサーコンポーネント
-                throw new AutoApplicationException("EAPI-100000", "Component", PARAM_NAME_COMPONENT_NO, componentNo);
-            }
+            Component component = getComponent(Long.parseLong(componentNo));
 
-            if (component.getFarmNo().equals(Long.parseLong(farmNo)) == false) {
-                //ファームとコンポーネントが一致しない
-                throw new AutoApplicationException("EAPI-100022", "Component", farmNo, PARAM_NAME_COMPONENT_NO, componentNo);
-            }
+            // 権限チェック
+            checkAndGetUser(component);
 
             //コンポーネント情報設定
             response = new DescribeComponentResponse(component);

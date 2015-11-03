@@ -25,7 +25,6 @@ import java.util.List;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang.BooleanUtils;
@@ -47,23 +46,17 @@ public class ListTemplate extends ApiSupport {
     /**
      *
      * テンプレート一覧取得
-     * @param userName ユーザ名
      *
      * @return ListTemplateResponse
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-	public ListTemplateResponse listTemplate(
-	        @QueryParam(PARAM_NAME_USER) String userName){
+	public ListTemplateResponse listTemplate(){
 
         ListTemplateResponse response = new ListTemplateResponse();
 
-            // 入力チェック
-            // Key(ユーザ名)
-            ApiValidate.validateUser(userName);
-
             //ユーザ取得
-            User user = userDao.readByUsername(userName);
+            User user = checkAndGetUser();
 
             //使用可能プラットフォーム取得
             List<Long> platformNos = getEnabledPlatformNos(user.getUserNo());
