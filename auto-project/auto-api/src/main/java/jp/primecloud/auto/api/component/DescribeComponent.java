@@ -34,10 +34,13 @@ import jp.primecloud.auto.api.ApiValidate;
 import org.apache.commons.lang.BooleanUtils;
 
 import jp.primecloud.auto.api.response.component.ComponentInstanceResponse;
+import jp.primecloud.auto.api.response.component.ComponentLoadBalancerResponse;
+import jp.primecloud.auto.api.response.component.ComponentResponse;
 import jp.primecloud.auto.api.response.component.DescribeComponentResponse;
 import jp.primecloud.auto.common.status.ComponentInstanceStatus;
 import jp.primecloud.auto.entity.crud.Component;
 import jp.primecloud.auto.entity.crud.ComponentInstance;
+import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.service.impl.Comparators;
 
 
@@ -70,7 +73,8 @@ public class DescribeComponent extends ApiSupport {
             checkAndGetUser(component);
 
             //コンポーネント情報設定
-            response = new DescribeComponentResponse(component);
+            ComponentResponse componentResponse = new ComponentResponse(component);
+            response.setComponent(componentResponse);
 
             List<ComponentInstance> componentInstances = componentInstanceDao.readByComponentNo(Long.parseLong(componentNo));
             if (componentInstances.isEmpty() == false) {
@@ -85,7 +89,18 @@ public class DescribeComponent extends ApiSupport {
                         }
                     }
                     //コンポーネントインスタンス情報設定
-                    response.addInstance(new ComponentInstanceResponse(componentInstance));
+                    componentResponse.getInstances().add(new ComponentInstanceResponse(componentInstance));
+                }
+            }
+
+            //ロードバランサ取得
+            List<LoadBalancer> loadBalancers = loadBalancerDao.readByComponentNo(component.getComponentNo());
+            if (loadBalancers.isEmpty() == false) {
+                //ソート
+                Collections.sort(loadBalancers, Comparators.COMPARATOR_LOAD_BALANCER);
+
+                for (LoadBalancer loadBalancer : loadBalancers) {
+                    componentResponse.getLoadBalancers().add(new ComponentLoadBalancerResponse(loadBalancer));
                 }
             }
 

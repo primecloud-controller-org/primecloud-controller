@@ -56,7 +56,7 @@ public class VcloudInstanceResponse {
      * VCloudネットワーク情報の一覧
      */
     @JsonProperty("VcloudNetworks")
-    private List<VcloudInstanceNetworkResponse> vcloudNetwoks;
+    private List<VcloudInstanceNetworkResponse> vcloudNetwoks = new ArrayList<VcloudInstanceNetworkResponse>();
 
     public VcloudInstanceResponse() {}
 
@@ -224,16 +224,4 @@ public class VcloudInstanceResponse {
         this.vcloudNetwoks = vcloudNetwoks;
     }
 
-   /**
-    *
-    * VcloudNetwok を VcloudNetwoksに追加します。
-    *
-    * @param vcloudNetwok
-    */
-   public void addVcloudNetwok(VcloudInstanceNetworkResponse vcloudNetwok) {
-       if (vcloudNetwoks == null) {
-           vcloudNetwoks = new ArrayList<VcloudInstanceNetworkResponse>();
-       }
-       vcloudNetwoks.add(vcloudNetwok);
-    }
 }

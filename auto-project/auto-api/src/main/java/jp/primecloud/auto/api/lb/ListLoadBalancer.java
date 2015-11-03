@@ -84,7 +84,7 @@ public class ListLoadBalancer extends ApiSupport {
                     //コンポーネント名設定
                     loadBalancerResponse.setComponentName(component.getComponentName());
                 }
-                response.addLoadBalancer(loadBalancerResponse);
+                response.getLoadBalancers().add(loadBalancerResponse);
             }
 
             response.setSuccess(true);

@@ -56,7 +56,7 @@ public class ListFarm extends ApiSupport {
             List<Farm> farms = farmDao.readByUserNo(user.getUserNo());
             for (Farm farm: farms) {
                 FarmResponse farmResponse = new FarmResponse(farm);
-                response.addFarm(farmResponse);
+                response.getFarms().add(farmResponse);
             }
 
             response.setSuccess(true);

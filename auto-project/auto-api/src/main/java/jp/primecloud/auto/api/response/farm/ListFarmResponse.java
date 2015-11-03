@@ -14,7 +14,7 @@ public class ListFarmResponse extends AbstractResponse {
      * ファームの一覧
      */
     @JsonProperty("Farms")
-    private List<FarmResponse> farms;
+    private List<FarmResponse> farms = new ArrayList<FarmResponse>(); 
 
     public ListFarmResponse() {}
 
@@ -38,16 +38,4 @@ public class ListFarmResponse extends AbstractResponse {
         this.farms = farms;
     }
 
-    /**
-     *
-     * farmをfarmsに追加します。
-     *
-     * @param farm
-     */
-    public void addFarm(FarmResponse farm) {
-        if (farms == null) {
-            farms = new ArrayList<FarmResponse>();
-        }
-        farms.add(farm);
-    }
 }

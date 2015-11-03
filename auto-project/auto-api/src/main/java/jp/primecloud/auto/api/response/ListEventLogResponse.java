@@ -12,7 +12,7 @@ public class ListEventLogResponse extends AbstractResponse {
      * EventLog情報の一覧
      */
     @JsonProperty("EventLogs")
-    private List<EventLogResponse> eventLogs;
+    private List<EventLogResponse> eventLogs = new ArrayList<EventLogResponse>();
 
     public ListEventLogResponse() {}
 
@@ -36,16 +36,4 @@ public class ListEventLogResponse extends AbstractResponse {
         this.eventLogs = eventLogs;
     }
 
-   /**
-    *
-    * eventLogを追加します。
-    *
-    * @param eventLog
-    */
-    public void addEventLogs(EventLogResponse eventLog) {
-        if (eventLogs == null) {
-            eventLogs = new ArrayList<EventLogResponse>();
-        }
-        eventLogs.add(eventLog);
-    }
 }

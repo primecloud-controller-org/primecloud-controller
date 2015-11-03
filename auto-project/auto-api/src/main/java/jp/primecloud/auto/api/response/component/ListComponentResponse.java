@@ -14,7 +14,7 @@ public class ListComponentResponse extends AbstractResponse {
      * コンポーネント情報のリスト
      */
     @JsonProperty("Components")
-    private List<ComponentResponse> components;
+    private List<ComponentResponse> components = new ArrayList<ComponentResponse>();
 
     public ListComponentResponse() {}
 
@@ -38,16 +38,4 @@ public class ListComponentResponse extends AbstractResponse {
         this.components = components;
     }
 
-   /**
-    *
-    * components に component を追加します。
-    *
-    * @param component
-    */
-    public void addComponents(ComponentResponse component) {
-        if (components == null) {
-            components = new ArrayList<ComponentResponse>();
-        }
-        components.add(component);
-    }
 }

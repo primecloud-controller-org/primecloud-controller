@@ -12,7 +12,7 @@ public class ListPlatformResponse extends AbstractResponse {
      * プラットフォーム情報の一覧
      */
     @JsonProperty("Platforms")
-    private List<PlatformResponse> platforms;
+    private List<PlatformResponse> platforms = new ArrayList<PlatformResponse>();
 
     public ListPlatformResponse() {}
 
@@ -36,16 +36,4 @@ public class ListPlatformResponse extends AbstractResponse {
         this.platforms = platforms;
     }
 
-    /**
-    *
-    * platformを追加します。
-    *
-    * @param platform
-    */
-    public void addPlatform(PlatformResponse platform) {
-        if (platforms == null) {
-            platforms = new ArrayList<PlatformResponse>();
-        }
-        platforms.add(platform);
-    }
 }

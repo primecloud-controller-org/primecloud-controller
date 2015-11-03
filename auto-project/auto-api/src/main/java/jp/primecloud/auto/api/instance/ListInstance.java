@@ -81,7 +81,7 @@ public class ListInstance extends ApiSupport {
                     continue;
                 }
                 //インスタンス情報設定
-                response.addInstance(new InstanceResponse(instance));
+                response.getInstances().add(new InstanceResponse(instance));
             }
 
             response.setSuccess(true);

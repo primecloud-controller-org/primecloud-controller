@@ -14,7 +14,7 @@ public class ListLoadBalancerListenerResponse extends AbstractResponse {
      * ロードバランサ リスナー情報のリスト
      */
     @JsonProperty("LoadBalancerListeners")
-    private List<LoadBalancerListenerResponse> loadBalancerListeners;
+    private List<LoadBalancerListenerResponse> loadBalancerListeners = new ArrayList<LoadBalancerListenerResponse>();
 
     public ListLoadBalancerListenerResponse() {}
 
@@ -38,16 +38,4 @@ public class ListLoadBalancerListenerResponse extends AbstractResponse {
         this.loadBalancerListeners = loadBalancerListeners;
     }
 
-   /**
-    *
-    * loadBalancerListenerを追加します。
-    *
-    * @param loadBalancerListener
-    */
-    public void addLoadBalancerListener(LoadBalancerListenerResponse loadBalancerListener) {
-        if (loadBalancerListeners == null) {
-            loadBalancerListeners = new ArrayList<LoadBalancerListenerResponse>();
-        }
-        loadBalancerListeners.add(loadBalancerListener);
-    }
 }

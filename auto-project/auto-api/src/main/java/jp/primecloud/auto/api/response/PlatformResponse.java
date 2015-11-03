@@ -35,43 +35,43 @@ public class PlatformResponse {
     /**
      * プラットフォーム詳細情報(AWS)
      */
-    @JsonProperty("AWS")
+    @JsonProperty("Aws")
     private PlatformAwsResponse aws;
 
     /**
      * プラットフォーム詳細情報(VMware)
      */
-    @JsonProperty("VMWARE")
+    @JsonProperty("Vmware")
     private PlatformVmwareResponse vmware;
 
     /**
      * プラットフォーム詳細情報(Nifty)
      */
-    @JsonProperty("NIFTY")
+    @JsonProperty("Nifty")
     private PlatformNiftyResponse nifty;
 
     /**
      * プラットフォーム詳細情報(Cloudstack)
      */
-    @JsonProperty("CLOUDSTACK")
+    @JsonProperty("Cloudstack")
     private PlatformCloudstackResponse cloudstack;
 
     /**
      * プラットフォーム詳細情報(VCloud)
      */
-    @JsonProperty("VCLOUD")
+    @JsonProperty("Vcloud")
     private PlatformVcloudResponse vcloud;
 
     /**
      * プラットフォーム詳細情報(Openstack)
      */
-    @JsonProperty("OPENSTACK")
+    @JsonProperty("Openstack")
     private PlatformOpenstackResponse openstack;
 
     /**
      * プラットフォーム詳細情報(Azure)
      */
-    @JsonProperty("AZURE")
+    @JsonProperty("Azure")
     private PlatformAzureResponse azure;
 
     public PlatformResponse() {}

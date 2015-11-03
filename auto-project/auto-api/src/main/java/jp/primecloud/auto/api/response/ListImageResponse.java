@@ -12,7 +12,7 @@ public class ListImageResponse extends AbstractResponse {
      * イメージ情報の一覧
      */
     @JsonProperty("Images")
-    private List<ImageResponse> images;
+    private List<ImageResponse> images = new ArrayList<ImageResponse>();
 
     public ListImageResponse() {}
 
@@ -37,16 +37,4 @@ public class ListImageResponse extends AbstractResponse {
         this.images = images;
     }
 
-    /**
-    *
-    * imageを追加します。
-    *
-    * @param image
-    */
-    public void addImage(ImageResponse image) {
-        if (images == null) {
-            images = new ArrayList<ImageResponse>();
-        }
-        images.add(image);
-    }
 }

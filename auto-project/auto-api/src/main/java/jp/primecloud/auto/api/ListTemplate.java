@@ -105,7 +105,7 @@ public class ListTemplate extends ApiSupport {
 
                     //使用可能なプラットフォームに紐づくテンプレートインスタンスのテンプレート情報のみ表示
                     TemplateResponse templateResponse = new TemplateResponse(template);
-                    response.addTemplate(templateResponse);
+                    response.getTemplates().add(templateResponse);
                 }
 
             response.setSuccess(true);

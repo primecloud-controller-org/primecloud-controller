@@ -81,7 +81,7 @@ public class ListImage extends ApiSupport {
                 if (BooleanUtils.isTrue(image.getSelectable())) {
                     //対象プラットフォーム かつ 選択可能イメージのみ表示
                     ImageResponse imageResponse = new ImageResponse(platform, image);
-                    response.addImage(imageResponse);
+                    response.getImages().add(imageResponse);
                 }
             }
 

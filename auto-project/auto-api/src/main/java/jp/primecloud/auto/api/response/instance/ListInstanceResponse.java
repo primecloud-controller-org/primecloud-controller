@@ -14,7 +14,7 @@ public class ListInstanceResponse extends AbstractResponse {
      * インスタンス情報のリスト
      */
     @JsonProperty("Instances")
-    private List<InstanceResponse> instances;
+    private List<InstanceResponse> instances = new ArrayList<InstanceResponse>();
 
     public ListInstanceResponse() {}
 
@@ -38,16 +38,4 @@ public class ListInstanceResponse extends AbstractResponse {
         this.instances = instances;
     }
 
-    /**
-    *
-    * instance を instances に追加します。
-    *
-    * @param instances
-    */
-    public void addInstance(InstanceResponse instance) {
-        if (instances == null) {
-            instances = new ArrayList<InstanceResponse>();
-        }
-        instances.add(instance);
-    }
 }

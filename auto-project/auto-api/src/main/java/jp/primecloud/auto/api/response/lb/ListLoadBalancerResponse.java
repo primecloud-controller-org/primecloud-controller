@@ -14,7 +14,7 @@ public class ListLoadBalancerResponse extends AbstractResponse {
      * インスタンス情報のリスト
      */
     @JsonProperty("LoadBalancers")
-    private List<LoadBalancerResponse> loadBalancers;
+    private List<LoadBalancerResponse> loadBalancers = new ArrayList<LoadBalancerResponse>();
 
     public ListLoadBalancerResponse() {}
 
@@ -38,16 +38,4 @@ public class ListLoadBalancerResponse extends AbstractResponse {
         this.loadBalancers = loadBalancers;
     }
 
-   /**
-    *
-    * loadBalancerを追加します。
-    *
-    * @param loadBalancer
-    */
-    public void addLoadBalancer(LoadBalancerResponse loadBalancer) {
-        if (loadBalancers == null) {
-            loadBalancers = new ArrayList<LoadBalancerResponse>();
-        }
-        loadBalancers.add(loadBalancer);
-    }
 }

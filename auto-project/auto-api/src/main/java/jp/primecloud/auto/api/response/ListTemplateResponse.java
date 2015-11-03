@@ -12,7 +12,7 @@ public class ListTemplateResponse extends AbstractResponse {
      * テンプレート情報の一覧
      */
     @JsonProperty("Templates")
-    private List<TemplateResponse> templates;
+    private List<TemplateResponse> templates = new ArrayList<TemplateResponse>();
 
     public ListTemplateResponse() {}
 
@@ -36,16 +36,4 @@ public class ListTemplateResponse extends AbstractResponse {
         this.templates = templates;
     }
 
-    /**
-     *
-     * template を templatesに追加します。
-     *
-     * @param template
-     */
-    public void addTemplate(TemplateResponse template) {
-        if (templates == null) {
-            templates = new ArrayList<TemplateResponse>();
-        }
-        templates.add(template);
-    }
 }

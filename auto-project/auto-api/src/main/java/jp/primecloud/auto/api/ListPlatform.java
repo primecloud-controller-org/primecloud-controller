@@ -103,7 +103,7 @@ public class ListPlatform extends ApiSupport {
                     PlatformAzureResponse azureResponse = getAzureDetail(user.getUserNo(), platform.getPlatformNo());
                     platformResponse.setAzure(azureResponse);
                 }
-                response.addPlatform(platformResponse);
+                response.getPlatforms().add(platformResponse);
             }
 
             response.setSuccess(true);

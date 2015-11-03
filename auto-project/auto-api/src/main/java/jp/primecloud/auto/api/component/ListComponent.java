@@ -33,6 +33,8 @@ import jp.primecloud.auto.api.ApiValidate;
 
 import org.apache.commons.lang.BooleanUtils;
 
+import jp.primecloud.auto.api.response.component.ComponentInstanceResponse;
+import jp.primecloud.auto.api.response.component.ComponentLoadBalancerResponse;
 import jp.primecloud.auto.api.response.component.ComponentResponse;
 import jp.primecloud.auto.api.response.component.ListComponentResponse;
 import jp.primecloud.auto.common.status.ComponentInstanceStatus;
@@ -92,7 +94,6 @@ public class ListComponent extends ApiSupport {
                 if (componentInstances.isEmpty() == false) {
                     //ソート
                     Collections.sort(componentInstances, Comparators.COMPARATOR_COMPONENT_INSTANCE);
-                    Integer instanceCount = 0;
                     for (ComponentInstance componentInstance: componentInstances) {
                         // 関連付けが無効で停止している場合は除外
                         if (BooleanUtils.isNotTrue(componentInstance.getAssociate())) {
@@ -101,26 +102,22 @@ public class ListComponent extends ApiSupport {
                                 continue;
                             }
                         }
-                        instanceCount++;
+                        componentResponse.getInstances().add(new ComponentInstanceResponse(componentInstance));
                     }
-                    //インスタンス数 設定
-                    componentResponse.setInstanceCount(instanceCount);
                 }
 
                 //ロードバランサ取得
-                LoadBalancer loadBalancer = null;
                 List<LoadBalancer> loadBalancers = loadBalancerDao.readByComponentNo(component.getComponentNo());
                 if (loadBalancers.isEmpty() == false) {
                     //ソート
                     Collections.sort(loadBalancers, Comparators.COMPARATOR_LOAD_BALANCER);
-                    //ロードバランサは上記ソートの1件目を取得
-                    loadBalancer = loadBalancers.get(0);
 
-                    //ロードバランサ名 設定
-                    componentResponse.setLoadBalancerName(loadBalancer.getLoadBalancerName());
+                    for (LoadBalancer loadBalancer : loadBalancers) {
+                        componentResponse.getLoadBalancers().add(new ComponentLoadBalancerResponse(loadBalancer));
+                    }
                 }
 
-                response.addComponents(componentResponse);
+                response.getComponents().add(componentResponse);
             }
 
             response.setSuccess(true);

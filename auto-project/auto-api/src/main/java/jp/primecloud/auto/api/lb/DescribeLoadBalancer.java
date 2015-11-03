@@ -38,6 +38,7 @@ import jp.primecloud.auto.api.response.lb.DescribeLoadBalancerResponse;
 import jp.primecloud.auto.api.response.lb.LoadBalancerHealthCheckResponse;
 import jp.primecloud.auto.api.response.lb.LoadBalancerInstanceResponse;
 import jp.primecloud.auto.api.response.lb.LoadBalancerListenerResponse;
+import jp.primecloud.auto.api.response.lb.LoadBalancerResponse;
 import jp.primecloud.auto.common.status.ComponentInstanceStatus;
 import jp.primecloud.auto.common.status.LoadBalancerInstanceStatus;
 import jp.primecloud.auto.entity.crud.AutoScalingConf;
@@ -78,7 +79,8 @@ public class DescribeLoadBalancer extends ApiSupport {
             checkAndGetUser(loadBalancer);
 
             //ロードバランサ情報設定
-            response = new DescribeLoadBalancerResponse(loadBalancer);
+            LoadBalancerResponse loadBalancerResponse = new LoadBalancerResponse(loadBalancer);
+            response.setLoadBalancer(loadBalancerResponse);
 
             //リスナー取得
             List<LoadBalancerListener> listeners = loadBalancerListenerDao.readByLoadBalancerNo(Long.parseLong(loadBalancerNo));
@@ -88,14 +90,14 @@ public class DescribeLoadBalancer extends ApiSupport {
             }
             for (LoadBalancerListener listener: listeners) {
                 //リスナー情報設定
-                response.addListener(new LoadBalancerListenerResponse(listener));
+                loadBalancerResponse.getListeners().add(new LoadBalancerListenerResponse(listener));
             }
 
             //ヘルスチェック取得
             LoadBalancerHealthCheck healthCheck = loadBalancerHealthCheckDao.read(Long.parseLong(loadBalancerNo));
             if (healthCheck != null) {
                 //ヘルスチェック情報設定
-                response.setHealthCheck(new LoadBalancerHealthCheckResponse(healthCheck));
+                loadBalancerResponse.setHealthCheck(new LoadBalancerHealthCheckResponse(healthCheck));
             }
 
             //コンポーネントインスタンス情報取得
@@ -128,14 +130,14 @@ public class DescribeLoadBalancer extends ApiSupport {
                     loadBalancerInstanceResponse.setStatus(loadBalancerInstance.getStatus());
                 }
                 //ロードバランサインスタンス情報設定
-                response.addInstance(loadBalancerInstanceResponse);
+                loadBalancerResponse.getInstances().add(loadBalancerInstanceResponse);
             }
 
             //オートスケーリング取得
             AutoScalingConf autoScalingConf = autoScalingConfDao.read(Long.parseLong(loadBalancerNo));
             if (autoScalingConf != null) {
                 //オートスケーリング情報設定
-                response.setAutoScaling(new AutoScalingConfResponse(autoScalingConf));
+                loadBalancerResponse.setAutoScaling(new AutoScalingConfResponse(autoScalingConf));
             }
 
             response.setSuccess(true);

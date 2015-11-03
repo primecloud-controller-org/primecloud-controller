@@ -1,5 +1,8 @@
 package jp.primecloud.auto.api.response.component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import jp.primecloud.auto.entity.crud.Component;
@@ -25,17 +28,20 @@ public class ComponentResponse {
     @JsonProperty("ComponentTypeNo")
     private Long componentTypeNo;
 
+    @JsonProperty("Comment")
+    private String comment;
+
     /**
-     * インスタンス数(紐付いているインスタンスの数)
+     * コンポーネントインスタンス情報のリスト
      */
-    @JsonProperty("InstanceCount")
-    private Integer instanceCount;
+    @JsonProperty("Instances")
+    private List<ComponentInstanceResponse> instances = new ArrayList<ComponentInstanceResponse>();
 
     /**
      * ロードバランサ名(設定されているLBの名称(1件目))
      */
-    @JsonProperty("LoadBalancerName")
-    private String loadBalancerName;
+    @JsonProperty("LoadBalancers")
+    private List<ComponentLoadBalancerResponse> loadBalancers = new ArrayList<ComponentLoadBalancerResponse>();
 
     /**
      * ステータス
@@ -49,6 +55,7 @@ public class ComponentResponse {
         this.componentNo = component.getComponentNo();
         this.componentName = component.getComponentName();
         this.componentTypeNo = component.getComponentTypeNo();
+        this.comment = component.getComment();
     }
 
    /**
@@ -111,44 +118,28 @@ public class ComponentResponse {
         this.componentTypeNo = componentTypeNo;
     }
 
-   /**
-    *
-    * instanceCountを取得します。
-    *
-    * @return instanceCount
-    */
-    public Integer getInstanceCount() {
-        return instanceCount;
+    public String getComment() {
+        return comment;
     }
 
-   /**
-    *
-    * instanceCountを設定します。
-    *
-    * @param instanceCount
-    */
-    public void setInstanceCount(Integer instanceCount) {
-        this.instanceCount = instanceCount;
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 
-   /**
-    *
-    * loadBalancerNameを取得します。
-    *
-    * @return loadBalancerName
-    */
-    public String getLoadBalancerName() {
-        return loadBalancerName;
+    public List<ComponentInstanceResponse> getInstances() {
+        return instances;
     }
 
-   /**
-    *
-    * loadBalancerNameを設定します。
-    *
-    * @param loadBalancerName
-    */
-    public void setLoadBalancerName(String loadBalancerName) {
-        this.loadBalancerName = loadBalancerName;
+    public void setInstances(List<ComponentInstanceResponse> instances) {
+        this.instances = instances;
+    }
+
+    public List<ComponentLoadBalancerResponse> getLoadBalancers() {
+        return loadBalancers;
+    }
+
+    public void setLoadBalancers(List<ComponentLoadBalancerResponse> loadBalancers) {
+        this.loadBalancers = loadBalancers;
     }
 
    /**

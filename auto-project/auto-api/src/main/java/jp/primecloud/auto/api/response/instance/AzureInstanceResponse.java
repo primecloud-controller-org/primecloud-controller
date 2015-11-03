@@ -16,7 +16,7 @@ public class AzureInstanceResponse {
     /**
      * アフィニティグループ名
      */
-    @JsonProperty("CloudServiceName")
+    @JsonProperty("AffinityGruopName")
     private String affinityGroupName;
 
     /**
