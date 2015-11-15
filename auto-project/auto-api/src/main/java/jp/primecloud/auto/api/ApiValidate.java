@@ -492,4 +492,10 @@ public class ApiValidate extends ApiConstants {
                 new Object[] {PARAM_NAME_IS_INTERNAL});
     }
 
+    public static void validateAddressNo(String addressNo) {
+        ValidateUtil.required(addressNo, "EAPI-000001", new Object[] {PARAM_NAME_ADDRESS_NO});
+        ValidateUtil.longInRange(addressNo, 1, Long.MAX_VALUE,
+                "EAPI-000002", new Object[] {PARAM_NAME_ADDRESS_NO, 1, Long.MAX_VALUE});
+    }
+
 }

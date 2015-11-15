@@ -19,7 +19,6 @@
 package jp.primecloud.auto.api;
 
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.GET;
@@ -28,7 +27,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
 
 import jp.primecloud.auto.api.response.ListPlatformResponse;
 import jp.primecloud.auto.api.response.PlatformAwsResponse;
@@ -39,8 +37,6 @@ import jp.primecloud.auto.api.response.PlatformVcloudResponse;
 import jp.primecloud.auto.api.response.PlatformVmwareResponse;
 import jp.primecloud.auto.api.response.PlatformOpenstackResponse;
 import jp.primecloud.auto.api.response.PlatformAzureResponse;
-import jp.primecloud.auto.entity.crud.AwsCertificate;
-import jp.primecloud.auto.entity.crud.CloudstackCertificate;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.PlatformAws;
 import jp.primecloud.auto.entity.crud.PlatformCloudstack;
@@ -50,7 +46,6 @@ import jp.primecloud.auto.entity.crud.PlatformVmware;
 import jp.primecloud.auto.entity.crud.PlatformOpenstack;
 import jp.primecloud.auto.entity.crud.PlatformAzure;
 import jp.primecloud.auto.entity.crud.User;
-import jp.primecloud.auto.service.dto.SubnetDto;
 
 
 @Path("/ListPlatform")
@@ -112,30 +107,13 @@ public class ListPlatform extends ApiSupport {
 	}
 
    private PlatformAwsResponse getAwsDetail(Long userNo, Long platformNo) {
-       AwsCertificate certificate = awsCertificateDao.read(userNo, platformNo);
        PlatformAws aws = platformAwsDao.read(platformNo);
-       PlatformAwsResponse response = new PlatformAwsResponse(aws);
-
-       //デフォルトキーペア
-       response.setDefKeyPair(StringUtils.isEmpty(certificate.getDefKeypair()) ? null: certificate.getDefKeypair());
-
-       //デフォルトサブネット
-       if (aws.getVpc()) {
-           List<SubnetDto> subnetDtos = iaasDescribeService.getSubnets(userNo, platformNo, aws.getVpcId());
-           response.setDefSubnet(getCidrBlockBySubnetId(subnetDtos, certificate.getDefSubnet()));
-           response.setDefLbSubnet(getCidrBlockBySubnetId(subnetDtos, certificate.getDefSubnet()));
-       }
-       return response;
+       return new PlatformAwsResponse(aws);
    }
 
    private PlatformCloudstackResponse getCloudstackDetail(Long userNo, Long platformNo) {
-       CloudstackCertificate certificate = cloudstackCertificateDao.read(userNo, platformNo);
        PlatformCloudstack cloudstack = platformCloudstackDao.read(platformNo);
-       PlatformCloudstackResponse response = new PlatformCloudstackResponse(cloudstack);
-
-       //デフォルトキーペア
-       response.setDefKeyPair(StringUtils.isEmpty(certificate.getDefKeypair()) ? null: certificate.getDefKeypair());
-       return response;
+       return new PlatformCloudstackResponse(cloudstack);
    }
 
    private PlatformVmwareResponse getVmwareDetail(Long userNo, Long platformNo){
@@ -163,19 +141,4 @@ public class ListPlatform extends ApiSupport {
        return new PlatformAzureResponse(azure);
    }
 
-   private String getCidrBlockBySubnetId(List<SubnetDto> subnetDtos, String subnetId) {
-       StringBuffer buffer = new StringBuffer();
-       if (StringUtils.isNotEmpty(subnetId)) {
-           List<String> subnetIds = new ArrayList<String>();
-           for (String tmpSubnet: subnetId.split(",")) {
-               subnetIds.add(tmpSubnet.trim());
-           }
-           for (SubnetDto subnetDto: subnetDtos) {
-               if (subnetIds.contains(subnetDto.getSubnetId())) {
-                   buffer.append(buffer.length() > 0 ? "," + subnetDto.getCidrBlock(): subnetDto.getCidrBlock());
-               }
-           }
-       }
-       return buffer.length() > 0 ? buffer.toString(): null;
-   }
 }

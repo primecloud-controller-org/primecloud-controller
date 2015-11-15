@@ -1,5 +1,8 @@
 package jp.primecloud.auto.api.response;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.BooleanUtils;
 import org.codehaus.jackson.annotate.JsonProperty;
 
@@ -51,10 +54,28 @@ public class PlatformAwsResponse {
     private String availabilityZone;
 
     /**
-     * ゾーン名
+     * VPC ID
      */
     @JsonProperty("VpcId")
     private String vpcId;
+
+    /**
+     * キー名
+     */
+    @JsonProperty("KeyNames")
+    private List<String> keyNames = new ArrayList<String>();
+
+    /**
+     * セキュリティグループ名
+     */
+    @JsonProperty("SecurityGroups")
+    private List<String> securityGroups = new ArrayList<String>();
+
+    /**
+     * サブネット
+     */
+    @JsonProperty("Subnets")
+    private List<String> subnets = new ArrayList<String>();
 
     /**
      * デフォルトキーペア
@@ -245,6 +266,30 @@ public class PlatformAwsResponse {
     */
     public void setVpcId(String vpcId) {
         this.vpcId = vpcId;
+    }
+
+    public List<String> getKeyNames() {
+        return keyNames;
+    }
+
+    public void setKeyNames(List<String> keyNames) {
+        this.keyNames = keyNames;
+    }
+
+    public List<String> getSecurityGroups() {
+        return securityGroups;
+    }
+
+    public void setSecurityGroups(List<String> securityGroups) {
+        this.securityGroups = securityGroups;
+    }
+
+    public List<String> getSubnets() {
+        return subnets;
+    }
+
+    public void setSubnets(List<String> subnets) {
+        this.subnets = subnets;
     }
 
    /**

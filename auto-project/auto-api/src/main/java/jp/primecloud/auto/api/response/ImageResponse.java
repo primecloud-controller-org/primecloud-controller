@@ -1,5 +1,8 @@
 package jp.primecloud.auto.api.response;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import jp.primecloud.auto.entity.crud.Image;
@@ -33,6 +36,12 @@ public class ImageResponse {
      */
     @JsonProperty("OS")
     private String os;
+
+    /**
+     * インスタンスタイプ
+     */
+    @JsonProperty("InstanceTypes")
+    private List<String> instanceTypes = new ArrayList<String>();
 
     public ImageResponse() {}
 
@@ -122,4 +131,13 @@ public class ImageResponse {
     public void setOs(String os) {
         this.os = os;
     }
+
+    public List<String> getInstanceTypes() {
+        return instanceTypes;
+    }
+
+    public void setInstanceTypes(List<String> instanceTypes) {
+        this.instanceTypes = instanceTypes;
+    }
+
 }

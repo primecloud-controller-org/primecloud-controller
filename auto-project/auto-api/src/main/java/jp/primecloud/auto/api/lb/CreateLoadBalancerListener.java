@@ -86,6 +86,14 @@ public class CreateLoadBalancerListener extends ApiSupport {
                 return response;
             }
 
+            // 入力チェック
+            // LoadBalancerPort
+            ApiValidate.validateLoadBalancerPort(loadBalancer.getType(), loadBalancerPort);
+            // ServicePort
+            ApiValidate.validateServicePort(servicePort);
+            // Protocol
+            ApiValidate.validateProtocol(protocol);
+
             // ロードバランサ リスナ取得
             LoadBalancerListener loadBalancerListener = loadBalancerListenerDao.read(
                     Long.parseLong(loadBalancerNo), Integer.parseInt(loadBalancerPort));
@@ -95,20 +103,16 @@ public class CreateLoadBalancerListener extends ApiSupport {
                         PARAM_NAME_LOAD_BALANCER_NO, loadBalancerNo, PARAM_NAME_LOAD_BALANCER_PORT, loadBalancerPort);
             }
 
-            // 入力チェック
-            // LoadBalancerPort
-            ApiValidate.validateLoadBalancerPort(loadBalancer.getType(), loadBalancerPort);
-            // ServicePort
-            ApiValidate.validateServicePort(servicePort);
-            // Protocol
-            ApiValidate.validateProtocol(protocol);
             // SslKeyNo
+            Long sslKeyNo2 = null;
             if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancer.getType()) && "HTTPS".equals(protocol)) {
                 //ELBかつプロトコルがHTTPSの場合
                 ApiValidate.validateSslKeyNo(sslKeyNo);
 
+                sslKeyNo2 = Long.parseLong(sslKeyNo);
+
                 // AWS_SSL_KEY取得
-                AwsSslKey awsSslKey = awsSslKeyDao.read(Long.parseLong(loadBalancerNo));
+                AwsSslKey awsSslKey = awsSslKeyDao.read(sslKeyNo2);
                 if(awsSslKey == null) {
                     //存在しない場合
                     throw new AutoApplicationException("EAPI-100000", "AwsSslKey", PARAM_NAME_SSL_KEY_NO, sslKeyNo);
@@ -117,7 +121,7 @@ public class CreateLoadBalancerListener extends ApiSupport {
 
             // ロードバランサリスナ作成
             loadBalancerService.createListener(Long.parseLong(loadBalancerNo),
-                    Integer.parseInt(loadBalancerPort), Integer.parseInt(servicePort), protocol, Long.parseLong(sslKeyNo));
+                    Integer.parseInt(loadBalancerPort), Integer.parseInt(servicePort), protocol, sslKeyNo2);
 
             response.setSuccess(true);
 
