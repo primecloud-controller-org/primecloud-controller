@@ -116,7 +116,7 @@ public class ApiFilter extends ApiSupport implements ContainerRequestFilter {
             //}
 
             // Signature合致チェック
-            String uriText = createUriQueryParams(decodeParamMap, uri);
+            String uriText = createUriQueryParams(decodeParamMap);
             String encodeUriText = encodeSHA256(uriText, apiCertificate.getApiSecretKey());
             if (BooleanUtils.isFalse(encodeUriText.equals(signature))) {
                 //Signatureが合致しない場合
@@ -211,11 +211,10 @@ private LinkedHashMap<String, String> getDecodedParamMap(URI uri) {
      * URI(Signature含まない)文字列を作成
      *
      * @param decodeParamMap base64デコード済みのリクエストパラメータ
-     * @param uri URI(フルパス)文字列
      * @return リクエストパラメータを元にしたURL(Signature含まない)
      */
-    private String createUriQueryParams(LinkedHashMap<String, String> decodeParamMap, URI uri) {
-        String baseUriText = uri.getScheme() + "://" + uri.getAuthority() + uri.getPath() + "?";
+    private String createUriQueryParams(LinkedHashMap<String, String> decodeParamMap) {
+        String baseUriText = servletRequest.getServletPath() + servletRequest.getPathInfo() + "?";
         StringBuffer uriText = new StringBuffer(baseUriText);
         String splitChar = "";
         for (String key: decodeParamMap.keySet()) {
