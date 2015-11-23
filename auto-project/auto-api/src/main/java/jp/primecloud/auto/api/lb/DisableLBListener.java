@@ -39,7 +39,7 @@ import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.exception.AutoApplicationException;
 
 
-@Path("/DisableLBListener")
+@Path("/DisableLoadBalancerListener")
 public class DisableLBListener extends ApiSupport {
 
     /**

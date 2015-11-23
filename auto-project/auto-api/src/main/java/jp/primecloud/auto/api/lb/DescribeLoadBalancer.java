@@ -19,6 +19,7 @@
 package jp.primecloud.auto.api.lb;
 
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,8 +33,10 @@ import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
 
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 
 import jp.primecloud.auto.api.response.lb.AutoScalingConfResponse;
+import jp.primecloud.auto.api.response.lb.AwsLoadBalancerResponse;
 import jp.primecloud.auto.api.response.lb.DescribeLoadBalancerResponse;
 import jp.primecloud.auto.api.response.lb.LoadBalancerHealthCheckResponse;
 import jp.primecloud.auto.api.response.lb.LoadBalancerInstanceResponse;
@@ -42,11 +45,15 @@ import jp.primecloud.auto.api.response.lb.LoadBalancerResponse;
 import jp.primecloud.auto.common.status.ComponentInstanceStatus;
 import jp.primecloud.auto.common.status.LoadBalancerInstanceStatus;
 import jp.primecloud.auto.entity.crud.AutoScalingConf;
+import jp.primecloud.auto.entity.crud.AwsLoadBalancer;
 import jp.primecloud.auto.entity.crud.ComponentInstance;
 import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.entity.crud.LoadBalancerHealthCheck;
 import jp.primecloud.auto.entity.crud.LoadBalancerInstance;
 import jp.primecloud.auto.entity.crud.LoadBalancerListener;
+import jp.primecloud.auto.entity.crud.PlatformAws;
+import jp.primecloud.auto.entity.crud.User;
+import jp.primecloud.auto.service.dto.SubnetDto;
 import jp.primecloud.auto.service.impl.Comparators;
 
 
@@ -76,7 +83,7 @@ public class DescribeLoadBalancer extends ApiSupport {
             LoadBalancer loadBalancer = getLoadBalancer(Long.parseLong(loadBalancerNo));
 
             // 権限チェック
-            checkAndGetUser(loadBalancer);
+            User user = checkAndGetUser(loadBalancer);
 
             //ロードバランサ情報設定
             LoadBalancerResponse loadBalancerResponse = new LoadBalancerResponse(loadBalancer);
@@ -138,6 +145,32 @@ public class DescribeLoadBalancer extends ApiSupport {
             if (autoScalingConf != null) {
                 //オートスケーリング情報設定
                 loadBalancerResponse.setAutoScaling(new AutoScalingConfResponse(autoScalingConf));
+            }
+
+            // AWS
+            if (LB_TYPE_ELB.equals(loadBalancer.getType())) {
+                AwsLoadBalancer awsLoadBalancer = awsLoadBalancerDao.read(loadBalancer.getLoadBalancerNo());
+                AwsLoadBalancerResponse awsLoadBalancerResponse = new AwsLoadBalancerResponse(awsLoadBalancer);
+
+                // Subnet
+                if (StringUtils.isNotEmpty(awsLoadBalancer.getSubnetId())) {
+                    PlatformAws platformAws = platformAwsDao.read(loadBalancer.getPlatformNo());
+                    List<SubnetDto> subnetDtos = iaasDescribeService.getSubnets(user.getUserNo(), loadBalancer.getPlatformNo(), platformAws.getVpcId());
+
+                    List<String> subnets = new ArrayList<String>();
+                    for (String subnetId : StringUtils.split(awsLoadBalancer.getSubnetId(), ",")) {
+                        for (SubnetDto subnetDto : subnetDtos) {
+                            if (subnetDto.getSubnetId().equals(subnetId)) {
+                                subnets.add(subnetDto.getCidrBlock());
+                                break;
+                            }
+                        }
+                    }
+
+                    awsLoadBalancerResponse.setSubnets(StringUtils.join(subnets, ","));
+                }
+
+                loadBalancerResponse.setAws(awsLoadBalancerResponse);
             }
 
             response.setSuccess(true);

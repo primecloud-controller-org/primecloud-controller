@@ -76,6 +76,9 @@ public class LoadBalancerResponse {
     @JsonProperty("AutoScaling")
     private AutoScalingConfResponse autoScaling;
 
+    @JsonProperty("AWS")
+    private AwsLoadBalancerResponse aws;
+
     public LoadBalancerResponse() {}
 
     public LoadBalancerResponse(LoadBalancer loadBalancer) {
@@ -294,5 +297,13 @@ public class LoadBalancerResponse {
      public void setAutoScaling(AutoScalingConfResponse autoScaling) {
          this.autoScaling = autoScaling;
      }
+
+    public AwsLoadBalancerResponse getAws() {
+        return aws;
+    }
+
+    public void setAws(AwsLoadBalancerResponse aws) {
+        this.aws = aws;
+    }
 
 }
