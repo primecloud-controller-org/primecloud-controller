@@ -121,10 +121,10 @@ import jp.primecloud.auto.service.dto.SubnetDto;
 import jp.primecloud.auto.service.dto.VmwareAddressDto;
 import jp.primecloud.auto.service.dto.ZoneDto;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
-import com.amazonaws.services.ec2.model.InstanceType;
 import com.vmware.vim25.mo.ComputeResource;
 
 /**
@@ -1231,7 +1231,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         // TODO CLOUD BRANCHING
         if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
             PlatformAws platformAws = platformAwsDao.read(platformNo);
-            makeAwsData(farm, instanceNo, instanceType, platformAws);
+            ImageAws imageAws = imageAwsDao.read(imageNo);
+            makeAwsData(farm, instanceNo, instanceType, platformAws, imageAws);
         } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
             PlatformCloudstack platformCloudstack = platformCloudstackDao.read(platformNo);
             makeCloudStackData(farm, instanceNo, instanceType, platformCloudstack);
@@ -1253,12 +1254,11 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         return instanceNo;
     }
 
-    private void makeAwsData(Farm farm, Long instanceNo, String instanceType, PlatformAws platformAws) {
+    private void makeAwsData(Farm farm, Long instanceNo, String instanceType, PlatformAws platformAws, ImageAws imageAws) {
 
         // 引数チェック
-        try {
-            InstanceType.fromValue(instanceType);
-        } catch (IllegalArgumentException e) {
+        String[] instanceTypes = imageAws.getInstanceTypes().split(",");
+        if (!ArrayUtils.contains(instanceTypes, instanceType)) {
             throw new AutoApplicationException("ECOMMON-000001", "instanceType");
         }
 
@@ -1753,11 +1753,6 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         if (keyName == null || keyName.length() == 0) {
             throw new AutoApplicationException("ECOMMON-000003", "keyName");
         }
-        try {
-            InstanceType.fromValue(instanceType);
-        } catch (IllegalArgumentException e) {
-            throw new AutoApplicationException("ECOMMON-000001", "instanceType");
-        }
 
         // インスタンスの存在チェック
         Instance instance = instanceDao.read(instanceNo);
@@ -1800,6 +1795,13 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
                     : !StringUtils.equals(awsInstance.getPrivateIpAddress(), privateIpAddress)) {
                 throw new AutoApplicationException("ESERVICE-000407", instance.getInstanceName());
             }
+        }
+
+        // インスタンスタイプのチェック
+        ImageAws imageAws = imageAwsDao.read(instance.getImageNo());
+        String[] instanceTypes = imageAws.getInstanceTypes().split(",");
+        if (!ArrayUtils.contains(instanceTypes, instanceType)) {
+            throw new AutoApplicationException("ECOMMON-000001", "instanceType");
         }
 
         // セキュリティグループのチェック
