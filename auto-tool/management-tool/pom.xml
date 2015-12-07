@@ -8,17 +8,17 @@
 		<dependency>
 			<groupId>jp.primecloud.auto</groupId>
 			<artifactId>auto-zabbix</artifactId>
-			<version>2.5.0</version>
+			<version>${pom.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>jp.primecloud.auto</groupId>
 			<artifactId>auto-aws</artifactId>
-			<version>2.5.0</version>
+			<version>${pom.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>jp.primecloud.auto</groupId>
 			<artifactId>auto-data</artifactId>
-			<version>2.5.0</version>
+			<version>${pom.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-logging</groupId>
@@ -54,19 +54,28 @@
 		<dependency>
 			<groupId>jp.primecloud.auto</groupId>
 			<artifactId>auto-process</artifactId>
-			<version>2.5.0</version>
+			<version>${pom.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>jp.primecloud.auto</groupId>
 			<artifactId>auto-common</artifactId>
-			<version>2.5.0</version>
+			<version>${pom.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>jp.primecloud.auto</groupId>
 			<artifactId>auto-api</artifactId>
-			<version>2.5.0</version>
+			<version>${pom.version}</version>
 		</dependency>
 	</dependencies>
+
+	<distributionManagement>
+		<repository>
+			<id>internal.repo</id>
+			<name>Temporary Staging Repository</name>
+			<url>file://${pom.build.directory}/release</url>
+		</repository>
+	</distributionManagement>
+
 	<build>
 		<plugins>
 			<plugin>
