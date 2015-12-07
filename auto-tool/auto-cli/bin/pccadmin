@@ -768,7 +768,7 @@ if __name__ == '__main__':
                 _showHelp("showHelp")
             exit(0)
     elif len(paramList) < 3:
-        print("PCCコマンドのオプションが不足しています。")
+        print("pccadminコマンドのオプションが不足しています。")
         exit(1)
     
     paramList[1] = paramList[1].lower() 
@@ -1063,7 +1063,7 @@ if __name__ == '__main__':
 
     #サポート対象外のコマンドが指定された場合
     if method is None:
-        print("pccコマンドが正しくありません。実行可能なコマンドは pcc -h を参照して下さい。")
+        print("pccadminコマンドが正しくありません。実行可能なコマンドは pccadmin -h を参照して下さい。")
     else:
         #各処理実行
         try:

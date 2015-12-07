@@ -56,9 +56,9 @@ def _execInstallModule(method, paramDict):
             print ("JSONファイルの読み込みに失敗したため処理を中止します。")
             exit(1)
         if "TemplateModule" in mifDict['moduleInformation']:
-            print ("モジュール:" + moduleName + "のインストールが完了しました。pcc add imageを実行しPCCへ登録を行って下さい。")
+            print ("モジュール:" + moduleName + "のインストールが完了しました。pccadmin add imageを実行しPCCへ登録を行って下さい。")
         else:
-            print ("モジュール:" + moduleName + "のインストールが完了しました。pcc add serviceを実行しPCCへ登録を行って下さい。")
+            print ("モジュール:" + moduleName + "のインストールが完了しました。pccadmin add serviceを実行しPCCへ登録を行って下さい。")
 
 def _execRemoveModule(method, paramDict):
     #オプションを辞書型に変換し、ヘルプフラグと値の無いものを削除
@@ -321,7 +321,7 @@ if __name__ == '__main__':
         exit(0)
     
     elif len(paramList) < 2:
-        print("PCCコマンドのオプションが不足しています。")
+        print("pccrepoコマンドのオプションが不足しています。")
         exit(1)
 
     paramList[1] = paramList[1].lower() 

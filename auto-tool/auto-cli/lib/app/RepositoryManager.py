@@ -36,7 +36,7 @@ class RepositoryManager:
             except Exception as e:
                 return {'result':'1','message':"イメージ情報の取得に失敗したため処理を中止します。管理者に連絡を行って下さい。"}
             if ret is not None:
-                return {'result':'1','message':"モジュール:" + moduleName + "は現在PCCに登録されています。pcc del imageコマンドを使用してPCCから削除した後、pccrepo removeコマンドを実行して下さい。"}
+                return {'result':'1','message':"モジュール:" + moduleName + "は現在PCCに登録されています。pccadmin del imageコマンドを使用してPCCから削除した後、pccrepo removeコマンドを実行して下さい。"}
         
         #削除対象がサービスの場合
         elif mifDict['moduleInformation'].has_key('ServiceModule'):
@@ -47,7 +47,7 @@ class RepositoryManager:
             except Exception as e:
                 return {'result':'1','message':"サービス情報の取得に失敗したため処理を中止します。管理者に連絡を行って下さい。"}
             if ret is not None:
-                return {'result':'1','message':"モジュール:" + moduleName + "は現在PCCに登録されています。pcc del serviceコマンドを使用してPCCから削除した後、pccrepo removeコマンドを実行して下さい。"}
+                return {'result':'1','message':"モジュール:" + moduleName + "は現在PCCに登録されています。pccadmin del serviceコマンドを使用してPCCから削除した後、pccrepo removeコマンドを実行して下さい。"}
         else:
             return {'result':'1','message':"JSONファイルが壊れているため処理を中止します。"}
         #正常終了
