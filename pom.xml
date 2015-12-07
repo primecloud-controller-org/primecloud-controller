@@ -9,6 +9,11 @@
 	<properties>
 		<github.global.server>github</github.global.server>
 	</properties>
+	<scm>
+		<url>https://github.com/primecloud-controller/primecloud-controller</url>
+		<connection>scm:git:https://github.com/primecloud-controller/primecloud-controller.git</connection>
+		<developerConnection>scm:git:https://github.com/primecloud-controller/primecloud-controller.git</developerConnection>
+	</scm>
 	<modules>
 		<module>auto-project</module>
 		<module>auto-tool/management-tool</module>
@@ -28,6 +33,15 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<distributionManagement>
+		<repository>
+			<id>internal.repo</id>
+			<name>Temporary Staging Repository</name>
+			<url>file://${pom.build.directory}/release</url>
+			</repository>
+	</distributionManagement>
+
 	<repositories>
 		<repository>
 			<id>central</id>
