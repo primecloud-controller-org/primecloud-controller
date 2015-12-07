@@ -5,6 +5,15 @@
 	<artifactId>install-tool</artifactId>
 	<name>${project.artifactId}</name>
 	<version>2.5.0-SNAPSHOT</version>
+
+	<distributionManagement>
+		<repository>
+			<id>internal.repo</id>
+			<name>Temporary Staging Repository</name>
+			<url>file://${pom.build.directory}/release</url>
+		</repository>
+	</distributionManagement>
+
 	<dependencies>
 	</dependencies>
 	<build>
