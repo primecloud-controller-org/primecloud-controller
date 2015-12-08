@@ -4,11 +4,16 @@
 	<groupId>jp.primecloud.auto</groupId>
 	<artifactId>auto</artifactId>
 	<packaging>pom</packaging>
-	<version>2.5.0</version>
+	<version>2.5.1-SNAPSHOT</version>
 	<name>${pom.artifactId}</name>
 	<properties>
 		<github.global.server>github</github.global.server>
 	</properties>
+	<scm>
+		<url>https://github.com/primecloud-controller/primecloud-controller</url>
+		<connection>scm:git:https://github.com/primecloud-controller/primecloud-controller.git</connection>
+		<developerConnection>scm:git:https://github.com/primecloud-controller/primecloud-controller.git</developerConnection>
+	</scm>
 	<modules>
 		<module>auto-project</module>
 		<module>auto-tool/management-tool</module>
@@ -20,7 +25,7 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-release-plugin</artifactId>
-				<version>2.1</version>
+				<version>2.5.3</version>
 				<configuration>
 					<allowTimestampedSnapshots>true</allowTimestampedSnapshots>
 					<goals>source:jar,deploy</goals>
@@ -28,6 +33,15 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<distributionManagement>
+		<repository>
+			<id>internal.repo</id>
+			<name>Temporary Staging Repository</name>
+			<url>file://${pom.build.directory}/release</url>
+			</repository>
+	</distributionManagement>
+
 	<repositories>
 		<repository>
 			<id>central</id>
