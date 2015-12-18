@@ -90,9 +90,9 @@
 		</plugins>
 	</build>
 	<scm>
-		<url>https://github.com/primecloud-controller/primecloud-controller</url>
-		<connection>scm:git:https://github.com/primecloud-controller/primecloud-controller.git</connection>
-		<developerConnection>scm:git:https://github.com/primecloud-controller/primecloud-controller.git</developerConnection>
+		<url>https://github.com/primecloud-controller-org/primecloud-controller</url>
+		<connection>scm:git:https://github.com/primecloud-controller-org/primecloud-controller.git</connection>
+		<developerConnection>scm:git:https://github.com/primecloud-controller-org/primecloud-controller.git</developerConnection>
 	</scm>
 	<reporting>
 		<plugins>
