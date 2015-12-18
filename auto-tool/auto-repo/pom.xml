@@ -3,7 +3,7 @@
 	<groupId>jp.primecloud.auto.tool</groupId>
 	<artifactId>auto-repo</artifactId>
 	<name>${pom.artifactId}</name>
-	<version>2.5.1-SNAPSHOT</version>
+	<version>2.5.1</version>
 
 	<distributionManagement>
 		<repository>
@@ -67,7 +67,8 @@
 	<scm>
 		<developerConnection>
 		</developerConnection>
-	</scm>
+	  <tag>2.5.1</tag>
+  </scm>
 	<pluginRepositories>
 	</pluginRepositories>
 </project>
