@@ -3,57 +3,60 @@ package jp.primecloud.auto.api.response.instance;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import jp.primecloud.auto.entity.crud.VcloudInstance;
 
 
-@XmlRootElement(name="VcloudInstanceResponse")
-@XmlType(propOrder = { "vmName","storageTypeName","instanceType","keyName","status","ipAddress","privateIpAddress", "vcloudNetwoks" })
 public class VcloudInstanceResponse {
 
     /**
      * VM名
      */
+    @JsonProperty("VmName")
     private String vmName;
 
     /**
      * ストレージタイプ名
      */
+    @JsonProperty("StorageTypeName")
     private String storageTypeName;
 
     /**
      * インスタンスタイプ
      */
+    @JsonProperty("InstanceType")
     private String instanceType;
 
     /**
      * キーペア名
      */
+    @JsonProperty("KeyName")
     private String keyName;
 
     /**
      * ステータス
      */
+    @JsonProperty("Status")
     private String status;
 
     /**
      * パブリックIPアドレス
      */
+    @JsonProperty("IpAddress")
     private String ipAddress;
 
     /**
      * プライベートIPアドレス
      */
+    @JsonProperty("PrivateIpAddress")
     private String privateIpAddress;
 
     /**
      * VCloudネットワーク情報の一覧
      */
-    private List<VcloudInstanceNetworkResponse> vcloudNetwoks;
+    @JsonProperty("VcloudNetworks")
+    private List<VcloudInstanceNetworkResponse> vcloudNetwoks = new ArrayList<VcloudInstanceNetworkResponse>();
 
     public VcloudInstanceResponse() {}
 
@@ -71,7 +74,6 @@ public class VcloudInstanceResponse {
     *
     * @return vmName
     */
-    @XmlElement(name="VmName")
     public String getVmName() {
         return vmName;
     }
@@ -92,7 +94,6 @@ public class VcloudInstanceResponse {
     *
     * @return storageTypeName
     */
-    @XmlElement(name="StorageTypeName")
     public String getStorageTypeName() {
         return storageTypeName;
     }
@@ -113,7 +114,6 @@ public class VcloudInstanceResponse {
     *
     * @return instanceType
     */
-    @XmlElement(name="InstanceType")
     public String getInstanceType() {
         return instanceType;
     }
@@ -134,7 +134,6 @@ public class VcloudInstanceResponse {
     *
     * @return keyName
     */
-    @XmlElement(name="KeyName")
     public String getKeyName() {
         return keyName;
     }
@@ -155,7 +154,6 @@ public class VcloudInstanceResponse {
     *
     * @return status
     */
-    @XmlElement(name="Status")
     public String getStatus() {
         return status;
     }
@@ -176,7 +174,6 @@ public class VcloudInstanceResponse {
     *
     * @return ipAddress
     */
-    @XmlElement(name="IpAddress")
     public String getIpAddress() {
         return ipAddress;
     }
@@ -197,7 +194,6 @@ public class VcloudInstanceResponse {
     *
     * @return privateIpAddress
     */
-    @XmlElement(name="PrivateIpAddress")
     public String getPrivateIpAddress() {
         return privateIpAddress;
     }
@@ -216,8 +212,6 @@ public class VcloudInstanceResponse {
      * VCloudネットワーク情報の一覧を取得します。
      * @return VCloudネットワーク情報の一覧
     */
-    @XmlElementWrapper(name="VcloudNetworks")
-    @XmlElement(name="VcloudNetwork")
     public List<VcloudInstanceNetworkResponse> getVcloudNetwoks() {
         return vcloudNetwoks;
     }
@@ -230,16 +224,4 @@ public class VcloudInstanceResponse {
         this.vcloudNetwoks = vcloudNetwoks;
     }
 
-   /**
-    *
-    * VcloudNetwok を VcloudNetwoksに追加します。
-    *
-    * @param vcloudNetwok
-    */
-   public void addVcloudNetwok(VcloudInstanceNetworkResponse vcloudNetwok) {
-       if (vcloudNetwoks == null) {
-           vcloudNetwoks = new ArrayList<VcloudInstanceNetworkResponse>();
-       }
-       vcloudNetwoks.add(vcloudNetwok);
-    }
 }

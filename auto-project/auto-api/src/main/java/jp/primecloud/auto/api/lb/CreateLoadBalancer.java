@@ -29,12 +29,11 @@ import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
 import jp.primecloud.auto.api.response.lb.CreateLoadBalancerResponse;
 import jp.primecloud.auto.entity.crud.Component;
+import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.PlatformAws;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.util.MessageUtils;
 
 import org.apache.commons.lang.BooleanUtils;
 
@@ -46,7 +45,6 @@ public class CreateLoadBalancer extends ApiSupport {
      *
      * ロードバランサリスナ作成
      *
-     * @param userName ユーザ名
      * @param farmNo ファーム番号
      * @param loadBalancerName ロードバランサ番号
      * @param platformNo プラットフォーム番号
@@ -57,9 +55,8 @@ public class CreateLoadBalancer extends ApiSupport {
      * @return CreateLoadBalancerResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
     public CreateLoadBalancerResponse createLoadBalancer(
-            @QueryParam(PARAM_NAME_USER) String userName,
             @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
             @QueryParam(PARAM_NAME_LOAD_BALANCER_NAME) String loadBalancerName,
             @QueryParam(PARAM_NAME_PLATFORM_NO) String platformNo,
@@ -70,14 +67,16 @@ public class CreateLoadBalancer extends ApiSupport {
 
         CreateLoadBalancerResponse response = new CreateLoadBalancerResponse();
 
-        try {
-            User user = userDao.readByUsername(userName);
-
             // 入力チェック
-            // Key(ユーザ名)
-            ApiValidate.validateUser(userName);
             // FarmNo
             ApiValidate.validateFarmNo(farmNo);
+
+            // ファーム取得
+            Farm farm = farmDao.read(Long.parseLong(farmNo));
+
+            // 権限チェック
+            User user = checkAndGetUser(farm);
+
             // LoadBalancerName
             ApiValidate.validateLoadBalancerName(loadBalancerName);
             // PlatformNo
@@ -119,14 +118,11 @@ public class CreateLoadBalancer extends ApiSupport {
             }
 
             // コンポーネント取得
-            Component component = componentDao.read(Long.parseLong(componentNo));
-            if (component == null) {
-                // コンポーネントが存在しない
-                throw new AutoApplicationException("EAPI-100000", "Component", PARAM_NAME_COMPONENT_NO, componentNo);
-            }
-            if (BooleanUtils.isFalse(component.getFarmNo().equals(Long.parseLong(farmNo)))) {
+            Component component = getComponent(Long.parseLong(componentNo));
+
+            if (BooleanUtils.isFalse(component.getFarmNo().equals(farm.getFarmNo()))) {
                 //ファームとコンポーネントが一致しない
-                throw new AutoApplicationException("EAPI-100022", "Component", farmNo, PARAM_NAME_COMPONENT_NO, componentNo);
+                throw new AutoApplicationException("EAPI-100022", "Component", farm.getFarmNo(), PARAM_NAME_COMPONENT_NO, componentNo);
             }
 
             // ロードバランサー作成
@@ -151,17 +147,6 @@ public class CreateLoadBalancer extends ApiSupport {
 
             response.setLoadBalancerNo(newLoadBalancerNo);
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
 

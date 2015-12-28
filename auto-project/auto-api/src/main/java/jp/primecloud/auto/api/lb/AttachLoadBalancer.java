@@ -39,8 +39,6 @@ import jp.primecloud.auto.entity.crud.ComponentInstance;
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.util.MessageUtils;
 
 
 @Path("/AttachLoadBalancer")
@@ -49,52 +47,37 @@ public class AttachLoadBalancer extends ApiSupport {
     /**
      *
      * ロードバランサ サーバ割り当て有効化
-     * @param farmNo ファーム番号
      * @param loadBalancerNo ロードバランサ番号
      * @param instanceNo インスタンス番号
      *
      * @return AttachLoadBalancerResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
 	public AttachLoadBalancerResponse attachLoadBalancer(
-            @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
 	        @QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo,
 	        @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo){
 
         AttachLoadBalancerResponse response = new AttachLoadBalancerResponse();
 
-        try {
             // 入力チェック
-            // FarmNo
-            ApiValidate.validateFarmNo(farmNo);
             // LoadBalancerNo
             ApiValidate.validateLoadBalancerNo(loadBalancerNo);
             // InstanceNo
             ApiValidate.validateInstanceNo(instanceNo);
 
             // ロードバランサ取得
-            LoadBalancer loadBalancer = loadBalancerDao.read(Long.parseLong(loadBalancerNo));
-            if (loadBalancer == null) {
-                // ロードバランサが存在しない
-                throw new AutoApplicationException("EAPI-100000", "LoadBalancer",
-                        PARAM_NAME_LOAD_BALANCER_NO, loadBalancerNo);
-            }
-            if (BooleanUtils.isFalse(loadBalancer.getFarmNo().equals(Long.parseLong(farmNo)))) {
-                //ファームとロードバランサが一致しない
-                throw new AutoApplicationException("EAPI-100022", "LoadBalancer", farmNo, PARAM_NAME_LOAD_BALANCER_NO, loadBalancerNo);
-            }
+            LoadBalancer loadBalancer = getLoadBalancer(Long.parseLong(loadBalancerNo));
+
+            // 権限チェック
+            checkAndGetUser(loadBalancer);
 
             // インスタンス取得
-            Instance instance = instanceDao.read(Long.parseLong(instanceNo));
-            if (instance == null) {
-                // インスタンスが存在しない
-                throw new AutoApplicationException("EAPI-100000", "Instance",
-                        PARAM_NAME_INSTANCE_NO, instanceNo);
-            }
-            if (BooleanUtils.isFalse(instance.getFarmNo().equals(Long.parseLong(farmNo)))) {
+            Instance instance = getInstance(Long.parseLong(instanceNo));
+
+            if (BooleanUtils.isFalse(instance.getFarmNo().equals(loadBalancer.getFarmNo()))) {
                 //ファームとインスタンスが一致しない
-                throw new AutoApplicationException("EAPI-100022", "Instance", farmNo, PARAM_NAME_INSTANCE_NO, instanceNo);
+                throw new AutoApplicationException("EAPI-100022", "Instance", loadBalancer.getFarmNo(), PARAM_NAME_INSTANCE_NO, instanceNo);
             }
 
             // サーバのステータスチェック
@@ -128,17 +111,6 @@ public class AttachLoadBalancer extends ApiSupport {
             loadBalancerService.enableInstances(Long.parseLong(loadBalancerNo), instanceNos);
 
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
     }

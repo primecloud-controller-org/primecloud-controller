@@ -1,29 +1,30 @@
 package jp.primecloud.auto.api.response;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import jp.primecloud.auto.entity.crud.PlatformVcloud;
 
 
-@XmlRootElement(name="PlatformVcloudResponse")
-@XmlType(propOrder = { "url","username","password","orgName","vdcName" })
 public class PlatformVcloudResponse {
 
     /** URL */
+    @JsonProperty("Url")
     private String url;
 
     /** ユーザ名 */
+    @JsonProperty("Username")
     private String username;
 
     /** パスワード */
+    @JsonProperty("Password")
     private String password;
 
     /** 組織名 */
+    @JsonProperty("OrgName")
     private String orgName;
 
     /** vDC名 */
+    @JsonProperty("VdcName")
     private String vdcName;
 
 	public PlatformVcloudResponse() {}
@@ -40,7 +41,6 @@ public class PlatformVcloudResponse {
     *
     * @return url
     */
-    @XmlElement(name="Url")
     public String getUrl() {
 	    return url;
 	}
@@ -61,7 +61,6 @@ public class PlatformVcloudResponse {
     *
     * @return username
     */
-    @XmlElement(name="Username")
 	public String getUsername() {
 		return username;
 	}
@@ -82,7 +81,6 @@ public class PlatformVcloudResponse {
     *
     * @return password
     */
-    @XmlElement(name="Password")
 	public String getPassword() {
 		return password;
 	}
@@ -103,7 +101,6 @@ public class PlatformVcloudResponse {
     *
     * @return orgName
     */
-    @XmlElement(name="OrgName")
 	public String getOrgName() {
 		return orgName;
 	}
@@ -124,7 +121,6 @@ public class PlatformVcloudResponse {
     *
     * @return vdcName
     */
-    @XmlElement(name="VdcName")
 	public String getVdcName() {
 		return vdcName;
 	}

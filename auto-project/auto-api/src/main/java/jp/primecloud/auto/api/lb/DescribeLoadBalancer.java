@@ -19,6 +19,7 @@
 package jp.primecloud.auto.api.lb;
 
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,24 +33,28 @@ import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
 
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 
 import jp.primecloud.auto.api.response.lb.AutoScalingConfResponse;
+import jp.primecloud.auto.api.response.lb.AwsLoadBalancerResponse;
 import jp.primecloud.auto.api.response.lb.DescribeLoadBalancerResponse;
 import jp.primecloud.auto.api.response.lb.LoadBalancerHealthCheckResponse;
 import jp.primecloud.auto.api.response.lb.LoadBalancerInstanceResponse;
 import jp.primecloud.auto.api.response.lb.LoadBalancerListenerResponse;
+import jp.primecloud.auto.api.response.lb.LoadBalancerResponse;
 import jp.primecloud.auto.common.status.ComponentInstanceStatus;
 import jp.primecloud.auto.common.status.LoadBalancerInstanceStatus;
 import jp.primecloud.auto.entity.crud.AutoScalingConf;
+import jp.primecloud.auto.entity.crud.AwsLoadBalancer;
 import jp.primecloud.auto.entity.crud.ComponentInstance;
 import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.entity.crud.LoadBalancerHealthCheck;
 import jp.primecloud.auto.entity.crud.LoadBalancerInstance;
 import jp.primecloud.auto.entity.crud.LoadBalancerListener;
-import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
+import jp.primecloud.auto.entity.crud.PlatformAws;
+import jp.primecloud.auto.entity.crud.User;
+import jp.primecloud.auto.service.dto.SubnetDto;
 import jp.primecloud.auto.service.impl.Comparators;
-import jp.primecloud.auto.util.MessageUtils;
 
 
 @Path("/DescribeLoadBalancer")
@@ -59,40 +64,30 @@ public class DescribeLoadBalancer extends ApiSupport {
      *
      * ロードバランサ情報取得
      *
-     * @param farmNo ファーム番号
      * @param loadBalancerNo ロードバランサ番号
      *
      * @return DescribeLoadBalancerResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
     public DescribeLoadBalancerResponse describeLoadBalancer(
-            @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
             @QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo){
 
         DescribeLoadBalancerResponse response = new DescribeLoadBalancerResponse();
 
-        try {
             // 入力チェック
-            // FarmNo
-            ApiValidate.validateFarmNo(farmNo);
             // LoadBalancerNo
             ApiValidate.validateLoadBalancerNo(loadBalancerNo);
 
             // ロードバランサ取得
-            LoadBalancer loadBalancer = loadBalancerDao.read(Long.parseLong(loadBalancerNo));
-            if (loadBalancer == null) {
-                // ロードバランサが存在しない
-                throw new AutoApplicationException("EAPI-100000", "LoadBalancer", PARAM_NAME_LOAD_BALANCER_NO, loadBalancerNo);
-            }
+            LoadBalancer loadBalancer = getLoadBalancer(Long.parseLong(loadBalancerNo));
 
-            if (BooleanUtils.isFalse(loadBalancer.getFarmNo().equals(Long.parseLong(farmNo)))) {
-                //ファームとロードバランサが一致しない
-                throw new AutoApplicationException("EAPI-100022", "LoadBalancer", farmNo, PARAM_NAME_LOAD_BALANCER_NO, loadBalancerNo);
-            }
+            // 権限チェック
+            User user = checkAndGetUser(loadBalancer);
 
             //ロードバランサ情報設定
-            response = new DescribeLoadBalancerResponse(loadBalancer);
+            LoadBalancerResponse loadBalancerResponse = new LoadBalancerResponse(loadBalancer);
+            response.setLoadBalancer(loadBalancerResponse);
 
             //リスナー取得
             List<LoadBalancerListener> listeners = loadBalancerListenerDao.readByLoadBalancerNo(Long.parseLong(loadBalancerNo));
@@ -102,14 +97,14 @@ public class DescribeLoadBalancer extends ApiSupport {
             }
             for (LoadBalancerListener listener: listeners) {
                 //リスナー情報設定
-                response.addListener(new LoadBalancerListenerResponse(listener));
+                loadBalancerResponse.getListeners().add(new LoadBalancerListenerResponse(listener));
             }
 
             //ヘルスチェック取得
             LoadBalancerHealthCheck healthCheck = loadBalancerHealthCheckDao.read(Long.parseLong(loadBalancerNo));
             if (healthCheck != null) {
                 //ヘルスチェック情報設定
-                response.setHealthCheck(new LoadBalancerHealthCheckResponse(healthCheck));
+                loadBalancerResponse.setHealthCheck(new LoadBalancerHealthCheckResponse(healthCheck));
             }
 
             //コンポーネントインスタンス情報取得
@@ -142,28 +137,43 @@ public class DescribeLoadBalancer extends ApiSupport {
                     loadBalancerInstanceResponse.setStatus(loadBalancerInstance.getStatus());
                 }
                 //ロードバランサインスタンス情報設定
-                response.addInstance(loadBalancerInstanceResponse);
+                loadBalancerResponse.getInstances().add(loadBalancerInstanceResponse);
             }
 
             //オートスケーリング取得
             AutoScalingConf autoScalingConf = autoScalingConfDao.read(Long.parseLong(loadBalancerNo));
             if (autoScalingConf != null) {
                 //オートスケーリング情報設定
-                response.setAutoScaling(new AutoScalingConfResponse(autoScalingConf));
+                loadBalancerResponse.setAutoScaling(new AutoScalingConfResponse(autoScalingConf));
+            }
+
+            // AWS
+            if (LB_TYPE_ELB.equals(loadBalancer.getType())) {
+                AwsLoadBalancer awsLoadBalancer = awsLoadBalancerDao.read(loadBalancer.getLoadBalancerNo());
+                AwsLoadBalancerResponse awsLoadBalancerResponse = new AwsLoadBalancerResponse(awsLoadBalancer);
+
+                // Subnet
+                if (StringUtils.isNotEmpty(awsLoadBalancer.getSubnetId())) {
+                    PlatformAws platformAws = platformAwsDao.read(loadBalancer.getPlatformNo());
+                    List<SubnetDto> subnetDtos = iaasDescribeService.getSubnets(user.getUserNo(), loadBalancer.getPlatformNo(), platformAws.getVpcId());
+
+                    List<String> subnets = new ArrayList<String>();
+                    for (String subnetId : StringUtils.split(awsLoadBalancer.getSubnetId(), ",")) {
+                        for (SubnetDto subnetDto : subnetDtos) {
+                            if (subnetDto.getSubnetId().equals(subnetId)) {
+                                subnets.add(subnetDto.getCidrBlock());
+                                break;
+                            }
+                        }
+                    }
+
+                    awsLoadBalancerResponse.setSubnets(StringUtils.join(subnets, ","));
+                }
+
+                loadBalancerResponse.setAws(awsLoadBalancerResponse);
             }
 
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
     }

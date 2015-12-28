@@ -1,70 +1,66 @@
 package jp.primecloud.auto.api.response.lb;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import org.codehaus.jackson.annotate.JsonProperty;
 
+import jp.primecloud.auto.api.response.AbstractResponse;
 import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.entity.crud.LoadBalancerHealthCheck;
 
 
-@XmlRootElement(name="DescribeLoadBalancerHealthCheckResponse")
-@XmlType(propOrder = {"success", "message", "loadBalancerNo", "loadBalancerName", "protocol", "port", "path", "timeout", "interval", "healthyThreshold", "unhealthyThreshold"})
-public class DescribeLoadBalancerHealthCheckResponse {
-
-    /**
-     * 処理の成否 true:正常終了、false:エラー
-     */
-    private boolean success;
-
-    /**
-     * メッセージ 正常終了の場合：Null、エラーの場合：エラーメッセージ
-     */
-    private String message;
+public class DescribeLoadBalancerHealthCheckResponse extends AbstractResponse {
 
     /**
      * ロードバランサ番号
      */
+    @JsonProperty("LoadBalancerNo")
     private Long loadBalancerNo;
 
     /**
      * ロードバランサ名
      */
+    @JsonProperty("LoadBalancerName")
     private String loadBalancerName;
 
     /**
      * 監視プロトコル
      */
+    @JsonProperty("Protocol")
     private String protocol;
 
     /**
      * 監視ポート
      */
+    @JsonProperty("Port")
     private Integer port;
 
     /**
      * 監視パス
      */
+    @JsonProperty("Path")
     private String path;
 
     /**
      * タイムアウト時間
      */
+    @JsonProperty("Timeout")
     private Integer timeout;
 
     /**
      * チェック間隔
      */
+    @JsonProperty("Interval")
     private Integer interval;
 
     /**
      * 復帰しきい値
      */
+    @JsonProperty("HealthyThreshold")
     private Integer healthyThreshold;
 
     /**
      * 障害しきい値
      */
+    @JsonProperty("UnhealthyThreshold")
     private Integer unhealthyThreshold;
 
     public DescribeLoadBalancerHealthCheckResponse() {}
@@ -81,47 +77,6 @@ public class DescribeLoadBalancerHealthCheckResponse {
         this.unhealthyThreshold = healthCheck.getUnhealthyThreshold();
     }
 
-   /**
-    *
-    * successを取得します。
-    *
-    * @return success
-    */
-    @XmlElement(name="SUCCESS")
-    public boolean isSuccess() {
-        return success;
-    }
-
-   /**
-    *
-    * successを設定します。
-    *
-    * @param success
-    */
-    public void setSuccess(boolean success) {
-        this.success = success;
-    }
-
-   /**
-    *
-    * messageを取得します。
-    *
-    * @return success
-    */
-    @XmlElement(name="Message")
-    public String getMessage() {
-        return message;
-    }
-
-   /**
-    *
-    * messageを設定します。
-    *
-    * @param message
-    */
-    public void setMessage(String message) {
-        this.message = message;
-    }
 
    /**
     *
@@ -129,7 +84,6 @@ public class DescribeLoadBalancerHealthCheckResponse {
     *
     * @return loadBalancerNo
     */
-    @XmlElement(name="LoadBalancerNo")
     public Long getLoadBalancerNo() {
         return loadBalancerNo;
     }
@@ -150,7 +104,6 @@ public class DescribeLoadBalancerHealthCheckResponse {
     *
     * @return loadBalancerName
     */
-    @XmlElement(name="LoadBalancerName")
     public String getLoadBalancerName() {
         return loadBalancerName;
     }
@@ -171,7 +124,6 @@ public class DescribeLoadBalancerHealthCheckResponse {
     *
     * @return protocol
     */
-    @XmlElement(name="Protocol")
     public String getProtocol() {
         return protocol;
     }
@@ -192,7 +144,6 @@ public class DescribeLoadBalancerHealthCheckResponse {
     *
     * @return port
     */
-    @XmlElement(name="Port")
     public Integer getPort() {
         return port;
     }
@@ -213,7 +164,6 @@ public class DescribeLoadBalancerHealthCheckResponse {
     *
     * @return path
     */
-    @XmlElement(name="Path")
     public String getPath() {
         return path;
     }
@@ -234,7 +184,6 @@ public class DescribeLoadBalancerHealthCheckResponse {
     *
     * @return timeout
     */
-    @XmlElement(name="Timeout")
     public Integer getTimeout() {
         return timeout;
     }
@@ -255,7 +204,6 @@ public class DescribeLoadBalancerHealthCheckResponse {
     *
     * @return interval
     */
-    @XmlElement(name="Interval")
     public Integer getInterval() {
         return interval;
     }
@@ -276,7 +224,6 @@ public class DescribeLoadBalancerHealthCheckResponse {
     *
     * @return healthyThreshold
     */
-    @XmlElement(name="HealthyThreshold")
     public Integer getHealthyThreshold() {
         return healthyThreshold;
     }
@@ -297,7 +244,6 @@ public class DescribeLoadBalancerHealthCheckResponse {
     *
     * @return unhealthyThreshold
     */
-    @XmlElement(name="UnhealthyThreshold")
     public Integer getUnhealthyThreshold() {
         return unhealthyThreshold;
     }

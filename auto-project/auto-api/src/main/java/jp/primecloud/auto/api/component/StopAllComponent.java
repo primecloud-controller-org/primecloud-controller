@@ -37,9 +37,6 @@ import org.apache.commons.lang.StringUtils;
 import jp.primecloud.auto.api.response.component.StopAllComponentResponse;
 import jp.primecloud.auto.entity.crud.Component;
 import jp.primecloud.auto.entity.crud.Farm;
-import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.util.MessageUtils;
 
 
 @Path("/StopAllComponent")
@@ -53,14 +50,13 @@ public class StopAllComponent extends ApiSupport{
      * @return StopComponentResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
 	public StopAllComponentResponse stopComponent(
 	        @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
 	        @QueryParam(PARAM_NAME_IS_STOP_INSTANCE) String isStopInstance){
 
         StopAllComponentResponse response = new StopAllComponentResponse();
 
-        try {
             // 入力チェック
             // FarmNo
             ApiValidate.validateFarmNo(farmNo);
@@ -68,12 +64,10 @@ public class StopAllComponent extends ApiSupport{
             ApiValidate.validateIsStopInstance(isStopInstance);
 
             // ファーム取得
-            Farm farm = farmDao.read(Long.parseLong(farmNo));
-            if (farm == null) {
-                // ファームが存在しない
-                throw new AutoApplicationException("EAPI-100000", "Farm",
-                        PARAM_NAME_FARM_NO, farmNo);
-            }
+            Farm farm = getFarm(Long.parseLong(farmNo));
+
+            // 権限チェック
+            checkAndGetUser(farm);
 
             // コンポーネント取得
             List<Component> components = componentDao.readByFarmNo(Long.parseLong(farmNo));
@@ -94,17 +88,6 @@ public class StopAllComponent extends ApiSupport{
             }
 
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
 	}

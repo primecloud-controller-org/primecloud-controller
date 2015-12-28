@@ -1,71 +1,98 @@
 package jp.primecloud.auto.api.response;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.lang.BooleanUtils;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import jp.primecloud.auto.entity.crud.PlatformAws;
 
 
-@XmlRootElement(name="PlatformAwsResponse")
-@XmlType(propOrder = {"host", "port", "secure", "euca", "vpc", "region", "availabilityZone", "vpcId", "defKeyPair", "defSubnet",  "defLbSubnet"})
 public class PlatformAwsResponse {
 
     /**
      * ホスト(URL)
      */
+    @JsonProperty("Host")
     private String host;
 
     /**
      * ポート番号
      */
+    @JsonProperty("Port")
     private Integer port;
 
     /**
      * セキュア区分
      */
+    @JsonProperty("Secure")
     private Boolean secure;
 
     /**
      * Eucalyptus区分
      */
+    @JsonProperty("Euca")
     private Boolean euca;
 
     /**
      * VPC区分
      */
+    @JsonProperty("Vpc")
     private Boolean vpc;
 
     /**
      * リージョン名
      */
+    @JsonProperty("Region")
     private String region;
 
     /**
      * ゾーン名
      */
+    @JsonProperty("AvailabilityZone")
     private String availabilityZone;
 
     /**
-     * ゾーン名
+     * VPC ID
      */
+    @JsonProperty("VpcId")
     private String vpcId;
+
+    /**
+     * キー名
+     */
+    @JsonProperty("KeyNames")
+    private List<String> keyNames = new ArrayList<String>();
+
+    /**
+     * セキュリティグループ名
+     */
+    @JsonProperty("SecurityGroups")
+    private List<String> securityGroups = new ArrayList<String>();
+
+    /**
+     * サブネット
+     */
+    @JsonProperty("Subnets")
+    private List<String> subnets = new ArrayList<String>();
 
     /**
      * デフォルトキーペア
      */
+    @JsonProperty("DefKeyPair")
     private String defKeyPair;
 
     /**
      * デフォルトサブネット(CidrBlock)
      */
+    @JsonProperty("DefSubnet")
     private String defSubnet;
 
     /**
      * デフォルトロードバランササブネット(CidrBlock)
      */
+    @JsonProperty("DefLbSubnet")
     private String defLbSubnet;
 
     public PlatformAwsResponse(){}
@@ -87,7 +114,6 @@ public class PlatformAwsResponse {
     *
     * @return host
     */
-    @XmlElement(name="Host")
     public String getHost() {
         return host;
     }
@@ -108,7 +134,6 @@ public class PlatformAwsResponse {
     *
     * @return port
     */
-    @XmlElement(name="Port")
     public Integer getPort() {
         return port;
     }
@@ -129,7 +154,6 @@ public class PlatformAwsResponse {
     *
     * @return secure
     */
-    @XmlElement(name="Secure")
     public Boolean getSecure() {
         return secure;
     }
@@ -150,7 +174,6 @@ public class PlatformAwsResponse {
     *
     * @return euca
     */
-    @XmlElement(name="Euca")
     public Boolean getEuca() {
         return euca;
     }
@@ -171,7 +194,6 @@ public class PlatformAwsResponse {
     *
     * @return vpc
     */
-    @XmlElement(name="Vpc")
     public Boolean getVpc() {
         return vpc;
     }
@@ -192,7 +214,6 @@ public class PlatformAwsResponse {
     *
     * @return region
     */
-    @XmlElement(name="Region")
     public String getRegion() {
         return region;
     }
@@ -213,7 +234,6 @@ public class PlatformAwsResponse {
     *
     * @return availabilityZone
     */
-    @XmlElement(name="AvailabilityZone")
     public String getAvailabilityZone() {
         return availabilityZone;
     }
@@ -234,7 +254,6 @@ public class PlatformAwsResponse {
     *
     * @return vpcId
     */
-    @XmlElement(name="VpcId")
     public String getVpcId() {
         return vpcId;
     }
@@ -249,13 +268,36 @@ public class PlatformAwsResponse {
         this.vpcId = vpcId;
     }
 
+    public List<String> getKeyNames() {
+        return keyNames;
+    }
+
+    public void setKeyNames(List<String> keyNames) {
+        this.keyNames = keyNames;
+    }
+
+    public List<String> getSecurityGroups() {
+        return securityGroups;
+    }
+
+    public void setSecurityGroups(List<String> securityGroups) {
+        this.securityGroups = securityGroups;
+    }
+
+    public List<String> getSubnets() {
+        return subnets;
+    }
+
+    public void setSubnets(List<String> subnets) {
+        this.subnets = subnets;
+    }
+
    /**
     *
     * defKeyPairを取得します。
     *
     * @return defKeyPair
     */
-    @XmlElement(name="DefKeyPair")
     public String getDefKeyPair() {
         return defKeyPair;
     }
@@ -276,7 +318,6 @@ public class PlatformAwsResponse {
     *
     * @return defSubnet
     */
-    @XmlElement(name="DefSubnet")
     public String getDefSubnet() {
         return defSubnet;
     }
@@ -297,7 +338,6 @@ public class PlatformAwsResponse {
     *
     * @return defLbSubnet
     */
-    @XmlElement(name="DefLbSubnet")
     public String getDefLbSubnet() {
         return defLbSubnet;
     }

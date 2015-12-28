@@ -1,71 +1,77 @@
 package jp.primecloud.auto.api.response;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
 import org.apache.commons.lang.BooleanUtils;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import jp.primecloud.auto.entity.crud.Platform;
 
 
-@XmlRootElement(name="PlatformResponse")
-@XmlType(propOrder = {"platformNo","platformName","internal","platformType","aws","vmware","nifty","cloudstack", "vcloud" , "openstack" , "azure"})
 public class PlatformResponse {
 
     /**
      * プラットフォーム番号
      */
+    @JsonProperty("PlatformNo")
     private Long platformNo;
 
     /**
      * プラットフォーム名
      */
+    @JsonProperty("PlatformName")
     private String platformName;
 
     /**
      * 内外区分
      */
+    @JsonProperty("Internal")
     private Boolean internal;
 
     /**
      * プラットフォーム区分
      */
+    @JsonProperty("PlatformType")
     private String platformType;
 
     /**
      * プラットフォーム詳細情報(AWS)
      */
+    @JsonProperty("Aws")
     private PlatformAwsResponse aws;
 
     /**
      * プラットフォーム詳細情報(VMware)
      */
+    @JsonProperty("Vmware")
     private PlatformVmwareResponse vmware;
 
     /**
      * プラットフォーム詳細情報(Nifty)
      */
+    @JsonProperty("Nifty")
     private PlatformNiftyResponse nifty;
 
     /**
      * プラットフォーム詳細情報(Cloudstack)
      */
+    @JsonProperty("Cloudstack")
     private PlatformCloudstackResponse cloudstack;
 
     /**
      * プラットフォーム詳細情報(VCloud)
      */
+    @JsonProperty("Vcloud")
     private PlatformVcloudResponse vcloud;
 
     /**
      * プラットフォーム詳細情報(Openstack)
      */
+    @JsonProperty("Openstack")
     private PlatformOpenstackResponse openstack;
 
     /**
      * プラットフォーム詳細情報(Azure)
      */
+    @JsonProperty("Azure")
     private PlatformAzureResponse azure;
 
     public PlatformResponse() {}
@@ -83,7 +89,6 @@ public class PlatformResponse {
     *
     * @return platformNo
     */
-    @XmlElement(name="PlatformNo")
     public Long getPlatformNo() {
         return platformNo;
     }
@@ -104,7 +109,6 @@ public class PlatformResponse {
     *
     * @return platformName
     */
-    @XmlElement(name="PlatformName")
     public String getPlatformName() {
         return platformName;
     }
@@ -125,7 +129,6 @@ public class PlatformResponse {
     *
     * @return internal
     */
-    @XmlElement(name="Internal")
     public Boolean getInternal() {
         return internal;
     }
@@ -146,7 +149,6 @@ public class PlatformResponse {
     *
     * @return platformType
     */
-    @XmlElement(name="PlatformType")
     public String getPlatformType() {
         return platformType;
     }
@@ -167,7 +169,6 @@ public class PlatformResponse {
     *
     * @return aws
     */
-    @XmlElement(name="AWS")
     public PlatformAwsResponse getAws() {
         return aws;
     }
@@ -188,7 +189,6 @@ public class PlatformResponse {
     *
     * @return vmware
     */
-    @XmlElement(name="VMWARE")
     public PlatformVmwareResponse getVmware() {
         return vmware;
     }
@@ -209,7 +209,6 @@ public class PlatformResponse {
     *
     * @return nifty
     */
-    @XmlElement(name="NIFTY")
     public PlatformNiftyResponse getNifty() {
         return nifty;
     }
@@ -230,7 +229,6 @@ public class PlatformResponse {
     *
     * @return cloudstack
     */
-    @XmlElement(name="CLOUDSTACK")
     public PlatformCloudstackResponse getCloudstack() {
         return cloudstack;
     }
@@ -251,7 +249,6 @@ public class PlatformResponse {
     *
     * @return vcloud
     */
-    @XmlElement(name="VCLOUD")
     public PlatformVcloudResponse getVcloud() {
         return vcloud;
     }
@@ -272,7 +269,6 @@ public class PlatformResponse {
         *
         * @return openstack
         */
-        @XmlElement(name="OPENSTACK")
         public PlatformOpenstackResponse getOpenstack() {
             return openstack;
         }
@@ -293,7 +289,6 @@ public class PlatformResponse {
         *
         * @return azure
         */
-        @XmlElement(name="AZURE")
         public PlatformAzureResponse getAzure() {
             return azure;
         }

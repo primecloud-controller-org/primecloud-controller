@@ -1,45 +1,83 @@
 package jp.primecloud.auto.api.response.lb;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import jp.primecloud.auto.entity.crud.LoadBalancer;
 
 
-@XmlRootElement(name="LoadBalancerResponse")
-@XmlType(propOrder = {"loadBalancerNo", "loadBalancerName", "fqdn", "status", "componentNo", "componentName"})
 public class LoadBalancerResponse {
 
     /**
      * ロードバランサ番号
      */
+    @JsonProperty("LoadBalancerNo")
     private Long loadBalancerNo;
 
     /**
      * ロードバランサ名
      */
+    @JsonProperty("LoadBalancerName")
     private String loadBalancerName;
 
     /**
      * FQDN
      */
+    @JsonProperty("FQDN")
     private String fqdn;
+
+    /**
+     * ロードバランサタイプ
+     */
+    @JsonProperty("Type")
+    private String type;
 
     /**
      * ロードバランサのステータス
      */
+    @JsonProperty("Status")
     private String status;
 
     /**
      * コンポーネント番号
      */
+    @JsonProperty("ComponentNo")
     private Long componentNo;
 
     /**
      * コンポーネント名
      */
+    @JsonProperty("ComponentName")
     private String componentName;
+
+    /**
+     * ロードバランサ リスナー情報のリスト
+     */
+    @JsonProperty("Listeners")
+    private List<LoadBalancerListenerResponse> listeners = new ArrayList<LoadBalancerListenerResponse>();
+
+    /**
+     * ロードバランサ ヘルスチェック情報
+     */
+    @JsonProperty("HealthCheck")
+    private LoadBalancerHealthCheckResponse healthCheck;
+
+    /**
+     * ロードバランサインスタンス情報のリスト
+     */
+    @JsonProperty("Instances")
+    private List<LoadBalancerInstanceResponse> instances = new ArrayList<LoadBalancerInstanceResponse>();
+
+    /**
+     * ロードバランサ オートスケーリング情報
+     */
+    @JsonProperty("AutoScaling")
+    private AutoScalingConfResponse autoScaling;
+
+    @JsonProperty("AWS")
+    private AwsLoadBalancerResponse aws;
 
     public LoadBalancerResponse() {}
 
@@ -47,6 +85,7 @@ public class LoadBalancerResponse {
         this.loadBalancerNo = loadBalancer.getLoadBalancerNo();
         this.loadBalancerName = loadBalancer.getLoadBalancerName();
         this.fqdn = loadBalancer.getFqdn();
+        this.type = loadBalancer.getType();
         this.status = loadBalancer.getStatus();
         this.componentNo = loadBalancer.getComponentNo();
     }
@@ -57,7 +96,6 @@ public class LoadBalancerResponse {
     *
     * @return loadBalancerNo
     */
-    @XmlElement(name="LoadBalancerNo")
     public Long getLoadBalancerNo() {
         return loadBalancerNo;
     }
@@ -78,7 +116,6 @@ public class LoadBalancerResponse {
     *
     * @return loadBalancerName
     */
-    @XmlElement(name="LoadBalancerName")
     public String getLoadBalancerName() {
         return loadBalancerName;
     }
@@ -99,7 +136,6 @@ public class LoadBalancerResponse {
     *
     * @return fqdn
     */
-    @XmlElement(name="FQDN")
     public String getFqdn() {
         return fqdn;
     }
@@ -114,13 +150,20 @@ public class LoadBalancerResponse {
         this.fqdn = fqdn;
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
    /**
     *
     * statusを取得します。
     *
     * @return status
     */
-    @XmlElement(name="Status")
     public String getStatus() {
         return status;
     }
@@ -141,7 +184,6 @@ public class LoadBalancerResponse {
     *
     * @return componentNo
     */
-    @XmlElement(name="ComponentNo")
     public Long getComponentNo() {
         return componentNo;
     }
@@ -162,7 +204,6 @@ public class LoadBalancerResponse {
     *
     * @return componentName
     */
-    @XmlElement(name="ComponentName")
     public String getComponentName() {
         return componentName;
     }
@@ -176,4 +217,93 @@ public class LoadBalancerResponse {
     public void setComponentName(String componentName) {
         this.componentName = componentName;
     }
+
+    /**
+     *
+     * listenersを取得します。
+     *
+     * @return listeners
+     */
+     public List<LoadBalancerListenerResponse> getListeners() {
+         return listeners;
+     }
+
+    /**
+     *
+     * listenersを設定します。
+     *
+     * @param listeners
+     */
+     public void setListeners(List<LoadBalancerListenerResponse> listeners) {
+         this.listeners = listeners;
+     }
+
+    /**
+     *
+     * healthCheckを取得します。
+     *
+     * @return healthCheck
+     */
+     public LoadBalancerHealthCheckResponse getHealthCheck() {
+         return healthCheck;
+     }
+
+    /**
+     *
+     * healthCheckを設定します。
+     *
+     * @param healthCheck
+     */
+     public void setHealthCheck(LoadBalancerHealthCheckResponse healthCheck) {
+         this.healthCheck = healthCheck;
+     }
+
+    /**
+     *
+     * instancesを取得します。
+     *
+     * @return instances
+     */
+     public List<LoadBalancerInstanceResponse> getInstances() {
+         return instances;
+     }
+
+    /**
+     *
+     * instancesを設定します。
+     *
+     * @param instances
+     */
+     public void setInstances(List<LoadBalancerInstanceResponse> instances) {
+         this.instances = instances;
+     }
+
+    /**
+     *
+     * autoScalingを取得します。
+     *
+     * @return autoScaling
+     */
+     public AutoScalingConfResponse getAutoScaling() {
+         return autoScaling;
+     }
+
+    /**
+     *
+     * autoScalingを設定します。
+     *
+     * @param autoScaling
+     */
+     public void setAutoScaling(AutoScalingConfResponse autoScaling) {
+         this.autoScaling = autoScaling;
+     }
+
+    public AwsLoadBalancerResponse getAws() {
+        return aws;
+    }
+
+    public void setAws(AwsLoadBalancerResponse aws) {
+        this.aws = aws;
+    }
+
 }

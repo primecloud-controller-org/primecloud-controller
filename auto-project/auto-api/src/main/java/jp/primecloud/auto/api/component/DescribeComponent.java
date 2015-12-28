@@ -34,14 +34,14 @@ import jp.primecloud.auto.api.ApiValidate;
 import org.apache.commons.lang.BooleanUtils;
 
 import jp.primecloud.auto.api.response.component.ComponentInstanceResponse;
+import jp.primecloud.auto.api.response.component.ComponentLoadBalancerResponse;
+import jp.primecloud.auto.api.response.component.ComponentResponse;
 import jp.primecloud.auto.api.response.component.DescribeComponentResponse;
 import jp.primecloud.auto.common.status.ComponentInstanceStatus;
 import jp.primecloud.auto.entity.crud.Component;
 import jp.primecloud.auto.entity.crud.ComponentInstance;
-import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
+import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.service.impl.Comparators;
-import jp.primecloud.auto.util.MessageUtils;
 
 
 @Path("/DescribeComponent")
@@ -51,40 +51,30 @@ public class DescribeComponent extends ApiSupport {
      *
      * サービス情報取得
      *
-     * @param farmNo ファーム番号
      * @param componentNo コンポーネント番号
      *
      * @return DescribeComponentResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
     public DescribeComponentResponse describeComponent(
-            @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
             @QueryParam(PARAM_NAME_COMPONENT_NO) String componentNo){
 
         DescribeComponentResponse response = new DescribeComponentResponse();
 
-        try {
             // 入力チェック
-            // FarmNo
-            ApiValidate.validateFarmNo(farmNo);
             // ComponentNo
             ApiValidate.validateComponentNo(componentNo);
 
             // コンポーネント取得
-            Component component = componentDao.read(Long.parseLong(componentNo));
-            if (component == null || BooleanUtils.isTrue(component.getLoadBalancer())) {
-                // コンポーネントが存在しない または ロードバランサーコンポーネント
-                throw new AutoApplicationException("EAPI-100000", "Component", PARAM_NAME_COMPONENT_NO, componentNo);
-            }
+            Component component = getComponent(Long.parseLong(componentNo));
 
-            if (component.getFarmNo().equals(Long.parseLong(farmNo)) == false) {
-                //ファームとコンポーネントが一致しない
-                throw new AutoApplicationException("EAPI-100022", "Component", farmNo, PARAM_NAME_COMPONENT_NO, componentNo);
-            }
+            // 権限チェック
+            checkAndGetUser(component);
 
             //コンポーネント情報設定
-            response = new DescribeComponentResponse(component);
+            ComponentResponse componentResponse = new ComponentResponse(component);
+            response.setComponent(componentResponse);
 
             List<ComponentInstance> componentInstances = componentInstanceDao.readByComponentNo(Long.parseLong(componentNo));
             if (componentInstances.isEmpty() == false) {
@@ -99,22 +89,22 @@ public class DescribeComponent extends ApiSupport {
                         }
                     }
                     //コンポーネントインスタンス情報設定
-                    response.addInstance(new ComponentInstanceResponse(componentInstance));
+                    componentResponse.getInstances().add(new ComponentInstanceResponse(componentInstance));
+                }
+            }
+
+            //ロードバランサ取得
+            List<LoadBalancer> loadBalancers = loadBalancerDao.readByComponentNo(component.getComponentNo());
+            if (loadBalancers.isEmpty() == false) {
+                //ソート
+                Collections.sort(loadBalancers, Comparators.COMPARATOR_LOAD_BALANCER);
+
+                for (LoadBalancer loadBalancer : loadBalancers) {
+                    componentResponse.getLoadBalancers().add(new ComponentLoadBalancerResponse(loadBalancer));
                 }
             }
 
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
     }

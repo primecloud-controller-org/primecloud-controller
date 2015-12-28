@@ -28,14 +28,10 @@ import javax.ws.rs.core.MediaType;
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
 
-import org.apache.commons.lang.BooleanUtils;
-
 import jp.primecloud.auto.api.response.lb.DescribeLoadBalancerHealthCheckResponse;
 import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.entity.crud.LoadBalancerHealthCheck;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.util.MessageUtils;
 
 
 @Path("/DescribeLoadBalancerHealthCheck")
@@ -45,33 +41,26 @@ public class DescribeLoadBalancerHealthCheck extends ApiSupport {
      *
      * ロードバランサ(ヘルスチェック)情報取得
      *
-     * @param farmNo ファーム番号
      * @param loadBalancerNo ロードバランサ番号
      *
      * @return DescribeLoadBalancerHealthCheckResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
     public DescribeLoadBalancerHealthCheckResponse describeLoadBalancerHealthCheck(
-            @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
             @QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo){
 
         DescribeLoadBalancerHealthCheckResponse response = new DescribeLoadBalancerHealthCheckResponse();
 
-        try {
             // 入力チェック
-            // FarmNo
-            ApiValidate.validateFarmNo(farmNo);
             // LoadBalancerNo
             ApiValidate.validateLoadBalancerNo(loadBalancerNo);
 
             // ロードバランサ取得
-            LoadBalancer loadBalancer = loadBalancerDao.read(Long.parseLong(loadBalancerNo));
-            if (loadBalancer == null) {
-                // ロードバランサが存在しない
-                throw new AutoApplicationException("EAPI-100000", "LoadBalancer",
-                        PARAM_NAME_LOAD_BALANCER_NO, loadBalancerNo);
-            }
+            LoadBalancer loadBalancer = getLoadBalancer(Long.parseLong(loadBalancerNo));
+
+            // 権限チェック
+            checkAndGetUser(loadBalancer);
 
             // ヘルスチェック取得
             LoadBalancerHealthCheck healthCheck = loadBalancerHealthCheckDao.read(Long.parseLong(loadBalancerNo));
@@ -80,24 +69,8 @@ public class DescribeLoadBalancerHealthCheck extends ApiSupport {
                 throw new AutoApplicationException("EAPI-100000", "LoadBalancerHealthCheck", PARAM_NAME_LOAD_BALANCER_NO, loadBalancerNo);
             }
 
-            if (BooleanUtils.isFalse(loadBalancer.getFarmNo().equals(Long.parseLong(farmNo)))) {
-                //ファームとロードバランサが一致しない
-                throw new AutoApplicationException("EAPI-100022", "LoadBalancer", farmNo, PARAM_NAME_LOAD_BALANCER_NO, loadBalancerNo);
-            }
-
             response = new DescribeLoadBalancerHealthCheckResponse(loadBalancer, healthCheck);
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
     }

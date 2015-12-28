@@ -37,9 +37,6 @@ import jp.primecloud.auto.api.response.instance.StopAllInstanceResponse;
 import jp.primecloud.auto.common.status.InstanceStatus;
 import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.Instance;
-import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.util.MessageUtils;
 
 
 @Path("/StopAllInstance")
@@ -54,24 +51,21 @@ public class StopAllInstance extends ApiSupport {
      * @return StopAllInstanceResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
     public StopAllInstanceResponse stoptAllInstance(
             @QueryParam(PARAM_NAME_FARM_NO) String farmNo){
 
         StopAllInstanceResponse response = new StopAllInstanceResponse();
 
-        try {
             // 入力チェック
             // FarmNo
             ApiValidate.validateFarmNo(farmNo);
 
             // ファーム取得
-            Farm farm = farmDao.read(Long.parseLong(farmNo));
-            if (farm == null) {
-                // ファームが存在しない場合
-                throw new AutoApplicationException("EAPI-100000", "Farm",
-                        PARAM_NAME_FARM_NO, farmNo);
-            }
+            Farm farm = getFarm(Long.parseLong(farmNo));
+
+            // 権限チェック
+            checkAndGetUser(farm);
 
             // インスタンス取得
             List<Long> instanceNos = new ArrayList<Long>();
@@ -92,17 +86,6 @@ public class StopAllInstance extends ApiSupport {
             processService.stopInstances(Long.parseLong(farmNo), instanceNos);
 
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
     }

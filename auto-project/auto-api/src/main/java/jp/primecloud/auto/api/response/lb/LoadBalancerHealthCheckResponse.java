@@ -1,49 +1,52 @@
 package jp.primecloud.auto.api.response.lb;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import jp.primecloud.auto.entity.crud.LoadBalancerHealthCheck;
 
 
-@XmlRootElement(name="LoadBalancerHealthCheckResponse")
-@XmlType(propOrder = {"checkProtocol", "checkPort", "checkPath", "checkTimeout", "checkInterval", "healthyThreshold", "unhealthyThreshold"})
 public class LoadBalancerHealthCheckResponse {
 
     /**
      * 監視プロトコル
      */
+    @JsonProperty("CheckProtocol")
     private String checkProtocol;
 
     /**
      * 監視ポート
      */
+    @JsonProperty("CheckPort")
     private Integer checkPort;
 
     /**
      * 監視パス
      */
+    @JsonProperty("CheckPath")
     private String checkPath;
 
     /**
      * タイムアウト時間
      */
+    @JsonProperty("CheckTimeout")
     private Integer checkTimeout;
 
     /**
      * チェック間隔
      */
+    @JsonProperty("CheckInterval")
     private Integer checkInterval;
 
     /**
      * 復帰しきい値
      */
+    @JsonProperty("HealthyThreshold")
     private Integer healthyThreshold;
 
     /**
      * 障害しきい値
      */
+    @JsonProperty("UnhealthyThreshold")
     private Integer unhealthyThreshold;
 
     public LoadBalancerHealthCheckResponse() {}
@@ -64,7 +67,6 @@ public class LoadBalancerHealthCheckResponse {
     *
     * @return checkProtocol
     */
-    @XmlElement(name="CheckProtocol")
     public String getCheckProtocol() {
         return checkProtocol;
     }
@@ -85,7 +87,6 @@ public class LoadBalancerHealthCheckResponse {
     *
     * @return checkPort
     */
-    @XmlElement(name="CheckPort")
     public Integer getCheckPort() {
         return checkPort;
     }
@@ -106,7 +107,6 @@ public class LoadBalancerHealthCheckResponse {
     *
     * @return checkPath
     */
-    @XmlElement(name="CheckPath")
     public String getCheckPath() {
         return checkPath;
     }
@@ -127,7 +127,6 @@ public class LoadBalancerHealthCheckResponse {
     *
     * @return checkTimeout
     */
-    @XmlElement(name="CheckTimeout")
     public Integer getCheckTimeout() {
         return checkTimeout;
     }
@@ -148,7 +147,6 @@ public class LoadBalancerHealthCheckResponse {
     *
     * @return checkInterval
     */
-    @XmlElement(name="CheckInterval")
     public Integer getCheckInterval() {
         return checkInterval;
     }
@@ -169,7 +167,6 @@ public class LoadBalancerHealthCheckResponse {
     *
     * @return healthyThreshold
     */
-    @XmlElement(name="HealthyThreshold")
     public Integer getHealthyThreshold() {
         return healthyThreshold;
     }
@@ -190,7 +187,6 @@ public class LoadBalancerHealthCheckResponse {
     *
     * @return unhealthyThreshold
     */
-    @XmlElement(name="UnhealthyThreshold")
     public Integer getUnhealthyThreshold() {
         return unhealthyThreshold;
     }

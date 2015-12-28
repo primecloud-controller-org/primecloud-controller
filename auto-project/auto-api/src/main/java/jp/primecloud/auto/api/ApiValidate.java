@@ -175,12 +175,12 @@ public class ApiValidate extends ApiConstants {
                 "EAPI-000003", new Object[] {PARAM_NAME_PASSWORD, 15});
     }
 
-    public static void validateCloudName(String cloudName) {
-        ValidateUtil.required(cloudName, "EAPI-000001", new Object[] {PARAM_NAME_CLOUD_NAME});
-        ValidateUtil.lengthInRange(cloudName, 1, 15,
-                "EAPI-000003", new Object[] {PARAM_NAME_CLOUD_NAME, 15});
-        ValidateUtil.matchRegex(cloudName, "^[0-9a-z]|[0-9a-z][0-9a-z-]*[0-9a-z]$",
-                "EAPI-000004", new Object[] {PARAM_NAME_CLOUD_NAME});
+    public static void validateFarmName(String farmName) {
+        ValidateUtil.required(farmName, "EAPI-000001", new Object[] {PARAM_NAME_FARM_NAME});
+        ValidateUtil.lengthInRange(farmName, 1, 15,
+                "EAPI-000003", new Object[] {PARAM_NAME_FARM_NAME, 15});
+        ValidateUtil.matchRegex(farmName, "^[0-9a-z]|[0-9a-z][0-9a-z-]*[0-9a-z]$",
+                "EAPI-000004", new Object[] {PARAM_NAME_FARM_NAME});
     }
 
     public static void validateTemplateNo(String templateNo) {
@@ -490,6 +490,12 @@ public class ApiValidate extends ApiConstants {
     public static void validateIsInternal(String isInternal) {
         ValidateUtil.isBoolean(isInternal, "EAPI-000009",
                 new Object[] {PARAM_NAME_IS_INTERNAL});
+    }
+
+    public static void validateAddressNo(String addressNo) {
+        ValidateUtil.required(addressNo, "EAPI-000001", new Object[] {PARAM_NAME_ADDRESS_NO});
+        ValidateUtil.longInRange(addressNo, 1, Long.MAX_VALUE,
+                "EAPI-000002", new Object[] {PARAM_NAME_ADDRESS_NO, 1, Long.MAX_VALUE});
     }
 
 }

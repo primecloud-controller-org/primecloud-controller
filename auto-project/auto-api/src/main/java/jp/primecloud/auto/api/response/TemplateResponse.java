@@ -1,31 +1,30 @@
 package jp.primecloud.auto.api.response;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import jp.primecloud.auto.entity.crud.Template;
 
 
 
 
-@XmlRootElement(name="TemplateResponse")
-@XmlType(propOrder = { "templateNo", "templateName", "description" })
 public class TemplateResponse {
 
     /**
      * テンプレート番号
      */
+    @JsonProperty("TemplateNo")
     private Long templateNo;
 
     /**
      * テンプレート名
      */
+    @JsonProperty("TemplateName")
     private String templateName;
 
     /**
      * 説明文(テンプレートの説明)
      */
+    @JsonProperty("Description")
     private String description;
 
     public TemplateResponse() {}
@@ -42,7 +41,6 @@ public class TemplateResponse {
     *
     * @return templateNo
     */
-    @XmlElement(name="TemplateNo")
     public Long getTemplateNo() {
         return templateNo;
     }
@@ -63,7 +61,6 @@ public class TemplateResponse {
     *
     * @return templateName
     */
-    @XmlElement(name="TemplateName")
     public String getTemplateName() {
         return templateName;
     }
@@ -84,7 +81,6 @@ public class TemplateResponse {
     *
     * @return description
     */
-    @XmlElement(name="Description")
     public String getDescription() {
         return description;
     }

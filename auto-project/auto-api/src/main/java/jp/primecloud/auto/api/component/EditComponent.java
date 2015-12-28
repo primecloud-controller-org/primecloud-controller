@@ -26,14 +26,10 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriInfo;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
-
-import org.apache.commons.lang.BooleanUtils;
 
 import jp.primecloud.auto.api.response.component.EditComponentResponse;
 import jp.primecloud.auto.common.status.ComponentInstanceStatus;
@@ -41,8 +37,6 @@ import jp.primecloud.auto.common.status.ComponentStatus;
 import jp.primecloud.auto.entity.crud.Component;
 import jp.primecloud.auto.entity.crud.ComponentInstance;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.util.MessageUtils;
 
 
 @Path("/EditComponent")
@@ -52,8 +46,6 @@ public class EditComponent extends ApiSupport{
      *
      * サービス編集
      *
-     * @param uriInfo URI情報(InstanceNos取得の為)
-     * @param farmNo ファーム番号
      * @param componentNo コンポーネント番号
      * @param diskSize ディスクサイズ
      * @param comment コメント
@@ -63,10 +55,8 @@ public class EditComponent extends ApiSupport{
      * @return EditComponentResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
 	public EditComponentResponse editComponent(
-	        @Context UriInfo uriInfo,
-            @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
 	        @QueryParam(PARAM_NAME_COMPONENT_NO) String componentNo,
 	        @QueryParam(PARAM_NAME_DISK_SIZE) String diskSize,
 	        @QueryParam(PARAM_NAME_COMMENT) String comment,
@@ -76,23 +66,15 @@ public class EditComponent extends ApiSupport{
 
         EditComponentResponse response = new EditComponentResponse();
 
-        try {
             // 入力チェック
-            //FarmNo
-            ApiValidate.validateFarmNo(farmNo);
             //ComponentNo
             ApiValidate.validateComponentNo(componentNo);
             //コンポーネント取得
-            Component component = componentDao.read(Long.parseLong(componentNo));
-            if (component == null || BooleanUtils.isTrue(component.getLoadBalancer())) {
-                // コンポーネントが存在しない または ロードバランサーコンポーネント
-                throw new AutoApplicationException("EAPI-100000", "Component",
-                           PARAM_NAME_COMPONENT_NO, componentNo);
-            }
-            if (BooleanUtils.isFalse(component.getFarmNo().equals(Long.parseLong(farmNo)))) {
-                //ファームとコンポーネントが一致しない
-                throw new AutoApplicationException("EAPI-100022", "Component", farmNo, PARAM_NAME_COMPONENT_NO, componentNo);
-            }
+            Component component = getComponent(Long.parseLong(componentNo));
+
+            // 権限チェック
+            checkAndGetUser(component);
+
             //Componentに紐づくComponentInstance取得
             List<ComponentInstance> componentInstances = componentInstanceDao.readByComponentNo(Long.parseLong(componentNo));
             //ComponentStatus取得
@@ -117,17 +99,6 @@ public class EditComponent extends ApiSupport{
                     customParam1, customParam2, customParam3);
 
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
 	}

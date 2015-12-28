@@ -31,58 +31,42 @@ import javax.ws.rs.core.MediaType;
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
 
-import org.apache.commons.lang.BooleanUtils;
-
 import jp.primecloud.auto.api.response.lb.EnableLBListenerResponse;
 import jp.primecloud.auto.common.status.LoadBalancerStatus;
 import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.entity.crud.LoadBalancerListener;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.util.MessageUtils;
 
 
-@Path("/EnableLBListener")
+@Path("/EnableLoadBalancerListener")
 public class EnableLBListener extends ApiSupport {
 
     /**
      *
      * ロードバランサリスナ 有効化
      *
-     * @param farmNo ファーム番号
      * @param loadBalancerNo ロードバランサ番号
      * @param loadBalancerPort ポート番号
      *
      * @return EnableLBListenerResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
 	public EnableLBListenerResponse enableLBListener(
-            @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
 	        @QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo,
 	        @QueryParam(PARAM_NAME_LOAD_BALANCER_PORT) String loadBalancerPort){
 
         EnableLBListenerResponse response = new EnableLBListenerResponse();
 
-        try {
             // 入力チェック
-            // FarmNo
-            ApiValidate.validateFarmNo(farmNo);
             // LoadBalancerNo
             ApiValidate.validateLoadBalancerNo(loadBalancerNo);
 
-            LoadBalancer loadBalancer = loadBalancerDao.read(Long.parseLong(loadBalancerNo));
-            if (loadBalancer == null) {
-                //ロードバランサが存在しない
-                throw new AutoApplicationException("EAPI-100000", "LoadBalancer",
-                        PARAM_NAME_LOAD_BALANCER_NO, loadBalancerNo);
-            }
+            LoadBalancer loadBalancer = getLoadBalancer(Long.parseLong(loadBalancerNo));
 
-            if (BooleanUtils.isFalse(loadBalancer.getFarmNo().equals(Long.parseLong(farmNo)))) {
-                //ファームとロードバランサが一致しない
-                throw new AutoApplicationException("EAPI-100022", "LoadBalancer", farmNo, PARAM_NAME_LOAD_BALANCER_NO, loadBalancerNo);
-            }
+            // 権限チェック
+            checkAndGetUser(loadBalancer);
 
             LoadBalancerStatus status = LoadBalancerStatus.fromStatus(loadBalancer.getStatus());
             if (LoadBalancerStatus.RUNNING != status) {
@@ -119,20 +103,9 @@ public class EnableLBListener extends ApiSupport {
             List<Integer> lbPorts = new ArrayList<Integer>();
             lbPorts.add(Integer.parseInt(loadBalancerPort));
             processService.startLoadBalancerListeners(
-                    Long.parseLong(farmNo), Long.parseLong(loadBalancerNo), lbPorts);
+                    loadBalancer.getFarmNo(), Long.parseLong(loadBalancerNo), lbPorts);
 
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
 	}

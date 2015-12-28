@@ -22,12 +22,13 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
@@ -37,11 +38,10 @@ import org.apache.commons.lang.StringUtils;
 import jp.primecloud.auto.common.log.LoggingUtils;
 import jp.primecloud.auto.config.Config;
 import jp.primecloud.auto.entity.crud.ApiCertificate;
-import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.util.MessageUtils;
+
 import com.sun.jersey.spi.container.ContainerRequest;
 import com.sun.jersey.spi.container.ContainerRequestFilter;
 
@@ -49,13 +49,10 @@ import com.sun.jersey.spi.container.ContainerRequestFilter;
 
 public class ApiFilter extends ApiSupport implements ContainerRequestFilter {
 
-    //オートスケール用ユーザ
-    private static final String AUTO_SCALING_USER = Config.getProperty("autoScaling.username");
-
-    //ファーム番号が必須ではないAPI名
-    private static final String[] notUseFarmApies = {"CreateFarm", "ListFarm", "Login", "ListTemplate", "ListEventLog"};
-
     private static final Integer SECURE_WAIT_TIME = Integer.parseInt(Config.getProperty("pccApi.secureWaitTime"));
+
+    @Context
+    private HttpServletRequest servletRequest;
 
     /**
      * PCC-API フィルター処理
@@ -68,7 +65,6 @@ public class ApiFilter extends ApiSupport implements ContainerRequestFilter {
      */
     public ContainerRequest filter(ContainerRequest request) {
 
-        try {
             // URI(フルパス)
             URI uri = request.getRequestUri();
 
@@ -85,13 +81,6 @@ public class ApiFilter extends ApiSupport implements ContainerRequestFilter {
             String accessId = decodeParamMap.get(PARAM_NAME_ACCESS_ID);
             String signature = decodeParamMap.get(PARAM_NAME_SIGNATURE);
             String timestamp = decodeParamMap.get(PARAM_NAME_TIMESTAMP);
-            String farmNo = decodeParamMap.get(PARAM_NAME_FARM_NO);
-            String userName = null;
-            Long userNo = null;
-            Farm farm = null;
-            User accessUser = null;
-            User autoScaleUser = null;
-            User masterUser = null;
 
             // 入力チェック
             // Key(ユーザ名)
@@ -105,12 +94,15 @@ public class ApiFilter extends ApiSupport implements ContainerRequestFilter {
             ApiCertificate apiCertificate = apiCertificateDao.readByApiAccessId(accessId);
             if (apiCertificate == null) {
                 // PCC-API認証情報が存在しない
-                Thread.sleep(SECURE_WAIT_TIME.intValue() * 1000);
+                try {
+                    Thread.sleep(SECURE_WAIT_TIME.intValue() * 1000);
+                } catch (InterruptedException ignore) {
+                }
                 throw new AutoApplicationException("EAPI-000008", PARAM_NAME_ACCESS_ID, accessId);
             }
 
             //ユーザ(APIアクセスユーザ)取得
-            accessUser = userDao.read(apiCertificate.getUserNo());
+            User accessUser = userDao.read(apiCertificate.getUserNo());
             if(accessUser == null) {
                 // ユーザが存在しない
                 throw new AutoApplicationException("EAPI-100000", "User", "UserNo", apiCertificate.getUserNo());
@@ -124,64 +116,24 @@ public class ApiFilter extends ApiSupport implements ContainerRequestFilter {
             //}
 
             // Signature合致チェック
-            String uriText = createUriQueryParams(decodeParamMap, uri);
+            String uriText = createUriQueryParams(decodeParamMap);
             String encodeUriText = encodeSHA256(uriText, apiCertificate.getApiSecretKey());
             if (BooleanUtils.isFalse(encodeUriText.equals(signature))) {
                 //Signatureが合致しない場合
-                Thread.sleep(SECURE_WAIT_TIME.intValue() * 1000);
+                try {
+                    Thread.sleep(SECURE_WAIT_TIME.intValue() * 1000);
+                } catch (InterruptedException ignore) {
+                }
                 throw new AutoApplicationException("EAPI-000008", "URL", uri.toString());
             }
 
-            if (Arrays.asList(notUseFarmApies).contains(apiName) == false) {
-                //FarmNo
-                ApiValidate.validateFarmNo(farmNo);
-                farm = farmDao.read(Long.parseLong(farmNo));
-                if(farm == null) {
-                    // ファームが存在しない
-                    throw new AutoApplicationException("EAPI-100000", "Farm", PARAM_NAME_FARM_NO, farmNo);
-                }
-            }
-
-            //ユーザ置き換え処理
-            if (farm != null && (StringUtils.isNotEmpty(AUTO_SCALING_USER) && AUTO_SCALING_USER.equals(accessUser.getUsername())
-                || accessUser.getPowerUser())) {
-                //オートスケーリング用ユーザ、またはPOWER USERからのアクセスの場合
-                    //ユーザ名をファームから取得したものに置き換える
-                //TODO 暫定処理なので、PCC-APIのロール権限の改修が必要
-                autoScaleUser = userDao.read(farm.getUserNo());
-                userNo = autoScaleUser.getUserNo();
-                userName = autoScaleUser.getUsername();
-            } else if (!accessUser.getPowerUser() && accessUser.getUserNo().equals(accessUser.getMasterUser()) == false){
-                //通常のPCCユーザ → マスターユーザに置き換え
-                if (accessUser.getMasterUser() != null) {
-                userNo = accessUser.getMasterUser();
-                masterUser = userDao.read(accessUser.getMasterUser());
-                userName = masterUser.getUsername();
-                }
-            } else {
-                //マスターユーザ → そのまま
-                userNo = accessUser.getUserNo();
-                userName = accessUser.getUsername();
-                }
-
-            if(farm != null && farm.getUserNo().equals(userNo) == false) {
-                    // ファームがユーザと紐づいていない
-                throw new AutoApplicationException("EAPI-100026", farmNo, accessUser.getUsername());
-            }
-
-            //User(ユーザ名)パラメータをURLに設定
-            if (!apiName.equals("Login")) {
-            decodeParamMap.put(PARAM_NAME_USER, userName);
-            }
+            //Userをリクエストに保存
+            servletRequest.setAttribute(PARAM_NAME_USER, accessUser);
 
             //LoggingUtilsにデータを設定
-            LoggingUtils.setUserNo(userNo);
+            LoggingUtils.setUserNo(accessUser.getUserNo());
             LoggingUtils.setLoginUserNo(accessUser.getUserNo());
             LoggingUtils.setUserName(accessUser.getUsername());
-            if (farm != null) {
-                LoggingUtils.setFarmNo(farm.getFarmNo());
-                LoggingUtils.setFarmName(farm.getFarmName());
-            }
 
             // デコードしたURLを再設定
             for (String key: decodeParamMap.keySet()) {
@@ -190,21 +142,6 @@ public class ApiFilter extends ApiSupport implements ContainerRequestFilter {
 
             // アクセスログ出力
             log.info(MessageUtils.getMessage("IAPI-000001", accessUser.getUsername(), apiName));
-        } catch (Throwable e) {
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            // エラーログ出力
-            log.error(message, e);
-
-            // ErrorApiへリダイレクト
-            URI errorUri = URI.create(request.getBaseUri() + "Error");
-            request.setUris(request.getBaseUri(), errorUri);
-            request.getQueryParameters().putSingle("Message", message);
-        }
 
         return request;
     }
@@ -216,11 +153,9 @@ public class ApiFilter extends ApiSupport implements ContainerRequestFilter {
     *
     * @param url URL
     * @return LinkedHashMap<パラメータ名, パラメータ値>
-    * @throws UnsupportedEncodingException
     */
    @SuppressWarnings("static-access")
-private LinkedHashMap<String, String> getDecodedParamMap(URI uri)
-   throws UnsupportedEncodingException {
+private LinkedHashMap<String, String> getDecodedParamMap(URI uri) {
        LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
        String queryUrlText = uri.getQuery();
        if (StringUtils.isNotEmpty(queryUrlText)) {
@@ -250,12 +185,9 @@ private LinkedHashMap<String, String> getDecodedParamMap(URI uri)
      * @param plainText エンコード対象の文字列
      * @param keyText
      * @return
-     * @throws InvalidKeyException
-     * @throws NoSuchAlgorithmException
-     * @throws UnsupportedEncodingException
      */
-    private static String encodeSHA256(String plainText, String keyText)
-    throws NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
+    private static String encodeSHA256(String plainText, String keyText) {
+        try {
         SecretKey secretKey = new SecretKeySpec(keyText.getBytes("UTF-8"),"HmacSHA256");
         Mac mac = Mac.getInstance("HmacSHA256");
         mac.init(secretKey);
@@ -265,6 +197,13 @@ private LinkedHashMap<String, String> getDecodedParamMap(URI uri)
         byte[] hexBytes = new Hex().encode(encodedBytes);
 
         return new String(hexBytes, "UTF-8");
+        } catch (InvalidKeyException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -272,11 +211,10 @@ private LinkedHashMap<String, String> getDecodedParamMap(URI uri)
      * URI(Signature含まない)文字列を作成
      *
      * @param decodeParamMap base64デコード済みのリクエストパラメータ
-     * @param uri URI(フルパス)文字列
      * @return リクエストパラメータを元にしたURL(Signature含まない)
      */
-    private String createUriQueryParams(LinkedHashMap<String, String> decodeParamMap, URI uri) {
-        String baseUriText = uri.getScheme() + "://" + uri.getAuthority() + uri.getPath() + "?";
+    private String createUriQueryParams(LinkedHashMap<String, String> decodeParamMap) {
+        String baseUriText = servletRequest.getServletPath() + servletRequest.getPathInfo() + "?";
         StringBuffer uriText = new StringBuffer(baseUriText);
         String splitChar = "";
         for (String key: decodeParamMap.keySet()) {

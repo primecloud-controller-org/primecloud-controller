@@ -1,69 +1,76 @@
 package jp.primecloud.auto.api.response.instance;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import jp.primecloud.auto.entity.crud.AwsInstance;
 
 
-@XmlRootElement(name="AwsInstanceResponse")
-@XmlType(propOrder = { "keyName","instanceType","securityGroups","availabilityZone","subnetId","subnet","status","dnsName","privateDnsName","ipAddress","privateIpAddress"})
 public class AwsInstanceResponse {
 
     /**
      * キーペア名
      */
+    @JsonProperty("KeyName")
     private String keyName;
 
     /**
      * インスタンスタイプ
      */
+    @JsonProperty("InstanceType")
     private String instanceType;
 
     /**
      * セキュリティグループ
      */
+    @JsonProperty("SecurityGroups")
     private String securityGroups;
 
     /**
      * ゾーン名
      */
+    @JsonProperty("AvailabilityZone")
     private String availabilityZone;
 
     /**
      * サブネットID
      */
+    @JsonProperty("SubnetId")
     private String subnetId;
 
     /**
      * サブネット(cidrBlock)
      */
+    @JsonProperty("Subnet")
     private String subnet;
 
     /**
      * ステータス
      */
+    @JsonProperty("Status")
     private String status;
 
     /**
      * パブリックDNS
      */
+    @JsonProperty("DnsName")
     private String dnsName;
 
     /**
      * プライベートDNS
      */
+    @JsonProperty("PrivateDnsName")
     private String privateDnsName;
 
     /**
      * パブリックIPアドレス
      */
+    @JsonProperty("IpAddress")
     private String ipAddress;
 
     /**
      * プライベートIPアドレス
      */
+    @JsonProperty("PrivateIpAddress")
     private String privateIpAddress;
 
     public AwsInstanceResponse() {}
@@ -87,7 +94,6 @@ public class AwsInstanceResponse {
     *
     * @return keyName
     */
-    @XmlElement(name="KeyName")
     public String getKeyName() {
         return keyName;
     }
@@ -108,7 +114,6 @@ public class AwsInstanceResponse {
     *
     * @return instanceType
     */
-    @XmlElement(name="InstanceType")
     public String getInstanceType() {
         return instanceType;
     }
@@ -129,7 +134,6 @@ public class AwsInstanceResponse {
     *
     * @return securityGroups
     */
-    @XmlElement(name="SecurityGroups")
     public String getSecurityGroups() {
         return securityGroups;
     }
@@ -150,7 +154,6 @@ public class AwsInstanceResponse {
     *
     * @return availabilityZone
     */
-    @XmlElement(name="AvailabilityZone")
     public String getAvailabilityZone() {
         return availabilityZone;
     }
@@ -171,7 +174,6 @@ public class AwsInstanceResponse {
     *
     * @return subnetId
     */
-    @XmlElement(name="SubnetId")
     public String getSubnetId() {
         return subnetId;
     }
@@ -192,7 +194,6 @@ public class AwsInstanceResponse {
     *
     * @return subnet
     */
-    @XmlElement(name="Subnet")
     public String getSubnet() {
         return subnet;
     }
@@ -213,7 +214,6 @@ public class AwsInstanceResponse {
     *
     * @return status
     */
-    @XmlElement(name="Status")
     public String getStatus() {
         return status;
     }
@@ -234,7 +234,6 @@ public class AwsInstanceResponse {
     *
     * @return dnsName
     */
-    @XmlElement(name="DnsName")
     public String getDnsName() {
         return dnsName;
     }
@@ -255,7 +254,6 @@ public class AwsInstanceResponse {
     *
     * @return privateDnsName
     */
-    @XmlElement(name="PrivateDnsName")
     public String getPrivateDnsName() {
         return privateDnsName;
     }
@@ -276,7 +274,6 @@ public class AwsInstanceResponse {
     *
     * @return ipAddress
     */
-    @XmlElement(name="IpAddress")
     public String getIpAddress() {
         return ipAddress;
     }
@@ -297,7 +294,6 @@ public class AwsInstanceResponse {
     *
     * @return privateIpAddress
     */
-    @XmlElement(name="PrivateIpAddress")
     public String getPrivateIpAddress() {
         return privateIpAddress;
     }

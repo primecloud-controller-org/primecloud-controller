@@ -1,38 +1,39 @@
 package jp.primecloud.auto.api.response.instance;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import jp.primecloud.auto.entity.crud.VcloudInstanceNetwork;
 
-@XmlRootElement(name = "VcloudInstanceNetworkResponse")
-@XmlType(propOrder = { "networkName", "networkIndex", "ipMode", "ipAddress", "isPrimary" })
 public class VcloudInstanceNetworkResponse {
 
     /**
      * ネットワーク名
      */
+    @JsonProperty("NetworkName")
     private String networkName;
 
     /**
      * ネットワークINDEX
      */
+    @JsonProperty("NetworkIndex")
     private String networkIndex;
 
     /**
      * IPモード
      */
+    @JsonProperty("IpMode")
     private String ipMode;
 
     /**
      * IPアドレス
      */
+    @JsonProperty("IpAddress")
     private String ipAddress;
 
     /**
      * プライマリ判定
      */
+    @JsonProperty("IsPrimary")
     private Boolean isPrimary;
 
     public VcloudInstanceNetworkResponse() {
@@ -53,7 +54,6 @@ public class VcloudInstanceNetworkResponse {
      * ネットワーク名を取得します。
      * @return ネットワーク名
      */
-    @XmlElement(name = "NetworkName")
     public String getNetworkName() {
         return networkName;
     }
@@ -70,7 +70,6 @@ public class VcloudInstanceNetworkResponse {
      * ネットワークINDEXを取得します。
      * @return ネットワークINDEX
      */
-    @XmlElement(name = "NetworkIndex")
     public String getNetworkIndex() {
         return networkIndex;
     }
@@ -87,7 +86,6 @@ public class VcloudInstanceNetworkResponse {
      * IPモードを取得します。
      * @return IPモード
      */
-    @XmlElement(name = "IpMode")
     public String getIpMode() {
         return ipMode;
     }
@@ -104,7 +102,6 @@ public class VcloudInstanceNetworkResponse {
      * IPアドレスを取得します。
      * @return IPアドレス
      */
-    @XmlElement(name = "IpAddress")
     public String getIpAddress() {
         return ipAddress;
     }
@@ -121,7 +118,6 @@ public class VcloudInstanceNetworkResponse {
      * プライマリ判定を取得します。
      * @return プライマリ判定
      */
-    @XmlElement(name = "IsPrimary")
     public Boolean getIsPrimary() {
         return isPrimary;
     }

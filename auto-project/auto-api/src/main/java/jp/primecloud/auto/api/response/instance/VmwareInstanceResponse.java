@@ -1,57 +1,64 @@
 package jp.primecloud.auto.api.response.instance;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import jp.primecloud.auto.entity.crud.VmwareInstance;
 
 
-@XmlRootElement(name="VmwareInstanceResponse")
-@XmlType(propOrder = {"machineName","instanceType","computeResource","resourcePool","datastore","keyName","ipAddress","privateIpAddress","isStaticIp","subnetMask","defaultGateway"})
 public class VmwareInstanceResponse {
 
+    @JsonProperty("MachineName")
     private String machineName;
 
     /**
      * インスタンスタイプ
      */
+    @JsonProperty("InstanceType")
     private String instanceType;
 
     /**
      * クラスタ名
      */
+    @JsonProperty("ComputeResource")
     private String computeResource;
 
     /**
      * リソースプール
      */
+    @JsonProperty("ResourcePool")
     private String resourcePool;
 
     /**
      * データストア
      */
+    @JsonProperty("Datastore")
     private String datastore;
 
     /**
      * キーペア名
      */
+    @JsonProperty("KeyName")
     private String keyName;
 
     /**
      * パブリックIPアドレス
      */
+    @JsonProperty("IpAddress")
     private String ipAddress;
 
     /**
      * プライベートIPアドレス
      */
+    @JsonProperty("PrivateIpAddress")
     private String privateIpAddress;
 
+    @JsonProperty("IsStaticIp")
     private Boolean isStaticIp;
 
+    @JsonProperty("SubnetMask")
     private String subnetMask;
 
+    @JsonProperty("DefaultGateway")
     private String defaultGateway;
 
     public VmwareInstanceResponse() {}
@@ -72,7 +79,6 @@ public class VmwareInstanceResponse {
     *
     * @return machineName
     */
-    @XmlElement(name="MachineName")
     public String getMachineName() {
         return machineName;
     }
@@ -93,7 +99,6 @@ public class VmwareInstanceResponse {
     *
     * @return instanceType
     */
-    @XmlElement(name="InstanceType")
     public String getInstanceType() {
         return instanceType;
     }
@@ -114,7 +119,6 @@ public class VmwareInstanceResponse {
     *
     * @return computeResource
     */
-    @XmlElement(name="ComputeResource")
     public String getComputeResource() {
         return computeResource;
     }
@@ -135,7 +139,6 @@ public class VmwareInstanceResponse {
     *
     * @return resourcePool
     */
-    @XmlElement(name="ResourcePool")
     public String getResourcePool() {
         return resourcePool;
     }
@@ -156,7 +159,6 @@ public class VmwareInstanceResponse {
     *
     * @return datastore
     */
-    @XmlElement(name="Datastore")
     public String getDatastore() {
         return datastore;
     }
@@ -177,7 +179,6 @@ public class VmwareInstanceResponse {
     *
     * @return keyName
     */
-    @XmlElement(name="KeyName")
     public String getKeyName() {
         return keyName;
     }
@@ -198,7 +199,6 @@ public class VmwareInstanceResponse {
     *
     * @return ipAddress
     */
-    @XmlElement(name="IpAddress")
     public String getIpAddress() {
         return ipAddress;
     }
@@ -219,7 +219,6 @@ public class VmwareInstanceResponse {
     *
     * @return privateIpAddress
     */
-    @XmlElement(name="PrivateIpAddress")
     public String getPrivateIpAddress() {
         return privateIpAddress;
     }
@@ -240,7 +239,6 @@ public class VmwareInstanceResponse {
     *
     * @return isStaticIp
     */
-    @XmlElement(name="IsStaticIp")
     public Boolean getIsStaticIp() {
         return isStaticIp;
     }
@@ -261,7 +259,6 @@ public class VmwareInstanceResponse {
     *
     * @return subnetMask
     */
-    @XmlElement(name="SubnetMask")
     public String getSubnetMask() {
         return subnetMask;
     }
@@ -282,7 +279,6 @@ public class VmwareInstanceResponse {
     *
     * @return defaultGateway
     */
-    @XmlElement(name="DefaultGateway")
     public String getDefaultGateway() {
         return defaultGateway;
     }

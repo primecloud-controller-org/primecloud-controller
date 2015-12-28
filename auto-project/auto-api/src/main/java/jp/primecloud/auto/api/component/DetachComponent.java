@@ -40,8 +40,6 @@ import jp.primecloud.auto.entity.crud.Component;
 import jp.primecloud.auto.entity.crud.ComponentInstance;
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.util.MessageUtils;
 
 
 @Path("/DetachComponent")
@@ -51,39 +49,36 @@ public class DetachComponent extends ApiSupport {
      *
      * サービスとインスタンスの紐づけの解除
      *
-     * @param farmNo ファーム番号
      * @param componentNo コンポーネント番号
      * @param instanceNo インスタンス番号
      * @return DetachComponentResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
     public DetachComponentResponse detachComponent(
-            @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
             @QueryParam(PARAM_NAME_COMPONENT_NO) String componentNo,
             @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo){
 
         DetachComponentResponse response = new DetachComponentResponse();
 
-        try {
             // 入力チェック
-            // FarmNo
-            ApiValidate.validateFarmNo(farmNo);
             // ComponentNo
             ApiValidate.validateComponentNo(componentNo);
             // InstanceNo
             ApiValidate.validateInstanceNo(instanceNo);
 
             // コンポーネント取得
-            Component component = componentDao.read(Long.parseLong(componentNo));
-            if (component == null) {
-                // コンポーネントが存在しない
-                throw new AutoApplicationException("EAPI-100000", "Component", PARAM_NAME_COMPONENT_NO, componentNo);
-            }
+            Component component = getComponent(Long.parseLong(componentNo));
 
-            if (BooleanUtils.isFalse(component.getFarmNo().equals(Long.parseLong(farmNo)))) {
-                //ファームとコンポーネントが一致しない
-                throw new AutoApplicationException("EAPI-100022", "Component", farmNo, PARAM_NAME_COMPONENT_NO, componentNo);
+            // 権限チェック
+            checkAndGetUser(component);
+
+            // インスタンス取得
+            Instance instance = getInstance(Long.parseLong(instanceNo));
+
+            if (BooleanUtils.isFalse(instance.getFarmNo().equals(component.getFarmNo()))) {
+                //ファームとインスタンスが一致しない
+                throw new AutoApplicationException("EAPI-100022", "Instance", component.getFarmNo(), PARAM_NAME_INSTANCE_NO, instanceNo);
             }
 
             // 現在サービスに紐づいているサーバの一覧を取得する
@@ -108,11 +103,10 @@ public class DetachComponent extends ApiSupport {
             // サービス割り当て解除するディスクがアタッチされたままのものがあるかどうかチェック
             String notSelectedItem;
             Collection<Object> moveList = new ArrayList<Object>();
-            Instance instance = instanceDao.read(Long.parseLong(instanceNo));
             // 画面の再選択項目に使用するので値はなんでもよいが、値は必須
             notSelectedItem = instance.getInstanceName();
             // サービス画面でも同様の処理が必要の為、サービスに切り出す
-            moveList = componentService.checkAttachDisk(Long.parseLong(farmNo), Long.parseLong(componentNo),
+            moveList = componentService.checkAttachDisk(component.getFarmNo(), Long.parseLong(componentNo),
                     instance.getInstanceName(), notSelectedItem, moveList);
             if (!moveList.isEmpty()) {
                 // アタッチされたままのものは、解除できない
@@ -123,17 +117,6 @@ public class DetachComponent extends ApiSupport {
             componentService.associateInstances(Long.parseLong(componentNo), instanceNos);
 
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
 	}

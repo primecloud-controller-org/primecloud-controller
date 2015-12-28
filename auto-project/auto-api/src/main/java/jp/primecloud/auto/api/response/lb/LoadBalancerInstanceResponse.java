@@ -1,31 +1,29 @@
 package jp.primecloud.auto.api.response.lb;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
 import org.apache.commons.lang.BooleanUtils;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import jp.primecloud.auto.entity.crud.LoadBalancerInstance;
 
 
-@XmlRootElement(name="LoadBalancerInstanceResponse")
-@XmlType(propOrder = { "instanceNo", "enabled", "status" })
 public class LoadBalancerInstanceResponse {
 
     /**
      * インスタンス番号
      */
+    @JsonProperty("InstanceNo")
     private Long instanceNo;
 
     /**
      * 振り分け有無 true:振り分け有効、false:振り分け無効
      */
+    @JsonProperty("Enabled")
     private Boolean enabled;
 
     /**
      * 振り分けステータス
      */
+    @JsonProperty("Status")
     private String status;
 
     public LoadBalancerInstanceResponse() {}
@@ -42,7 +40,6 @@ public class LoadBalancerInstanceResponse {
     *
     * @return instanceNo
     */
-    @XmlElement(name="InstanceNo")
     public Long getInstanceNo() {
         return instanceNo;
     }
@@ -63,7 +60,6 @@ public class LoadBalancerInstanceResponse {
     *
     * @return enabled
     */
-    @XmlElement(name="Enabled")
     public Boolean getEnabled() {
         return enabled;
     }
@@ -84,7 +80,6 @@ public class LoadBalancerInstanceResponse {
     *
     * @return status
     */
-    @XmlElement(name="Status")
     public String getStatus() {
         return status;
     }

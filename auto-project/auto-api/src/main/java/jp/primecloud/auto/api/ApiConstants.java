@@ -43,7 +43,7 @@ public class ApiConstants {
     protected static final String PARAM_NAME_IS_START_SERVICE = "IsStartService";
     protected static final String PARAM_NAME_USER = "User";
     protected static final String PARAM_NAME_PASSWORD = "Password";
-    protected static final String PARAM_NAME_CLOUD_NAME = "CloudName";
+    protected static final String PARAM_NAME_FARM_NAME = "FarmName";
     protected static final String PARAM_NAME_TEMPLATE_NO = "TemplateNo";
     protected static final String PARAM_NAME_KEY_NAME = "KeyName";
     protected static final String PARAM_NAME_SECURITY_GROUPS = "SecurityGroups";
@@ -87,6 +87,7 @@ public class ApiConstants {
     protected static final String PARAM_NAME_SSL_KEY_NO = "SslKeyNo";
     protected static final String PARAM_NAME_STORAGE_TYPE = "StorageType";
     protected static final String PARAM_NAME_IS_INTERNAL = "IsInternal";
+    protected static final String PARAM_NAME_ADDRESS_NO = "AddressNo";
 
     //PLATFORM_TYPE
     protected static final String PLATFORM_TYPE_AWS = "aws";

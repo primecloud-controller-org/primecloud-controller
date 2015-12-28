@@ -1,8 +1,9 @@
 package jp.primecloud.auto.api.response;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import jp.primecloud.auto.entity.crud.Image;
 import jp.primecloud.auto.entity.crud.Platform;
@@ -10,29 +11,37 @@ import jp.primecloud.auto.entity.crud.Platform;
 
 
 
-@XmlRootElement(name="ImageResponse")
-@XmlType(propOrder = {"imageNo", "imageName", "platformName", "os"})
 public class ImageResponse {
 
     /**
      * イメージ番号
      */
+    @JsonProperty("ImageNo")
     private Long imageNo;
 
     /**
      * イメージ名
      */
+    @JsonProperty("ImageName")
     private String imageName;
 
     /**
      * プラットフォーム名
      */
+    @JsonProperty("PlatformName")
     private String platformName;
 
     /**
      * OS(名称)
      */
+    @JsonProperty("OS")
     private String os;
+
+    /**
+     * インスタンスタイプ
+     */
+    @JsonProperty("InstanceTypes")
+    private List<String> instanceTypes = new ArrayList<String>();
 
     public ImageResponse() {}
 
@@ -49,7 +58,6 @@ public class ImageResponse {
     *
     * @return imageNo
     */
-    @XmlElement(name="ImageNo")
     public Long getImageNo() {
         return imageNo;
     }
@@ -70,7 +78,6 @@ public class ImageResponse {
     *
     * @return imageName
     */
-    @XmlElement(name="ImageName")
     public String getImageName() {
         return imageName;
     }
@@ -91,7 +98,6 @@ public class ImageResponse {
     *
     * @return platformName
     */
-    @XmlElement(name="PlatformName")
     public String getPlatformName() {
         return platformName;
     }
@@ -112,7 +118,6 @@ public class ImageResponse {
     *
     * @return os
     */
-    @XmlElement(name="OS")
     public String getOs() {
         return os;
     }
@@ -126,4 +131,13 @@ public class ImageResponse {
     public void setOs(String os) {
         this.os = os;
     }
+
+    public List<String> getInstanceTypes() {
+        return instanceTypes;
+    }
+
+    public void setInstanceTypes(List<String> instanceTypes) {
+        this.instanceTypes = instanceTypes;
+    }
+
 }

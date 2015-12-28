@@ -18,10 +18,16 @@
  */
 package jp.primecloud.auto.api;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
+
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import jp.primecloud.auto.api.util.BeanContext;
+import jp.primecloud.auto.common.log.LoggingUtils;
+import jp.primecloud.auto.config.Config;
 import jp.primecloud.auto.dao.crud.ApiCertificateDao;
 import jp.primecloud.auto.dao.crud.AutoScalingConfDao;
 import jp.primecloud.auto.dao.crud.AwsAddressDao;
@@ -91,6 +97,12 @@ import jp.primecloud.auto.dao.crud.VmwareKeyPairDao;
 import jp.primecloud.auto.dao.crud.VmwareNetworkDao;
 import jp.primecloud.auto.dao.crud.ZabbixDataDao;
 import jp.primecloud.auto.dao.crud.ZabbixInstanceDao;
+import jp.primecloud.auto.entity.crud.Component;
+import jp.primecloud.auto.entity.crud.Farm;
+import jp.primecloud.auto.entity.crud.Instance;
+import jp.primecloud.auto.entity.crud.LoadBalancer;
+import jp.primecloud.auto.entity.crud.User;
+import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.log.service.EventLogService;
 import jp.primecloud.auto.service.ComponentService;
 import jp.primecloud.auto.service.FarmService;
@@ -106,7 +118,148 @@ import jp.primecloud.auto.service.VmwareDescribeService;
 
 public class ApiSupport extends ApiConstants {
 
+    //オートスケール用ユーザ
+    private static final String AUTO_SCALING_USER = Config.getProperty("autoScaling.username");
+
     protected Log log = LogFactory.getLog(getClass());
+
+    @Context
+    protected HttpServletRequest request;
+
+    protected User checkAndGetUser() {
+        User user = (User) request.getAttribute(PARAM_NAME_USER);
+
+        // マスターユーザでない場合、マスターユーザに置き換える
+        if (!user.getUserNo().equals(user.getMasterUser())) {
+            user = userDao.read(user.getMasterUser());
+
+            LoggingUtils.setUserNo(user.getUserNo());
+            LoggingUtils.setUserName(user.getUsername());
+        }
+
+        return user;
+    }
+
+    protected User checkAndGetUser(Farm farm) {
+        User user = checkAndGetUser();
+
+        if (!user.getUserNo().equals(farm.getUserNo())) {
+            if (user.getUsername().equals(AUTO_SCALING_USER) || BooleanUtils.isTrue(user.getPowerUser())) {
+                // オートスケーリング用ユーザ、またはPOWER USERからのアクセスの場合、ファームに紐付くユーザに置き換える
+                user = userDao.read(farm.getUserNo());
+
+                LoggingUtils.setUserNo(user.getUserNo());
+                LoggingUtils.setUserName(user.getUsername());
+            } else {
+                // ファームを操作する権限がない場合
+                throw new AutoApplicationException("EAPI-100042", farm.getFarmNo());
+            }
+        }
+
+        LoggingUtils.setFarmNo(farm.getFarmNo());
+        LoggingUtils.setFarmName(farm.getFarmName());
+
+        return user;
+    }
+
+    protected User checkAndGetUser(Instance instance) {
+        Farm farm = farmDao.read(instance.getFarmNo());
+
+        try {
+            User user =  checkAndGetUser(farm);
+
+            LoggingUtils.setInstanceNo(instance.getInstanceNo());
+            LoggingUtils.setInstanceName(instance.getInstanceName());
+
+            return user;
+        } catch (AutoApplicationException e) {
+            // インスタンスを操作する権限がない場合
+            throw new AutoApplicationException("EAPI-100043", instance.getInstanceNo());
+        }
+    }
+
+    protected User checkAndGetUser(Component component) {
+        Farm farm = farmDao.read(component.getFarmNo());
+
+        try {
+            User user = checkAndGetUser(farm);
+
+            LoggingUtils.setComponentNo(component.getComponentNo());
+            LoggingUtils.setComponentName(component.getComponentName());
+
+            return user;
+        } catch (AutoApplicationException e) {
+            // コンポーネントを操作する権限がない場合
+            throw new AutoApplicationException("EAPI-100044", component.getComponentNo());
+        }
+    }
+
+    protected User checkAndGetUser(LoadBalancer loadBalancer) {
+        Farm farm = farmDao.read(loadBalancer.getFarmNo());
+
+        try {
+            User user = checkAndGetUser(farm);
+
+            return user;
+        } catch (AutoApplicationException e) {
+            // ロードバランサを操作する権限がない場合
+            throw new AutoApplicationException("EAPI-100045", loadBalancer.getLoadBalancerNo());
+        }
+    }
+
+    protected Farm getFarm(Long farmNo) {
+        Farm farm = farmDao.read(farmNo);
+
+        // ファームが存在しない
+        if (farm == null) {
+            throw new AutoApplicationException("EAPI-100000", "Farm", PARAM_NAME_FARM_NO, farmNo);
+        }
+
+        return farm;
+    }
+
+    protected Instance getInstance(Long instanceNo) {
+        Instance instance = instanceDao.read(instanceNo);
+
+        // インスタンスが存在しない
+        if (instance == null) {
+            throw new AutoApplicationException("EAPI-100000", "Instance", PARAM_NAME_INSTANCE_NO, instanceNo);
+        }
+
+        // インスタンスがロードバランサ
+        if (BooleanUtils.isTrue(instance.getLoadBalancer())) {
+            throw new AutoApplicationException("EAPI-100000", "Instance", PARAM_NAME_INSTANCE_NO, instanceNo);
+        }
+
+        return instance;
+    }
+
+    protected Component getComponent(Long componentNo) {
+        Component component = componentDao.read(componentNo);
+
+        // コンポーネントが存在しない
+        if (component == null) {
+            throw new AutoApplicationException("EAPI-100000", "Component", PARAM_NAME_COMPONENT_NO, componentNo);
+        }
+
+        // コンポーネントがロードバランサ
+        if (BooleanUtils.isTrue(component.getLoadBalancer())) {
+            throw new AutoApplicationException("EAPI-100000", "Component", PARAM_NAME_COMPONENT_NO, componentNo);
+        }
+
+        return component;
+    }
+
+    protected LoadBalancer getLoadBalancer(Long loadBalancerNo) {
+        LoadBalancer loadBalancer = loadBalancerDao.read(loadBalancerNo);
+
+        // ロードバランサが存在しない
+        if (loadBalancer == null) {
+            throw new AutoApplicationException("EAPI-100000", "LoadBalancer", PARAM_NAME_LOAD_BALANCER_NO, loadBalancerNo);
+        }
+
+        return loadBalancer;
+    }
 
     //auto-data
     protected ApiCertificateDao apiCertificateDao = BeanContext.getBean(ApiCertificateDao.class);

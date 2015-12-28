@@ -1,54 +1,59 @@
 package jp.primecloud.auto.api.response;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import jp.primecloud.auto.entity.crud.PlatformAzure;
 
 
 
-@XmlRootElement(name="PlatformAzureResponse")
-@XmlType(propOrder = {"locationName", "affinityGroupName", "cloudServiceName" , "storageAccountName", "networkName" , "availabilitySets" , "defKeyPair" , "defSubnet"})
 public class PlatformAzureResponse {
 
     /**
      * ロケーション名
      */
+    @JsonProperty("LocationName")
     private String locationName;
 
     /**
      * アフィニティグループ名
      */
+    @JsonProperty("AffinityGroupName")
     private String affinityGroupName;
 
     /**
      * クラウドサービス名
      */
+    @JsonProperty("CloudServiceName")
     private String cloudServiceName;
 
     /**
      * ストレージアカウント名
      */
+    @JsonProperty("StorageAccountName")
     private String storageAccountName;
 
     /**
      * ネットワーク名
      */
+    @JsonProperty("DefNetworkName")
     private String networkName;
 
     /**
      * ゾーン名
      */
+    @JsonProperty("AvailabilitySets")
     private String availabilitySets;
 
     /**
      * デフォルトキーペア
      */
+    @JsonProperty("DefKeyPair")
     private String defKeyPair;
 
     /**
      * デフォルトサブネット(CidrBlock)
      */
+    @JsonProperty("DefSubnet")
     private String defSubnet;
 
     public PlatformAzureResponse() {}
@@ -68,7 +73,6 @@ public class PlatformAzureResponse {
     *
     * @return LocationName
     */
-    @XmlElement(name="LocationName")
     public String getLocationName() {
         return locationName;
     }
@@ -89,7 +93,6 @@ public class PlatformAzureResponse {
     *
     * @return AffinityGroupName
     */
-    @XmlElement(name="AffinityGroupName")
     public String getAffinityGroupName() {
         return affinityGroupName;
     }
@@ -110,7 +113,6 @@ public class PlatformAzureResponse {
     *
     * @return CloudServiceName
     */
-    @XmlElement(name="CloudServiceName")
     public String getCloudServiceName() {
         return cloudServiceName;
     }
@@ -131,7 +133,6 @@ public class PlatformAzureResponse {
     *
     * @return StorageAccountName
     */
-    @XmlElement(name="StorageAccountName")
     public String getStorageAccountName() {
         return storageAccountName;
     }
@@ -152,7 +153,6 @@ public class PlatformAzureResponse {
     *
     * @return DefNetworkName
     */
-    @XmlElement(name="DefNetworkName")
     public String getNetworkName() {
         return networkName;
     }
@@ -173,7 +173,6 @@ public class PlatformAzureResponse {
     *
     * @return AvailabilitySets
     */
-    @XmlElement(name="AvailabilitySets")
     public String getAvailabilitySets() {
         return availabilitySets;
     }
@@ -194,7 +193,6 @@ public class PlatformAzureResponse {
     *
     * @return DefKeyPair
     */
-    @XmlElement(name="DefKeyPair")
     public String getDefKeyPair() {
         return defKeyPair;
     }
@@ -215,7 +213,6 @@ public class PlatformAzureResponse {
     *
     * @return DefSubnet
     */
-    @XmlElement(name="DefSubnet")
     public String getDefSubnet() {
         return defSubnet;
     }

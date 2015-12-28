@@ -32,7 +32,6 @@ import jp.primecloud.auto.util.MessageUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-
 /**
  * <p>
  * TODO: クラスコメントを記述
@@ -55,8 +54,8 @@ public class ConfigLoader {
     public void initialize(ServletContext servletContext) {
         destroy(servletContext);
 
-        loadProp();
-        loadVersionProp();
+        loadProp(servletContext);
+        loadVersionProp(servletContext);
     }
 
     /**
@@ -68,10 +67,20 @@ public class ConfigLoader {
         ConfigHolder.destroy();
     }
 
-    protected void loadProp() {
+    protected void loadProp(ServletContext servletContext) {
+        String configPath = propPath;
+        if (servletContext.getInitParameter("configPath") != null) {
+            configPath = servletContext.getInitParameter("configPath");
+        }
+
         try {
-            File file = new File(propPath);
-            InputStream input = new FileInputStream(file);
+            InputStream input;
+            if (configPath.startsWith("/")) {
+                File file = new File(configPath);
+                input = new FileInputStream(file);
+            } else {
+                input = servletContext.getResourceAsStream("/" + configPath);
+            }
 
             Properties properties = new Properties();
             properties.load(input);
@@ -79,13 +88,13 @@ public class ConfigLoader {
 
             ConfigHolder.setProperties(properties);
 
-        } catch (IOException e){
-            log.warn(MessageUtils.getMessage("ECOMMON-000101", propPath));
-            throw new AutoException("ECOMMON-000101", e, propPath);
+        } catch (IOException e) {
+            log.warn(MessageUtils.getMessage("ECOMMON-000101", configPath));
+            throw new AutoException("ECOMMON-000101", e, configPath);
         }
     }
 
-    protected void loadVersionProp() {
+    protected void loadVersionProp(ServletContext servletContext) {
         InputStream input = ConfigLoader.class.getClassLoader().getResourceAsStream(versionPath);
         if (input == null) {
             log.warn(MessageUtils.getMessage("ECOMMON-000101", versionPath));

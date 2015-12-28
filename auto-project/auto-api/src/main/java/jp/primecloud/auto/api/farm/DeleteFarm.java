@@ -28,9 +28,7 @@ import javax.ws.rs.core.MediaType;
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
 import jp.primecloud.auto.api.response.farm.DeleteFarmResponse;
-import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.util.MessageUtils;
+import jp.primecloud.auto.entity.crud.Farm;
 
 
 @Path("/DeleteFarm")
@@ -45,32 +43,24 @@ public class DeleteFarm extends ApiSupport {
      * @return DeleteFarmResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
     public DeleteFarmResponse deleteFarm(
             @QueryParam(PARAM_NAME_FARM_NO) String farmNo){
 
         DeleteFarmResponse response = new DeleteFarmResponse();
 
-        try {
             // 入力チェック
             // FarmNo
             ApiValidate.validateFarmNo(farmNo);
+            Farm farm = getFarm(Long.parseLong(farmNo));
+
+            // 権限チェック
+            checkAndGetUser(farm);
 
             // ファーム削除
             farmService.deleteFarm(Long.parseLong(farmNo));
 
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
     }

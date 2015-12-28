@@ -1,44 +1,46 @@
 package jp.primecloud.auto.api.response;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import jp.primecloud.auto.entity.crud.PlatformOpenstack;
 
 
-@XmlRootElement(name="PlatformOpenstackResponse")
-@XmlType(propOrder = {"url", "networkId", "tenantId" , "tenantNm", "availabilityZone" , "defKeyPair"})
 public class PlatformOpenstackResponse {
 
     /**
      * ホストURL
      */
+    @JsonProperty("URL")
     private String url;
 
     /**
      * ネットワークID
      */
+    @JsonProperty("NetworkID")
     private String networkId;
 
     /**
      * テナントID
      */
+    @JsonProperty("TenantID")
     private String tenantId;
 
     /**
      * テナント名
      */
+    @JsonProperty("TenantNm")
     private String tenantNm;
 
     /**
      * ゾーン名
      */
+    @JsonProperty("AvailavilityZone")
     private String availabilityZone;
 
     /**
      * デフォルトキーペア
      */
+    @JsonProperty("DefKeyPair")
     private String defKeyPair;
 
 
@@ -59,7 +61,6 @@ public class PlatformOpenstackResponse {
     *
     * @return url
     */
-    @XmlElement(name="URL")
     public String getUrl() {
         return url;
     }
@@ -80,7 +81,6 @@ public class PlatformOpenstackResponse {
     *
     * @return networkId
     */
-    @XmlElement(name="NetworkID")
     public String getNetworkId() {
         return networkId;
     }
@@ -101,7 +101,6 @@ public class PlatformOpenstackResponse {
     *
     * @return tenantId
     */
-    @XmlElement(name="TenantID")
     public String getTenantId() {
         return tenantId;
     }
@@ -122,7 +121,6 @@ public class PlatformOpenstackResponse {
     *
     * @return tenantNm
     */
-    @XmlElement(name="TenantNm")
     public String getTenantNm() {
         return tenantNm;
     }
@@ -143,7 +141,6 @@ public class PlatformOpenstackResponse {
     *
     * @return AvailabilityZone
     */
-    @XmlElement(name="AvailavilityZone")
     public String getAvailabilityZone() {
         return availabilityZone;
     }
@@ -164,7 +161,6 @@ public class PlatformOpenstackResponse {
     *
     * @return DefKeyPair
     */
-    @XmlElement(name="DefKeyPair")
     public String getDefKeyPair() {
         return defKeyPair;
     }

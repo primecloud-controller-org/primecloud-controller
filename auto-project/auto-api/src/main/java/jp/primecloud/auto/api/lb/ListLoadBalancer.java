@@ -36,11 +36,9 @@ import org.apache.commons.lang.BooleanUtils;
 import jp.primecloud.auto.api.response.lb.ListLoadBalancerResponse;
 import jp.primecloud.auto.api.response.lb.LoadBalancerResponse;
 import jp.primecloud.auto.entity.crud.Component;
+import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.LoadBalancer;
-import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.service.impl.Comparators;
-import jp.primecloud.auto.util.MessageUtils;
 
 
 @Path("/ListLoadBalancer")
@@ -55,16 +53,19 @@ public class ListLoadBalancer extends ApiSupport {
      * @return ListLoadBalancerResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
     public ListLoadBalancerResponse listLoadBalancer(
             @QueryParam(PARAM_NAME_FARM_NO) String farmNo){
 
         ListLoadBalancerResponse response = new ListLoadBalancerResponse();
 
-        try {
             // 入力チェック
             // LoadBalancerNo
             ApiValidate.validateFarmNo(farmNo);
+
+            // 権限チェック
+            Farm farm = farmDao.read(Long.parseLong(farmNo));
+            checkAndGetUser(farm);
 
             // ロードバランサ取得
             List<LoadBalancer> loadBalancers = loadBalancerDao.readByFarmNo(Long.parseLong(farmNo));
@@ -83,21 +84,10 @@ public class ListLoadBalancer extends ApiSupport {
                     //コンポーネント名設定
                     loadBalancerResponse.setComponentName(component.getComponentName());
                 }
-                response.addLoadBalancer(loadBalancerResponse);
+                response.getLoadBalancers().add(loadBalancerResponse);
             }
 
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
     }

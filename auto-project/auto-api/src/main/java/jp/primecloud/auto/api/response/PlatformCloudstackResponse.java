@@ -1,51 +1,53 @@
 package jp.primecloud.auto.api.response;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
 import org.apache.commons.lang.BooleanUtils;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import jp.primecloud.auto.entity.crud.PlatformCloudstack;
 
 
-@XmlRootElement(name="PlatformCloudstackResponse")
-@XmlType(propOrder = {"host","path","port","secure","zoneId","networkId","defKeyPair"})
 public class PlatformCloudstackResponse {
 
     /**
      * ホストURL
      */
+    @JsonProperty("Hsost")
     private String host;
 
     /**
      * パス(ホスト以下のパス)
      */
+    @JsonProperty("Path")
     private String path;
 
     /**
      * ポート番号
      */
+    @JsonProperty("Port")
     private Integer port;
 
     /**
      * セキュア区分
      */
+    @JsonProperty("Secure")
     private Boolean secure;
 
     /**
      * ゾーンID
      */
+    @JsonProperty("ZoneId")
     private String zoneId;
 
     /**
      * ネットワークID
      */
+    @JsonProperty("NetworkId")
     private String networkId;
 
     /**
      * デフォルトキーペア
      */
+    @JsonProperty("DefKeyPair")
     private String defKeyPair;
 
     public PlatformCloudstackResponse() {}
@@ -65,7 +67,6 @@ public class PlatformCloudstackResponse {
     *
     * @return host
     */
-    @XmlElement(name="Hsost")
     public String getHost() {
         return host;
     }
@@ -86,7 +87,6 @@ public class PlatformCloudstackResponse {
     *
     * @return path
     */
-    @XmlElement(name="Path")
     public String getPath() {
         return path;
     }
@@ -107,7 +107,6 @@ public class PlatformCloudstackResponse {
     *
     * @return port
     */
-    @XmlElement(name="Port")
     public Integer getPort() {
         return port;
     }
@@ -128,7 +127,6 @@ public class PlatformCloudstackResponse {
     *
     * @return secure
     */
-    @XmlElement(name="Secure")
     public Boolean getSecure() {
         return secure;
     }
@@ -149,7 +147,6 @@ public class PlatformCloudstackResponse {
     *
     * @return zoneId
     */
-    @XmlElement(name="ZoneId")
     public String getZoneId() {
         return zoneId;
     }
@@ -170,7 +167,6 @@ public class PlatformCloudstackResponse {
     *
     * @return networkId
     */
-    @XmlElement(name="NetworkId")
     public String getNetworkId() {
         return networkId;
     }
@@ -191,7 +187,6 @@ public class PlatformCloudstackResponse {
     *
     * @return defKeyPair
     */
-    @XmlElement(name="DefKeyPair")
     public String getDefKeyPair() {
         return defKeyPair;
     }

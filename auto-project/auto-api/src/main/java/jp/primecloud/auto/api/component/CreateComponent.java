@@ -32,9 +32,8 @@ import org.apache.commons.lang.BooleanUtils;
 
 import jp.primecloud.auto.api.response.component.CreateComponentResponse;
 import jp.primecloud.auto.entity.crud.ComponentType;
+import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.util.MessageUtils;
 
 
 @Path("/CreateComponent")
@@ -52,7 +51,7 @@ public class CreateComponent extends ApiSupport{
      * @return CreateComponentResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
 	public CreateComponentResponse createComponent(
 	        @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
 	        @QueryParam(PARAM_NAME_COMPONENT_NAME) String componentName,
@@ -62,7 +61,6 @@ public class CreateComponent extends ApiSupport{
 
         CreateComponentResponse response = new CreateComponentResponse();
 
-        try {
             // 入力チェック
             // farmNo
             ApiValidate.validateFarmNo(farmNo);
@@ -74,6 +72,10 @@ public class CreateComponent extends ApiSupport{
             ApiValidate.validateDiskSize(diskSize);
             // comments
             ApiValidate.validateComment(comment);
+
+            // 権限チェック
+            Farm farm = farmDao.read(Long.parseLong(farmNo));
+            checkAndGetUser(farm);
 
             ComponentType componentType = componentTypeDao.read(Long.parseLong(componentTypeNo));
             if (componentType == null) {
@@ -91,17 +93,6 @@ public class CreateComponent extends ApiSupport{
 
             response.setComponentNo(componentNo);
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
 	}

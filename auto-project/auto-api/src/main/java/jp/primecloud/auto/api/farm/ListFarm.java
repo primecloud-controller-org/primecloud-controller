@@ -24,19 +24,14 @@ import java.util.List;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
-import jp.primecloud.auto.api.ApiValidate;
 
 import jp.primecloud.auto.api.response.farm.FarmResponse;
 import jp.primecloud.auto.api.response.farm.ListFarmResponse;
 import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.User;
-import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.util.MessageUtils;
 
 
 @Path("/ListFarm")
@@ -46,44 +41,25 @@ public class ListFarm extends ApiSupport {
      *
      * ファーム一覧取得
      *
-     * @param userName ユーザ名
-     *
      * @return ListFarmResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public ListFarmResponse listFarm(
-            @QueryParam(PARAM_NAME_USER) String userName){
+    @Produces(MediaType.APPLICATION_JSON)
+    public ListFarmResponse listFarm(){
 
         ListFarmResponse response = new ListFarmResponse();
 
-        try {
-            // 入力チェック
-            // User
-            ApiValidate.validateUser(userName);
-
             // ユーザの取得
-            User user = userDao.readByUsername(userName);
+            User user = checkAndGetUser();
 
             // ファームの取得
             List<Farm> farms = farmDao.readByUserNo(user.getUserNo());
             for (Farm farm: farms) {
                 FarmResponse farmResponse = new FarmResponse(farm);
-                response.addFarm(farmResponse);
+                response.getFarms().add(farmResponse);
             }
 
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
     }

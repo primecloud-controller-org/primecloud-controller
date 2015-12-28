@@ -1,44 +1,52 @@
 package jp.primecloud.auto.api.response.component;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import jp.primecloud.auto.entity.crud.Component;
 
 
-@XmlRootElement(name="Component")
-@XmlType(propOrder = { "componentNo", "componentName", "componentTypeNo", "instanceCount", "loadBalancerName", "status"})
 public class ComponentResponse {
 
     /**
      * コンポーネント番号
      */
+    @JsonProperty("ComponentNo")
     private Long componentNo;
 
     /**
      * コンポーネント名
      */
+    @JsonProperty("ComponentName")
     private String componentName;
 
     /**
      * コンポーネントタイプ番号
      */
+    @JsonProperty("ComponentTypeNo")
     private Long componentTypeNo;
 
+    @JsonProperty("Comment")
+    private String comment;
+
     /**
-     * インスタンス数(紐付いているインスタンスの数)
+     * コンポーネントインスタンス情報のリスト
      */
-    private Integer instanceCount;
+    @JsonProperty("Instances")
+    private List<ComponentInstanceResponse> instances = new ArrayList<ComponentInstanceResponse>();
 
     /**
      * ロードバランサ名(設定されているLBの名称(1件目))
      */
-    private String loadBalancerName;
+    @JsonProperty("LoadBalancers")
+    private List<ComponentLoadBalancerResponse> loadBalancers = new ArrayList<ComponentLoadBalancerResponse>();
 
     /**
      * ステータス
      */
+    @JsonProperty("Status")
     private String status;
 
     public ComponentResponse() {}
@@ -47,6 +55,7 @@ public class ComponentResponse {
         this.componentNo = component.getComponentNo();
         this.componentName = component.getComponentName();
         this.componentTypeNo = component.getComponentTypeNo();
+        this.comment = component.getComment();
     }
 
    /**
@@ -55,7 +64,6 @@ public class ComponentResponse {
     *
     * @return componentNo
     */
-    @XmlElement(name="ComponentNo")
     public Long getComponentNo() {
         return componentNo;
     }
@@ -76,7 +84,6 @@ public class ComponentResponse {
     *
     * @return componentName
     */
-    @XmlElement(name="ComponentName")
     public String getComponentName() {
         return componentName;
     }
@@ -97,7 +104,6 @@ public class ComponentResponse {
     *
     * @return componentTypeNo
     */
-    @XmlElement(name="ComponentTypeNo")
     public Long getComponentTypeNo() {
         return componentTypeNo;
     }
@@ -112,46 +118,28 @@ public class ComponentResponse {
         this.componentTypeNo = componentTypeNo;
     }
 
-   /**
-    *
-    * instanceCountを取得します。
-    *
-    * @return instanceCount
-    */
-    @XmlElement(name="InstanceCount")
-    public Integer getInstanceCount() {
-        return instanceCount;
+    public String getComment() {
+        return comment;
     }
 
-   /**
-    *
-    * instanceCountを設定します。
-    *
-    * @param instanceCount
-    */
-    public void setInstanceCount(Integer instanceCount) {
-        this.instanceCount = instanceCount;
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 
-   /**
-    *
-    * loadBalancerNameを取得します。
-    *
-    * @return loadBalancerName
-    */
-    @XmlElement(name="LoadBalancerName")
-    public String getLoadBalancerName() {
-        return loadBalancerName;
+    public List<ComponentInstanceResponse> getInstances() {
+        return instances;
     }
 
-   /**
-    *
-    * loadBalancerNameを設定します。
-    *
-    * @param loadBalancerName
-    */
-    public void setLoadBalancerName(String loadBalancerName) {
-        this.loadBalancerName = loadBalancerName;
+    public void setInstances(List<ComponentInstanceResponse> instances) {
+        this.instances = instances;
+    }
+
+    public List<ComponentLoadBalancerResponse> getLoadBalancers() {
+        return loadBalancers;
+    }
+
+    public void setLoadBalancers(List<ComponentLoadBalancerResponse> loadBalancers) {
+        this.loadBalancers = loadBalancers;
     }
 
    /**
@@ -160,7 +148,6 @@ public class ComponentResponse {
     *
     * @return status
     */
-    @XmlElement(name="Status")
     public String getStatus() {
         return status;
     }

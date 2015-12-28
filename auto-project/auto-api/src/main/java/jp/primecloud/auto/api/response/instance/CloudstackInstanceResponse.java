@@ -1,23 +1,34 @@
 package jp.primecloud.auto.api.response.instance;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import jp.primecloud.auto.entity.crud.CloudstackInstance;
 
 
-@XmlRootElement(name="CloudstackInstanceResponse")
-@XmlType(propOrder = { "keyName", "instanceType", "displayname", "ipaddress", "state", "zoneid" ,"networkid", "securitygroup" })
 public class CloudstackInstanceResponse {
 
+    @JsonProperty("KeyName")
     private String keyName;
+
+    @JsonProperty("InstanceType")
     private String instanceType;
+
+    @JsonProperty("Displayname")
     private String displayname;
+
+    @JsonProperty("Ipaddress")
     private String ipaddress;
+
+    @JsonProperty("State")
     private String state;
+
+    @JsonProperty("Zoneid")
     private String zoneid;
+
+    @JsonProperty("Networkid")
     private String networkid;
+
+    @JsonProperty("Securitygroup")
     private String securitygroup;
 
     public CloudstackInstanceResponse() {}
@@ -39,7 +50,6 @@ public class CloudstackInstanceResponse {
     *
     * @return keyName
     */
-    @XmlElement(name="KeyName")
     public String getKeyName() {
         return keyName;
     }
@@ -60,7 +70,6 @@ public class CloudstackInstanceResponse {
     *
     * @return instanceType
     */
-    @XmlElement(name="InstanceType")
     public String getInstanceType() {
         return instanceType;
     }
@@ -81,7 +90,6 @@ public class CloudstackInstanceResponse {
     *
     * @return displayname
     */
-    @XmlElement(name="Displayname")
     public String getDisplayname() {
         return displayname;
     }
@@ -102,7 +110,6 @@ public class CloudstackInstanceResponse {
     *
     * @return ipaddress
     */
-    @XmlElement(name="Ipaddress")
     public String getIpaddress() {
         return ipaddress;
     }
@@ -123,7 +130,6 @@ public class CloudstackInstanceResponse {
     *
     * @return state
     */
-    @XmlElement(name="State")
     public String getState() {
         return state;
     }
@@ -144,7 +150,6 @@ public class CloudstackInstanceResponse {
     *
     * @return zoneid
     */
-    @XmlElement(name="Zoneid")
     public String getZoneid() {
         return zoneid;
     }
@@ -165,7 +170,6 @@ public class CloudstackInstanceResponse {
     *
     * @return networkid
     */
-    @XmlElement(name="Networkid")
     public String getNetworkid() {
         return networkid;
     }
@@ -186,7 +190,6 @@ public class CloudstackInstanceResponse {
     *
     * @return securitygroup
     */
-    @XmlElement(name="Securitygroup")
     public String getSecuritygroup() {
         return securitygroup;
     }

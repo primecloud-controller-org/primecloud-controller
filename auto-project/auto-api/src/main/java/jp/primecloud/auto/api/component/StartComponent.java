@@ -27,9 +27,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriInfo;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
@@ -43,13 +41,10 @@ import jp.primecloud.auto.entity.crud.AwsInstance;
 import jp.primecloud.auto.entity.crud.AzureInstance;
 import jp.primecloud.auto.entity.crud.Component;
 import jp.primecloud.auto.entity.crud.ComponentInstance;
-import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.PlatformAws;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.util.MessageUtils;
 
 
 @Path("/StartComponent")
@@ -59,58 +54,38 @@ public class StartComponent extends ApiSupport{
      *
      * サービス起動処理
      *
-     * @param uriInfo URI情報(InstanceNo取得の為)
-     * @param farmNo ファーム番号
      * @param componentNo コンポーネント番号
      * @param instanceNos インスタンス番号(複数、カンマ区切り)
      * @return StartComponentResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
 	public StartComponentResponse startComponent(
-            @Context UriInfo uriInfo,
-	        @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
 	        @QueryParam(PARAM_NAME_COMPONENT_NO) String componentNo,
             @QueryParam(PARAM_NAME_INSTANCE_NOS) String instanceNos){
 
         StartComponentResponse response = new StartComponentResponse();
 
-        try {
             // 入力チェック
-            // FarmNo
-            ApiValidate.validateFarmNo(farmNo);
             // ComponentNo
             ApiValidate.validateComponentNo(componentNo);
             // InstanceNo
             List<Long> instanceNoList = createInstanceNosToList(instanceNos);
 
-            // ファーム取得
-            Farm farm = farmDao.read(Long.parseLong(farmNo));
-            if (farm == null) {
-                // ファームが存在しない
-                throw new AutoApplicationException("EAPI-100000", "Farm", PARAM_NAME_FARM_NO, farmNo);
-            }
+            // コンポーネント取得
+            Component component = getComponent(Long.parseLong(componentNo));
+
+            // 権限チェック
+            checkAndGetUser(component);
 
             // インスタンス取得
             for (Long instanceNo: instanceNoList) {
-                Instance instance = instanceDao.read(instanceNo);
-                if (instance == null || BooleanUtils.isTrue(instance.getLoadBalancer())) {
-                    // インスタンスが存在しない or インスタンスがロードバランサ
-                    throw new AutoApplicationException("EAPI-100000", "Instance", PARAM_NAME_INSTANCE_NO, instanceNo);
+                Instance instance = getInstance(instanceNo);
+
+                if (BooleanUtils.isFalse(instance.getFarmNo().equals(component.getFarmNo()))) {
+                    //ファームとインスタンスが一致しない
+                    throw new AutoApplicationException("EAPI-100022", "Instance", component.getFarmNo(), PARAM_NAME_INSTANCE_NO, instanceNo);
                 }
-            }
-
-            // コンポーネント取得
-            Component component = componentDao.read(Long.parseLong(componentNo));
-            if (component == null || BooleanUtils.isTrue(component.getLoadBalancer())) {
-                // コンポーネントが存在しない または ロードバランサコンポーネント
-                throw new AutoApplicationException("EAPI-100000",
-                        "Component", PARAM_NAME_COMPONENT_NO, componentNo);
-            }
-
-            if (BooleanUtils.isFalse(component.getFarmNo().equals(Long.parseLong(farmNo)))) {
-                //ファームとコンポーネントが一致しない
-                throw new AutoApplicationException("EAPI-100022", "Component", farmNo, PARAM_NAME_COMPONENT_NO, componentNo);
             }
 
             boolean skipServer = false;
@@ -174,20 +149,9 @@ public class StartComponent extends ApiSupport{
             }
 
             // サービス起動設定
-            processService.startComponents(Long.valueOf(farmNo), Long.valueOf(componentNo), instanceNoList);
+            processService.startComponents(component.getFarmNo(), Long.valueOf(componentNo), instanceNoList);
 
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
 	}

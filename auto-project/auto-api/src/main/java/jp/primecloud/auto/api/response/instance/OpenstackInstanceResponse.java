@@ -1,64 +1,70 @@
 package jp.primecloud.auto.api.response.instance;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import jp.primecloud.auto.entity.crud.OpenstackInstance;
 
 
-@XmlRootElement(name="NiftyInstanceResponse")
-@XmlType(propOrder = {"keyName","instanceType","securityGroups","availabilityZone","instanceId","status", "keyPair","clientIpAddress" , "privateIpAddress","networkId" })
 public class OpenstackInstanceResponse {
 
     /**
      * キーペア名
      */
+    @JsonProperty("KeyName")
     private String keyName;
 
     /**
      * インスタンスタイプ
      */
+    @JsonProperty("InstnaceType")
     private String instanceType;
 
     /**
      * セキュリティグループ
      */
+    @JsonProperty("SecurityGroups")
     private String securityGroups;
 
     /**
      * ゾーン
      */
+    @JsonProperty("AvailabilityZone")
     private String availabilityZone;
 
     /**
      * インスタンスID
      */
+    @JsonProperty("InstanceID")
     private String instanceId;
 
     /**
      * ステータス
      */
+    @JsonProperty("Status")
     private String status;
 
     /**
      * キーペア名
      */
+    @JsonProperty("KeyPair")
     private String keyPair;
 
     /**
      * クライアントIPアドレス
      */
+    @JsonProperty("ClientIpAddress")
     private String clientIpAddress;
 
     /**
      * プライベートIPアドレス
      */
+    @JsonProperty("PrivateIpAddress")
     private String privateIpAddress;
 
     /**
      * ネットワークID
      */
+    @JsonProperty("NetworkId")
     private String networkId;
 
     public OpenstackInstanceResponse() {}
@@ -81,7 +87,6 @@ public class OpenstackInstanceResponse {
     *
     * @return keyName
     */
-    @XmlElement(name="KeyName")
     public String getKeyName() {
         return keyName;
     }
@@ -102,7 +107,6 @@ public class OpenstackInstanceResponse {
     *
     * @return instanceType
     */
-    @XmlElement(name="InstnaceType")
     public String getInstanceType() {
         return instanceType;
     }
@@ -123,7 +127,6 @@ public class OpenstackInstanceResponse {
     *
     * @return securityGroups
     */
-    @XmlElement(name="SecurityGroups")
     public String getSecurityGroups() {
         return securityGroups;
     }
@@ -144,7 +147,6 @@ public class OpenstackInstanceResponse {
     *
     * @return availabilityZone
     */
-    @XmlElement(name="AvailabilityZone")
     public String getAvailabilityZone() {
         return availabilityZone;
     }
@@ -165,7 +167,6 @@ public class OpenstackInstanceResponse {
     *
     * @return instanceId
     */
-    @XmlElement(name="InstanceID")
     public String getInstanceId() {
         return instanceId;
     }
@@ -186,7 +187,6 @@ public class OpenstackInstanceResponse {
     *
     * @return status
     */
-    @XmlElement(name="Status")
     public String getStatus() {
         return status;
     }
@@ -207,7 +207,6 @@ public class OpenstackInstanceResponse {
     *
     * @return keyPair
     */
-    @XmlElement(name="KeyPair")
     public String getKeyPair() {
         return keyPair;
     }
@@ -228,7 +227,6 @@ public class OpenstackInstanceResponse {
     *
     * @return clientIpAddress
     */
-    @XmlElement(name="ClientIpAddress")
     public String getClientIpAddress() {
         return clientIpAddress;
     }
@@ -249,7 +247,6 @@ public class OpenstackInstanceResponse {
     *
     * @return privateIpAddress
     */
-    @XmlElement(name="PrivateIpAddress")
     public String getPrivateIpAddress() {
         return privateIpAddress;
     }
@@ -270,7 +267,6 @@ public class OpenstackInstanceResponse {
     *
     * @return networkId
     */
-    @XmlElement(name="NetworkId")
     public String getNetworkId() {
         return networkId;
     }

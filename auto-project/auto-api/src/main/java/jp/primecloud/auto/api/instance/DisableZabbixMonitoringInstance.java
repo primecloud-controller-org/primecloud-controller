@@ -28,12 +28,8 @@ import javax.ws.rs.core.MediaType;
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
 
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.api.response.instance.DisableZabbixMonitoringInstanceResponse;
-import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.util.MessageUtils;
+import jp.primecloud.auto.entity.crud.Instance;
 
 
 @Path("/DisableZabbixMonitoringInstance")
@@ -43,43 +39,28 @@ public class DisableZabbixMonitoringInstance extends ApiSupport {
      *
      * Zabbix監視有効化(サーバ)
      *
-     * @param farmNo ファーム番号
      * @param instanceNo インスタンス番号
      * @return DisableZabbixMonitoringInstanceResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
 	public DisableZabbixMonitoringInstanceResponse disableZabbixMonitoringInstance(
-	        @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
 	        @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo) {
 
     	DisableZabbixMonitoringInstanceResponse response = new DisableZabbixMonitoringInstanceResponse();
 
-        try {
             // 入力チェック
-            // FarmNo
-            ApiValidate.validateFarmNo(farmNo);
             // InstanceNo
-            // TODO モック用にコメントアウト
-            //ApiValidate.validateInstanceNo(instanceNo);
+            ApiValidate.validateInstanceNo(instanceNo);
+
+            // 権限チェック
+            Instance instance = getInstance(Long.parseLong(instanceNo));
+            checkAndGetUser(instance);
 
             // Zabbix監視有効化(サーバ)
-            //instanceService.disableZabbixMonitoring(Long.parseLong(instanceNo));
-            // TODO モック用の処理
-            instanceService.disableZabbixMonitoring((StringUtils.isEmpty(instanceNo)) ? null: Long.parseLong(instanceNo));
+            instanceService.disableZabbixMonitoring(Long.parseLong(instanceNo));
 
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
     }

@@ -37,10 +37,7 @@ import jp.primecloud.auto.api.response.instance.InstanceResponse;
 import jp.primecloud.auto.api.response.instance.ListInstanceResponse;
 import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.Instance;
-import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.service.impl.Comparators;
-import jp.primecloud.auto.util.MessageUtils;
 
 
 @Path("/ListInstance")
@@ -55,23 +52,21 @@ public class ListInstance extends ApiSupport {
      * @return ListInstanceResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
 	public ListInstanceResponse listInstance(
 	        @QueryParam(PARAM_NAME_FARM_NO) String farmNo){
 
         ListInstanceResponse response = new ListInstanceResponse();
 
-        try {
             // 入力チェック
             // FarmNo
             ApiValidate.validateFarmNo(farmNo);
 
             // ファーム取得
-            Farm farm = farmDao.read(Long.parseLong(farmNo));
-            if (farm == null) {
-                // ファームが存在しない
-                throw new AutoApplicationException("EAPI-100000", "Farm", PARAM_NAME_FARM_NO, farmNo);
-            }
+            Farm farm = getFarm(Long.parseLong(farmNo));
+
+            // 権限チェック
+            checkAndGetUser(farm);
 
             // インスタンス取得
             List<Instance> instances = instanceDao.readByFarmNo(Long.parseLong(farmNo));
@@ -86,21 +81,10 @@ public class ListInstance extends ApiSupport {
                     continue;
                 }
                 //インスタンス情報設定
-                response.addInstance(new InstanceResponse(instance));
+                response.getInstances().add(new InstanceResponse(instance));
             }
 
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
 	}

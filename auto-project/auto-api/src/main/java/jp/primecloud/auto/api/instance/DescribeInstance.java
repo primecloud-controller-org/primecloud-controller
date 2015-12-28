@@ -37,6 +37,7 @@ import jp.primecloud.auto.api.response.instance.AwsInstanceResponse;
 import jp.primecloud.auto.api.response.instance.AzureInstanceResponse;
 import jp.primecloud.auto.api.response.instance.CloudstackInstanceResponse;
 import jp.primecloud.auto.api.response.instance.DescribeInstanceResponse;
+import jp.primecloud.auto.api.response.instance.InstanceResponse;
 import jp.primecloud.auto.api.response.instance.NiftyInstanceResponse;
 import jp.primecloud.auto.api.response.instance.OpenstackInstanceResponse;
 import jp.primecloud.auto.api.response.instance.VcloudInstanceNetworkResponse;
@@ -59,10 +60,8 @@ import jp.primecloud.auto.entity.crud.VmwareAddress;
 import jp.primecloud.auto.entity.crud.VmwareInstance;
 import jp.primecloud.auto.entity.crud.VmwareKeyPair;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.service.dto.KeyPairDto;
 import jp.primecloud.auto.service.dto.SubnetDto;
-import jp.primecloud.auto.util.MessageUtils;
 
 
 @Path("/DescribeInstance")
@@ -71,48 +70,26 @@ public class DescribeInstance extends ApiSupport {
     /**
      *
      * サーバ情報取得
-     * @param userName ユーザ名
-     * @param farmNo ファーム番号
      * @param instanceNo インスタンス番号
      *
      * @return DescribeInstanceResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
 	public DescribeInstanceResponse describeInstance(
-	        @QueryParam(PARAM_NAME_USER) String userName,
-	        @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
 	        @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo){
 
         DescribeInstanceResponse response = new DescribeInstanceResponse();
 
-        try {
             // 入力チェック
-            //Key
-            ApiValidate.validateUser(userName);
-            //FarmNo
-            ApiValidate.validateFarmNo(farmNo);
             // InstanceNo
             ApiValidate.validateInstanceNo(instanceNo);
 
-            //ユーザ情報取得
-            User user = userDao.readByUsername(userName);
-            if (user == null) {
-                // ユーザが存在しない
-                throw new AutoApplicationException("EAPI-100000", "User", PARAM_NAME_USER, userName);
-            }
-
             // サーバ情報取得
-            Instance instance = instanceDao.read(Long.parseLong(instanceNo));
-            if (instance == null || BooleanUtils.isTrue(instance.getLoadBalancer())) {
-                // インスタンスが存在しない or インスタンスがロードバランサ
-                throw new AutoApplicationException("EAPI-100000", "Instance", PARAM_NAME_INSTANCE_NO, instanceNo);
-            }
+            Instance instance = getInstance(Long.parseLong(instanceNo));
 
-            if (BooleanUtils.isFalse(instance.getFarmNo().equals(Long.parseLong(farmNo)))) {
-                //ファームとインスタンスが一致しない
-                throw new AutoApplicationException("EAPI-100022", "Instance", farmNo, PARAM_NAME_INSTANCE_NO, instanceNo);
-            }
+            // 権限チェック
+            User user = checkAndGetUser(instance);
 
             //プラットフォーム取得
             Platform platform = platformDao.read(instance.getPlatformNo());
@@ -122,7 +99,8 @@ public class DescribeInstance extends ApiSupport {
             }
 
             //インスタンス情報設定
-            response = new DescribeInstanceResponse(instance);
+            InstanceResponse instanceResponse = new InstanceResponse(instance);
+            response.setInstance(instanceResponse);
             // TODO CLOUD BRANCHING
             if (PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
                 //AWS
@@ -145,7 +123,7 @@ public class DescribeInstance extends ApiSupport {
                     }
                 }
                 //AWSインスタンス情報設定
-                response.setAws(awsResponse);
+                instanceResponse.setAws(awsResponse);
             } else if (PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
                 //CloudStack
                 CloudstackInstance cloudstackInstance = cloudstackInstanceDao.read(Long.parseLong(instanceNo));
@@ -154,7 +132,7 @@ public class DescribeInstance extends ApiSupport {
                     throw new AutoApplicationException("EAPI-100000", "CloudstackInstance", PARAM_NAME_INSTANCE_NO, instanceNo);
                 }
                 //CloudStackインスタンス情報設定
-                response.setCloudstack(new CloudstackInstanceResponse(cloudstackInstance));
+                instanceResponse.setCloudstack(new CloudstackInstanceResponse(cloudstackInstance));
             } else if (PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
                 //VMWare
                 VmwareInstance vmwareInstance = vmwareInstanceDao.read(Long.parseLong(instanceNo));
@@ -183,7 +161,7 @@ public class DescribeInstance extends ApiSupport {
                     }
                 }
                 //VMWareインスタンス情報設定
-                response.setVmware(vmResponse);
+                instanceResponse.setVmware(vmResponse);
             } else if (PLATFORM_TYPE_NIFTY.equals(platform.getPlatformType())) {
                 //Nifty
                 NiftyInstance niftyInstance = niftyInstanceDao.read(Long.parseLong(instanceNo));
@@ -203,7 +181,7 @@ public class DescribeInstance extends ApiSupport {
                 }
 
                 //Niftyインスタンス情報設定
-                response.setNifty(niftyResponse);
+                instanceResponse.setNifty(niftyResponse);
             } else if (PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
                 //VCLOUD_INSTANCE
                 VcloudInstance vcloudInstance = vcloudInstanceDao.read(Long.parseLong(instanceNo));
@@ -242,11 +220,11 @@ public class DescribeInstance extends ApiSupport {
                     } else {
                         vcloudInstanceNetworkResponse.setIsPrimary(false);
                     }
-                    vcloudInstanceResponse.addVcloudNetwok(vcloudInstanceNetworkResponse);
+                    vcloudInstanceResponse.getVcloudNetwoks().add(vcloudInstanceNetworkResponse);
                 }
 
                 //VCloudインスタンス情報設定
-                response.setVcloud(vcloudInstanceResponse);
+                instanceResponse.setVcloud(vcloudInstanceResponse);
             }else if (PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
                 //OpenStack
                 OpenstackInstance openstackInstance = openstackInstanceDao.read(Long.parseLong(instanceNo));
@@ -255,7 +233,7 @@ public class DescribeInstance extends ApiSupport {
                     throw new AutoApplicationException("EAPI-100000", "OpenstackInstance", PARAM_NAME_INSTANCE_NO, instanceNo);
                 }
                 //OpenStackインスタンス情報設定
-                response.setOpenstack(new OpenstackInstanceResponse(openstackInstance));
+                instanceResponse.setOpenstack(new OpenstackInstanceResponse(openstackInstance));
             }else if (PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
                 //Azure
                 AzureInstance azureInstance = azureInstanceDao.read(Long.parseLong(instanceNo));
@@ -264,21 +242,10 @@ public class DescribeInstance extends ApiSupport {
                     throw new AutoApplicationException("EAPI-100000", "AzureInstance", PARAM_NAME_INSTANCE_NO, instanceNo);
             }
                 //Azureインスタンス情報設定
-                response.setAzure(new AzureInstanceResponse(azureInstance));
+                instanceResponse.setAzure(new AzureInstanceResponse(azureInstance));
             }
 
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
 	}

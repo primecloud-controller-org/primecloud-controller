@@ -31,14 +31,10 @@ import javax.ws.rs.core.MediaType;
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
 
-import org.apache.commons.lang.BooleanUtils;
-
 import jp.primecloud.auto.api.response.instance.StopInstanceResponse;
 import jp.primecloud.auto.common.status.InstanceStatus;
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.util.MessageUtils;
 
 
 @Path("/StopInstance")
@@ -48,33 +44,26 @@ public class StoptInstance extends ApiSupport {
      *
      * サーバ停止処理
      *
-     * @param farmNo ファーム番号
      * @param instanceNo インスタンス番号
      *
      * @return StopInstanceResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
 	public StopInstanceResponse stoptInstance(
-	        @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
 	        @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo){
 
         StopInstanceResponse response = new StopInstanceResponse();
 
-        try {
             // 入力チェック
-            // FarmNo
-            ApiValidate.validateFarmNo(farmNo);
             // InstanceNo
             ApiValidate.validateInstanceNo(instanceNo);
 
             // インスタンス取得
-            Instance instance = instanceDao.read(Long.parseLong(instanceNo));
-            if (instance == null || BooleanUtils.isTrue(instance.getLoadBalancer())) {
-                // インスタンスが存在しない or インスタンスがロードバランサの場合
-                throw new AutoApplicationException("EAPI-100000", "Instance",
-                        PARAM_NAME_INSTANCE_NO, instanceNo);
-            }
+            Instance instance = getInstance(Long.parseLong(instanceNo));
+
+            // 権限チェック
+            checkAndGetUser(instance);
 
             InstanceStatus status = InstanceStatus.fromStatus(instance.getStatus());
             if (InstanceStatus.RUNNING != status && InstanceStatus.WARNING != status) {
@@ -82,28 +71,12 @@ public class StoptInstance extends ApiSupport {
                 throw new AutoApplicationException("EAPI-100024", instanceNo);
             }
 
-            if (BooleanUtils.isFalse(instance.getFarmNo().equals(Long.parseLong(farmNo)))) {
-                //ファームとインスタンスが一致しない
-                throw new AutoApplicationException("EAPI-100022", "Instance", farmNo, PARAM_NAME_INSTANCE_NO, instanceNo);
-            }
-
             // サーバ停止設定処理
             List<Long> instanceNos = new ArrayList<Long>();
             instanceNos.add(Long.parseLong(instanceNo));
-            processService.stopInstances(Long.parseLong(farmNo), instanceNos);
+            processService.stopInstances(instance.getFarmNo(), instanceNos);
 
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
     }

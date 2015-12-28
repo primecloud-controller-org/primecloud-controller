@@ -30,9 +30,6 @@ import jp.primecloud.auto.api.ApiValidate;
 
 import jp.primecloud.auto.api.response.farm.EditFarmResponse;
 import jp.primecloud.auto.entity.crud.Farm;
-import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.util.MessageUtils;
 
 
 @Path("/EditFarm")
@@ -48,40 +45,27 @@ public class EditFarm extends ApiSupport {
      * @return EditFarmResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
     public EditFarmResponse editFarm(
             @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
             @QueryParam(PARAM_NAME_COMMENT) String comment){
 
         EditFarmResponse response = new EditFarmResponse();
 
-        try {
             // 入力チェック
             // FarmNo
             ApiValidate.validateFarmNo(farmNo);
-            Farm farm = farmDao.read(Long.parseLong(farmNo));
-            if (farm == null) {
-                // ファームが存在しない場合
-                throw new AutoApplicationException("EAPI-100000", "Farm", PARAM_NAME_FARM_NO, farmNo);
-            }
+            Farm farm = getFarm(Long.parseLong(farmNo));
             // Comment
             ApiValidate.validateComment(comment);
+
+            // 権限チェック
+            checkAndGetUser(farm);
 
             // ファーム更新
             farmService.updateFarm(Long.parseLong(farmNo), comment, farm.getDomainName());
 
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
     }

@@ -28,8 +28,6 @@ import javax.ws.rs.core.MediaType;
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
 
-import org.apache.commons.lang.BooleanUtils;
-
 import jp.primecloud.auto.api.response.lb.CreateLoadBalancerListenerResponse;
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.entity.crud.AwsSslKey;
@@ -37,8 +35,6 @@ import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.entity.crud.LoadBalancerListener;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.util.MessageUtils;
 
 
 @Path("/CreateLoadBalancerListener")
@@ -48,7 +44,6 @@ public class CreateLoadBalancerListener extends ApiSupport {
      *
      * ロードバランサリスナ作成
      *
-     * @param farmNo ファーム番号
      * @param loadBalancerNo ロードバランサ番号
      * @param loadBalancerPort ポート番号
      * @param servicePort サービス用ポート番号
@@ -58,9 +53,8 @@ public class CreateLoadBalancerListener extends ApiSupport {
      * @return CreateLoadBalancerListenerResponse
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
 	public CreateLoadBalancerListenerResponse createLoadBalancerListener(
-            @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
 	        @QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo,
 	        @QueryParam(PARAM_NAME_LOAD_BALANCER_PORT) String loadBalancerPort,
 	        @QueryParam(PARAM_NAME_SERVICE_PORT) String servicePort,
@@ -69,23 +63,15 @@ public class CreateLoadBalancerListener extends ApiSupport {
 
         CreateLoadBalancerListenerResponse response = new CreateLoadBalancerListenerResponse();
 
-        try {
             // 入力チェック
-            // FarmNo
-            ApiValidate.validateFarmNo(farmNo);
             // LoadBalancerNo
             ApiValidate.validateLoadBalancerNo(loadBalancerNo);
 
             // ロードバランサ取得
-            LoadBalancer loadBalancer = loadBalancerDao.read(Long.parseLong(loadBalancerNo));
-            if(loadBalancer == null) {
-                throw new AutoApplicationException("EAPI-100000", "LoadBalancer",
-                        PARAM_NAME_LOAD_BALANCER_NO, loadBalancerNo);
-            }
-            if (BooleanUtils.isFalse(loadBalancer.getFarmNo().equals(Long.parseLong(farmNo)))) {
-                //ファームとロードバランサが一致しない
-                throw new AutoApplicationException("EAPI-100022", "LoadBalancer", farmNo, PARAM_NAME_LOAD_BALANCER_NO, loadBalancerNo);
-            }
+            LoadBalancer loadBalancer = getLoadBalancer(Long.parseLong(loadBalancerNo));
+
+            // 権限チェック
+            checkAndGetUser(loadBalancer);
 
             // プラットフォーム取得
             Platform platform = platformDao.read(loadBalancer.getPlatformNo());
@@ -100,6 +86,14 @@ public class CreateLoadBalancerListener extends ApiSupport {
                 return response;
             }
 
+            // 入力チェック
+            // LoadBalancerPort
+            ApiValidate.validateLoadBalancerPort(loadBalancer.getType(), loadBalancerPort);
+            // ServicePort
+            ApiValidate.validateServicePort(servicePort);
+            // Protocol
+            ApiValidate.validateProtocol(protocol);
+
             // ロードバランサ リスナ取得
             LoadBalancerListener loadBalancerListener = loadBalancerListenerDao.read(
                     Long.parseLong(loadBalancerNo), Integer.parseInt(loadBalancerPort));
@@ -109,20 +103,16 @@ public class CreateLoadBalancerListener extends ApiSupport {
                         PARAM_NAME_LOAD_BALANCER_NO, loadBalancerNo, PARAM_NAME_LOAD_BALANCER_PORT, loadBalancerPort);
             }
 
-            // 入力チェック
-            // LoadBalancerPort
-            ApiValidate.validateLoadBalancerPort(loadBalancer.getType(), loadBalancerPort);
-            // ServicePort
-            ApiValidate.validateServicePort(servicePort);
-            // Protocol
-            ApiValidate.validateProtocol(protocol);
             // SslKeyNo
+            Long sslKeyNo2 = null;
             if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancer.getType()) && "HTTPS".equals(protocol)) {
                 //ELBかつプロトコルがHTTPSの場合
                 ApiValidate.validateSslKeyNo(sslKeyNo);
 
+                sslKeyNo2 = Long.parseLong(sslKeyNo);
+
                 // AWS_SSL_KEY取得
-                AwsSslKey awsSslKey = awsSslKeyDao.read(Long.parseLong(loadBalancerNo));
+                AwsSslKey awsSslKey = awsSslKeyDao.read(sslKeyNo2);
                 if(awsSslKey == null) {
                     //存在しない場合
                     throw new AutoApplicationException("EAPI-100000", "AwsSslKey", PARAM_NAME_SSL_KEY_NO, sslKeyNo);
@@ -131,20 +121,9 @@ public class CreateLoadBalancerListener extends ApiSupport {
 
             // ロードバランサリスナ作成
             loadBalancerService.createListener(Long.parseLong(loadBalancerNo),
-                    Integer.parseInt(loadBalancerPort), Integer.parseInt(servicePort), protocol, Long.parseLong(sslKeyNo));
+                    Integer.parseInt(loadBalancerPort), Integer.parseInt(servicePort), protocol, sslKeyNo2);
 
             response.setSuccess(true);
-        } catch (Throwable e){
-            String message = "";
-            if (e instanceof AutoException || e instanceof AutoApplicationException) {
-                message = e.getMessage();
-            } else {
-                message = MessageUtils.getMessage("EAPI-000000");
-            }
-            log.error(message, e);
-            response.setMessage(message);
-            response.setSuccess(false);
-        }
 
         return  response;
 	}
