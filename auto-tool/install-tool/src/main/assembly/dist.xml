@@ -16,6 +16,8 @@
 		<fileSet>
 			<directory>src/main/scripts</directory>
 			<outputDirectory>/tools/</outputDirectory>
+			<filtered>true</filtered>
+			<fileMode>0755</fileMode>
 		</fileSet>
 		<fileSet>
 			<directory>../../iaas-gw/src</directory>
