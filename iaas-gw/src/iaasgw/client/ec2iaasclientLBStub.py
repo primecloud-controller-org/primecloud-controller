@@ -150,7 +150,7 @@ class EC2IaasClientLB(EC2APNENodeDriverLB):
             params['Listeners.member.%d.LoadBalancerPort' % i] = listener.loadBalancerPort
             params['Listeners.member.%d.InstancePort' % i] = listener.instancePort
             params['Listeners.member.%d.Protocol' % i] = listener.protocol
-            if listener.protocol=='HTTPS':
+            if listener.protocol=='HTTPS' or listener.protocol=='SSL':
                 params['Listeners.member.%d.SSLCertificateId' % i] = listener.sslCertificateId
 
         for j, availabilityZone in enumerate(availabilityZones,1):
@@ -181,7 +181,7 @@ class EC2IaasClientLB(EC2APNENodeDriverLB):
             params['Listeners.member.%d.LoadBalancerPort' % i] = listener.loadBalancerPort
             params['Listeners.member.%d.InstancePort' % i] = listener.instancePort
             params['Listeners.member.%d.Protocol' % i] = listener.protocol
-            if listener.protocol=='HTTPS':
+            if listener.protocol=='HTTPS' or listener.protocol=='SSL':
                 params['Listeners.member.%d.SSLCertificateId' % i] = listener.sslCertificateId
 
 

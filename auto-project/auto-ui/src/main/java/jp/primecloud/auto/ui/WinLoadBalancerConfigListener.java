@@ -22,7 +22,6 @@ import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.util.IndexedContainer;
-import com.vaadin.data.validator.AbstractStringValidator;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.Alignment;
@@ -226,24 +225,7 @@ public class WinLoadBalancerConfigListener extends Window {
             message = ViewMessages.getMessage("IUI-000066");
             loadBalancerPortField.setRequired(true);
             loadBalancerPortField.setRequiredError(message);
-            if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancerDto.getLoadBalancer().getType())) {
-                loadBalancerPortField.addValidator(new AbstractStringValidator(message) {
-                    @Override
-                    protected boolean isValidString(String value) {
-                        try {
-                            int port = Integer.parseInt(value);
-                            if (port != 80 && port != 443 && (port < 1024 || 65535 < port)) {
-                                return false;
-                            }
-                        } catch (Exception e) {
-                            return false;
-                        }
-                        return true;
-                    }
-                });
-            } else if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(loadBalancerDto.getLoadBalancer().getType())) {
-                loadBalancerPortField.addValidator(new IntegerRangeValidator(1, 65535, message));
-            }
+            loadBalancerPortField.addValidator(new IntegerRangeValidator(1, 65535, message));
 
             // サービスポート
             message = ViewMessages.getMessage("IUI-000067");
@@ -352,15 +334,18 @@ public class WinLoadBalancerConfigListener extends Window {
             IndexedContainer container = new IndexedContainer();
             container.addContainerProperty(PROTOCOL_CAPTION_ID, String.class, null);
 
-            Item item = container.addItem("TCP");
-            item.getItemProperty(PROTOCOL_CAPTION_ID).setValue("TCP");
-
-            item = container.addItem("HTTP");
+            Item item = container.addItem("HTTP");
             item.getItemProperty(PROTOCOL_CAPTION_ID).setValue("HTTP");
+
+            item = container.addItem("TCP");
+            item.getItemProperty(PROTOCOL_CAPTION_ID).setValue("TCP");
 
             if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancerType)){
                 item = container.addItem("HTTPS");
                 item.getItemProperty(PROTOCOL_CAPTION_ID).setValue("HTTPS");
+
+                item = container.addItem("SSL");
+                item.getItemProperty(PROTOCOL_CAPTION_ID).setValue("SSL");
             }
 
             return container;
@@ -380,7 +365,7 @@ public class WinLoadBalancerConfigListener extends Window {
 
 
         private void changeCheckEnabled(Property.ValueChangeEvent event) {
-            if ("HTTPS".equals(protocolSelect.getValue())) {
+            if ("HTTPS".equals(protocolSelect.getValue()) || "SSL".equals(protocolSelect.getValue())) {
                 sslKeySelect.setEnabled(true);
 
             } else {
