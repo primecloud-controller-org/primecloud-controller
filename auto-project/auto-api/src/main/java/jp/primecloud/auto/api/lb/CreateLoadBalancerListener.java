@@ -88,7 +88,7 @@ public class CreateLoadBalancerListener extends ApiSupport {
 
             // 入力チェック
             // LoadBalancerPort
-            ApiValidate.validateLoadBalancerPort(loadBalancer.getType(), loadBalancerPort);
+            ApiValidate.validateLoadBalancerPort(loadBalancerPort);
             // ServicePort
             ApiValidate.validateServicePort(servicePort);
             // Protocol
@@ -105,8 +105,9 @@ public class CreateLoadBalancerListener extends ApiSupport {
 
             // SslKeyNo
             Long sslKeyNo2 = null;
-            if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancer.getType()) && "HTTPS".equals(protocol)) {
-                //ELBかつプロトコルがHTTPSの場合
+            if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancer.getType())
+                    && ("HTTPS".equals(protocol) || "SSL".equals(protocol))) {
+                //ELBかつプロトコルがHTTPSまたはSSLの場合
                 ApiValidate.validateSslKeyNo(sslKeyNo);
 
                 sslKeyNo2 = Long.parseLong(sslKeyNo);

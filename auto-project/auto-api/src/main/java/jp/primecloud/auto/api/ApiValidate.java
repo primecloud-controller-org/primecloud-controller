@@ -135,21 +135,11 @@ public class ApiValidate extends ApiConstants {
                 "EAPI-000002", new Object[] {PARAM_NAME_LOAD_BALANCER_NO, 1, Long.MAX_VALUE});
     }
 
-    public static void validateLoadBalancerPort(String type, String loadBalancerPort) {
+    public static void validateLoadBalancerPort(String loadBalancerPort) {
         ValidateUtil.required(loadBalancerPort, "EAPI-000001",
                 new Object[] {PARAM_NAME_LOAD_BALANCER_PORT});
-
-        if (LB_TYPE_ELB.equals(type)) {
-            // ELBの場合
-            if(!"80".equals(loadBalancerPort) && !"443".equals(loadBalancerPort)) {
-                ValidateUtil.intInRange(loadBalancerPort, 1024, 65535,
-                        "EAPI-000007", new Object[] {PARAM_NAME_LOAD_BALANCER_PORT});
-            }
-        } else if (LB_TYPE_ULTRA_MONKEY.equals(type)) {
-            // UltraMonkeyの場合
             ValidateUtil.intInRange(loadBalancerPort, 1, 65535,
                     "EAPI-000002", new Object[] {PARAM_NAME_LOAD_BALANCER_PORT, 1, 65535});
-        }
     }
 
     public static void validateServicePort(String servicePort) {
@@ -161,8 +151,8 @@ public class ApiValidate extends ApiConstants {
 
     public static void validateProtocol(String protocol) {
         ValidateUtil.required(protocol, "EAPI-000001", new Object[] {PARAM_NAME_PROTOCOL});
-        ValidateUtil.matchRegex(protocol, "HTTP|TCP|HTTPS", "EAPI-000006",
-                new Object[] {PARAM_NAME_PROTOCOL, "HTTP or TCP or HTTPS"});
+        ValidateUtil.matchRegex(protocol, "HTTP|TCP|HTTPS|SSL", "EAPI-000006",
+                new Object[] {PARAM_NAME_PROTOCOL, "HTTP or TCP or HTTPS or SSL"});
     }
 
     public static void validateUser(String user) {

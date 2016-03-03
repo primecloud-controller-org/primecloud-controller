@@ -78,7 +78,7 @@ public class DeleteLoadBalancerListener extends ApiSupport {
 
             // 入力チェック
             // LoadBalancerPort
-            ApiValidate.validateLoadBalancerPort(loadBalancer.getType(), loadBalancerPort);
+            ApiValidate.validateLoadBalancerPort(loadBalancerPort);
 
             // ロードバランサリスナ削除
             loadBalancerService.deleteListener(Long.parseLong(loadBalancerNo), Integer.parseInt(loadBalancerPort));
