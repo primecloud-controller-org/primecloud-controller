@@ -1493,6 +1493,12 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
             throw new AutoApplicationException("ESERVICE-000603", loadBalancerNo);
         }
 
+        // ロードバランサポートのチェック
+        if (loadBalancerPort < 1 || 65535 < loadBalancerPort) {
+            // サービスポートが範囲外の場合
+            throw new AutoApplicationException("ESERVICE-000610");
+        }
+
         // ロードバランサポートの重複チェック
         long countListener = loadBalancerListenerDao.countByLoadBalancerNoAndLoadBalancerPort(loadBalancerNo,
                 loadBalancerPort);
@@ -1503,15 +1509,8 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
 
         // AWSロードバランサの場合のチェック
         if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancer.getType())) {
-            // ロードバランサポートのチェック
-            if (loadBalancerPort != 80 && loadBalancerPort != 443
-                    && (loadBalancerPort < 1024 || 65535 < loadBalancerPort)) {
-                // ロードバランサポートが範囲外の場合
-                throw new AutoApplicationException("ESERVICE-000610");
-            }
-
-            //SSLキー必須チェック(HTTPSの場合のみ)
-            if ("HTTPS".equals(protocol)) {
+            // SSLキー必須チェック
+            if ("HTTPS".equals(protocol) || "SSL".equals(protocol)) {
                 if (sslKeyNo == null) {
                     throw new AutoApplicationException("ECOMMON-000003", "sslKey");
                 }
@@ -1526,7 +1525,7 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         }
 
         // プロトコルのチェック
-        List<String> protocols = Arrays.asList("TCP", "HTTP", "HTTPS");
+        List<String> protocols = Arrays.asList("TCP", "HTTP", "HTTPS", "SSL");
         if (!protocols.contains(protocol)) {
             // 使用できないプロトコルの場合
             throw new AutoApplicationException("ESERVICE-000612");
@@ -1583,6 +1582,12 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
             throw new AutoApplicationException("ESERVICE-000627");
         }
 
+        // ロードバランサポートのチェック
+        if (loadBalancerPort < 1 || 65535 < loadBalancerPort) {
+            // サービスポートが範囲外の場合
+            throw new AutoApplicationException("ESERVICE-000610");
+        }
+
         if (!originalLoadBalancerPort.equals(loadBalancerPort)) {
             // ロードバランサポートの重複チェック
             long countListener = loadBalancerListenerDao.countByLoadBalancerNoAndLoadBalancerPort(loadBalancerNo,
@@ -1596,15 +1601,8 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         // AWSロードバランサの場合のチェック
         LoadBalancer loadBalancer = loadBalancerDao.read(loadBalancerNo);
         if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancer.getType())) {
-            // ロードバランサポートのチェック
-            if (loadBalancerPort != 80 && loadBalancerPort != 443
-                    && (loadBalancerPort < 1024 || 65535 < loadBalancerPort)) {
-                // ロードバランサポートが範囲外の場合
-                throw new AutoApplicationException("ESERVICE-000610");
-            }
-
-            //SSLキー必須チェック(HTTPSの場合のみ)
-            if ("HTTPS".equals(protocol)) {
+            // SSLキー必須チェック
+            if ("HTTPS".equals(protocol) || "SSL".equals(protocol)) {
                 if (sslKeyNo == null) {
                     throw new AutoApplicationException("ECOMMON-000003", "sslKey");
                 }

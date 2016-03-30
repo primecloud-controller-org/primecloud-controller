@@ -173,7 +173,7 @@ class EC2IaasClientLB(EC2IaasNodeDriverLB):
             params['Listeners.member.%d.LoadBalancerPort' % i] = listener.loadBalancerPort
             params['Listeners.member.%d.InstancePort' % i] = listener.instancePort
             params['Listeners.member.%d.Protocol' % i] = listener.protocol
-            if listener.protocol=='HTTPS':
+            if listener.protocol=='HTTPS' or listener.protocol=='SSL':
                 params['Listeners.member.%d.SSLCertificateId' % i] = listener.sslCertificateId
 
         #選択パラメータ
@@ -230,7 +230,7 @@ class EC2IaasClientLB(EC2IaasNodeDriverLB):
             params['Listeners.member.%d.LoadBalancerPort' % i] = str(listener.loadBalancerPort)
             params['Listeners.member.%d.InstancePort' % i] = str(listener.instancePort)
             params['Listeners.member.%d.Protocol' % i] = listener.protocol
-            if listener.protocol=='HTTPS':
+            if listener.protocol=='HTTPS' or listener.protocol=='SSL':
                 params['Listeners.member.%d.SSLCertificateId' % i] = listener.sslCertificateId
 
         elem = self.connection.request(self.path, params=params).object
@@ -334,7 +334,7 @@ class EC2IaasClientLB(EC2IaasNodeDriverLB):
 
             elmlist = findall(element=rs, xpath='Listener', namespace=NAMESPACE)
             listener = self._to_listener(elmlist[0])
-            if listener.protocol=='HTTPS':
+            if listener.protocol=='HTTPS' or listener.protocol=='SSL':
                 listener.setSSLCertificateId(findattr(element=element, xpath="SSLCertificateId", namespace=NAMESPACE))
 
             policyNames = []

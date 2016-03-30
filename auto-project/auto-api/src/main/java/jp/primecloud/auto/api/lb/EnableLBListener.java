@@ -76,7 +76,7 @@ public class EnableLBListener extends ApiSupport {
 
             // 入力チェック
             // LoadBalancerPort
-            ApiValidate.validateLoadBalancerPort(loadBalancer.getType(), loadBalancerPort);
+            ApiValidate.validateLoadBalancerPort(loadBalancerPort);
 
             LoadBalancerListener loadBalancerListener = loadBalancerListenerDao.read(Long.parseLong(loadBalancerNo), Integer.parseInt(loadBalancerPort));
             if (loadBalancerListener == null) {

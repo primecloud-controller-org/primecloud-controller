@@ -671,6 +671,18 @@ public class WinLoadBalancerEdit extends Window {
                 if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(loadBalancerDto.getLoadBalancer().getType())) {
                     healthyThresholdField.setEnabled(false);
                 }
+            } else {
+                // デフォルト表示
+                checkProtocolSelect.select("HTTP");
+                checkPortField.setValue("80");
+                checkPathField.setValue("/index.html");
+                checkTimeoutField.setValue("5");
+                checkIntervalField.setValue("30");
+                unhealthyThresholdField.setValue("2");
+                healthyThresholdField.setValue("10");
+                if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(loadBalancerDto.getLoadBalancer().getType())) {
+                    healthyThresholdField.setEnabled(false);
+                }
             }
         }
 
