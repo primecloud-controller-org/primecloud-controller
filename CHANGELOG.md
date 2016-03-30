@@ -2,6 +2,36 @@
 [こちら](https://github.com/primecloud-controller-org/primecloud-controller-build)のプロジェクトを使い、ビルドしたものを[公開](http://www.primecloud-controller.org/download.html)
 しています。
 
+2016-03-30 PrimeCloud Controller 2.6.0リリース
+============================================
+
+## 主な変更点
+
+### PCC APIの変更
+
+PCC APIの以下の点を変更しました。
+
+* 主な変更点
+    * 不要なパラメータを削除
+    * 署名の作成ロジックをWebコンテキスト名を含めないように変更
+    * 新規API追加
+        * AddAddress, EditAddress, DeleteAddress, ListAddress
+        * ListComponentType, GetAttachableComponent
+        * DescribePlatform
+    * List系APIで返す要素が1つと複数の場合とでレスポンスのJSON形式が異なる問題を修正
+
+* 現行仕様における注意点
+    * EditInstanceのIpAddressパラメータで指定した値は、インスタンスを開始するまでDescribeInstanceで表示されない
+    * CreateLoadBalancerListenerでリスナーを作成した直後にDeleteLoadBalancerで表示されるStatusは、nullとなる。
+    * サービス(component)に割り当てたディスクサイズをAPIで取得することが出来ない
+
+### ロードバランサ機能追加
+
+AWS ELBにてSSLリスナーを使用できるようになりました。
+
+### 既知の不具合
+
+
 
 2015-12-16 PrimeCloud Controller 2.5.1リリース
 ============================================
