@@ -559,7 +559,7 @@ cd ${SOFTWARE_DIR}/python/Python-${PYTHON_VERSION}
 ${SOFTWARE_DIR}/python/Python-${PYTHON_VERSION}/configure --with-threads --enable-shared >> $LOG_FILE 2>&1
 
 #openssl setting
-OPENSSL_DIR=`sudo find / -name openssl | grep include | sed -e "s/\/include\/.*//"`
+OPENSSL_DIR=`find / -path "/var/named" -prune -o -name openssl | grep include | sed -e "s/\/include\/.*//"`
 if [ -n "$OPENSSL_DIR" ]; then
     sed -i -e "s%#SSL=/usr/local/ssl%SSL=$OPENSSL_DIR%" ${SOFTWARE_DIR}/python/Python-${PYTHON_VERSION}/Modules/Setup
     sed -i -e 's%#_ssl _ssl.c \\%_ssl _ssl.c \\%' ${SOFTWARE_DIR}/python/Python-${PYTHON_VERSION}/Modules/Setup
@@ -582,9 +582,9 @@ cp -p ${SOFTWARE_DIR}/python/python-${PYTHON_VERSION}.conf /etc/ld.so.conf.d/pyt
 ldconfig
 
 #install ez_setup and pip
-which pip > /dev/null
+which pip > /dev/null 2>&1
 if [ $? -ne 0 ]; then
-    wget https://bootstrap.pypa.io/ez_setup.py -O - | python >> $LOG_FILE 2>&1
+    wget https://bootstrap.pypa.io/ez_setup.py -q -O - | python >> $LOG_FILE 2>&1
     if [ $? -ne 0 ]; then
         echo "Error: python ez_setup install failed." >> $LOG_FILE 2>&1
         echo "Error: python ez_setup install failed."
@@ -613,7 +613,7 @@ fi
 easy_install apache-libcloud\=\=${LIBCLOUD_VERSION} >> $LOG_FILE 2&>1
 
 #install mysql-connector
-wget https://launchpad.net/myconnpy/0.3/0.3.2/+download/mysql-connector-python-0.3.2-devel.tar.gz
+wget -q https://launchpad.net/myconnpy/0.3/0.3.2/+download/mysql-connector-python-0.3.2-devel.tar.gz
 easy_install -Z mysql-connector-python-0.3.2-devel.tar.gz >> $LOG_FILE 2>&1
 #easy_install mysql-connector-python\=\=${MYSQL_CONNECTOR_PYTHON_VERSION} >> $LOG_FILE 2&>1
 
@@ -736,9 +736,8 @@ ln -s management-tool-${PCC_VERSION} management-tool
 chmod a+x /opt/adc/management-tool/bin/*.sh
 
 ## install auto-cli
-tar zxvf ${SOFTWARE_DIR}/pcc/auto-cli-${PCC_VERSION}.tar.gz >> $LOG_FILE 2>&1
-mv auto-cli-${PCC_VERSION} /opt/adc
 cd /opt/adc
+tar zxvf ${SOFTWARE_DIR}/pcc/auto-cli-${PCC_VERSION}.tar.gz >> $LOG_FILE 2>&1
 ln -s auto-cli-${PCC_VERSION} auto-cli
 chmod a+x /opt/adc/auto-cli/bin/*
 
