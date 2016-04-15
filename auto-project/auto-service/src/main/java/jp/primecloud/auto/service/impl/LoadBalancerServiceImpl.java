@@ -69,6 +69,7 @@ import jp.primecloud.auto.entity.crud.PlatformVmware;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.log.EventLogLevel;
 import jp.primecloud.auto.log.EventLogger;
+import jp.primecloud.auto.process.hook.ProcessHook;
 import jp.primecloud.auto.process.zabbix.ElbZabbixHostProcess;
 import jp.primecloud.auto.process.zabbix.ZabbixProcessClient;
 import jp.primecloud.auto.process.zabbix.ZabbixProcessClientFactory;
@@ -109,6 +110,8 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
     protected ZabbixProcessClientFactory zabbixProcessClientFactory;
 
     protected ElbZabbixHostProcess elbZabbixHostProcess;
+
+    protected ProcessHook processHook;
 
     /**
      * {@inheritDoc}
@@ -623,6 +626,9 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         eventLogger.log(EventLogLevel.INFO, farmNo, farm.getFarmName(), null, null, null, null, "LoadBalancerCreate",
                 null, null, new Object[] { loadBalancerName, platform.getPlatformName(), PCCConstant.LOAD_BALANCER_ELB });
 
+        // フック処理の実行
+        processHook.execute("post-create-loadbalancer", farm.getUserNo(), farm.getFarmNo(), loadBalancerNo);
+
         return loadBalancerNo;
     }
 
@@ -724,6 +730,9 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         // イベントログ出力
         eventLogger.log(EventLogLevel.INFO, farmNo, farm.getFarmName(), null, null, null, null, "LoadBalancerCreate",
                 null, null, new Object[] { loadBalancerName, platform.getPlatformName(), PCCConstant.LOAD_BALANCER_ELB });
+
+        // フック処理の実行
+        processHook.execute("post-create-loadbalancer", farm.getUserNo(), farm.getFarmNo(), loadBalancerNo);
 
         return loadBalancerNo;
     }
@@ -891,6 +900,9 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         // イベントログ出力
         eventLogger.log(EventLogLevel.INFO, farmNo, farm.getFarmName(), null, null, null, null, "LoadBalancerCreate",
                 null, null, new Object[] { loadBalancerName, platform.getPlatformName(), PCCConstant.LOAD_BALANCER_ULTRAMONKEY });
+
+        // フック処理の実行
+        processHook.execute("post-create-loadbalancer", farm.getUserNo(), farm.getFarmNo(), loadBalancerNo);
 
         return loadBalancerNo;
     }
@@ -1146,7 +1158,9 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
             }
         }
 
+        // フック処理の実行
         Farm farm = farmDao.read(loadBalancer.getFarmNo());
+        processHook.execute("pre-update-loadbalancer", farm.getUserNo(), farm.getFarmNo(), loadBalancerNo);
 
         //ロードバランサーインスタンス更新
         if (loadBalancer.getComponentNo().equals(componentNo) == false ||
@@ -1176,6 +1190,9 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         // イベントログ出力
         eventLogger.log(EventLogLevel.INFO, farm.getFarmNo(), farm.getFarmName(), null, null, null, null,
                 "LoadBalancerUpdate", null, null, new Object[] { loadBalancerName });
+
+        // フック処理の実行
+        processHook.execute("post-update-loadbalancer", farm.getUserNo(), farm.getFarmNo(), loadBalancerNo);
     }
 
 
@@ -1263,7 +1280,10 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
             throw new AutoApplicationException("ESERVICE-000607", componentNo);
         }
 
+        // フック処理の実行
         Farm farm = farmDao.read(loadBalancer.getFarmNo());
+        processHook.execute("pre-update-loadbalancer", farm.getUserNo(), farm.getFarmNo(), loadBalancerNo);
+
         // ロードバランサの更新
         loadBalancer.setLoadBalancerName(loadBalancerName);
         loadBalancer.setComment(comment);
@@ -1281,6 +1301,9 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         // イベントログ出力
         eventLogger.log(EventLogLevel.INFO, farm.getFarmNo(), farm.getFarmName(), null, null, null, null,
                 "LoadBalancerUpdate", null, null, new Object[] { loadBalancerName });
+
+        // フック処理の実行
+        processHook.execute("post-update-loadbalancer", farm.getUserNo(), farm.getFarmNo(), loadBalancerNo);
     }
 
 
@@ -1348,7 +1371,9 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
             }
         }
 
+        // フック処理の実行
         Farm farm = farmDao.read(loadBalancer.getFarmNo());
+        processHook.execute("pre-update-loadbalancer", farm.getUserNo(), farm.getFarmNo(), loadBalancerNo);
 
         // ロードバランサの更新
         loadBalancer.setLoadBalancerName(loadBalancerName);
@@ -1360,6 +1385,9 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         // イベントログ出力
         eventLogger.log(EventLogLevel.INFO, farm.getFarmNo(), farm.getFarmName(), null, null, null, null,
                 "LoadBalancerUpdate", null, null, new Object[] { loadBalancerName });
+
+        // フック処理の実行
+        processHook.execute("post-update-loadbalancer", farm.getUserNo(), farm.getFarmNo(), loadBalancerNo);
     }
 
     /**
@@ -1384,6 +1412,10 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
             // ロードバランサが停止状態でない場合
             throw new AutoApplicationException("ESERVICE-000605", loadBalancer.getLoadBalancerName());
         }
+
+        // フック処理の実行
+        Farm farm = farmDao.read(loadBalancer.getFarmNo());
+        processHook.execute("pre-delete-loadbalancer", farm.getUserNo(), farm.getFarmNo(), loadBalancerNo);
 
         // 振り分けインスタンス情報の削除処理
         loadBalancerInstanceDao.deleteByLoadBalancerNo(loadBalancerNo);
@@ -1413,9 +1445,11 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         loadBalancerDao.delete(loadBalancer);
 
         // イベントログ出力
-        Farm farm = farmDao.read(loadBalancer.getFarmNo());
         eventLogger.log(EventLogLevel.INFO, farm.getFarmNo(), farm.getFarmName(), null, null, null, null,
                 "LoadBalancerDelete", null, null, new Object[] { loadBalancer.getLoadBalancerName() });
+
+        // フック処理の実行
+        processHook.execute("post-delete-loadbalancer", farm.getUserNo(), farm.getFarmNo(), loadBalancerNo);
     }
 
     protected void deleteAwsLoadBalancer(Long loadBalancerNo) {
@@ -2350,6 +2384,15 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
      */
     public void setElbZabbixHostProcess(ElbZabbixHostProcess elbZabbixHostProcess) {
         this.elbZabbixHostProcess = elbZabbixHostProcess;
+    }
+
+    /**
+     * processHookを設定します。
+     *
+     * @param processHook processHook
+     */
+    public void setProcessHook(ProcessHook processHook) {
+        this.processHook = processHook;
     }
 
 }

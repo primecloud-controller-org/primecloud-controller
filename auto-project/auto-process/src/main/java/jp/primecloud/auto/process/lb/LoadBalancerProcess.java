@@ -27,6 +27,7 @@ import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.LoadBalancerInstanceStatus;
 import jp.primecloud.auto.common.status.LoadBalancerListenerStatus;
 import jp.primecloud.auto.common.status.LoadBalancerStatus;
+import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.entity.crud.LoadBalancerInstance;
 import jp.primecloud.auto.entity.crud.LoadBalancerListener;
@@ -34,6 +35,7 @@ import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.iaasgw.IaasGatewayFactory;
 import jp.primecloud.auto.log.EventLogger;
 import jp.primecloud.auto.process.ProcessLogger;
+import jp.primecloud.auto.process.hook.ProcessHook;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
 
@@ -57,6 +59,7 @@ public class LoadBalancerProcess extends ServiceSupport {
 
     protected DnsStrategy dnsStrategy;
 
+    protected ProcessHook processHook;
 
     public void start(Long loadBalancerNo) {
         LoadBalancer loadBalancer = loadBalancerDao.read(loadBalancerNo);
@@ -83,6 +86,10 @@ public class LoadBalancerProcess extends ServiceSupport {
         if (log.isInfoEnabled()) {
             log.info(MessageUtils.getMessage("IPROCESS-200001", loadBalancerNo, loadBalancer.getLoadBalancerName()));
         }
+
+        // フック処理の実行
+        Farm farm = farmDao.read(loadBalancer.getFarmNo());
+        processHook.execute("pre-start-loadbalancer", farm.getUserNo(), farm.getFarmNo(), loadBalancerNo);
 
         // ステータスの更新
         if (status == LoadBalancerStatus.RUNNING) {
@@ -124,6 +131,9 @@ public class LoadBalancerProcess extends ServiceSupport {
             loadBalancer.setStatus(LoadBalancerStatus.WARNING.toString());
             loadBalancerDao.update(loadBalancer);
 
+            // フック処理の実行
+            processHook.execute("post-start-loadbalancer", farm.getUserNo(), farm.getFarmNo(), loadBalancerNo);
+
             throw e;
         }
 
@@ -143,6 +153,9 @@ public class LoadBalancerProcess extends ServiceSupport {
         loadBalancer = loadBalancerDao.read(loadBalancerNo);
         loadBalancer.setStatus(LoadBalancerStatus.RUNNING.toString());
         loadBalancerDao.update(loadBalancer);
+
+        // フック処理の実行
+        processHook.execute("post-start-loadbalancer", farm.getUserNo(), farm.getFarmNo(), loadBalancerNo);
 
         if (log.isInfoEnabled()) {
             log.info(MessageUtils.getMessage("IPROCESS-200002", loadBalancerNo, loadBalancer.getLoadBalancerName()));
@@ -175,6 +188,10 @@ public class LoadBalancerProcess extends ServiceSupport {
         if (log.isInfoEnabled()) {
             log.info(MessageUtils.getMessage("IPROCESS-200003", loadBalancerNo, loadBalancer.getLoadBalancerName()));
         }
+
+        // フック処理の実行
+        Farm farm = farmDao.read(loadBalancer.getFarmNo());
+        processHook.execute("pre-stop-loadbalancer", farm.getUserNo(), farm.getFarmNo(), loadBalancerNo);
 
         // ステータスの更新
         loadBalancer.setStatus(LoadBalancerStatus.STOPPING.toString());
@@ -219,6 +236,9 @@ public class LoadBalancerProcess extends ServiceSupport {
                 loadBalancerInstanceDao.update(lbInstance);
             }
         }
+
+        // フック処理の実行
+        processHook.execute("post-stop-loadbalancer", farm.getUserNo(), farm.getFarmNo(), loadBalancerNo);
 
         if (log.isInfoEnabled()) {
             log.info(MessageUtils.getMessage("IPROCESS-200004", loadBalancerNo, loadBalancer.getLoadBalancerName()));
@@ -376,6 +396,15 @@ public class LoadBalancerProcess extends ServiceSupport {
      */
     public void setProcessLogger(ProcessLogger processLogger) {
         this.processLogger = processLogger;
+    }
+
+    /**
+     * processHookを設定します。
+     *
+     * @param processHook processHook
+     */
+    public void setProcessHook(ProcessHook processHook) {
+        this.processHook = processHook;
     }
 
 }

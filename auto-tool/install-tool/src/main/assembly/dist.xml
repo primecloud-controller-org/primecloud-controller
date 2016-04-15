@@ -44,6 +44,10 @@
 			<outputDirectory>/${pom.version}/pcc/puppet</outputDirectory>
 		</fileSet>
 		<fileSet>
+			<directory>../../auto-project/auto-process/src/main/resources/hook</directory>
+			<outputDirectory>/${pom.version}/pcc/hook</outputDirectory>
+		</fileSet>
+		<fileSet>
 			<directory>../../zabbix</directory>
 			<outputDirectory>/${pom.version}/zabbix</outputDirectory>
 		</fileSet>

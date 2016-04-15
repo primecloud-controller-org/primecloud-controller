@@ -69,6 +69,7 @@ import jp.primecloud.auto.log.EventLogger;
 import jp.primecloud.auto.nifty.process.NiftyProcessClient;
 import jp.primecloud.auto.nifty.process.NiftyProcessClientFactory;
 import jp.primecloud.auto.process.ComponentConstants;
+import jp.primecloud.auto.process.hook.ProcessHook;
 import jp.primecloud.auto.process.vmware.VmwareDiskProcess;
 import jp.primecloud.auto.process.vmware.VmwareProcessClient;
 import jp.primecloud.auto.process.vmware.VmwareProcessClientFactory;
@@ -105,6 +106,8 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
     protected EventLogger eventLogger;
 
     protected NiftyProcessClientFactory niftyProcessClientFactory;
+
+    protected ProcessHook processHook;
 
     /**
      * {@inheritDoc}
@@ -351,6 +354,9 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
         // イベントログ出力
         eventLogger.log(EventLogLevel.INFO, farmNo, farm.getFarmName(), component.getComponentNo(), componentName,
                 null, null, "ComponentCreate", null, null, new Object[] { componentType.getComponentTypeName() });
+
+        // フック処理の実行
+        processHook.execute("post-create-component", farm.getUserNo(), farm.getFarmNo(), component.getComponentNo());
 
         return component.getComponentNo();
     }
@@ -652,6 +658,9 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
             }
         }
 
+        // フック処理の実行
+        processHook.execute("pre-update-component", farm.getUserNo(), farm.getFarmNo(), componentNo);
+
         // コンポーネントの更新
         component.setComment(comment);
         componentDao.update(component);
@@ -712,6 +721,9 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
         // イベントログ出力
         eventLogger.log(EventLogLevel.INFO, farm.getFarmNo(), farm.getFarmName(), componentNo, component
                 .getComponentName(), null, null, "ComponentUpdate", null, null, null);
+
+        // フック処理の実行
+        processHook.execute("post-update-component", farm.getUserNo(), farm.getFarmNo(), componentNo);
     }
 
     /**
@@ -974,6 +986,10 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
             throw new AutoApplicationException("ESERVICE-000309", loadBalancers.get(0).getLoadBalancerName());
         }
 
+        // フック処理の実行
+        Farm farm = farmDao.read(component.getFarmNo());
+        processHook.execute("pre-delete-component", farm.getUserNo(), farm.getFarmNo(), componentNo);
+
         // インスタンス設定の削除処理
         instanceConfigDao.deleteByComponentNo(componentNo);
 
@@ -986,7 +1002,6 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
 
         // 各プラットフォームのボリューム削除処理
         // TODO CLOUD BRANCHING
-        Farm farm = farmDao.read(component.getFarmNo());
 
         // AWSボリュームの削除処理
         // TODO: ボリューム自体の削除処理を別で行うようにする
@@ -1224,6 +1239,9 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
         // イベントログ出力
         eventLogger.log(EventLogLevel.INFO, farm.getFarmNo(), farm.getFarmName(), componentNo, component
                 .getComponentName(), null, null, "ComponentDelete", null, null, null);
+
+        // フック処理の実行
+        processHook.execute("post-delete-component", farm.getUserNo(), farm.getFarmNo(), componentNo);
     }
 
 
@@ -1522,6 +1540,15 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
      */
     public void setNiftyProcessClientFactory(NiftyProcessClientFactory niftyProcessClientFactory) {
         this.niftyProcessClientFactory = niftyProcessClientFactory;
+    }
+
+    /**
+     * processHookを設定します。
+     *
+     * @param processHook processHook
+     */
+    public void setProcessHook(ProcessHook processHook) {
+        this.processHook = processHook;
     }
 
 }

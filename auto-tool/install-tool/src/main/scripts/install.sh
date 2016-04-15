@@ -679,6 +679,8 @@ jar xvf ${SOFTWARE_DIR}/pcc/auto-web-${PCC_VERSION}.war  >> $LOG_FILE 2>&1
 ln -sn /opt/adc/app/auto-web/ /opt/tomcat/default/webapps/auto-web
 cp -rp ${SOFTWARE_DIR}/pcc/conf /opt/adc/
 cp -rp ${SOFTWARE_DIR}/pcc/puppet /opt/adc/app
+cp -rp ${SOFTWARE_DIR}/pcc/hook /opt/adc/app
+chmod a+x -R /opt/adc/app/hook
 cp -rp ${SOFTWARE_DIR}/pcc/data /opt
 
 cp -p ${SOFTWARE_DIR}/pcc/auto.conf /etc/httpd/conf.d/

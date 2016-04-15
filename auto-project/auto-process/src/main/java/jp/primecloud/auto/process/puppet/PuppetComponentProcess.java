@@ -72,6 +72,7 @@ import jp.primecloud.auto.nifty.process.NiftyProcessClientFactory;
 import jp.primecloud.auto.process.ComponentConstants;
 import jp.primecloud.auto.process.ComponentProcessContext;
 import jp.primecloud.auto.process.ProcessLogger;
+import jp.primecloud.auto.process.hook.ProcessHook;
 import jp.primecloud.auto.process.nifty.NiftyVolumeProcess;
 import jp.primecloud.auto.process.vmware.VmwareDiskProcess;
 import jp.primecloud.auto.process.vmware.VmwareProcessClient;
@@ -129,6 +130,8 @@ public class PuppetComponentProcess extends ServiceSupport {
     protected NiftyProcessClientFactory niftyProcessClientFactory;
 
     protected NiftyVolumeProcess niftyVolumeProcess;
+
+    protected ProcessHook processHook;
 
     public String getComponentTypeName() {
         return componentTypeName;
@@ -361,6 +364,14 @@ public class PuppetComponentProcess extends ServiceSupport {
             return;
         }
 
+        // フック処理の実行
+        Farm farm = farmDao.read(component.getFarmNo());
+        if (start) {
+            processHook.execute("pre-start-component", farm.getUserNo(), farm.getFarmNo(), componentNo);
+        } else {
+            processHook.execute("pre-stop-component", farm.getUserNo(), farm.getFarmNo(), componentNo);
+        }
+
         for (Long instanceNo : instanceNos) {
             ComponentInstance componentInstance = componentInstanceMap.get(instanceNo);
             ComponentInstanceStatus status = ComponentInstanceStatus.fromStatus(componentInstance.getStatus());
@@ -439,6 +450,13 @@ public class PuppetComponentProcess extends ServiceSupport {
                 throw new MultiCauseException(throwables.toArray(new Throwable[throwables.size()]));
             }
         } catch (InterruptedException e) {
+        } finally {
+            // フック処理の実行
+            if (start) {
+                processHook.execute("post-start-component", farm.getUserNo(), farm.getFarmNo(), componentNo);
+            } else {
+                processHook.execute("post-stop-component", farm.getUserNo(), farm.getFarmNo(), componentNo);
+            }
         }
     }
 
@@ -1708,6 +1726,15 @@ public class PuppetComponentProcess extends ServiceSupport {
      */
     public void setNiftyVolumeProcess(NiftyVolumeProcess niftyVolumeProcess) {
         this.niftyVolumeProcess = niftyVolumeProcess;
+    }
+
+    /**
+     * processHookを設定します。
+     *
+     * @param processHook processHook
+     */
+    public void setProcessHook(ProcessHook processHook) {
+        this.processHook = processHook;
     }
 
 }

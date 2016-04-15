@@ -45,6 +45,7 @@ import jp.primecloud.auto.iaasgw.IaasGatewayFactory;
 import jp.primecloud.auto.iaasgw.IaasGatewayWrapper;
 import jp.primecloud.auto.log.EventLogLevel;
 import jp.primecloud.auto.log.EventLogger;
+import jp.primecloud.auto.process.hook.ProcessHook;
 import jp.primecloud.auto.process.vmware.VmwareNetworkProcess;
 import jp.primecloud.auto.process.vmware.VmwareProcessClient;
 import jp.primecloud.auto.process.vmware.VmwareProcessClientFactory;
@@ -82,6 +83,8 @@ public class FarmServiceImpl extends ServiceSupport implements FarmService {
     protected EventLogger eventLogger;
 
     protected LoadBalancerService loadBalancerService;
+
+    protected ProcessHook processHook;
 
     /**
      * {@inheritDoc}
@@ -260,6 +263,9 @@ public class FarmServiceImpl extends ServiceSupport implements FarmService {
         // イベントログ出力
         eventLogger.log(EventLogLevel.INFO, farm.getFarmNo(), farmName, null, null, null, null, "FarmCreate", null, null, null);
 
+        // フック処理の実行
+        processHook.execute("post-create-farm", farm.getUserNo(), farm.getFarmNo());
+
         return farm.getFarmNo();
     }
 
@@ -307,6 +313,9 @@ public class FarmServiceImpl extends ServiceSupport implements FarmService {
             }
         }
 
+        // フック処理の実行
+        processHook.execute("pre-update-farm", farm.getUserNo(), farm.getFarmNo());
+
         // インスタンスの更新
         farm.setComment(comment);
         farm.setDomainName(domainName);
@@ -314,6 +323,9 @@ public class FarmServiceImpl extends ServiceSupport implements FarmService {
 
         // イベントログ出力
         eventLogger.log(EventLogLevel.INFO, farmNo, farm.getFarmName(), null, null, null, null, "FarmUpdate", null, null, null);
+
+        // フック処理の実行
+        processHook.execute("post-update-farm", farm.getUserNo(), farm.getFarmNo());
     }
 
     /**
@@ -374,6 +386,9 @@ public class FarmServiceImpl extends ServiceSupport implements FarmService {
                 throw new AutoApplicationException("ESERVICE-000207", loadBalancer.getLoadBalancerName());
             }
         }
+
+        // フック処理の実行
+        processHook.execute("pre-delete-farm", farm.getUserNo(), farm.getFarmNo());
 
         // ホストグループの削除処理
         Boolean useZabbix = BooleanUtils.toBooleanObject(Config.getProperty("zabbix.useZabbix"));
@@ -473,6 +488,9 @@ public class FarmServiceImpl extends ServiceSupport implements FarmService {
 
         // イベントログ出力
         eventLogger.log(EventLogLevel.INFO, farmNo, farm.getFarmName(), null, null, null, null, "FarmDelete", null, null, null);
+
+        // フック処理の実行
+        processHook.execute("post-delete-farm", farm.getUserNo(), farm.getFarmNo());
     }
 
     /**
@@ -545,6 +563,15 @@ public class FarmServiceImpl extends ServiceSupport implements FarmService {
      */
     public void setLoadBalancerService(LoadBalancerService loadBalancerService) {
         this.loadBalancerService = loadBalancerService;
+    }
+
+    /**
+     * processHookを設定します。
+     *
+     * @param processHook processHook
+     */
+    public void setProcessHook(ProcessHook processHook) {
+        this.processHook = processHook;
     }
 
 }
