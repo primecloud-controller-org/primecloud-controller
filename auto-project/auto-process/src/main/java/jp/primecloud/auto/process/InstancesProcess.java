@@ -31,6 +31,7 @@ import jp.primecloud.auto.util.MessageUtils;
 
 import org.apache.commons.lang.BooleanUtils;
 
+import jp.primecloud.auto.process.hook.ProcessHook;
 import jp.primecloud.auto.process.puppet.PuppetNodesProcess;
 
 /**
@@ -47,6 +48,8 @@ public class InstancesProcess extends ServiceSupport {
 
     protected EventLogger eventLogger;
 
+    protected ProcessHook processHook;
+
     public void start(Long farmNo) {
         Farm farm = farmDao.read(farmNo);
         if (BooleanUtils.isTrue(farm.getComponentProcessing())) {
@@ -61,6 +64,9 @@ public class InstancesProcess extends ServiceSupport {
         if (log.isInfoEnabled()) {
             log.info(MessageUtils.getMessage("IPROCESS-100021", farmNo));
         }
+
+        // フック処理の実行
+        processHook.execute("pre-start-instances", farm.getUserNo(), farm.getFarmNo());
 
         // ステータス変更
         farm.setComponentProcessing(true);
@@ -100,6 +106,9 @@ public class InstancesProcess extends ServiceSupport {
         //イベントログ出力
         processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "InstanceCoordinateFinish", null);
 
+        // フック処理の実行
+        processHook.execute("post-start-instances", farm.getUserNo(), farm.getFarmNo());
+
         if (log.isInfoEnabled()) {
             log.info(MessageUtils.getMessage("IPROCESS-100022", farmNo));
         }
@@ -119,6 +128,9 @@ public class InstancesProcess extends ServiceSupport {
         if (log.isInfoEnabled()) {
             log.info(MessageUtils.getMessage("IPROCESS-100021", farmNo));
         }
+
+        // フック処理の実行
+        processHook.execute("pre-stop-instances", farm.getUserNo(), farm.getFarmNo());
 
         // ステータス変更
         farm.setComponentProcessing(true);
@@ -161,6 +173,9 @@ public class InstancesProcess extends ServiceSupport {
         //イベントログ出力
         processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "InstanceCoordinateFinish", null);
 
+        // フック処理の実行
+        processHook.execute("post-stop-instances", farm.getUserNo(), farm.getFarmNo());
+
         if (log.isInfoEnabled()) {
             log.info(MessageUtils.getMessage("IPROCESS-100022", farmNo));
         }
@@ -191,6 +206,15 @@ public class InstancesProcess extends ServiceSupport {
      */
     public void setEventLogger(EventLogger eventLogger) {
         this.eventLogger = eventLogger;
+    }
+
+    /**
+     * processHookを設定します。
+     *
+     * @param processHook processHook
+     */
+    public void setProcessHook(ProcessHook processHook) {
+        this.processHook = processHook;
     }
 
 }

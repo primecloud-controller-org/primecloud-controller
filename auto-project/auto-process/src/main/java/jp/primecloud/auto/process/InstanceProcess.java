@@ -37,6 +37,7 @@ import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.iaasgw.IaasGatewayFactory;
 import jp.primecloud.auto.iaasgw.IaasGatewayWrapper;
 import jp.primecloud.auto.log.EventLogger;
+import jp.primecloud.auto.process.hook.ProcessHook;
 import jp.primecloud.auto.process.nifty.NiftyProcess;
 import jp.primecloud.auto.process.puppet.PuppetNodeProcess;
 import jp.primecloud.auto.process.vmware.VmwareProcess;
@@ -70,6 +71,8 @@ public class InstanceProcess extends ServiceSupport {
     protected EventLogger eventLogger;
 
     protected PuppetClient puppetClient;
+
+    protected ProcessHook processHook;
 
     public void start(Long instanceNo) {
         Instance instance = instanceDao.read(instanceNo);
@@ -105,6 +108,9 @@ public class InstanceProcess extends ServiceSupport {
         if (log.isInfoEnabled()) {
             log.info(MessageUtils.getMessage("IPROCESS-100001", instanceNo, instance.getInstanceName()));
         }
+
+        // フック処理の実行
+        processHook.execute("pre-start-instance", farm.getUserNo(), farm.getFarmNo(), instanceNo);
 
         // ステータス・進捗状況の更新
         if (status == InstanceStatus.RUNNING) {
@@ -210,6 +216,9 @@ public class InstanceProcess extends ServiceSupport {
             instance.setStatus(InstanceStatus.WARNING.toString());
             instanceDao.update(instance);
 
+            // フック処理の実行
+            processHook.execute("post-start-instance", farm.getUserNo(), farm.getFarmNo(), instanceNo);
+
             throw e;
         }
 
@@ -226,6 +235,9 @@ public class InstanceProcess extends ServiceSupport {
         // ステータス・進捗状況の更新
         instance.setStatus(InstanceStatus.RUNNING.toString());
         instanceDao.update(instance);
+
+        // フック処理の実行
+        processHook.execute("post-start-instance", farm.getUserNo(), farm.getFarmNo(), instanceNo);
 
         if (log.isInfoEnabled()) {
             log.info(MessageUtils.getMessage("IPROCESS-100002", instanceNo, instance.getInstanceName()));
@@ -266,6 +278,9 @@ public class InstanceProcess extends ServiceSupport {
         if (log.isInfoEnabled()) {
             log.info(MessageUtils.getMessage("IPROCESS-100003", instanceNo, instance.getInstanceName()));
         }
+
+        // フック処理の実行
+        processHook.execute("pre-stop-instance", farm.getUserNo(), farm.getFarmNo(), instanceNo);
 
         // ステータス・進捗状況の更新
         instance.setStatus(InstanceStatus.STOPPING.toString());
@@ -352,6 +367,9 @@ public class InstanceProcess extends ServiceSupport {
             instance.setEnabled(true);
             instanceDao.update(instance);
 
+            // フック処理の実行
+            processHook.execute("post-stop-instance", farm.getUserNo(), farm.getFarmNo(), instanceNo);
+
             throw e;
         }
 
@@ -366,6 +384,9 @@ public class InstanceProcess extends ServiceSupport {
             instance.setCoodinateStatus(InstanceCoodinateStatus.UN_COODINATED.toString());
         }
         instanceDao.update(instance);
+
+        // フック処理の実行
+        processHook.execute("post-stop-instance", farm.getUserNo(), farm.getFarmNo(), instanceNo);
 
         if (log.isInfoEnabled()) {
             log.info(MessageUtils.getMessage("IPROCESS-100004", instanceNo, instance.getInstanceName()));
@@ -457,6 +478,15 @@ public class InstanceProcess extends ServiceSupport {
      */
     public void setDnsProcess(DnsProcess dnsProcess) {
         this.dnsProcess = dnsProcess;
+    }
+
+    /**
+     * processHookを設定します。
+     *
+     * @param processHook processHook
+     */
+    public void setProcessHook(ProcessHook processHook) {
+        this.processHook = processHook;
     }
 
 }

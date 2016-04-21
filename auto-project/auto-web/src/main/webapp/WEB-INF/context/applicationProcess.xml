@@ -131,4 +131,9 @@
 		<property name="manifestDir" value="${puppet.outputDir}" />
 	</bean>
 
+	<!-- ProcessHook -->
+	<bean id="processHook" class="jp.primecloud.auto.process.hook.ProcessScriptHook">
+		<property name="scriptDir" value="${hook.scriptDir}" />
+	</bean>
+
 </beans>

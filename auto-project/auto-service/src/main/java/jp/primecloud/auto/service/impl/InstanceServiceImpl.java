@@ -96,6 +96,7 @@ import jp.primecloud.auto.log.EventLogLevel;
 import jp.primecloud.auto.log.EventLogger;
 import jp.primecloud.auto.nifty.process.NiftyProcessClient;
 import jp.primecloud.auto.nifty.process.NiftyProcessClientFactory;
+import jp.primecloud.auto.process.hook.ProcessHook;
 import jp.primecloud.auto.process.nifty.NiftyVolumeProcess;
 import jp.primecloud.auto.process.vmware.VmwareDiskProcess;
 import jp.primecloud.auto.process.vmware.VmwareMachineProcess;
@@ -158,6 +159,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
     protected EventLogger eventLogger;
 
     protected NiftyVolumeProcess niftyVolumeProcess;
+
+    protected ProcessHook processHook;
 
     /**
      * {@inheritDoc}
@@ -1251,6 +1254,9 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         eventLogger.log(EventLogLevel.INFO, farmNo, farm.getFarmName(), null, null, instanceNo, instanceName,
                 "InstanceCreate", instanceType, platformNo, new Object[] { platform.getPlatformName() });
 
+        // フック処理の実行
+        processHook.execute("post-create-instance", farm.getUserNo(), farm.getFarmNo(), instanceNo);
+
         return instanceNo;
     }
 
@@ -1638,6 +1644,9 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         eventLogger.log(EventLogLevel.INFO, farmNo, farm.getFarmName(), null, null, instanceNo, instanceName,
                 "InstanceCreate", instanceType, platformNo, new Object[] { platform.getPlatformName() });
 
+        // フック処理の実行
+        processHook.execute("post-create-instance", farm.getUserNo(), farm.getFarmNo(), instanceNo);
+
         return instanceNo;
     }
 
@@ -1675,6 +1684,9 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         // イベントログ出力
         eventLogger.log(EventLogLevel.INFO, farmNo, farm.getFarmName(), null, null, instanceNo, instanceName,
                 "InstanceCreate", instanceType, platformNo, new Object[] { platform.getPlatformName() });
+
+        // フック処理の実行
+        processHook.execute("post-create-instance", farm.getUserNo(), farm.getFarmNo(), instanceNo);
 
         return instanceNo;
     }
@@ -1728,9 +1740,11 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
             }
         }
 
-        // インスタンスの更新
+        // フック処理の実行
         Farm farm = farmDao.read(instance.getFarmNo());
+        processHook.execute("pre-update-instance", farm.getUserNo(), farm.getFarmNo(), instanceNo);
 
+        // インスタンスの更新
         instance.setInstanceName(instanceName);
         instance.setComment(comment);
         instance.setFqdn(instanceName + "." + farm.getDomainName());
@@ -1893,6 +1907,9 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         // イベントログ出力
         eventLogger.log(EventLogLevel.INFO, farm.getFarmNo(), farm.getFarmName(), null, null, instanceNo, instanceName,
                 "InstanceUpdate", instanceType, instance.getPlatformNo(), null);
+
+        // フック処理の実行
+        processHook.execute("post-update-instance", farm.getUserNo(), farm.getFarmNo(), instanceNo);
     }
 
     /**
@@ -1993,6 +2010,9 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         Farm farm = farmDao.read(instance.getFarmNo());
         eventLogger.log(EventLogLevel.INFO, farm.getFarmNo(), farm.getFarmName(), null, null, instanceNo, instanceName,
                 "InstanceUpdate", instanceType, instance.getPlatformNo(), null);
+
+        // フック処理の実行
+        processHook.execute("post-update-instance", farm.getUserNo(), farm.getFarmNo(), instanceNo);
     }
 
     /**
@@ -2097,6 +2117,9 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         // イベントログ出力
         eventLogger.log(EventLogLevel.INFO, farm.getFarmNo(), farm.getFarmName(), null, null, instanceNo, instanceName,
                 "InstanceUpdate", instanceType, instance.getPlatformNo(), null);
+
+        // フック処理の実行
+        processHook.execute("post-update-instance", farm.getUserNo(), farm.getFarmNo(), instanceNo);
     }
 
     /**
@@ -2151,6 +2174,9 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         // イベントログ出力
         eventLogger.log(EventLogLevel.INFO, farm.getFarmNo(), farm.getFarmName(), null, null, instanceNo, instanceName,
                 "InstanceUpdate", instanceType, instance.getPlatformNo(), null);
+
+        // フック処理の実行
+        processHook.execute("post-update-instance", farm.getUserNo(), farm.getFarmNo(), instanceNo);
     }
 
     /**
@@ -2201,6 +2227,9 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         // イベントログ出力
         eventLogger.log(EventLogLevel.INFO, farm.getFarmNo(), farm.getFarmName(), null, null, instanceNo, instanceName,
                 "InstanceUpdate", instanceType, instance.getPlatformNo(), null);
+
+        // フック処理の実行
+        processHook.execute("post-update-instance", farm.getUserNo(), farm.getFarmNo(), instanceNo);
     }
 
     /**
@@ -2474,6 +2503,9 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         // イベントログ出力
         eventLogger.log(EventLogLevel.INFO, farm.getFarmNo(), farm.getFarmName(), null, null, instanceNo, instanceName,
                 "InstanceUpdate", instanceType, instance.getPlatformNo(), null);
+
+        // フック処理の実行
+        processHook.execute("post-update-instance", farm.getUserNo(), farm.getFarmNo(), instanceNo);
     }
 
     /**
@@ -2536,6 +2568,9 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         Farm farm = farmDao.read(instance.getFarmNo());
         eventLogger.log(EventLogLevel.INFO, farm.getFarmNo(), farm.getFarmName(), null, null, instanceNo, instanceName,
                 "InstanceUpdate", instanceType, instance.getPlatformNo(), null);
+
+        // フック処理の実行
+        processHook.execute("post-update-instance", farm.getUserNo(), farm.getFarmNo(), instanceNo);
     }
 
     /**
@@ -2572,8 +2607,11 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
             }
         }
 
-        // Zabbixインスタンスの削除処理
+        // フック処理の実行
         Farm farm = farmDao.read(instance.getFarmNo());
+        processHook.execute("pre-delete-instance", farm.getUserNo(), farm.getFarmNo(), instanceNo);
+
+        // Zabbixインスタンスの削除処理
         ZabbixInstance zabbixInstance = zabbixInstanceDao.read(instanceNo);
         if (zabbixInstance != null) {
             if (StringUtils.isNotEmpty(zabbixInstance.getHostid())) {
@@ -2648,6 +2686,9 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         // イベントログ出力
         eventLogger.log(EventLogLevel.INFO, farm.getFarmNo(), farm.getFarmName(), null, null, instanceNo,
                 instance.getInstanceName(), "InstanceDelete", null, instance.getPlatformNo(), null);
+
+        // フック処理の実行
+        processHook.execute("post-delete-instance", farm.getUserNo(), farm.getFarmNo(), instanceNo);
     }
 
     protected void deleteCloudstackInstance(Long instanceNo) {
@@ -3634,6 +3675,15 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
      */
     public void setNiftyVolumeProcess(NiftyVolumeProcess niftyVolumeProcess) {
         this.niftyVolumeProcess = niftyVolumeProcess;
+    }
+
+    /**
+     * processHookを設定します。
+     *
+     * @param processHook processHook
+     */
+    public void setProcessHook(ProcessHook processHook) {
+        this.processHook = processHook;
     }
 
 }
