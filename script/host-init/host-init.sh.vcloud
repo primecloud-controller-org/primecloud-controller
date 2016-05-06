@@ -136,6 +136,10 @@ fi
 #execute init script
 SCRIPTDIR=/root/script
 
+if [ ! -e $SCRIPTDIR ]; then
+    mkdir -p $SCRIPTDIR
+fi
+
 if [ -n "$SCRIPTSERVER" ]; then
     #get script
     WGET_LOG=/tmp/hostinit-wget.log
