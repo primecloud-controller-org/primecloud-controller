@@ -100,6 +100,10 @@ fi
 #execute init script
 SCRIPTDIR=/root/script
 
+if [ ! -e $SCRIPTDIR ]; then
+    mkdir -p $SCRIPTDIR
+fi
+
 if [ -n "$SCRIPTSERVER" ]; then
     #get script
     wget -q --connect-timeout=30 --tries=4 --spider http://$SCRIPTSERVER/script/init.sh
