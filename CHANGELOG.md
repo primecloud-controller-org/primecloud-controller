@@ -2,6 +2,36 @@
 [こちら](https://github.com/primecloud-controller-org/primecloud-controller-build)のプロジェクトを使い、ビルドしたものを[公開](http://www.primecloud-controller.org/download.html)
 しています。
 
+
+2016-06-16 PrimeCloud Controller 2.6.1リリース
+============================================
+
+## 主な変更点
+
+hook機能の追加
+
+PCCの下記の制御処理に独自の機能を簡単にフックできる機能を追加しました。(#56)
+
+* myCloud : 作成後、更新前後、削除前後
+* サーバ : 作成後、更新前後、削除前後、開始前後、停止前後
+* サービス : 作成後、更新前後、削除前後、開始前後、停止前後
+* ロードバランサ : 作成後、更新前後、削除前後、開始前後、停止前後
+* サーバ協調設定 : 開始前後、停止前後
+
+現時点では、外部スクリプトでフックできる機能を実装してあります。
+詳細については、[こちら](http://www.primecloud-controller.jp/documentation/reference/hook/about.html)
+を確認してください。
+
+
+### ELB利用時のSSLプロコトルリスナーをサポート
+ELBでSSLプロトコルのリスナーと任意のポートを利用できるようにしました。(#55)
+
+### 既知の不具合の修正
+* issues #56 :インストールスクリプト内のbugを修正
+* issues #58 :作成したインスタンスに`/root/script`が存在しない場合の処理を改善。
+
+
+
 2016-03-30 PrimeCloud Controller 2.6.0リリース
 ============================================
 
