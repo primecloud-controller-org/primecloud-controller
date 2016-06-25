@@ -1,6 +1,7 @@
+$ORIGIN .
 $TTL 86400	; 1 day
-@			IN SOA	pcc.primecloud.jp. root.primecloud.jp. (
-				2015062701 ; serial
+16.172.in-addr.arpa	IN SOA	pcc.primecloud.jp. root.primecloud.jp. (
+				2016062501 ; serial
 				10800      ; refresh (3 hours)
 				1800       ; retry (30 minutes)
 				3600000    ; expire (5 weeks 6 days 16 hours)
