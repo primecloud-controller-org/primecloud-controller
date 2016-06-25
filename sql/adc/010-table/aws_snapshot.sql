@@ -3,7 +3,7 @@ create table AWS_SNAPSHOT (
     FARM_NO bigint not null,
     PLATFORM_NO bigint not null,
     VOLUME_NO bigint,
-    SNAPSHOT_ID varchar(20),
+    SNAPSHOT_ID varchar(30),
     CREATE_DATE datetime,
     constraint AWS_SNAPSHOT_PK primary key(SNAPSHOT_NO)
 );

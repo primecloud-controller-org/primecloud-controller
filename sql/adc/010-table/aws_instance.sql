@@ -5,7 +5,7 @@ create table AWS_INSTANCE (
     SECURITY_GROUPS varchar(100),
     AVAILABILITY_ZONE varchar(100),
     SUBNET_ID varchar(30),
-    INSTANCE_ID varchar(20),
+    INSTANCE_ID varchar(30),
     STATUS varchar(20),
     DNS_NAME varchar(100),
     PRIVATE_DNS_NAME varchar(100),

@@ -5,6 +5,6 @@ create table AWS_ADDRESS (
     PUBLIC_IP varchar(100),
     COMMENT varchar(100),
     INSTANCE_NO bigint,
-    INSTANCE_ID varchar(20),
+    INSTANCE_ID varchar(30),
     constraint AWS_ADDRESS_PK primary key(ADDRESS_NO)
 );
