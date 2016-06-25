@@ -601,12 +601,13 @@ fi
 #install SQLAlchemy
 easy_install SQLAlchemy\=\=${SQLALCHEMY_VERSION} >> $LOG_FILE 2&>1
 if [ ${SQLALCHEMY_VERSION} == 0.7.3 ]; then
-	if [ -e /usr/local/lib/python2.7/site-packages/SQLAlchemy-0.7.3-py2.7-linux-x86_64.egg/sqlalchemy/dialects/mysql/mysqlconnector.py ]; then
-	cp -p /usr/local/lib/python2.7/site-packages/SQLAlchemy-0.7.3-py2.7-linux-x86_64.egg/sqlalchemy/dialects/mysql/mysqlconnector.py ${BACKUP_DIR}/mysqlconnector.py.${BACKUP_DATE}
-	fi
+    if [ -e /usr/local/lib/python2.7/site-packages/SQLAlchemy-0.7.3-py2.7-linux-x86_64.egg/sqlalchemy/dialects/mysql/mysqlconnector.py ]; then
+        cp -p /usr/local/lib/python2.7/site-packages/SQLAlchemy-0.7.3-py2.7-linux-x86_64.egg/sqlalchemy/dialects/mysql/mysqlconnector.py ${BACKUP_DIR}/mysqlconnector.py.${BACKUP_DATE}
+    fi
 
-sed -i -e 's/return connection.connection.get_characterset_info()/return connection.connection.get_charset()/' /usr/local/lib/python2.7/site-packages/SQLAlchemy-0.7.3-py2.7-linux-x86_64.egg/sqlalchemy/dialects/mysql/mysqlconnector.py
-ldconfig
+    sed -i -e 's/return connection.connection.get_characterset_info()/return connection.connection.get_charset()/' /usr/local/lib/python2.7/site-packages/SQLAlchemy-0.7.3-py2.7-linux-x86_64.egg/sqlalchemy/dialects/mysql/mysqlconnector.py
+    python -m compileall -f /usr/local/lib/python2.7/site-packages/SQLAlchemy-0.7.3-py2.7-linux-x86_64.egg/sqlalchemy/dialects/mysql/mysqlconnector.py
+    ldconfig
 fi
 
 #install libcloud
