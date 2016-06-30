@@ -1291,7 +1291,6 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         }
         awsInstance.setKeyName(keyName);
 
-        String subnetId = null;
         if (platformAws.getEuca() == false && platformAws.getVpc()) {
             // VPCの場合
             // SubnetId & AvailabilityZone
@@ -1299,16 +1298,19 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
             SubnetDto subnet = null;
             for (SubnetDto subnetDto : subnets) {
                 //デフォルトサブネットを設定
-                if (StringUtils.equals(awsCertificate.getDefSubnet(), subnetDto.getSubnetId()) &&
-                    StringUtils.equals(platformAws.getAvailabilityZone(), subnetDto.getZoneid())) {
-                    //サブネットとゾーンが一致するものを設定
+                if (StringUtils.equals(awsCertificate.getDefSubnet(), subnetDto.getSubnetId())) {
                     subnet = subnetDto;
                     break;
                 }
             }
+
+            // デフォルトサブネットが指定されていない場合、1つ目のサブネットを設定する
+            if (subnet == null && subnets.size() > 0) {
+                subnet = subnets.get(0);
+            }
+
             if (subnet != null) {
-                subnetId = subnet.getSubnetId();
-                awsInstance.setSubnetId(subnetId);
+                awsInstance.setSubnetId(subnet.getSubnetId());
                 awsInstance.setAvailabilityZone(subnet.getZoneid());
             }
         } else {
