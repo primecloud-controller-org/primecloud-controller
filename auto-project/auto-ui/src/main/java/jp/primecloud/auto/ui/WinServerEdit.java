@@ -808,9 +808,8 @@ public class WinServerEdit extends Window {
                     }
                 }
             }
-            SubnetDto subnetDto = (SubnetDto) subnetSelect.getValue();
-            if (subnetDto != null) {
-                //サブネットが存在する場合は編集不可
+            if (StringUtils.isNotEmpty(instance.getAwsInstance().getInstanceId())) {
+                // インスタンスが作成済みの場合は編集不可
                 subnetSelect.setEnabled(false);
             }
 
