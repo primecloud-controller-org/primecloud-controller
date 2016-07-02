@@ -58,6 +58,10 @@ public abstract class BaseImage implements Serializable {
     /** ZABBIX_TEMPLATE [VARCHAR(100,0)] */
     private String zabbixTemplate;
 
+    private Boolean zabbixDisabled;
+
+    private Boolean puppetDisabled;
+
     /**
      * imageNoを取得します。
      *
@@ -220,6 +224,21 @@ public abstract class BaseImage implements Serializable {
         this.zabbixTemplate = zabbixTemplate;
     }
 
+    public Boolean getZabbixDisabled() {
+        return zabbixDisabled;
+    }
+
+    public void setZabbixDisabled(Boolean zabbixDisabled) {
+        this.zabbixDisabled = zabbixDisabled;
+    }
+
+    public Boolean getPuppetDisabled() {
+        return puppetDisabled;
+    }
+
+    public void setPuppetDisabled(Boolean puppetDisabled) {
+        this.puppetDisabled = puppetDisabled;
+    }
 
     /**
      * {@inheritDoc}
@@ -238,6 +257,8 @@ public abstract class BaseImage implements Serializable {
         result = prime * result + ((selectable == null) ? 0 : selectable.hashCode());
         result = prime * result + ((componentTypeNos == null) ? 0 : componentTypeNos.hashCode());
         result = prime * result + ((zabbixTemplate == null) ? 0 : zabbixTemplate.hashCode());
+        result = prime * result + ((zabbixDisabled == null) ? 0 : zabbixDisabled.hashCode());
+        result = prime * result + ((puppetDisabled == null) ? 0 : puppetDisabled.hashCode());
 
         return result;
     }
@@ -297,6 +318,16 @@ public abstract class BaseImage implements Serializable {
         } else if (!zabbixTemplate.equals(other.zabbixTemplate)) {
             return false;
         }
+        if (zabbixDisabled == null) {
+            if (other.zabbixDisabled != null) { return false; }
+        } else if (!zabbixDisabled.equals(other.zabbixDisabled)) {
+            return false;
+        }
+        if (puppetDisabled == null) {
+            if (other.puppetDisabled != null) { return false; }
+        } else if (!puppetDisabled.equals(other.puppetDisabled)) {
+            return false;
+        }
 
         return true;
     }
@@ -316,7 +347,9 @@ public abstract class BaseImage implements Serializable {
         sb.append("osDisp=").append(osDisp).append(", ");
         sb.append("selectable=").append(selectable).append(", ");
         sb.append("componentTypeNos=").append(componentTypeNos).append(", ");
-        sb.append("zabbixTemplate=").append(zabbixTemplate);
+        sb.append("zabbixTemplate=").append(zabbixTemplate).append(", ");
+        sb.append("zabbixDisabled=").append(zabbixDisabled).append(", ");
+        sb.append("puppetDisabled=").append(puppetDisabled);
         sb.append("]");
         return sb.toString();
     }

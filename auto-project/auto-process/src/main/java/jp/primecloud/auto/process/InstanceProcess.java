@@ -131,7 +131,7 @@ public class InstanceProcess extends ServiceSupport {
         Platform platform = platformDao.read(instance.getPlatformNo());
         Image image = imageDao.read(instance.getImageNo());
         try {
-
+            if (puppetInstanceDao.countByInstanceNo(instanceNo) > 0) {
             //事前処理 AWSの場合に必要
             if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
                 AwsInstance awsInstance = awsInstanceDao.read(instanceNo);
@@ -149,6 +149,7 @@ public class InstanceProcess extends ServiceSupport {
                         clearPuppetCa(instanceNo);
                     }
                 }
+            }
             }
 
             // インスタンス起動処理

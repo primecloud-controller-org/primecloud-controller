@@ -1190,21 +1190,22 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
            (StringUtils.startsWithIgnoreCase(image.getOs(), PCCConstant.OS_NAME_WIN) && PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) ||
            (StringUtils.startsWithIgnoreCase(image.getOs(), PCCConstant.OS_NAME_WIN) && PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) ||
            (StringUtils.startsWithIgnoreCase(image.getOs(), PCCConstant.OS_NAME_WIN) && PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType()))) {
-            // OpenStackα対応はPuppet処理させない
-            //if (!PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
-            // Puppetインスタンスの作成
-            PuppetInstance puppetInstance = new PuppetInstance();
-            puppetInstance.setInstanceNo(instance.getInstanceNo());
-            puppetInstanceDao.create(puppetInstance);
-            //}
+            if (BooleanUtils.isNotTrue(image.getPuppetDisabled())) {
+                // Puppetインスタンスの作成
+                PuppetInstance puppetInstance = new PuppetInstance();
+                puppetInstance.setInstanceNo(instance.getInstanceNo());
+                puppetInstanceDao.create(puppetInstance);
+            }
         }
 
         Boolean useZabbix = BooleanUtils.toBooleanObject(Config.getProperty("zabbix.useZabbix"));
         if (BooleanUtils.isTrue(useZabbix)) {
-            // Zabbixインスタンスの作成
-            ZabbixInstance zabbixInstance = new ZabbixInstance();
-            zabbixInstance.setInstanceNo(instance.getInstanceNo());
-            zabbixInstanceDao.create(zabbixInstance);
+            if (BooleanUtils.isNotTrue(image.getZabbixDisabled())) {
+                // Zabbixインスタンスの作成
+                ZabbixInstance zabbixInstance = new ZabbixInstance();
+                zabbixInstance.setInstanceNo(instance.getInstanceNo());
+                zabbixInstanceDao.create(zabbixInstance);
+            }
         }
 
         return instance.getInstanceNo();

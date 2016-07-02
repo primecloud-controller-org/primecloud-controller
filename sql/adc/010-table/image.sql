@@ -8,5 +8,7 @@ create table IMAGE (
     SELECTABLE tinyint(1) not null,
     COMPONENT_TYPE_NOS varchar(500) not null,
     ZABBIX_TEMPLATE varchar(100),
+    ZABBIX_DISABLED tinyint(1) not null,
+    PUPPET_DISABLED tinyint(1) not null,
     constraint IMAGE_PK primary key(IMAGE_NO)
 );
