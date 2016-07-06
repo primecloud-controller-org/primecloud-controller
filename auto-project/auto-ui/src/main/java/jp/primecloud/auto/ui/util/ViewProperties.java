@@ -59,6 +59,10 @@ public class ViewProperties {
 
     protected static Properties viewProperties = getProperties();
 
+    public static void reload() {
+        viewProperties = getProperties();
+    }
+
     public static String get(String key) {
 //        try {
 //            String path = PATH + BASE_NAME + "_" + LANG + "_" + COUNTRY + "_" + VARIANT + EXTENSION;
