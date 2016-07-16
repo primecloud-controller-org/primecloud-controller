@@ -120,12 +120,14 @@ public class ZabbixHostProcess extends ServiceSupport {
             // TODO: 互換性のためプロパティファイルから取得する方法を残している
             templateName = Config.getProperty("zabbix.basetemplate");
         }
-        Template template = zabbixProcessClient.getTemplateByName(templateName);
-        boolean ret = zabbixProcessClient.addTemplate(hostid, template);
+        if (StringUtils.isNotEmpty(templateName)) {
+            Template template = zabbixProcessClient.getTemplateByName(templateName);
+            boolean ret = zabbixProcessClient.addTemplate(hostid, template);
 
-        if (ret) {
-            // イベントログ出力
-            processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null,instance, "ZabbixTemplateAdd", new Object[] {instance.getFqdn(), templateName });
+            if (ret) {
+                // イベントログ出力
+                processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null,instance, "ZabbixTemplateAdd", new Object[] {instance.getFqdn(), templateName });
+            }
         }
 
         // ログ出力
