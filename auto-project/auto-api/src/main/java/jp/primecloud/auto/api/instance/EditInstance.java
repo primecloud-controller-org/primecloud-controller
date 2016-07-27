@@ -32,6 +32,7 @@ import jp.primecloud.auto.api.ApiValidate;
 import jp.primecloud.auto.api.response.instance.EditInstanceResponse;
 import jp.primecloud.auto.common.component.Subnet;
 import jp.primecloud.auto.common.status.InstanceStatus;
+import jp.primecloud.auto.entity.crud.AwsAddress;
 import jp.primecloud.auto.entity.crud.CloudstackInstance;
 import jp.primecloud.auto.entity.crud.Image;
 import jp.primecloud.auto.entity.crud.ImageAws;
@@ -46,7 +47,6 @@ import jp.primecloud.auto.entity.crud.PlatformAzure;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.entity.crud.VcloudInstance;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.service.dto.AddressDto;
 import jp.primecloud.auto.service.dto.InstanceNetworkDto;
 import jp.primecloud.auto.service.dto.KeyPairDto;
 import jp.primecloud.auto.service.dto.SecurityGroupDto;
@@ -216,9 +216,18 @@ public class EditInstance extends ApiSupport {
         Long ipAddressNo = null;
         ApiValidate.validateIpAddress(ipAddress, false);
         if (StringUtils.isNotEmpty(ipAddress)) {
-            ipAddressNo = getIpAddressNo(userNo, instance.getPlatformNo(), instance.getInstanceNo(), ipAddress);
+            List<AwsAddress> awsAddresses = awsAddressDao.readByUserNo(userNo);
+            for (AwsAddress awsAddress : awsAddresses) {
+                if (instance.getPlatformNo().equals(awsAddress.getPlatformNo())) {
+                    if (ipAddress.equals(awsAddress.getPublicIp())) {
+                        ipAddressNo = awsAddress.getAddressNo();
+                        break;
+                    }
+                }
+            }
+
             if (ipAddressNo == null) {
-                // IPAddressがDBに存在しない or IPがすでに他のサーバに割り当て済み
+                // IPAddressがDBに存在しない場合
                 throw new AutoApplicationException("EAPI-100016", instance.getInstanceNo(), ipAddress);
             }
         }
@@ -459,19 +468,6 @@ public class EditInstance extends ApiSupport {
             groupNames.add(dto.getGroupName());
         }
         return groupNames;
-    }
-
-    private Long getIpAddressNo(Long userNo, Long platformNo, Long instanceNo, String ipAddress) {
-        Long ipAddressNo = null;
-        List<AddressDto> addresses = iaasDescribeService.getAddresses(userNo, platformNo);
-        for (AddressDto address : addresses) {
-            if (StringUtils.equals(ipAddress, address.getPublicIp())
-                    && (address.getInstanceNo() == null || instanceNo == address.getInstanceNo())) {
-                ipAddressNo = address.getAddressNo();
-                break;
-            }
-        }
-        return ipAddressNo;
     }
 
     private boolean checkAvailabilityZoneName(Long userNo, Long platformNo, String zoneName) {
