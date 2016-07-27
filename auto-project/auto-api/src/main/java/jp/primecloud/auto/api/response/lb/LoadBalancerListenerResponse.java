@@ -25,9 +25,6 @@ public class LoadBalancerListenerResponse {
     @JsonProperty("Status")
     private String status;
 
-    public LoadBalancerListenerResponse() {
-    }
-
     public LoadBalancerListenerResponse(LoadBalancerListener listener) {
         this.loadBalancerNo = listener.getLoadBalancerNo();
         this.loadBalancerPort = listener.getLoadBalancerPort();

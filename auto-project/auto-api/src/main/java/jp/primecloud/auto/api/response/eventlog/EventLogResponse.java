@@ -24,9 +24,6 @@ public class EventLogResponse {
     @JsonProperty("Message")
     private String message;
 
-    public EventLogResponse() {
-    }
-
     public EventLogResponse(EventLog eventLog) {
         farmName = eventLog.getFarmName();
         componentName = eventLog.getComponentName();

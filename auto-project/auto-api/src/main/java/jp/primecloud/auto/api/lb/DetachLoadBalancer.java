@@ -53,8 +53,6 @@ public class DetachLoadBalancer extends ApiSupport {
             @QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo,
             @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo) {
 
-        DetachLoadBalancerResponse response = new DetachLoadBalancerResponse();
-
         // 入力チェック
         // LoadBalancerNo
         ApiValidate.validateLoadBalancerNo(loadBalancerNo);
@@ -88,7 +86,7 @@ public class DetachLoadBalancer extends ApiSupport {
         instanceNos.add(Long.parseLong(instanceNo));
         loadBalancerService.disableInstances(Long.parseLong(loadBalancerNo), instanceNos);
 
-        response.setSuccess(true);
+        DetachLoadBalancerResponse response = new DetachLoadBalancerResponse();
 
         return response;
     }

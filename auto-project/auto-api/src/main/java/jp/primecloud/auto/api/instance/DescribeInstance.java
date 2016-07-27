@@ -74,8 +74,6 @@ public class DescribeInstance extends ApiSupport {
     @Produces(MediaType.APPLICATION_JSON)
     public DescribeInstanceResponse describeInstance(@QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo) {
 
-        DescribeInstanceResponse response = new DescribeInstanceResponse();
-
         // 入力チェック
         // InstanceNo
         ApiValidate.validateInstanceNo(instanceNo);
@@ -96,7 +94,6 @@ public class DescribeInstance extends ApiSupport {
 
         //インスタンス情報設定
         InstanceResponse instanceResponse = new InstanceResponse(instance);
-        response.setInstance(instanceResponse);
         // TODO CLOUD BRANCHING
         if (PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
             //AWS
@@ -248,7 +245,7 @@ public class DescribeInstance extends ApiSupport {
             instanceResponse.setAzure(new AzureInstanceResponse(azureInstance));
         }
 
-        response.setSuccess(true);
+        DescribeInstanceResponse response = new DescribeInstanceResponse(instanceResponse);
 
         return response;
     }

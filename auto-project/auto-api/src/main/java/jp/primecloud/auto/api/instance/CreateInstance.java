@@ -66,8 +66,6 @@ public class CreateInstance extends ApiSupport {
             @QueryParam(PARAM_NAME_IMAGE_NO) String imageNo, @QueryParam(PARAM_NAME_INSTANCE_NAME) String instanceName,
             @QueryParam(PARAM_NAME_INSTANCE_TYPE) String instanceType, @QueryParam(PARAM_NAME_COMMENT) String comment) {
 
-        CreateInstanceResponse response = new CreateInstanceResponse();
-
         // 入力チェック
         // FarmNo
         ApiValidate.validateFarmNo(farmNo);
@@ -121,7 +119,7 @@ public class CreateInstance extends ApiSupport {
         ApiValidate.validateComment(comment);
 
         // 対象となるIaas(プラットフォーム)にサーバ(インスタンス)を作成
-        Long newInstanceNo = null;
+        Long instanceNo = null;
         // TODO CLOUD BRANCHING
         if (PLATFORM_TYPE_AWS.equals(platform.getPlatformType())
                 || PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())
@@ -129,20 +127,19 @@ public class CreateInstance extends ApiSupport {
                 || PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())
                 || PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
             // AWS or Eucalyptus or Cloudstack or VCloud or Openstack or Azure
-            newInstanceNo = instanceService.createIaasInstance(Long.parseLong(farmNo), instanceName,
+            instanceNo = instanceService.createIaasInstance(Long.parseLong(farmNo), instanceName,
                     image.getPlatformNo(), comment, image.getImageNo(), instanceType);
         } else if (PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
             // VMware
-            newInstanceNo = instanceService.createVmwareInstance(Long.parseLong(farmNo), instanceName,
+            instanceNo = instanceService.createVmwareInstance(Long.parseLong(farmNo), instanceName,
                     image.getPlatformNo(), comment, image.getImageNo(), instanceType);
         } else if (PLATFORM_TYPE_NIFTY.equals(platform.getPlatformType())) {
             // Nifty
-            newInstanceNo = instanceService.createNiftyInstance(Long.parseLong(farmNo), instanceName,
+            instanceNo = instanceService.createNiftyInstance(Long.parseLong(farmNo), instanceName,
                     image.getPlatformNo(), comment, image.getImageNo(), instanceType);
         }
 
-        response.setInstanceNo(newInstanceNo);
-        response.setSuccess(true);
+        CreateInstanceResponse response = new CreateInstanceResponse(instanceNo);
 
         return response;
     }

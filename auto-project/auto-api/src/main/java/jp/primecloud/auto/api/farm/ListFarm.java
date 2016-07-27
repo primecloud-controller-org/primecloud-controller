@@ -55,8 +55,6 @@ public class ListFarm extends ApiSupport {
             response.getFarms().add(farmResponse);
         }
 
-        response.setSuccess(true);
-
         return response;
     }
 

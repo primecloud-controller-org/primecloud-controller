@@ -54,8 +54,6 @@ public class DetachComponent extends ApiSupport {
     public DetachComponentResponse detachComponent(@QueryParam(PARAM_NAME_COMPONENT_NO) String componentNo,
             @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo) {
 
-        DetachComponentResponse response = new DetachComponentResponse();
-
         // 入力チェック
         // ComponentNo
         ApiValidate.validateComponentNo(componentNo);
@@ -113,7 +111,7 @@ public class DetachComponent extends ApiSupport {
         // サービスとサーバの紐づけ解除(プロセス処理)
         componentService.associateInstances(Long.parseLong(componentNo), instanceNos);
 
-        response.setSuccess(true);
+        DetachComponentResponse response = new DetachComponentResponse();
 
         return response;
     }

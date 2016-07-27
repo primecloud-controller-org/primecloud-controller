@@ -12,9 +12,6 @@ public class ListEventLogResponse extends AbstractResponse {
     @JsonProperty("EventLogs")
     private List<EventLogResponse> eventLogs = new ArrayList<EventLogResponse>();
 
-    public ListEventLogResponse() {
-    }
-
     public List<EventLogResponse> getEventLogs() {
         return eventLogs;
     }

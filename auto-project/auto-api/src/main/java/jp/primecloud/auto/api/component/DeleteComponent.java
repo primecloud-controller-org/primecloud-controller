@@ -47,8 +47,6 @@ public class DeleteComponent extends ApiSupport {
     @Produces(MediaType.APPLICATION_JSON)
     public DeleteComponentResponse deleteComponent(@QueryParam(PARAM_NAME_COMPONENT_NO) String componentNo) {
 
-        DeleteComponentResponse response = new DeleteComponentResponse();
-
         // 入力チェック
         //ComponentNo
         ApiValidate.validateComponentNo(componentNo);
@@ -73,7 +71,7 @@ public class DeleteComponent extends ApiSupport {
         // サービス削除処理
         componentService.deleteComponent(Long.parseLong(componentNo));
 
-        response.setSuccess(true);
+        DeleteComponentResponse response = new DeleteComponentResponse();
 
         return response;
     }

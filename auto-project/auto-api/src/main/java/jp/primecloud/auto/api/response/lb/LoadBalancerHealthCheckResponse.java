@@ -27,9 +27,6 @@ public class LoadBalancerHealthCheckResponse {
     @JsonProperty("UnhealthyThreshold")
     private Integer unhealthyThreshold;
 
-    public LoadBalancerHealthCheckResponse() {
-    }
-
     public LoadBalancerHealthCheckResponse(LoadBalancerHealthCheck healthCheck) {
         this.checkProtocol = healthCheck.getCheckProtocol();
         this.checkPort = healthCheck.getCheckPort();

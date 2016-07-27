@@ -30,9 +30,6 @@ public class PlatformAzureResponse {
     @JsonProperty("DefSubnet")
     private String defSubnet;
 
-    public PlatformAzureResponse() {
-    }
-
     public PlatformAzureResponse(PlatformAzure azure) {
         this.locationName = azure.getLocationName();
         this.affinityGroupName = azure.getAffinityGroupName();

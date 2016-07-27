@@ -56,8 +56,6 @@ public class AttachComponent extends ApiSupport {
     public AttachComponentResponse attachComponent(@QueryParam(PARAM_NAME_COMPONENT_NO) String componentNo,
             @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo) {
 
-        AttachComponentResponse response = new AttachComponentResponse();
-
         // 入力チェック
         // ComponentNo
         ApiValidate.validateComponentNo(componentNo);
@@ -124,7 +122,7 @@ public class AttachComponent extends ApiSupport {
         // サービスとサーバの紐づけ
         componentService.associateInstances(Long.parseLong(componentNo), instanceNos);
 
-        response.setSuccess(true);
+        AttachComponentResponse response = new AttachComponentResponse();
 
         return response;
     }

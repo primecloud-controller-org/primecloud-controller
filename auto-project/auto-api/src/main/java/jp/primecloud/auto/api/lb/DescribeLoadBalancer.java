@@ -68,8 +68,6 @@ public class DescribeLoadBalancer extends ApiSupport {
     public DescribeLoadBalancerResponse describeLoadBalancer(
             @QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo) {
 
-        DescribeLoadBalancerResponse response = new DescribeLoadBalancerResponse();
-
         // 入力チェック
         // LoadBalancerNo
         ApiValidate.validateLoadBalancerNo(loadBalancerNo);
@@ -82,7 +80,6 @@ public class DescribeLoadBalancer extends ApiSupport {
 
         //ロードバランサ情報設定
         LoadBalancerResponse loadBalancerResponse = new LoadBalancerResponse(loadBalancer);
-        response.setLoadBalancer(loadBalancerResponse);
 
         //リスナー取得
         List<LoadBalancerListener> listeners = loadBalancerListenerDao.readByLoadBalancerNo(Long
@@ -123,15 +120,16 @@ public class DescribeLoadBalancer extends ApiSupport {
             LoadBalancerInstance loadBalancerInstance = loadBalancerInstanceDao.read(Long.parseLong(loadBalancerNo),
                     componentInstance.getInstanceNo());
 
-            LoadBalancerInstanceResponse loadBalancerInstanceResponse = new LoadBalancerInstanceResponse();
-            loadBalancerInstanceResponse.setInstanceNo(componentInstance.getInstanceNo());
+            LoadBalancerInstanceResponse loadBalancerInstanceResponse;
             if (loadBalancerInstance == null) {
                 //ロードバランサインスタンスが存在しない場合、ロードバランサインスタンス作成時のデータを設定
-                loadBalancerInstanceResponse.setEnabled(false);
-                loadBalancerInstanceResponse.setStatus(LoadBalancerInstanceStatus.STOPPED.toString());
+                LoadBalancerInstance loadBalancerInstance2 = new LoadBalancerInstance();
+                loadBalancerInstance2.setInstanceNo(componentInstance.getInstanceNo());
+                loadBalancerInstance2.setEnabled(false);
+                loadBalancerInstance2.setStatus(LoadBalancerInstanceStatus.STOPPED.toString());
+                loadBalancerInstanceResponse = new LoadBalancerInstanceResponse(loadBalancerInstance2);
             } else {
-                loadBalancerInstanceResponse.setEnabled(loadBalancerInstance.getEnabled());
-                loadBalancerInstanceResponse.setStatus(loadBalancerInstance.getStatus());
+                loadBalancerInstanceResponse = new LoadBalancerInstanceResponse(loadBalancerInstance);
             }
             //ロードバランサインスタンス情報設定
             loadBalancerResponse.getInstances().add(loadBalancerInstanceResponse);
@@ -171,7 +169,7 @@ public class DescribeLoadBalancer extends ApiSupport {
             loadBalancerResponse.setAws(awsLoadBalancerResponse);
         }
 
-        response.setSuccess(true);
+        DescribeLoadBalancerResponse response = new DescribeLoadBalancerResponse(loadBalancerResponse);
 
         return response;
     }

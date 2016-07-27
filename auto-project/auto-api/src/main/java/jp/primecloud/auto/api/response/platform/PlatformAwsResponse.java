@@ -52,9 +52,6 @@ public class PlatformAwsResponse {
     @JsonProperty("DefLbSubnet")
     private String defLbSubnet;
 
-    public PlatformAwsResponse() {
-    }
-
     public PlatformAwsResponse(PlatformAws aws) {
         this.host = aws.getHost();
         this.port = aws.getPort();

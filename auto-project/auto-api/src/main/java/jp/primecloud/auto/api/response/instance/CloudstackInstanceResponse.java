@@ -30,9 +30,6 @@ public class CloudstackInstanceResponse {
     @JsonProperty("Securitygroup")
     private String securitygroup;
 
-    public CloudstackInstanceResponse() {
-    }
-
     public CloudstackInstanceResponse(CloudstackInstance cloudstackInstance) {
         this.keyName = cloudstackInstance.getKeyName();
         this.instanceType = cloudstackInstance.getInstanceType();

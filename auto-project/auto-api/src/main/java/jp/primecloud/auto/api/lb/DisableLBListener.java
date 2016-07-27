@@ -51,8 +51,6 @@ public class DisableLBListener extends ApiSupport {
     public DisableLBListenerResponse disableLBListener(@QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo,
             @QueryParam(PARAM_NAME_LOAD_BALANCER_PORT) String loadBalancerPort) {
 
-        DisableLBListenerResponse response = new DisableLBListenerResponse();
-
         // 入力チェック
         // LoadBalancerNo
         ApiValidate.validateLoadBalancerNo(loadBalancerNo);
@@ -90,7 +88,7 @@ public class DisableLBListener extends ApiSupport {
 
         if (PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
             // プラットフォームがCloudStackの場合は処理を行わず終了
-            response.setSuccess(true);
+            DisableLBListenerResponse response = new DisableLBListenerResponse();
             return response;
         }
 
@@ -99,7 +97,7 @@ public class DisableLBListener extends ApiSupport {
         lbPorts.add(Integer.parseInt(loadBalancerPort));
         processService.stopLoadBalancerListeners(loadBalancer.getFarmNo(), Long.parseLong(loadBalancerNo), lbPorts);
 
-        response.setSuccess(true);
+        DisableLBListenerResponse response = new DisableLBListenerResponse();
 
         return response;
     }

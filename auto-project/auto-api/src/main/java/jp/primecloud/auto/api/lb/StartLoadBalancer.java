@@ -51,8 +51,6 @@ public class StartLoadBalancer extends ApiSupport {
     @Produces(MediaType.APPLICATION_JSON)
     public StartLoadBalancerResponse startLoadBalancer(@QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo) {
 
-        StartLoadBalancerResponse response = new StartLoadBalancerResponse();
-
         // 入力チェック
         // LoadBalancerNo
         ApiValidate.validateLoadBalancerNo(loadBalancerNo);
@@ -84,7 +82,7 @@ public class StartLoadBalancer extends ApiSupport {
         lbNos.add(Long.parseLong(loadBalancerNo));
         processService.startLoadBalancers(loadBalancer.getFarmNo(), lbNos);
 
-        response.setSuccess(true);
+        StartLoadBalancerResponse response = new StartLoadBalancerResponse();
 
         return response;
     }

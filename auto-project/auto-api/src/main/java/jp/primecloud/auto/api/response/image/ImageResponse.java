@@ -25,9 +25,6 @@ public class ImageResponse {
     @JsonProperty("InstanceTypes")
     private List<String> instanceTypes = new ArrayList<String>();
 
-    public ImageResponse() {
-    }
-
     public ImageResponse(Platform platform, Image image) {
         this.imageNo = image.getImageNo();
         this.imageName = image.getImageNameDisp();

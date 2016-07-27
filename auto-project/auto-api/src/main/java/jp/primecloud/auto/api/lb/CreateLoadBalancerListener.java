@@ -55,8 +55,6 @@ public class CreateLoadBalancerListener extends ApiSupport {
             @QueryParam(PARAM_NAME_SERVICE_PORT) String servicePort, @QueryParam(PARAM_NAME_PROTOCOL) String protocol,
             @QueryParam(PARAM_NAME_SSL_KEY_NO) String sslKeyNo) {
 
-        CreateLoadBalancerListenerResponse response = new CreateLoadBalancerListenerResponse();
-
         // 入力チェック
         // LoadBalancerNo
         ApiValidate.validateLoadBalancerNo(loadBalancerNo);
@@ -76,7 +74,7 @@ public class CreateLoadBalancerListener extends ApiSupport {
 
         if (PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
             // プラットフォームがCloudStackの場合は処理を行わず終了
-            response.setSuccess(true);
+            CreateLoadBalancerListenerResponse response = new CreateLoadBalancerListenerResponse();
             return response;
         }
 
@@ -118,7 +116,7 @@ public class CreateLoadBalancerListener extends ApiSupport {
         loadBalancerService.createListener(Long.parseLong(loadBalancerNo), Integer.parseInt(loadBalancerPort),
                 Integer.parseInt(servicePort), protocol, sslKeyNo2);
 
-        response.setSuccess(true);
+        CreateLoadBalancerListenerResponse response = new CreateLoadBalancerListenerResponse();
 
         return response;
     }

@@ -48,17 +48,16 @@ public class GetAttachableComponent extends ApiSupport {
 
             ComponentInstanceResponse componentInstanceResponse;
             if (componentInstance == null) {
-                componentInstanceResponse = new ComponentInstanceResponse();
-                componentInstanceResponse.setInstanceNo(instanceNo);
-                componentInstanceResponse.setAssociate(false);
+                ComponentInstance componentInstance2 = new ComponentInstance();
+                componentInstance2.setInstanceNo(instanceNo);
+                componentInstance2.setAssociate(false);
+                componentInstanceResponse = new ComponentInstanceResponse(componentInstance2);
             } else {
                 componentInstanceResponse = new ComponentInstanceResponse(componentInstance);
             }
 
             response.getInstances().add(componentInstanceResponse);
         }
-
-        response.setSuccess(true);
 
         return response;
     }

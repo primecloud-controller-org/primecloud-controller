@@ -30,9 +30,6 @@ public class ComponentResponse {
     @JsonProperty("Status")
     private String status;
 
-    public ComponentResponse() {
-    }
-
     public ComponentResponse(Component component) {
         this.componentNo = component.getComponentNo();
         this.componentName = component.getComponentName();

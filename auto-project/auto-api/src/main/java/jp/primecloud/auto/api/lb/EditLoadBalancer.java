@@ -66,8 +66,6 @@ public class EditLoadBalancer extends ApiSupport {
             @QueryParam(PARAM_NAME_SUBNET) String cidrBlock, @QueryParam(PARAM_NAME_COMMENT) String comment,
             @QueryParam(PARAM_NAME_IS_INTERNAL) String isInternal) {
 
-        EditLoadBalancerResponse response = new EditLoadBalancerResponse();
-
         // 入力チェック
         // LoadBalancerNo
         ApiValidate.validateLoadBalancerNo(loadBalancerNo);
@@ -187,7 +185,7 @@ public class EditLoadBalancer extends ApiSupport {
                     cloudstackLoadBalancer.getPrivateport());
         }
 
-        response.setSuccess(true);
+        EditLoadBalancerResponse response = new EditLoadBalancerResponse();
 
         return response;
     }

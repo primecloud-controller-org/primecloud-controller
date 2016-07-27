@@ -37,9 +37,6 @@ public class AutoScalingConfResponse {
     @JsonProperty("DelCount")
     private Long delCount;
 
-    public AutoScalingConfResponse() {
-    }
-
     public AutoScalingConfResponse(AutoScalingConf autoScalingConf) {
         this.enabled = BooleanUtils.isTrue(autoScalingConf.getEnabled());
         this.platformNo = autoScalingConf.getPlatformNo();

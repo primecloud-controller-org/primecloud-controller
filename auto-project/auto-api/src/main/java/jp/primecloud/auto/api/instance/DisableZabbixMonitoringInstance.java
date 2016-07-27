@@ -43,8 +43,6 @@ public class DisableZabbixMonitoringInstance extends ApiSupport {
     public DisableZabbixMonitoringInstanceResponse disableZabbixMonitoringInstance(
             @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo) {
 
-        DisableZabbixMonitoringInstanceResponse response = new DisableZabbixMonitoringInstanceResponse();
-
         // 入力チェック
         // InstanceNo
         ApiValidate.validateInstanceNo(instanceNo);
@@ -56,7 +54,7 @@ public class DisableZabbixMonitoringInstance extends ApiSupport {
         // Zabbix監視有効化(サーバ)
         instanceService.disableZabbixMonitoring(Long.parseLong(instanceNo));
 
-        response.setSuccess(true);
+        DisableZabbixMonitoringInstanceResponse response = new DisableZabbixMonitoringInstanceResponse();
 
         return response;
     }

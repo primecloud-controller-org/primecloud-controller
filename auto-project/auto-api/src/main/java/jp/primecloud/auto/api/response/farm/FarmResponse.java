@@ -18,9 +18,6 @@ public class FarmResponse {
     @JsonProperty("Comment")
     private String comment;
 
-    public FarmResponse() {
-    }
-
     public FarmResponse(Farm farm) {
         this.farmNo = farm.getFarmNo();
         this.farmName = farm.getFarmName();

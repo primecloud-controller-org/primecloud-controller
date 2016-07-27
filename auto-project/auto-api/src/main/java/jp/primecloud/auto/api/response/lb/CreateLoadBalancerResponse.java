@@ -9,7 +9,8 @@ public class CreateLoadBalancerResponse extends AbstractResponse {
     @JsonProperty("LoadBalancerNo")
     private Long loadBalancerNo;
 
-    public CreateLoadBalancerResponse() {
+    public CreateLoadBalancerResponse(Long loadBalancerNo) {
+        this.loadBalancerNo = loadBalancerNo;
     }
 
     public Long getLoadBalancerNo() {

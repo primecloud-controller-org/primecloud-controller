@@ -51,10 +51,10 @@ public class ListTemplate extends ApiSupport {
     @Produces(MediaType.APPLICATION_JSON)
     public ListTemplateResponse listTemplate() {
 
-        ListTemplateResponse response = new ListTemplateResponse();
-
         //ユーザ取得
         User user = checkAndGetUser();
+
+        ListTemplateResponse response = new ListTemplateResponse();
 
         //使用可能プラットフォーム取得
         List<Long> platformNos = getEnabledPlatformNos(user.getUserNo());
@@ -106,8 +106,6 @@ public class ListTemplate extends ApiSupport {
             TemplateResponse templateResponse = new TemplateResponse(template);
             response.getTemplates().add(templateResponse);
         }
-
-        response.setSuccess(true);
 
         return response;
     }

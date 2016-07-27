@@ -50,8 +50,6 @@ public class ListInstance extends ApiSupport {
     @Produces(MediaType.APPLICATION_JSON)
     public ListInstanceResponse listInstance(@QueryParam(PARAM_NAME_FARM_NO) String farmNo) {
 
-        ListInstanceResponse response = new ListInstanceResponse();
-
         // 入力チェック
         // FarmNo
         ApiValidate.validateFarmNo(farmNo);
@@ -61,6 +59,8 @@ public class ListInstance extends ApiSupport {
 
         // 権限チェック
         checkAndGetUser(farm);
+
+        ListInstanceResponse response = new ListInstanceResponse();
 
         // インスタンス取得
         List<Instance> instances = instanceDao.readByFarmNo(Long.parseLong(farmNo));
@@ -77,8 +77,6 @@ public class ListInstance extends ApiSupport {
             //インスタンス情報設定
             response.getInstances().add(new InstanceResponse(instance));
         }
-
-        response.setSuccess(true);
 
         return response;
     }

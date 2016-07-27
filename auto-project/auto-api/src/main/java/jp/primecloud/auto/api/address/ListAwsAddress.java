@@ -58,8 +58,6 @@ public class ListAwsAddress extends ApiSupport {
             response.getAwsAddresses().add(awsAddressResponse);
         }
 
-        response.setSuccess(true);
-
         return response;
     }
 

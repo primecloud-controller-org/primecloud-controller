@@ -78,8 +78,6 @@ public class EditLoadBalancerAutoScaling extends ApiSupport {
             @QueryParam(PARAM_NAME_CONTINUE_LIMIT) String continueLimit,
             @QueryParam(PARAM_NAME_ADD_COUNT) String addCount, @QueryParam(PARAM_NAME_DEL_COUNT) String delCount) {
 
-        EditLoadBalancerAutoScalingResponse response = new EditLoadBalancerAutoScalingResponse();
-
         // 入力チェック
         // LoadBalancerNo
         ApiValidate.validateLoadBalancerNo(loadBalancerNo);
@@ -177,7 +175,7 @@ public class EditLoadBalancerAutoScaling extends ApiSupport {
                     autoScalingConf.getContinueLimit(), autoScalingConf.getAddCount(), autoScalingConf.getDelCount());
         }
 
-        response.setSuccess(true);
+        EditLoadBalancerAutoScalingResponse response = new EditLoadBalancerAutoScalingResponse();
 
         return response;
     }

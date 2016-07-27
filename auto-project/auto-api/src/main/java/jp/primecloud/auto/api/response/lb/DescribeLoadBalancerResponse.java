@@ -9,9 +9,6 @@ public class DescribeLoadBalancerResponse extends AbstractResponse {
     @JsonProperty("LoadBalancer")
     private LoadBalancerResponse loadBalancer;
 
-    public DescribeLoadBalancerResponse() {
-    }
-
     public DescribeLoadBalancerResponse(LoadBalancerResponse loadBalancer) {
         this.loadBalancer = loadBalancer;
     }

@@ -16,9 +16,6 @@ public class ComponentInstanceResponse {
     @JsonProperty("Status")
     private String status;
 
-    public ComponentInstanceResponse() {
-    }
-
     public ComponentInstanceResponse(ComponentInstance componentInstance) {
         this.instanceNo = componentInstance.getInstanceNo();
         this.associate = BooleanUtils.isTrue(componentInstance.getAssociate());

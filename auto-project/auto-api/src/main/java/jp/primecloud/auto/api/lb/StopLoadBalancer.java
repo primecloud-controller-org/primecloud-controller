@@ -47,8 +47,6 @@ public class StopLoadBalancer extends ApiSupport {
     @Produces(MediaType.APPLICATION_JSON)
     public StopLoadBalancerResponse stopLoadBalancer(@QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo) {
 
-        StopLoadBalancerResponse response = new StopLoadBalancerResponse();
-
         // 入力チェック
         // LoadBalancerNo
         ApiValidate.validateLoadBalancerNo(loadBalancerNo);
@@ -71,7 +69,7 @@ public class StopLoadBalancer extends ApiSupport {
         lbNos.add(Long.parseLong(loadBalancerNo));
         processService.stopLoadBalancers(loadBalancer.getFarmNo(), lbNos);
 
-        response.setSuccess(true);
+        StopLoadBalancerResponse response = new StopLoadBalancerResponse();
 
         return response;
     }

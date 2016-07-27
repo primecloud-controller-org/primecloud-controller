@@ -28,9 +28,6 @@ public class PlatformCloudstackResponse {
     @JsonProperty("DefKeyPair")
     private String defKeyPair;
 
-    public PlatformCloudstackResponse() {
-    }
-
     public PlatformCloudstackResponse(PlatformCloudstack cloudstack) {
         this.host = cloudstack.getHost();
         this.path = cloudstack.getPath();

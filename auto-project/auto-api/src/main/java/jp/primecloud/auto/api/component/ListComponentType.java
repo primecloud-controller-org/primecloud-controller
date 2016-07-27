@@ -39,8 +39,6 @@ public class ListComponentType extends ApiSupport {
             response.getComponentTypes().add(componentTypeResponse);
         }
 
-        response.setSuccess(true);
-
         return response;
     }
 

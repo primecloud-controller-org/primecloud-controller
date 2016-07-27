@@ -45,8 +45,6 @@ public class DescribeLoadBalancerHealthCheck extends ApiSupport {
     public DescribeLoadBalancerHealthCheckResponse describeLoadBalancerHealthCheck(
             @QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo) {
 
-        DescribeLoadBalancerHealthCheckResponse response = new DescribeLoadBalancerHealthCheckResponse();
-
         // 入力チェック
         // LoadBalancerNo
         ApiValidate.validateLoadBalancerNo(loadBalancerNo);
@@ -65,8 +63,8 @@ public class DescribeLoadBalancerHealthCheck extends ApiSupport {
                     loadBalancerNo);
         }
 
-        response = new DescribeLoadBalancerHealthCheckResponse(loadBalancer, healthCheck);
-        response.setSuccess(true);
+        DescribeLoadBalancerHealthCheckResponse response = new DescribeLoadBalancerHealthCheckResponse(loadBalancer,
+                healthCheck);
 
         return response;
     }

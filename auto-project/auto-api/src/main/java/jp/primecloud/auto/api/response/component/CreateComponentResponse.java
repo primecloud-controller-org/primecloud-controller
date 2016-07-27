@@ -9,7 +9,8 @@ public class CreateComponentResponse extends AbstractResponse {
     @JsonProperty("ComponentNo")
     private Long componentNo;
 
-    public CreateComponentResponse() {
+    public CreateComponentResponse(Long componentNo) {
+        this.componentNo = componentNo;
     }
 
     public Long getComponentNo() {

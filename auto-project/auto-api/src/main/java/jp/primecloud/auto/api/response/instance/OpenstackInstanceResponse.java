@@ -36,9 +36,6 @@ public class OpenstackInstanceResponse {
     @JsonProperty("NetworkId")
     private String networkId;
 
-    public OpenstackInstanceResponse() {
-    }
-
     public OpenstackInstanceResponse(OpenstackInstance openstackInstance) {
         this.keyName = openstackInstance.getKeyName();
         this.instanceType = openstackInstance.getInstanceType();

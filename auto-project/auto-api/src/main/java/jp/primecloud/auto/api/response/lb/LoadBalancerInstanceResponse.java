@@ -16,9 +16,6 @@ public class LoadBalancerInstanceResponse {
     @JsonProperty("Status")
     private String status;
 
-    public LoadBalancerInstanceResponse() {
-    }
-
     public LoadBalancerInstanceResponse(LoadBalancerInstance loadBalancerInstance) {
         this.instanceNo = loadBalancerInstance.getInstanceNo();
         this.enabled = BooleanUtils.isTrue(loadBalancerInstance.getEnabled());

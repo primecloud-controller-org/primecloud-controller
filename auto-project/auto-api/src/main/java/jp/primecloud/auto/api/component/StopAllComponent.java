@@ -50,8 +50,6 @@ public class StopAllComponent extends ApiSupport {
     public StopAllComponentResponse stopComponent(@QueryParam(PARAM_NAME_FARM_NO) String farmNo,
             @QueryParam(PARAM_NAME_IS_STOP_INSTANCE) String isStopInstance) {
 
-        StopAllComponentResponse response = new StopAllComponentResponse();
-
         // 入力チェック
         // FarmNo
         ApiValidate.validateFarmNo(farmNo);
@@ -82,7 +80,7 @@ public class StopAllComponent extends ApiSupport {
             processService.stopComponents(Long.parseLong(farmNo), componentNos, Boolean.parseBoolean(isStopInstance));
         }
 
-        response.setSuccess(true);
+        StopAllComponentResponse response = new StopAllComponentResponse();
 
         return response;
     }

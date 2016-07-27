@@ -35,9 +35,6 @@ public class DescribeLoadBalancerHealthCheckResponse extends AbstractResponse {
     @JsonProperty("UnhealthyThreshold")
     private Integer unhealthyThreshold;
 
-    public DescribeLoadBalancerHealthCheckResponse() {
-    }
-
     public DescribeLoadBalancerHealthCheckResponse(LoadBalancer loadBalancer, LoadBalancerHealthCheck healthCheck) {
         this.loadBalancerNo = healthCheck.getLoadBalancerNo();
         this.loadBalancerName = loadBalancer.getLoadBalancerName();

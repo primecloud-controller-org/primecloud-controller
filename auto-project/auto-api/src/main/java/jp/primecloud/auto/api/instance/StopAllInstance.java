@@ -49,8 +49,6 @@ public class StopAllInstance extends ApiSupport {
     @Produces(MediaType.APPLICATION_JSON)
     public StopAllInstanceResponse stoptAllInstance(@QueryParam(PARAM_NAME_FARM_NO) String farmNo) {
 
-        StopAllInstanceResponse response = new StopAllInstanceResponse();
-
         // 入力チェック
         // FarmNo
         ApiValidate.validateFarmNo(farmNo);
@@ -79,7 +77,7 @@ public class StopAllInstance extends ApiSupport {
         // サーバ停止設定処理
         processService.stopInstances(Long.parseLong(farmNo), instanceNos);
 
-        response.setSuccess(true);
+        StopAllInstanceResponse response = new StopAllInstanceResponse();
 
         return response;
     }

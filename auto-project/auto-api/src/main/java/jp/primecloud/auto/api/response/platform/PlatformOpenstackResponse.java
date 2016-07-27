@@ -24,9 +24,6 @@ public class PlatformOpenstackResponse {
     @JsonProperty("DefKeyPair")
     private String defKeyPair;
 
-    public PlatformOpenstackResponse() {
-    }
-
     public PlatformOpenstackResponse(PlatformOpenstack openstack) {
         this.url = openstack.getUrl();
         this.networkId = openstack.getNetworkId();

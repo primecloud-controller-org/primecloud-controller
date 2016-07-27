@@ -40,9 +40,6 @@ public class PlatformResponse {
     @JsonProperty("Azure")
     private PlatformAzureResponse azure;
 
-    public PlatformResponse() {
-    }
-
     public PlatformResponse(Platform platform) {
         this.platformNo = platform.getPlatformNo();
         this.platformName = platform.getPlatformNameDisp();

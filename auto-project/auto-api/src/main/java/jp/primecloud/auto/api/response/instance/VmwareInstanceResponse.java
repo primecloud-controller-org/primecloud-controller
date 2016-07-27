@@ -39,9 +39,6 @@ public class VmwareInstanceResponse {
     @JsonProperty("DefaultGateway")
     private String defaultGateway;
 
-    public VmwareInstanceResponse() {
-    }
-
     public VmwareInstanceResponse(VmwareInstance vmwareInstance) {
         this.machineName = vmwareInstance.getMachineName();
         this.instanceType = vmwareInstance.getInstanceType();

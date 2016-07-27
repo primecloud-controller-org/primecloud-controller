@@ -54,8 +54,6 @@ public class AttachLoadBalancer extends ApiSupport {
             @QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo,
             @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo) {
 
-        AttachLoadBalancerResponse response = new AttachLoadBalancerResponse();
-
         // 入力チェック
         // LoadBalancerNo
         ApiValidate.validateLoadBalancerNo(loadBalancerNo);
@@ -108,7 +106,7 @@ public class AttachLoadBalancer extends ApiSupport {
         instanceNos.add(Long.parseLong(instanceNo));
         loadBalancerService.enableInstances(Long.parseLong(loadBalancerNo), instanceNos);
 
-        response.setSuccess(true);
+        AttachLoadBalancerResponse response = new AttachLoadBalancerResponse();
 
         return response;
     }

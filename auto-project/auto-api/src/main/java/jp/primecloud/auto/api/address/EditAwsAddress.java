@@ -62,7 +62,6 @@ public class EditAwsAddress extends ApiSupport {
         awsAddressDao.update(awsAddress);
 
         EditAwsAddressResponse response = new EditAwsAddressResponse();
-        response.setSuccess(true);
 
         return response;
     }

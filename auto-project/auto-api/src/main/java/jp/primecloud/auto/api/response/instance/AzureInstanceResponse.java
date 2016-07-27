@@ -39,9 +39,6 @@ public class AzureInstanceResponse {
     @JsonProperty("AvailabilitySet")
     private String availabilitySet;
 
-    public AzureInstanceResponse() {
-    }
-
     public AzureInstanceResponse(AzureInstance azureInstance) {
         this.instanceName = azureInstance.getInstanceName();
         this.affinityGroupName = azureInstance.getAffinityGroupName();

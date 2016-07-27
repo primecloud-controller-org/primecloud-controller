@@ -9,7 +9,8 @@ public class CreateInstanceResponse extends AbstractResponse {
     @JsonProperty("InstanceNo")
     private Long instanceNo;
 
-    public CreateInstanceResponse() {
+    public CreateInstanceResponse(Long instanceNo) {
+        this.instanceNo = instanceNo;
     }
 
     public Long getInstanceNo() {

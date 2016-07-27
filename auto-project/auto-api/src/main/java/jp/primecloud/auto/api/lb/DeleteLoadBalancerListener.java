@@ -47,8 +47,6 @@ public class DeleteLoadBalancerListener extends ApiSupport {
             @QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo,
             @QueryParam(PARAM_NAME_LOAD_BALANCER_PORT) String loadBalancerPort) {
 
-        DeleteLoadBalancerListenerResponse response = new DeleteLoadBalancerListenerResponse();
-
         // 入力チェック
         // LoadBalancerNo
         ApiValidate.validateLoadBalancerNo(loadBalancerNo);
@@ -67,7 +65,7 @@ public class DeleteLoadBalancerListener extends ApiSupport {
 
         if (PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
             // プラットフォームがCloudStackの場合は処理を行わず終了
-            response.setSuccess(true);
+            DeleteLoadBalancerListenerResponse response = new DeleteLoadBalancerListenerResponse();
             return response;
         }
 
@@ -78,7 +76,7 @@ public class DeleteLoadBalancerListener extends ApiSupport {
         // ロードバランサリスナ削除
         loadBalancerService.deleteListener(Long.parseLong(loadBalancerNo), Integer.parseInt(loadBalancerPort));
 
-        response.setSuccess(true);
+        DeleteLoadBalancerListenerResponse response = new DeleteLoadBalancerListenerResponse();
 
         return response;
     }

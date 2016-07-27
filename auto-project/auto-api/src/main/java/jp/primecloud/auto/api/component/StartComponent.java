@@ -59,8 +59,6 @@ public class StartComponent extends ApiSupport {
     public StartComponentResponse startComponent(@QueryParam(PARAM_NAME_COMPONENT_NO) String componentNo,
             @QueryParam(PARAM_NAME_INSTANCE_NOS) String instanceNos) {
 
-        StartComponentResponse response = new StartComponentResponse();
-
         // 入力チェック
         // ComponentNo
         ApiValidate.validateComponentNo(componentNo);
@@ -150,7 +148,7 @@ public class StartComponent extends ApiSupport {
         // サービス起動設定
         processService.startComponents(component.getFarmNo(), Long.valueOf(componentNo), instanceNoList);
 
-        response.setSuccess(true);
+        StartComponentResponse response = new StartComponentResponse();
 
         return response;
     }

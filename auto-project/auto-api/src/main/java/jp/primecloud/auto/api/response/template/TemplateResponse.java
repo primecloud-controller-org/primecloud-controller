@@ -15,9 +15,6 @@ public class TemplateResponse {
     @JsonProperty("Description")
     private String description;
 
-    public TemplateResponse() {
-    }
-
     public TemplateResponse(Template template) {
         this.templateNo = template.getTemplateNo();
         this.templateName = template.getTemplateNameDisp();

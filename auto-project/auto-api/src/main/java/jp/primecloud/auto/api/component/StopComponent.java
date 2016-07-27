@@ -55,8 +55,6 @@ public class StopComponent extends ApiSupport {
             @QueryParam(PARAM_NAME_INSTANCE_NOS) String instanceNos,
             @QueryParam(PARAM_NAME_IS_STOP_INSTANCE) String isStopInstance) {
 
-        StopComponentResponse response = new StopComponentResponse();
-
         // 入力チェック
         // ComponentNo
         ApiValidate.validateComponentNo(componentNo);
@@ -100,7 +98,7 @@ public class StopComponent extends ApiSupport {
                     Boolean.parseBoolean(isStopInstance));
         }
 
-        response.setSuccess(true);
+        StopComponentResponse response = new StopComponentResponse();
 
         return response;
     }

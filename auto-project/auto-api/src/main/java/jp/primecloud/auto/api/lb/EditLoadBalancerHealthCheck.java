@@ -61,8 +61,6 @@ public class EditLoadBalancerHealthCheck extends ApiSupport {
             @QueryParam(PARAM_NAME_HEALTHY_THRESHOLD) String healthyThreshold,
             @QueryParam(PARAM_NAME_UNHEALTHY_THRESHOLD) String unhealthyThreshold) {
 
-        EditLoadBalancerHealthCheckResponse response = new EditLoadBalancerHealthCheckResponse();
-
         // 入力チェック
         // LoadBalancerNo
         ApiValidate.validateLoadBalancerNo(loadBalancerNo);
@@ -110,7 +108,7 @@ public class EditLoadBalancerHealthCheck extends ApiSupport {
                 Integer.parseInt(checkInterval), Integer.parseInt(healthyThreshold),
                 Integer.parseInt(unhealthyThreshold));
 
-        response.setSuccess(true);
+        EditLoadBalancerHealthCheckResponse response = new EditLoadBalancerHealthCheckResponse();
 
         return response;
     }

@@ -12,9 +12,6 @@ public class ListFarmResponse extends AbstractResponse {
     @JsonProperty("Farms")
     private List<FarmResponse> farms = new ArrayList<FarmResponse>();
 
-    public ListFarmResponse() {
-    }
-
     public List<FarmResponse> getFarms() {
         return farms;
     }

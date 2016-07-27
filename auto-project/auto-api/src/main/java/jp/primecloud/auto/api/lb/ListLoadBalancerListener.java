@@ -47,8 +47,6 @@ public class ListLoadBalancerListener extends ApiSupport {
     public ListLoadBalancerListenerResponse describeLoadBalancerHealthCheck(
             @QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo) {
 
-        ListLoadBalancerListenerResponse response = new ListLoadBalancerListenerResponse();
-
         // 入力チェック
         // LoadBalancerNo
         ApiValidate.validateLoadBalancerNo(loadBalancerNo);
@@ -59,14 +57,14 @@ public class ListLoadBalancerListener extends ApiSupport {
         // 権限チェック
         checkAndGetUser(loadBalancer);
 
+        ListLoadBalancerListenerResponse response = new ListLoadBalancerListenerResponse();
+
         List<LoadBalancerListener> loadBalancerListeners = loadBalancerListenerDao.readByLoadBalancerNo(Long
                 .parseLong(loadBalancerNo));
         for (LoadBalancerListener listener : loadBalancerListeners) {
             LoadBalancerListenerResponse listenerResponse = new LoadBalancerListenerResponse(listener);
             response.getLoadBalancerListeners().add(listenerResponse);
         }
-
-        response.setSuccess(true);
 
         return response;
     }

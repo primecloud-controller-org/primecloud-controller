@@ -54,8 +54,6 @@ public class DescribeComponent extends ApiSupport {
     @Produces(MediaType.APPLICATION_JSON)
     public DescribeComponentResponse describeComponent(@QueryParam(PARAM_NAME_COMPONENT_NO) String componentNo) {
 
-        DescribeComponentResponse response = new DescribeComponentResponse();
-
         // 入力チェック
         // ComponentNo
         ApiValidate.validateComponentNo(componentNo);
@@ -68,7 +66,6 @@ public class DescribeComponent extends ApiSupport {
 
         //コンポーネント情報設定
         ComponentResponse componentResponse = new ComponentResponse(component);
-        response.setComponent(componentResponse);
 
         List<ComponentInstance> componentInstances = componentInstanceDao
                 .readByComponentNo(Long.parseLong(componentNo));
@@ -99,7 +96,7 @@ public class DescribeComponent extends ApiSupport {
             }
         }
 
-        response.setSuccess(true);
+        DescribeComponentResponse response = new DescribeComponentResponse(componentResponse);
 
         return response;
     }

@@ -84,8 +84,6 @@ public class EditInstance extends ApiSupport {
             @QueryParam(PARAM_NAME_PRIVATE_IP) String privateIp, @QueryParam(PARAM_NAME_COMMENT) String comment,
             @QueryParam(PARAM_NAME_STORAGE_TYPE) String storageType) {
 
-        EditInstanceResponse response = new EditInstanceResponse();
-
         // InstanceNo
         ApiValidate.validateInstanceNo(instanceNo);
 
@@ -141,7 +139,7 @@ public class EditInstance extends ApiSupport {
             editAzureInstance(user.getUserNo(), instance, instanceType, cidrBlock, availabilityZone, comment);
         }
 
-        response.setSuccess(true);
+        EditInstanceResponse response = new EditInstanceResponse();
 
         return response;
     }

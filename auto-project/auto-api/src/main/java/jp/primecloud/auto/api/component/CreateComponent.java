@@ -53,8 +53,6 @@ public class CreateComponent extends ApiSupport {
             @QueryParam(PARAM_NAME_COMPONENT_TYPE_NO) String componentTypeNo,
             @QueryParam(PARAM_NAME_DISK_SIZE) String diskSize, @QueryParam(PARAM_NAME_COMMENT) String comment) {
 
-        CreateComponentResponse response = new CreateComponentResponse();
-
         // 入力チェック
         // farmNo
         ApiValidate.validateFarmNo(farmNo);
@@ -87,8 +85,7 @@ public class CreateComponent extends ApiSupport {
         Long componentNo = componentService.createComponent(Long.parseLong(farmNo), componentName,
                 Long.valueOf(componentTypeNo), comment, Integer.parseInt(diskSize));
 
-        response.setComponentNo(componentNo);
-        response.setSuccess(true);
+        CreateComponentResponse response = new CreateComponentResponse(componentNo);
 
         return response;
     }

@@ -9,7 +9,8 @@ public class CreateFarmResponse extends AbstractResponse {
     @JsonProperty("FarmNo")
     private Long farmNo;
 
-    public CreateFarmResponse() {
+    public CreateFarmResponse(Long farmNo) {
+        this.farmNo = farmNo;
     }
 
     public Long getFarmNo() {

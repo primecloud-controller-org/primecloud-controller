@@ -9,9 +9,6 @@ public class DescribeComponentResponse extends AbstractResponse {
     @JsonProperty("Component")
     private ComponentResponse component;
 
-    public DescribeComponentResponse() {
-    }
-
     public DescribeComponentResponse(ComponentResponse component) {
         this.component = component;
     }
@@ -23,4 +20,5 @@ public class DescribeComponentResponse extends AbstractResponse {
     public void setComponent(ComponentResponse component) {
         this.component = component;
     }
+
 }

@@ -12,9 +12,6 @@ public class ListComponentResponse extends AbstractResponse {
     @JsonProperty("Components")
     private List<ComponentResponse> components = new ArrayList<ComponentResponse>();
 
-    public ListComponentResponse() {
-    }
-
     public List<ComponentResponse> getComponents() {
         return components;
     }

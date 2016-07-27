@@ -31,9 +31,6 @@ public class NiftyInstanceResponse {
     @JsonProperty("Initialized")
     private Boolean initialized;
 
-    public NiftyInstanceResponse() {
-    }
-
     public NiftyInstanceResponse(NiftyInstance niftyInstance) {
         this.instanceType = niftyInstance.getInstanceType();
         this.status = niftyInstance.getStatus();

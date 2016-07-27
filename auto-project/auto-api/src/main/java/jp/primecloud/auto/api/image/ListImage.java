@@ -60,8 +60,6 @@ public class ListImage extends ApiSupport {
     @Produces(MediaType.APPLICATION_JSON)
     public ListImageResponse listImage(@QueryParam(PARAM_NAME_PLATFORM_NO) String platformNo) {
 
-        ListImageResponse response = new ListImageResponse();
-
         // 入力チェック
         // PlatformNo
         ApiValidate.validatePlatformNo(platformNo);
@@ -81,6 +79,8 @@ public class ListImage extends ApiSupport {
             //認証情報が存在しない or 有効ではないプラットフォーム
             throw new AutoApplicationException("EAPI-000020", "Platform", PARAM_NAME_PLATFORM_NO, platformNo);
         }
+
+        ListImageResponse response = new ListImageResponse();
 
         // イメージ情報取得
         List<Image> images = imageDao.readByPlatformNo(Long.parseLong(platformNo));
@@ -105,8 +105,6 @@ public class ListImage extends ApiSupport {
                 response.getImages().add(imageResponse);
             }
         }
-
-        response.setSuccess(true);
 
         return response;
     }

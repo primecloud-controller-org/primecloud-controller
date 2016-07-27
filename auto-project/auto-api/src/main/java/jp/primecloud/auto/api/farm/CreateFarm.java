@@ -58,7 +58,7 @@ public class CreateFarm extends ApiSupport {
     public CreateFarmResponse createFarm(@QueryParam(PARAM_NAME_FARM_NAME) String farmName,
             @QueryParam(PARAM_NAME_TEMPLATE_NO) String templateNo, @QueryParam(PARAM_NAME_COMMENT) String comment) {
 
-        CreateFarmResponse response = new CreateFarmResponse();
+        
 
         // 入力チェック
         // FarmName
@@ -85,13 +85,12 @@ public class CreateFarm extends ApiSupport {
         }
 
         // ファームを作成
-        Long newFarmNo = farmService.createFarm(user.getUserNo(), farmName, comment);
+        Long farmNo = farmService.createFarm(user.getUserNo(), farmName, comment);
 
         // テンプレートを元にサーバ、サービスを作成
-        templateService.applyTemplate(newFarmNo, Long.parseLong(templateNo));
+        templateService.applyTemplate(farmNo, Long.parseLong(templateNo));
 
-        response.setFarmNo(newFarmNo);
-        response.setSuccess(true);
+        CreateFarmResponse response = new CreateFarmResponse(farmNo);
 
         return response;
     }

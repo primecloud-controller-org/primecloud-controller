@@ -131,7 +131,6 @@ public class DescribePlatform extends ApiSupport {
         }
 
         DescribePlatformResponse response = new DescribePlatformResponse(platformResponse);
-        response.setSuccess(true);
 
         return response;
     }

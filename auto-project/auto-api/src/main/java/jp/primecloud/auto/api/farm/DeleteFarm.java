@@ -42,8 +42,6 @@ public class DeleteFarm extends ApiSupport {
     @Produces(MediaType.APPLICATION_JSON)
     public DeleteFarmResponse deleteFarm(@QueryParam(PARAM_NAME_FARM_NO) String farmNo) {
 
-        DeleteFarmResponse response = new DeleteFarmResponse();
-
         // 入力チェック
         // FarmNo
         ApiValidate.validateFarmNo(farmNo);
@@ -55,7 +53,7 @@ public class DeleteFarm extends ApiSupport {
         // ファーム削除
         farmService.deleteFarm(Long.parseLong(farmNo));
 
-        response.setSuccess(true);
+        DeleteFarmResponse response = new DeleteFarmResponse();
 
         return response;
     }

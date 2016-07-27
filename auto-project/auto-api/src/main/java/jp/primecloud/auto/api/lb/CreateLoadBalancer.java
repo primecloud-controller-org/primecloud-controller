@@ -59,8 +59,6 @@ public class CreateLoadBalancer extends ApiSupport {
             @QueryParam(PARAM_NAME_COMPONENT_NO) String componentNo, @QueryParam(PARAM_NAME_COMMENT) String comment,
             @QueryParam(PARAM_NAME_IS_INTERNAL) String isInternal) {
 
-        CreateLoadBalancerResponse response = new CreateLoadBalancerResponse();
-
         // 入力チェック
         // FarmNo
         ApiValidate.validateFarmNo(farmNo);
@@ -122,24 +120,23 @@ public class CreateLoadBalancer extends ApiSupport {
         }
 
         // ロードバランサー作成
-        Long newLoadBalancerNo = null;
+        Long loadBalancerNo = null;
         if (LB_TYPE_ELB.equals(loadBalancerType)) {
             //AWS ELB(Elastic Load Balancing)
-            newLoadBalancerNo = loadBalancerService.createAwsLoadBalancer(Long.parseLong(farmNo), loadBalancerName,
+            loadBalancerNo = loadBalancerService.createAwsLoadBalancer(Long.parseLong(farmNo), loadBalancerName,
                     comment, Long.parseLong(platformNo), Long.parseLong(componentNo), internal);
         } else if (LB_TYPE_ULTRA_MONKEY.equals(loadBalancerType)) {
             //ultraMonkey
-            newLoadBalancerNo = loadBalancerService.createUltraMonkeyLoadBalancer(Long.parseLong(farmNo),
+            loadBalancerNo = loadBalancerService.createUltraMonkeyLoadBalancer(Long.parseLong(farmNo),
                     loadBalancerName, comment, Long.parseLong(platformNo), Long.parseLong(componentNo));
 
         } else if (LB_TYPE_CLOUDSTACK.equals(loadBalancerType)) {
             //cloudstack
-            newLoadBalancerNo = loadBalancerService.createCloudstackLoadBalancer(Long.parseLong(farmNo),
-                    loadBalancerName, comment, Long.parseLong(platformNo), Long.parseLong(componentNo));
+            loadBalancerNo = loadBalancerService.createCloudstackLoadBalancer(Long.parseLong(farmNo), loadBalancerName,
+                    comment, Long.parseLong(platformNo), Long.parseLong(componentNo));
         }
 
-        response.setLoadBalancerNo(newLoadBalancerNo);
-        response.setSuccess(true);
+        CreateLoadBalancerResponse response = new CreateLoadBalancerResponse(loadBalancerNo);
 
         return response;
     }

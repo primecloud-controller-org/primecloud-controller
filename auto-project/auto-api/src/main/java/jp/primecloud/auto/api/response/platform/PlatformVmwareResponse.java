@@ -21,9 +21,6 @@ public class PlatformVmwareResponse {
     @JsonProperty("Computresource")
     private String computresource;
 
-    public PlatformVmwareResponse() {
-    }
-
     public PlatformVmwareResponse(PlatformVmware vmware) {
         this.url = vmware.getUrl();
         this.datacenter = vmware.getDatacenter();

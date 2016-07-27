@@ -44,8 +44,6 @@ public class EditFarm extends ApiSupport {
     public EditFarmResponse editFarm(@QueryParam(PARAM_NAME_FARM_NO) String farmNo,
             @QueryParam(PARAM_NAME_COMMENT) String comment) {
 
-        EditFarmResponse response = new EditFarmResponse();
-
         // 入力チェック
         // FarmNo
         ApiValidate.validateFarmNo(farmNo);
@@ -59,7 +57,7 @@ public class EditFarm extends ApiSupport {
         // ファーム更新
         farmService.updateFarm(Long.parseLong(farmNo), comment, farm.getDomainName());
 
-        response.setSuccess(true);
+        EditFarmResponse response = new EditFarmResponse();
 
         return response;
     }

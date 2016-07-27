@@ -9,9 +9,6 @@ public class DescribeInstanceResponse extends AbstractResponse {
     @JsonProperty("Instance")
     private InstanceResponse instance;
 
-    public DescribeInstanceResponse() {
-    }
-
     public DescribeInstanceResponse(InstanceResponse instance) {
         this.instance = instance;
     }

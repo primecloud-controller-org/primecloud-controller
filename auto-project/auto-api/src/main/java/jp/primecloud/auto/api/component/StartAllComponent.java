@@ -48,8 +48,6 @@ public class StartAllComponent extends ApiSupport {
     @Produces(MediaType.APPLICATION_JSON)
     public StartAllComponentResponse startAllComponent(@QueryParam(PARAM_NAME_FARM_NO) String farmNo) {
 
-        StartAllComponentResponse response = new StartAllComponentResponse();
-
         // 入力チェック
         // FarmNo
         ApiValidate.validateFarmNo(farmNo);
@@ -74,7 +72,7 @@ public class StartAllComponent extends ApiSupport {
         // サービス起動設定
         processService.startComponents(Long.parseLong(farmNo), componentNos);
 
-        response.setSuccess(true);
+        StartAllComponentResponse response = new StartAllComponentResponse();
 
         return response;
     }

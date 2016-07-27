@@ -41,8 +41,6 @@ public class Login extends ApiSupport {
     public LoginResponse login(@QueryParam(PARAM_NAME_USER) String userName,
             @QueryParam(PARAM_NAME_PASSWORD) String password) {
 
-        LoginResponse response = new LoginResponse();
-
         // 入力チェック
         // User
         ApiValidate.validateUser(userName);
@@ -52,7 +50,7 @@ public class Login extends ApiSupport {
         // ログイン認証
         userService.authenticate(userName, password);
 
-        response.setSuccess(true);
+        LoginResponse response = new LoginResponse();
 
         return response;
     }

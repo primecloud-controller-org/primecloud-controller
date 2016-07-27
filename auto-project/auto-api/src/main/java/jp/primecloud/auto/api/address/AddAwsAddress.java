@@ -62,7 +62,6 @@ public class AddAwsAddress extends ApiSupport {
 
         AwsAddressResponse awsAddressResponse = new AwsAddressResponse(awsAddress);
         AddAwsAddressResponse response = new AddAwsAddressResponse(awsAddressResponse);
-        response.setSuccess(true);
 
         return response;
     }

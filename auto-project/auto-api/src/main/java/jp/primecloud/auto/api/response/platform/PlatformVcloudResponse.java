@@ -1,8 +1,8 @@
 package jp.primecloud.auto.api.response.platform;
 
-import org.codehaus.jackson.annotate.JsonProperty;
-
 import jp.primecloud.auto.entity.crud.PlatformVcloud;
+
+import org.codehaus.jackson.annotate.JsonProperty;
 
 public class PlatformVcloudResponse {
 
@@ -20,9 +20,6 @@ public class PlatformVcloudResponse {
 
     @JsonProperty("VdcName")
     private String vdcName;
-
-    public PlatformVcloudResponse() {
-    }
 
     public PlatformVcloudResponse(PlatformVcloud vcloud) {
         this.url = vcloud.getUrl();

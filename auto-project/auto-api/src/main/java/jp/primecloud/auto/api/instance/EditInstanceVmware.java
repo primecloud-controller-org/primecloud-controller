@@ -75,8 +75,6 @@ public class EditInstanceVmware extends ApiSupport {
             @QueryParam(PARAM_NAME_DEFAULT_GATEWAY) String defaultGateway,
             @QueryParam(PARAM_NAME_COMMENT) String comment) {
 
-        EditInstanceVmwareResponse response = new EditInstanceVmwareResponse();
-
         // 入力チェック
         // InstanceNo
         ApiValidate.validateInstanceNo(instanceNo);
@@ -157,7 +155,7 @@ public class EditInstanceVmware extends ApiSupport {
         instanceService.updateVmwareInstance(Long.parseLong(instanceNo), instance.getInstanceName(), comment,
                 instanceType, computeResource, null, keyPairNo, addressDto);
 
-        response.setSuccess(true);
+        EditInstanceVmwareResponse response = new EditInstanceVmwareResponse();
 
         return response;
     }

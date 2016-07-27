@@ -21,9 +21,6 @@ public class VcloudInstanceNetworkResponse {
     @JsonProperty("IsPrimary")
     private Boolean isPrimary;
 
-    public VcloudInstanceNetworkResponse() {
-    }
-
     public VcloudInstanceNetworkResponse(VcloudInstanceNetwork vcloudInstanceNetwork) {
         this.networkName = vcloudInstanceNetwork.getNetworkName();
         if (vcloudInstanceNetwork.getNetworkIndex() == null) {

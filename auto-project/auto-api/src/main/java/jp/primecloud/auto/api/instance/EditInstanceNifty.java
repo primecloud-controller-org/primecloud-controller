@@ -63,8 +63,6 @@ public class EditInstanceNifty extends ApiSupport {
             @QueryParam(PARAM_NAME_INSTANCE_TYPE) String instanceType, @QueryParam(PARAM_NAME_KEY_NAME) String keyName,
             @QueryParam(PARAM_NAME_COMMENT) String comment) {
 
-        EditInstanceNiftyResponse response = new EditInstanceNiftyResponse();
-
         // 入力チェック
         // InstanceNo
         ApiValidate.validateInstanceNo(instanceNo);
@@ -122,7 +120,7 @@ public class EditInstanceNifty extends ApiSupport {
         instanceService.updateNiftyInstance(Long.parseLong(instanceNo), instance.getInstanceName(), comment,
                 instanceType, keyPairNo);
 
-        response.setSuccess(true);
+        EditInstanceNiftyResponse response = new EditInstanceNiftyResponse();
 
         return response;
     }

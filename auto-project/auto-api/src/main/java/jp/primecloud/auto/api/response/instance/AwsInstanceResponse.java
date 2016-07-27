@@ -39,9 +39,6 @@ public class AwsInstanceResponse {
     @JsonProperty("PrivateIpAddress")
     private String privateIpAddress;
 
-    public AwsInstanceResponse() {
-    }
-
     public AwsInstanceResponse(AwsInstance awsInstance) {
         this.keyName = awsInstance.getKeyName();
         this.instanceType = awsInstance.getInstanceType();

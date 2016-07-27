@@ -47,8 +47,6 @@ public class StoptInstance extends ApiSupport {
     @Produces(MediaType.APPLICATION_JSON)
     public StopInstanceResponse stoptInstance(@QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo) {
 
-        StopInstanceResponse response = new StopInstanceResponse();
-
         // 入力チェック
         // InstanceNo
         ApiValidate.validateInstanceNo(instanceNo);
@@ -70,7 +68,7 @@ public class StoptInstance extends ApiSupport {
         instanceNos.add(Long.parseLong(instanceNo));
         processService.stopInstances(instance.getFarmNo(), instanceNos);
 
-        response.setSuccess(true);
+        StopInstanceResponse response = new StopInstanceResponse();
 
         return response;
     }

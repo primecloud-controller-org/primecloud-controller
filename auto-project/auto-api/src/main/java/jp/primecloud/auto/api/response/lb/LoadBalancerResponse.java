@@ -45,9 +45,6 @@ public class LoadBalancerResponse {
     @JsonProperty("AWS")
     private AwsLoadBalancerResponse aws;
 
-    public LoadBalancerResponse() {
-    }
-
     public LoadBalancerResponse(LoadBalancer loadBalancer) {
         this.loadBalancerNo = loadBalancer.getLoadBalancerNo();
         this.loadBalancerName = loadBalancer.getLoadBalancerName();

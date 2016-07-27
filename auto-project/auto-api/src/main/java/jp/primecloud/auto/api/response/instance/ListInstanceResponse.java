@@ -12,9 +12,6 @@ public class ListInstanceResponse extends AbstractResponse {
     @JsonProperty("Instances")
     private List<InstanceResponse> instances = new ArrayList<InstanceResponse>();
 
-    public ListInstanceResponse() {
-    }
-
     public List<InstanceResponse> getInstances() {
         return instances;
     }

@@ -33,9 +33,6 @@ public class VcloudInstanceResponse {
     @JsonProperty("VcloudNetworks")
     private List<VcloudInstanceNetworkResponse> vcloudNetwoks = new ArrayList<VcloudInstanceNetworkResponse>();
 
-    public VcloudInstanceResponse() {
-    }
-
     public VcloudInstanceResponse(VcloudInstance vcloudInstance) {
         this.vmName = vcloudInstance.getVmName();
         this.instanceType = vcloudInstance.getInstanceType();

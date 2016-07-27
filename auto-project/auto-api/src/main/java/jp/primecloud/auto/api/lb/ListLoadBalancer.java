@@ -51,8 +51,6 @@ public class ListLoadBalancer extends ApiSupport {
     @Produces(MediaType.APPLICATION_JSON)
     public ListLoadBalancerResponse listLoadBalancer(@QueryParam(PARAM_NAME_FARM_NO) String farmNo) {
 
-        ListLoadBalancerResponse response = new ListLoadBalancerResponse();
-
         // 入力チェック
         // LoadBalancerNo
         ApiValidate.validateFarmNo(farmNo);
@@ -60,6 +58,8 @@ public class ListLoadBalancer extends ApiSupport {
         // 権限チェック
         Farm farm = farmDao.read(Long.parseLong(farmNo));
         checkAndGetUser(farm);
+
+        ListLoadBalancerResponse response = new ListLoadBalancerResponse();
 
         // ロードバランサ取得
         List<LoadBalancer> loadBalancers = loadBalancerDao.readByFarmNo(Long.parseLong(farmNo));
@@ -80,8 +80,6 @@ public class ListLoadBalancer extends ApiSupport {
             }
             response.getLoadBalancers().add(loadBalancerResponse);
         }
-
-        response.setSuccess(true);
 
         return response;
     }

@@ -44,8 +44,6 @@ public class DeleteLoadBalancer extends ApiSupport {
     @Produces(MediaType.APPLICATION_JSON)
     public DeleteLoadBalancerResponse deleteLoadBalancer(@QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo) {
 
-        DeleteLoadBalancerResponse response = new DeleteLoadBalancerResponse();
-
         // 入力チェック
         // LoadBalancerNo
         ApiValidate.validateLoadBalancerNo(loadBalancerNo);
@@ -66,7 +64,7 @@ public class DeleteLoadBalancer extends ApiSupport {
         // ロードバランサ 削除
         loadBalancerService.deleteLoadBalancer(Long.parseLong(loadBalancerNo));
 
-        response.setSuccess(true);
+        DeleteLoadBalancerResponse response = new DeleteLoadBalancerResponse();
 
         return response;
     }

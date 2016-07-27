@@ -56,8 +56,6 @@ public class StartInstance extends ApiSupport {
     public StartInstanceResponse startInstance(@QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo,
             @QueryParam(PARAM_NAME_IS_START_SERVICE) String isStartService) {
 
-        StartInstanceResponse response = new StartInstanceResponse();
-
         // 入力チェック
         // InstanceNo
         ApiValidate.validateInstanceNo(instanceNo);
@@ -123,7 +121,7 @@ public class StartInstance extends ApiSupport {
             processService.startInstances(instance.getFarmNo(), instanceNos, Boolean.parseBoolean(isStartService));
         }
 
-        response.setSuccess(true);
+        StartInstanceResponse response = new StartInstanceResponse();
 
         return response;
     }

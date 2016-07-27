@@ -48,9 +48,6 @@ public class InstanceResponse {
     @JsonProperty("Azure")
     private AzureInstanceResponse azure;
 
-    public InstanceResponse() {
-    }
-
     public InstanceResponse(Instance instance) {
         this.instanceNo = instance.getInstanceNo();
         this.instanceName = instance.getInstanceName();

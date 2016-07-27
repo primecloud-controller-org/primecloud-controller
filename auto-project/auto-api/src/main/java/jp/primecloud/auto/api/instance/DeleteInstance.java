@@ -44,8 +44,6 @@ public class DeleteInstance extends ApiSupport {
     @Produces(MediaType.APPLICATION_JSON)
     public DeleteInstanceResponse deleteInstance(@QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo) {
 
-        DeleteInstanceResponse response = new DeleteInstanceResponse();
-
         // 入力チェック
         // InstanceNo
         ApiValidate.validateInstanceNo(instanceNo);
@@ -66,7 +64,7 @@ public class DeleteInstance extends ApiSupport {
         // サーバ削除処理(プロセス処理)
         instanceService.deleteInstance(Long.parseLong(instanceNo));
 
-        response.setSuccess(true);
+        DeleteInstanceResponse response = new DeleteInstanceResponse();
 
         return response;
     }

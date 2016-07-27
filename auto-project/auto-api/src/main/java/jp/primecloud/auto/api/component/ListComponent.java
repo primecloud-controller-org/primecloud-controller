@@ -55,8 +55,6 @@ public class ListComponent extends ApiSupport {
     @Produces(MediaType.APPLICATION_JSON)
     public ListComponentResponse listComponent(@QueryParam(PARAM_NAME_FARM_NO) String farmNo) {
 
-        ListComponentResponse response = new ListComponentResponse();
-
         // 入力チェック
         // FarmNo
         ApiValidate.validateFarmNo(farmNo);
@@ -66,6 +64,8 @@ public class ListComponent extends ApiSupport {
 
         // 権限チェック
         checkAndGetUser(farm);
+
+        ListComponentResponse response = new ListComponentResponse();
 
         // コンポーネント取得
         List<Component> components = componentDao.readByFarmNo(Long.valueOf(farmNo));
@@ -115,8 +115,6 @@ public class ListComponent extends ApiSupport {
 
             response.getComponents().add(componentResponse);
         }
-
-        response.setSuccess(true);
 
         return response;
     }

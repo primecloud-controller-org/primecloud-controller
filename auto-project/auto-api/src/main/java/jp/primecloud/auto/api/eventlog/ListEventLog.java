@@ -83,8 +83,6 @@ public class ListEventLog extends ApiSupport {
             @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo, @QueryParam(PARAM_NAME_ORDER_NAME) String orderName,
             @QueryParam(PARAM_NAME_ORDER_ASC_DESC) String orderAscDesc) {
 
-        ListEventLogResponse response = new ListEventLogResponse();
-
         // 入力チェック
         // isFromCurrent
         ApiValidate.validateIsFromCurrent(isFromCurrent);
@@ -216,8 +214,8 @@ public class ListEventLog extends ApiSupport {
         comparatorEventLog = getComparator(orderName, orderAscDesc);
         Collections.sort(eventLogResponceList, comparatorEventLog);
 
+        ListEventLogResponse response = new ListEventLogResponse();
         response.setEventLogs(eventLogResponceList);
-        response.setSuccess(true);
 
         return response;
     }

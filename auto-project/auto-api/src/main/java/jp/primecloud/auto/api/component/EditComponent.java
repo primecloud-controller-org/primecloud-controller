@@ -58,8 +58,6 @@ public class EditComponent extends ApiSupport {
             @QueryParam(PARAM_NAME_CUSTOM_PARAM_2) String customParam2,
             @QueryParam(PARAM_NAME_CUSTOM_PARAM_3) String customParam3) {
 
-        EditComponentResponse response = new EditComponentResponse();
-
         // 入力チェック
         //ComponentNo
         ApiValidate.validateComponentNo(componentNo);
@@ -93,7 +91,7 @@ public class EditComponent extends ApiSupport {
         componentService.updateComponent(Long.parseLong(componentNo), comment, Integer.parseInt(diskSize),
                 customParam1, customParam2, customParam3);
 
-        response.setSuccess(true);
+        EditComponentResponse response = new EditComponentResponse();
 
         return response;
     }

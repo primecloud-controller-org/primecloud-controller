@@ -71,7 +71,6 @@ public class DeleteAwsAddress extends ApiSupport {
         iaasDescribeService.deleteAddress(user.getUserNo(), platform.getPlatformNo(), awsAddress.getAddressNo());
 
         DeleteAwsAddressResponse response = new DeleteAwsAddressResponse();
-        response.setSuccess(true);
 
         return response;
     }

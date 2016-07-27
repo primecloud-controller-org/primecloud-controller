@@ -59,10 +59,10 @@ public class ListPlatform extends ApiSupport {
     @Produces(MediaType.APPLICATION_JSON)
     public ListPlatformResponse listPlatform() {
 
-        ListPlatformResponse response = new ListPlatformResponse();
-
         //ユーザ取得
         User user = checkAndGetUser();
+
+        ListPlatformResponse response = new ListPlatformResponse();
 
         // プラットフォーム情報取得
         List<Platform> platforms = platformDao.readAll();
@@ -99,8 +99,6 @@ public class ListPlatform extends ApiSupport {
             }
             response.getPlatforms().add(platformResponse);
         }
-
-        response.setSuccess(true);
 
         return response;
     }

@@ -12,9 +12,6 @@ public class ListLoadBalancerListenerResponse extends AbstractResponse {
     @JsonProperty("LoadBalancerListeners")
     private List<LoadBalancerListenerResponse> loadBalancerListeners = new ArrayList<LoadBalancerListenerResponse>();
 
-    public ListLoadBalancerListenerResponse() {
-    }
-
     public List<LoadBalancerListenerResponse> getLoadBalancerListeners() {
         return loadBalancerListeners;
     }
