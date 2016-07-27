@@ -28,7 +28,7 @@ if __name__ == '__main__':
     logger = IaasLogger()
 
     #ログ用パラメータ
-    logparam = ["ReleaseAddress",os.getpid(), "IPアドレスNo:%s, ファームNo:%s" %(str(param[3]), str(param[4]))]
+    logparam = ["ReleaseAddress",os.getpid(), "IPアドレスNo:%s" %(str(param[3]))]
     logger.start(logparam)
 
     #実行
@@ -38,13 +38,12 @@ if __name__ == '__main__':
         #  1.ユーザー名
         #  2.プラットフォームNo
         #  3.IPアドレスNo
-        #  4.ファームNo
         #
-        # 例：param =  [None, "1", "6", "1", "4"]
+        # 例：param =  [None, "1", "6", "1"]
         iaasController = iaasSelect(param[1], param[2])
         if iaasController == None:
             sys.exit()
-        res = iaasController.releaseAddress(param[3], param[4])
+        res = iaasController.releaseAddress(param[3])
         print res
     except:
         logger.error(traceback.format_exc())

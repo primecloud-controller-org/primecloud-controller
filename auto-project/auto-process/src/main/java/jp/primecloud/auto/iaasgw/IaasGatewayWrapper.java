@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import jp.primecloud.auto.common.log.LoggingUtils;
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.log.EventLogger;
 import jp.primecloud.auto.util.MessageUtils;
@@ -278,14 +277,12 @@ public class IaasGatewayWrapper{
 
     public String allocateAddress() {
         List<String> params = new ArrayList<String>();
-        params.add(String.valueOf(LoggingUtils.getFarmNo()));
         return excGateway("AllocateAddress.py", params);
     }
 
     public void releaseAddress(String publicIp) {
         List<String> params = new ArrayList<String>();
         params.add(publicIp);
-        params.add(String.valueOf(LoggingUtils.getFarmNo()));
         excGateway("ReleaseAddress.py", params);
     }
 

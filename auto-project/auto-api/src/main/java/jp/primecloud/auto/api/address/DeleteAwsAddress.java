@@ -10,7 +10,6 @@ import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
 import jp.primecloud.auto.api.response.address.DeleteAwsAddressResponse;
 import jp.primecloud.auto.entity.crud.AwsAddress;
-import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.AutoApplicationException;
@@ -21,20 +20,14 @@ import org.apache.commons.lang.StringUtils;
 @Path("/DeleteAwsAddress")
 public class DeleteAwsAddress extends ApiSupport {
 
-    // TODO: 引数のFarmNoは本来は不要だが、現在はIaaSGWの実装不良のために必要
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public DeleteAwsAddressResponse deleteAwsAddress(@QueryParam(PARAM_NAME_ADDRESS_NO) String addressNo,
-            @QueryParam(PARAM_NAME_FARM_NO) String farmNo) {
+    public DeleteAwsAddressResponse deleteAwsAddress(@QueryParam(PARAM_NAME_ADDRESS_NO) String addressNo) {
         // 入力チェック
         ApiValidate.validateAddressNo(addressNo);
-        ApiValidate.validateFarmNo(farmNo);
-
-        // ファーム取得
-        Farm farm = getFarm(Long.parseLong(farmNo));
 
         // ユーザ取得
-        User user = checkAndGetUser(farm);
+        User user = checkAndGetUser();
 
         // アドレス情報取得
         AwsAddress awsAddress = awsAddressDao.read(Long.parseLong(addressNo));

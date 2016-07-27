@@ -11,7 +11,6 @@ import jp.primecloud.auto.api.ApiValidate;
 import jp.primecloud.auto.api.response.address.AddAwsAddressResponse;
 import jp.primecloud.auto.api.response.address.AwsAddressResponse;
 import jp.primecloud.auto.entity.crud.AwsAddress;
-import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.AutoApplicationException;
@@ -21,20 +20,14 @@ import org.apache.commons.lang.BooleanUtils;
 @Path("/AddAwsAddress")
 public class AddAwsAddress extends ApiSupport {
 
-    // TODO: 引数のFarmNoは本来は不要だが、現在はIaaSGWの実装不良のために必要
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public AddAwsAddressResponse addAwsAddress(@QueryParam(PARAM_NAME_PLATFORM_NO) String platformNo,
-            @QueryParam(PARAM_NAME_FARM_NO) String farmNo) {
+    public AddAwsAddressResponse addAwsAddress(@QueryParam(PARAM_NAME_PLATFORM_NO) String platformNo) {
         // 入力チェック
         ApiValidate.validatePlatformNo(platformNo);
-        ApiValidate.validateFarmNo(farmNo);
-
-        // ファーム取得
-        Farm farm = getFarm(Long.parseLong(farmNo));
 
         // ユーザ取得
-        User user = checkAndGetUser(farm);
+        User user = checkAndGetUser();
 
         // プラットフォーム取得
         Platform platform = platformDao.read(Long.parseLong(platformNo));

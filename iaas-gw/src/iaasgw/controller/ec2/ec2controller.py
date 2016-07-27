@@ -271,7 +271,7 @@ class EC2Controller(IaasController):
         return "RESULT:TRUE"
 
 
-    def allocateAddress(self, farmNo):
+    def allocateAddress(self):
         publicIp = None
         platformNo = self.client.getPlatformNo()
 
@@ -286,7 +286,7 @@ class EC2Controller(IaasController):
             publicIp = self.client.allocateAddress()
 
         #イベントログ出力
-        self.conn.debug(farmNo, None, None, None, None, "AwsElasticIpAllocate", ["EC2", publicIp])
+        self.conn.debug(None, None, None, None, None, "AwsElasticIpAllocate", ["EC2", publicIp])
 
         #DBへ登録
         table = self.conn.getTable("AWS_ADDRESS")
@@ -304,7 +304,7 @@ class EC2Controller(IaasController):
         self.conn.commit()
         return "RESULT:" + str(newAddress["ADDRESS_NO"])
 
-    def releaseAddress(self, addressNo, farmNo):
+    def releaseAddress(self, addressNo):
         platformNo = self.client.getPlatformNo()
 
         tablePLAWS = self.conn.getTable("PLATFORM_AWS")
@@ -330,7 +330,7 @@ class EC2Controller(IaasController):
             self.client.releaseAddress(ipaddress)
 
         #イベントログ
-        self.conn.debug(farmNo, None, None, None, None, "AwsElasticIpRelease", ["EC2", ipaddress])
+        self.conn.debug(None, None, None, None, None, "AwsElasticIpRelease", ["EC2", ipaddress])
 
         #DBから削除
         table.delete(table.c.ADDRESS_NO==addressNo).execute()

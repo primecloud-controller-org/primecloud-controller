@@ -28,7 +28,7 @@ if __name__ == '__main__':
     logger = IaasLogger()
 
     #ログ用パラメータ
-    logparam = ["AllocateAddress",os.getpid(), "ファームNo:%s" %str(param[3])]
+    logparam = ["AllocateAddress",os.getpid()]
     logger.start(logparam)
 
     #実行
@@ -37,13 +37,12 @@ if __name__ == '__main__':
         #  0.ファイル名
         #  1.ユーザー名
         #  2.プラットフォームNo
-        #  3.ファームNo
         #
-        # 例：param = [None, "1", "6", "1"]
+        # 例：param = [None, "1", "6"]
         iaasController = iaasSelect(param[1], param[2])
         if iaasController == None:
             sys.exit()
-        publicIp = iaasController.allocateAddress(param[3])
+        publicIp = iaasController.allocateAddress()
         print publicIp
 
     except:
