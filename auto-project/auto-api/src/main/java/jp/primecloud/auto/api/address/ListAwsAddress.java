@@ -52,10 +52,12 @@ public class ListAwsAddress extends ApiSupport {
         ListAwsAddressResponse response = new ListAwsAddressResponse();
 
         // アドレス情報を取得
-        List<AwsAddress> awsAddresses = awsAddressDao.readByPlatformNo(platform.getPlatformNo());
+        List<AwsAddress> awsAddresses = awsAddressDao.readByUserNo(user.getUserNo());
         for (AwsAddress awsAddress : awsAddresses) {
-            AwsAddressResponse awsAddressResponse = new AwsAddressResponse(awsAddress);
-            response.getAwsAddresses().add(awsAddressResponse);
+            if (platform.getPlatformNo().equals(awsAddress.getPlatformNo())) {
+                AwsAddressResponse awsAddressResponse = new AwsAddressResponse(awsAddress);
+                response.getAwsAddresses().add(awsAddressResponse);
+            }
         }
 
         return response;
