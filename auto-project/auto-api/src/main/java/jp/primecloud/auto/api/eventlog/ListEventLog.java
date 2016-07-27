@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
  */
-package jp.primecloud.auto.api;
+package jp.primecloud.auto.api.eventlog;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -33,8 +33,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import jp.primecloud.auto.api.response.EventLogResponse;
-import jp.primecloud.auto.api.response.ListEventLogResponse;
+import jp.primecloud.auto.api.ApiSupport;
+import jp.primecloud.auto.api.ApiValidate;
+import jp.primecloud.auto.api.response.eventlog.EventLogResponse;
+import jp.primecloud.auto.api.response.eventlog.ListEventLogResponse;
 import jp.primecloud.auto.entity.crud.Component;
 import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.Instance;

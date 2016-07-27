@@ -1,4 +1,4 @@
-package jp.primecloud.auto.api.response;
+package jp.primecloud.auto.api.response.platform;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 

@@ -1,4 +1,4 @@
-package jp.primecloud.auto.api.response;
+package jp.primecloud.auto.api.response.image;
 
 import java.util.ArrayList;
 import java.util.List;

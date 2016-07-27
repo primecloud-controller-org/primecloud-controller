@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
  */
-package jp.primecloud.auto.api;
+package jp.primecloud.auto.api.platform;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,15 +27,17 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import jp.primecloud.auto.api.response.DescribePlatformResponse;
-import jp.primecloud.auto.api.response.PlatformAwsResponse;
-import jp.primecloud.auto.api.response.PlatformAzureResponse;
-import jp.primecloud.auto.api.response.PlatformCloudstackResponse;
-import jp.primecloud.auto.api.response.PlatformNiftyResponse;
-import jp.primecloud.auto.api.response.PlatformOpenstackResponse;
-import jp.primecloud.auto.api.response.PlatformResponse;
-import jp.primecloud.auto.api.response.PlatformVcloudResponse;
-import jp.primecloud.auto.api.response.PlatformVmwareResponse;
+import jp.primecloud.auto.api.ApiSupport;
+import jp.primecloud.auto.api.ApiValidate;
+import jp.primecloud.auto.api.response.platform.DescribePlatformResponse;
+import jp.primecloud.auto.api.response.platform.PlatformAwsResponse;
+import jp.primecloud.auto.api.response.platform.PlatformAzureResponse;
+import jp.primecloud.auto.api.response.platform.PlatformCloudstackResponse;
+import jp.primecloud.auto.api.response.platform.PlatformNiftyResponse;
+import jp.primecloud.auto.api.response.platform.PlatformOpenstackResponse;
+import jp.primecloud.auto.api.response.platform.PlatformResponse;
+import jp.primecloud.auto.api.response.platform.PlatformVcloudResponse;
+import jp.primecloud.auto.api.response.platform.PlatformVmwareResponse;
 import jp.primecloud.auto.entity.crud.AwsCertificate;
 import jp.primecloud.auto.entity.crud.CloudstackCertificate;
 import jp.primecloud.auto.entity.crud.Platform;

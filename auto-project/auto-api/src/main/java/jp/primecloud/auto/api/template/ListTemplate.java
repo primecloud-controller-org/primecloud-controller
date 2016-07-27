@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
  */
-package jp.primecloud.auto.api;
+package jp.primecloud.auto.api.template;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +26,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import jp.primecloud.auto.api.response.ListTemplateResponse;
-import jp.primecloud.auto.api.response.TemplateResponse;
+import jp.primecloud.auto.api.ApiSupport;
+import jp.primecloud.auto.api.response.template.ListTemplateResponse;
+import jp.primecloud.auto.api.response.template.TemplateResponse;
 import jp.primecloud.auto.entity.crud.ComponentType;
 import jp.primecloud.auto.entity.crud.Image;
 import jp.primecloud.auto.entity.crud.Platform;

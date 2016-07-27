@@ -1,4 +1,4 @@
-package jp.primecloud.auto.api.response;
+package jp.primecloud.auto.api.response.template;
 
 import jp.primecloud.auto.entity.crud.Template;
 

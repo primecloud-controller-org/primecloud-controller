@@ -1,4 +1,4 @@
-package jp.primecloud.auto.api.response;
+package jp.primecloud.auto.api.response.eventlog;
 
 import jp.primecloud.auto.log.entity.crud.EventLog;
 
