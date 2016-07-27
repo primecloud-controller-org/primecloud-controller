@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.api.farm;
 
-
 import java.util.List;
 
 import javax.ws.rs.GET;
@@ -27,40 +26,38 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
-
 import jp.primecloud.auto.api.response.farm.FarmResponse;
 import jp.primecloud.auto.api.response.farm.ListFarmResponse;
 import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.User;
 
-
 @Path("/ListFarm")
 public class ListFarm extends ApiSupport {
 
     /**
-     *
      * ファーム一覧取得
      *
      * @return ListFarmResponse
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public ListFarmResponse listFarm(){
+    public ListFarmResponse listFarm() {
 
         ListFarmResponse response = new ListFarmResponse();
 
-            // ユーザの取得
-            User user = checkAndGetUser();
+        // ユーザの取得
+        User user = checkAndGetUser();
 
-            // ファームの取得
-            List<Farm> farms = farmDao.readByUserNo(user.getUserNo());
-            for (Farm farm: farms) {
-                FarmResponse farmResponse = new FarmResponse(farm);
-                response.getFarms().add(farmResponse);
-            }
+        // ファームの取得
+        List<Farm> farms = farmDao.readByUserNo(user.getUserNo());
+        for (Farm farm : farms) {
+            FarmResponse farmResponse = new FarmResponse(farm);
+            response.getFarms().add(farmResponse);
+        }
 
-            response.setSuccess(true);
+        response.setSuccess(true);
 
-        return  response;
+        return response;
     }
+
 }

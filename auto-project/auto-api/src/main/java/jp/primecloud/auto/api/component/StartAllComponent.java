@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.api.component;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,19 +29,16 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
-
-import org.apache.commons.lang.BooleanUtils;
-
 import jp.primecloud.auto.api.response.component.StartAllComponentResponse;
 import jp.primecloud.auto.entity.crud.Component;
 import jp.primecloud.auto.entity.crud.Farm;
 
+import org.apache.commons.lang.BooleanUtils;
 
 @Path("/StartAllComponent")
-public class StartAllComponent extends ApiSupport{
+public class StartAllComponent extends ApiSupport {
 
     /**
-     *
      * サービス起動処理(All) ファーム内のすべてのサービスを起動
      *
      * @param farmNo ファーム番号
@@ -50,37 +46,37 @@ public class StartAllComponent extends ApiSupport{
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-	public StartAllComponentResponse startAllComponent(
-	        @QueryParam(PARAM_NAME_FARM_NO) String farmNo){
+    public StartAllComponentResponse startAllComponent(@QueryParam(PARAM_NAME_FARM_NO) String farmNo) {
 
         StartAllComponentResponse response = new StartAllComponentResponse();
 
-            // 入力チェック
-            // FarmNo
-            ApiValidate.validateFarmNo(farmNo);
+        // 入力チェック
+        // FarmNo
+        ApiValidate.validateFarmNo(farmNo);
 
-            // ファーム取得
-            Farm farm = getFarm(Long.parseLong(farmNo));
+        // ファーム取得
+        Farm farm = getFarm(Long.parseLong(farmNo));
 
-            // 権限チェック
-            checkAndGetUser(farm);
+        // 権限チェック
+        checkAndGetUser(farm);
 
-            // コンポーネント取得
-            List<Component> components = componentDao.readByFarmNo(Long.parseLong(farmNo));
-            List<Long> componentNos = new ArrayList<Long>();
-            for (Component component: components) {
-                if (BooleanUtils.isTrue(component.getLoadBalancer())) {
-                    //ロードバランサコンポーネントは対象外
-                    continue;
-                }
-                componentNos.add(component.getComponentNo());
+        // コンポーネント取得
+        List<Component> components = componentDao.readByFarmNo(Long.parseLong(farmNo));
+        List<Long> componentNos = new ArrayList<Long>();
+        for (Component component : components) {
+            if (BooleanUtils.isTrue(component.getLoadBalancer())) {
+                //ロードバランサコンポーネントは対象外
+                continue;
             }
+            componentNos.add(component.getComponentNo());
+        }
 
-            // サービス起動設定
-            processService.startComponents(Long.parseLong(farmNo), componentNos);
+        // サービス起動設定
+        processService.startComponents(Long.parseLong(farmNo), componentNos);
 
-            response.setSuccess(true);
+        response.setSuccess(true);
 
-        return  response;
-	}
+        return response;
+    }
+
 }

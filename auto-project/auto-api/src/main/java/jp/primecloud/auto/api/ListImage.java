@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.api;
 
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,8 +27,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-
-import org.apache.commons.lang.BooleanUtils;
 
 import jp.primecloud.auto.api.response.ImageResponse;
 import jp.primecloud.auto.api.response.ListImageResponse;
@@ -46,70 +43,71 @@ import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.AutoApplicationException;
 
+import org.apache.commons.lang.BooleanUtils;
 
 @Path("/ListImage")
 public class ListImage extends ApiSupport {
 
     /**
-     *
      * イメージ一覧取得
+     * 
      * @param platformNo プラットフォーム番号
-     *
      * @return ListImageResponse
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-	public ListImageResponse listImage(
-	        @QueryParam(PARAM_NAME_PLATFORM_NO) String platformNo){
+    public ListImageResponse listImage(@QueryParam(PARAM_NAME_PLATFORM_NO) String platformNo) {
 
         ListImageResponse response = new ListImageResponse();
 
-            // 入力チェック
-            // PlatformNo
-            ApiValidate.validatePlatformNo(platformNo);
+        // 入力チェック
+        // PlatformNo
+        ApiValidate.validatePlatformNo(platformNo);
 
-            //ユーザ取得
-            User user = checkAndGetUser();
+        //ユーザ取得
+        User user = checkAndGetUser();
+
+        //プラットフォーム取得
+        Platform platform = platformDao.read(Long.parseLong(platformNo));
+
+        if (platform == null) {
+            //プラットフォームが存在しない
+            throw new AutoApplicationException("EAPI-100000", "Platform", PARAM_NAME_PLATFORM_NO, platformNo);
+        }
+        if (!platformService.isUseablePlatforms(user.getUserNo(), platform)
+                || BooleanUtils.isNotTrue(platform.getSelectable())) {
+            //認証情報が存在しない or 有効ではないプラットフォーム
+            throw new AutoApplicationException("EAPI-000020", "Platform", PARAM_NAME_PLATFORM_NO, platformNo);
+        }
+
+        // イメージ情報取得
+        List<Image> images = imageDao.readByPlatformNo(Long.parseLong(platformNo));
+        for (Image image : images) {
+            // 選択可能でないイメージは除外
+            if (BooleanUtils.isNotTrue(image.getSelectable())) {
+                continue;
+            }
+
+            // ロードバランサイメージは除外
+            if (PCCConstant.IMAGE_NAME_ELB.equals(image.getImageName())
+                    || PCCConstant.IMAGE_NAME_ULTRAMONKEY.equals(image.getImageName())) {
+                continue;
+            }
 
             //プラットフォーム取得
-            Platform platform = platformDao.read(Long.parseLong(platformNo));
-
-            if (platform == null) {
-                //プラットフォームが存在しない
-                throw new AutoApplicationException("EAPI-100000", "Platform", PARAM_NAME_PLATFORM_NO, platformNo);
+            if (BooleanUtils.isTrue(image.getSelectable())) {
+                //対象プラットフォーム かつ 選択可能イメージのみ表示
+                ImageResponse imageResponse = new ImageResponse(platform, image);
+                imageResponse.getInstanceTypes().addAll(
+                        getInstanceTypes(platform.getPlatformType(), image.getImageNo()));
+                response.getImages().add(imageResponse);
             }
-            if (!platformService.isUseablePlatforms(user.getUserNo(), platform) ||
-                BooleanUtils.isNotTrue(platform.getSelectable())) {
-                //認証情報が存在しない or 有効ではないプラットフォーム
-                throw new AutoApplicationException("EAPI-000020", "Platform", PARAM_NAME_PLATFORM_NO, platformNo);
-            }
+        }
 
-            // イメージ情報取得
-            List<Image> images = imageDao.readByPlatformNo(Long.parseLong(platformNo));
-            for (Image image: images) {
-                // 選択可能でないイメージは除外
-                if (BooleanUtils.isNotTrue(image.getSelectable())) {
-                    continue;
-                }
+        response.setSuccess(true);
 
-                // ロードバランサイメージは除外
-                if (PCCConstant.IMAGE_NAME_ELB.equals(image.getImageName()) || PCCConstant.IMAGE_NAME_ULTRAMONKEY.equals(image.getImageName())) {
-                    continue;
-                }
-
-                //プラットフォーム取得
-                if (BooleanUtils.isTrue(image.getSelectable())) {
-                    //対象プラットフォーム かつ 選択可能イメージのみ表示
-                    ImageResponse imageResponse = new ImageResponse(platform, image);
-                    imageResponse.getInstanceTypes().addAll(getInstanceTypes(platform.getPlatformType(), image.getImageNo()));
-                    response.getImages().add(imageResponse);
-                }
-            }
-
-            response.setSuccess(true);
-
-        return  response;
-	}
+        return response;
+    }
 
     private List<String> getInstanceTypes(String platformType, Long imageNo) {
         String instanceTypesText = null;
@@ -156,4 +154,5 @@ public class ListImage extends ApiSupport {
 
         return Arrays.asList(instanceTypesText.split(","));
     }
+
 }

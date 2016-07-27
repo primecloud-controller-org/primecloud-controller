@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.api.lb;
 
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -31,10 +30,6 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.api.response.lb.AutoScalingConfResponse;
 import jp.primecloud.auto.api.response.lb.AwsLoadBalancerResponse;
 import jp.primecloud.auto.api.response.lb.DescribeLoadBalancerResponse;
@@ -56,125 +51,129 @@ import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.service.dto.SubnetDto;
 import jp.primecloud.auto.service.impl.Comparators;
 
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 
 @Path("/DescribeLoadBalancer")
 public class DescribeLoadBalancer extends ApiSupport {
 
     /**
-     *
      * ロードバランサ情報取得
      *
      * @param loadBalancerNo ロードバランサ番号
-     *
      * @return DescribeLoadBalancerResponse
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public DescribeLoadBalancerResponse describeLoadBalancer(
-            @QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo){
+            @QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo) {
 
         DescribeLoadBalancerResponse response = new DescribeLoadBalancerResponse();
 
-            // 入力チェック
-            // LoadBalancerNo
-            ApiValidate.validateLoadBalancerNo(loadBalancerNo);
+        // 入力チェック
+        // LoadBalancerNo
+        ApiValidate.validateLoadBalancerNo(loadBalancerNo);
 
-            // ロードバランサ取得
-            LoadBalancer loadBalancer = getLoadBalancer(Long.parseLong(loadBalancerNo));
+        // ロードバランサ取得
+        LoadBalancer loadBalancer = getLoadBalancer(Long.parseLong(loadBalancerNo));
 
-            // 権限チェック
-            User user = checkAndGetUser(loadBalancer);
+        // 権限チェック
+        User user = checkAndGetUser(loadBalancer);
 
-            //ロードバランサ情報設定
-            LoadBalancerResponse loadBalancerResponse = new LoadBalancerResponse(loadBalancer);
-            response.setLoadBalancer(loadBalancerResponse);
+        //ロードバランサ情報設定
+        LoadBalancerResponse loadBalancerResponse = new LoadBalancerResponse(loadBalancer);
+        response.setLoadBalancer(loadBalancerResponse);
 
-            //リスナー取得
-            List<LoadBalancerListener> listeners = loadBalancerListenerDao.readByLoadBalancerNo(Long.parseLong(loadBalancerNo));
-            if (listeners.isEmpty() == false) {
-                //ソート
-                Collections.sort(listeners, Comparators.COMPARATOR_LOAD_BALANCER_LISTENER);
-            }
-            for (LoadBalancerListener listener: listeners) {
-                //リスナー情報設定
-                loadBalancerResponse.getListeners().add(new LoadBalancerListenerResponse(listener));
-            }
+        //リスナー取得
+        List<LoadBalancerListener> listeners = loadBalancerListenerDao.readByLoadBalancerNo(Long
+                .parseLong(loadBalancerNo));
+        if (listeners.isEmpty() == false) {
+            //ソート
+            Collections.sort(listeners, Comparators.COMPARATOR_LOAD_BALANCER_LISTENER);
+        }
+        for (LoadBalancerListener listener : listeners) {
+            //リスナー情報設定
+            loadBalancerResponse.getListeners().add(new LoadBalancerListenerResponse(listener));
+        }
 
-            //ヘルスチェック取得
-            LoadBalancerHealthCheck healthCheck = loadBalancerHealthCheckDao.read(Long.parseLong(loadBalancerNo));
-            if (healthCheck != null) {
-                //ヘルスチェック情報設定
-                loadBalancerResponse.setHealthCheck(new LoadBalancerHealthCheckResponse(healthCheck));
-            }
+        //ヘルスチェック取得
+        LoadBalancerHealthCheck healthCheck = loadBalancerHealthCheckDao.read(Long.parseLong(loadBalancerNo));
+        if (healthCheck != null) {
+            //ヘルスチェック情報設定
+            loadBalancerResponse.setHealthCheck(new LoadBalancerHealthCheckResponse(healthCheck));
+        }
 
-            //コンポーネントインスタンス情報取得
-            List<ComponentInstance> componentInstances = componentInstanceDao.readByComponentNo(loadBalancer.getComponentNo());
-            if (componentInstances.isEmpty() == false) {
-                //ソート
-                Collections.sort(componentInstances, Comparators.COMPARATOR_COMPONENT_INSTANCE);
-            }
+        //コンポーネントインスタンス情報取得
+        List<ComponentInstance> componentInstances = componentInstanceDao.readByComponentNo(loadBalancer
+                .getComponentNo());
+        if (componentInstances.isEmpty() == false) {
+            //ソート
+            Collections.sort(componentInstances, Comparators.COMPARATOR_COMPONENT_INSTANCE);
+        }
 
-            for (ComponentInstance componentInstance: componentInstances) {
-                // 関連付けが無効で停止している場合は除外
-                if (BooleanUtils.isNotTrue(componentInstance.getAssociate())) {
-                    ComponentInstanceStatus status = ComponentInstanceStatus.fromStatus(componentInstance.getStatus());
-                    if (status == ComponentInstanceStatus.STOPPED) {
-                        continue;
-                    }
+        for (ComponentInstance componentInstance : componentInstances) {
+            // 関連付けが無効で停止している場合は除外
+            if (BooleanUtils.isNotTrue(componentInstance.getAssociate())) {
+                ComponentInstanceStatus status = ComponentInstanceStatus.fromStatus(componentInstance.getStatus());
+                if (status == ComponentInstanceStatus.STOPPED) {
+                    continue;
                 }
-                //ロードバランサインスタンス取得
-                LoadBalancerInstance loadBalancerInstance =
-                    loadBalancerInstanceDao.read(Long.parseLong(loadBalancerNo), componentInstance.getInstanceNo());
-
-                LoadBalancerInstanceResponse loadBalancerInstanceResponse = new LoadBalancerInstanceResponse();
-                loadBalancerInstanceResponse.setInstanceNo(componentInstance.getInstanceNo());
-                if (loadBalancerInstance == null) {
-                    //ロードバランサインスタンスが存在しない場合、ロードバランサインスタンス作成時のデータを設定
-                    loadBalancerInstanceResponse.setEnabled(false);
-                    loadBalancerInstanceResponse.setStatus(LoadBalancerInstanceStatus.STOPPED.toString());
-                } else {
-                    loadBalancerInstanceResponse.setEnabled(loadBalancerInstance.getEnabled());
-                    loadBalancerInstanceResponse.setStatus(loadBalancerInstance.getStatus());
-                }
-                //ロードバランサインスタンス情報設定
-                loadBalancerResponse.getInstances().add(loadBalancerInstanceResponse);
             }
+            //ロードバランサインスタンス取得
+            LoadBalancerInstance loadBalancerInstance = loadBalancerInstanceDao.read(Long.parseLong(loadBalancerNo),
+                    componentInstance.getInstanceNo());
 
-            //オートスケーリング取得
-            AutoScalingConf autoScalingConf = autoScalingConfDao.read(Long.parseLong(loadBalancerNo));
-            if (autoScalingConf != null) {
-                //オートスケーリング情報設定
-                loadBalancerResponse.setAutoScaling(new AutoScalingConfResponse(autoScalingConf));
+            LoadBalancerInstanceResponse loadBalancerInstanceResponse = new LoadBalancerInstanceResponse();
+            loadBalancerInstanceResponse.setInstanceNo(componentInstance.getInstanceNo());
+            if (loadBalancerInstance == null) {
+                //ロードバランサインスタンスが存在しない場合、ロードバランサインスタンス作成時のデータを設定
+                loadBalancerInstanceResponse.setEnabled(false);
+                loadBalancerInstanceResponse.setStatus(LoadBalancerInstanceStatus.STOPPED.toString());
+            } else {
+                loadBalancerInstanceResponse.setEnabled(loadBalancerInstance.getEnabled());
+                loadBalancerInstanceResponse.setStatus(loadBalancerInstance.getStatus());
             }
+            //ロードバランサインスタンス情報設定
+            loadBalancerResponse.getInstances().add(loadBalancerInstanceResponse);
+        }
 
-            // AWS
-            if (LB_TYPE_ELB.equals(loadBalancer.getType())) {
-                AwsLoadBalancer awsLoadBalancer = awsLoadBalancerDao.read(loadBalancer.getLoadBalancerNo());
-                AwsLoadBalancerResponse awsLoadBalancerResponse = new AwsLoadBalancerResponse(awsLoadBalancer);
+        //オートスケーリング取得
+        AutoScalingConf autoScalingConf = autoScalingConfDao.read(Long.parseLong(loadBalancerNo));
+        if (autoScalingConf != null) {
+            //オートスケーリング情報設定
+            loadBalancerResponse.setAutoScaling(new AutoScalingConfResponse(autoScalingConf));
+        }
 
-                // Subnet
-                if (StringUtils.isNotEmpty(awsLoadBalancer.getSubnetId())) {
-                    PlatformAws platformAws = platformAwsDao.read(loadBalancer.getPlatformNo());
-                    List<SubnetDto> subnetDtos = iaasDescribeService.getSubnets(user.getUserNo(), loadBalancer.getPlatformNo(), platformAws.getVpcId());
+        // AWS
+        if (LB_TYPE_ELB.equals(loadBalancer.getType())) {
+            AwsLoadBalancer awsLoadBalancer = awsLoadBalancerDao.read(loadBalancer.getLoadBalancerNo());
+            AwsLoadBalancerResponse awsLoadBalancerResponse = new AwsLoadBalancerResponse(awsLoadBalancer);
 
-                    List<String> subnets = new ArrayList<String>();
-                    for (String subnetId : StringUtils.split(awsLoadBalancer.getSubnetId(), ",")) {
-                        for (SubnetDto subnetDto : subnetDtos) {
-                            if (subnetDto.getSubnetId().equals(subnetId)) {
-                                subnets.add(subnetDto.getCidrBlock());
-                                break;
-                            }
+            // Subnet
+            if (StringUtils.isNotEmpty(awsLoadBalancer.getSubnetId())) {
+                PlatformAws platformAws = platformAwsDao.read(loadBalancer.getPlatformNo());
+                List<SubnetDto> subnetDtos = iaasDescribeService.getSubnets(user.getUserNo(),
+                        loadBalancer.getPlatformNo(), platformAws.getVpcId());
+
+                List<String> subnets = new ArrayList<String>();
+                for (String subnetId : StringUtils.split(awsLoadBalancer.getSubnetId(), ",")) {
+                    for (SubnetDto subnetDto : subnetDtos) {
+                        if (subnetDto.getSubnetId().equals(subnetId)) {
+                            subnets.add(subnetDto.getCidrBlock());
+                            break;
                         }
                     }
-
-                    awsLoadBalancerResponse.setSubnets(StringUtils.join(subnets, ","));
                 }
 
-                loadBalancerResponse.setAws(awsLoadBalancerResponse);
+                awsLoadBalancerResponse.setSubnets(StringUtils.join(subnets, ","));
             }
 
-            response.setSuccess(true);
+            loadBalancerResponse.setAws(awsLoadBalancerResponse);
+        }
 
-        return  response;
+        response.setSuccess(true);
+
+        return response;
     }
+
 }

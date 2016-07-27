@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.api.lb;
 
-
 import java.util.Collections;
 import java.util.List;
 
@@ -30,9 +29,6 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
-
-import org.apache.commons.lang.BooleanUtils;
-
 import jp.primecloud.auto.api.response.lb.ListLoadBalancerResponse;
 import jp.primecloud.auto.api.response.lb.LoadBalancerResponse;
 import jp.primecloud.auto.entity.crud.Component;
@@ -40,55 +36,54 @@ import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.service.impl.Comparators;
 
+import org.apache.commons.lang.BooleanUtils;
 
 @Path("/ListLoadBalancer")
 public class ListLoadBalancer extends ApiSupport {
 
     /**
-     *
      * ロードバランサ情報一覧取得
      *
      * @param farmNo ファーム番号
-     *
      * @return ListLoadBalancerResponse
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public ListLoadBalancerResponse listLoadBalancer(
-            @QueryParam(PARAM_NAME_FARM_NO) String farmNo){
+    public ListLoadBalancerResponse listLoadBalancer(@QueryParam(PARAM_NAME_FARM_NO) String farmNo) {
 
         ListLoadBalancerResponse response = new ListLoadBalancerResponse();
 
-            // 入力チェック
-            // LoadBalancerNo
-            ApiValidate.validateFarmNo(farmNo);
+        // 入力チェック
+        // LoadBalancerNo
+        ApiValidate.validateFarmNo(farmNo);
 
-            // 権限チェック
-            Farm farm = farmDao.read(Long.parseLong(farmNo));
-            checkAndGetUser(farm);
+        // 権限チェック
+        Farm farm = farmDao.read(Long.parseLong(farmNo));
+        checkAndGetUser(farm);
 
-            // ロードバランサ取得
-            List<LoadBalancer> loadBalancers = loadBalancerDao.readByFarmNo(Long.parseLong(farmNo));
-            if (BooleanUtils.isFalse(loadBalancers.isEmpty())) {
-                //ソート
-                Collections.sort(loadBalancers, Comparators.COMPARATOR_LOAD_BALANCER);
+        // ロードバランサ取得
+        List<LoadBalancer> loadBalancers = loadBalancerDao.readByFarmNo(Long.parseLong(farmNo));
+        if (BooleanUtils.isFalse(loadBalancers.isEmpty())) {
+            //ソート
+            Collections.sort(loadBalancers, Comparators.COMPARATOR_LOAD_BALANCER);
+        }
+
+        for (LoadBalancer loadBalancer : loadBalancers) {
+            //ロードバランサ情報設定
+            LoadBalancerResponse loadBalancerResponse = new LoadBalancerResponse(loadBalancer);
+
+            // コンポーネント取得
+            Component component = componentDao.read(loadBalancer.getComponentNo());
+            if (component != null) {
+                //コンポーネント名設定
+                loadBalancerResponse.setComponentName(component.getComponentName());
             }
+            response.getLoadBalancers().add(loadBalancerResponse);
+        }
 
-            for (LoadBalancer loadBalancer: loadBalancers) {
-                //ロードバランサ情報設定
-                LoadBalancerResponse loadBalancerResponse = new LoadBalancerResponse(loadBalancer);
+        response.setSuccess(true);
 
-                // コンポーネント取得
-                Component component = componentDao.read(loadBalancer.getComponentNo());
-                if (component != null) {
-                    //コンポーネント名設定
-                    loadBalancerResponse.setComponentName(component.getComponentName());
-                }
-                response.getLoadBalancers().add(loadBalancerResponse);
-            }
-
-            response.setSuccess(true);
-
-        return  response;
+        return response;
     }
+
 }

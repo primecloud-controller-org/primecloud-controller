@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.api.lb;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,10 +29,6 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.api.response.lb.EditLoadBalancerAutoScalingResponse;
 import jp.primecloud.auto.common.status.LoadBalancerStatus;
 import jp.primecloud.auto.entity.crud.AutoScalingConf;
@@ -49,12 +44,13 @@ import jp.primecloud.auto.entity.crud.PlatformAws;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.AutoApplicationException;
 
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 
 @Path("/EditLoadBalancerAutoScaling")
 public class EditLoadBalancerAutoScaling extends ApiSupport {
 
     /**
-     *
      * ロードバランサ オートスケーリング情報 編集
      *
      * @param loadBalancerNo ロードバランサ番号
@@ -68,135 +64,125 @@ public class EditLoadBalancerAutoScaling extends ApiSupport {
      * @param continueLimit 監視継続時間(秒)
      * @param addCount 増加サーバー数(台)
      * @param delCount 削減サーバー数(台)
-     *
      * @return EditLoadBalancerAutoScalingResponse
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-	public EditLoadBalancerAutoScalingResponse editLoadBalancer(
+    public EditLoadBalancerAutoScalingResponse editLoadBalancer(
             @QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo,
-            @QueryParam(PARAM_NAME_ENABLED) String enabled,
-            @QueryParam(PARAM_NAME_PLATFORM_NO) String platformNo,
-            @QueryParam(PARAM_NAME_IMAGE_NO) String imageNo,
-            @QueryParam(PARAM_NAME_INSTANCE_TYPE) String instanceType,
+            @QueryParam(PARAM_NAME_ENABLED) String enabled, @QueryParam(PARAM_NAME_PLATFORM_NO) String platformNo,
+            @QueryParam(PARAM_NAME_IMAGE_NO) String imageNo, @QueryParam(PARAM_NAME_INSTANCE_TYPE) String instanceType,
             @QueryParam(PARAM_NAME_NAMING_RULE) String namingRule,
             @QueryParam(PARAM_NAME_IDLE_TIME_MAX) String idleTimeMax,
             @QueryParam(PARAM_NAME_IDLE_TIME_MIN) String idleTimeMin,
             @QueryParam(PARAM_NAME_CONTINUE_LIMIT) String continueLimit,
-            @QueryParam(PARAM_NAME_ADD_COUNT) String addCount,
-	        @QueryParam(PARAM_NAME_DEL_COUNT) String delCount){
+            @QueryParam(PARAM_NAME_ADD_COUNT) String addCount, @QueryParam(PARAM_NAME_DEL_COUNT) String delCount) {
 
         EditLoadBalancerAutoScalingResponse response = new EditLoadBalancerAutoScalingResponse();
 
-            // 入力チェック
-            // LoadBalancerNo
-            ApiValidate.validateLoadBalancerNo(loadBalancerNo);
+        // 入力チェック
+        // LoadBalancerNo
+        ApiValidate.validateLoadBalancerNo(loadBalancerNo);
 
-            LoadBalancer loadBalancer = getLoadBalancer(Long.parseLong(loadBalancerNo));
+        LoadBalancer loadBalancer = getLoadBalancer(Long.parseLong(loadBalancerNo));
 
-            // 権限チェック
-            User user = checkAndGetUser(loadBalancer);
+        // 権限チェック
+        User user = checkAndGetUser(loadBalancer);
 
-            // Enabled
-            ApiValidate.validateEnabled(enabled);
+        // Enabled
+        ApiValidate.validateEnabled(enabled);
 
-            if (Boolean.valueOf(enabled)) {
-                //Enabledがtrueの場合
-                //PlatformNo
-                ApiValidate.validatePlatformNo(platformNo);
+        if (Boolean.valueOf(enabled)) {
+            //Enabledがtrueの場合
+            //PlatformNo
+            ApiValidate.validatePlatformNo(platformNo);
 
-                //プラットフォーム取得
-                Platform platform = platformDao.read(Long.parseLong(platformNo));
-                if (platform == null) {
-                    //プラットフォームが存在しない
-                    throw new AutoApplicationException("EAPI-100000", "Platform", PARAM_NAME_PLATFORM_NO, platformNo);
-                }
-                if (!platformService.isUseablePlatforms(user.getUserNo(), platform) ||
-                    BooleanUtils.isNotTrue(platform.getSelectable())) {
-                    //認証情報が存在しない or 有効ではないプラットフォーム
-                    throw new AutoApplicationException("EAPI-000020", "Platform", PARAM_NAME_PLATFORM_NO, platformNo);
-                }
-
-                Platform lbPlatform = platformDao.read(loadBalancer.getPlatformNo());
-                if (PLATFORM_TYPE_AWS.equals(lbPlatform.getPlatformType())) {
-                	PlatformAws platformAws = platformAwsDao.read(loadBalancer.getPlatformNo());
-                	if(!platformAws.getEuca() && platformAws.getVpc()) {
-                		//ロードバランサがEC2+VPCプラットフォームの場合、同プラットフォーム以外設定不可
-                		if(!lbPlatform.getPlatformNo().equals(platform.getPlatformNo())) {
-                			throw new AutoApplicationException("EAPI-100036", loadBalancer.getLoadBalancerName(),
-                			  loadBalancer.getLoadBalancerNo(), platform.getPlatformNo());
-                		}
-                	}
-                }
-
-                //ImageNo
-                ApiValidate.validateImageNo(imageNo);
-                Image image = imageDao.read(Long.parseLong(imageNo));
-                if (image == null || !image.getPlatformNo().equals(platform.getPlatformNo())) {
-                    //イメージが存在しない or プラットフォーム番号が一致しない
-                    throw new AutoApplicationException("EAPI-100000", "Image", PARAM_NAME_IMAGE_NO, imageNo);
-                }
-                if (BooleanUtils.isNotTrue(image.getSelectable())) {
-                    //選択不可イメージ
-                    throw new AutoApplicationException("EAPI-000020", "Image", PARAM_NAME_IMAGE_NO, imageNo);
-                }
-                //InstanceType
-                ApiValidate.validateInstanceType(instanceType, true);
-                List<String> instanceTypes = getInstanceTypes(platform, image);
-                if (!instanceTypes.contains(instanceType)) {
-                    // インスタンスタイプがイメージのインスタンスタイプに含まれていない
-                    throw new AutoApplicationException("EAPI-000011", imageNo, instanceType);
-                }
-                //NamingRule
-                ApiValidate.validateNamingRule(namingRule);
-                namingRule = namingRule + "%d";
-                //IdleTimeMax
-                ApiValidate.validateIdleTimeMax(idleTimeMax);
-                //IdleTimeMin
-                ApiValidate.validateIdleTimeMin(idleTimeMin);
-                //ContinueLimit
-                ApiValidate.validateContinueLimit(continueLimit);
-                //AddCount
-                ApiValidate.validateAddCount(addCount);
-                //DelCount
-                ApiValidate.validateDelCount(delCount);
+            //プラットフォーム取得
+            Platform platform = platformDao.read(Long.parseLong(platformNo));
+            if (platform == null) {
+                //プラットフォームが存在しない
+                throw new AutoApplicationException("EAPI-100000", "Platform", PARAM_NAME_PLATFORM_NO, platformNo);
+            }
+            if (!platformService.isUseablePlatforms(user.getUserNo(), platform)
+                    || BooleanUtils.isNotTrue(platform.getSelectable())) {
+                //認証情報が存在しない or 有効ではないプラットフォーム
+                throw new AutoApplicationException("EAPI-000020", "Platform", PARAM_NAME_PLATFORM_NO, platformNo);
             }
 
-            LoadBalancerStatus status = LoadBalancerStatus.fromStatus(loadBalancer.getStatus());
-            if (LoadBalancerStatus.WARNING == status) {
-                // ロードバランサ ステータスが Warning
-                throw new AutoApplicationException("EAPI-100025", loadBalancerNo);
+            Platform lbPlatform = platformDao.read(loadBalancer.getPlatformNo());
+            if (PLATFORM_TYPE_AWS.equals(lbPlatform.getPlatformType())) {
+                PlatformAws platformAws = platformAwsDao.read(loadBalancer.getPlatformNo());
+                if (!platformAws.getEuca() && platformAws.getVpc()) {
+                    //ロードバランサがEC2+VPCプラットフォームの場合、同プラットフォーム以外設定不可
+                    if (!lbPlatform.getPlatformNo().equals(platform.getPlatformNo())) {
+                        throw new AutoApplicationException("EAPI-100036", loadBalancer.getLoadBalancerName(),
+                                loadBalancer.getLoadBalancerNo(), platform.getPlatformNo());
+                    }
+                }
             }
 
-            //オートスケーリング情報 更新
-            if (Boolean.valueOf(enabled)) {
-                //有効
-                loadBalancerService.updateAutoScalingConf(
-                        loadBalancer.getFarmNo(), Long.parseLong(loadBalancerNo),
-                        Long.parseLong(platformNo), Long.parseLong(imageNo),
-                        instanceType, Boolean.parseBoolean(enabled) ? 1: 0,
-                        namingRule, Long.parseLong(idleTimeMax),
-                        Long.parseLong(idleTimeMin), Long.parseLong(continueLimit),
-                        Long.parseLong(addCount), Long.parseLong(delCount));
-            } else {
-                //無効
-                AutoScalingConf autoScalingConf = autoScalingConfDao.read(Long.parseLong(loadBalancerNo));
-                loadBalancerService.updateAutoScalingConf(
-                        loadBalancer.getFarmNo(), Long.parseLong(loadBalancerNo),
-                        autoScalingConf.getPlatformNo(), autoScalingConf.getImageNo(),
-                        autoScalingConf.getInstanceType(), Boolean.parseBoolean(enabled) ? 1: 0,
-                        autoScalingConf.getNamingRule(), autoScalingConf.getIdleTimeMax(),
-                        autoScalingConf.getIdleTimeMin(), autoScalingConf.getContinueLimit(),
-                        autoScalingConf.getAddCount(), autoScalingConf.getDelCount());
+            //ImageNo
+            ApiValidate.validateImageNo(imageNo);
+            Image image = imageDao.read(Long.parseLong(imageNo));
+            if (image == null || !image.getPlatformNo().equals(platform.getPlatformNo())) {
+                //イメージが存在しない or プラットフォーム番号が一致しない
+                throw new AutoApplicationException("EAPI-100000", "Image", PARAM_NAME_IMAGE_NO, imageNo);
             }
+            if (BooleanUtils.isNotTrue(image.getSelectable())) {
+                //選択不可イメージ
+                throw new AutoApplicationException("EAPI-000020", "Image", PARAM_NAME_IMAGE_NO, imageNo);
+            }
+            //InstanceType
+            ApiValidate.validateInstanceType(instanceType, true);
+            List<String> instanceTypes = getInstanceTypes(platform, image);
+            if (!instanceTypes.contains(instanceType)) {
+                // インスタンスタイプがイメージのインスタンスタイプに含まれていない
+                throw new AutoApplicationException("EAPI-000011", imageNo, instanceType);
+            }
+            //NamingRule
+            ApiValidate.validateNamingRule(namingRule);
+            namingRule = namingRule + "%d";
+            //IdleTimeMax
+            ApiValidate.validateIdleTimeMax(idleTimeMax);
+            //IdleTimeMin
+            ApiValidate.validateIdleTimeMin(idleTimeMin);
+            //ContinueLimit
+            ApiValidate.validateContinueLimit(continueLimit);
+            //AddCount
+            ApiValidate.validateAddCount(addCount);
+            //DelCount
+            ApiValidate.validateDelCount(delCount);
+        }
 
-            response.setSuccess(true);
+        LoadBalancerStatus status = LoadBalancerStatus.fromStatus(loadBalancer.getStatus());
+        if (LoadBalancerStatus.WARNING == status) {
+            // ロードバランサ ステータスが Warning
+            throw new AutoApplicationException("EAPI-100025", loadBalancerNo);
+        }
 
-        return  response;
+        //オートスケーリング情報 更新
+        if (Boolean.valueOf(enabled)) {
+            //有効
+            loadBalancerService.updateAutoScalingConf(loadBalancer.getFarmNo(), Long.parseLong(loadBalancerNo), Long
+                    .parseLong(platformNo), Long.parseLong(imageNo), instanceType, Boolean.parseBoolean(enabled) ? 1
+                    : 0, namingRule, Long.parseLong(idleTimeMax), Long.parseLong(idleTimeMin), Long
+                    .parseLong(continueLimit), Long.parseLong(addCount), Long.parseLong(delCount));
+        } else {
+            //無効
+            AutoScalingConf autoScalingConf = autoScalingConfDao.read(Long.parseLong(loadBalancerNo));
+            loadBalancerService.updateAutoScalingConf(loadBalancer.getFarmNo(), Long.parseLong(loadBalancerNo),
+                    autoScalingConf.getPlatformNo(), autoScalingConf.getImageNo(), autoScalingConf.getInstanceType(),
+                    Boolean.parseBoolean(enabled) ? 1 : 0, autoScalingConf.getNamingRule(),
+                    autoScalingConf.getIdleTimeMax(), autoScalingConf.getIdleTimeMin(),
+                    autoScalingConf.getContinueLimit(), autoScalingConf.getAddCount(), autoScalingConf.getDelCount());
+        }
+
+        response.setSuccess(true);
+
+        return response;
     }
 
     /**
-     *
      * イメージからインスタンスタイプの一覧(リスト)を取得
      *
      * @param platform プラットフォーム
@@ -231,7 +217,6 @@ public class EditLoadBalancerAutoScaling extends ApiSupport {
     }
 
     /**
-     *
      * イメージのインスタンスタイプ一覧文字列(カンマ区切りのインスタンスタイプの一覧)からインスタンスの一覧(リスト)を取得
      *
      * @param instanceTypesText インスタンスタイプ一覧文字列
@@ -240,10 +225,11 @@ public class EditLoadBalancerAutoScaling extends ApiSupport {
     private static List<String> getInstanceTypesFromText(String instanceTypesText) {
         List<String> instanceTypes = new ArrayList<String>();
         if (StringUtils.isNotEmpty(instanceTypesText)) {
-            for (String instanceType: StringUtils.split(instanceTypesText, ",")) {
+            for (String instanceType : StringUtils.split(instanceTypesText, ",")) {
                 instanceTypes.add(instanceType.trim());
             }
         }
         return instanceTypes;
     }
+
 }

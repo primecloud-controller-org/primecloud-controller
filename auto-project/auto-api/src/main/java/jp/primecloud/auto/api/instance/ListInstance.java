@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.api.instance;
 
-
 import java.util.Collections;
 import java.util.List;
 
@@ -30,62 +29,58 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
-
-import org.apache.commons.lang.BooleanUtils;
-
 import jp.primecloud.auto.api.response.instance.InstanceResponse;
 import jp.primecloud.auto.api.response.instance.ListInstanceResponse;
 import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.service.impl.Comparators;
 
+import org.apache.commons.lang.BooleanUtils;
 
 @Path("/ListInstance")
 public class ListInstance extends ApiSupport {
 
     /**
-     *
      * サーバ情報取得 ファームに存在するすべてのサーバ
      *
      * @param farmNo ファーム番号
-     *
      * @return ListInstanceResponse
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-	public ListInstanceResponse listInstance(
-	        @QueryParam(PARAM_NAME_FARM_NO) String farmNo){
+    public ListInstanceResponse listInstance(@QueryParam(PARAM_NAME_FARM_NO) String farmNo) {
 
         ListInstanceResponse response = new ListInstanceResponse();
 
-            // 入力チェック
-            // FarmNo
-            ApiValidate.validateFarmNo(farmNo);
+        // 入力チェック
+        // FarmNo
+        ApiValidate.validateFarmNo(farmNo);
 
-            // ファーム取得
-            Farm farm = getFarm(Long.parseLong(farmNo));
+        // ファーム取得
+        Farm farm = getFarm(Long.parseLong(farmNo));
 
-            // 権限チェック
-            checkAndGetUser(farm);
+        // 権限チェック
+        checkAndGetUser(farm);
 
-            // インスタンス取得
-            List<Instance> instances = instanceDao.readByFarmNo(Long.parseLong(farmNo));
-            if (instances.isEmpty() == false) {
-                //ソート
-                Collections.sort(instances, Comparators.COMPARATOR_INSTANCE);
+        // インスタンス取得
+        List<Instance> instances = instanceDao.readByFarmNo(Long.parseLong(farmNo));
+        if (instances.isEmpty() == false) {
+            //ソート
+            Collections.sort(instances, Comparators.COMPARATOR_INSTANCE);
+        }
+
+        for (Instance instance : instances) {
+            if (BooleanUtils.isTrue(instance.getLoadBalancer())) {
+                // ロードバランサのインスタンスは除く
+                continue;
             }
+            //インスタンス情報設定
+            response.getInstances().add(new InstanceResponse(instance));
+        }
 
-            for (Instance instance: instances) {
-                if (BooleanUtils.isTrue(instance.getLoadBalancer())) {
-                    // ロードバランサのインスタンスは除く
-                    continue;
-                }
-                //インスタンス情報設定
-                response.getInstances().add(new InstanceResponse(instance));
-            }
+        response.setSuccess(true);
 
-            response.setSuccess(true);
+        return response;
+    }
 
-        return  response;
-	}
 }

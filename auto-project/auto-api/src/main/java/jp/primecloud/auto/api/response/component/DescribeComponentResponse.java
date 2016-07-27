@@ -1,18 +1,19 @@
 package jp.primecloud.auto.api.response.component;
 
-import org.codehaus.jackson.annotate.JsonProperty;
-
 import jp.primecloud.auto.api.response.AbstractResponse;
+
+import org.codehaus.jackson.annotate.JsonProperty;
 
 public class DescribeComponentResponse extends AbstractResponse {
 
     @JsonProperty("Component")
     private ComponentResponse component;
 
-    public DescribeComponentResponse() {}
+    public DescribeComponentResponse() {
+    }
 
     public DescribeComponentResponse(ComponentResponse component) {
-        this.component = component; 
+        this.component = component;
     }
 
     public ComponentResponse getComponent() {

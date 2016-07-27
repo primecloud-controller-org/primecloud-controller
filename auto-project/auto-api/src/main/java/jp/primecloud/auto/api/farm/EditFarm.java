@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.api.farm;
 
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -27,46 +26,42 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
-
 import jp.primecloud.auto.api.response.farm.EditFarmResponse;
 import jp.primecloud.auto.entity.crud.Farm;
-
 
 @Path("/EditFarm")
 public class EditFarm extends ApiSupport {
 
     /**
-     *
      * ファーム編集
      *
      * @param farmNo ファーム番号
      * @param comment コメント
-     *
      * @return EditFarmResponse
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public EditFarmResponse editFarm(
-            @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
-            @QueryParam(PARAM_NAME_COMMENT) String comment){
+    public EditFarmResponse editFarm(@QueryParam(PARAM_NAME_FARM_NO) String farmNo,
+            @QueryParam(PARAM_NAME_COMMENT) String comment) {
 
         EditFarmResponse response = new EditFarmResponse();
 
-            // 入力チェック
-            // FarmNo
-            ApiValidate.validateFarmNo(farmNo);
-            Farm farm = getFarm(Long.parseLong(farmNo));
-            // Comment
-            ApiValidate.validateComment(comment);
+        // 入力チェック
+        // FarmNo
+        ApiValidate.validateFarmNo(farmNo);
+        Farm farm = getFarm(Long.parseLong(farmNo));
+        // Comment
+        ApiValidate.validateComment(comment);
 
-            // 権限チェック
-            checkAndGetUser(farm);
+        // 権限チェック
+        checkAndGetUser(farm);
 
-            // ファーム更新
-            farmService.updateFarm(Long.parseLong(farmNo), comment, farm.getDomainName());
+        // ファーム更新
+        farmService.updateFarm(Long.parseLong(farmNo), comment, farm.getDomainName());
 
-            response.setSuccess(true);
+        response.setSuccess(true);
 
-        return  response;
+        return response;
     }
+
 }

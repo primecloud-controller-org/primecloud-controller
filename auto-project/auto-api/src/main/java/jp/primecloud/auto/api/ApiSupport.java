@@ -21,10 +21,6 @@ package jp.primecloud.auto.api;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import jp.primecloud.auto.api.util.BeanContext;
 import jp.primecloud.auto.common.log.LoggingUtils;
 import jp.primecloud.auto.config.Config;
@@ -70,16 +66,16 @@ import jp.primecloud.auto.dao.crud.NiftyKeyPairDao;
 import jp.primecloud.auto.dao.crud.OpenstackInstanceDao;
 import jp.primecloud.auto.dao.crud.PccSystemInfoDao;
 import jp.primecloud.auto.dao.crud.PlatformAwsDao;
+import jp.primecloud.auto.dao.crud.PlatformAzureDao;
 import jp.primecloud.auto.dao.crud.PlatformCloudstackDao;
 import jp.primecloud.auto.dao.crud.PlatformDao;
 import jp.primecloud.auto.dao.crud.PlatformNiftyDao;
+import jp.primecloud.auto.dao.crud.PlatformOpenstackDao;
 import jp.primecloud.auto.dao.crud.PlatformVcloudDao;
 import jp.primecloud.auto.dao.crud.PlatformVcloudInstanceTypeDao;
 import jp.primecloud.auto.dao.crud.PlatformVcloudStorageTypeDao;
 import jp.primecloud.auto.dao.crud.PlatformVmwareDao;
 import jp.primecloud.auto.dao.crud.PlatformVmwareInstanceTypeDao;
-import jp.primecloud.auto.dao.crud.PlatformOpenstackDao;
-import jp.primecloud.auto.dao.crud.PlatformAzureDao;
 import jp.primecloud.auto.dao.crud.ProxyDao;
 import jp.primecloud.auto.dao.crud.PuppetInstanceDao;
 import jp.primecloud.auto.dao.crud.TemplateComponentDao;
@@ -115,6 +111,10 @@ import jp.primecloud.auto.service.ProcessService;
 import jp.primecloud.auto.service.TemplateService;
 import jp.primecloud.auto.service.UserService;
 import jp.primecloud.auto.service.VmwareDescribeService;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class ApiSupport extends ApiConstants {
 
@@ -166,7 +166,7 @@ public class ApiSupport extends ApiConstants {
         Farm farm = farmDao.read(instance.getFarmNo());
 
         try {
-            User user =  checkAndGetUser(farm);
+            User user = checkAndGetUser(farm);
 
             LoggingUtils.setInstanceNo(instance.getInstanceNo());
             LoggingUtils.setInstanceName(instance.getInstanceName());
@@ -255,7 +255,8 @@ public class ApiSupport extends ApiConstants {
 
         // ロードバランサが存在しない
         if (loadBalancer == null) {
-            throw new AutoApplicationException("EAPI-100000", "LoadBalancer", PARAM_NAME_LOAD_BALANCER_NO, loadBalancerNo);
+            throw new AutoApplicationException("EAPI-100000", "LoadBalancer", PARAM_NAME_LOAD_BALANCER_NO,
+                    loadBalancerNo);
         }
 
         return loadBalancer;
@@ -286,7 +287,8 @@ public class ApiSupport extends ApiConstants {
 
     protected CloudstackInstanceDao cloudstackInstanceDao = BeanContext.getBean(CloudstackInstanceDao.class);
 
-    protected CloudstackLoadBalancerDao cloudstackLoadBalancerDao = BeanContext.getBean(CloudstackLoadBalancerDao.class);
+    protected CloudstackLoadBalancerDao cloudstackLoadBalancerDao = BeanContext
+            .getBean(CloudstackLoadBalancerDao.class);
 
     protected CloudstackSnapshotDao cloudstackSnapshotDao = BeanContext.getBean(CloudstackSnapshotDao.class);
 
@@ -326,7 +328,8 @@ public class ApiSupport extends ApiConstants {
 
     protected LoadBalancerDao loadBalancerDao = BeanContext.getBean(LoadBalancerDao.class);
 
-    protected LoadBalancerHealthCheckDao loadBalancerHealthCheckDao = BeanContext.getBean(LoadBalancerHealthCheckDao.class);
+    protected LoadBalancerHealthCheckDao loadBalancerHealthCheckDao = BeanContext
+            .getBean(LoadBalancerHealthCheckDao.class);
 
     protected LoadBalancerInstanceDao loadBalancerInstanceDao = BeanContext.getBean(LoadBalancerInstanceDao.class);
 
@@ -352,13 +355,16 @@ public class ApiSupport extends ApiConstants {
 
     protected PlatformVcloudDao platformVcloudDao = BeanContext.getBean(PlatformVcloudDao.class);
 
-    protected PlatformVcloudInstanceTypeDao platformVcloudInstanceTypeDao = BeanContext.getBean(PlatformVcloudInstanceTypeDao.class);
+    protected PlatformVcloudInstanceTypeDao platformVcloudInstanceTypeDao = BeanContext
+            .getBean(PlatformVcloudInstanceTypeDao.class);
 
-    protected PlatformVcloudStorageTypeDao platformVcloudStorageTypeDao = BeanContext.getBean(PlatformVcloudStorageTypeDao.class);
+    protected PlatformVcloudStorageTypeDao platformVcloudStorageTypeDao = BeanContext
+            .getBean(PlatformVcloudStorageTypeDao.class);
 
     protected PlatformVmwareDao platformVmwareDao = BeanContext.getBean(PlatformVmwareDao.class);
 
-    protected PlatformVmwareInstanceTypeDao platformVmwareInstanceTypeDao = BeanContext.getBean(PlatformVmwareInstanceTypeDao.class);
+    protected PlatformVmwareInstanceTypeDao platformVmwareInstanceTypeDao = BeanContext
+            .getBean(PlatformVmwareInstanceTypeDao.class);
 
     protected PlatformOpenstackDao platformOpenstackDao = BeanContext.getBean(PlatformOpenstackDao.class);
 

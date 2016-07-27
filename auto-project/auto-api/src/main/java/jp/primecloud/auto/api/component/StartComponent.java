@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.api.component;
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,10 +30,6 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.api.response.component.StartComponentResponse;
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.entity.crud.AwsInstance;
@@ -46,12 +41,13 @@ import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.PlatformAws;
 import jp.primecloud.auto.exception.AutoApplicationException;
 
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 
 @Path("/StartComponent")
-public class StartComponent extends ApiSupport{
+public class StartComponent extends ApiSupport {
 
     /**
-     *
      * サービス起動処理
      *
      * @param componentNo コンポーネント番号
@@ -60,107 +56,110 @@ public class StartComponent extends ApiSupport{
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-	public StartComponentResponse startComponent(
-	        @QueryParam(PARAM_NAME_COMPONENT_NO) String componentNo,
-            @QueryParam(PARAM_NAME_INSTANCE_NOS) String instanceNos){
+    public StartComponentResponse startComponent(@QueryParam(PARAM_NAME_COMPONENT_NO) String componentNo,
+            @QueryParam(PARAM_NAME_INSTANCE_NOS) String instanceNos) {
 
         StartComponentResponse response = new StartComponentResponse();
 
-            // 入力チェック
-            // ComponentNo
-            ApiValidate.validateComponentNo(componentNo);
-            // InstanceNo
-            List<Long> instanceNoList = createInstanceNosToList(instanceNos);
+        // 入力チェック
+        // ComponentNo
+        ApiValidate.validateComponentNo(componentNo);
+        // InstanceNo
+        List<Long> instanceNoList = createInstanceNosToList(instanceNos);
 
-            // コンポーネント取得
-            Component component = getComponent(Long.parseLong(componentNo));
+        // コンポーネント取得
+        Component component = getComponent(Long.parseLong(componentNo));
 
-            // 権限チェック
-            checkAndGetUser(component);
+        // 権限チェック
+        checkAndGetUser(component);
 
-            // インスタンス取得
-            for (Long instanceNo: instanceNoList) {
-                Instance instance = getInstance(instanceNo);
+        // インスタンス取得
+        for (Long instanceNo : instanceNoList) {
+            Instance instance = getInstance(instanceNo);
 
-                if (BooleanUtils.isFalse(instance.getFarmNo().equals(component.getFarmNo()))) {
-                    //ファームとインスタンスが一致しない
-                    throw new AutoApplicationException("EAPI-100022", "Instance", component.getFarmNo(), PARAM_NAME_INSTANCE_NO, instanceNo);
+            if (BooleanUtils.isFalse(instance.getFarmNo().equals(component.getFarmNo()))) {
+                //ファームとインスタンスが一致しない
+                throw new AutoApplicationException("EAPI-100022", "Instance", component.getFarmNo(),
+                        PARAM_NAME_INSTANCE_NO, instanceNo);
+            }
+        }
+
+        boolean skipServer = false;
+        for (Long instanceNo : instanceNoList) {
+            // コンポーネントインスタンス取得
+            ComponentInstance componentInstance = componentInstanceDao.read(Long.parseLong(componentNo), instanceNo);
+            if (componentInstance == null) {
+                // コンポーネントインスタンスが存在しない
+                throw new AutoApplicationException("EAPI-100000", "ComponentInstance", PARAM_NAME_INSTANCE_NO,
+                        instanceNo);
+            }
+            Instance instance = instanceDao.read(componentInstance.getInstanceNo());
+            Platform platform = platformDao.read(instance.getPlatformNo());
+            PlatformAws platformAws = platformAwsDao.read(instance.getPlatformNo());
+            AwsInstance awsInstance = awsInstanceDao.read(instance.getInstanceNo());
+            AzureInstance azureInstance = azureInstanceDao.read(instance.getInstanceNo());
+            boolean vpc = false;
+            String subnetId = null;
+            boolean subnetErrFlg;
+            if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
+                // サブネットチェック
+                vpc = platformAws.getVpc();
+                subnetId = awsInstance.getSubnetId();
+                subnetErrFlg = processService.checkSubnet(platform.getPlatformType(), vpc, subnetId);
+                if (subnetErrFlg == true) {
+                    // EC2+VPCでサブネットが設定されていないサーバは起動不可
+                    throw new AutoApplicationException("EAPI-100034", component.getComponentName(),
+                            instance.getInstanceName());
                 }
             }
-
-            boolean skipServer = false;
-            for (Long instanceNo: instanceNoList) {
-                // コンポーネントインスタンス取得
-                ComponentInstance componentInstance = componentInstanceDao.read(Long.parseLong(componentNo), instanceNo);
-                if (componentInstance == null) {
-                    // コンポーネントインスタンスが存在しない
-                    throw new AutoApplicationException("EAPI-100000", "ComponentInstance", PARAM_NAME_INSTANCE_NO, instanceNo);
+            if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
+                // サブネットチェック
+                subnetId = azureInstance.getSubnetId();
+                subnetErrFlg = processService.checkSubnet(platform.getPlatformType(), vpc, subnetId);
+                if (subnetErrFlg == true) {
+                    // サブネットが設定されていないサーバは起動不可
+                    throw new AutoApplicationException("EAPI-100034", component.getComponentName(),
+                            instance.getInstanceName());
                 }
-                Instance instance = instanceDao.read(componentInstance.getInstanceNo());
-                Platform platform = platformDao.read(instance.getPlatformNo());
-                    PlatformAws platformAws = platformAwsDao.read(instance.getPlatformNo());
-                    AwsInstance awsInstance = awsInstanceDao.read(instance.getInstanceNo());
-                AzureInstance azureInstance = azureInstanceDao.read(instance.getInstanceNo());
-                boolean vpc = false;
-                String subnetId = null;
-                boolean subnetErrFlg;
-                if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
-                    // サブネットチェック
-                    vpc = platformAws.getVpc();
-                    subnetId = awsInstance.getSubnetId();
-                    subnetErrFlg = processService.checkSubnet(platform.getPlatformType(), vpc, subnetId);
-                    if (subnetErrFlg == true) {
-                        // EC2+VPCでサブネットが設定されていないサーバは起動不可
-                        throw new AutoApplicationException("EAPI-100034", component.getComponentName(), instance.getInstanceName());
-                    }
+                // インスタンス起動チェック（同時起動）
+                HashMap<String, Boolean> flgMap = new HashMap<String, Boolean>();
+                flgMap = processService.checkStartupAll(platform.getPlatformType(), azureInstance.getInstanceName(),
+                        skipServer);
+                skipServer = flgMap.get("skipServer");
+                boolean startupAllErrFlg;
+                startupAllErrFlg = flgMap.get("startupAllErrFlg");
+                if (startupAllErrFlg == true) {
+                    // インスタンス作成中のものがあった場合は、起動不可
+                    throw new AutoApplicationException("EAPI-100039", component.getComponentName(),
+                            instance.getInstanceName());
                 }
-                if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
-                    // サブネットチェック
-                    subnetId = azureInstance.getSubnetId();
-                    subnetErrFlg = processService.checkSubnet(platform.getPlatformType(), vpc, subnetId);
-                    if (subnetErrFlg == true) {
-                        // サブネットが設定されていないサーバは起動不可
-                        throw new AutoApplicationException("EAPI-100034", component.getComponentName(), instance.getInstanceName());
-                    }
-                    // インスタンス起動チェック（同時起動）
-                    HashMap<String, Boolean> flgMap = new HashMap<String, Boolean>();
-                    flgMap = processService.checkStartupAll(platform.getPlatformType(),
-                            azureInstance.getInstanceName(),
-                            skipServer);
-                    skipServer = flgMap.get("skipServer");
-                    boolean startupAllErrFlg;
-                    startupAllErrFlg = flgMap.get("startupAllErrFlg");
-                    if (startupAllErrFlg == true) {
-                        // インスタンス作成中のものがあった場合は、起動不可
-                        throw new AutoApplicationException("EAPI-100039", component.getComponentName(), instance.getInstanceName());
-                    }
 
-                    // インスタンス起動チェック（個別起動）
-                    boolean startupErrFlg;
-                    startupErrFlg = processService.checkStartup(platform.getPlatformType(),
-                            azureInstance.getInstanceName(),
-                            azureInstance.getInstanceNo());
-                    if (startupErrFlg == true) {
-                        // インスタンス作成中のものがあった場合は、起動不可
-                        // 同一インスタンスNoは、除外する
-                        throw new AutoApplicationException("EAPI-100039", component.getComponentName(), instance.getInstanceName());
-                    }
+                // インスタンス起動チェック（個別起動）
+                boolean startupErrFlg;
+                startupErrFlg = processService.checkStartup(platform.getPlatformType(),
+                        azureInstance.getInstanceName(), azureInstance.getInstanceNo());
+                if (startupErrFlg == true) {
+                    // インスタンス作成中のものがあった場合は、起動不可
+                    // 同一インスタンスNoは、除外する
+                    throw new AutoApplicationException("EAPI-100039", component.getComponentName(),
+                            instance.getInstanceName());
                 }
             }
+        }
 
-            // サービス起動設定
-            processService.startComponents(component.getFarmNo(), Long.valueOf(componentNo), instanceNoList);
+        // サービス起動設定
+        processService.startComponents(component.getFarmNo(), Long.valueOf(componentNo), instanceNoList);
 
-            response.setSuccess(true);
+        response.setSuccess(true);
 
-        return  response;
-	}
+        return response;
+    }
 
     private List<Long> createInstanceNosToList(String instanceNos) {
         ApiValidate.validateInstanceNos(instanceNos, false);
 
         List<Long> logInstanceNos = new ArrayList<Long>();
-        for (String tmpInstanceNo: commaTextToList(instanceNos)) {
+        for (String tmpInstanceNo : commaTextToList(instanceNos)) {
             ApiValidate.validateInstanceNos(tmpInstanceNo, true);
             logInstanceNos.add(Long.parseLong(tmpInstanceNo));
         }
@@ -170,10 +169,11 @@ public class StartComponent extends ApiSupport{
     private static List<String> commaTextToList(String commaText) {
         List<String> list = new ArrayList<String>();
         if (StringUtils.isNotEmpty(commaText)) {
-            for (String splitStr: StringUtils.split(commaText, ",")) {
+            for (String splitStr : StringUtils.split(commaText, ",")) {
                 list.add(splitStr.trim());
             }
         }
         return list;
     }
+
 }

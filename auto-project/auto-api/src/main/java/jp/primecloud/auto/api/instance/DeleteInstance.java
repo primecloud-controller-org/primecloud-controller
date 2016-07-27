@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.api.instance;
 
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -27,17 +26,15 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
-
 import jp.primecloud.auto.api.response.instance.DeleteInstanceResponse;
 import jp.primecloud.auto.common.status.InstanceStatus;
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.exception.AutoApplicationException;
 
-
 @Path("/DeleteInstance")
 public class DeleteInstance extends ApiSupport {
+
     /**
-     *
      * サーバ削除
      *
      * @param instanceNo インスタンス番号
@@ -45,33 +42,33 @@ public class DeleteInstance extends ApiSupport {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-	public DeleteInstanceResponse deleteInstance(
-	        @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo) {
+    public DeleteInstanceResponse deleteInstance(@QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo) {
 
         DeleteInstanceResponse response = new DeleteInstanceResponse();
 
-            // 入力チェック
-            // InstanceNo
-            ApiValidate.validateInstanceNo(instanceNo);
+        // 入力チェック
+        // InstanceNo
+        ApiValidate.validateInstanceNo(instanceNo);
 
-            // インスタンス取得
-            Instance instance = getInstance(Long.parseLong(instanceNo));
+        // インスタンス取得
+        Instance instance = getInstance(Long.parseLong(instanceNo));
 
-            // 権限チェック
-            checkAndGetUser(instance);
+        // 権限チェック
+        checkAndGetUser(instance);
 
-            // インスタンスの停止チェック
-            InstanceStatus status = InstanceStatus.fromStatus(instance.getStatus());
-            if (InstanceStatus.STOPPED != status) {
-                // インスタンスが停止状態でない場合
-                throw new AutoApplicationException("EAPI-100007", instanceNo);
-            }
+        // インスタンスの停止チェック
+        InstanceStatus status = InstanceStatus.fromStatus(instance.getStatus());
+        if (InstanceStatus.STOPPED != status) {
+            // インスタンスが停止状態でない場合
+            throw new AutoApplicationException("EAPI-100007", instanceNo);
+        }
 
-            // サーバ削除処理(プロセス処理)
-            instanceService.deleteInstance(Long.parseLong(instanceNo));
+        // サーバ削除処理(プロセス処理)
+        instanceService.deleteInstance(Long.parseLong(instanceNo));
 
-            response.setSuccess(true);
+        response.setSuccess(true);
 
-        return  response;
+        return response;
     }
+
 }

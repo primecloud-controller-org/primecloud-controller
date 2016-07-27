@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.api;
 
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -34,9 +33,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.api.response.EventLogResponse;
 import jp.primecloud.auto.api.response.ListEventLogResponse;
 import jp.primecloud.auto.entity.crud.Component;
@@ -48,6 +44,8 @@ import jp.primecloud.auto.log.EventLogLevel;
 import jp.primecloud.auto.log.dao.crud.EventLogDao.SearchCondition;
 import jp.primecloud.auto.log.entity.crud.EventLog;
 
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 
 @Path("/ListEventLog")
 public class ListEventLog extends ApiSupport {
@@ -60,7 +58,6 @@ public class ListEventLog extends ApiSupport {
     private Comparator<EventLogResponse> comparatorEventLog;
 
     /**
-     *
      * EventLog参照処理を行います
      *
      * @param isFromCurrent 現在時刻/日付フラグ
@@ -77,155 +74,150 @@ public class ListEventLog extends ApiSupport {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-	public ListEventLogResponse login(
-	        @QueryParam(PARAM_NAME_IS_FROM_CURRENT) String isFromCurrent,
-	        @QueryParam(PARAM_NAME_FROM_CURRENT) String fromCurrent,
-	        @QueryParam(PARAM_NAME_FROM_DATE) String fromDate,
-	        @QueryParam(PARAM_NAME_TO_DATE) String toDate,
-	        @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
-	        @QueryParam(PARAM_NAME_LOG_LEVEL) String logLevel,
-	        @QueryParam(PARAM_NAME_COMPONENT_NO) String componentNo,
-	        @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo,
-	        @QueryParam(PARAM_NAME_ORDER_NAME) String orderName,
-	        @QueryParam(PARAM_NAME_ORDER_ASC_DESC) String orderAscDesc){
+    public ListEventLogResponse login(@QueryParam(PARAM_NAME_IS_FROM_CURRENT) String isFromCurrent,
+            @QueryParam(PARAM_NAME_FROM_CURRENT) String fromCurrent, @QueryParam(PARAM_NAME_FROM_DATE) String fromDate,
+            @QueryParam(PARAM_NAME_TO_DATE) String toDate, @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
+            @QueryParam(PARAM_NAME_LOG_LEVEL) String logLevel, @QueryParam(PARAM_NAME_COMPONENT_NO) String componentNo,
+            @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo, @QueryParam(PARAM_NAME_ORDER_NAME) String orderName,
+            @QueryParam(PARAM_NAME_ORDER_ASC_DESC) String orderAscDesc) {
 
         ListEventLogResponse response = new ListEventLogResponse();
 
-            // 入力チェック
-            // isFromCurrent
-            ApiValidate.validateIsFromCurrent(isFromCurrent);
-            if (Boolean.parseBoolean(isFromCurrent)) {
-                // fromCurrent
-                ApiValidate.validateFromCurrent(fromCurrent);
-            } else {
-                // fromDate
-                ApiValidate.validateFromDate(fromDate);
-                // toDate
-                ApiValidate.validateToDate(toDate);
+        // 入力チェック
+        // isFromCurrent
+        ApiValidate.validateIsFromCurrent(isFromCurrent);
+        if (Boolean.parseBoolean(isFromCurrent)) {
+            // fromCurrent
+            ApiValidate.validateFromCurrent(fromCurrent);
+        } else {
+            // fromDate
+            ApiValidate.validateFromDate(fromDate);
+            // toDate
+            ApiValidate.validateToDate(toDate);
+        }
+
+        //farmNo
+        if (StringUtils.isNotEmpty(farmNo) || StringUtils.isNotEmpty(componentNo) || StringUtils.isNotEmpty(instanceNo)) {
+            ApiValidate.validateFarmNo(farmNo);
+        }
+        //logLevel
+        ApiValidate.validateLogLevel(logLevel);
+        //componentNo
+        if (StringUtils.isNotEmpty(componentNo)) {
+            ApiValidate.validateComponentNo(componentNo);
+        }
+        //instanceNo
+        if (StringUtils.isNotEmpty(instanceNo)) {
+            ApiValidate.validateInstanceNo(instanceNo);
+        }
+        //orderName
+        if (StringUtils.isNotEmpty(orderAscDesc)) {
+            ApiValidate.validateOrderName(orderName);
+        }
+        //orderAscDesc
+        if (StringUtils.isNotEmpty(orderName)) {
+            ApiValidate.validateOrderAscDesc(orderAscDesc);
+        }
+
+        if (StringUtils.isNotEmpty(farmNo)) {
+            //ファーム取得
+            Farm farm = farmDao.read(Long.parseLong(farmNo));
+            if (farm == null) {
+                // ファームが存在しない
+                throw new AutoApplicationException("EAPI-100000", "Farm", PARAM_NAME_FARM_NO, farmNo);
+            }
+        }
+
+        if (StringUtils.isNotEmpty(instanceNo)) {
+            Instance instance = instanceDao.read(Long.parseLong(instanceNo));
+            if (instance == null || BooleanUtils.isTrue(instance.getLoadBalancer())) {
+                // インスタンスが存在しない or インスタンスがロードバランサ
+                throw new AutoApplicationException("EAPI-100000", "Instance", PARAM_NAME_INSTANCE_NO, instanceNo);
             }
 
-            //farmNo
-            if (StringUtils.isNotEmpty(farmNo) ||
-                StringUtils.isNotEmpty(componentNo) ||
-                StringUtils.isNotEmpty(instanceNo)) {
-                ApiValidate.validateFarmNo(farmNo);
+            if (BooleanUtils.isFalse(instance.getFarmNo().equals(Long.parseLong(farmNo)))) {
+                //ファームとインスタンスが一致しない
+                throw new AutoApplicationException("EAPI-100022", "Instance", farmNo, PARAM_NAME_INSTANCE_NO,
+                        instanceNo);
             }
-            //logLevel
-            ApiValidate.validateLogLevel(logLevel);
-            //componentNo
-            if (StringUtils.isNotEmpty(componentNo)) {
-                ApiValidate.validateComponentNo(componentNo);
-            }
-            //instanceNo
-            if (StringUtils.isNotEmpty(instanceNo)) {
-                ApiValidate.validateInstanceNo(instanceNo);
-            }
-            //orderName
-            if (StringUtils.isNotEmpty(orderAscDesc)) {
-                ApiValidate.validateOrderName(orderName);
-            }
-            //orderAscDesc
-            if (StringUtils.isNotEmpty(orderName)) {
-                ApiValidate.validateOrderAscDesc(orderAscDesc);
+        }
+
+        if (StringUtils.isNotEmpty(componentNo)) {
+            // コンポーネント取得
+            Component component = componentDao.read(Long.parseLong(componentNo));
+            if (component == null || BooleanUtils.isTrue(component.getLoadBalancer())) {
+                // コンポーネントが存在しない または ロードバランサーコンポーネント
+                throw new AutoApplicationException("EAPI-100000", "Component", PARAM_NAME_COMPONENT_NO, componentNo);
             }
 
-            if(StringUtils.isNotEmpty(farmNo)) {
-                //ファーム取得
-                Farm farm = farmDao.read(Long.parseLong(farmNo));
-                if(farm == null) {
-                    // ファームが存在しない
-                    throw new AutoApplicationException("EAPI-100000", "Farm", PARAM_NAME_FARM_NO, farmNo);
-                }
+            if (component.getFarmNo().equals(Long.parseLong(farmNo)) == false) {
+                //ファームとコンポーネントが一致しない
+                throw new AutoApplicationException("EAPI-100022", "Component", farmNo, PARAM_NAME_COMPONENT_NO,
+                        componentNo);
+            }
+        }
+
+        // ユーザ取得
+        User user = checkAndGetUser();
+
+        //検索条件設定
+        SearchCondition searchCondition = new SearchCondition();
+        searchCondition.setUserNo(user.getUserNo());
+        if (Boolean.parseBoolean(isFromCurrent)) {
+            //fromCurrent
+            searchCondition.setFromDate(getFromCurrentDate(fromCurrent));
+        } else {
+            //fromDate
+            try {
+                searchCondition.setFromDate(sdf.parse(fromDate));
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
             }
 
-            if (StringUtils.isNotEmpty(instanceNo)) {
-                Instance instance = instanceDao.read(Long.parseLong(instanceNo));
-                if (instance == null || BooleanUtils.isTrue(instance.getLoadBalancer())) {
-                    // インスタンスが存在しない or インスタンスがロードバランサ
-                    throw new AutoApplicationException("EAPI-100000", "Instance", PARAM_NAME_INSTANCE_NO, instanceNo);
-                }
-
-                if (BooleanUtils.isFalse(instance.getFarmNo().equals(Long.parseLong(farmNo)))) {
-                    //ファームとインスタンスが一致しない
-                    throw new AutoApplicationException("EAPI-100022", "Instance", farmNo, PARAM_NAME_INSTANCE_NO, instanceNo);
-                }
-            }
-
-            if (StringUtils.isNotEmpty(componentNo)) {
-                // コンポーネント取得
-                Component component = componentDao.read(Long.parseLong(componentNo));
-                if (component == null || BooleanUtils.isTrue(component.getLoadBalancer())) {
-                    // コンポーネントが存在しない または ロードバランサーコンポーネント
-                    throw new AutoApplicationException("EAPI-100000", "Component", PARAM_NAME_COMPONENT_NO, componentNo);
-                }
-
-                if (component.getFarmNo().equals(Long.parseLong(farmNo)) == false) {
-                    //ファームとコンポーネントが一致しない
-                    throw new AutoApplicationException("EAPI-100022", "Component", farmNo, PARAM_NAME_COMPONENT_NO, componentNo);
-                }
-            }
-
-            // ユーザ取得
-            User user = checkAndGetUser();
-
-            //検索条件設定
-            SearchCondition searchCondition = new SearchCondition();
-            searchCondition.setUserNo(user.getUserNo());
-            if (Boolean.parseBoolean(isFromCurrent)) {
-                //fromCurrent
-                searchCondition.setFromDate(getFromCurrentDate(fromCurrent));
-            } else {
-                //fromDate
+            //toDate
+            if (StringUtils.isNotEmpty(toDate)) {
                 try {
-                    searchCondition.setFromDate(sdf.parse(fromDate));
+                    searchCondition.setToDate(sdf.parse(toDate));
                 } catch (ParseException e) {
                     throw new RuntimeException(e);
                 }
-
-                //toDate
-                if (StringUtils.isNotEmpty(toDate)) {
-                    try {
-                        searchCondition.setToDate(sdf.parse(toDate));
-                    } catch (ParseException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
             }
+        }
 
-            if (StringUtils.isNotEmpty(farmNo)) {
-                searchCondition.setFarmNo(Long.parseLong(farmNo));
-            }
+        if (StringUtils.isNotEmpty(farmNo)) {
+            searchCondition.setFarmNo(Long.parseLong(farmNo));
+        }
 
-            if (StringUtils.isNotEmpty(logLevel)) {
-                searchCondition.setLogLevel(getLogLevelCode(logLevel));
-            }
+        if (StringUtils.isNotEmpty(logLevel)) {
+            searchCondition.setLogLevel(getLogLevelCode(logLevel));
+        }
 
-            if (StringUtils.isNotEmpty(componentNo)) {
-                searchCondition.setComponentNo(Long.parseLong(componentNo));
-            }
+        if (StringUtils.isNotEmpty(componentNo)) {
+            searchCondition.setComponentNo(Long.parseLong(componentNo));
+        }
 
-            if (StringUtils.isNotEmpty(instanceNo)) {
-                searchCondition.setInstanceNo(Long.parseLong(instanceNo));
-            }
-            searchCondition.setLimit(LIMIT);
+        if (StringUtils.isNotEmpty(instanceNo)) {
+            searchCondition.setInstanceNo(Long.parseLong(instanceNo));
+        }
+        searchCondition.setLimit(LIMIT);
 
-            List<EventLog> eventLogs = eventLogService.readBySearchCondition(searchCondition);
-            List<EventLogResponse> eventLogResponceList = new ArrayList<EventLogResponse>();
-            for (EventLog eventLog: eventLogs) {
-                EventLogResponse eventLogResponse = new EventLogResponse(eventLog);
-                eventLogResponse.setDate(sdf.format(eventLog.getLogDate()));
-                eventLogResponse.setLogLevel(EventLogLevel.fromCode(eventLog.getLogLevel()).name());
-                eventLogResponceList.add(eventLogResponse);
-            }
+        List<EventLog> eventLogs = eventLogService.readBySearchCondition(searchCondition);
+        List<EventLogResponse> eventLogResponceList = new ArrayList<EventLogResponse>();
+        for (EventLog eventLog : eventLogs) {
+            EventLogResponse eventLogResponse = new EventLogResponse(eventLog);
+            eventLogResponse.setDate(sdf.format(eventLog.getLogDate()));
+            eventLogResponse.setLogLevel(EventLogLevel.fromCode(eventLog.getLogLevel()).name());
+            eventLogResponceList.add(eventLogResponse);
+        }
 
-            //ソートクラス作成
-            comparatorEventLog = getComparator(orderName, orderAscDesc);
-            Collections.sort(eventLogResponceList, comparatorEventLog);
+        //ソートクラス作成
+        comparatorEventLog = getComparator(orderName, orderAscDesc);
+        Collections.sort(eventLogResponceList, comparatorEventLog);
 
-            response.setEventLogs(eventLogResponceList);
-            response.setSuccess(true);
+        response.setEventLogs(eventLogResponceList);
+        response.setSuccess(true);
 
-        return  response;
+        return response;
     }
 
     private static Date getFromCurrentDate(String fromCurrent) {
@@ -245,10 +237,10 @@ public class ListEventLog extends ApiSupport {
     }
 
     private static Comparator<EventLogResponse> getComparator(final String orderName, final String orderAscDesc) {
-        Comparator<EventLogResponse> comparator  = new Comparator<EventLogResponse>() {
+        Comparator<EventLogResponse> comparator = new Comparator<EventLogResponse>() {
             @Override
             public int compare(EventLogResponse o1, EventLogResponse o2) {
-                int ascDesc = (orderAscDesc.equals("DESC")) ? -1: 1;
+                int ascDesc = (orderAscDesc.equals("DESC")) ? -1 : 1;
                 if (StringUtils.isNotEmpty(orderName) && StringUtils.isNotEmpty(orderAscDesc)) {
                     if (orderName.equals("Date")) {
                         return o1.getDate().compareTo(o2.getDate()) * ascDesc;
@@ -260,7 +252,7 @@ public class ListEventLog extends ApiSupport {
                         return o1.getComponentName().compareTo(o2.getComponentName()) * ascDesc;
                     } else if (orderName.equals("InstanceName")) {
                         return o1.getInstanceName().compareTo(o2.getInstanceName()) * ascDesc;
-                    } else if(orderName.equals("Message")) {
+                    } else if (orderName.equals("Message")) {
                         return o1.getMessage().compareTo(o2.getMessage()) * ascDesc;
                     }
                     return o1.getDate().compareTo(o2.getDate()) * -1;
@@ -273,7 +265,7 @@ public class ListEventLog extends ApiSupport {
     }
 
     private static Integer getLogLevelCode(String logLevel) {
-        if  (EventLogLevel.OFF.name().equals(logLevel)) {
+        if (EventLogLevel.OFF.name().equals(logLevel)) {
             return EventLogLevel.OFF.getCode();
         } else if (EventLogLevel.ERROR.name().equals(logLevel)) {
             return EventLogLevel.ERROR.getCode();
@@ -284,4 +276,5 @@ public class ListEventLog extends ApiSupport {
         }
         return EventLogLevel.ALL.getCode();
     }
+
 }

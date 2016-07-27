@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.api.lb;
 
-
 import java.util.List;
 
 import javax.ws.rs.GET;
@@ -29,49 +28,47 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
-
 import jp.primecloud.auto.api.response.lb.ListLoadBalancerListenerResponse;
 import jp.primecloud.auto.api.response.lb.LoadBalancerListenerResponse;
 import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.entity.crud.LoadBalancerListener;
 
-
 @Path("/ListLoadBalancerListener")
 public class ListLoadBalancerListener extends ApiSupport {
 
     /**
-     *
      * ロードバランサ リスナー一覧取得
      *
      * @param loadBalancerNo ロードバランサ番号
-     *
      * @return ListLoadBalancerListenerResponse
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public ListLoadBalancerListenerResponse describeLoadBalancerHealthCheck(
-            @QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo){
+            @QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo) {
 
         ListLoadBalancerListenerResponse response = new ListLoadBalancerListenerResponse();
 
-            // 入力チェック
-            // LoadBalancerNo
-            ApiValidate.validateLoadBalancerNo(loadBalancerNo);
+        // 入力チェック
+        // LoadBalancerNo
+        ApiValidate.validateLoadBalancerNo(loadBalancerNo);
 
-            // ロードバランサ取得
-            LoadBalancer loadBalancer = getLoadBalancer(Long.parseLong(loadBalancerNo));
+        // ロードバランサ取得
+        LoadBalancer loadBalancer = getLoadBalancer(Long.parseLong(loadBalancerNo));
 
-            // 権限チェック
-            checkAndGetUser(loadBalancer);
+        // 権限チェック
+        checkAndGetUser(loadBalancer);
 
-            List<LoadBalancerListener> loadBalancerListeners = loadBalancerListenerDao.readByLoadBalancerNo(Long.parseLong(loadBalancerNo));
-            for (LoadBalancerListener listener: loadBalancerListeners) {
-                LoadBalancerListenerResponse listenerResponse = new LoadBalancerListenerResponse(listener);
-                response.getLoadBalancerListeners().add(listenerResponse);
-            }
+        List<LoadBalancerListener> loadBalancerListeners = loadBalancerListenerDao.readByLoadBalancerNo(Long
+                .parseLong(loadBalancerNo));
+        for (LoadBalancerListener listener : loadBalancerListeners) {
+            LoadBalancerListenerResponse listenerResponse = new LoadBalancerListenerResponse(listener);
+            response.getLoadBalancerListeners().add(listenerResponse);
+        }
 
-            response.setSuccess(true);
+        response.setSuccess(true);
 
-        return  response;
+        return response;
     }
+
 }

@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.api.instance;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,31 +29,28 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.api.response.instance.CreateInstanceResponse;
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.Image;
 import jp.primecloud.auto.entity.crud.ImageAws;
+import jp.primecloud.auto.entity.crud.ImageAzure;
 import jp.primecloud.auto.entity.crud.ImageCloudstack;
 import jp.primecloud.auto.entity.crud.ImageNifty;
+import jp.primecloud.auto.entity.crud.ImageOpenstack;
 import jp.primecloud.auto.entity.crud.ImageVcloud;
 import jp.primecloud.auto.entity.crud.ImageVmware;
-import jp.primecloud.auto.entity.crud.ImageOpenstack;
-import jp.primecloud.auto.entity.crud.ImageAzure;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.AutoApplicationException;
 
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 
 @Path("/CreateInstance")
 public class CreateInstance extends ApiSupport {
 
     /**
-     *
      * サーバ作成
      *
      * @param farmNo ファーム番号
@@ -62,97 +58,93 @@ public class CreateInstance extends ApiSupport {
      * @param instanceName インスタンス名
      * @param instanceType インスタンスタイプ
      * @param comment コメント
-     *
      * @return CreateInstanceResponse
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public CreateInstanceResponse createInstance(
-            @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
-            @QueryParam(PARAM_NAME_IMAGE_NO) String imageNo,
-            @QueryParam(PARAM_NAME_INSTANCE_NAME) String instanceName,
-            @QueryParam(PARAM_NAME_INSTANCE_TYPE) String instanceType,
-            @QueryParam(PARAM_NAME_COMMENT) String comment){
+    public CreateInstanceResponse createInstance(@QueryParam(PARAM_NAME_FARM_NO) String farmNo,
+            @QueryParam(PARAM_NAME_IMAGE_NO) String imageNo, @QueryParam(PARAM_NAME_INSTANCE_NAME) String instanceName,
+            @QueryParam(PARAM_NAME_INSTANCE_TYPE) String instanceType, @QueryParam(PARAM_NAME_COMMENT) String comment) {
 
         CreateInstanceResponse response = new CreateInstanceResponse();
 
-            // 入力チェック
-            // FarmNo
-            ApiValidate.validateFarmNo(farmNo);
-            Farm farm = getFarm(Long.parseLong(farmNo));
+        // 入力チェック
+        // FarmNo
+        ApiValidate.validateFarmNo(farmNo);
+        Farm farm = getFarm(Long.parseLong(farmNo));
 
-            // 権限チェック
-            User user = checkAndGetUser(farm);
+        // 権限チェック
+        User user = checkAndGetUser(farm);
 
-            // ImageNo
-            ApiValidate.validateImageNo(imageNo);
-            Image image = imageDao.read(Long.parseLong(imageNo));
-            if (image == null) {
-                //イメージが存在しない or プラットフォームとイメージが一致しない
-                throw new AutoApplicationException("EAPI-100000", "Image", PARAM_NAME_IMAGE_NO, imageNo);
-            }
-            if (BooleanUtils.isNotTrue(image.getSelectable())) {
-                //選択不可イメージ
-                throw new AutoApplicationException("EAPI-000020", "Image", PARAM_NAME_IMAGE_NO, imageNo);
-            }
-            if (PCCConstant.IMAGE_NAME_ELB.equals(image.getImageName())
-                    || PCCConstant.IMAGE_NAME_ULTRAMONKEY.equals(image.getImageName())) {
-                // ロードバランサイメージの場合
-                throw new AutoApplicationException("EAPI-000020", "Image", PARAM_NAME_IMAGE_NO, imageNo);
-            }
+        // ImageNo
+        ApiValidate.validateImageNo(imageNo);
+        Image image = imageDao.read(Long.parseLong(imageNo));
+        if (image == null) {
+            //イメージが存在しない or プラットフォームとイメージが一致しない
+            throw new AutoApplicationException("EAPI-100000", "Image", PARAM_NAME_IMAGE_NO, imageNo);
+        }
+        if (BooleanUtils.isNotTrue(image.getSelectable())) {
+            //選択不可イメージ
+            throw new AutoApplicationException("EAPI-000020", "Image", PARAM_NAME_IMAGE_NO, imageNo);
+        }
+        if (PCCConstant.IMAGE_NAME_ELB.equals(image.getImageName())
+                || PCCConstant.IMAGE_NAME_ULTRAMONKEY.equals(image.getImageName())) {
+            // ロードバランサイメージの場合
+            throw new AutoApplicationException("EAPI-000020", "Image", PARAM_NAME_IMAGE_NO, imageNo);
+        }
 
-            // プラットフォーム
-            Platform platform = platformDao.read(image.getPlatformNo());
-            if (BooleanUtils.isNotTrue(platform.getSelectable())) {
-                // プラットフォームが使用可能でない場合
-                throw new AutoApplicationException("EAPI-000020", "Image", PARAM_NAME_IMAGE_NO, imageNo);
-            }
-            if (!platformService.isUseablePlatforms(user.getUserNo(), platform)) {
-                // プラットフォームが使用可能でない場合
-                throw new AutoApplicationException("EAPI-000020", "Image", PARAM_NAME_IMAGE_NO, imageNo);
-            }
+        // プラットフォーム
+        Platform platform = platformDao.read(image.getPlatformNo());
+        if (BooleanUtils.isNotTrue(platform.getSelectable())) {
+            // プラットフォームが使用可能でない場合
+            throw new AutoApplicationException("EAPI-000020", "Image", PARAM_NAME_IMAGE_NO, imageNo);
+        }
+        if (!platformService.isUseablePlatforms(user.getUserNo(), platform)) {
+            // プラットフォームが使用可能でない場合
+            throw new AutoApplicationException("EAPI-000020", "Image", PARAM_NAME_IMAGE_NO, imageNo);
+        }
 
-            // InstanceName
-            ApiValidate.validateInstanceName(instanceName);
-            // InstanceType
-            ApiValidate.validateInstanceType(instanceType, false);
-            List<String> instanceTypes = getInstanceTypes(platform, image);
-            if (StringUtils.isEmpty(instanceType)) {
-                instanceType = instanceTypes.get(0);
-            } else {
-                if (!instanceTypes.contains(instanceType)) {
-                    // インスタンスタイプがイメージのインスタンスタイプに含まれていない
-                    throw new AutoApplicationException("EAPI-000011", imageNo, instanceType);
-                }
+        // InstanceName
+        ApiValidate.validateInstanceName(instanceName);
+        // InstanceType
+        ApiValidate.validateInstanceType(instanceType, false);
+        List<String> instanceTypes = getInstanceTypes(platform, image);
+        if (StringUtils.isEmpty(instanceType)) {
+            instanceType = instanceTypes.get(0);
+        } else {
+            if (!instanceTypes.contains(instanceType)) {
+                // インスタンスタイプがイメージのインスタンスタイプに含まれていない
+                throw new AutoApplicationException("EAPI-000011", imageNo, instanceType);
             }
-            // Comment
-            ApiValidate.validateComment(comment);
+        }
+        // Comment
+        ApiValidate.validateComment(comment);
 
-            // 対象となるIaas(プラットフォーム)にサーバ(インスタンス)を作成
-            Long newInstanceNo = null;
-            // TODO CLOUD BRANCHING
-            if (PLATFORM_TYPE_AWS.equals(platform.getPlatformType()) ||
-                PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType()) ||
-                PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType()) ||
-                PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType()) ||
-                PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
-                // AWS or Eucalyptus or Cloudstack or VCloud or Openstack or Azure
-                newInstanceNo = instanceService.createIaasInstance(Long.parseLong(farmNo), instanceName,
-                        image.getPlatformNo(), comment, image.getImageNo() , instanceType);
-            } else if (PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
-                // VMware
-                newInstanceNo = instanceService.createVmwareInstance(Long.parseLong(farmNo), instanceName,
-                        image.getPlatformNo(), comment, image.getImageNo(), instanceType);
-            } else if (PLATFORM_TYPE_NIFTY.equals(platform.getPlatformType())) {
-                // Nifty
-                newInstanceNo = instanceService.createNiftyInstance(Long.parseLong(farmNo), instanceName,
-                        image.getPlatformNo(), comment, image.getImageNo(), instanceType);
-            }
+        // 対象となるIaas(プラットフォーム)にサーバ(インスタンス)を作成
+        Long newInstanceNo = null;
+        // TODO CLOUD BRANCHING
+        if (PLATFORM_TYPE_AWS.equals(platform.getPlatformType())
+                || PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())
+                || PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())
+                || PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())
+                || PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
+            // AWS or Eucalyptus or Cloudstack or VCloud or Openstack or Azure
+            newInstanceNo = instanceService.createIaasInstance(Long.parseLong(farmNo), instanceName,
+                    image.getPlatformNo(), comment, image.getImageNo(), instanceType);
+        } else if (PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
+            // VMware
+            newInstanceNo = instanceService.createVmwareInstance(Long.parseLong(farmNo), instanceName,
+                    image.getPlatformNo(), comment, image.getImageNo(), instanceType);
+        } else if (PLATFORM_TYPE_NIFTY.equals(platform.getPlatformType())) {
+            // Nifty
+            newInstanceNo = instanceService.createNiftyInstance(Long.parseLong(farmNo), instanceName,
+                    image.getPlatformNo(), comment, image.getImageNo(), instanceType);
+        }
 
-            response.setInstanceNo(newInstanceNo);
-            response.setSuccess(true);
+        response.setInstanceNo(newInstanceNo);
+        response.setSuccess(true);
 
-        return  response;
+        return response;
     }
 
     private List<String> getInstanceTypes(Platform platform, Image image) {
@@ -194,10 +186,11 @@ public class CreateInstance extends ApiSupport {
     private static List<String> getInstanceTypesFromText(String instanceTypesText) {
         List<String> instanceTypes = new ArrayList<String>();
         if (StringUtils.isNotEmpty(instanceTypesText)) {
-            for (String instanceType: StringUtils.split(instanceTypesText, ",")) {
+            for (String instanceType : StringUtils.split(instanceTypesText, ",")) {
                 instanceTypes.add(instanceType.trim());
             }
         }
         return instanceTypes;
     }
+
 }

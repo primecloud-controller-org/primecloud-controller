@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.api.instance;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,73 +29,69 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.api.response.instance.StartAllInstanceResponse;
 import jp.primecloud.auto.common.status.InstanceStatus;
 import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.Instance;
 
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 
 @Path("/StartAllInstance")
 public class StartAllInstance extends ApiSupport {
 
     /**
-     *
      * サーバ起動(ALL) ファーム内のすべてのサーバを起動
      *
      * @param farmNo ファーム番号
      * @param isStartService サービス起動有無 true:サービスも起動、false:サーバのみ起動、null:サーバのみ起動
-     *
      * @return StartAllInstanceResponse
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public StartAllInstanceResponse startAllInstance(
-            @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
-            @QueryParam(PARAM_NAME_IS_START_SERVICE) String isStartService){
+    public StartAllInstanceResponse startAllInstance(@QueryParam(PARAM_NAME_FARM_NO) String farmNo,
+            @QueryParam(PARAM_NAME_IS_START_SERVICE) String isStartService) {
 
         StartAllInstanceResponse response = new StartAllInstanceResponse();
 
-            // 入力チェック
-            // FarmNo
-            ApiValidate.validateFarmNo(farmNo);
-            // IsStartService
-            ApiValidate.validateIsStartService(isStartService);
+        // 入力チェック
+        // FarmNo
+        ApiValidate.validateFarmNo(farmNo);
+        // IsStartService
+        ApiValidate.validateIsStartService(isStartService);
 
-            // データチェック
-            // ファーム
-            Farm farm = getFarm(Long.parseLong(farmNo));
+        // データチェック
+        // ファーム
+        Farm farm = getFarm(Long.parseLong(farmNo));
 
-            // 権限チェック
-            checkAndGetUser(farm);
+        // 権限チェック
+        checkAndGetUser(farm);
 
-            // インスタンス取得
-            List<Long> instanceNos = new ArrayList<Long>();
-            List<Instance> instances = instanceDao.readByFarmNo(Long.parseLong(farmNo));
-            for (Instance instance: instances) {
-                if (BooleanUtils.isTrue(instance.getLoadBalancer())) {
-                    //ロードバランサ以外
-                    continue;
-                }
-                InstanceStatus status = InstanceStatus.fromStatus(instance.getStatus());
-                if (InstanceStatus.STOPPED == status) {
-                    //ファーム内の停止済みのインスタンスが起動対象
-                    instanceNos.add(instance.getInstanceNo());
-                }
+        // インスタンス取得
+        List<Long> instanceNos = new ArrayList<Long>();
+        List<Instance> instances = instanceDao.readByFarmNo(Long.parseLong(farmNo));
+        for (Instance instance : instances) {
+            if (BooleanUtils.isTrue(instance.getLoadBalancer())) {
+                //ロードバランサ以外
+                continue;
             }
-
-            // サーバ起動設定処理
-            if (StringUtils.isEmpty(isStartService)) {
-                processService.startInstances(Long.parseLong(farmNo), instanceNos);
-            } else {
-                processService.startInstances(Long.parseLong(farmNo), instanceNos, Boolean.parseBoolean(isStartService));
+            InstanceStatus status = InstanceStatus.fromStatus(instance.getStatus());
+            if (InstanceStatus.STOPPED == status) {
+                //ファーム内の停止済みのインスタンスが起動対象
+                instanceNos.add(instance.getInstanceNo());
             }
+        }
 
-            response.setSuccess(true);
+        // サーバ起動設定処理
+        if (StringUtils.isEmpty(isStartService)) {
+            processService.startInstances(Long.parseLong(farmNo), instanceNos);
+        } else {
+            processService.startInstances(Long.parseLong(farmNo), instanceNos, Boolean.parseBoolean(isStartService));
+        }
 
-        return  response;
-	}
+        response.setSuccess(true);
+
+        return response;
+    }
+
 }

@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.api.instance;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,9 +31,6 @@ import javax.ws.rs.core.UriInfo;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
-
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.api.response.instance.EditInstanceNiftyResponse;
 import jp.primecloud.auto.common.status.InstanceStatus;
 import jp.primecloud.auto.entity.crud.Image;
@@ -45,13 +41,14 @@ import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.AutoApplicationException;
 
+import org.apache.commons.lang.StringUtils;
 
 @Path("/EditInstanceNifty")
 public class EditInstanceNifty extends ApiSupport {
 
     /**
-     *
      * サーバ編集(Nifty)
+     * 
      * @param instanceNo インスタンス番号
      * @param instanceType インスタンスタイプ
      * @param keyName キーペア名
@@ -61,80 +58,76 @@ public class EditInstanceNifty extends ApiSupport {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public EditInstanceNiftyResponse editInstanceNifty(
-            @Context UriInfo uriInfo,
+    public EditInstanceNiftyResponse editInstanceNifty(@Context UriInfo uriInfo,
             @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo,
-            @QueryParam(PARAM_NAME_INSTANCE_TYPE) String instanceType,
-            @QueryParam(PARAM_NAME_KEY_NAME) String keyName,
-            @QueryParam(PARAM_NAME_COMMENT) String comment){
+            @QueryParam(PARAM_NAME_INSTANCE_TYPE) String instanceType, @QueryParam(PARAM_NAME_KEY_NAME) String keyName,
+            @QueryParam(PARAM_NAME_COMMENT) String comment) {
 
         EditInstanceNiftyResponse response = new EditInstanceNiftyResponse();
 
-            // 入力チェック
-            // InstanceNo
-            ApiValidate.validateInstanceNo(instanceNo);
+        // 入力チェック
+        // InstanceNo
+        ApiValidate.validateInstanceNo(instanceNo);
 
-            //インスタンス取得
-            Instance instance = getInstance(Long.parseLong(instanceNo));
-            
-            // 権限チェック
-            User user = checkAndGetUser(instance);
+        //インスタンス取得
+        Instance instance = getInstance(Long.parseLong(instanceNo));
 
-            InstanceStatus status = InstanceStatus.fromStatus(instance.getStatus());
-            if (InstanceStatus.STOPPED != status) {
-                // インスタンスが停止済み以外
-                throw new AutoApplicationException("EAPI-100014", instanceNo);
-            }
+        // 権限チェック
+        User user = checkAndGetUser(instance);
 
-            //プラットフォーム取得
-            Platform platform = platformDao.read(instance.getPlatformNo());
-            if (platform == null) {
-                // プラットフォームが存在しない
-                throw new AutoApplicationException("EAPI-100000", "Platform",
-                        PARAM_NAME_PLATFORM_NO, instance.getPlatformNo());
-            }
-            if (!PLATFORM_TYPE_NIFTY.equals(platform.getPlatformType())) {
-                //プラットフォームがNifty以外
-                throw new AutoApplicationException("EAPI-100031", "Nifty", instanceNo, instance.getPlatformNo());
-            }
+        InstanceStatus status = InstanceStatus.fromStatus(instance.getStatus());
+        if (InstanceStatus.STOPPED != status) {
+            // インスタンスが停止済み以外
+            throw new AutoApplicationException("EAPI-100014", instanceNo);
+        }
 
-            // イメージ取得
-            Image image = imageDao.read(instance.getImageNo());
-            if (image == null || image.getPlatformNo().equals(platform.getPlatformNo()) == false) {
-                // イメージが存在しない
-                throw new AutoApplicationException("EAPI-100000", "Image",
-                        PARAM_NAME_IMAGE_NO, instance.getImageNo());
-            }
+        //プラットフォーム取得
+        Platform platform = platformDao.read(instance.getPlatformNo());
+        if (platform == null) {
+            // プラットフォームが存在しない
+            throw new AutoApplicationException("EAPI-100000", "Platform", PARAM_NAME_PLATFORM_NO,
+                    instance.getPlatformNo());
+        }
+        if (!PLATFORM_TYPE_NIFTY.equals(platform.getPlatformType())) {
+            //プラットフォームがNifty以外
+            throw new AutoApplicationException("EAPI-100031", "Nifty", instanceNo, instance.getPlatformNo());
+        }
 
-            // InstanceType
-            ApiValidate.validateInstanceType(instanceType, true);
-            if(checkInstanceType(platform, image, instanceType) == false) {
-                // インスタンスタイプがイメージのインスタンスタイプに含まれていない
-                throw new AutoApplicationException("EAPI-000011", instance.getImageNo(), instanceType);
-            }
+        // イメージ取得
+        Image image = imageDao.read(instance.getImageNo());
+        if (image == null || image.getPlatformNo().equals(platform.getPlatformNo()) == false) {
+            // イメージが存在しない
+            throw new AutoApplicationException("EAPI-100000", "Image", PARAM_NAME_IMAGE_NO, instance.getImageNo());
+        }
 
-            // KeyName
-            ApiValidate.validateKeyName(keyName);
-            Long keyPairNo = getKeyPairNo(user.getUserNo(), platform.getPlatformNo(), keyName);
-            if (keyPairNo == null) {
-                // キーペアがプラットフォームに存在しない
-                throw new AutoApplicationException("EAPI-000012", platform.getPlatformNo(), keyName);
-            }
+        // InstanceType
+        ApiValidate.validateInstanceType(instanceType, true);
+        if (checkInstanceType(platform, image, instanceType) == false) {
+            // インスタンスタイプがイメージのインスタンスタイプに含まれていない
+            throw new AutoApplicationException("EAPI-000011", instance.getImageNo(), instanceType);
+        }
 
-            // Comment
-            ApiValidate.validateComment(comment);
+        // KeyName
+        ApiValidate.validateKeyName(keyName);
+        Long keyPairNo = getKeyPairNo(user.getUserNo(), platform.getPlatformNo(), keyName);
+        if (keyPairNo == null) {
+            // キーペアがプラットフォームに存在しない
+            throw new AutoApplicationException("EAPI-000012", platform.getPlatformNo(), keyName);
+        }
 
-            //インスタンス(VMware)の更新
-            instanceService.updateNiftyInstance(
-                    Long.parseLong(instanceNo), instance.getInstanceName(), comment, instanceType, keyPairNo);
+        // Comment
+        ApiValidate.validateComment(comment);
 
-            response.setSuccess(true);
+        //インスタンス(VMware)の更新
+        instanceService.updateNiftyInstance(Long.parseLong(instanceNo), instance.getInstanceName(), comment,
+                instanceType, keyPairNo);
 
-        return  response;
+        response.setSuccess(true);
+
+        return response;
     }
 
     /**
-     *
      * カンマ区切りのインスタンスタイプ(名称)の文字列からインスタンスタイプ(名称)のリストを作成する
      *
      * @param instanceTypesText カンマ区切りのインスタンスタイプ(名称)文字列
@@ -143,7 +136,7 @@ public class EditInstanceNifty extends ApiSupport {
     private static List<String> getInstanceTypes(String instanceTypesText) {
         List<String> instanceTypes = new ArrayList<String>();
         if (StringUtils.isNotEmpty(instanceTypesText)) {
-            for (String instanceType: StringUtils.split(instanceTypesText, ",")) {
+            for (String instanceType : StringUtils.split(instanceTypesText, ",")) {
                 instanceTypes.add(instanceType.trim());
             }
         }
@@ -151,7 +144,6 @@ public class EditInstanceNifty extends ApiSupport {
     }
 
     /**
-     *
      * インスタンスタイプ(名称)が対象イメージで使用可能かチェックする
      *
      * @param platform プラットフォーム
@@ -162,12 +154,11 @@ public class EditInstanceNifty extends ApiSupport {
     private boolean checkInstanceType(Platform platform, Image image, String instanceType) {
         //Nifty
         ImageNifty imageNifty = imageNiftyDao.read(image.getImageNo());
-        List<String> instanceTypes  = getInstanceTypes(imageNifty.getInstanceTypes());
+        List<String> instanceTypes = getInstanceTypes(imageNifty.getInstanceTypes());
         return instanceTypes.contains(instanceType);
     }
 
     /**
-     *
      * キーペア名からキーペアNoを取得
      *
      * @param userNo ユーザ番号
@@ -179,8 +170,8 @@ public class EditInstanceNifty extends ApiSupport {
         Long keyPairNo = null;
         //Nifty
         List<NiftyKeyPair> niftyKeyPairs = niftyDescribeService.getKeyPairs(userNo, platformNo);
-        for (NiftyKeyPair niftyKeyPair: niftyKeyPairs) {
-            if(StringUtils.equals(keyName, niftyKeyPair.getKeyName())) {
+        for (NiftyKeyPair niftyKeyPair : niftyKeyPairs) {
+            if (StringUtils.equals(keyName, niftyKeyPair.getKeyName())) {
                 keyPairNo = niftyKeyPair.getKeyNo();
                 break;
             }
@@ -188,4 +179,5 @@ public class EditInstanceNifty extends ApiSupport {
 
         return keyPairNo;
     }
+
 }

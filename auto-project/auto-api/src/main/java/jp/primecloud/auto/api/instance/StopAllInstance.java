@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.api.instance;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,63 +29,59 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
-
-import org.apache.commons.lang.BooleanUtils;
-
 import jp.primecloud.auto.api.response.instance.StopAllInstanceResponse;
 import jp.primecloud.auto.common.status.InstanceStatus;
 import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.Instance;
 
+import org.apache.commons.lang.BooleanUtils;
 
 @Path("/StopAllInstance")
 public class StopAllInstance extends ApiSupport {
 
     /**
-     *
      * サーバ停止(ALL) ファーム内のすべてのサーバを起動
      *
      * @param farmNo ファーム番号
-     *
      * @return StopAllInstanceResponse
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public StopAllInstanceResponse stoptAllInstance(
-            @QueryParam(PARAM_NAME_FARM_NO) String farmNo){
+    public StopAllInstanceResponse stoptAllInstance(@QueryParam(PARAM_NAME_FARM_NO) String farmNo) {
 
         StopAllInstanceResponse response = new StopAllInstanceResponse();
 
-            // 入力チェック
-            // FarmNo
-            ApiValidate.validateFarmNo(farmNo);
+        // 入力チェック
+        // FarmNo
+        ApiValidate.validateFarmNo(farmNo);
 
-            // ファーム取得
-            Farm farm = getFarm(Long.parseLong(farmNo));
+        // ファーム取得
+        Farm farm = getFarm(Long.parseLong(farmNo));
 
-            // 権限チェック
-            checkAndGetUser(farm);
+        // 権限チェック
+        checkAndGetUser(farm);
 
-            // インスタンス取得
-            List<Long> instanceNos = new ArrayList<Long>();
-            List<Instance> instances = instanceDao.readByFarmNo(Long.parseLong(farmNo));
-            for (Instance instance: instances) {
-                if (BooleanUtils.isTrue(instance.getLoadBalancer())) {
-                    //ロードバランサ以外
-                    continue;
-                }
-                InstanceStatus status = InstanceStatus.fromStatus(instance.getStatus());
-                if (InstanceStatus.RUNNING == status) {
-                    //ファーム内の起動済みのインスタンスが停止対象
-                    instanceNos.add(instance.getInstanceNo());
-                }
+        // インスタンス取得
+        List<Long> instanceNos = new ArrayList<Long>();
+        List<Instance> instances = instanceDao.readByFarmNo(Long.parseLong(farmNo));
+        for (Instance instance : instances) {
+            if (BooleanUtils.isTrue(instance.getLoadBalancer())) {
+                //ロードバランサ以外
+                continue;
             }
+            InstanceStatus status = InstanceStatus.fromStatus(instance.getStatus());
+            if (InstanceStatus.RUNNING == status) {
+                //ファーム内の起動済みのインスタンスが停止対象
+                instanceNos.add(instance.getInstanceNo());
+            }
+        }
 
-            // サーバ停止設定処理
-            processService.stopInstances(Long.parseLong(farmNo), instanceNos);
+        // サーバ停止設定処理
+        processService.stopInstances(Long.parseLong(farmNo), instanceNos);
 
-            response.setSuccess(true);
+        response.setSuccess(true);
 
-        return  response;
+        return response;
     }
+
 }

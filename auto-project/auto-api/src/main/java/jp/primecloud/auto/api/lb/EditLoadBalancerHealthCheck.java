@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.api.lb;
 
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -27,22 +26,20 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
-
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.api.response.lb.EditLoadBalancerHealthCheckResponse;
 import jp.primecloud.auto.common.status.LoadBalancerStatus;
 import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.entity.crud.LoadBalancerHealthCheck;
 import jp.primecloud.auto.exception.AutoApplicationException;
 
+import org.apache.commons.lang.StringUtils;
 
 @Path("/EditLoadBalancerHealthCheck")
 public class EditLoadBalancerHealthCheck extends ApiSupport {
 
     /**
-     *
      * ロードバランサ ヘルスチェック情報 編集
+     * 
      * @param loadBalancerNo ロードバランサ番号
      * @param checkProtocol プロトコル
      * @param checkPort ポート
@@ -51,71 +48,71 @@ public class EditLoadBalancerHealthCheck extends ApiSupport {
      * @param checkInterval チェック間隔 （秒）
      * @param healthyThreshold 障害 しきい値 （回数）
      * @param unhealthyThreshold 復帰 しきい値 （回数）
-     *
      * @return EditLoadBalancerHealthCheckResponse
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-	public EditLoadBalancerHealthCheckResponse editLoadBalancerHealthCheck(
+    public EditLoadBalancerHealthCheckResponse editLoadBalancerHealthCheck(
             @QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo,
             @QueryParam(PARAM_NAME_CHECK_PROTOCOL) String checkProtocol,
-            @QueryParam(PARAM_NAME_CHECK_PORT) String checkPort,
-            @QueryParam(PARAM_NAME_CHECK_PATH) String checkPath,
+            @QueryParam(PARAM_NAME_CHECK_PORT) String checkPort, @QueryParam(PARAM_NAME_CHECK_PATH) String checkPath,
             @QueryParam(PARAM_NAME_CHECK_TIMEOUT) String checkTimeout,
             @QueryParam(PARAM_NAME_CHECK_INTERVAL) String checkInterval,
             @QueryParam(PARAM_NAME_HEALTHY_THRESHOLD) String healthyThreshold,
-            @QueryParam(PARAM_NAME_UNHEALTHY_THRESHOLD) String unhealthyThreshold){
+            @QueryParam(PARAM_NAME_UNHEALTHY_THRESHOLD) String unhealthyThreshold) {
 
         EditLoadBalancerHealthCheckResponse response = new EditLoadBalancerHealthCheckResponse();
 
-            // 入力チェック
-            // LoadBalancerNo
-            ApiValidate.validateLoadBalancerNo(loadBalancerNo);
-            LoadBalancer loadBalancer = getLoadBalancer(Long.parseLong(loadBalancerNo));
+        // 入力チェック
+        // LoadBalancerNo
+        ApiValidate.validateLoadBalancerNo(loadBalancerNo);
+        LoadBalancer loadBalancer = getLoadBalancer(Long.parseLong(loadBalancerNo));
 
-            // 権限チェック
-            checkAndGetUser(loadBalancer);
+        // 権限チェック
+        checkAndGetUser(loadBalancer);
 
-            // CheckProtocol
-            ApiValidate.validateCheckProtocol(checkProtocol);
-            // CheckPort
-            ApiValidate.validateCheckPort(checkPort);
-            // CheckPath
-            ApiValidate.validateCheckPath(checkPath, "HTTP".equals(checkProtocol));
-            if (StringUtils.equals("TCP", checkProtocol)) {
-                //監視プロトコルが TCP の場合、監視Pathは入力不可 → 入力値を空にする
-                checkPath = "";
-            }
-            // CheckTimeout
-            ApiValidate.validateCheckTimeout(checkTimeout);
-            // CheckInterval
-            ApiValidate.validateCheckInterval(checkInterval);
-            // HealthyThreshold
-            if (LB_TYPE_ELB.equals(loadBalancer.getType())) {
-                //AWSの場合のみ編集可
-                ApiValidate.validateHealthyThreshold(healthyThreshold);
-            } else if(LB_TYPE_ULTRA_MONKEY.equals(loadBalancer.getType())){
-                //UltraMonkeyの場合は編集不可(テーブルの値を変えずに更新)
-                LoadBalancerHealthCheck loadBalancerHealthCheck = loadBalancerHealthCheckDao.read(Long.parseLong(loadBalancerNo));
-                healthyThreshold = String.valueOf(loadBalancerHealthCheck.getHealthyThreshold());
-            }
-            // UnhealthyThreshold
-            ApiValidate.validateUnhealthyThreshold(unhealthyThreshold);
+        // CheckProtocol
+        ApiValidate.validateCheckProtocol(checkProtocol);
+        // CheckPort
+        ApiValidate.validateCheckPort(checkPort);
+        // CheckPath
+        ApiValidate.validateCheckPath(checkPath, "HTTP".equals(checkProtocol));
+        if (StringUtils.equals("TCP", checkProtocol)) {
+            //監視プロトコルが TCP の場合、監視Pathは入力不可 → 入力値を空にする
+            checkPath = "";
+        }
+        // CheckTimeout
+        ApiValidate.validateCheckTimeout(checkTimeout);
+        // CheckInterval
+        ApiValidate.validateCheckInterval(checkInterval);
+        // HealthyThreshold
+        if (LB_TYPE_ELB.equals(loadBalancer.getType())) {
+            //AWSの場合のみ編集可
+            ApiValidate.validateHealthyThreshold(healthyThreshold);
+        } else if (LB_TYPE_ULTRA_MONKEY.equals(loadBalancer.getType())) {
+            //UltraMonkeyの場合は編集不可(テーブルの値を変えずに更新)
+            LoadBalancerHealthCheck loadBalancerHealthCheck = loadBalancerHealthCheckDao.read(Long
+                    .parseLong(loadBalancerNo));
+            healthyThreshold = String.valueOf(loadBalancerHealthCheck.getHealthyThreshold());
+        }
+        // UnhealthyThreshold
+        ApiValidate.validateUnhealthyThreshold(unhealthyThreshold);
 
-            LoadBalancerStatus status = LoadBalancerStatus.fromStatus(loadBalancer.getStatus());
-            if (LoadBalancerStatus.WARNING == status) {
-                // ロードバランサ ステータスが Warning
-                throw new AutoApplicationException("EAPI-100025", loadBalancerNo);
-            }
+        LoadBalancerStatus status = LoadBalancerStatus.fromStatus(loadBalancer.getStatus());
+        if (LoadBalancerStatus.WARNING == status) {
+            // ロードバランサ ステータスが Warning
+            throw new AutoApplicationException("EAPI-100025", loadBalancerNo);
+        }
 
-            //ヘルスチェック情報 更新
-            loadBalancerService.configureHealthCheck(
-                    Long.parseLong(loadBalancerNo), checkProtocol, Integer.parseInt(checkPort),
-                    checkPath, Integer.parseInt(checkTimeout), Integer.parseInt(checkInterval),
-                    Integer.parseInt(healthyThreshold), Integer.parseInt(unhealthyThreshold));
+        //ヘルスチェック情報 更新
+        loadBalancerService.configureHealthCheck(Long.parseLong(loadBalancerNo), checkProtocol,
+                Integer.parseInt(checkPort), checkPath, Integer.parseInt(checkTimeout),
+                Integer.parseInt(checkInterval), Integer.parseInt(healthyThreshold),
+                Integer.parseInt(unhealthyThreshold));
 
-            response.setSuccess(true);
+        response.setSuccess(true);
 
-        return  response;
+        return response;
     }
+
 }

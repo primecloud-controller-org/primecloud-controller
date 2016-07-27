@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.api.component;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,20 +29,17 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.api.response.component.StopAllComponentResponse;
 import jp.primecloud.auto.entity.crud.Component;
 import jp.primecloud.auto.entity.crud.Farm;
 
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 
 @Path("/StopAllComponent")
-public class StopAllComponent extends ApiSupport{
+public class StopAllComponent extends ApiSupport {
 
     /**
-     *
      * サービス停止(ALL)
      * @param farmNo ファーム番号
      * @param isStopInstance サーバ停止有無 true:サーバも停止、false:サービスのみ停止
@@ -51,44 +47,44 @@ public class StopAllComponent extends ApiSupport{
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-	public StopAllComponentResponse stopComponent(
-	        @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
-	        @QueryParam(PARAM_NAME_IS_STOP_INSTANCE) String isStopInstance){
+    public StopAllComponentResponse stopComponent(@QueryParam(PARAM_NAME_FARM_NO) String farmNo,
+            @QueryParam(PARAM_NAME_IS_STOP_INSTANCE) String isStopInstance) {
 
         StopAllComponentResponse response = new StopAllComponentResponse();
 
-            // 入力チェック
-            // FarmNo
-            ApiValidate.validateFarmNo(farmNo);
-            // IsStopInstance
-            ApiValidate.validateIsStopInstance(isStopInstance);
+        // 入力チェック
+        // FarmNo
+        ApiValidate.validateFarmNo(farmNo);
+        // IsStopInstance
+        ApiValidate.validateIsStopInstance(isStopInstance);
 
-            // ファーム取得
-            Farm farm = getFarm(Long.parseLong(farmNo));
+        // ファーム取得
+        Farm farm = getFarm(Long.parseLong(farmNo));
 
-            // 権限チェック
-            checkAndGetUser(farm);
+        // 権限チェック
+        checkAndGetUser(farm);
 
-            // コンポーネント取得
-            List<Component> components = componentDao.readByFarmNo(Long.parseLong(farmNo));
-            List<Long> componentNos = new ArrayList<Long>();
-            for (Component component: components) {
-                if (BooleanUtils.isTrue(component.getLoadBalancer())) {
-                    //ロードバランサコンポーネントは対象外
-                    continue;
-                }
-                componentNos.add(component.getComponentNo());
+        // コンポーネント取得
+        List<Component> components = componentDao.readByFarmNo(Long.parseLong(farmNo));
+        List<Long> componentNos = new ArrayList<Long>();
+        for (Component component : components) {
+            if (BooleanUtils.isTrue(component.getLoadBalancer())) {
+                //ロードバランサコンポーネントは対象外
+                continue;
             }
+            componentNos.add(component.getComponentNo());
+        }
 
-            // サービス停止設定
-            if (StringUtils.isEmpty(isStopInstance)) {
-                processService.stopComponents(Long.parseLong(farmNo), componentNos);
-            } else {
-                processService.stopComponents(Long.parseLong(farmNo), componentNos, Boolean.parseBoolean(isStopInstance));
-            }
+        // サービス停止設定
+        if (StringUtils.isEmpty(isStopInstance)) {
+            processService.stopComponents(Long.parseLong(farmNo), componentNos);
+        } else {
+            processService.stopComponents(Long.parseLong(farmNo), componentNos, Boolean.parseBoolean(isStopInstance));
+        }
 
-            response.setSuccess(true);
+        response.setSuccess(true);
 
-        return  response;
-	}
+        return response;
+    }
+
 }

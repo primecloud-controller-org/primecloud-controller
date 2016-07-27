@@ -221,4 +221,5 @@ public class DescribePlatform extends ApiSupport {
         }
         return buffer.length() > 0 ? buffer.toString() : null;
     }
+
 }

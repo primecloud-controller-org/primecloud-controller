@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.api.lb;
 
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -27,53 +26,49 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
-
 import jp.primecloud.auto.api.response.lb.DeleteLoadBalancerResponse;
 import jp.primecloud.auto.common.status.LoadBalancerStatus;
 import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.exception.AutoApplicationException;
 
-
 @Path("/DeleteLoadBalancer")
 public class DeleteLoadBalancer extends ApiSupport {
 
     /**
-     *
      * ロードバランサ削除
      *
      * @param loadBalancerNo ロードバランサ番号
-     *
      * @return DeleteLoadBalancerResponse
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-	public DeleteLoadBalancerResponse deleteLoadBalancer(
-	        @QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo){
+    public DeleteLoadBalancerResponse deleteLoadBalancer(@QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo) {
 
         DeleteLoadBalancerResponse response = new DeleteLoadBalancerResponse();
 
-            // 入力チェック
-            // LoadBalancerNo
-            ApiValidate.validateLoadBalancerNo(loadBalancerNo);
+        // 入力チェック
+        // LoadBalancerNo
+        ApiValidate.validateLoadBalancerNo(loadBalancerNo);
 
-            // ロードバランサ取得
-            LoadBalancer loadBalancer = getLoadBalancer(Long.parseLong(loadBalancerNo));
+        // ロードバランサ取得
+        LoadBalancer loadBalancer = getLoadBalancer(Long.parseLong(loadBalancerNo));
 
-            // 権限チェック
-            checkAndGetUser(loadBalancer);
+        // 権限チェック
+        checkAndGetUser(loadBalancer);
 
-            // ロードバランサーのステータスチェック
-            LoadBalancerStatus status = LoadBalancerStatus.fromStatus(loadBalancer.getStatus());
-            if (LoadBalancerStatus.STOPPED != status) {
-                // ステータスが 停止済みではない
-                throw new AutoApplicationException("EAPI-100023", loadBalancerNo);
-            }
+        // ロードバランサーのステータスチェック
+        LoadBalancerStatus status = LoadBalancerStatus.fromStatus(loadBalancer.getStatus());
+        if (LoadBalancerStatus.STOPPED != status) {
+            // ステータスが 停止済みではない
+            throw new AutoApplicationException("EAPI-100023", loadBalancerNo);
+        }
 
-            // ロードバランサ 削除
-            loadBalancerService.deleteLoadBalancer(Long.parseLong(loadBalancerNo));
+        // ロードバランサ 削除
+        loadBalancerService.deleteLoadBalancer(Long.parseLong(loadBalancerNo));
 
-            response.setSuccess(true);
+        response.setSuccess(true);
 
-        return  response;
+        return response;
     }
+
 }

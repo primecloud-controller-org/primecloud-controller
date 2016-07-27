@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.api.component;
 
-
 import java.util.Collections;
 import java.util.List;
 
@@ -30,9 +29,6 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
-
-import org.apache.commons.lang.BooleanUtils;
-
 import jp.primecloud.auto.api.response.component.ComponentInstanceResponse;
 import jp.primecloud.auto.api.response.component.ComponentLoadBalancerResponse;
 import jp.primecloud.auto.api.response.component.ComponentResponse;
@@ -43,69 +39,69 @@ import jp.primecloud.auto.entity.crud.ComponentInstance;
 import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.service.impl.Comparators;
 
+import org.apache.commons.lang.BooleanUtils;
 
 @Path("/DescribeComponent")
 public class DescribeComponent extends ApiSupport {
 
     /**
-     *
      * サービス情報取得
      *
      * @param componentNo コンポーネント番号
-     *
      * @return DescribeComponentResponse
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public DescribeComponentResponse describeComponent(
-            @QueryParam(PARAM_NAME_COMPONENT_NO) String componentNo){
+    public DescribeComponentResponse describeComponent(@QueryParam(PARAM_NAME_COMPONENT_NO) String componentNo) {
 
         DescribeComponentResponse response = new DescribeComponentResponse();
 
-            // 入力チェック
-            // ComponentNo
-            ApiValidate.validateComponentNo(componentNo);
+        // 入力チェック
+        // ComponentNo
+        ApiValidate.validateComponentNo(componentNo);
 
-            // コンポーネント取得
-            Component component = getComponent(Long.parseLong(componentNo));
+        // コンポーネント取得
+        Component component = getComponent(Long.parseLong(componentNo));
 
-            // 権限チェック
-            checkAndGetUser(component);
+        // 権限チェック
+        checkAndGetUser(component);
 
-            //コンポーネント情報設定
-            ComponentResponse componentResponse = new ComponentResponse(component);
-            response.setComponent(componentResponse);
+        //コンポーネント情報設定
+        ComponentResponse componentResponse = new ComponentResponse(component);
+        response.setComponent(componentResponse);
 
-            List<ComponentInstance> componentInstances = componentInstanceDao.readByComponentNo(Long.parseLong(componentNo));
-            if (componentInstances.isEmpty() == false) {
-                //ソート
-                Collections.sort(componentInstances, Comparators.COMPARATOR_COMPONENT_INSTANCE);
-                for (ComponentInstance componentInstance: componentInstances) {
-                    // 関連付けが無効で停止している場合は除外
-                    if (BooleanUtils.isNotTrue(componentInstance.getAssociate())) {
-                        ComponentInstanceStatus status = ComponentInstanceStatus.fromStatus(componentInstance.getStatus());
-                        if (status == ComponentInstanceStatus.STOPPED) {
-                            continue;
-                        }
+        List<ComponentInstance> componentInstances = componentInstanceDao
+                .readByComponentNo(Long.parseLong(componentNo));
+        if (componentInstances.isEmpty() == false) {
+            //ソート
+            Collections.sort(componentInstances, Comparators.COMPARATOR_COMPONENT_INSTANCE);
+            for (ComponentInstance componentInstance : componentInstances) {
+                // 関連付けが無効で停止している場合は除外
+                if (BooleanUtils.isNotTrue(componentInstance.getAssociate())) {
+                    ComponentInstanceStatus status = ComponentInstanceStatus.fromStatus(componentInstance.getStatus());
+                    if (status == ComponentInstanceStatus.STOPPED) {
+                        continue;
                     }
-                    //コンポーネントインスタンス情報設定
-                    componentResponse.getInstances().add(new ComponentInstanceResponse(componentInstance));
                 }
+                //コンポーネントインスタンス情報設定
+                componentResponse.getInstances().add(new ComponentInstanceResponse(componentInstance));
             }
+        }
 
-            //ロードバランサ取得
-            List<LoadBalancer> loadBalancers = loadBalancerDao.readByComponentNo(component.getComponentNo());
-            if (loadBalancers.isEmpty() == false) {
-                //ソート
-                Collections.sort(loadBalancers, Comparators.COMPARATOR_LOAD_BALANCER);
+        //ロードバランサ取得
+        List<LoadBalancer> loadBalancers = loadBalancerDao.readByComponentNo(component.getComponentNo());
+        if (loadBalancers.isEmpty() == false) {
+            //ソート
+            Collections.sort(loadBalancers, Comparators.COMPARATOR_LOAD_BALANCER);
 
-                for (LoadBalancer loadBalancer : loadBalancers) {
-                    componentResponse.getLoadBalancers().add(new ComponentLoadBalancerResponse(loadBalancer));
-                }
+            for (LoadBalancer loadBalancer : loadBalancers) {
+                componentResponse.getLoadBalancers().add(new ComponentLoadBalancerResponse(loadBalancer));
             }
+        }
 
-            response.setSuccess(true);
+        response.setSuccess(true);
 
-        return  response;
+        return response;
     }
+
 }

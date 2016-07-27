@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.api.component;
 
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -27,20 +26,17 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
-
-import org.apache.commons.lang.BooleanUtils;
-
 import jp.primecloud.auto.api.response.component.CreateComponentResponse;
 import jp.primecloud.auto.entity.crud.ComponentType;
 import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.exception.AutoApplicationException;
 
+import org.apache.commons.lang.BooleanUtils;
 
 @Path("/CreateComponent")
-public class CreateComponent extends ApiSupport{
+public class CreateComponent extends ApiSupport {
 
     /**
-     *
      * サービス作成
      *
      * @param farmNo ファーム番号
@@ -52,48 +48,49 @@ public class CreateComponent extends ApiSupport{
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-	public CreateComponentResponse createComponent(
-	        @QueryParam(PARAM_NAME_FARM_NO) String farmNo,
-	        @QueryParam(PARAM_NAME_COMPONENT_NAME) String componentName,
-	        @QueryParam(PARAM_NAME_COMPONENT_TYPE_NO) String componentTypeNo,
-	        @QueryParam(PARAM_NAME_DISK_SIZE) String diskSize,
-	        @QueryParam(PARAM_NAME_COMMENT) String comment){
+    public CreateComponentResponse createComponent(@QueryParam(PARAM_NAME_FARM_NO) String farmNo,
+            @QueryParam(PARAM_NAME_COMPONENT_NAME) String componentName,
+            @QueryParam(PARAM_NAME_COMPONENT_TYPE_NO) String componentTypeNo,
+            @QueryParam(PARAM_NAME_DISK_SIZE) String diskSize, @QueryParam(PARAM_NAME_COMMENT) String comment) {
 
         CreateComponentResponse response = new CreateComponentResponse();
 
-            // 入力チェック
-            // farmNo
-            ApiValidate.validateFarmNo(farmNo);
-            // componentName
-            ApiValidate.validateComponentName(componentName);
-            // componentTypeNo
-            ApiValidate.validateComponentTypeNo(componentTypeNo);
-            // diskSize
-            ApiValidate.validateDiskSize(diskSize);
-            // comments
-            ApiValidate.validateComment(comment);
+        // 入力チェック
+        // farmNo
+        ApiValidate.validateFarmNo(farmNo);
+        // componentName
+        ApiValidate.validateComponentName(componentName);
+        // componentTypeNo
+        ApiValidate.validateComponentTypeNo(componentTypeNo);
+        // diskSize
+        ApiValidate.validateDiskSize(diskSize);
+        // comments
+        ApiValidate.validateComment(comment);
 
-            // 権限チェック
-            Farm farm = farmDao.read(Long.parseLong(farmNo));
-            checkAndGetUser(farm);
+        // 権限チェック
+        Farm farm = farmDao.read(Long.parseLong(farmNo));
+        checkAndGetUser(farm);
 
-            ComponentType componentType = componentTypeDao.read(Long.parseLong(componentTypeNo));
-            if (componentType == null) {
-                //コンポーネントタイプが存在しない
-                throw new AutoApplicationException("EAPI-100000", "ComponentType", PARAM_NAME_COMPONENT_TYPE_NO, componentTypeNo);
-            }
-            if (BooleanUtils.isNotTrue(componentType.getSelectable())) {
-                //有効ではないコンポーネントタイプ
-                throw new AutoApplicationException("EAPI-000020", "ComponentType", PARAM_NAME_COMPONENT_TYPE_NO, componentTypeNo);
-            }
+        ComponentType componentType = componentTypeDao.read(Long.parseLong(componentTypeNo));
+        if (componentType == null) {
+            //コンポーネントタイプが存在しない
+            throw new AutoApplicationException("EAPI-100000", "ComponentType", PARAM_NAME_COMPONENT_TYPE_NO,
+                    componentTypeNo);
+        }
+        if (BooleanUtils.isNotTrue(componentType.getSelectable())) {
+            //有効ではないコンポーネントタイプ
+            throw new AutoApplicationException("EAPI-000020", "ComponentType", PARAM_NAME_COMPONENT_TYPE_NO,
+                    componentTypeNo);
+        }
 
-            // サービス作成
-            Long componentNo = componentService.createComponent(Long.parseLong(farmNo), componentName,
-                    Long.valueOf(componentTypeNo), comment, Integer.parseInt(diskSize));
+        // サービス作成
+        Long componentNo = componentService.createComponent(Long.parseLong(farmNo), componentName,
+                Long.valueOf(componentTypeNo), comment, Integer.parseInt(diskSize));
 
-            response.setComponentNo(componentNo);
-            response.setSuccess(true);
+        response.setComponentNo(componentNo);
+        response.setSuccess(true);
 
-        return  response;
-	}
+        return response;
+    }
+
 }

@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.api.instance;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,54 +29,50 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
-
 import jp.primecloud.auto.api.response.instance.StopInstanceResponse;
 import jp.primecloud.auto.common.status.InstanceStatus;
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.exception.AutoApplicationException;
 
-
 @Path("/StopInstance")
 public class StoptInstance extends ApiSupport {
 
     /**
-     *
      * サーバ停止処理
      *
      * @param instanceNo インスタンス番号
-     *
      * @return StopInstanceResponse
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-	public StopInstanceResponse stoptInstance(
-	        @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo){
+    public StopInstanceResponse stoptInstance(@QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo) {
 
         StopInstanceResponse response = new StopInstanceResponse();
 
-            // 入力チェック
-            // InstanceNo
-            ApiValidate.validateInstanceNo(instanceNo);
+        // 入力チェック
+        // InstanceNo
+        ApiValidate.validateInstanceNo(instanceNo);
 
-            // インスタンス取得
-            Instance instance = getInstance(Long.parseLong(instanceNo));
+        // インスタンス取得
+        Instance instance = getInstance(Long.parseLong(instanceNo));
 
-            // 権限チェック
-            checkAndGetUser(instance);
+        // 権限チェック
+        checkAndGetUser(instance);
 
-            InstanceStatus status = InstanceStatus.fromStatus(instance.getStatus());
-            if (InstanceStatus.RUNNING != status && InstanceStatus.WARNING != status) {
-                // インスタンスのステータスが 起動済み or 警告 ではない。
-                throw new AutoApplicationException("EAPI-100024", instanceNo);
-            }
+        InstanceStatus status = InstanceStatus.fromStatus(instance.getStatus());
+        if (InstanceStatus.RUNNING != status && InstanceStatus.WARNING != status) {
+            // インスタンスのステータスが 起動済み or 警告 ではない。
+            throw new AutoApplicationException("EAPI-100024", instanceNo);
+        }
 
-            // サーバ停止設定処理
-            List<Long> instanceNos = new ArrayList<Long>();
-            instanceNos.add(Long.parseLong(instanceNo));
-            processService.stopInstances(instance.getFarmNo(), instanceNos);
+        // サーバ停止設定処理
+        List<Long> instanceNos = new ArrayList<Long>();
+        instanceNos.add(Long.parseLong(instanceNo));
+        processService.stopInstances(instance.getFarmNo(), instanceNos);
 
-            response.setSuccess(true);
+        response.setSuccess(true);
 
-        return  response;
+        return response;
     }
+
 }

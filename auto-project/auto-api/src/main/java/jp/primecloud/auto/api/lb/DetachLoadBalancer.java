@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.api.lb;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,69 +29,68 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
-
-import org.apache.commons.lang.BooleanUtils;
-
 import jp.primecloud.auto.api.response.lb.DetachLoadBalancerResponse;
 import jp.primecloud.auto.common.status.InstanceStatus;
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.exception.AutoApplicationException;
 
+import org.apache.commons.lang.BooleanUtils;
 
 @Path("/DetachLoadBalancer")
 public class DetachLoadBalancer extends ApiSupport {
 
     /**
-     *
      * ロードバランサ サーバ割り当て無効化
+     * 
      * @param loadBalancerNo ロードバランサ番号
      * @param instanceNo インスタンス番号
-     *
      * @return DetachLoadBalancerResponse
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-	public DetachLoadBalancerResponse detachLoadBalancer(
-	        @QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo,
-	        @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo){
+    public DetachLoadBalancerResponse detachLoadBalancer(
+            @QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo,
+            @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo) {
 
         DetachLoadBalancerResponse response = new DetachLoadBalancerResponse();
 
-            // 入力チェック
-            // LoadBalancerNo
-            ApiValidate.validateLoadBalancerNo(loadBalancerNo);
-            // InstanceNo
-            ApiValidate.validateInstanceNo(instanceNo);
+        // 入力チェック
+        // LoadBalancerNo
+        ApiValidate.validateLoadBalancerNo(loadBalancerNo);
+        // InstanceNo
+        ApiValidate.validateInstanceNo(instanceNo);
 
-            // ロードバランサ取得
-            LoadBalancer loadBalancer = getLoadBalancer(Long.parseLong(loadBalancerNo));
+        // ロードバランサ取得
+        LoadBalancer loadBalancer = getLoadBalancer(Long.parseLong(loadBalancerNo));
 
-            // 権限チェック
-            checkAndGetUser(loadBalancer);
+        // 権限チェック
+        checkAndGetUser(loadBalancer);
 
-            // インスタンス取得
-            Instance instance = getInstance(Long.parseLong(instanceNo));
+        // インスタンス取得
+        Instance instance = getInstance(Long.parseLong(instanceNo));
 
-            if (BooleanUtils.isFalse(instance.getFarmNo().equals(loadBalancer.getFarmNo()))) {
-                //ファームとインスタンスが一致しない
-                throw new AutoApplicationException("EAPI-100022", "Instance", loadBalancer.getFarmNo(), PARAM_NAME_INSTANCE_NO, instanceNo);
-            }
+        if (BooleanUtils.isFalse(instance.getFarmNo().equals(loadBalancer.getFarmNo()))) {
+            //ファームとインスタンスが一致しない
+            throw new AutoApplicationException("EAPI-100022", "Instance", loadBalancer.getFarmNo(),
+                    PARAM_NAME_INSTANCE_NO, instanceNo);
+        }
 
-            // サーバのステータスチェック
-            InstanceStatus instanceStatus = InstanceStatus.fromStatus(instance.getStatus());
-            if (instanceStatus == InstanceStatus.CONFIGURING) {
-                // ステータスが Configuring の場合は割り当て解除不可
-                throw new AutoApplicationException("EAPI-100002", loadBalancerNo, instanceNo);
-            }
+        // サーバのステータスチェック
+        InstanceStatus instanceStatus = InstanceStatus.fromStatus(instance.getStatus());
+        if (instanceStatus == InstanceStatus.CONFIGURING) {
+            // ステータスが Configuring の場合は割り当て解除不可
+            throw new AutoApplicationException("EAPI-100002", loadBalancerNo, instanceNo);
+        }
 
-            // ロードバランサ サーバ割り当て無効化設定処理
-            List<Long> instanceNos = new ArrayList<Long>();
-            instanceNos.add(Long.parseLong(instanceNo));
-            loadBalancerService.disableInstances(Long.parseLong(loadBalancerNo), instanceNos);
+        // ロードバランサ サーバ割り当て無効化設定処理
+        List<Long> instanceNos = new ArrayList<Long>();
+        instanceNos.add(Long.parseLong(instanceNo));
+        loadBalancerService.disableInstances(Long.parseLong(loadBalancerNo), instanceNos);
 
-            response.setSuccess(true);
+        response.setSuccess(true);
 
-        return  response;
-	}
+        return response;
+    }
+
 }

@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.api.farm;
 
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -30,38 +29,35 @@ import jp.primecloud.auto.api.ApiValidate;
 import jp.primecloud.auto.api.response.farm.DeleteFarmResponse;
 import jp.primecloud.auto.entity.crud.Farm;
 
-
 @Path("/DeleteFarm")
 public class DeleteFarm extends ApiSupport {
 
     /**
-     *
      * ファーム削除
      *
      * @param farmNo ファーム番号
-     *
      * @return DeleteFarmResponse
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public DeleteFarmResponse deleteFarm(
-            @QueryParam(PARAM_NAME_FARM_NO) String farmNo){
+    public DeleteFarmResponse deleteFarm(@QueryParam(PARAM_NAME_FARM_NO) String farmNo) {
 
         DeleteFarmResponse response = new DeleteFarmResponse();
 
-            // 入力チェック
-            // FarmNo
-            ApiValidate.validateFarmNo(farmNo);
-            Farm farm = getFarm(Long.parseLong(farmNo));
+        // 入力チェック
+        // FarmNo
+        ApiValidate.validateFarmNo(farmNo);
+        Farm farm = getFarm(Long.parseLong(farmNo));
 
-            // 権限チェック
-            checkAndGetUser(farm);
+        // 権限チェック
+        checkAndGetUser(farm);
 
-            // ファーム削除
-            farmService.deleteFarm(Long.parseLong(farmNo));
+        // ファーム削除
+        farmService.deleteFarm(Long.parseLong(farmNo));
 
-            response.setSuccess(true);
+        response.setSuccess(true);
 
-        return  response;
+        return response;
     }
+
 }

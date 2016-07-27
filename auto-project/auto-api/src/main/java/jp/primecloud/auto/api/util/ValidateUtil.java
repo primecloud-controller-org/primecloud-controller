@@ -26,7 +26,6 @@ import org.apache.commons.validator.GenericValidator;
 
 import jp.primecloud.auto.exception.AutoApplicationException;
 
-
 /**
  * <p>
  * 入力チェッククラス
@@ -36,7 +35,6 @@ import jp.primecloud.auto.exception.AutoApplicationException;
 public class ValidateUtil {
 
     /**
-     *
      * 必須チェック
      *
      * @param value 入力チェック対象の値
@@ -44,13 +42,12 @@ public class ValidateUtil {
      * @param params 入力チェックエラー時のメッセージパラメータ
      */
     public static void required(String value, String code, Object[] params) {
-        if(GenericValidator.isBlankOrNull(value)) {
+        if (GenericValidator.isBlankOrNull(value)) {
             throw new AutoApplicationException(code, params);
         }
     }
 
     /**
-     *
      * 最小値、最大値チェック(int)
      *
      * @param value 入力チェック対象の値
@@ -60,7 +57,7 @@ public class ValidateUtil {
      * @param params 入力チェックエラー時のメッセージパラメータ
      */
     public static void intInRange(String value, int min, int max, String code, Object[] params) {
-        if(GenericValidator.isInt(value) == false) {
+        if (GenericValidator.isInt(value) == false) {
             throw new AutoApplicationException(code, params);
         }
         if (GenericValidator.isInRange(Integer.valueOf(value), min, max) == false) {
@@ -69,7 +66,6 @@ public class ValidateUtil {
     }
 
     /**
-     *
      * 最小値、最大値チェック(long)
      *
      * @param value 入力チェック対象の値
@@ -78,8 +74,8 @@ public class ValidateUtil {
      * @param code 入力チェックエラー時のメッセージコード
      * @param params 入力チェックエラー時のメッセージパラメータ
      */
-    public static void longInRange(String value, long min, long max, String code, Object... params){
-        if(GenericValidator.isLong(value) == false) {
+    public static void longInRange(String value, long min, long max, String code, Object... params) {
+        if (GenericValidator.isLong(value) == false) {
             throw new AutoApplicationException(code, params);
         }
         if (GenericValidator.isInRange(Long.parseLong(value), min, max) == false) {
@@ -88,7 +84,6 @@ public class ValidateUtil {
     }
 
     /**
-     *
      * 桁数チェック
      *
      * @param value 入力チェック対象の値
@@ -98,16 +93,15 @@ public class ValidateUtil {
      * @param params 入力チェックエラー時のメッセージパラメータ
      */
     public static void lengthInRange(String value, int minLength, int maxLength, String code, Object[] params) {
-        if(value != null) {
-            if(GenericValidator.minLength(value, minLength) == false ||
-               GenericValidator.maxLength(value, maxLength) == false) {
+        if (value != null) {
+            if (GenericValidator.minLength(value, minLength) == false
+                    || GenericValidator.maxLength(value, maxLength) == false) {
                 throw new AutoApplicationException(code, params);
             }
         }
     }
 
     /**
-     *
      * パターンチェック
      *
      * @param value 入力チェック対象の値
@@ -118,13 +112,12 @@ public class ValidateUtil {
     public static void matchRegex(String value, String regex, String code, Object[] params) {
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(value);
-        if(matcher.matches() == false) {
+        if (matcher.matches() == false) {
             throw new AutoApplicationException(code, params);
         }
     }
 
     /**
-     *
      * 日付チェック
      *
      * @param value 入力チェック対象の値
@@ -146,9 +139,10 @@ public class ValidateUtil {
      * @param params 入力チェックエラー時のメッセージパラメータ
      */
     public static void isBoolean(String value, String code, Object[] params) {
-        if(StringUtils.equalsIgnoreCase("true", value) == false &&
-           StringUtils.equalsIgnoreCase("false", value) == false) {
+        if (StringUtils.equalsIgnoreCase("true", value) == false
+                && StringUtils.equalsIgnoreCase("false", value) == false) {
             throw new AutoApplicationException(code, params);
         }
     }
+
 }

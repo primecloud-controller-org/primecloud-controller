@@ -1,15 +1,16 @@
 package jp.primecloud.auto.api.response.lb;
 
-import org.codehaus.jackson.annotate.JsonProperty;
-
 import jp.primecloud.auto.api.response.AbstractResponse;
+
+import org.codehaus.jackson.annotate.JsonProperty;
 
 public class DescribeLoadBalancerResponse extends AbstractResponse {
 
     @JsonProperty("LoadBalancer")
     private LoadBalancerResponse loadBalancer;
 
-    public DescribeLoadBalancerResponse() {}
+    public DescribeLoadBalancerResponse() {
+    }
 
     public DescribeLoadBalancerResponse(LoadBalancerResponse loadBalancer) {
         this.loadBalancer = loadBalancer;
@@ -22,4 +23,5 @@ public class DescribeLoadBalancerResponse extends AbstractResponse {
     public void setLoadBalancer(LoadBalancerResponse loadBalancer) {
         this.loadBalancer = loadBalancer;
     }
+
 }

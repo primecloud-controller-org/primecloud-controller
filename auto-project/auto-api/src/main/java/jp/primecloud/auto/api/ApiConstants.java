@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.api;
 
-
 public class ApiConstants {
 
     //PARAM_NAME
@@ -114,4 +113,5 @@ public class ApiConstants {
     //PCC-API CERTIFICATE
     protected final static int ACCESS_ID_LENGTH = 30;
     protected final static int SECRET_KEY_LENGTH = 100;
+
 }

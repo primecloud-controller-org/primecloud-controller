@@ -1,15 +1,16 @@
 package jp.primecloud.auto.api.response.instance;
 
-import org.codehaus.jackson.annotate.JsonProperty;
-
 import jp.primecloud.auto.api.response.AbstractResponse;
+
+import org.codehaus.jackson.annotate.JsonProperty;
 
 public class DescribeInstanceResponse extends AbstractResponse {
 
     @JsonProperty("Instance")
     private InstanceResponse instance;
 
-    public DescribeInstanceResponse() {}
+    public DescribeInstanceResponse() {
+    }
 
     public DescribeInstanceResponse(InstanceResponse instance) {
         this.instance = instance;
@@ -22,4 +23,5 @@ public class DescribeInstanceResponse extends AbstractResponse {
     public void setInstance(InstanceResponse instance) {
         this.instance = instance;
     }
+
 }

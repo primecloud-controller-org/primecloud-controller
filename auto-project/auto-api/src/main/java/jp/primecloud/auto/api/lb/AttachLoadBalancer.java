@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.api.lb;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,9 +29,6 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
-
-import org.apache.commons.lang.BooleanUtils;
-
 import jp.primecloud.auto.api.response.lb.AttachLoadBalancerResponse;
 import jp.primecloud.auto.common.status.InstanceStatus;
 import jp.primecloud.auto.entity.crud.ComponentInstance;
@@ -40,78 +36,81 @@ import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.exception.AutoApplicationException;
 
+import org.apache.commons.lang.BooleanUtils;
 
 @Path("/AttachLoadBalancer")
 public class AttachLoadBalancer extends ApiSupport {
 
     /**
-     *
      * ロードバランサ サーバ割り当て有効化
+     * 
      * @param loadBalancerNo ロードバランサ番号
      * @param instanceNo インスタンス番号
-     *
      * @return AttachLoadBalancerResponse
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-	public AttachLoadBalancerResponse attachLoadBalancer(
-	        @QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo,
-	        @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo){
+    public AttachLoadBalancerResponse attachLoadBalancer(
+            @QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo,
+            @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo) {
 
         AttachLoadBalancerResponse response = new AttachLoadBalancerResponse();
 
-            // 入力チェック
-            // LoadBalancerNo
-            ApiValidate.validateLoadBalancerNo(loadBalancerNo);
-            // InstanceNo
-            ApiValidate.validateInstanceNo(instanceNo);
+        // 入力チェック
+        // LoadBalancerNo
+        ApiValidate.validateLoadBalancerNo(loadBalancerNo);
+        // InstanceNo
+        ApiValidate.validateInstanceNo(instanceNo);
 
-            // ロードバランサ取得
-            LoadBalancer loadBalancer = getLoadBalancer(Long.parseLong(loadBalancerNo));
+        // ロードバランサ取得
+        LoadBalancer loadBalancer = getLoadBalancer(Long.parseLong(loadBalancerNo));
 
-            // 権限チェック
-            checkAndGetUser(loadBalancer);
+        // 権限チェック
+        checkAndGetUser(loadBalancer);
 
-            // インスタンス取得
-            Instance instance = getInstance(Long.parseLong(instanceNo));
+        // インスタンス取得
+        Instance instance = getInstance(Long.parseLong(instanceNo));
 
-            if (BooleanUtils.isFalse(instance.getFarmNo().equals(loadBalancer.getFarmNo()))) {
-                //ファームとインスタンスが一致しない
-                throw new AutoApplicationException("EAPI-100022", "Instance", loadBalancer.getFarmNo(), PARAM_NAME_INSTANCE_NO, instanceNo);
+        if (BooleanUtils.isFalse(instance.getFarmNo().equals(loadBalancer.getFarmNo()))) {
+            //ファームとインスタンスが一致しない
+            throw new AutoApplicationException("EAPI-100022", "Instance", loadBalancer.getFarmNo(),
+                    PARAM_NAME_INSTANCE_NO, instanceNo);
+        }
+
+        // サーバのステータスチェック
+        InstanceStatus instanceStatus = InstanceStatus.fromStatus(instance.getStatus());
+        if (instanceStatus == InstanceStatus.CONFIGURING || instanceStatus == InstanceStatus.WARNING) {
+            // ステータスが Configuring 及び Warning の場合は割り当て不可
+            throw new AutoApplicationException("EAPI-100001", loadBalancerNo, instanceNo);
+        }
+
+        // コンポーネントのチェック
+        List<ComponentInstance> componentInstances = componentInstanceDao.readByComponentNo(loadBalancer
+                .getComponentNo());
+        boolean isContain = false;
+        for (ComponentInstance componentInstance : componentInstances) {
+            if (BooleanUtils.isFalse(componentInstance.getAssociate())) {
+                continue;
             }
-
-            // サーバのステータスチェック
-            InstanceStatus instanceStatus = InstanceStatus.fromStatus(instance.getStatus());
-            if (instanceStatus == InstanceStatus.CONFIGURING || instanceStatus == InstanceStatus.WARNING) {
-                // ステータスが Configuring 及び Warning の場合は割り当て不可
-                throw new AutoApplicationException("EAPI-100001", loadBalancerNo, instanceNo);
+            if (componentInstance.getInstanceNo().equals(instance.getInstanceNo())) {
+                isContain = true;
+                break;
             }
+        }
+        if (BooleanUtils.isFalse(isContain)) {
+            // インスタンスがコンポーネントに含まれていない場合
+            throw new AutoApplicationException("EAPI-100012", Long.parseLong(loadBalancerNo),
+                    loadBalancer.getComponentNo(), Long.parseLong(instanceNo));
+        }
 
-            // コンポーネントのチェック
-            List<ComponentInstance> componentInstances = componentInstanceDao.readByComponentNo(loadBalancer.getComponentNo());
-            boolean isContain = false;
-            for (ComponentInstance componentInstance : componentInstances) {
-                if (BooleanUtils.isFalse(componentInstance.getAssociate())) {
-                    continue;
-                }
-                if (componentInstance.getInstanceNo().equals(instance.getInstanceNo())) {
-                    isContain = true;
-                    break;
-                }
-            }
-            if (BooleanUtils.isFalse(isContain)) {
-                // インスタンスがコンポーネントに含まれていない場合
-                throw new AutoApplicationException("EAPI-100012", Long.parseLong(loadBalancerNo),
-                        loadBalancer.getComponentNo(), Long.parseLong(instanceNo));
-            }
+        // ロードバランサ サーバ割り当て有効化設定処理
+        List<Long> instanceNos = new ArrayList<Long>();
+        instanceNos.add(Long.parseLong(instanceNo));
+        loadBalancerService.enableInstances(Long.parseLong(loadBalancerNo), instanceNos);
 
-            // ロードバランサ サーバ割り当て有効化設定処理
-            List<Long> instanceNos = new ArrayList<Long>();
-            instanceNos.add(Long.parseLong(instanceNo));
-            loadBalancerService.enableInstances(Long.parseLong(loadBalancerNo), instanceNos);
+        response.setSuccess(true);
 
-            response.setSuccess(true);
-
-        return  response;
+        return response;
     }
+
 }

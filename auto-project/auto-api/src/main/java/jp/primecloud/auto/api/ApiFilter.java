@@ -30,11 +30,6 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.common.log.LoggingUtils;
 import jp.primecloud.auto.config.Config;
 import jp.primecloud.auto.entity.crud.ApiCertificate;
@@ -42,10 +37,13 @@ import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.util.MessageUtils;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+
 import com.sun.jersey.spi.container.ContainerRequest;
 import com.sun.jersey.spi.container.ContainerRequestFilter;
-
-
 
 public class ApiFilter extends ApiSupport implements ContainerRequestFilter {
 
@@ -65,121 +63,112 @@ public class ApiFilter extends ApiSupport implements ContainerRequestFilter {
      */
     public ContainerRequest filter(ContainerRequest request) {
 
-            // URI(フルパス)
-            URI uri = request.getRequestUri();
+        // URI(フルパス)
+        URI uri = request.getRequestUri();
 
-            // BASE64デコードした、URIパラメータ部をマップ(LinkedHashMap)で取得
-            LinkedHashMap<String, String> decodeParamMap = getDecodedParamMap(uri);
+        // BASE64デコードした、URIパラメータ部をマップ(LinkedHashMap)で取得
+        LinkedHashMap<String, String> decodeParamMap = getDecodedParamMap(uri);
 
-            String apiName = uri.getPath().substring(request.getBaseUri().getPath().length());
-            if (StringUtils.isEmpty(apiName)) {
-                //API名が存在しない
-                throw new AutoApplicationException("EAPI-000008", "URL", uri.toString());
+        String apiName = uri.getPath().substring(request.getBaseUri().getPath().length());
+        if (StringUtils.isEmpty(apiName)) {
+            //API名が存在しない
+            throw new AutoApplicationException("EAPI-000008", "URL", uri.toString());
+        }
+
+        //String userName = decodeParamMap.get(PARAM_NAME_KEY);
+        String accessId = decodeParamMap.get(PARAM_NAME_ACCESS_ID);
+        String signature = decodeParamMap.get(PARAM_NAME_SIGNATURE);
+        String timestamp = decodeParamMap.get(PARAM_NAME_TIMESTAMP);
+
+        // 入力チェック
+        // Key(ユーザ名)
+        ApiValidate.validateAccessId(accessId);
+        // Signature
+        ApiValidate.validateSignature(signature);
+        // Timestamp(yyyy/MM/dd HH:mm:ss)
+        ApiValidate.validateTimestamp(timestamp);
+
+        // PCC-API認証情報取得
+        ApiCertificate apiCertificate = apiCertificateDao.readByApiAccessId(accessId);
+        if (apiCertificate == null) {
+            // PCC-API認証情報が存在しない
+            try {
+                Thread.sleep(SECURE_WAIT_TIME.intValue() * 1000);
+            } catch (InterruptedException ignore) {
             }
+            throw new AutoApplicationException("EAPI-000008", PARAM_NAME_ACCESS_ID, accessId);
+        }
 
-            //String userName = decodeParamMap.get(PARAM_NAME_KEY);
-            String accessId = decodeParamMap.get(PARAM_NAME_ACCESS_ID);
-            String signature = decodeParamMap.get(PARAM_NAME_SIGNATURE);
-            String timestamp = decodeParamMap.get(PARAM_NAME_TIMESTAMP);
+        //ユーザ(APIアクセスユーザ)取得
+        User accessUser = userDao.read(apiCertificate.getUserNo());
+        if (accessUser == null) {
+            // ユーザが存在しない
+            throw new AutoApplicationException("EAPI-100000", "User", "UserNo", apiCertificate.getUserNo());
+        }
 
-            // 入力チェック
-            // Key(ユーザ名)
-            ApiValidate.validateAccessId(accessId);
-            // Signature
-            ApiValidate.validateSignature(signature);
-            // Timestamp(yyyy/MM/dd HH:mm:ss)
-            ApiValidate.validateTimestamp(timestamp);
-
-            // PCC-API認証情報取得
-            ApiCertificate apiCertificate = apiCertificateDao.readByApiAccessId(accessId);
-            if (apiCertificate == null) {
-                // PCC-API認証情報が存在しない
-                try {
-                    Thread.sleep(SECURE_WAIT_TIME.intValue() * 1000);
-                } catch (InterruptedException ignore) {
-                }
-                throw new AutoApplicationException("EAPI-000008", PARAM_NAME_ACCESS_ID, accessId);
+        // Signature合致チェック
+        String uriText = createUriQueryParams(decodeParamMap);
+        String encodeUriText = encodeSHA256(uriText, apiCertificate.getApiSecretKey());
+        if (BooleanUtils.isFalse(encodeUriText.equals(signature))) {
+            //Signatureが合致しない場合
+            try {
+                Thread.sleep(SECURE_WAIT_TIME.intValue() * 1000);
+            } catch (InterruptedException ignore) {
             }
+            throw new AutoApplicationException("EAPI-000008", "URL", uri.toString());
+        }
 
-            //ユーザ(APIアクセスユーザ)取得
-            User accessUser = userDao.read(apiCertificate.getUserNo());
-            if(accessUser == null) {
-                // ユーザが存在しない
-                throw new AutoApplicationException("EAPI-100000", "User", "UserNo", apiCertificate.getUserNo());
-            }
+        //Userをリクエストに保存
+        servletRequest.setAttribute(PARAM_NAME_USER, accessUser);
 
-            //TODO 無効化ユーザの場合の処理
-            //ユーザ管理ツール改修のでユーザの有効/無効化ロジックを見直す為、
-            //現在は処理は記述していない。ユーザ管理ツール改修後に実装の必要あり
-            //if (無効化ユーザなら) {
-            //    無効化エラー処理
-            //}
+        //LoggingUtilsにデータを設定
+        LoggingUtils.setUserNo(accessUser.getUserNo());
+        LoggingUtils.setLoginUserNo(accessUser.getUserNo());
+        LoggingUtils.setUserName(accessUser.getUsername());
 
-            // Signature合致チェック
-            String uriText = createUriQueryParams(decodeParamMap);
-            String encodeUriText = encodeSHA256(uriText, apiCertificate.getApiSecretKey());
-            if (BooleanUtils.isFalse(encodeUriText.equals(signature))) {
-                //Signatureが合致しない場合
-                try {
-                    Thread.sleep(SECURE_WAIT_TIME.intValue() * 1000);
-                } catch (InterruptedException ignore) {
-                }
-                throw new AutoApplicationException("EAPI-000008", "URL", uri.toString());
-            }
+        // デコードしたURLを再設定
+        for (String key : decodeParamMap.keySet()) {
+            request.getQueryParameters().putSingle(key, decodeParamMap.get(key));
+        }
 
-            //Userをリクエストに保存
-            servletRequest.setAttribute(PARAM_NAME_USER, accessUser);
-
-            //LoggingUtilsにデータを設定
-            LoggingUtils.setUserNo(accessUser.getUserNo());
-            LoggingUtils.setLoginUserNo(accessUser.getUserNo());
-            LoggingUtils.setUserName(accessUser.getUsername());
-
-            // デコードしたURLを再設定
-            for (String key: decodeParamMap.keySet()) {
-                request.getQueryParameters().putSingle(key, decodeParamMap.get(key));
-            }
-
-            // アクセスログ出力
-            log.info(MessageUtils.getMessage("IAPI-000001", accessUser.getUsername(), apiName));
+        // アクセスログ出力
+        log.info(MessageUtils.getMessage("IAPI-000001", accessUser.getUsername(), apiName));
 
         return request;
     }
 
-   /**
-    *
-    * BASE64デコード済みのリクエストパラメータをLinkedHashMapで取得
-    * ※リクエストパラメータ全てをBASE64エンコード
-    *
-    * @param url URL
-    * @return LinkedHashMap<パラメータ名, パラメータ値>
-    */
-   @SuppressWarnings("static-access")
-private LinkedHashMap<String, String> getDecodedParamMap(URI uri) {
-       LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
-       String queryUrlText = uri.getQuery();
-       if (StringUtils.isNotEmpty(queryUrlText)) {
-           try {
-               Base64 base64 = new Base64(true);
-               String decodedUri = new String(base64.decodeBase64(queryUrlText.getBytes("UTF-8")), "UTF-8");
-               for(String param: decodedUri.split("&")) {
-                   String key = param.substring(0, param.indexOf("="));
-                   String value = param.substring(param.indexOf("=") + 1, param.length());
-                   if(PARAM_NAME_SIGNATURE.equals(key)) {
-                       map.put(key, value);
-                   } else {
-                       map.put(key, value);
-                   }
-               }
-           } catch(Exception e) {
-               throw new AutoApplicationException("EAPI-000008", e, "URL", uri.toString());
-           }
-       }
-       return map;
-   }
+    /**
+     * BASE64デコード済みのリクエストパラメータをLinkedHashMapで取得
+     * ※リクエストパラメータ全てをBASE64エンコード
+     *
+     * @param url URL
+     * @return LinkedHashMap<パラメータ名, パラメータ値>
+     */
+    @SuppressWarnings("static-access")
+    private LinkedHashMap<String, String> getDecodedParamMap(URI uri) {
+        LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
+        String queryUrlText = uri.getQuery();
+        if (StringUtils.isNotEmpty(queryUrlText)) {
+            try {
+                Base64 base64 = new Base64(true);
+                String decodedUri = new String(base64.decodeBase64(queryUrlText.getBytes("UTF-8")), "UTF-8");
+                for (String param : decodedUri.split("&")) {
+                    String key = param.substring(0, param.indexOf("="));
+                    String value = param.substring(param.indexOf("=") + 1, param.length());
+                    if (PARAM_NAME_SIGNATURE.equals(key)) {
+                        map.put(key, value);
+                    } else {
+                        map.put(key, value);
+                    }
+                }
+            } catch (Exception e) {
+                throw new AutoApplicationException("EAPI-000008", e, "URL", uri.toString());
+            }
+        }
+        return map;
+    }
 
     /**
-     *
      * HMAC-SHA256ハッシュアルゴリズムでエンコードを行う。
      *
      * @param plainText エンコード対象の文字列
@@ -188,15 +177,15 @@ private LinkedHashMap<String, String> getDecodedParamMap(URI uri) {
      */
     private static String encodeSHA256(String plainText, String keyText) {
         try {
-        SecretKey secretKey = new SecretKeySpec(keyText.getBytes("UTF-8"),"HmacSHA256");
-        Mac mac = Mac.getInstance("HmacSHA256");
-        mac.init(secretKey);
+            SecretKey secretKey = new SecretKeySpec(keyText.getBytes("UTF-8"), "HmacSHA256");
+            Mac mac = Mac.getInstance("HmacSHA256");
+            mac.init(secretKey);
 
-        byte[] plainBytes = plainText.getBytes("UTF-8");
-        byte[] encodedBytes = mac.doFinal(plainBytes);
-        byte[] hexBytes = new Hex().encode(encodedBytes);
+            byte[] plainBytes = plainText.getBytes("UTF-8");
+            byte[] encodedBytes = mac.doFinal(plainBytes);
+            byte[] hexBytes = new Hex().encode(encodedBytes);
 
-        return new String(hexBytes, "UTF-8");
+            return new String(hexBytes, "UTF-8");
         } catch (InvalidKeyException e) {
             throw new RuntimeException(e);
         } catch (NoSuchAlgorithmException e) {
@@ -207,7 +196,6 @@ private LinkedHashMap<String, String> getDecodedParamMap(URI uri) {
     }
 
     /**
-     *
      * URI(Signature含まない)文字列を作成
      *
      * @param decodeParamMap base64デコード済みのリクエストパラメータ
@@ -217,8 +205,8 @@ private LinkedHashMap<String, String> getDecodedParamMap(URI uri) {
         String baseUriText = servletRequest.getServletPath() + servletRequest.getPathInfo() + "?";
         StringBuffer uriText = new StringBuffer(baseUriText);
         String splitChar = "";
-        for (String key: decodeParamMap.keySet()) {
-            if(PARAM_NAME_SIGNATURE.equals(key) == false) {
+        for (String key : decodeParamMap.keySet()) {
+            if (PARAM_NAME_SIGNATURE.equals(key) == false) {
                 uriText.append(splitChar + key + "=" + decodeParamMap.get(key));
                 splitChar = "&";
             }
@@ -226,22 +214,4 @@ private LinkedHashMap<String, String> getDecodedParamMap(URI uri) {
         return uriText.toString();
     }
 
-//    /**
-//     *
-//     * ユーザパスワードの複合化を行う
-//     *
-//     * @param encryptPass 暗号化されたPCCユーザパスワード
-//     * @param key 複合化の為のキー
-//     * @return 複合化されたPCCユーザパスワード
-//     */
-//    private String decryptUserPassword(String encryptPass, String key) {
-//        PasswordEncryptor encryptor = new PasswordEncryptor();
-//        String decryptPass;
-//        try {
-//            decryptPass = encryptor.decrypt(encryptPass, key);
-//        } catch(Throwable e) {
-//            throw new AutoApplicationException("EAPI-000010", e, "Password");
-//        }
-//        return decryptPass;
-//    }
 }

@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.api.instance;
 
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -27,16 +26,13 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
-
 import jp.primecloud.auto.api.response.instance.DisableZabbixMonitoringInstanceResponse;
 import jp.primecloud.auto.entity.crud.Instance;
-
 
 @Path("/DisableZabbixMonitoringInstance")
 public class DisableZabbixMonitoringInstance extends ApiSupport {
 
     /**
-     *
      * Zabbix監視有効化(サーバ)
      *
      * @param instanceNo インスタンス番号
@@ -44,24 +40,25 @@ public class DisableZabbixMonitoringInstance extends ApiSupport {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-	public DisableZabbixMonitoringInstanceResponse disableZabbixMonitoringInstance(
-	        @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo) {
+    public DisableZabbixMonitoringInstanceResponse disableZabbixMonitoringInstance(
+            @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo) {
 
-    	DisableZabbixMonitoringInstanceResponse response = new DisableZabbixMonitoringInstanceResponse();
+        DisableZabbixMonitoringInstanceResponse response = new DisableZabbixMonitoringInstanceResponse();
 
-            // 入力チェック
-            // InstanceNo
-            ApiValidate.validateInstanceNo(instanceNo);
+        // 入力チェック
+        // InstanceNo
+        ApiValidate.validateInstanceNo(instanceNo);
 
-            // 権限チェック
-            Instance instance = getInstance(Long.parseLong(instanceNo));
-            checkAndGetUser(instance);
+        // 権限チェック
+        Instance instance = getInstance(Long.parseLong(instanceNo));
+        checkAndGetUser(instance);
 
-            // Zabbix監視有効化(サーバ)
-            instanceService.disableZabbixMonitoring(Long.parseLong(instanceNo));
+        // Zabbix監視有効化(サーバ)
+        instanceService.disableZabbixMonitoring(Long.parseLong(instanceNo));
 
-            response.setSuccess(true);
+        response.setSuccess(true);
 
-        return  response;
+        return response;
     }
+
 }

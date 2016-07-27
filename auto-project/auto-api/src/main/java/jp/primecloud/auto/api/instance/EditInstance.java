@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.api.instance;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,13 +56,12 @@ import jp.primecloud.auto.service.dto.ZoneDto;
 
 import org.apache.commons.lang.StringUtils;
 
-
 @Path("/EditInstance")
 public class EditInstance extends ApiSupport {
 
     /**
-     *
      * サーバ編集
+     * 
      * @param instanceNo インスタンス番号
      * @param instanceType インスタンスタイプ
      * @param keyName キーペア名(AWSのみ)
@@ -74,89 +72,83 @@ public class EditInstance extends ApiSupport {
      * @param privateIp プライベートIP(EC2+VPCのみ)
      * @param comment コメント
      * @param storageType ストレージタイプ(VCLOUDのみ)
-     *
      * @return EditInstanceResponse
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public EditInstanceResponse editInstance(
-            @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo,
-            @QueryParam(PARAM_NAME_INSTANCE_TYPE) String instanceType,
-            @QueryParam(PARAM_NAME_KEY_NAME) String keyName,
+    public EditInstanceResponse editInstance(@QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo,
+            @QueryParam(PARAM_NAME_INSTANCE_TYPE) String instanceType, @QueryParam(PARAM_NAME_KEY_NAME) String keyName,
             @QueryParam(PARAM_NAME_SECURITY_GROUPS) String securityGroups,
             @QueryParam(PARAM_NAME_AVAILABILITY_ZONE) String availabilityZone,
-            @QueryParam(PARAM_NAME_IP_ADDRESS) String ipAddress,
-            @QueryParam(PARAM_NAME_SUBNET) String cidrBlock,
-            @QueryParam(PARAM_NAME_PRIVATE_IP) String privateIp,
-            @QueryParam(PARAM_NAME_COMMENT) String comment,
-            @QueryParam(PARAM_NAME_STORAGE_TYPE) String storageType){
+            @QueryParam(PARAM_NAME_IP_ADDRESS) String ipAddress, @QueryParam(PARAM_NAME_SUBNET) String cidrBlock,
+            @QueryParam(PARAM_NAME_PRIVATE_IP) String privateIp, @QueryParam(PARAM_NAME_COMMENT) String comment,
+            @QueryParam(PARAM_NAME_STORAGE_TYPE) String storageType) {
 
         EditInstanceResponse response = new EditInstanceResponse();
 
-            // InstanceNo
-            ApiValidate.validateInstanceNo(instanceNo);
+        // InstanceNo
+        ApiValidate.validateInstanceNo(instanceNo);
 
-            //インスタンス取得
-            Instance instance = getInstance(Long.parseLong(instanceNo));
+        //インスタンス取得
+        Instance instance = getInstance(Long.parseLong(instanceNo));
 
-            // 権限チェック
-            User user = checkAndGetUser(instance);
+        // 権限チェック
+        User user = checkAndGetUser(instance);
 
-            // インスタンスのステータスチェック
-            InstanceStatus status = InstanceStatus.fromStatus(instance.getStatus());
-            if (InstanceStatus.STOPPED != status) {
-                // インスタンスが停止済み以外
-                throw new AutoApplicationException("EAPI-100014", instanceNo);
-            }
+        // インスタンスのステータスチェック
+        InstanceStatus status = InstanceStatus.fromStatus(instance.getStatus());
+        if (InstanceStatus.STOPPED != status) {
+            // インスタンスが停止済み以外
+            throw new AutoApplicationException("EAPI-100014", instanceNo);
+        }
 
-            //プラットフォーム取得
-            Platform platform = platformDao.read(instance.getPlatformNo());
-            if (platform == null) {
-                // プラットフォームが存在しない
-                throw new AutoApplicationException("EAPI-100000", "Platform", PARAM_NAME_PLATFORM_NO, instance.getPlatformNo());
-            }
-            // プラットフォーム種別チェック
-            if (!PLATFORM_TYPE_AWS.equals(platform.getPlatformType()) &&
-                !PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType()) &&
-                !PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType()) &&
-                !PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType()) &&
-                !PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
-                //プラットフォームがAws、CloudStack、VCloud、OpenStack、Azure以外
-                throw new AutoApplicationException("EAPI-100031", "EC2 or CloudStack or VCloud or OpenStack or Azure", instance.getInstanceNo(), instance.getPlatformNo());
-            }
+        //プラットフォーム取得
+        Platform platform = platformDao.read(instance.getPlatformNo());
+        if (platform == null) {
+            // プラットフォームが存在しない
+            throw new AutoApplicationException("EAPI-100000", "Platform", PARAM_NAME_PLATFORM_NO,
+                    instance.getPlatformNo());
+        }
+        // プラットフォーム種別チェック
+        if (!PLATFORM_TYPE_AWS.equals(platform.getPlatformType())
+                && !PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())
+                && !PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())
+                && !PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())
+                && !PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
+            //プラットフォームがAws、CloudStack、VCloud、OpenStack、Azure以外
+            throw new AutoApplicationException("EAPI-100031", "EC2 or CloudStack or VCloud or OpenStack or Azure",
+                    instance.getInstanceNo(), instance.getPlatformNo());
+        }
 
-            // イメージ取得
-            Image image = imageDao.read(instance.getImageNo());
-            if (image == null || image.getPlatformNo().equals(instance.getPlatformNo()) == false) {
-                // イメージが存在しない
-                throw new AutoApplicationException("EAPI-100000", "Image", PARAM_NAME_IMAGE_NO, instance.getImageNo());
-            }
+        // イメージ取得
+        Image image = imageDao.read(instance.getImageNo());
+        if (image == null || image.getPlatformNo().equals(instance.getPlatformNo()) == false) {
+            // イメージが存在しない
+            throw new AutoApplicationException("EAPI-100000", "Image", PARAM_NAME_IMAGE_NO, instance.getImageNo());
+        }
 
-            if (PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
-                editAwsInstance(
-                        user.getUserNo(), instance, instanceType, keyName, securityGroups,
-                        cidrBlock, availabilityZone, ipAddress, privateIp, comment);
-            } else if (PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
-                editCloudstackInstance(
-                        user.getUserNo(), instance, instanceType, keyName, comment);
-            } else if (PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
-                editVcloudInstance(user.getUserNo(), instance, instanceType, storageType, keyName, comment);
-            } else if (PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
-                editOpenstackInstance(
-                        user.getUserNo(), instance, instanceType, keyName, securityGroups,
-                        availabilityZone, comment);
-            } else if (PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
-                editAzureInstance(user.getUserNo(), instance, instanceType, cidrBlock, availabilityZone, comment);
-            }
+        if (PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
+            editAwsInstance(user.getUserNo(), instance, instanceType, keyName, securityGroups, cidrBlock,
+                    availabilityZone, ipAddress, privateIp, comment);
+        } else if (PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
+            editCloudstackInstance(user.getUserNo(), instance, instanceType, keyName, comment);
+        } else if (PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
+            editVcloudInstance(user.getUserNo(), instance, instanceType, storageType, keyName, comment);
+        } else if (PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
+            editOpenstackInstance(user.getUserNo(), instance, instanceType, keyName, securityGroups, availabilityZone,
+                    comment);
+        } else if (PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
+            editAzureInstance(user.getUserNo(), instance, instanceType, cidrBlock, availabilityZone, comment);
+        }
 
-            response.setSuccess(true);
+        response.setSuccess(true);
 
-        return  response;
+        return response;
     }
 
-    private void editAwsInstance(
-            Long userNo, Instance instance, String instanceType, String keyName, String securityGroups,
-            String cidrBlock, String availabilityZone, String ipAddress, String privateIp, String comment) {
+    private void editAwsInstance(Long userNo, Instance instance, String instanceType, String keyName,
+            String securityGroups, String cidrBlock, String availabilityZone, String ipAddress, String privateIp,
+            String comment) {
         PlatformAws platformAws = platformAwsDao.read(instance.getPlatformNo());
 
         // InstanceType
@@ -169,7 +161,7 @@ public class EditInstance extends ApiSupport {
 
         // KeyName
         ApiValidate.validateKeyName(keyName);
-        if(checkKeyName(userNo, instance.getPlatformNo(), keyName) == false) {
+        if (checkKeyName(userNo, instance.getPlatformNo(), keyName) == false) {
             // キーペアがプラットフォームに存在しない
             throw new AutoApplicationException("EAPI-000012", instance.getPlatformNo(), keyName);
         }
@@ -215,7 +207,8 @@ public class EditInstance extends ApiSupport {
             //VPCではない場合
             //※VPCの場合はサブネットでゾーンが決まるので、入力チェックは行わない
             ApiValidate.validateAvailabilityZone(availabilityZone);
-            if (StringUtils.isNotEmpty(availabilityZone) && checkAvailabilityZoneName(userNo, instance.getPlatformNo(), availabilityZone) == false) {
+            if (StringUtils.isNotEmpty(availabilityZone)
+                    && checkAvailabilityZoneName(userNo, instance.getPlatformNo(), availabilityZone) == false) {
                 // AvailabilityZoneName がプラットフォームに存在しない
                 throw new AutoApplicationException("EAPI-100017", instance.getPlatformNo(), availabilityZone);
             }
@@ -236,17 +229,17 @@ public class EditInstance extends ApiSupport {
         ApiValidate.validateComment(comment);
 
         // 更新処理
-        instanceService.updateAwsInstance(
-                instance.getInstanceNo(), instance.getInstanceName(), comment, keyName,
+        instanceService.updateAwsInstance(instance.getInstanceNo(), instance.getInstanceName(), comment, keyName,
                 instanceType, securityGroups, availabilityZone, ipAddressNo, subnetId, privateIp);
     }
 
-    private void editCloudstackInstance(
-            Long userNo, Instance instance, String instanceType, String keyName, String comment) {
+    private void editCloudstackInstance(Long userNo, Instance instance, String instanceType, String keyName,
+            String comment) {
         CloudstackInstance cloudstackInstance = cloudstackInstanceDao.read(instance.getInstanceNo());
         if (cloudstackInstance == null) {
             // CloudStackInstanceが存在しない
-            throw new AutoApplicationException("EAPI-100000", "CloudStackInstance",  PARAM_NAME_INSTANCE_NO, instance.getInstanceNo());
+            throw new AutoApplicationException("EAPI-100000", "CloudStackInstance", PARAM_NAME_INSTANCE_NO,
+                    instance.getInstanceNo());
         }
 
         // InstanceType
@@ -259,7 +252,7 @@ public class EditInstance extends ApiSupport {
 
         // KeyName
         if (StringUtils.isNotEmpty(keyName)) {
-            if(checkKeyName(userNo, instance.getPlatformNo(), keyName) == false) {
+            if (checkKeyName(userNo, instance.getPlatformNo(), keyName) == false) {
                 // キーペアがプラットフォームに存在しない
                 throw new AutoApplicationException("EAPI-000012", instance.getPlatformNo(), keyName);
             }
@@ -269,9 +262,8 @@ public class EditInstance extends ApiSupport {
         ApiValidate.validateComment(comment);
 
         //更新処理
-        instanceService.updateCloudstackInstance(
-                instance.getInstanceNo(), instance.getInstanceName(), comment, keyName,
-                instanceType, cloudstackInstance.getSecuritygroup(), cloudstackInstance.getZoneid(), null);
+        instanceService.updateCloudstackInstance(instance.getInstanceNo(), instance.getInstanceName(), comment,
+                keyName, instanceType, cloudstackInstance.getSecuritygroup(), cloudstackInstance.getZoneid(), null);
     }
 
     private void editVcloudInstance(Long userNo, Instance instance, String instanceType, String storageType,
@@ -279,7 +271,8 @@ public class EditInstance extends ApiSupport {
         VcloudInstance vcloudInstance = vcloudInstanceDao.read(instance.getInstanceNo());
         if (vcloudInstance == null) {
             // VcloudInstanceが存在しない
-            throw new AutoApplicationException("EAPI-100000", "VcloudInstance",  PARAM_NAME_INSTANCE_NO, instance.getInstanceNo());
+            throw new AutoApplicationException("EAPI-100000", "VcloudInstance", PARAM_NAME_INSTANCE_NO,
+                    instance.getInstanceNo());
         }
 
         // InstanceType
@@ -293,20 +286,20 @@ public class EditInstance extends ApiSupport {
         // StorageType
         Long storageTypeNo = null;
         ApiValidate.validateStrageType(storageType);
-            storageTypeNo = checkStorageType(userNo, instance.getPlatformNo(), storageType);
-            if(storageTypeNo == null) {
-                // ストレージタイプがプラットフォームに存在しない
-                throw new AutoApplicationException("EAPI-000022", instance.getPlatformNo(), storageType);
-            }
+        storageTypeNo = checkStorageType(userNo, instance.getPlatformNo(), storageType);
+        if (storageTypeNo == null) {
+            // ストレージタイプがプラットフォームに存在しない
+            throw new AutoApplicationException("EAPI-000022", instance.getPlatformNo(), storageType);
+        }
 
         // KeyName
         Long keyNo = null;
         ApiValidate.validateKeyName(keyName);
-            keyNo = checkVcloudKeyName(userNo, instance.getPlatformNo(), keyName);
-            if(keyNo == null) {
-                // キーペアがプラットフォームに存在しない
-                throw new AutoApplicationException("EAPI-000012", instance.getPlatformNo(), keyName);
-            }
+        keyNo = checkVcloudKeyName(userNo, instance.getPlatformNo(), keyName);
+        if (keyNo == null) {
+            // キーペアがプラットフォームに存在しない
+            throw new AutoApplicationException("EAPI-000012", instance.getPlatformNo(), keyName);
+        }
 
         // Comment
         ApiValidate.validateComment(comment);
@@ -317,11 +310,10 @@ public class EditInstance extends ApiSupport {
         //更新処理
         instanceService.updateVcloudInstance(instance.getInstanceNo(), instance.getInstanceName(), comment,
                 storageTypeNo, keyNo, instanceType, instanceNetworks);
-        }
+    }
 
-    private void editOpenstackInstance(
-            Long userNo, Instance instance, String instanceType, String keyName, String securityGroups,
-            String availabilityZone, String comment) {
+    private void editOpenstackInstance(Long userNo, Instance instance, String instanceType, String keyName,
+            String securityGroups, String availabilityZone, String comment) {
 
         // InstanceType
         ApiValidate.validateInstanceType(instanceType, true);
@@ -333,7 +325,7 @@ public class EditInstance extends ApiSupport {
 
         // KeyName
         ApiValidate.validateKeyName(keyName);
-        if(checkKeyName(userNo, instance.getPlatformNo(), keyName) == false) {
+        if (checkKeyName(userNo, instance.getPlatformNo(), keyName) == false) {
             // キーペアがプラットフォームに存在しない
             throw new AutoApplicationException("EAPI-000012", instance.getPlatformNo(), keyName);
         }
@@ -347,7 +339,8 @@ public class EditInstance extends ApiSupport {
 
         //AvailabilityZone
         ApiValidate.validateAvailabilityZone(availabilityZone);
-        if (StringUtils.isNotEmpty(availabilityZone) && checkAvailabilityZoneName(userNo, instance.getPlatformNo(), availabilityZone) == false) {
+        if (StringUtils.isNotEmpty(availabilityZone)
+                && checkAvailabilityZoneName(userNo, instance.getPlatformNo(), availabilityZone) == false) {
             // AvailabilityZone がプラットフォームに存在しない
             throw new AutoApplicationException("EAPI-100017", instance.getPlatformNo(), availabilityZone);
         }
@@ -356,9 +349,8 @@ public class EditInstance extends ApiSupport {
         ApiValidate.validateComment(comment);
 
         // 更新処理
-        instanceService.updateOpenStackInstance(
-                instance.getInstanceNo(), instance.getInstanceName(), comment,
-                instanceType,availabilityZone, securityGroups,  keyName);
+        instanceService.updateOpenStackInstance(instance.getInstanceNo(), instance.getInstanceName(), comment,
+                instanceType, availabilityZone, securityGroups, keyName);
     }
 
     private void editAzureInstance(Long userNo, Instance instance, String instanceType, String cidrBlock,
@@ -379,12 +371,12 @@ public class EditInstance extends ApiSupport {
         if (StringUtils.isNotEmpty(availabilitySet)) {
             String[] availabilitySets = platformAzure.getAvailabilitySets().split(",");
             boolean existFlg = false;
-            for(int i = 0;i <= availabilitySets.length;i++){
-                if(availabilitySet.equals(availabilitySets[i])){
+            for (int i = 0; i <= availabilitySets.length; i++) {
+                if (availabilitySet.equals(availabilitySets[i])) {
                     existFlg = true;
                 }
             }
-            if(!existFlg){
+            if (!existFlg) {
                 // AvailabilitySet がプラットフォームに存在しない
                 throw new AutoApplicationException("EAPI-100017", instance.getPlatformNo(), availabilitySet);
             }
@@ -393,7 +385,8 @@ public class EditInstance extends ApiSupport {
         // Subnet
         String subnetId = null;
         ApiValidate.validateSubnet(cidrBlock);
-        SubnetDto subnetDto = getAzureSubnet(userNo, instance.getPlatformNo(), platformAzure.getNetworkName(), cidrBlock);
+        SubnetDto subnetDto = getAzureSubnet(userNo, instance.getPlatformNo(), platformAzure.getNetworkName(),
+                cidrBlock);
         if (subnetDto == null) {
             //サブネットがプラットフォームに存在しない
             throw new AutoApplicationException("EAPI-000017", instance.getPlatformNo(), cidrBlock);
@@ -404,16 +397,15 @@ public class EditInstance extends ApiSupport {
         ApiValidate.validateComment(comment);
 
         //更新処理
-        instanceService.updateAzureInstance(
-                instance.getInstanceNo(), instance.getInstanceName(), comment, instanceType,
-                availabilitySet, subnetId);
+        instanceService.updateAzureInstance(instance.getInstanceNo(), instance.getInstanceName(), comment,
+                instanceType, availabilitySet, subnetId);
     }
 
     private Long checkStorageType(Long userNo, Long platformNo, String storageTypeName) {
         // ストレージタイプの名称がプラットフォームに存在するかチェック
         List<StorageTypeDto> storageTypes = iaasDescribeService.getStorageTypes(userNo, platformNo);
-        for (StorageTypeDto storageType: storageTypes) {
-            if(StringUtils.equals(storageTypeName, storageType.getStorageTypeName())) {
+        for (StorageTypeDto storageType : storageTypes) {
+            if (StringUtils.equals(storageTypeName, storageType.getStorageTypeName())) {
                 return storageType.getStorageTypeNo();
             }
         }
@@ -425,8 +417,8 @@ public class EditInstance extends ApiSupport {
         // キーペアの名称がプラットフォームに存在するかチェック
         //Aws or Eucalyptus or CloudStack
         List<KeyPairDto> keyPairs = iaasDescribeService.getKeyPairs(userNo, platformNo);
-        for (KeyPairDto keyPair: keyPairs) {
-            if(StringUtils.equals(keyName, keyPair.getKeyName())) {
+        for (KeyPairDto keyPair : keyPairs) {
+            if (StringUtils.equals(keyName, keyPair.getKeyName())) {
                 return true;
             }
         }
@@ -438,8 +430,8 @@ public class EditInstance extends ApiSupport {
         // キーペアの名称がプラットフォームに存在するかチェック
         //VCloud
         List<KeyPairDto> keyPairs = iaasDescribeService.getKeyPairs(userNo, platformNo);
-        for (KeyPairDto keyPair: keyPairs) {
-            if(StringUtils.equals(keyName, keyPair.getKeyName())) {
+        for (KeyPairDto keyPair : keyPairs) {
+            if (StringUtils.equals(keyName, keyPair.getKeyName())) {
                 return keyPair.getKeyNo();
             }
         }
@@ -451,7 +443,7 @@ public class EditInstance extends ApiSupport {
         boolean isContain = false;
         if (StringUtils.isNotEmpty(securityGroups)) {
             List<String> groupNames = getSecurityGroupNames(userNo, platformNo, vpcId);
-            for (String grouName: securityGroups.split(",")) {
+            for (String grouName : securityGroups.split(",")) {
                 if (groupNames.contains(grouName.trim())) {
                     isContain = true;
                 } else {
@@ -465,7 +457,7 @@ public class EditInstance extends ApiSupport {
     private List<String> getSecurityGroupNames(Long userNo, Long platformNo, String vpcId) {
         List<String> groupNames = new ArrayList<String>();
         List<SecurityGroupDto> securityGroupDtos = iaasDescribeService.getSecurityGroups(userNo, platformNo, vpcId);
-        for (SecurityGroupDto dto: securityGroupDtos) {
+        for (SecurityGroupDto dto : securityGroupDtos) {
             groupNames.add(dto.getGroupName());
         }
         return groupNames;
@@ -474,9 +466,9 @@ public class EditInstance extends ApiSupport {
     private Long getIpAddressNo(Long userNo, Long platformNo, Long instanceNo, String ipAddress) {
         Long ipAddressNo = null;
         List<AddressDto> addresses = iaasDescribeService.getAddresses(userNo, platformNo);
-        for (AddressDto address: addresses) {
-            if (StringUtils.equals(ipAddress, address.getPublicIp()) &&
-                (address.getInstanceNo() == null || instanceNo == address.getInstanceNo())) {
+        for (AddressDto address : addresses) {
+            if (StringUtils.equals(ipAddress, address.getPublicIp())
+                    && (address.getInstanceNo() == null || instanceNo == address.getInstanceNo())) {
                 ipAddressNo = address.getAddressNo();
                 break;
             }
@@ -486,7 +478,7 @@ public class EditInstance extends ApiSupport {
 
     private boolean checkAvailabilityZoneName(Long userNo, Long platformNo, String zoneName) {
         List<ZoneDto> zones = iaasDescribeService.getAvailabilityZones(userNo, platformNo);
-        for (ZoneDto zone: zones) {
+        for (ZoneDto zone : zones) {
             if (StringUtils.equals(zoneName, zone.getZoneName())) {
                 return true;
             }
@@ -496,7 +488,7 @@ public class EditInstance extends ApiSupport {
 
     private SubnetDto getSubnet(Long userNo, Long platformNo, String vpcId, String cidrBlock) {
         List<SubnetDto> subnets = iaasDescribeService.getSubnets(userNo, platformNo, vpcId);
-        for (SubnetDto subnetDto: subnets) {
+        for (SubnetDto subnetDto : subnets) {
             if (subnetDto.getCidrBlock().equals(cidrBlock)) {
                 return subnetDto;
             }
@@ -506,7 +498,7 @@ public class EditInstance extends ApiSupport {
 
     private SubnetDto getAzureSubnet(Long userNo, Long platformNo, String networkName, String cidrBlock) {
         List<SubnetDto> subnets = iaasDescribeService.getAzureSubnets(userNo, platformNo, networkName);
-        for (SubnetDto subnetDto: subnets) {
+        for (SubnetDto subnetDto : subnets) {
             if (subnetDto.getCidrBlock().equals(cidrBlock)) {
                 return subnetDto;
             }
@@ -526,13 +518,14 @@ public class EditInstance extends ApiSupport {
         return subnet.isScorp(privateIpAddress);
     }
 
-   private static List<String> commaTextToList(String commaText) {
-       List<String> list = new ArrayList<String>();
-       if (StringUtils.isNotEmpty(commaText)) {
-           for (String splitStr: StringUtils.split(commaText, ",")) {
-               list.add(splitStr.trim());
-           }
-       }
-       return list;
-   }
+    private static List<String> commaTextToList(String commaText) {
+        List<String> list = new ArrayList<String>();
+        if (StringUtils.isNotEmpty(commaText)) {
+            for (String splitStr : StringUtils.split(commaText, ",")) {
+                list.add(splitStr.trim());
+            }
+        }
+        return list;
+    }
+
 }

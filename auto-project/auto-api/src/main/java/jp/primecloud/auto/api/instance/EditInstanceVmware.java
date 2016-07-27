@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.api.instance;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,9 +31,6 @@ import javax.ws.rs.core.UriInfo;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
-
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.api.response.instance.EditInstanceVmwareResponse;
 import jp.primecloud.auto.common.status.InstanceStatus;
 import jp.primecloud.auto.entity.crud.Image;
@@ -45,15 +41,17 @@ import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.entity.crud.VmwareKeyPair;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.dto.VmwareAddressDto;
-import com.vmware.vim25.mo.ComputeResource;
 
+import org.apache.commons.lang.StringUtils;
+
+import com.vmware.vim25.mo.ComputeResource;
 
 @Path("/EditInstanceVmware")
 public class EditInstanceVmware extends ApiSupport {
 
     /**
-     *
      * サーバ編集(VMware)
+     * 
      * @param instanceNo インスタンス番号
      * @param instanceType インスタンスタイプ
      * @param keyName キーペア名
@@ -68,109 +66,103 @@ public class EditInstanceVmware extends ApiSupport {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public EditInstanceVmwareResponse editInstanceVmware(
-            @Context UriInfo uriInfo,
+    public EditInstanceVmwareResponse editInstanceVmware(@Context UriInfo uriInfo,
             @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo,
-            @QueryParam(PARAM_NAME_INSTANCE_TYPE) String instanceType,
-            @QueryParam(PARAM_NAME_KEY_NAME) String keyName,
+            @QueryParam(PARAM_NAME_INSTANCE_TYPE) String instanceType, @QueryParam(PARAM_NAME_KEY_NAME) String keyName,
             @QueryParam(PARAM_NAME_COMPUTE_RESOURCE) String computeResource,
             @QueryParam(PARAM_NAME_IS_STATIC_IP) String isStaticIp,
-            @QueryParam(PARAM_NAME_IP_ADDRESS) String ipAddress,
-            @QueryParam(PARAM_NAME_SUBNET_MASK) String subnetMask,
+            @QueryParam(PARAM_NAME_IP_ADDRESS) String ipAddress, @QueryParam(PARAM_NAME_SUBNET_MASK) String subnetMask,
             @QueryParam(PARAM_NAME_DEFAULT_GATEWAY) String defaultGateway,
-            @QueryParam(PARAM_NAME_COMMENT) String comment){
+            @QueryParam(PARAM_NAME_COMMENT) String comment) {
 
         EditInstanceVmwareResponse response = new EditInstanceVmwareResponse();
 
-            // 入力チェック
-            // InstanceNo
-            ApiValidate.validateInstanceNo(instanceNo);
+        // 入力チェック
+        // InstanceNo
+        ApiValidate.validateInstanceNo(instanceNo);
 
-            //インスタンス取得
-            Instance instance = instanceDao.read(Long.parseLong(instanceNo));
-            
-            // 権限チェック
-            User user = checkAndGetUser(instance);
+        //インスタンス取得
+        Instance instance = instanceDao.read(Long.parseLong(instanceNo));
 
-            InstanceStatus status = InstanceStatus.fromStatus(instance.getStatus());
-            if (InstanceStatus.STOPPED != status) {
-                // インスタンスが停止済み以外
-                throw new AutoApplicationException("EAPI-100014", instanceNo);
-            }
+        // 権限チェック
+        User user = checkAndGetUser(instance);
 
-            //プラットフォーム取得
-            Platform platform = platformDao.read(instance.getPlatformNo());
-            if (platform == null) {
-                // プラットフォームが存在しない
-                throw new AutoApplicationException("EAPI-100000", "Platform",
-                        PARAM_NAME_PLATFORM_NO, instance.getPlatformNo());
-            }
-            if (!PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
-                //プラットフォームがVMware以外
-                throw new AutoApplicationException("EAPI-100031", "VMware", instanceNo, instance.getPlatformNo());
-            }
+        InstanceStatus status = InstanceStatus.fromStatus(instance.getStatus());
+        if (InstanceStatus.STOPPED != status) {
+            // インスタンスが停止済み以外
+            throw new AutoApplicationException("EAPI-100014", instanceNo);
+        }
 
-            // イメージ取得
-            Image image = imageDao.read(instance.getImageNo());
-            if (image == null || image.getPlatformNo().equals(platform.getPlatformNo()) == false) {
-                // イメージが存在しない
-                throw new AutoApplicationException("EAPI-100000", "Image",
-                        PARAM_NAME_IMAGE_NO, instance.getImageNo());
-            }
+        //プラットフォーム取得
+        Platform platform = platformDao.read(instance.getPlatformNo());
+        if (platform == null) {
+            // プラットフォームが存在しない
+            throw new AutoApplicationException("EAPI-100000", "Platform", PARAM_NAME_PLATFORM_NO,
+                    instance.getPlatformNo());
+        }
+        if (!PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
+            //プラットフォームがVMware以外
+            throw new AutoApplicationException("EAPI-100031", "VMware", instanceNo, instance.getPlatformNo());
+        }
 
-            // InstanceType
-            ApiValidate.validateInstanceType(instanceType, true);
-            if(checkInstanceType(platform, image, instanceType) == false) {
-                // インスタンスタイプがイメージのインスタンスタイプに含まれていない
-                throw new AutoApplicationException("EAPI-000011", instance.getImageNo(), instanceType);
-            }
+        // イメージ取得
+        Image image = imageDao.read(instance.getImageNo());
+        if (image == null || image.getPlatformNo().equals(platform.getPlatformNo()) == false) {
+            // イメージが存在しない
+            throw new AutoApplicationException("EAPI-100000", "Image", PARAM_NAME_IMAGE_NO, instance.getImageNo());
+        }
 
-            // KeyName
-            ApiValidate.validateKeyName(keyName);
-            Long keyPairNo = getKeyPairNo(user.getUserNo(), platform.getPlatformNo(), keyName);
-            if (keyPairNo == null) {
-                // キーペアがプラットフォームに存在しない
-                throw new AutoApplicationException("EAPI-000012", platform.getPlatformNo(), keyName);
-            }
+        // InstanceType
+        ApiValidate.validateInstanceType(instanceType, true);
+        if (checkInstanceType(platform, image, instanceType) == false) {
+            // インスタンスタイプがイメージのインスタンスタイプに含まれていない
+            throw new AutoApplicationException("EAPI-000011", instance.getImageNo(), instanceType);
+        }
 
-            // ComputeResource
-            ApiValidate.validateComputeResource(computeResource);
-            if (checkComputeResource(platform.getPlatformNo(), computeResource) == false) {
-                // コンピュートリソースがプラットフォームに存在しない
-                throw new AutoApplicationException("EAPI-000016", platform.getPlatformNo(), computeResource);
-            }
+        // KeyName
+        ApiValidate.validateKeyName(keyName);
+        Long keyPairNo = getKeyPairNo(user.getUserNo(), platform.getPlatformNo(), keyName);
+        if (keyPairNo == null) {
+            // キーペアがプラットフォームに存在しない
+            throw new AutoApplicationException("EAPI-000012", platform.getPlatformNo(), keyName);
+        }
 
-            // IsStaticIp
-            ApiValidate.validateIsStaticIp(isStaticIp);
-            VmwareAddressDto addressDto = null;
-            if (Boolean.parseBoolean(isStaticIp)) {
-                //IpAddress
-                ApiValidate.validateIpAddress(ipAddress, true);
-                //SubnetMask
-                ApiValidate.validateSubnetMask(subnetMask);
-                //DefaultGateway
-                ApiValidate.validateDefaultGateway(defaultGateway);
+        // ComputeResource
+        ApiValidate.validateComputeResource(computeResource);
+        if (checkComputeResource(platform.getPlatformNo(), computeResource) == false) {
+            // コンピュートリソースがプラットフォームに存在しない
+            throw new AutoApplicationException("EAPI-000016", platform.getPlatformNo(), computeResource);
+        }
 
-                addressDto = new VmwareAddressDto();
-                addressDto.setIpAddress(ipAddress);
-                addressDto.setSubnetMask(subnetMask);
-                addressDto.setDefaultGateway(defaultGateway);
-            }
-            // Comment
-            ApiValidate.validateComment(comment);
+        // IsStaticIp
+        ApiValidate.validateIsStaticIp(isStaticIp);
+        VmwareAddressDto addressDto = null;
+        if (Boolean.parseBoolean(isStaticIp)) {
+            //IpAddress
+            ApiValidate.validateIpAddress(ipAddress, true);
+            //SubnetMask
+            ApiValidate.validateSubnetMask(subnetMask);
+            //DefaultGateway
+            ApiValidate.validateDefaultGateway(defaultGateway);
 
-            //インスタンス(VMware)の更新
-            instanceService.updateVmwareInstance(
-                    Long.parseLong(instanceNo), instance.getInstanceName(), comment,
-                    instanceType, computeResource, null, keyPairNo, addressDto);
+            addressDto = new VmwareAddressDto();
+            addressDto.setIpAddress(ipAddress);
+            addressDto.setSubnetMask(subnetMask);
+            addressDto.setDefaultGateway(defaultGateway);
+        }
+        // Comment
+        ApiValidate.validateComment(comment);
 
-            response.setSuccess(true);
+        //インスタンス(VMware)の更新
+        instanceService.updateVmwareInstance(Long.parseLong(instanceNo), instance.getInstanceName(), comment,
+                instanceType, computeResource, null, keyPairNo, addressDto);
 
-        return  response;
+        response.setSuccess(true);
+
+        return response;
     }
 
     /**
-     *
      * カンマ区切りのインスタンスタイプ(名称)の文字列からインスタンスタイプ(名称)のリストを作成する
      *
      * @param instanceTypesText カンマ区切りのインスタンスタイプ(名称)文字列
@@ -179,7 +171,7 @@ public class EditInstanceVmware extends ApiSupport {
     private static List<String> getInstanceTypes(String instanceTypesText) {
         List<String> instanceTypes = new ArrayList<String>();
         if (StringUtils.isNotEmpty(instanceTypesText)) {
-            for (String instanceType: StringUtils.split(instanceTypesText, ",")) {
+            for (String instanceType : StringUtils.split(instanceTypesText, ",")) {
                 instanceTypes.add(instanceType.trim());
             }
         }
@@ -187,7 +179,6 @@ public class EditInstanceVmware extends ApiSupport {
     }
 
     /**
-     *
      * インスタンスタイプ(名称)が対象イメージで使用可能かチェックする
      *
      * @param platform プラットフォーム
@@ -204,7 +195,6 @@ public class EditInstanceVmware extends ApiSupport {
     }
 
     /**
-     *
      * キーペア名からキーペアNoを取得
      *
      * @param userNo ユーザ番号
@@ -216,7 +206,7 @@ public class EditInstanceVmware extends ApiSupport {
         Long keyPairNo = null;
         //VMWare
         List<VmwareKeyPair> vmwareKeyPairs = vmwareDescribeService.getKeyPairs(userNo, platformNo);
-        for (VmwareKeyPair vmwareKeyPair: vmwareKeyPairs) {
+        for (VmwareKeyPair vmwareKeyPair : vmwareKeyPairs) {
             if (StringUtils.equals(vmwareKeyPair.getKeyName(), keyName)) {
                 keyPairNo = vmwareKeyPair.getKeyNo();
                 break;
@@ -227,8 +217,8 @@ public class EditInstanceVmware extends ApiSupport {
     }
 
     /**
-     *
      * コンピュートリソース（クラスタ）が存在するかチェックする
+     * 
      * @param platformNo プラットフォーム番号
      * @param computeResourceName コンピュートリソース
      * @return
@@ -237,7 +227,7 @@ public class EditInstanceVmware extends ApiSupport {
         boolean isContain = false;
         //VMWare
         List<ComputeResource> computeResources = vmwareDescribeService.getComputeResources(platformNo);
-        for (ComputeResource computeResource: computeResources) {
+        for (ComputeResource computeResource : computeResources) {
             if (computeResource.getName().equals(computeResourceName)) {
                 isContain = true;
                 break;
@@ -245,4 +235,5 @@ public class EditInstanceVmware extends ApiSupport {
         }
         return isContain;
     }
+
 }

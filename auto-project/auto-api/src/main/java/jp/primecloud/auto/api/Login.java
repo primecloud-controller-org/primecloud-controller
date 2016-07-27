@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.api;
 
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -27,12 +26,10 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.response.LoginResponse;
 
-
 @Path("/Login")
 public class Login extends ApiSupport {
 
     /**
-     *
      * ログイン処理を行います。
      *
      * @param user ユーザ名
@@ -41,23 +38,23 @@ public class Login extends ApiSupport {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-	public LoginResponse login(
-	        @QueryParam(PARAM_NAME_USER) String userName,
-	        @QueryParam(PARAM_NAME_PASSWORD) String password){
+    public LoginResponse login(@QueryParam(PARAM_NAME_USER) String userName,
+            @QueryParam(PARAM_NAME_PASSWORD) String password) {
 
         LoginResponse response = new LoginResponse();
 
-            // 入力チェック
-            // User
-            ApiValidate.validateUser(userName);
-            // Password
-            ApiValidate.validatePassword(password);
+        // 入力チェック
+        // User
+        ApiValidate.validateUser(userName);
+        // Password
+        ApiValidate.validatePassword(password);
 
-            // ログイン認証
-            userService.authenticate(userName, password);
+        // ログイン認証
+        userService.authenticate(userName, password);
 
-            response.setSuccess(true);
+        response.setSuccess(true);
 
-        return  response;
+        return response;
     }
+
 }

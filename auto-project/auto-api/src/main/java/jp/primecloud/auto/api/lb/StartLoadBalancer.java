@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.api.lb;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,9 +29,6 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
-
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.api.response.lb.StartLoadBalancerResponse;
 import jp.primecloud.auto.common.status.LoadBalancerStatus;
 import jp.primecloud.auto.entity.crud.AwsLoadBalancer;
@@ -40,58 +36,57 @@ import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.entity.crud.PlatformAws;
 import jp.primecloud.auto.exception.AutoApplicationException;
 
+import org.apache.commons.lang.StringUtils;
 
 @Path("/StartLoadBalancer")
 public class StartLoadBalancer extends ApiSupport {
 
     /**
-     *
      * ロードバランサ起動
      *
      * @param loadBalancerNo ロードバランサ番号
-     *
      * @return StartLoadBalancerResponse
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-	public StartLoadBalancerResponse startLoadBalancer(
-	        @QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo){
+    public StartLoadBalancerResponse startLoadBalancer(@QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo) {
 
         StartLoadBalancerResponse response = new StartLoadBalancerResponse();
 
-            // 入力チェック
-            // LoadBalancerNo
-            ApiValidate.validateLoadBalancerNo(loadBalancerNo);
+        // 入力チェック
+        // LoadBalancerNo
+        ApiValidate.validateLoadBalancerNo(loadBalancerNo);
 
-            // ロードバランサ取得
-            LoadBalancer loadBalancer = getLoadBalancer(Long.parseLong(loadBalancerNo));
+        // ロードバランサ取得
+        LoadBalancer loadBalancer = getLoadBalancer(Long.parseLong(loadBalancerNo));
 
-            // 権限チェック
-            checkAndGetUser(loadBalancer);
+        // 権限チェック
+        checkAndGetUser(loadBalancer);
 
-            // ロードバランサーのステータスチェック
-            LoadBalancerStatus status = LoadBalancerStatus.fromStatus(loadBalancer.getStatus());
-            if (LoadBalancerStatus.STOPPED != status) {
-                // ステータスが 停止済みではない
-                throw new AutoApplicationException("EAPI-100020", loadBalancerNo);
+        // ロードバランサーのステータスチェック
+        LoadBalancerStatus status = LoadBalancerStatus.fromStatus(loadBalancer.getStatus());
+        if (LoadBalancerStatus.STOPPED != status) {
+            // ステータスが 停止済みではない
+            throw new AutoApplicationException("EAPI-100020", loadBalancerNo);
+        }
+
+        if (LB_TYPE_ELB.equals(loadBalancer.getType())) {
+            PlatformAws platformAws = platformAwsDao.read(loadBalancer.getPlatformNo());
+            AwsLoadBalancer awsLoadBalancer = awsLoadBalancerDao.read(Long.parseLong(loadBalancerNo));
+            if (platformAws.getVpc() && StringUtils.isEmpty(awsLoadBalancer.getSubnetId())) {
+                //ELB+VPCの場合、サブネットを設定しないと起動不可
+                throw new AutoApplicationException("EAPI-100035", loadBalancer.getLoadBalancerName());
             }
+        }
 
-            if (LB_TYPE_ELB.equals(loadBalancer.getType())) {
-                PlatformAws platformAws = platformAwsDao.read(loadBalancer.getPlatformNo());
-                AwsLoadBalancer awsLoadBalancer = awsLoadBalancerDao.read(Long.parseLong(loadBalancerNo));
-                if (platformAws.getVpc() && StringUtils.isEmpty(awsLoadBalancer.getSubnetId())) {
-                    //ELB+VPCの場合、サブネットを設定しないと起動不可
-                    throw new AutoApplicationException("EAPI-100035", loadBalancer.getLoadBalancerName());
-                }
-            }
+        // ロードバランサ 起動設定処理
+        List<Long> lbNos = new ArrayList<Long>();
+        lbNos.add(Long.parseLong(loadBalancerNo));
+        processService.startLoadBalancers(loadBalancer.getFarmNo(), lbNos);
 
-            // ロードバランサ 起動設定処理
-            List<Long> lbNos = new ArrayList<Long>();
-            lbNos.add(Long.parseLong(loadBalancerNo));
-            processService.startLoadBalancers(loadBalancer.getFarmNo(), lbNos);
+        response.setSuccess(true);
 
-            response.setSuccess(true);
-
-        return  response;
+        return response;
     }
+
 }

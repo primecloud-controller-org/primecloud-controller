@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.api.farm;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,9 +29,6 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
-
-import org.apache.commons.lang.BooleanUtils;
-
 import jp.primecloud.auto.api.response.farm.CreateFarmResponse;
 import jp.primecloud.auto.entity.crud.ComponentType;
 import jp.primecloud.auto.entity.crud.Image;
@@ -43,12 +39,12 @@ import jp.primecloud.auto.entity.crud.TemplateInstance;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.AutoApplicationException;
 
+import org.apache.commons.lang.BooleanUtils;
 
 @Path("/CreateFarm")
 public class CreateFarm extends ApiSupport {
 
     /**
-     *
      * ファーム作成
      *
      * @param farmName ファーム名
@@ -59,51 +55,48 @@ public class CreateFarm extends ApiSupport {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public CreateFarmResponse createFarm(
-            @QueryParam(PARAM_NAME_FARM_NAME) String farmName,
-            @QueryParam(PARAM_NAME_TEMPLATE_NO) String templateNo,
-            @QueryParam(PARAM_NAME_COMMENT) String comment){
+    public CreateFarmResponse createFarm(@QueryParam(PARAM_NAME_FARM_NAME) String farmName,
+            @QueryParam(PARAM_NAME_TEMPLATE_NO) String templateNo, @QueryParam(PARAM_NAME_COMMENT) String comment) {
 
         CreateFarmResponse response = new CreateFarmResponse();
 
-            // 入力チェック
-            // FarmName
-            ApiValidate.validateFarmName(farmName);
-            // TemplateNo
-            ApiValidate.validateTemplateNo(templateNo);
-            // Comment
-            ApiValidate.validateComment(comment);
+        // 入力チェック
+        // FarmName
+        ApiValidate.validateFarmName(farmName);
+        // TemplateNo
+        ApiValidate.validateTemplateNo(templateNo);
+        // Comment
+        ApiValidate.validateComment(comment);
 
-            // ユーザの取得
-            User user = checkAndGetUser();
+        // ユーザの取得
+        User user = checkAndGetUser();
 
-            // テンプレートの取得
-            Template template = templateDao.read(Long.parseLong(templateNo));
-            if (template == null) {
-                // テンプレートが存在しない場合、エラー
-                throw new AutoApplicationException("EAPI-100000", "Template", PARAM_NAME_TEMPLATE_NO, templateNo);
-            }
+        // テンプレートの取得
+        Template template = templateDao.read(Long.parseLong(templateNo));
+        if (template == null) {
+            // テンプレートが存在しない場合、エラー
+            throw new AutoApplicationException("EAPI-100000", "Template", PARAM_NAME_TEMPLATE_NO, templateNo);
+        }
 
-            // テンプレートのチェック
-            if (!checkTemplate(user.getUserNo(), template)) {
-                // テンプレートに使用不可のプラットフォーム、イメージ、コンポーネントタイプが含まれている場合、エラー
-                throw new AutoApplicationException("EAPI-000021", template.getTemplateName(), templateNo);
-            }
+        // テンプレートのチェック
+        if (!checkTemplate(user.getUserNo(), template)) {
+            // テンプレートに使用不可のプラットフォーム、イメージ、コンポーネントタイプが含まれている場合、エラー
+            throw new AutoApplicationException("EAPI-000021", template.getTemplateName(), templateNo);
+        }
 
-            // ファームを作成
-            Long newFarmNo = farmService.createFarm(user.getUserNo(), farmName, comment);
+        // ファームを作成
+        Long newFarmNo = farmService.createFarm(user.getUserNo(), farmName, comment);
 
-            // テンプレートを元にサーバ、サービスを作成
-            templateService.applyTemplate(newFarmNo, Long.parseLong(templateNo));
+        // テンプレートを元にサーバ、サービスを作成
+        templateService.applyTemplate(newFarmNo, Long.parseLong(templateNo));
 
-            response.setFarmNo(newFarmNo);
-            response.setSuccess(true);
+        response.setFarmNo(newFarmNo);
+        response.setSuccess(true);
 
-        return  response;
+        return response;
     }
 
     /**
-     *
      * @param userNo ユーザ番号
      * @param template テンプレート情報
      * @return テンプレートに使用不可のプラットフォーム、イメージ、コンポーネントを含んでいた場合エラー
@@ -116,88 +109,86 @@ public class CreateFarm extends ApiSupport {
         //TemplateInstance取得
         List<TemplateInstance> templateInstances = templateInstanceDao.readByTemplateNo(template.getTemplateNo());
         if (templateInstances.size() > 0) {
-        	platformNos = getEnabledPlatformNos(userNo);
-        	imageNos = getEnabledImageNos();
+            platformNos = getEnabledPlatformNos(userNo);
+            imageNos = getEnabledImageNos();
         }
-        for (TemplateInstance templateInstance: templateInstances) {
+        for (TemplateInstance templateInstance : templateInstances) {
             if (!platformNos.contains(templateInstance.getPlatformNo())) {
                 //有効なプラットフォームが存在しない
-            	return false;
+                return false;
             }
             if (!imageNos.contains(templateInstance.getImageNo())) {
                 //有効なイメージが存在しない
-            	return false;
+                return false;
             }
         }
 
         List<TemplateComponent> templateComponents = templateComponentDao.readByTemplateNo(template.getTemplateNo());
         if (templateComponents.size() > 0) {
-        	componentTypeNos = getEnabledComponentTypeNos();
+            componentTypeNos = getEnabledComponentTypeNos();
         }
-        for (TemplateComponent templateComponent: templateComponents) {
+        for (TemplateComponent templateComponent : templateComponents) {
             if (!componentTypeNos.contains(templateComponent.getComponentTypeNo())) {
-            	return false;
+                return false;
             }
         }
         return true;
     }
 
-   /**
-    *
-    * 使用可能なプラットフォーム番号のリストを取得する
-    *
-    * @param userNo ユーザ番号
-    * @return 使用可能なプラットフォーム番号のリスト
-    */
-   private List<Long> getEnabledPlatformNos(Long userNo) {
-       List<Long> platformNos = new ArrayList<Long>();
-       List<Platform> platforms = platformDao.readAll();
-       for (Platform platform: platforms) {
-           if (!platformService.isUseablePlatforms(userNo, platform) ||
-               BooleanUtils.isNotTrue(platform.getSelectable())) {
-               //認証情報が存在しない or 有効プラットフォームではない場合はリストに含めない
-               continue;
-           }
-           platformNos.add(platform.getPlatformNo());
-       }
-       return platformNos;
-   }
+    /**
+     * 使用可能なプラットフォーム番号のリストを取得する
+     *
+     * @param userNo ユーザ番号
+     * @return 使用可能なプラットフォーム番号のリスト
+     */
+    private List<Long> getEnabledPlatformNos(Long userNo) {
+        List<Long> platformNos = new ArrayList<Long>();
+        List<Platform> platforms = platformDao.readAll();
+        for (Platform platform : platforms) {
+            if (!platformService.isUseablePlatforms(userNo, platform)
+                    || BooleanUtils.isNotTrue(platform.getSelectable())) {
+                //認証情報が存在しない or 有効プラットフォームではない場合はリストに含めない
+                continue;
+            }
+            platformNos.add(platform.getPlatformNo());
+        }
+        return platformNos;
+    }
 
-   /**
-    *
-    * 使用可能なイメージ番号のリストを取得する
-    *
-    * @return 使用可能なイメージ番号のリスト
-    */
-   private List<Long> getEnabledImageNos() {
-      List<Long> imageNos = new ArrayList<Long>();
-      List<Image> images = imageDao.readAll();
-      for (Image image: images) {
-          if (BooleanUtils.isNotTrue(image.getSelectable())) {
-              //有効イメージではない場合、ロードバランサーイメージの場合はリストに含めない
-              continue;
-          }
-          imageNos.add(image.getImageNo());
-      }
-      return imageNos;
-   }
+    /**
+     * 使用可能なイメージ番号のリストを取得する
+     *
+     * @return 使用可能なイメージ番号のリスト
+     */
+    private List<Long> getEnabledImageNos() {
+        List<Long> imageNos = new ArrayList<Long>();
+        List<Image> images = imageDao.readAll();
+        for (Image image : images) {
+            if (BooleanUtils.isNotTrue(image.getSelectable())) {
+                //有効イメージではない場合、ロードバランサーイメージの場合はリストに含めない
+                continue;
+            }
+            imageNos.add(image.getImageNo());
+        }
+        return imageNos;
+    }
 
-   /**
-    *
-    * 使用可能なコンポーネントタイプ番号のリストを取得する
-    *
-    * @return 使用可能なコンポーネントタイプ番号のリスト
-    */
-   private List<Long> getEnabledComponentTypeNos() {
-      List<Long> componentTypeNos = new ArrayList<Long>();
-      List<ComponentType> componentTypes = componentTypeDao.readAll();
-      for (ComponentType componentType: componentTypes) {
-          if (BooleanUtils.isNotTrue(componentType.getSelectable())) {
-              //有効コンポーネントタイプではない場合、ロードバランサーイメージの場合はリストに含めない
-              continue;
-          }
-          componentTypeNos.add(componentType.getComponentTypeNo());
-      }
-      return componentTypeNos;
-   }
+    /**
+     * 使用可能なコンポーネントタイプ番号のリストを取得する
+     *
+     * @return 使用可能なコンポーネントタイプ番号のリスト
+     */
+    private List<Long> getEnabledComponentTypeNos() {
+        List<Long> componentTypeNos = new ArrayList<Long>();
+        List<ComponentType> componentTypes = componentTypeDao.readAll();
+        for (ComponentType componentType : componentTypes) {
+            if (BooleanUtils.isNotTrue(componentType.getSelectable())) {
+                //有効コンポーネントタイプではない場合、ロードバランサーイメージの場合はリストに含めない
+                continue;
+            }
+            componentTypeNos.add(componentType.getComponentTypeNo());
+        }
+        return componentTypeNos;
+    }
+
 }
