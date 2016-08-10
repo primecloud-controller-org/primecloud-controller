@@ -115,18 +115,20 @@ public class ZabbixHostProcess extends ServiceSupport {
 
         // 標準テンプレートの適用
         Image image = imageDao.read(instance.getImageNo());
-        String templateName = image.getZabbixTemplate();
-        if (StringUtils.isEmpty(templateName)) {
+        String templateNames = image.getZabbixTemplate();
+        if (StringUtils.isEmpty(templateNames)) {
             // TODO: 互換性のためプロパティファイルから取得する方法を残している
-            templateName = Config.getProperty("zabbix.basetemplate");
+            templateNames = Config.getProperty("zabbix.basetemplate");
         }
-        if (StringUtils.isNotEmpty(templateName)) {
-            Template template = zabbixProcessClient.getTemplateByName(templateName);
-            boolean ret = zabbixProcessClient.addTemplate(hostid, template);
+        if (StringUtils.isNotEmpty(templateNames)) {
+            for (String templateName : templateNames.split(",")) {
+                Template template = zabbixProcessClient.getTemplateByName(templateName);
+                boolean ret = zabbixProcessClient.addTemplate(hostid, template);
 
-            if (ret) {
-                // イベントログ出力
-                processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null,instance, "ZabbixTemplateAdd", new Object[] {instance.getFqdn(), templateName });
+                if (ret) {
+                    // イベントログ出力
+                    processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null,instance, "ZabbixTemplateAdd", new Object[] {instance.getFqdn(), templateName });
+                }
             }
         }
 
@@ -213,23 +215,25 @@ public class ZabbixHostProcess extends ServiceSupport {
 
         // テンプレートの設定
         ComponentType componentType = componentTypeDao.read(component.getComponentTypeNo());
-        String templateName = componentType.getZabbixTemplate();
-        if (StringUtils.isNotEmpty(templateName)) {
-            // テンプレートを取得
-            Template template = zabbixProcessClient.getTemplateByName(templateName);
+        String templateNames = componentType.getZabbixTemplate();
+        if (StringUtils.isNotEmpty(templateNames)) {
+            for (String templateName : templateNames.split(",")) {
+                // テンプレートを取得
+                Template template = zabbixProcessClient.getTemplateByName(templateName);
 
-            // テンプレートを適用
-            boolean ret = zabbixProcessClient.addTemplate(zabbixInstance.getHostid(), template);
-            if (ret) {
-                // イベントログ出力
-                processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, component, instance, "ZabbixTemplateAdd", new Object[] { instance.getFqdn(), templateName });
-            }
+                // テンプレートを適用
+                boolean ret = zabbixProcessClient.addTemplate(zabbixInstance.getHostid(), template);
+                if (ret) {
+                    // イベントログ出力
+                    processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, component, instance, "ZabbixTemplateAdd", new Object[] { instance.getFqdn(), templateName });
+                }
 
-            // ホストに紐づくアイテムを有効化
-            boolean ret2 = zabbixProcessClient.enableItems(zabbixInstance.getHostid(), template.getTemplateid());
-            if (ret2) {
-                // イベントログ出力
-                processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, component, instance, "ZabbixItemEnable", new Object[] { instance.getFqdn(), templateName });
+                // ホストに紐づくアイテムを有効化
+                boolean ret2 = zabbixProcessClient.enableItems(zabbixInstance.getHostid(), template.getTemplateid());
+                if (ret2) {
+                    // イベントログ出力
+                    processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, component, instance, "ZabbixItemEnable", new Object[] { instance.getFqdn(), templateName });
+                }
             }
         }
 
@@ -253,8 +257,8 @@ public class ZabbixHostProcess extends ServiceSupport {
 
         Component component = componentDao.read(componentNo);
         ComponentType componentType = componentTypeDao.read(component.getComponentTypeNo());
-        String templateName = componentType.getZabbixTemplate();
-        if (StringUtils.isEmpty(templateName)) {
+        String templateNames = componentType.getZabbixTemplate();
+        if (StringUtils.isEmpty(templateNames)) {
             // テンプレートが登録されていない場合はなにもしない。
             return;
         }
@@ -268,14 +272,16 @@ public class ZabbixHostProcess extends ServiceSupport {
 
         ZabbixProcessClient zabbixProcessClient = zabbixProcessClientFactory.createZabbixProcessClient();
 
-        // テンプレートを取得
-        Template template = zabbixProcessClient.getTemplateByName(templateName);
+        for (String templateName : templateNames.split(",")) {
+            // テンプレートを取得
+            Template template = zabbixProcessClient.getTemplateByName(templateName);
 
-        // ホストに紐づくアイテムを無効化
-        boolean ret = zabbixProcessClient.disableItems(zabbixInstance.getHostid(), template.getTemplateid());
-        if (ret) {
-            // イベントログ出力
-            processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, component, instance, "ZabbixItemDisable", new Object[] { instance.getFqdn(), templateName });
+            // ホストに紐づくアイテムを無効化
+            boolean ret = zabbixProcessClient.disableItems(zabbixInstance.getHostid(), template.getTemplateid());
+            if (ret) {
+                // イベントログ出力
+                processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, component, instance, "ZabbixItemDisable", new Object[] { instance.getFqdn(), templateName });
+            }
         }
 
         // ログ出力
@@ -298,8 +304,8 @@ public class ZabbixHostProcess extends ServiceSupport {
 
         Component component = componentDao.read(componentNo);
         ComponentType componentType = componentTypeDao.read(component.getComponentTypeNo());
-        String templateName = componentType.getZabbixTemplate();
-        if (StringUtils.isEmpty(templateName)) {
+        String templateNames = componentType.getZabbixTemplate();
+        if (StringUtils.isEmpty(templateNames)) {
             // テンプレートが設定されていない場合はスキップ
             return;
         }
@@ -313,21 +319,23 @@ public class ZabbixHostProcess extends ServiceSupport {
 
         ZabbixProcessClient zabbixProcessClient = zabbixProcessClientFactory.createZabbixProcessClient();
 
-        // テンプレートを取得
-        Template template = zabbixProcessClient.getTemplateByName(templateName);
+        for (String templateName : templateNames.split(",")) {
+            // テンプレートを取得
+            Template template = zabbixProcessClient.getTemplateByName(templateName);
 
-        // テンプレートを除去
-        boolean ret = zabbixProcessClient.removeTemplate(zabbixInstance.getHostid(), template);
-        if (ret) {
-            // イベントログ出力
-            processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, component, instance, "ZabbixTemplateRemove", new Object[] { instance.getFqdn(), templateName });
-        }
+            // テンプレートを除去
+            boolean ret = zabbixProcessClient.removeTemplate(zabbixInstance.getHostid(), template);
+            if (ret) {
+                // イベントログ出力
+                processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, component, instance, "ZabbixTemplateRemove", new Object[] { instance.getFqdn(), templateName });
+            }
 
-        // アイテムを削除
-        boolean ret2 = zabbixProcessClient.deleteItems(zabbixInstance.getHostid(), template.getTemplateid());
-        if (ret2) {
-            // イベントログ出力
-            processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, component, instance, "ZabbixItemDelete", new Object[] { instance.getFqdn(), templateName });
+            // アイテムを削除
+            boolean ret2 = zabbixProcessClient.deleteItems(zabbixInstance.getHostid(), template.getTemplateid());
+            if (ret2) {
+                // イベントログ出力
+                processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, component, instance, "ZabbixItemDelete", new Object[] { instance.getFqdn(), templateName });
+            }
         }
 
         // ホストグループを更新する

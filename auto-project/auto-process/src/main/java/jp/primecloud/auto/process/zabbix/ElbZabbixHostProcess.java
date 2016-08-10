@@ -111,18 +111,20 @@ public class ElbZabbixHostProcess extends ServiceSupport {
                 break;
             }
         }
-        String templateName = useImage.getZabbixTemplate();
-        if (StringUtils.isEmpty(templateName)) {
+        String templateNames = useImage.getZabbixTemplate();
+        if (StringUtils.isEmpty(templateNames)) {
             // TODO: 互換性のためプロパティファイルから取得する方法を残している
-            templateName = Config.getProperty("zabbix.basetemplate");
+            templateNames = Config.getProperty("zabbix.basetemplate");
         }
-        if (StringUtils.isNotEmpty(templateName)) {
-            Template template = zabbixProcessClient.getTemplateByName(templateName);
-            boolean ret = zabbixProcessClient.addTemplate(hostid, template);
+        if (StringUtils.isNotEmpty(templateNames)) {
+            for (String templateName : templateNames.split(",")) {
+                Template template = zabbixProcessClient.getTemplateByName(templateName);
+                boolean ret = zabbixProcessClient.addTemplate(hostid, template);
 
-            if (ret) {
-                // イベントログ出力
-                processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "ZabbixTemplateAdd", new Object[] {loadBalancer.getFqdn(), templateName });
+                if (ret) {
+                    // イベントログ出力
+                    processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "ZabbixTemplateAdd", new Object[] {loadBalancer.getFqdn(), templateName });
+                }
             }
         }
 
@@ -191,30 +193,32 @@ public class ElbZabbixHostProcess extends ServiceSupport {
         startTemplateHostgroup(zabbixProcessClient, loadBalancer, awsLoadbalancer, awsLoadbalancer.getHostid());
 
         // テンプレートの設定
-        String templateName = null;
+        String templateNames = null;
         List<ComponentType> componentTypes = componentTypeDao.readAll();
         for (ComponentType type:componentTypes){
             if ("elb".equals(type.getComponentTypeName())) {
-                templateName = type.getZabbixTemplate();
+                templateNames = type.getZabbixTemplate();
             }
         }
 
-        if (StringUtils.isNotEmpty(templateName)) {
-            // テンプレートを取得
-            Template template = zabbixProcessClient.getTemplateByName(templateName);
+        if (StringUtils.isNotEmpty(templateNames)) {
+            for (String templateName : templateNames.split(",")) {
+                // テンプレートを取得
+                Template template = zabbixProcessClient.getTemplateByName(templateName);
 
-            // テンプレートを適用
-            boolean ret = zabbixProcessClient.addTemplate(awsLoadbalancer.getHostid(), template);
-            if (ret) {
-                // イベントログ出力
-                processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "ZabbixTemplateAdd", new Object[] { loadBalancer.getFqdn(), templateName });
-            }
+                // テンプレートを適用
+                boolean ret = zabbixProcessClient.addTemplate(awsLoadbalancer.getHostid(), template);
+                if (ret) {
+                    // イベントログ出力
+                    processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "ZabbixTemplateAdd", new Object[] { loadBalancer.getFqdn(), templateName });
+                }
 
-            // ホストに紐づくアイテムを有効化
-            boolean ret2 = zabbixProcessClient.enableItems(awsLoadbalancer.getHostid(), template.getTemplateid());
-            if (ret2) {
-                // イベントログ出力
-                processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "ZabbixItemEnable", new Object[] { loadBalancer.getFqdn(), templateName });
+                // ホストに紐づくアイテムを有効化
+                boolean ret2 = zabbixProcessClient.enableItems(awsLoadbalancer.getHostid(), template.getTemplateid());
+                if (ret2) {
+                    // イベントログ出力
+                    processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "ZabbixItemEnable", new Object[] { loadBalancer.getFqdn(), templateName });
+                }
             }
         }
 
@@ -233,14 +237,14 @@ public class ElbZabbixHostProcess extends ServiceSupport {
             throw new AutoException("EPROCESS-000405", loadBalancerNo);
         }
 
-        String templateName = null;
+        String templateNames = null;
         List<ComponentType> componentTypes = componentTypeDao.readAll();
         for (ComponentType type:componentTypes){
             if ("elb".equals(type.getComponentTypeName())) {
-                templateName = type.getZabbixTemplate();
+                templateNames = type.getZabbixTemplate();
             }
         }
-        if (StringUtils.isEmpty(templateName)) {
+        if (StringUtils.isEmpty(templateNames)) {
             // テンプレートが登録されていない場合はなにもしない。
             return;
         }
@@ -252,14 +256,16 @@ public class ElbZabbixHostProcess extends ServiceSupport {
 
         ZabbixProcessClient zabbixProcessClient = zabbixProcessClientFactory.createZabbixProcessClient();
 
-        // テンプレートを取得
-        Template template = zabbixProcessClient.getTemplateByName(templateName);
+        for (String templateName : templateNames.split(",")) {
+            // テンプレートを取得
+            Template template = zabbixProcessClient.getTemplateByName(templateName);
 
-        // ホストに紐づくアイテムを無効化
-        boolean ret = zabbixProcessClient.disableItems(awsLoadbalancer.getHostid(), template.getTemplateid());
-        if (ret) {
-            // イベントログ出力
-            processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "ZabbixItemDisable", new Object[] { loadBalancer.getFqdn(), templateName });
+            // ホストに紐づくアイテムを無効化
+            boolean ret = zabbixProcessClient.disableItems(awsLoadbalancer.getHostid(), template.getTemplateid());
+            if (ret) {
+                // イベントログ出力
+                processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "ZabbixItemDisable", new Object[] { loadBalancer.getFqdn(), templateName });
+            }
         }
 
         // ログ出力
@@ -278,14 +284,14 @@ public class ElbZabbixHostProcess extends ServiceSupport {
             return;
         }
 
-        String templateName = null;
+        String templateNames = null;
         List<ComponentType> componentTypes = componentTypeDao.readAll();
         for (ComponentType type:componentTypes){
             if ("elb".equals(type.getComponentTypeName())) {
-                templateName = type.getZabbixTemplate();
+                templateNames = type.getZabbixTemplate();
             }
         }
-        if (StringUtils.isEmpty(templateName)) {
+        if (StringUtils.isEmpty(templateNames)) {
             // テンプレートが設定されていない場合はスキップ
             return;
         }
@@ -297,21 +303,23 @@ public class ElbZabbixHostProcess extends ServiceSupport {
 
         ZabbixProcessClient zabbixProcessClient = zabbixProcessClientFactory.createZabbixProcessClient();
 
-        // テンプレートを取得
-        Template template = zabbixProcessClient.getTemplateByName(templateName);
+        for (String templateName : templateNames.split(",")) {
+            // テンプレートを取得
+            Template template = zabbixProcessClient.getTemplateByName(templateName);
 
-        // テンプレートを除去
-        boolean ret = zabbixProcessClient.removeTemplate(awsLoadbalancer.getHostid(), template);
-        if (ret) {
-            // イベントログ出力
-            processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "ZabbixTemplateRemove", new Object[] { loadBalancer.getFqdn(), templateName });
-        }
+            // テンプレートを除去
+            boolean ret = zabbixProcessClient.removeTemplate(awsLoadbalancer.getHostid(), template);
+            if (ret) {
+                // イベントログ出力
+                processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "ZabbixTemplateRemove", new Object[] { loadBalancer.getFqdn(), templateName });
+            }
 
-        // アイテムを削除
-        boolean ret2 = zabbixProcessClient.deleteItems(awsLoadbalancer.getHostid(), template.getTemplateid());
-        if (ret2) {
-            // イベントログ出力
-            processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "ZabbixItemDelete", new Object[] { loadBalancer.getFqdn(), templateName });
+            // アイテムを削除
+            boolean ret2 = zabbixProcessClient.deleteItems(awsLoadbalancer.getHostid(), template.getTemplateid());
+            if (ret2) {
+                // イベントログ出力
+                processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "ZabbixItemDelete", new Object[] { loadBalancer.getFqdn(), templateName });
+            }
         }
 
         // ホストグループを更新する
