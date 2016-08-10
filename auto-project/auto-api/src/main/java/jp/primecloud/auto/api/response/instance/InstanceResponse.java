@@ -12,6 +12,15 @@ public class InstanceResponse {
     @JsonProperty("InstanceName")
     private String instanceName;
 
+    @JsonProperty("FarmNo")
+    private Long farmNo;
+
+    @JsonProperty("PlatformNo")
+    private Long platformNo;
+
+    @JsonProperty("ImageNo")
+    private Long imageNo;
+
     @JsonProperty("Comment")
     private String comment;
 
@@ -51,6 +60,9 @@ public class InstanceResponse {
     public InstanceResponse(Instance instance) {
         this.instanceNo = instance.getInstanceNo();
         this.instanceName = instance.getInstanceName();
+        this.farmNo = instance.getFarmNo();
+        this.platformNo = instance.getPlatformNo();
+        this.imageNo = instance.getImageNo();
         this.comment = instance.getComment();
         this.fqdn = instance.getFqdn();
         this.publicIp = instance.getPublicIp();
@@ -72,6 +84,30 @@ public class InstanceResponse {
 
     public void setInstanceName(String instanceName) {
         this.instanceName = instanceName;
+    }
+
+    public Long getFarmNo() {
+        return farmNo;
+    }
+
+    public void setFarmNo(Long farmNo) {
+        this.farmNo = farmNo;
+    }
+
+    public Long getPlatformNo() {
+        return platformNo;
+    }
+
+    public void setPlatformNo(Long platformNo) {
+        this.platformNo = platformNo;
+    }
+
+    public Long getImageNo() {
+        return imageNo;
+    }
+
+    public void setImageNo(Long imageNo) {
+        this.imageNo = imageNo;
     }
 
     public String getComment() {

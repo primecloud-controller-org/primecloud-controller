@@ -16,6 +16,9 @@ public class ImageResponse {
     @JsonProperty("ImageName")
     private String imageName;
 
+    @JsonProperty("PlatformNo")
+    private Long platformNo;
+
     @JsonProperty("PlatformName")
     private String platformName;
 
@@ -28,6 +31,7 @@ public class ImageResponse {
     public ImageResponse(Platform platform, Image image) {
         this.imageNo = image.getImageNo();
         this.imageName = image.getImageNameDisp();
+        this.platformNo = platform.getPlatformNo();
         this.platformName = platform.getPlatformNameDisp();
         this.os = image.getOsDisp();
     }
@@ -46,6 +50,14 @@ public class ImageResponse {
 
     public void setImageName(String imageName) {
         this.imageName = imageName;
+    }
+
+    public Long getPlatformNo() {
+        return platformNo;
+    }
+
+    public void setPlatformNo(Long platformNo) {
+        this.platformNo = platformNo;
     }
 
     public String getPlatformName() {

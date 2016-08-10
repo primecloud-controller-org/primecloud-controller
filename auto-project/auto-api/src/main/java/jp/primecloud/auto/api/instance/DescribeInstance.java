@@ -28,6 +28,7 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
+import jp.primecloud.auto.api.response.address.AwsAddressResponse;
 import jp.primecloud.auto.api.response.instance.AwsInstanceResponse;
 import jp.primecloud.auto.api.response.instance.AzureInstanceResponse;
 import jp.primecloud.auto.api.response.instance.CloudstackInstanceResponse;
@@ -38,6 +39,7 @@ import jp.primecloud.auto.api.response.instance.OpenstackInstanceResponse;
 import jp.primecloud.auto.api.response.instance.VcloudInstanceNetworkResponse;
 import jp.primecloud.auto.api.response.instance.VcloudInstanceResponse;
 import jp.primecloud.auto.api.response.instance.VmwareInstanceResponse;
+import jp.primecloud.auto.entity.crud.AwsAddress;
 import jp.primecloud.auto.entity.crud.AwsInstance;
 import jp.primecloud.auto.entity.crud.AzureInstance;
 import jp.primecloud.auto.entity.crud.CloudstackInstance;
@@ -116,6 +118,17 @@ public class DescribeInstance extends ApiSupport {
                     }
                 }
             }
+
+            // アドレス情報を取得
+            List<AwsAddress> awsAddresses = awsAddressDao.readByUserNo(user.getUserNo());
+            for (AwsAddress awsAddress : awsAddresses) {
+                if (platform.getPlatformNo().equals(awsAddress.getPlatformNo())
+                        && instance.getInstanceNo().equals(awsAddress.getInstanceNo())) {
+                    awsResponse.setAwsAddress(new AwsAddressResponse(awsAddress));
+                    break;
+                }
+            }
+
             //AWSインスタンス情報設定
             instanceResponse.setAws(awsResponse);
         } else if (PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {

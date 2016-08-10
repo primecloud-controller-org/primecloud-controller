@@ -15,6 +15,9 @@ public class ComponentResponse {
     @JsonProperty("ComponentName")
     private String componentName;
 
+    @JsonProperty("FarmNo")
+    private Long farmNo;
+
     @JsonProperty("ComponentTypeNo")
     private Long componentTypeNo;
 
@@ -33,6 +36,7 @@ public class ComponentResponse {
     public ComponentResponse(Component component) {
         this.componentNo = component.getComponentNo();
         this.componentName = component.getComponentName();
+        this.farmNo = component.getFarmNo();
         this.componentTypeNo = component.getComponentTypeNo();
         this.comment = component.getComment();
     }
@@ -51,6 +55,14 @@ public class ComponentResponse {
 
     public void setComponentName(String componentName) {
         this.componentName = componentName;
+    }
+
+    public Long getFarmNo() {
+        return farmNo;
+    }
+
+    public void setFarmNo(Long farmNo) {
+        this.farmNo = farmNo;
     }
 
     public Long getComponentTypeNo() {

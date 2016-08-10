@@ -1,5 +1,6 @@
 package jp.primecloud.auto.api.response.instance;
 
+import jp.primecloud.auto.api.response.address.AwsAddressResponse;
 import jp.primecloud.auto.entity.crud.AwsInstance;
 
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -38,6 +39,9 @@ public class AwsInstanceResponse {
 
     @JsonProperty("PrivateIpAddress")
     private String privateIpAddress;
+
+    @JsonProperty("AwsAddress")
+    private AwsAddressResponse awsAddress;
 
     public AwsInstanceResponse(AwsInstance awsInstance) {
         this.keyName = awsInstance.getKeyName();
@@ -138,6 +142,14 @@ public class AwsInstanceResponse {
 
     public void setPrivateIpAddress(String privateIpAddress) {
         this.privateIpAddress = privateIpAddress;
+    }
+
+    public AwsAddressResponse getAwsAddress() {
+        return awsAddress;
+    }
+
+    public void setAwsAddress(AwsAddressResponse awsAddress) {
+        this.awsAddress = awsAddress;
     }
 
 }
