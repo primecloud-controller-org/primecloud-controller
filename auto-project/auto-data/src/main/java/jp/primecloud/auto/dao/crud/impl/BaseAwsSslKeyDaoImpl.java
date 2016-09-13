@@ -63,6 +63,32 @@ public abstract class BaseAwsSslKeyDaoImpl extends SqlMapClientDaoSupport implem
      */
     @Override
     @SuppressWarnings("unchecked")
+    public List<AwsSslKey> readByFarmNo(
+            Long farmNo
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("farmNo", farmNo);
+        return (List<AwsSslKey>) getSqlMapClientTemplate().queryForList(getSqlMapId("readByFarmNo"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<AwsSslKey> readByPlatformNo(
+            Long platformNo
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("platformNo", platformNo);
+        return (List<AwsSslKey>) getSqlMapClientTemplate().queryForList(getSqlMapId("readByPlatformNo"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @SuppressWarnings("unchecked")
     public List<AwsSslKey> readInKeyNos(
             Collection<Long> keyNos
         ) {
@@ -131,6 +157,30 @@ public abstract class BaseAwsSslKeyDaoImpl extends SqlMapClientDaoSupport implem
      * {@inheritDoc}
      */
     @Override
+    public void deleteByFarmNo(
+            Long farmNo
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("farmNo", farmNo);
+        getSqlMapClientTemplate().delete(getSqlMapId("deleteByFarmNo"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void deleteByPlatformNo(
+            Long platformNo
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("platformNo", platformNo);
+        getSqlMapClientTemplate().delete(getSqlMapId("deleteByPlatformNo"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public long countAll() {
         return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countAll"));
     }
@@ -145,6 +195,30 @@ public abstract class BaseAwsSslKeyDaoImpl extends SqlMapClientDaoSupport implem
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("keyNo", keyNo);
         return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByKeyNo"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long countByFarmNo(
+            Long farmNo
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("farmNo", farmNo);
+        return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByFarmNo"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long countByPlatformNo(
+            Long platformNo
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("platformNo", platformNo);
+        return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByPlatformNo"), paramMap);
     }
 
     protected String getSqlMapId(String id) {

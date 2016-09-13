@@ -21,7 +21,7 @@ package jp.primecloud.auto.dao.crud;
 
 /**
  * <p>
- * auto_scaling_confに対応したDAOインタフェースです。
+ * AUTO_SCALING_CONFに対応したDAOインタフェースです。
  * </p>
  *
  */

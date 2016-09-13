@@ -22,7 +22,7 @@ import java.io.Serializable;
 
 /**
  * <p>
- * aws_ssl_keyに対応したエンティティのベースクラスです。
+ * AWS_SSL_KEYに対応したエンティティのベースクラスです。
  * </p>
  *
  */

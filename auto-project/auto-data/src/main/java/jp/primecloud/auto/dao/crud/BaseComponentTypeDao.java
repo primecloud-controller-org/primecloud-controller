@@ -48,6 +48,16 @@ public interface BaseComponentTypeDao {
     public List<ComponentType> readAll();
 
     /**
+     * 一意キーに該当するレコードを検索します。
+     *
+     * @param componentTypeName componentTypeName
+     * @return 一意キーに該当するレコードのエンティティ。レコードがない場合はnull。
+     */
+    public ComponentType readByComponentTypeName(
+            String componentTypeName
+        );
+
+    /**
      * 主キーのコレクションに該当するレコードを検索します。
      *
      * @param componentTypeNos componentTypeNoのコレクション
@@ -93,6 +103,15 @@ public interface BaseComponentTypeDao {
         );
 
     /**
+     * 一意キーに該当するレコードを削除します。
+     *
+     * @param componentTypeName componentTypeName
+     */
+    public void deleteByComponentTypeName(
+            String componentTypeName
+        );
+
+    /**
      * 全てのレコードの件数を取得します。
      *
      * @return 全てのレコードの件数。
@@ -107,6 +126,16 @@ public interface BaseComponentTypeDao {
      */
     public long countByComponentTypeNo(
             Long componentTypeNo
+        );
+
+    /**
+     * 一意キーに該当するレコードの件数を取得します。
+     *
+     * @param componentTypeName componentTypeName
+     * @return 一意キーに該当するレコードの件数。
+     */
+    public long countByComponentTypeName(
+            String componentTypeName
         );
 
 }

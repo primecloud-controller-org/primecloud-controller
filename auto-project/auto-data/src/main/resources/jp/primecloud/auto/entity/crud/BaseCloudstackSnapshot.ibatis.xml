@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE sqlMap
 	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 <sqlMap namespace="CloudstackSnapshot">
@@ -44,6 +44,14 @@
 
 	<select id="readAll" resultMap="cloudstackSnapshotResultMap">
 		<include refid="selectSql" />
+	</select>
+
+	<select id="readByFarmNo" parameterClass="java.util.Map" resultMap="cloudstackSnapshotResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.FARM_NO = #farmNo#
+		]]>
 	</select>
 
 	<select id="readByPlatformNo" parameterClass="java.util.Map" resultMap="cloudstackSnapshotResultMap">
@@ -147,6 +155,14 @@
 		]]>
 	</delete>
 
+	<delete id="deleteByFarmNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from CLOUDSTACK_SNAPSHOT
+		where
+			FARM_NO = #farmNo#
+		]]>
+	</delete>
+
 	<delete id="deleteByPlatformNo" parameterClass="java.util.Map">
 		<![CDATA[
 		delete from CLOUDSTACK_SNAPSHOT
@@ -164,6 +180,14 @@
 		<![CDATA[
 		where
 			SNAPSHOT_NO = #snapshotNo#
+		]]>
+	</select>
+
+	<select id="countByFarmNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			FARM_NO = #farmNo#
 		]]>
 	</select>
 

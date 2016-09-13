@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE sqlMap
 	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 <sqlMap namespace="Image">
@@ -15,8 +15,8 @@
 		<result property="selectable" column="SELECTABLE" />
 		<result property="componentTypeNos" column="COMPONENT_TYPE_NOS" nullValue="" />
 		<result property="zabbixTemplate" column="ZABBIX_TEMPLATE" nullValue="" />
-		<result property="zabbixDisabled" column="ZABBIX_DISABLED" nullValue="" />
-		<result property="puppetDisabled" column="PUPPET_DISABLED" nullValue="" />
+		<result property="zabbixDisabled" column="ZABBIX_DISABLED" />
+		<result property="puppetDisabled" column="PUPPET_DISABLED" />
 	</resultMap>
 
 	<sql id="selectSql">
@@ -54,6 +54,15 @@
 
 	<select id="readAll" resultMap="imageResultMap">
 		<include refid="selectSql" />
+	</select>
+
+	<select id="readByPlatformNoAndImageName" parameterClass="java.util.Map" resultMap="imageResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO = #platformNo# and
+			t1.IMAGE_NAME = #imageName#
+		]]>
 	</select>
 
 	<select id="readByPlatformNo" parameterClass="java.util.Map" resultMap="imageResultMap">
@@ -170,7 +179,7 @@
 
 	<delete id="deleteAll">
 		<![CDATA[
-		delete from image
+		delete from IMAGE
 		]]>
 	</delete>
 
@@ -179,6 +188,15 @@
 		delete from IMAGE
 		where
 			IMAGE_NO = #imageNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByPlatformNoAndImageName" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from IMAGE
+		where
+			PLATFORM_NO = #platformNo# and
+			IMAGE_NAME = #imageName#
 		]]>
 	</delete>
 
@@ -199,6 +217,15 @@
 		<![CDATA[
 		where
 			IMAGE_NO = #imageNo#
+		]]>
+	</select>
+
+	<select id="countByPlatformNoAndImageName" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			PLATFORM_NO = #platformNo# and
+			IMAGE_NAME = #imageName#
 		]]>
 	</select>
 

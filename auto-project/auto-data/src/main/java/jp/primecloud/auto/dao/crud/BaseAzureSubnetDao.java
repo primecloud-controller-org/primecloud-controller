@@ -32,7 +32,7 @@ public interface BaseAzureSubnetDao {
 
     /**
      * 主キーに該当するレコードを検索します。
-     * 
+     *
      * @param subnetNo subnetNo
      * @return 主キーに該当するレコードのエンティティ。レコードがない場合はnull。
      */
@@ -42,14 +42,14 @@ public interface BaseAzureSubnetDao {
 
     /**
      * 全てのレコードを検索します。
-     * 
+     *
      * @return 全てのレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
     public List<AzureSubnet> readAll();
 
     /**
      * 主キーのコレクションに該当するレコードを検索します。
-     * 
+     *
      * @param subnetNos subnetNoのコレクション
      * @return 主キーのコレクションに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
@@ -59,21 +59,21 @@ public interface BaseAzureSubnetDao {
 
     /**
      * 与えられたエンティティの内容でレコードを挿入します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void create(AzureSubnet entity);
 
     /**
      * 与えられたエンティティの内容でレコードを更新します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void update(AzureSubnet entity);
 
     /**
      * 与えられたエンティティのレコードを削除します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void delete(AzureSubnet entity);
@@ -85,7 +85,7 @@ public interface BaseAzureSubnetDao {
 
     /**
      * 主キーに該当するレコードを削除します。
-     * 
+     *
      * @param subnetNo subnetNo
      */
     public void deleteBySubnetNo(
@@ -94,14 +94,14 @@ public interface BaseAzureSubnetDao {
 
     /**
      * 全てのレコードの件数を取得します。
-     * 
+     *
      * @return 全てのレコードの件数。
      */
     public long countAll();
 
     /**
      * 主キーに該当するレコードの件数を取得します。
-     * 
+     *
      * @param subnetNo subnetNo
      * @return 主キーに該当するレコードの件数。
      */

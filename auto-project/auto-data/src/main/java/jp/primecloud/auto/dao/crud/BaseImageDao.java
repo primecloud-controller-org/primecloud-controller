@@ -48,6 +48,18 @@ public interface BaseImageDao {
     public List<Image> readAll();
 
     /**
+     * 一意キーに該当するレコードを検索します。
+     *
+     * @param platformNo platformNo
+     * @param imageName imageName
+     * @return 一意キーに該当するレコードのエンティティ。レコードがない場合はnull。
+     */
+    public Image readByPlatformNoAndImageName(
+            Long platformNo,
+            String imageName
+        );
+
+    /**
      * 与えられたキーに該当するレコードを検索します。
      *
      * @param platformNo platformNo
@@ -103,6 +115,17 @@ public interface BaseImageDao {
         );
 
     /**
+     * 一意キーに該当するレコードを削除します。
+     *
+     * @param platformNo platformNo
+     * @param imageName imageName
+     */
+    public void deleteByPlatformNoAndImageName(
+            Long platformNo,
+            String imageName
+        );
+
+    /**
      * 与えられたキーに該当するレコードを削除します。
      *
      * @param platformNo platformNo
@@ -126,6 +149,18 @@ public interface BaseImageDao {
      */
     public long countByImageNo(
             Long imageNo
+        );
+
+    /**
+     * 一意キーに該当するレコードの件数を取得します。
+     *
+     * @param platformNo platformNo
+     * @param imageName imageName
+     * @return 一意キーに該当するレコードの件数。
+     */
+    public long countByPlatformNoAndImageName(
+            Long platformNo,
+            String imageName
         );
 
     /**

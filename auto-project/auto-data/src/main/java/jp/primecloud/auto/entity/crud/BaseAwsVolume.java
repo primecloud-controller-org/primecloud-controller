@@ -52,7 +52,7 @@ public abstract class BaseAwsVolume implements Serializable {
     /** SIZE [INT(10,0)] */
     private Integer size;
 
-    /** SNAPSHOT_ID [VARCHAR(20,0)] */
+    /** SNAPSHOT_ID [VARCHAR(30,0)] */
     private String snapshotId;
 
     /** AVAILABILITY_ZONE [VARCHAR(100,0)] */
@@ -61,13 +61,13 @@ public abstract class BaseAwsVolume implements Serializable {
     /** DEVICE [VARCHAR(20,0)] */
     private String device;
 
-    /** VOLUME_ID [VARCHAR(20,0)] */
+    /** VOLUME_ID [VARCHAR(30,0)] */
     private String volumeId;
 
     /** STATUS [VARCHAR(20,0)] */
     private String status;
 
-    /** INSTANCE_ID [VARCHAR(20,0)] */
+    /** INSTANCE_ID [VARCHAR(30,0)] */
     private String instanceId;
 
     /**

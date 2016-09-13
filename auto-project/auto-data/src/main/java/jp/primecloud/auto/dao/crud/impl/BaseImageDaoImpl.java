@@ -62,6 +62,20 @@ public abstract class BaseImageDaoImpl extends SqlMapClientDaoSupport implements
      * {@inheritDoc}
      */
     @Override
+    public Image readByPlatformNoAndImageName(
+            Long platformNo,
+            String imageName
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("platformNo", platformNo);
+        paramMap.put("imageName", imageName);
+        return (Image) getSqlMapClientTemplate().queryForObject(getSqlMapId("readByPlatformNoAndImageName"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     @SuppressWarnings("unchecked")
     public List<Image> readByPlatformNo(
             Long platformNo
@@ -144,6 +158,20 @@ public abstract class BaseImageDaoImpl extends SqlMapClientDaoSupport implements
      * {@inheritDoc}
      */
     @Override
+    public void deleteByPlatformNoAndImageName(
+            Long platformNo,
+            String imageName
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("platformNo", platformNo);
+        paramMap.put("imageName", imageName);
+        getSqlMapClientTemplate().delete(getSqlMapId("deleteByPlatformNoAndImageName"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void deleteByPlatformNo(
             Long platformNo
         ) {
@@ -170,6 +198,20 @@ public abstract class BaseImageDaoImpl extends SqlMapClientDaoSupport implements
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("imageNo", imageNo);
         return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByImageNo"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long countByPlatformNoAndImageName(
+            Long platformNo,
+            String imageName
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("platformNo", platformNo);
+        paramMap.put("imageName", imageName);
+        return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByPlatformNoAndImageName"), paramMap);
     }
 
     /**

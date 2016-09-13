@@ -32,6 +32,7 @@
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseComponentLoadBalancer.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseComponentType.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseFarm.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseIaasInfo.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseImage.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseImageAws.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseImageAzure.ibatis.xml" />
@@ -76,6 +77,7 @@
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseVcloudInstance.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseVcloudInstanceNetwork.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseVcloudKeyPair.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseVcloudTask.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseVmwareAddress.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseVmwareDisk.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseVmwareInstance.ibatis.xml" />
@@ -114,6 +116,7 @@
 	<sqlMap resource="jp/primecloud/auto/entity/crud/ComponentLoadBalancer.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/ComponentType.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/Farm.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/IaasInfo.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/Image.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/ImageAws.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/ImageAzure.ibatis.xml" />
@@ -158,6 +161,7 @@
 	<sqlMap resource="jp/primecloud/auto/entity/crud/VcloudInstance.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/VcloudInstanceNetwork.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/VcloudKeyPair.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/VcloudTask.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/VmwareAddress.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/VmwareDisk.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/VmwareInstance.ibatis.xml" />

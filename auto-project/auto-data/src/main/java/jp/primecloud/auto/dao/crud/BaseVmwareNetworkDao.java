@@ -32,7 +32,7 @@ public interface BaseVmwareNetworkDao {
 
     /**
      * 主キーに該当するレコードを検索します。
-     * 
+     *
      * @param networkNo networkNo
      * @return 主キーに該当するレコードのエンティティ。レコードがない場合はnull。
      */
@@ -42,7 +42,7 @@ public interface BaseVmwareNetworkDao {
 
     /**
      * 全てのレコードを検索します。
-     * 
+     *
      * @return 全てのレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
     public List<VmwareNetwork> readAll();
@@ -81,7 +81,7 @@ public interface BaseVmwareNetworkDao {
 
     /**
      * 主キーのコレクションに該当するレコードを検索します。
-     * 
+     *
      * @param networkNos networkNoのコレクション
      * @return 主キーのコレクションに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
@@ -91,21 +91,21 @@ public interface BaseVmwareNetworkDao {
 
     /**
      * 与えられたエンティティの内容でレコードを挿入します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void create(VmwareNetwork entity);
 
     /**
      * 与えられたエンティティの内容でレコードを更新します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void update(VmwareNetwork entity);
 
     /**
      * 与えられたエンティティのレコードを削除します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void delete(VmwareNetwork entity);
@@ -117,7 +117,7 @@ public interface BaseVmwareNetworkDao {
 
     /**
      * 主キーに該当するレコードを削除します。
-     * 
+     *
      * @param networkNo networkNo
      */
     public void deleteByNetworkNo(
@@ -155,14 +155,14 @@ public interface BaseVmwareNetworkDao {
 
     /**
      * 全てのレコードの件数を取得します。
-     * 
+     *
      * @return 全てのレコードの件数。
      */
     public long countAll();
 
     /**
      * 主キーに該当するレコードの件数を取得します。
-     * 
+     *
      * @param networkNo networkNo
      * @return 主キーに該当するレコードの件数。
      */

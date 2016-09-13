@@ -1,4 +1,3 @@
-package jp.primecloud.auto.entity.crud;
 /*
  * Copyright 2014 by SCSK Corporation.
  * 
@@ -17,13 +16,13 @@ package jp.primecloud.auto.entity.crud;
  * You should have received a copy of the GNU General Public License
  * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
  */
-
+package jp.primecloud.auto.entity.crud;
 
 import java.io.Serializable;
 
 /**
  * <p>
- * PCC_SYSTEM_INFOに対応したエンティティのベーススクラスです。
+ * PCC_SYSTEM_INFOに対応したエンティティのベースクラスです。
  * </p>
  *
  */
@@ -52,6 +51,7 @@ public abstract class BasePccSystemInfo implements Serializable {
     public void setSecretKey(String secretKey) {
         this.secretKey = secretKey;
     }
+
 
     /**
      * {@inheritDoc}

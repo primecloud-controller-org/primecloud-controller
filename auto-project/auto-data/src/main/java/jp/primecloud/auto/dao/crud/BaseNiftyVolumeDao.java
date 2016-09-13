@@ -32,7 +32,7 @@ public interface BaseNiftyVolumeDao {
 
     /**
      * 主キーに該当するレコードを検索します。
-     * 
+     *
      * @param volumeNo volumeNo
      * @return 主キーに該当するレコードのエンティティ。レコードがない場合はnull。
      */
@@ -42,7 +42,7 @@ public interface BaseNiftyVolumeDao {
 
     /**
      * 全てのレコードを検索します。
-     * 
+     *
      * @return 全てのレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
     public List<NiftyVolume> readAll();
@@ -62,11 +62,11 @@ public interface BaseNiftyVolumeDao {
     /**
      * 与えられたキーに該当するレコードを検索します。
      *
-     * @param componentNo componentNo
+     * @param farmNo farmNo
      * @return 与えられたキーに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
-    public List<NiftyVolume> readByComponentNo(
-            Long componentNo
+    public List<NiftyVolume> readByFarmNo(
+            Long farmNo
         );
 
     /**
@@ -82,6 +82,16 @@ public interface BaseNiftyVolumeDao {
     /**
      * 与えられたキーに該当するレコードを検索します。
      *
+     * @param componentNo componentNo
+     * @return 与えられたキーに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
+     */
+    public List<NiftyVolume> readByComponentNo(
+            Long componentNo
+        );
+
+    /**
+     * 与えられたキーに該当するレコードを検索します。
+     *
      * @param instanceNo instanceNo
      * @return 与えられたキーに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
@@ -90,18 +100,8 @@ public interface BaseNiftyVolumeDao {
         );
 
     /**
-     * 与えられたキーに該当するレコードを検索します。
-     *
-     * @param farmNo farmNo
-     * @return 与えられたキーに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
-     */
-    public List<NiftyVolume> readByFarmNo(
-            Long farmNo
-        );
-
-    /**
      * 主キーのコレクションに該当するレコードを検索します。
-     * 
+     *
      * @param volumeNos volumeNoのコレクション
      * @return 主キーのコレクションに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
@@ -111,21 +111,21 @@ public interface BaseNiftyVolumeDao {
 
     /**
      * 与えられたエンティティの内容でレコードを挿入します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void create(NiftyVolume entity);
 
     /**
      * 与えられたエンティティの内容でレコードを更新します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void update(NiftyVolume entity);
 
     /**
      * 与えられたエンティティのレコードを削除します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void delete(NiftyVolume entity);
@@ -137,7 +137,7 @@ public interface BaseNiftyVolumeDao {
 
     /**
      * 主キーに該当するレコードを削除します。
-     * 
+     *
      * @param volumeNo volumeNo
      */
     public void deleteByVolumeNo(
@@ -158,10 +158,10 @@ public interface BaseNiftyVolumeDao {
     /**
      * 与えられたキーに該当するレコードを削除します。
      *
-     * @param componentNo componentNo
+     * @param farmNo farmNo
      */
-    public void deleteByComponentNo(
-            Long componentNo
+    public void deleteByFarmNo(
+            Long farmNo
         );
 
     /**
@@ -176,6 +176,15 @@ public interface BaseNiftyVolumeDao {
     /**
      * 与えられたキーに該当するレコードを削除します。
      *
+     * @param componentNo componentNo
+     */
+    public void deleteByComponentNo(
+            Long componentNo
+        );
+
+    /**
+     * 与えられたキーに該当するレコードを削除します。
+     *
      * @param instanceNo instanceNo
      */
     public void deleteByInstanceNo(
@@ -183,24 +192,15 @@ public interface BaseNiftyVolumeDao {
         );
 
     /**
-     * 与えられたキーに該当するレコードを削除します。
-     *
-     * @param farmNo farmNo
-     */
-    public void deleteByFarmNo(
-            Long farmNo
-        );
-
-    /**
      * 全てのレコードの件数を取得します。
-     * 
+     *
      * @return 全てのレコードの件数。
      */
     public long countAll();
 
     /**
      * 主キーに該当するレコードの件数を取得します。
-     * 
+     *
      * @param volumeNo volumeNo
      * @return 主キーに該当するレコードの件数。
      */
@@ -223,11 +223,11 @@ public interface BaseNiftyVolumeDao {
     /**
      * 与えられたキーに該当するレコードの件数を取得します。
      *
-     * @param componentNo componentNo
+     * @param farmNo farmNo
      * @return 与えられたキーに該当するレコードの件数。
      */
-    public long countByComponentNo(
-            Long componentNo
+    public long countByFarmNo(
+            Long farmNo
         );
 
     /**
@@ -243,21 +243,21 @@ public interface BaseNiftyVolumeDao {
     /**
      * 与えられたキーに該当するレコードの件数を取得します。
      *
-     * @param instanceNo instanceNo
+     * @param componentNo componentNo
      * @return 与えられたキーに該当するレコードの件数。
      */
-    public long countByInstanceNo(
-            Long instanceNo
+    public long countByComponentNo(
+            Long componentNo
         );
 
     /**
      * 与えられたキーに該当するレコードの件数を取得します。
      *
-     * @param farmNo farmNo
+     * @param instanceNo instanceNo
      * @return 与えられたキーに該当するレコードの件数。
      */
-    public long countByFarmNo(
-            Long farmNo
+    public long countByInstanceNo(
+            Long instanceNo
         );
 
 }

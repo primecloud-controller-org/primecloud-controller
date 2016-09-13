@@ -107,6 +107,19 @@ public abstract class BaseVcloudKeyPairDaoImpl extends SqlMapClientDaoSupport im
      */
     @Override
     @SuppressWarnings("unchecked")
+    public List<VcloudKeyPair> readByPlatformNo(
+            Long platformNo
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("platformNo", platformNo);
+        return (List<VcloudKeyPair>) getSqlMapClientTemplate().queryForList(getSqlMapId("readByPlatformNo"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @SuppressWarnings("unchecked")
     public List<VcloudKeyPair> readInKeyNos(
             Collection<Long> keyNos
         ) {
@@ -217,6 +230,18 @@ public abstract class BaseVcloudKeyPairDaoImpl extends SqlMapClientDaoSupport im
      * {@inheritDoc}
      */
     @Override
+    public void deleteByPlatformNo(
+            Long platformNo
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("platformNo", platformNo);
+        getSqlMapClientTemplate().delete(getSqlMapId("deleteByPlatformNo"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public long countAll() {
         return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countAll"));
     }
@@ -273,6 +298,18 @@ public abstract class BaseVcloudKeyPairDaoImpl extends SqlMapClientDaoSupport im
         paramMap.put("userNo", userNo);
         paramMap.put("platformNo", platformNo);
         return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByUserNoAndPlatformNo"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long countByPlatformNo(
+            Long platformNo
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("platformNo", platformNo);
+        return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByPlatformNo"), paramMap);
     }
 
     protected String getSqlMapId(String id) {

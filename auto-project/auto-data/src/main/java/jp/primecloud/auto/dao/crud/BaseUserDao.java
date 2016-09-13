@@ -32,7 +32,7 @@ public interface BaseUserDao {
 
     /**
      * 主キーに該当するレコードを検索します。
-     * 
+     *
      * @param userNo userNo
      * @return 主キーに該当するレコードのエンティティ。レコードがない場合はnull。
      */
@@ -42,7 +42,7 @@ public interface BaseUserDao {
 
     /**
      * 全てのレコードを検索します。
-     * 
+     *
      * @return 全てのレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
     public List<User> readAll();
@@ -58,8 +58,18 @@ public interface BaseUserDao {
         );
 
     /**
+     * 与えられたキーに該当するレコードを検索します。
+     *
+     * @param masterUser masterUser
+     * @return 与えられたキーに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
+     */
+    public List<User> readByMasterUser(
+            Long masterUser
+        );
+
+    /**
      * 主キーのコレクションに該当するレコードを検索します。
-     * 
+     *
      * @param userNos userNoのコレクション
      * @return 主キーのコレクションに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
@@ -69,21 +79,21 @@ public interface BaseUserDao {
 
     /**
      * 与えられたエンティティの内容でレコードを挿入します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void create(User entity);
 
     /**
      * 与えられたエンティティの内容でレコードを更新します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void update(User entity);
 
     /**
      * 与えられたエンティティのレコードを削除します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void delete(User entity);
@@ -95,7 +105,7 @@ public interface BaseUserDao {
 
     /**
      * 主キーに該当するレコードを削除します。
-     * 
+     *
      * @param userNo userNo
      */
     public void deleteByUserNo(
@@ -112,15 +122,24 @@ public interface BaseUserDao {
         );
 
     /**
+     * 与えられたキーに該当するレコードを削除します。
+     *
+     * @param masterUser masterUser
+     */
+    public void deleteByMasterUser(
+            Long masterUser
+        );
+
+    /**
      * 全てのレコードの件数を取得します。
-     * 
+     *
      * @return 全てのレコードの件数。
      */
     public long countAll();
 
     /**
      * 主キーに該当するレコードの件数を取得します。
-     * 
+     *
      * @param userNo userNo
      * @return 主キーに該当するレコードの件数。
      */
@@ -139,13 +158,13 @@ public interface BaseUserDao {
         );
 
     /**
-     * マスターユーザーに該当するレコードの件数を取得します。
+     * 与えられたキーに該当するレコードの件数を取得します。
      *
-     * @param userNo userNo
-     * @return マスターユーザーに該当するレコードの件数。
+     * @param masterUser masterUser
+     * @return 与えられたキーに該当するレコードの件数。
      */
-    public List<User> readByMasterUser(
-            Long masterUserNo
+    public long countByMasterUser(
+            Long masterUser
         );
 
 }

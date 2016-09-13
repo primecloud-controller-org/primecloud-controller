@@ -48,6 +48,16 @@ public interface BaseTemplateDao {
     public List<Template> readAll();
 
     /**
+     * 一意キーに該当するレコードを検索します。
+     *
+     * @param templateName templateName
+     * @return 一意キーに該当するレコードのエンティティ。レコードがない場合はnull。
+     */
+    public Template readByTemplateName(
+            String templateName
+        );
+
+    /**
      * 主キーのコレクションに該当するレコードを検索します。
      *
      * @param templateNos templateNoのコレクション
@@ -93,6 +103,15 @@ public interface BaseTemplateDao {
         );
 
     /**
+     * 一意キーに該当するレコードを削除します。
+     *
+     * @param templateName templateName
+     */
+    public void deleteByTemplateName(
+            String templateName
+        );
+
+    /**
      * 全てのレコードの件数を取得します。
      *
      * @return 全てのレコードの件数。
@@ -107,6 +126,16 @@ public interface BaseTemplateDao {
      */
     public long countByTemplateNo(
             Long templateNo
+        );
+
+    /**
+     * 一意キーに該当するレコードの件数を取得します。
+     *
+     * @param templateName templateName
+     * @return 一意キーに該当するレコードの件数。
+     */
+    public long countByTemplateName(
+            String templateName
         );
 
 }

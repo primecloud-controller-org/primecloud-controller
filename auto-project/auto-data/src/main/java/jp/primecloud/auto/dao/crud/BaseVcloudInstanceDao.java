@@ -50,21 +50,21 @@ public interface BaseVcloudInstanceDao {
     /**
      * 与えられたキーに該当するレコードを検索します。
      *
-     * @param keyPairNo keyPairNo
-     * @return 与えられたキーに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
-     */
-    public List<VcloudInstance> readByKeyPairNo(
-            Long keyPairNo
-        );
-
-    /**
-     * 与えられたキーに該当するレコードを検索します。
-     *
      * @param storageTypeNo storageTypeNo
      * @return 与えられたキーに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
     public List<VcloudInstance> readByStorageTypeNo(
             Long storageTypeNo
+        );
+
+    /**
+     * 与えられたキーに該当するレコードを検索します。
+     *
+     * @param keyPairNo keyPairNo
+     * @return 与えられたキーに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
+     */
+    public List<VcloudInstance> readByKeyPairNo(
+            Long keyPairNo
         );
 
     /**
@@ -115,19 +115,19 @@ public interface BaseVcloudInstanceDao {
     /**
      * 与えられたキーに該当するレコードを削除します。
      *
-     * @param keyPairNo keyPairNo
+     * @param storageTypeNo storageTypeNo
      */
-    public void deleteByKeyPairNo(
-            Long keyPairNo
+    public void deleteByStorageTypeNo(
+            Long storageTypeNo
         );
 
     /**
      * 与えられたキーに該当するレコードを削除します。
      *
-     * @param storageTypeNo storageTypeNo
+     * @param keyPairNo keyPairNo
      */
-    public void deleteByStorageTypeNo(
-            Long storageTypeNo
+    public void deleteByKeyPairNo(
+            Long keyPairNo
         );
 
     /**
@@ -150,21 +150,21 @@ public interface BaseVcloudInstanceDao {
     /**
      * 与えられたキーに該当するレコードの件数を取得します。
      *
-     * @param keyPairNo keyPairNo
-     * @return 与えられたキーに該当するレコードの件数。
-     */
-    public long countByKeyPairNo(
-            Long keyPairNo
-        );
-
-    /**
-     * 与えられたキーに該当するレコードの件数を取得します。
-     *
      * @param storageTypeNo storageTypeNo
      * @return 与えられたキーに該当するレコードの件数。
      */
     public long countByStorageTypeNo(
             Long storageTypeNo
+        );
+
+    /**
+     * 与えられたキーに該当するレコードの件数を取得します。
+     *
+     * @param keyPairNo keyPairNo
+     * @return 与えられたキーに該当するレコードの件数。
+     */
+    public long countByKeyPairNo(
+            Long keyPairNo
         );
 
 }

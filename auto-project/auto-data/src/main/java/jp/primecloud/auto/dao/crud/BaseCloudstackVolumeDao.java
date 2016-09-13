@@ -62,16 +62,6 @@ public interface BaseCloudstackVolumeDao {
     /**
      * 与えられたキーに該当するレコードを検索します。
      *
-     * @param componentNo componentNo
-     * @return 与えられたキーに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
-     */
-    public List<CloudstackVolume> readByComponentNo(
-            Long componentNo
-        );
-
-    /**
-     * 与えられたキーに該当するレコードを検索します。
-     *
      * @param farmNo farmNo
      * @return 与えられたキーに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
@@ -82,21 +72,31 @@ public interface BaseCloudstackVolumeDao {
     /**
      * 与えられたキーに該当するレコードを検索します。
      *
-     * @param instanceNo instanceNo
-     * @return 与えられたキーに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
-     */
-    public List<CloudstackVolume> readByInstanceNo(
-            Long instanceNo
-        );
-
-    /**
-     * 与えられたキーに該当するレコードを検索します。
-     *
      * @param platformNo platformNo
      * @return 与えられたキーに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
     public List<CloudstackVolume> readByPlatformNo(
             Long platformNo
+        );
+
+    /**
+     * 与えられたキーに該当するレコードを検索します。
+     *
+     * @param componentNo componentNo
+     * @return 与えられたキーに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
+     */
+    public List<CloudstackVolume> readByComponentNo(
+            Long componentNo
+        );
+
+    /**
+     * 与えられたキーに該当するレコードを検索します。
+     *
+     * @param instanceNo instanceNo
+     * @return 与えられたキーに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
+     */
+    public List<CloudstackVolume> readByInstanceNo(
+            Long instanceNo
         );
 
     /**
@@ -158,15 +158,6 @@ public interface BaseCloudstackVolumeDao {
     /**
      * 与えられたキーに該当するレコードを削除します。
      *
-     * @param componentNo componentNo
-     */
-    public void deleteByComponentNo(
-            Long componentNo
-        );
-
-    /**
-     * 与えられたキーに該当するレコードを削除します。
-     *
      * @param farmNo farmNo
      */
     public void deleteByFarmNo(
@@ -176,19 +167,28 @@ public interface BaseCloudstackVolumeDao {
     /**
      * 与えられたキーに該当するレコードを削除します。
      *
-     * @param instanceNo instanceNo
+     * @param platformNo platformNo
      */
-    public void deleteByInstanceNo(
-            Long instanceNo
+    public void deleteByPlatformNo(
+            Long platformNo
         );
 
     /**
      * 与えられたキーに該当するレコードを削除します。
      *
-     * @param platformNo platformNo
+     * @param componentNo componentNo
      */
-    public void deleteByPlatformNo(
-            Long platformNo
+    public void deleteByComponentNo(
+            Long componentNo
+        );
+
+    /**
+     * 与えられたキーに該当するレコードを削除します。
+     *
+     * @param instanceNo instanceNo
+     */
+    public void deleteByInstanceNo(
+            Long instanceNo
         );
 
     /**
@@ -223,16 +223,6 @@ public interface BaseCloudstackVolumeDao {
     /**
      * 与えられたキーに該当するレコードの件数を取得します。
      *
-     * @param componentNo componentNo
-     * @return 与えられたキーに該当するレコードの件数。
-     */
-    public long countByComponentNo(
-            Long componentNo
-        );
-
-    /**
-     * 与えられたキーに該当するレコードの件数を取得します。
-     *
      * @param farmNo farmNo
      * @return 与えられたキーに該当するレコードの件数。
      */
@@ -243,21 +233,31 @@ public interface BaseCloudstackVolumeDao {
     /**
      * 与えられたキーに該当するレコードの件数を取得します。
      *
-     * @param instanceNo instanceNo
-     * @return 与えられたキーに該当するレコードの件数。
-     */
-    public long countByInstanceNo(
-            Long instanceNo
-        );
-
-    /**
-     * 与えられたキーに該当するレコードの件数を取得します。
-     *
      * @param platformNo platformNo
      * @return 与えられたキーに該当するレコードの件数。
      */
     public long countByPlatformNo(
             Long platformNo
+        );
+
+    /**
+     * 与えられたキーに該当するレコードの件数を取得します。
+     *
+     * @param componentNo componentNo
+     * @return 与えられたキーに該当するレコードの件数。
+     */
+    public long countByComponentNo(
+            Long componentNo
+        );
+
+    /**
+     * 与えられたキーに該当するレコードの件数を取得します。
+     *
+     * @param instanceNo instanceNo
+     * @return 与えられたキーに該当するレコードの件数。
+     */
+    public long countByInstanceNo(
+            Long instanceNo
         );
 
 }

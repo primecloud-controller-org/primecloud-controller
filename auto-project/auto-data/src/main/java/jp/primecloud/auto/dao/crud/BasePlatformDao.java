@@ -48,6 +48,16 @@ public interface BasePlatformDao {
     public List<Platform> readAll();
 
     /**
+     * 一意キーに該当するレコードを検索します。
+     *
+     * @param platformName platformName
+     * @return 一意キーに該当するレコードのエンティティ。レコードがない場合はnull。
+     */
+    public Platform readByPlatformName(
+            String platformName
+        );
+
+    /**
      * 主キーのコレクションに該当するレコードを検索します。
      *
      * @param platformNos platformNoのコレクション
@@ -93,6 +103,15 @@ public interface BasePlatformDao {
         );
 
     /**
+     * 一意キーに該当するレコードを削除します。
+     *
+     * @param platformName platformName
+     */
+    public void deleteByPlatformName(
+            String platformName
+        );
+
+    /**
      * 全てのレコードの件数を取得します。
      *
      * @return 全てのレコードの件数。
@@ -107,6 +126,16 @@ public interface BasePlatformDao {
      */
     public long countByPlatformNo(
             Long platformNo
+        );
+
+    /**
+     * 一意キーに該当するレコードの件数を取得します。
+     *
+     * @param platformName platformName
+     * @return 一意キーに該当するレコードの件数。
+     */
+    public long countByPlatformName(
+            String platformName
         );
 
 }

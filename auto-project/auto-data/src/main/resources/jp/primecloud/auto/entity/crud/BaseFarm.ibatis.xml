@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE sqlMap      
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
 	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 <sqlMap namespace="Farm">
 
@@ -18,12 +18,12 @@
 	<sql id="selectSql">
 		<![CDATA[
 		select
-			t1.FARM_NO as FARM_NO, 
-			t1.USER_NO as USER_NO, 
-			t1.FARM_NAME as FARM_NAME, 
-			t1.COMMENT as COMMENT, 
-			t1.DOMAIN_NAME as DOMAIN_NAME, 
-			t1.SCHEDULED as SCHEDULED, 
+			t1.FARM_NO as FARM_NO,
+			t1.USER_NO as USER_NO,
+			t1.FARM_NAME as FARM_NAME,
+			t1.COMMENT as COMMENT,
+			t1.DOMAIN_NAME as DOMAIN_NAME,
+			t1.SCHEDULED as SCHEDULED,
 			t1.COMPONENT_PROCESSING as COMPONENT_PROCESSING
 		from
 			FARM t1
@@ -80,20 +80,20 @@
 	<insert id="create" parameterClass="Farm">
 		<![CDATA[
 		insert into FARM (
-			FARM_NO, 
-			USER_NO, 
-			FARM_NAME, 
-			COMMENT, 
-			DOMAIN_NAME, 
-			SCHEDULED, 
+			FARM_NO,
+			USER_NO,
+			FARM_NAME,
+			COMMENT,
+			DOMAIN_NAME,
+			SCHEDULED,
 			COMPONENT_PROCESSING
 		) values (
-			#farmNo#, 
-			#userNo#, 
-			#farmName#, 
-			#comment#, 
-			#domainName#, 
-			#scheduled#, 
+			#farmNo#,
+			#userNo#,
+			#farmName#,
+			#comment#,
+			#domainName#,
+			#scheduled#,
 			#componentProcessing#
 		)
 		]]>
@@ -102,20 +102,20 @@
 	<insert id="createAuto" parameterClass="Farm">
 		<![CDATA[
 		insert into FARM (
-			FARM_NO, 
-			USER_NO, 
-			FARM_NAME, 
-			COMMENT, 
-			DOMAIN_NAME, 
-			SCHEDULED, 
+			FARM_NO,
+			USER_NO,
+			FARM_NAME,
+			COMMENT,
+			DOMAIN_NAME,
+			SCHEDULED,
 			COMPONENT_PROCESSING
 		) values (
-			#farmNo#, 
-			#userNo#, 
-			#farmName#, 
-			#comment#, 
-			#domainName#, 
-			#scheduled#, 
+			#farmNo#,
+			#userNo#,
+			#farmName#,
+			#comment#,
+			#domainName#,
+			#scheduled#,
 			#componentProcessing#
 		)
 		]]>
@@ -129,11 +129,11 @@
 	<update id="update" parameterClass="Farm">
 		<![CDATA[
 		update FARM set
-			USER_NO = #userNo#, 
-			FARM_NAME = #farmName#, 
-			COMMENT = #comment#, 
-			DOMAIN_NAME = #domainName#, 
-			SCHEDULED = #scheduled#, 
+			USER_NO = #userNo#,
+			FARM_NAME = #farmName#,
+			COMMENT = #comment#,
+			DOMAIN_NAME = #domainName#,
+			SCHEDULED = #scheduled#,
 			COMPONENT_PROCESSING = #componentProcessing#
 		where
 			FARM_NO = #farmNo#

@@ -50,6 +50,16 @@ public interface BaseCloudstackSnapshotDao {
     /**
      * 与えられたキーに該当するレコードを検索します。
      *
+     * @param farmNo farmNo
+     * @return 与えられたキーに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
+     */
+    public List<CloudstackSnapshot> readByFarmNo(
+            Long farmNo
+        );
+
+    /**
+     * 与えられたキーに該当するレコードを検索します。
+     *
      * @param platformNo platformNo
      * @return 与えられたキーに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
@@ -105,6 +115,15 @@ public interface BaseCloudstackSnapshotDao {
     /**
      * 与えられたキーに該当するレコードを削除します。
      *
+     * @param farmNo farmNo
+     */
+    public void deleteByFarmNo(
+            Long farmNo
+        );
+
+    /**
+     * 与えられたキーに該当するレコードを削除します。
+     *
      * @param platformNo platformNo
      */
     public void deleteByPlatformNo(
@@ -126,6 +145,16 @@ public interface BaseCloudstackSnapshotDao {
      */
     public long countBySnapshotNo(
             Long snapshotNo
+        );
+
+    /**
+     * 与えられたキーに該当するレコードの件数を取得します。
+     *
+     * @param farmNo farmNo
+     * @return 与えられたキーに該当するレコードの件数。
+     */
+    public long countByFarmNo(
+            Long farmNo
         );
 
     /**

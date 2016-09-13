@@ -21,7 +21,7 @@ package jp.primecloud.auto.entity.crud;
 
 /**
  * <p>
- * aws_ssl_keyに対応したエンティティです。
+ * AWS_SSL_KEYに対応したエンティティです。
  * </p>
  *
  */

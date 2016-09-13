@@ -24,7 +24,7 @@ import jp.primecloud.auto.entity.crud.AwsSslKey;
 
 /**
  * <p>
- * aws_ssl_keyに対応したDAOのベースインタフェースです。
+ * AWS_SSL_KEYに対応したDAOのベースインタフェースです。
  * </p>
  *
  */
@@ -32,7 +32,7 @@ public interface BaseAwsSslKeyDao {
 
     /**
      * 主キーに該当するレコードを検索します。
-     * 
+     *
      * @param keyNo keyNo
      * @return 主キーに該当するレコードのエンティティ。レコードがない場合はnull。
      */
@@ -42,14 +42,34 @@ public interface BaseAwsSslKeyDao {
 
     /**
      * 全てのレコードを検索します。
-     * 
+     *
      * @return 全てのレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
     public List<AwsSslKey> readAll();
 
     /**
+     * 与えられたキーに該当するレコードを検索します。
+     *
+     * @param farmNo farmNo
+     * @return 与えられたキーに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
+     */
+    public List<AwsSslKey> readByFarmNo(
+            Long farmNo
+        );
+
+    /**
+     * 与えられたキーに該当するレコードを検索します。
+     *
+     * @param platformNo platformNo
+     * @return 与えられたキーに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
+     */
+    public List<AwsSslKey> readByPlatformNo(
+            Long platformNo
+        );
+
+    /**
      * 主キーのコレクションに該当するレコードを検索します。
-     * 
+     *
      * @param keyNos keyNoのコレクション
      * @return 主キーのコレクションに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
@@ -59,21 +79,21 @@ public interface BaseAwsSslKeyDao {
 
     /**
      * 与えられたエンティティの内容でレコードを挿入します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void create(AwsSslKey entity);
 
     /**
      * 与えられたエンティティの内容でレコードを更新します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void update(AwsSslKey entity);
 
     /**
      * 与えられたエンティティのレコードを削除します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void delete(AwsSslKey entity);
@@ -85,7 +105,7 @@ public interface BaseAwsSslKeyDao {
 
     /**
      * 主キーに該当するレコードを削除します。
-     * 
+     *
      * @param keyNo keyNo
      */
     public void deleteByKeyNo(
@@ -93,20 +113,58 @@ public interface BaseAwsSslKeyDao {
         );
 
     /**
+     * 与えられたキーに該当するレコードを削除します。
+     *
+     * @param farmNo farmNo
+     */
+    public void deleteByFarmNo(
+            Long farmNo
+        );
+
+    /**
+     * 与えられたキーに該当するレコードを削除します。
+     *
+     * @param platformNo platformNo
+     */
+    public void deleteByPlatformNo(
+            Long platformNo
+        );
+
+    /**
      * 全てのレコードの件数を取得します。
-     * 
+     *
      * @return 全てのレコードの件数。
      */
     public long countAll();
 
     /**
      * 主キーに該当するレコードの件数を取得します。
-     * 
+     *
      * @param keyNo keyNo
      * @return 主キーに該当するレコードの件数。
      */
     public long countByKeyNo(
             Long keyNo
+        );
+
+    /**
+     * 与えられたキーに該当するレコードの件数を取得します。
+     *
+     * @param farmNo farmNo
+     * @return 与えられたキーに該当するレコードの件数。
+     */
+    public long countByFarmNo(
+            Long farmNo
+        );
+
+    /**
+     * 与えられたキーに該当するレコードの件数を取得します。
+     *
+     * @param platformNo platformNo
+     * @return 与えられたキーに該当するレコードの件数。
+     */
+    public long countByPlatformNo(
+            Long platformNo
         );
 
 }

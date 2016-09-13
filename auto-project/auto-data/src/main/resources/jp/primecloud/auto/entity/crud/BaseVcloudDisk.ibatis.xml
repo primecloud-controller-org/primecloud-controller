@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE sqlMap
 	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 <sqlMap namespace="VcloudDisk">
@@ -62,6 +62,14 @@
 		]]>
 	</select>
 
+	<select id="readByPlatformNo" parameterClass="java.util.Map" resultMap="vcloudDiskResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
 	<select id="readByComponentNo" parameterClass="java.util.Map" resultMap="vcloudDiskResultMap">
 		<include refid="selectSql" />
 		<![CDATA[
@@ -75,14 +83,6 @@
 		<![CDATA[
 		where
 			t1.INSTANCE_NO = #instanceNo#
-		]]>
-	</select>
-
-	<select id="readByPlatformNo" parameterClass="java.util.Map" resultMap="vcloudDiskResultMap">
-		<include refid="selectSql" />
-		<![CDATA[
-		where
-			t1.PLATFORM_NO = #platformNo#
 		]]>
 	</select>
 
@@ -207,6 +207,14 @@
 		]]>
 	</delete>
 
+	<delete id="deleteByPlatformNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from VCLOUD_DISK
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
 	<delete id="deleteByComponentNo" parameterClass="java.util.Map">
 		<![CDATA[
 		delete from VCLOUD_DISK
@@ -220,14 +228,6 @@
 		delete from VCLOUD_DISK
 		where
 			INSTANCE_NO = #instanceNo#
-		]]>
-	</delete>
-
-	<delete id="deleteByPlatformNo" parameterClass="java.util.Map">
-		<![CDATA[
-		delete from VCLOUD_DISK
-		where
-			PLATFORM_NO = #platformNo#
 		]]>
 	</delete>
 
@@ -251,6 +251,14 @@
 		]]>
 	</select>
 
+	<select id="countByPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
 	<select id="countByComponentNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
 		<include refid="countSql" />
 		<![CDATA[
@@ -264,14 +272,6 @@
 		<![CDATA[
 		where
 			INSTANCE_NO = #instanceNo#
-		]]>
-	</select>
-
-	<select id="countByPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
-		<include refid="countSql" />
-		<![CDATA[
-		where
-			PLATFORM_NO = #platformNo#
 		]]>
 	</select>
 

@@ -21,7 +21,7 @@ package jp.primecloud.auto.dao.crud;
 
 /**
  * <p>
- * cloudstack_load_balancerに対応したDAOインタフェースです。
+ * CLOUDSTACK_LOAD_BALANCERに対応したDAOインタフェースです。
  * </p>
  *
  */

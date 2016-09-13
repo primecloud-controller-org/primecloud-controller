@@ -21,7 +21,7 @@ package jp.primecloud.auto.dao.crud;
 
 /**
  * <p>
- * user_authに対応したDAOインタフェースです。
+ * USER_AUTHに対応したDAOインタフェースです。
  * </p>
  *
  */

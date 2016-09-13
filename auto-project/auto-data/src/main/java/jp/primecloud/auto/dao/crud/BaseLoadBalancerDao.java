@@ -72,21 +72,21 @@ public interface BaseLoadBalancerDao {
     /**
      * 与えられたキーに該当するレコードを検索します。
      *
-     * @param componentNo componentNo
-     * @return 与えられたキーに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
-     */
-    public List<LoadBalancer> readByComponentNo(
-            Long componentNo
-        );
-
-    /**
-     * 与えられたキーに該当するレコードを検索します。
-     *
      * @param platformNo platformNo
      * @return 与えられたキーに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
     public List<LoadBalancer> readByPlatformNo(
             Long platformNo
+        );
+
+    /**
+     * 与えられたキーに該当するレコードを検索します。
+     *
+     * @param componentNo componentNo
+     * @return 与えられたキーに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
+     */
+    public List<LoadBalancer> readByComponentNo(
+            Long componentNo
         );
 
     /**
@@ -157,19 +157,19 @@ public interface BaseLoadBalancerDao {
     /**
      * 与えられたキーに該当するレコードを削除します。
      *
-     * @param componentNo componentNo
+     * @param platformNo platformNo
      */
-    public void deleteByComponentNo(
-            Long componentNo
+    public void deleteByPlatformNo(
+            Long platformNo
         );
 
     /**
      * 与えられたキーに該当するレコードを削除します。
      *
-     * @param platformNo platformNo
+     * @param componentNo componentNo
      */
-    public void deleteByPlatformNo(
-            Long platformNo
+    public void deleteByComponentNo(
+            Long componentNo
         );
 
     /**
@@ -214,21 +214,21 @@ public interface BaseLoadBalancerDao {
     /**
      * 与えられたキーに該当するレコードの件数を取得します。
      *
-     * @param componentNo componentNo
-     * @return 与えられたキーに該当するレコードの件数。
-     */
-    public long countByComponentNo(
-            Long componentNo
-        );
-
-    /**
-     * 与えられたキーに該当するレコードの件数を取得します。
-     *
      * @param platformNo platformNo
      * @return 与えられたキーに該当するレコードの件数。
      */
     public long countByPlatformNo(
             Long platformNo
+        );
+
+    /**
+     * 与えられたキーに該当するレコードの件数を取得します。
+     *
+     * @param componentNo componentNo
+     * @return 与えられたキーに該当するレコードの件数。
+     */
+    public long countByComponentNo(
+            Long componentNo
         );
 
 }

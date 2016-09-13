@@ -1,84 +1,37 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE sqlMap
+<!--
+/*
+ * Copyright 2014 by SCSK Corporation.
+ * 
+ * This file is part of PrimeCloud Controller(TM).
+ * 
+ * PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
+ */
+/*
+ */
+-->
+<!DOCTYPE sqlMap      
 	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 <sqlMap namespace="Proxy">
 
 	<typeAlias alias="Proxy" type="jp.primecloud.auto.entity.crud.Proxy" />
 
-	<resultMap id="proxyInfoResultMap" class="Proxy">
+	<resultMap id="proxyResultMap" class="Proxy">
 		<result property="host" column="HOST" nullValue="" />
 		<result property="port" column="PORT" />
 		<result property="user" column="USER" nullValue="" />
 		<result property="password" column="PASSWORD" nullValue="" />
 	</resultMap>
 
-	<sql id="selectSql">
-		<![CDATA[
-		select
-			t1.HOST as HOST,
-			t1.PORT as PORT,
-			t1.USER as USER,
-			t1.PASSWORD as PASSWORD
-		from
-			PROXY t1
-		]]>
-	</sql>
-
-	<sql id="countSql">
-		<![CDATA[
-		select count(*) as COUNT from PROXY t1
-		]]>
-	</sql>
-
-	<select id="read" resultMap="proxyInfoResultMap">
-		<include refid="selectSql" />
-	</select>
-
-	<insert id="create" parameterClass="Proxy">
-		<![CDATA[
-		insert into PROXY (
-			HOST,
-			PORT,
-			USER,
-			PASSWORD
-		) values (
-			#host#,
-			#port#,
-			#user#,
-			#password#
-		)
-		]]>
-	</insert>
-
-	<update id="update" parameterClass="Proxy">
-		<![CDATA[
-		update PROXY set
-			HOST = #host#,
-			PORT = #port#,
-			USER = #user#,
-			PASSWORD = #password#
-		where
-			HOST = #host# and
-			PORT = #port#
-		]]>
-	</update>
-
-	<delete id="delete" parameterClass="Proxy">
-		<![CDATA[
-		delete from PROXY
-		where
-			HOST = #host# and
-			PORT = #port#
-		]]>
-	</delete>
-
-	<delete id="deleteAll">
-		<![CDATA[
-		delete from PROXY
-		]]>
-	</delete>
-
-	<select id="countAll" resultClass="java.lang.Long">
-		<include refid="countSql" />
-	</select>
 </sqlMap>

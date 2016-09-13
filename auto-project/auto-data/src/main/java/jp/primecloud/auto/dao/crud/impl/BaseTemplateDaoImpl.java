@@ -62,6 +62,18 @@ public abstract class BaseTemplateDaoImpl extends SqlMapClientDaoSupport impleme
      * {@inheritDoc}
      */
     @Override
+    public Template readByTemplateName(
+            String templateName
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("templateName", templateName);
+        return (Template) getSqlMapClientTemplate().queryForObject(getSqlMapId("readByTemplateName"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     @SuppressWarnings("unchecked")
     public List<Template> readInTemplateNos(
             Collection<Long> templateNos
@@ -131,6 +143,18 @@ public abstract class BaseTemplateDaoImpl extends SqlMapClientDaoSupport impleme
      * {@inheritDoc}
      */
     @Override
+    public void deleteByTemplateName(
+            String templateName
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("templateName", templateName);
+        getSqlMapClientTemplate().delete(getSqlMapId("deleteByTemplateName"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public long countAll() {
         return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countAll"));
     }
@@ -145,6 +169,18 @@ public abstract class BaseTemplateDaoImpl extends SqlMapClientDaoSupport impleme
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("templateNo", templateNo);
         return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByTemplateNo"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long countByTemplateName(
+            String templateName
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("templateName", templateName);
+        return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByTemplateName"), paramMap);
     }
 
     protected String getSqlMapId(String id) {

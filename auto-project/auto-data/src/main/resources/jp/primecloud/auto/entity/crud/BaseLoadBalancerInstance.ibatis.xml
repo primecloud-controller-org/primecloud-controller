@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE sqlMap      
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
 	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 <sqlMap namespace="LoadBalancerInstance">
 
@@ -15,9 +15,9 @@
 	<sql id="selectSql">
 		<![CDATA[
 		select
-			t1.LOAD_BALANCER_NO as LOAD_BALANCER_NO, 
-			t1.INSTANCE_NO as INSTANCE_NO, 
-			t1.ENABLED as ENABLED, 
+			t1.LOAD_BALANCER_NO as LOAD_BALANCER_NO,
+			t1.INSTANCE_NO as INSTANCE_NO,
+			t1.ENABLED as ENABLED,
 			t1.STATUS as STATUS
 		from
 			LOAD_BALANCER_INSTANCE t1
@@ -88,14 +88,14 @@
 	<insert id="create" parameterClass="LoadBalancerInstance">
 		<![CDATA[
 		insert into LOAD_BALANCER_INSTANCE (
-			LOAD_BALANCER_NO, 
-			INSTANCE_NO, 
-			ENABLED, 
+			LOAD_BALANCER_NO,
+			INSTANCE_NO,
+			ENABLED,
 			STATUS
 		) values (
-			#loadBalancerNo#, 
-			#instanceNo#, 
-			#enabled#, 
+			#loadBalancerNo#,
+			#instanceNo#,
+			#enabled#,
 			#status#
 		)
 		]]>
@@ -104,10 +104,10 @@
 	<update id="update" parameterClass="LoadBalancerInstance">
 		<![CDATA[
 		update LOAD_BALANCER_INSTANCE set
-			ENABLED = #enabled#, 
+			ENABLED = #enabled#,
 			STATUS = #status#
 		where
-			LOAD_BALANCER_NO = #loadBalancerNo# and 
+			LOAD_BALANCER_NO = #loadBalancerNo# and
 			INSTANCE_NO = #instanceNo#
 		]]>
 	</update>
@@ -116,7 +116,7 @@
 		<![CDATA[
 		delete from LOAD_BALANCER_INSTANCE
 		where
-			LOAD_BALANCER_NO = #loadBalancerNo# and 
+			LOAD_BALANCER_NO = #loadBalancerNo# and
 			INSTANCE_NO = #instanceNo#
 		]]>
 	</delete>

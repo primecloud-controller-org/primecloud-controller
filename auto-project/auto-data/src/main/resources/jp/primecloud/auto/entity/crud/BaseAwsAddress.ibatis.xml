@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE sqlMap
 	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 <sqlMap namespace="AwsAddress">
@@ -56,19 +56,19 @@
 		]]>
 	</select>
 
-	<select id="readByInstanceNo" parameterClass="java.util.Map" resultMap="awsAddressResultMap">
-		<include refid="selectSql" />
-		<![CDATA[
-		where
-			t1.INSTANCE_NO = #instanceNo#
-		]]>
-	</select>
-
 	<select id="readByPlatformNo" parameterClass="java.util.Map" resultMap="awsAddressResultMap">
 		<include refid="selectSql" />
 		<![CDATA[
 		where
 			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="readByInstanceNo" parameterClass="java.util.Map" resultMap="awsAddressResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.INSTANCE_NO = #instanceNo#
 		]]>
 	</select>
 
@@ -178,19 +178,19 @@
 		]]>
 	</delete>
 
-	<delete id="deleteByInstanceNo" parameterClass="java.util.Map">
-		<![CDATA[
-		delete from AWS_ADDRESS
-		where
-			INSTANCE_NO = #instanceNo#
-		]]>
-	</delete>
-
 	<delete id="deleteByPlatformNo" parameterClass="java.util.Map">
 		<![CDATA[
 		delete from AWS_ADDRESS
 		where
 			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByInstanceNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from AWS_ADDRESS
+		where
+			INSTANCE_NO = #instanceNo#
 		]]>
 	</delete>
 
@@ -214,19 +214,19 @@
 		]]>
 	</select>
 
-	<select id="countByInstanceNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
-		<include refid="countSql" />
-		<![CDATA[
-		where
-			INSTANCE_NO = #instanceNo#
-		]]>
-	</select>
-
 	<select id="countByPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
 		<include refid="countSql" />
 		<![CDATA[
 		where
 			PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="countByInstanceNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			INSTANCE_NO = #instanceNo#
 		]]>
 	</select>
 

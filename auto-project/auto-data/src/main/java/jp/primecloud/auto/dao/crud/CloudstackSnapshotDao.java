@@ -21,7 +21,7 @@ package jp.primecloud.auto.dao.crud;
 
 /**
  * <p>
- * cloudstack_snapshotに対応したDAOインタフェースです。
+ * CLOUDSTACK_SNAPSHOTに対応したDAOインタフェースです。
  * </p>
  *
  */

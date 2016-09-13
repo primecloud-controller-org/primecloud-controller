@@ -29,10 +29,9 @@ import jp.primecloud.auto.entity.crud.Proxy;
 public interface BaseProxyDao {
 
     /**
-     * 主キーに該当するレコードを検索します。
+     * レコードを検索します。
      *
-     * @param secretKey secretKey
-     * @return 主キーに該当するレコードのエンティティ。レコードがない場合はnull。
+     * @return レコードのエンティティ。レコードがない場合はnull。
      */
     public Proxy read();
 
@@ -68,4 +67,5 @@ public interface BaseProxyDao {
      * @return 全てのレコードの件数。
      */
     public long countAll();
+
 }

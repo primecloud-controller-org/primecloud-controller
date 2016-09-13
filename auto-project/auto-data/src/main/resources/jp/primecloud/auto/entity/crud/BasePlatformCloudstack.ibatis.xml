@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE sqlMap
 	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 <sqlMap namespace="PlatformCloudstack">
@@ -29,7 +29,7 @@
 			t1.ZONE_ID as ZONE_ID,
 			t1.NETWORK_ID as NETWORK_ID,
 			t1.TIMEOUT as TIMEOUT,
-			t1.DEVICE_TYPE as DEVICE_TYPE, 
+			t1.DEVICE_TYPE as DEVICE_TYPE,
 			t1.HOST_ID as HOST_ID
 		from
 			PLATFORM_CLOUDSTACK t1
@@ -78,7 +78,7 @@
 			ZONE_ID,
 			NETWORK_ID,
 			TIMEOUT,
-			DEVICE_TYPE, 
+			DEVICE_TYPE,
 			HOST_ID
 		) values (
 			#platformNo#,
@@ -89,7 +89,7 @@
 			#zoneId#,
 			#networkId#,
 			#timeout#,
-			#deviceType#, 
+			#deviceType#,
 			#hostId#
 		)
 		]]>
@@ -105,7 +105,7 @@
 			ZONE_ID = #zoneId#,
 			NETWORK_ID = #networkId#,
 			TIMEOUT = #timeout#,
-			DEVICE_TYPE = #deviceType#, 
+			DEVICE_TYPE = #deviceType#,
 			HOST_ID = #hostId#
 		where
 			PLATFORM_NO = #platformNo#

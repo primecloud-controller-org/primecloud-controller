@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE sqlMap      
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
 	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 <sqlMap namespace="AwsSslKey">
 
@@ -16,10 +16,10 @@
 	<sql id="selectSql">
 		<![CDATA[
 		select
-			t1.KEY_NO as KEY_NO, 
-			t1.KEY_NAME as KEY_NAME, 
-			t1.SSLCERTIFICATEID as SSLCERTIFICATEID, 
-			t1.FARM_NO as FARM_NO, 
+			t1.KEY_NO as KEY_NO,
+			t1.KEY_NAME as KEY_NAME,
+			t1.SSLCERTIFICATEID as SSLCERTIFICATEID,
+			t1.FARM_NO as FARM_NO,
 			t1.PLATFORM_NO as PLATFORM_NO
 		from
 			AWS_SSL_KEY t1
@@ -44,6 +44,22 @@
 		<include refid="selectSql" />
 	</select>
 
+	<select id="readByFarmNo" parameterClass="java.util.Map" resultMap="awsSslKeyResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.FARM_NO = #farmNo#
+		]]>
+	</select>
+
+	<select id="readByPlatformNo" parameterClass="java.util.Map" resultMap="awsSslKeyResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
 	<select id="readInKeyNos" parameterClass="java.util.Map" resultMap="awsSslKeyResultMap">
 		<include refid="selectSql" />
 		<![CDATA[
@@ -60,16 +76,16 @@
 	<insert id="create" parameterClass="AwsSslKey">
 		<![CDATA[
 		insert into AWS_SSL_KEY (
-			KEY_NO, 
-			KEY_NAME, 
-			SSLCERTIFICATEID, 
-			FARM_NO, 
+			KEY_NO,
+			KEY_NAME,
+			SSLCERTIFICATEID,
+			FARM_NO,
 			PLATFORM_NO
 		) values (
-			#keyNo#, 
-			#keyName#, 
-			#sslcertificateid#, 
-			#farmNo#, 
+			#keyNo#,
+			#keyName#,
+			#sslcertificateid#,
+			#farmNo#,
 			#platformNo#
 		)
 		]]>
@@ -78,16 +94,16 @@
 	<insert id="createAuto" parameterClass="AwsSslKey">
 		<![CDATA[
 		insert into AWS_SSL_KEY (
-			KEY_NO, 
-			KEY_NAME, 
-			SSLCERTIFICATEID, 
-			FARM_NO, 
+			KEY_NO,
+			KEY_NAME,
+			SSLCERTIFICATEID,
+			FARM_NO,
 			PLATFORM_NO
 		) values (
-			#keyNo#, 
-			#keyName#, 
-			#sslcertificateid#, 
-			#farmNo#, 
+			#keyNo#,
+			#keyName#,
+			#sslcertificateid#,
+			#farmNo#,
 			#platformNo#
 		)
 		]]>
@@ -101,9 +117,9 @@
 	<update id="update" parameterClass="AwsSslKey">
 		<![CDATA[
 		update AWS_SSL_KEY set
-			KEY_NAME = #keyName#, 
-			SSLCERTIFICATEID = #sslcertificateid#, 
-			FARM_NO = #farmNo#, 
+			KEY_NAME = #keyName#,
+			SSLCERTIFICATEID = #sslcertificateid#,
+			FARM_NO = #farmNo#,
 			PLATFORM_NO = #platformNo#
 		where
 			KEY_NO = #keyNo#
@@ -132,6 +148,22 @@
 		]]>
 	</delete>
 
+	<delete id="deleteByFarmNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from AWS_SSL_KEY
+		where
+			FARM_NO = #farmNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByPlatformNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from AWS_SSL_KEY
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
 	<select id="countAll" resultClass="java.lang.Long">
 		<include refid="countSql" />
 	</select>
@@ -141,6 +173,22 @@
 		<![CDATA[
 		where
 			KEY_NO = #keyNo#
+		]]>
+	</select>
+
+	<select id="countByFarmNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			FARM_NO = #farmNo#
+		]]>
+	</select>
+
+	<select id="countByPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			PLATFORM_NO = #platformNo#
 		]]>
 	</select>
 

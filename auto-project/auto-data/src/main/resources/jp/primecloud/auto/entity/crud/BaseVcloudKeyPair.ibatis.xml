@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE sqlMap
 	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 <sqlMap namespace="VcloudKeyPair">
@@ -67,6 +67,14 @@
 		<![CDATA[
 		where
 			t1.USER_NO = #userNo# and
+			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="readByPlatformNo" parameterClass="java.util.Map" resultMap="vcloudKeyPairResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
 			t1.PLATFORM_NO = #platformNo#
 		]]>
 	</select>
@@ -186,6 +194,14 @@
 		]]>
 	</delete>
 
+	<delete id="deleteByPlatformNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from VCLOUD_KEY_PAIR
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
 	<select id="countAll" resultClass="java.lang.Long">
 		<include refid="countSql" />
 	</select>
@@ -221,6 +237,14 @@
 		<![CDATA[
 		where
 			USER_NO = #userNo# and
+			PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="countByPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
 			PLATFORM_NO = #platformNo#
 		]]>
 	</select>

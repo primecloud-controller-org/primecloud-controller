@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE sqlMap      
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
 	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 <sqlMap namespace="AzureSubnet">
 
@@ -14,8 +14,8 @@
 	<sql id="selectSql">
 		<![CDATA[
 		select
-			t1.SUBNET_NO as SUBNET_NO, 
-			t1.SUBNET_NAME as SUBNET_NAME, 
+			t1.SUBNET_NO as SUBNET_NO,
+			t1.SUBNET_NAME as SUBNET_NAME,
 			t1.NETWORK_NAME as NETWORK_NAME
 		from
 			AZURE_SUBNET t1
@@ -56,12 +56,12 @@
 	<insert id="create" parameterClass="AzureSubnet">
 		<![CDATA[
 		insert into AZURE_SUBNET (
-			SUBNET_NO, 
-			SUBNET_NAME, 
+			SUBNET_NO,
+			SUBNET_NAME,
 			NETWORK_NAME
 		) values (
-			#subnetNo#, 
-			#subnetName#, 
+			#subnetNo#,
+			#subnetName#,
 			#networkName#
 		)
 		]]>
@@ -70,12 +70,12 @@
 	<insert id="createAuto" parameterClass="AzureSubnet">
 		<![CDATA[
 		insert into AZURE_SUBNET (
-			SUBNET_NO, 
-			SUBNET_NAME, 
+			SUBNET_NO,
+			SUBNET_NAME,
 			NETWORK_NAME
 		) values (
-			#subnetNo#, 
-			#subnetName#, 
+			#subnetNo#,
+			#subnetName#,
 			#networkName#
 		)
 		]]>
@@ -89,7 +89,7 @@
 	<update id="update" parameterClass="AzureSubnet">
 		<![CDATA[
 		update AZURE_SUBNET set
-			SUBNET_NAME = #subnetName#, 
+			SUBNET_NAME = #subnetName#,
 			NETWORK_NAME = #networkName#
 		where
 			SUBNET_NO = #subnetNo#

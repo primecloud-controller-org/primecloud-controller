@@ -21,7 +21,7 @@ package jp.primecloud.auto.entity.crud;
 
 /**
  * <p>
- * authority_setに対応したエンティティです。
+ * AUTHORITY_SETに対応したエンティティです。
  * </p>
  *
  */

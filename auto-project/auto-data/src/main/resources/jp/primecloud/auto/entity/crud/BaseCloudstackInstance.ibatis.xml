@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE sqlMap      
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
 	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 <sqlMap namespace="CloudstackInstance">
 
@@ -14,23 +14,23 @@
 		<result property="ipaddress" column="IPADDRESS" nullValue="" />
 		<result property="state" column="STATE" nullValue="" />
 		<result property="zoneid" column="ZONEID" nullValue="" />
-		<result property="securitygroup" column="SECURITYGROUP" nullValue="" />
 		<result property="networkid" column="NETWORKID" nullValue="" />
+		<result property="securitygroup" column="SECURITYGROUP" nullValue="" />
 	</resultMap>
 
 	<sql id="selectSql">
 		<![CDATA[
 		select
-			t1.INSTANCE_NO as INSTANCE_NO, 
-			t1.KEY_NAME as KEY_NAME, 
-			t1.INSTANCE_TYPE as INSTANCE_TYPE, 
-			t1.INSTANCE_ID as INSTANCE_ID, 
-			t1.DISPLAYNAME as DISPLAYNAME, 
-			t1.IPADDRESS as IPADDRESS, 
-			t1.STATE as STATE, 
-			t1.ZONEID as ZONEID, 
-			t1.SECURITYGROUP as SECURITYGROUP, 
-			t1.NETWORKID as NETWORKID
+			t1.INSTANCE_NO as INSTANCE_NO,
+			t1.KEY_NAME as KEY_NAME,
+			t1.INSTANCE_TYPE as INSTANCE_TYPE,
+			t1.INSTANCE_ID as INSTANCE_ID,
+			t1.DISPLAYNAME as DISPLAYNAME,
+			t1.IPADDRESS as IPADDRESS,
+			t1.STATE as STATE,
+			t1.ZONEID as ZONEID,
+			t1.NETWORKID as NETWORKID,
+			t1.SECURITYGROUP as SECURITYGROUP
 		from
 			CLOUDSTACK_INSTANCE t1
 		]]>
@@ -70,27 +70,27 @@
 	<insert id="create" parameterClass="CloudstackInstance">
 		<![CDATA[
 		insert into CLOUDSTACK_INSTANCE (
-			INSTANCE_NO, 
-			KEY_NAME, 
-			INSTANCE_TYPE, 
-			INSTANCE_ID, 
-			DISPLAYNAME, 
-			IPADDRESS, 
-			STATE, 
-			ZONEID, 
-			SECURITYGROUP, 
-			NETWORKID
+			INSTANCE_NO,
+			KEY_NAME,
+			INSTANCE_TYPE,
+			INSTANCE_ID,
+			DISPLAYNAME,
+			IPADDRESS,
+			STATE,
+			ZONEID,
+			NETWORKID,
+			SECURITYGROUP
 		) values (
-			#instanceNo#, 
-			#keyName#, 
-			#instanceType#, 
-			#instanceId#, 
-			#displayname#, 
-			#ipaddress#, 
-			#state#, 
-			#zoneid#, 
-			#securitygroup#, 
-			#networkid#
+			#instanceNo#,
+			#keyName#,
+			#instanceType#,
+			#instanceId#,
+			#displayname#,
+			#ipaddress#,
+			#state#,
+			#zoneid#,
+			#networkid#,
+			#securitygroup#
 		)
 		]]>
 	</insert>
@@ -98,15 +98,15 @@
 	<update id="update" parameterClass="CloudstackInstance">
 		<![CDATA[
 		update CLOUDSTACK_INSTANCE set
-			KEY_NAME = #keyName#, 
-			INSTANCE_TYPE = #instanceType#, 
-			INSTANCE_ID = #instanceId#, 
-			DISPLAYNAME = #displayname#, 
-			IPADDRESS = #ipaddress#, 
-			STATE = #state#, 
-			ZONEID = #zoneid#, 
-			SECURITYGROUP = #securitygroup#, 
-			NETWORKID = #networkid#
+			KEY_NAME = #keyName#,
+			INSTANCE_TYPE = #instanceType#,
+			INSTANCE_ID = #instanceId#,
+			DISPLAYNAME = #displayname#,
+			IPADDRESS = #ipaddress#,
+			STATE = #state#,
+			ZONEID = #zoneid#,
+			NETWORKID = #networkid#,
+			SECURITYGROUP = #securitygroup#
 		where
 			INSTANCE_NO = #instanceNo#
 		]]>

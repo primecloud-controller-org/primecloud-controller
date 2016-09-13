@@ -24,7 +24,7 @@ import jp.primecloud.auto.entity.crud.CloudstackInstance;
 
 /**
  * <p>
- * cloudstack_instanceに対応したDAOのベースインタフェースです。
+ * CLOUDSTACK_INSTANCEに対応したDAOのベースインタフェースです。
  * </p>
  *
  */
@@ -32,7 +32,7 @@ public interface BaseCloudstackInstanceDao {
 
     /**
      * 主キーに該当するレコードを検索します。
-     * 
+     *
      * @param instanceNo instanceNo
      * @return 主キーに該当するレコードのエンティティ。レコードがない場合はnull。
      */
@@ -42,14 +42,14 @@ public interface BaseCloudstackInstanceDao {
 
     /**
      * 全てのレコードを検索します。
-     * 
+     *
      * @return 全てのレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
     public List<CloudstackInstance> readAll();
 
     /**
      * 主キーのコレクションに該当するレコードを検索します。
-     * 
+     *
      * @param instanceNos instanceNoのコレクション
      * @return 主キーのコレクションに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
@@ -59,21 +59,21 @@ public interface BaseCloudstackInstanceDao {
 
     /**
      * 与えられたエンティティの内容でレコードを挿入します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void create(CloudstackInstance entity);
 
     /**
      * 与えられたエンティティの内容でレコードを更新します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void update(CloudstackInstance entity);
 
     /**
      * 与えられたエンティティのレコードを削除します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void delete(CloudstackInstance entity);
@@ -85,7 +85,7 @@ public interface BaseCloudstackInstanceDao {
 
     /**
      * 主キーに該当するレコードを削除します。
-     * 
+     *
      * @param instanceNo instanceNo
      */
     public void deleteByInstanceNo(
@@ -94,14 +94,14 @@ public interface BaseCloudstackInstanceDao {
 
     /**
      * 全てのレコードの件数を取得します。
-     * 
+     *
      * @return 全てのレコードの件数。
      */
     public long countAll();
 
     /**
      * 主キーに該当するレコードの件数を取得します。
-     * 
+     *
      * @param instanceNo instanceNo
      * @return 主キーに該当するレコードの件数。
      */

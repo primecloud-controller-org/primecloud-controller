@@ -191,6 +191,18 @@ public abstract class BaseUserAuthDaoImpl extends SqlMapClientDaoSupport impleme
      * {@inheritDoc}
      */
     @Override
+    public void deleteByUserNo(
+            Long userNo
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("userNo", userNo);
+        getSqlMapClientTemplate().delete(getSqlMapId("deleteByUserNo"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public long countAll() {
         return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countAll"));
     }
@@ -219,6 +231,18 @@ public abstract class BaseUserAuthDaoImpl extends SqlMapClientDaoSupport impleme
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("farmNo", farmNo);
         return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByFarmNo"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long countByUserNo(
+            Long userNo
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("userNo", userNo);
+        return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByUserNo"), paramMap);
     }
 
     protected String getSqlMapId(String id) {

@@ -19,7 +19,6 @@
 package jp.primecloud.auto.dao.crud.impl;
 
 import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
-
 import jp.primecloud.auto.dao.crud.BasePccSystemInfoDao;
 import jp.primecloud.auto.entity.crud.PccSystemInfo;
 
@@ -73,6 +72,7 @@ public abstract class BasePccSystemInfoDaoImpl extends SqlMapClientDaoSupport im
     public void deleteAll() {
         getSqlMapClientTemplate().delete(getSqlMapId("deleteAll"));
     }
+
 
     /**
      * {@inheritDoc}

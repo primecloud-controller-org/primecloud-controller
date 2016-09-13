@@ -22,7 +22,7 @@ import java.io.Serializable;
 
 /**
  * <p>
- * zabbix_dataに対応したエンティティのベースクラスです。
+ * ZABBIX_DATAに対応したエンティティのベースクラスです。
  * </p>
  *
  */

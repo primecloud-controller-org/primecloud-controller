@@ -77,19 +77,6 @@ public abstract class BaseCloudstackVolumeDaoImpl extends SqlMapClientDaoSupport
      */
     @Override
     @SuppressWarnings("unchecked")
-    public List<CloudstackVolume> readByComponentNo(
-            Long componentNo
-        ) {
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("componentNo", componentNo);
-        return (List<CloudstackVolume>) getSqlMapClientTemplate().queryForList(getSqlMapId("readByComponentNo"), paramMap);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @SuppressWarnings("unchecked")
     public List<CloudstackVolume> readByFarmNo(
             Long farmNo
         ) {
@@ -103,12 +90,12 @@ public abstract class BaseCloudstackVolumeDaoImpl extends SqlMapClientDaoSupport
      */
     @Override
     @SuppressWarnings("unchecked")
-    public List<CloudstackVolume> readByInstanceNo(
-            Long instanceNo
+    public List<CloudstackVolume> readByPlatformNo(
+            Long platformNo
         ) {
         Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("instanceNo", instanceNo);
-        return (List<CloudstackVolume>) getSqlMapClientTemplate().queryForList(getSqlMapId("readByInstanceNo"), paramMap);
+        paramMap.put("platformNo", platformNo);
+        return (List<CloudstackVolume>) getSqlMapClientTemplate().queryForList(getSqlMapId("readByPlatformNo"), paramMap);
     }
 
     /**
@@ -116,12 +103,25 @@ public abstract class BaseCloudstackVolumeDaoImpl extends SqlMapClientDaoSupport
      */
     @Override
     @SuppressWarnings("unchecked")
-    public List<CloudstackVolume> readByPlatformNo(
-            Long platformNo
+    public List<CloudstackVolume> readByComponentNo(
+            Long componentNo
         ) {
         Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("platformNo", platformNo);
-        return (List<CloudstackVolume>) getSqlMapClientTemplate().queryForList(getSqlMapId("readByPlatformNo"), paramMap);
+        paramMap.put("componentNo", componentNo);
+        return (List<CloudstackVolume>) getSqlMapClientTemplate().queryForList(getSqlMapId("readByComponentNo"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<CloudstackVolume> readByInstanceNo(
+            Long instanceNo
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("instanceNo", instanceNo);
+        return (List<CloudstackVolume>) getSqlMapClientTemplate().queryForList(getSqlMapId("readByInstanceNo"), paramMap);
     }
 
     /**
@@ -211,18 +211,6 @@ public abstract class BaseCloudstackVolumeDaoImpl extends SqlMapClientDaoSupport
      * {@inheritDoc}
      */
     @Override
-    public void deleteByComponentNo(
-            Long componentNo
-        ) {
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("componentNo", componentNo);
-        getSqlMapClientTemplate().delete(getSqlMapId("deleteByComponentNo"), paramMap);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void deleteByFarmNo(
             Long farmNo
         ) {
@@ -235,24 +223,36 @@ public abstract class BaseCloudstackVolumeDaoImpl extends SqlMapClientDaoSupport
      * {@inheritDoc}
      */
     @Override
-    public void deleteByInstanceNo(
-            Long instanceNo
-        ) {
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("instanceNo", instanceNo);
-        getSqlMapClientTemplate().delete(getSqlMapId("deleteByInstanceNo"), paramMap);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void deleteByPlatformNo(
             Long platformNo
         ) {
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("platformNo", platformNo);
         getSqlMapClientTemplate().delete(getSqlMapId("deleteByPlatformNo"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void deleteByComponentNo(
+            Long componentNo
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("componentNo", componentNo);
+        getSqlMapClientTemplate().delete(getSqlMapId("deleteByComponentNo"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void deleteByInstanceNo(
+            Long instanceNo
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("instanceNo", instanceNo);
+        getSqlMapClientTemplate().delete(getSqlMapId("deleteByInstanceNo"), paramMap);
     }
 
     /**
@@ -293,18 +293,6 @@ public abstract class BaseCloudstackVolumeDaoImpl extends SqlMapClientDaoSupport
      * {@inheritDoc}
      */
     @Override
-    public long countByComponentNo(
-            Long componentNo
-        ) {
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("componentNo", componentNo);
-        return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByComponentNo"), paramMap);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public long countByFarmNo(
             Long farmNo
         ) {
@@ -317,24 +305,36 @@ public abstract class BaseCloudstackVolumeDaoImpl extends SqlMapClientDaoSupport
      * {@inheritDoc}
      */
     @Override
-    public long countByInstanceNo(
-            Long instanceNo
-        ) {
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("instanceNo", instanceNo);
-        return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByInstanceNo"), paramMap);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public long countByPlatformNo(
             Long platformNo
         ) {
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("platformNo", platformNo);
         return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByPlatformNo"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long countByComponentNo(
+            Long componentNo
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("componentNo", componentNo);
+        return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByComponentNo"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long countByInstanceNo(
+            Long instanceNo
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("instanceNo", instanceNo);
+        return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByInstanceNo"), paramMap);
     }
 
     protected String getSqlMapId(String id) {

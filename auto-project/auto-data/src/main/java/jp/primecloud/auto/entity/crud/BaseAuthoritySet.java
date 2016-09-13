@@ -22,7 +22,7 @@ import java.io.Serializable;
 
 /**
  * <p>
- * authority_setに対応したエンティティのベースクラスです。
+ * AUTHORITY_SETに対応したエンティティのベースクラスです。
  * </p>
  *
  */

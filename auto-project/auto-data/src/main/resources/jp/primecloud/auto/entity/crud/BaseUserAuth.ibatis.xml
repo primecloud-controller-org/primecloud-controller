@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE sqlMap
 	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 <sqlMap namespace="UserAuth">
@@ -184,6 +184,14 @@
 		]]>
 	</delete>
 
+	<delete id="deleteByUserNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from USER_AUTH
+		where
+			USER_NO = #userNo#
+		]]>
+	</delete>
+
 	<select id="countAll" resultClass="java.lang.Long">
 		<include refid="countSql" />
 	</select>
@@ -202,6 +210,14 @@
 		<![CDATA[
 		where
 			FARM_NO = #farmNo#
+		]]>
+	</select>
+
+	<select id="countByUserNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			USER_NO = #userNo#
 		]]>
 	</select>
 

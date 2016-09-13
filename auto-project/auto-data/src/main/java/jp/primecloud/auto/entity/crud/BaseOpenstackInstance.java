@@ -46,7 +46,7 @@ public abstract class BaseOpenstackInstance implements Serializable {
     /** AVAILABILITY_ZONE [VARCHAR(100,0)] */
     private String availabilityZone;
 
-    /** INSTANCE_ID [VARCHAR(20,0)] */
+    /** INSTANCE_ID [VARCHAR(40,0)] */
     private String instanceId;
 
     /** STATUS [VARCHAR(20,0)] */
@@ -58,7 +58,7 @@ public abstract class BaseOpenstackInstance implements Serializable {
     /** PRIVATE_IP_ADDRESS [VARCHAR(100,0)] */
     private String privateIpAddress;
 
-    /** NETWORK_ID [VARCHAR(20,0)] */
+    /** NETWORK_ID [VARCHAR(40,0)] */
     private String networkId;
 
     /**

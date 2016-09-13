@@ -58,8 +58,10 @@ public abstract class BaseImage implements Serializable {
     /** ZABBIX_TEMPLATE [VARCHAR(100,0)] */
     private String zabbixTemplate;
 
+    /** ZABBIX_DISABLED [BIT(0,0)] */
     private Boolean zabbixDisabled;
 
+    /** PUPPET_DISABLED [BIT(0,0)] */
     private Boolean puppetDisabled;
 
     /**
@@ -224,21 +226,42 @@ public abstract class BaseImage implements Serializable {
         this.zabbixTemplate = zabbixTemplate;
     }
 
+    /**
+     * zabbixDisabledを取得します。
+     *
+     * @return zabbixDisabled
+     */
     public Boolean getZabbixDisabled() {
         return zabbixDisabled;
     }
 
+    /**
+     * zabbixDisabledを設定します。
+     *
+     * @param zabbixDisabled zabbixDisabled
+     */
     public void setZabbixDisabled(Boolean zabbixDisabled) {
         this.zabbixDisabled = zabbixDisabled;
     }
 
+    /**
+     * puppetDisabledを取得します。
+     *
+     * @return puppetDisabled
+     */
     public Boolean getPuppetDisabled() {
         return puppetDisabled;
     }
 
+    /**
+     * puppetDisabledを設定します。
+     *
+     * @param puppetDisabled puppetDisabled
+     */
     public void setPuppetDisabled(Boolean puppetDisabled) {
         this.puppetDisabled = puppetDisabled;
     }
+
 
     /**
      * {@inheritDoc}

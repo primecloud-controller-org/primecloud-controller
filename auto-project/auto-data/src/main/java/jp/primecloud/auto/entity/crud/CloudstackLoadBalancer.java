@@ -21,7 +21,7 @@ package jp.primecloud.auto.entity.crud;
 
 /**
  * <p>
- * cloudstack_load_balancerに対応したエンティティです。
+ * CLOUDSTACK_LOAD_BALANCERに対応したエンティティです。
  * </p>
  *
  */

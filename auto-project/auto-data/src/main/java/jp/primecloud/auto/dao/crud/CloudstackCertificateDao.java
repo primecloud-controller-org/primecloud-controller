@@ -21,7 +21,7 @@ package jp.primecloud.auto.dao.crud;
 
 /**
  * <p>
- * cloudstack_certificateに対応したDAOインタフェースです。
+ * CLOUDSTACK_CERTIFICATEに対応したDAOインタフェースです。
  * </p>
  *
  */

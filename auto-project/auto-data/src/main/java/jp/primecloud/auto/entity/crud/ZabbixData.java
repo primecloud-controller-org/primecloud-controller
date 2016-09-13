@@ -21,7 +21,7 @@ package jp.primecloud.auto.entity.crud;
 
 /**
  * <p>
- * zabbix_dataに対応したエンティティです。
+ * ZABBIX_DATAに対応したエンティティです。
  * </p>
  *
  */

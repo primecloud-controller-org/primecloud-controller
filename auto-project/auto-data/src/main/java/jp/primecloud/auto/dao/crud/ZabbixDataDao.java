@@ -21,7 +21,7 @@ package jp.primecloud.auto.dao.crud;
 
 /**
  * <p>
- * zabbix_dataに対応したDAOインタフェースです。
+ * ZABBIX_DATAに対応したDAOインタフェースです。
  * </p>
  *
  */

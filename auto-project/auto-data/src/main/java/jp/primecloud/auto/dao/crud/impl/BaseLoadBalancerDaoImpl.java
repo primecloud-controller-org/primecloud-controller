@@ -90,12 +90,12 @@ public abstract class BaseLoadBalancerDaoImpl extends SqlMapClientDaoSupport imp
      */
     @Override
     @SuppressWarnings("unchecked")
-    public List<LoadBalancer> readByComponentNo(
-            Long componentNo
+    public List<LoadBalancer> readByPlatformNo(
+            Long platformNo
         ) {
         Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("componentNo", componentNo);
-        return (List<LoadBalancer>) getSqlMapClientTemplate().queryForList(getSqlMapId("readByComponentNo"), paramMap);
+        paramMap.put("platformNo", platformNo);
+        return (List<LoadBalancer>) getSqlMapClientTemplate().queryForList(getSqlMapId("readByPlatformNo"), paramMap);
     }
 
     /**
@@ -103,12 +103,12 @@ public abstract class BaseLoadBalancerDaoImpl extends SqlMapClientDaoSupport imp
      */
     @Override
     @SuppressWarnings("unchecked")
-    public List<LoadBalancer> readByPlatformNo(
-            Long platformNo
+    public List<LoadBalancer> readByComponentNo(
+            Long componentNo
         ) {
         Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("platformNo", platformNo);
-        return (List<LoadBalancer>) getSqlMapClientTemplate().queryForList(getSqlMapId("readByPlatformNo"), paramMap);
+        paramMap.put("componentNo", componentNo);
+        return (List<LoadBalancer>) getSqlMapClientTemplate().queryForList(getSqlMapId("readByComponentNo"), paramMap);
     }
 
     /**
@@ -210,24 +210,24 @@ public abstract class BaseLoadBalancerDaoImpl extends SqlMapClientDaoSupport imp
      * {@inheritDoc}
      */
     @Override
-    public void deleteByComponentNo(
-            Long componentNo
-        ) {
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("componentNo", componentNo);
-        getSqlMapClientTemplate().delete(getSqlMapId("deleteByComponentNo"), paramMap);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void deleteByPlatformNo(
             Long platformNo
         ) {
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("platformNo", platformNo);
         getSqlMapClientTemplate().delete(getSqlMapId("deleteByPlatformNo"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void deleteByComponentNo(
+            Long componentNo
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("componentNo", componentNo);
+        getSqlMapClientTemplate().delete(getSqlMapId("deleteByComponentNo"), paramMap);
     }
 
     /**
@@ -280,24 +280,24 @@ public abstract class BaseLoadBalancerDaoImpl extends SqlMapClientDaoSupport imp
      * {@inheritDoc}
      */
     @Override
-    public long countByComponentNo(
-            Long componentNo
-        ) {
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("componentNo", componentNo);
-        return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByComponentNo"), paramMap);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public long countByPlatformNo(
             Long platformNo
         ) {
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("platformNo", platformNo);
         return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByPlatformNo"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long countByComponentNo(
+            Long componentNo
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("componentNo", componentNo);
+        return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByComponentNo"), paramMap);
     }
 
     protected String getSqlMapId(String id) {

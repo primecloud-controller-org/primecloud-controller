@@ -62,6 +62,20 @@ public abstract class BasePlatformVmwareInstanceTypeDaoImpl extends SqlMapClient
      * {@inheritDoc}
      */
     @Override
+    public PlatformVmwareInstanceType readByPlatformNoAndInstanceTypeName(
+            Long platformNo,
+            String instanceTypeName
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("platformNo", platformNo);
+        paramMap.put("instanceTypeName", instanceTypeName);
+        return (PlatformVmwareInstanceType) getSqlMapClientTemplate().queryForObject(getSqlMapId("readByPlatformNoAndInstanceTypeName"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     @SuppressWarnings("unchecked")
     public List<PlatformVmwareInstanceType> readByPlatformNo(
             Long platformNo
@@ -144,6 +158,20 @@ public abstract class BasePlatformVmwareInstanceTypeDaoImpl extends SqlMapClient
      * {@inheritDoc}
      */
     @Override
+    public void deleteByPlatformNoAndInstanceTypeName(
+            Long platformNo,
+            String instanceTypeName
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("platformNo", platformNo);
+        paramMap.put("instanceTypeName", instanceTypeName);
+        getSqlMapClientTemplate().delete(getSqlMapId("deleteByPlatformNoAndInstanceTypeName"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void deleteByPlatformNo(
             Long platformNo
         ) {
@@ -170,6 +198,20 @@ public abstract class BasePlatformVmwareInstanceTypeDaoImpl extends SqlMapClient
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("instanceTypeNo", instanceTypeNo);
         return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByInstanceTypeNo"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long countByPlatformNoAndInstanceTypeName(
+            Long platformNo,
+            String instanceTypeName
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("platformNo", platformNo);
+        paramMap.put("instanceTypeName", instanceTypeName);
+        return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByPlatformNoAndInstanceTypeName"), paramMap);
     }
 
     /**

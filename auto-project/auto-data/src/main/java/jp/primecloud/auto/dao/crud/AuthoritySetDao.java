@@ -21,7 +21,7 @@ package jp.primecloud.auto.dao.crud;
 
 /**
  * <p>
- * authority_setに対応したDAOインタフェースです。
+ * AUTHORITY_SETに対応したDAOインタフェースです。
  * </p>
  *
  */

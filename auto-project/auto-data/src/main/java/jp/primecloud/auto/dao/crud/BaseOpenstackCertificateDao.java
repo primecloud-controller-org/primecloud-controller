@@ -32,7 +32,7 @@ public interface BaseOpenstackCertificateDao {
 
     /**
      * 主キーに該当するレコードを検索します。
-     * 
+     *
      * @param userNo userNo
      * @param platformNo platformNo
      * @return 主キーに該当するレコードのエンティティ。レコードがない場合はnull。
@@ -44,7 +44,7 @@ public interface BaseOpenstackCertificateDao {
 
     /**
      * 全てのレコードを検索します。
-     * 
+     *
      * @return 全てのレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
     public List<OpenstackCertificate> readAll();
@@ -60,8 +60,18 @@ public interface BaseOpenstackCertificateDao {
         );
 
     /**
+     * 与えられたキーに該当するレコードを検索します。
+     *
+     * @param platformNo platformNo
+     * @return 与えられたキーに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
+     */
+    public List<OpenstackCertificate> readByPlatformNo(
+            Long platformNo
+        );
+
+    /**
      * 主キーのコレクションに該当するレコードを検索します。
-     * 
+     *
      * @param userNos userNoのコレクション
      * @return 主キーのコレクションに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
@@ -71,7 +81,7 @@ public interface BaseOpenstackCertificateDao {
 
     /**
      * 主キーのコレクションに該当するレコードを検索します。
-     * 
+     *
      * @param platformNos platformNoのコレクション
      * @return 主キーのコレクションに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
@@ -81,21 +91,21 @@ public interface BaseOpenstackCertificateDao {
 
     /**
      * 与えられたエンティティの内容でレコードを挿入します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void create(OpenstackCertificate entity);
 
     /**
      * 与えられたエンティティの内容でレコードを更新します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void update(OpenstackCertificate entity);
 
     /**
      * 与えられたエンティティのレコードを削除します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void delete(OpenstackCertificate entity);
@@ -107,7 +117,7 @@ public interface BaseOpenstackCertificateDao {
 
     /**
      * 主キーに該当するレコードを削除します。
-     * 
+     *
      * @param userNo userNo
      * @param platformNo platformNo
      */
@@ -126,15 +136,24 @@ public interface BaseOpenstackCertificateDao {
         );
 
     /**
+     * 与えられたキーに該当するレコードを削除します。
+     *
+     * @param platformNo platformNo
+     */
+    public void deleteByPlatformNo(
+            Long platformNo
+        );
+
+    /**
      * 全てのレコードの件数を取得します。
-     * 
+     *
      * @return 全てのレコードの件数。
      */
     public long countAll();
 
     /**
      * 主キーに該当するレコードの件数を取得します。
-     * 
+     *
      * @param userNo userNo
      * @param platformNo platformNo
      * @return 主キーに該当するレコードの件数。
@@ -152,6 +171,16 @@ public interface BaseOpenstackCertificateDao {
      */
     public long countByUserNo(
             Long userNo
+        );
+
+    /**
+     * 与えられたキーに該当するレコードの件数を取得します。
+     *
+     * @param platformNo platformNo
+     * @return 与えられたキーに該当するレコードの件数。
+     */
+    public long countByPlatformNo(
+            Long platformNo
         );
 
 }

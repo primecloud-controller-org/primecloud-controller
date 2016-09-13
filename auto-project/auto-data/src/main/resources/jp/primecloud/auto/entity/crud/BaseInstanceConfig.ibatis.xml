@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE sqlMap      
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
 	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 <sqlMap namespace="InstanceConfig">
 
@@ -16,10 +16,10 @@
 	<sql id="selectSql">
 		<![CDATA[
 		select
-			t1.CONFIG_NO as CONFIG_NO, 
-			t1.INSTANCE_NO as INSTANCE_NO, 
-			t1.COMPONENT_NO as COMPONENT_NO, 
-			t1.CONFIG_NAME as CONFIG_NAME, 
+			t1.CONFIG_NO as CONFIG_NO,
+			t1.INSTANCE_NO as INSTANCE_NO,
+			t1.COMPONENT_NO as COMPONENT_NO,
+			t1.CONFIG_NAME as CONFIG_NAME,
 			t1.CONFIG_VALUE as CONFIG_VALUE
 		from
 			INSTANCE_CONFIG t1
@@ -95,16 +95,16 @@
 	<insert id="create" parameterClass="InstanceConfig">
 		<![CDATA[
 		insert into INSTANCE_CONFIG (
-			CONFIG_NO, 
-			INSTANCE_NO, 
-			COMPONENT_NO, 
-			CONFIG_NAME, 
+			CONFIG_NO,
+			INSTANCE_NO,
+			COMPONENT_NO,
+			CONFIG_NAME,
 			CONFIG_VALUE
 		) values (
-			#configNo#, 
-			#instanceNo#, 
-			#componentNo#, 
-			#configName#, 
+			#configNo#,
+			#instanceNo#,
+			#componentNo#,
+			#configName#,
 			#configValue#
 		)
 		]]>
@@ -113,16 +113,16 @@
 	<insert id="createAuto" parameterClass="InstanceConfig">
 		<![CDATA[
 		insert into INSTANCE_CONFIG (
-			CONFIG_NO, 
-			INSTANCE_NO, 
-			COMPONENT_NO, 
-			CONFIG_NAME, 
+			CONFIG_NO,
+			INSTANCE_NO,
+			COMPONENT_NO,
+			CONFIG_NAME,
 			CONFIG_VALUE
 		) values (
-			#configNo#, 
-			#instanceNo#, 
-			#componentNo#, 
-			#configName#, 
+			#configNo#,
+			#instanceNo#,
+			#componentNo#,
+			#configName#,
 			#configValue#
 		)
 		]]>
@@ -136,9 +136,9 @@
 	<update id="update" parameterClass="InstanceConfig">
 		<![CDATA[
 		update INSTANCE_CONFIG set
-			INSTANCE_NO = #instanceNo#, 
-			COMPONENT_NO = #componentNo#, 
-			CONFIG_NAME = #configName#, 
+			INSTANCE_NO = #instanceNo#,
+			COMPONENT_NO = #componentNo#,
+			CONFIG_NAME = #configName#,
 			CONFIG_VALUE = #configValue#
 		where
 			CONFIG_NO = #configNo#

@@ -58,26 +58,6 @@ public interface BaseAutoScalingConfDao {
         );
 
     /**
-     * 与えられたキーに該当するレコードを検索します。
-     *
-     * @param platformNo platformNo
-     * @return 与えられたキーに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
-     */
-    public List<AutoScalingConf> readByPlatformNo(
-            Long platformNo
-        );
-
-    /**
-     * 与えられたキーに該当するレコードを検索します。
-     *
-     * @param imageNo imageNo
-     * @return 与えられたキーに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
-     */
-    public List<AutoScalingConf> readByImageNo(
-            Long imageNo
-        );
-
-    /**
      * 主キーのコレクションに該当するレコードを検索します。
      *
      * @param loadBalancerNos loadBalancerNoのコレクション
@@ -132,24 +112,6 @@ public interface BaseAutoScalingConfDao {
         );
 
     /**
-     * 与えられたキーに該当するレコードを削除します。
-     *
-     * @param platformNo platformNo
-     */
-    public void deleteByPlatformNo(
-            Long platformNo
-        );
-
-    /**
-     * 与えられたキーに該当するレコードを削除します。
-     *
-     * @param imageNo imageNo
-     */
-    public void deleteByImageNo(
-            Long imageNo
-        );
-
-    /**
      * 全てのレコードの件数を取得します。
      *
      * @return 全てのレコードの件数。
@@ -174,26 +136,6 @@ public interface BaseAutoScalingConfDao {
      */
     public long countByFarmNo(
             Long farmNo
-        );
-
-    /**
-     * 与えられたキーに該当するレコードの件数を取得します。
-     *
-     * @param platformNo platformNo
-     * @return 与えられたキーに該当するレコードの件数。
-     */
-    public long countByPlatformNo(
-            Long platformNo
-        );
-
-    /**
-     * 与えられたキーに該当するレコードの件数を取得します。
-     *
-     * @param imageNo imageNo
-     * @return 与えられたキーに該当するレコードの件数。
-     */
-    public long countByImageNo(
-            Long imageNo
         );
 
 }

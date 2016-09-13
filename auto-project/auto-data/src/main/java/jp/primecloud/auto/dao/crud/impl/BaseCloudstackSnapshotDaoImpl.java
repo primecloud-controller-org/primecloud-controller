@@ -63,6 +63,19 @@ public abstract class BaseCloudstackSnapshotDaoImpl extends SqlMapClientDaoSuppo
      */
     @Override
     @SuppressWarnings("unchecked")
+    public List<CloudstackSnapshot> readByFarmNo(
+            Long farmNo
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("farmNo", farmNo);
+        return (List<CloudstackSnapshot>) getSqlMapClientTemplate().queryForList(getSqlMapId("readByFarmNo"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @SuppressWarnings("unchecked")
     public List<CloudstackSnapshot> readByPlatformNo(
             Long platformNo
         ) {
@@ -144,6 +157,18 @@ public abstract class BaseCloudstackSnapshotDaoImpl extends SqlMapClientDaoSuppo
      * {@inheritDoc}
      */
     @Override
+    public void deleteByFarmNo(
+            Long farmNo
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("farmNo", farmNo);
+        getSqlMapClientTemplate().delete(getSqlMapId("deleteByFarmNo"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void deleteByPlatformNo(
             Long platformNo
         ) {
@@ -170,6 +195,18 @@ public abstract class BaseCloudstackSnapshotDaoImpl extends SqlMapClientDaoSuppo
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("snapshotNo", snapshotNo);
         return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countBySnapshotNo"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long countByFarmNo(
+            Long farmNo
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("farmNo", farmNo);
+        return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByFarmNo"), paramMap);
     }
 
     /**

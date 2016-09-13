@@ -21,7 +21,7 @@ package jp.primecloud.auto.dao.crud;
 
 /**
  * <p>
- * cloudstack_volumeに対応したDAOインタフェースです。
+ * CLOUDSTACK_VOLUMEに対応したDAOインタフェースです。
  * </p>
  *
  */

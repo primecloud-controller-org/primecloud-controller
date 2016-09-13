@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE sqlMap      
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
 	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 <sqlMap namespace="VmwareNetwork">
 
@@ -18,12 +18,12 @@
 	<sql id="selectSql">
 		<![CDATA[
 		select
-			t1.NETWORK_NO as NETWORK_NO, 
-			t1.NETWORK_NAME as NETWORK_NAME, 
-			t1.PLATFORM_NO as PLATFORM_NO, 
-			t1.VLAN_ID as VLAN_ID, 
-			t1.VSWITCH_NAME as VSWITCH_NAME, 
-			t1.FARM_NO as FARM_NO, 
+			t1.NETWORK_NO as NETWORK_NO,
+			t1.NETWORK_NAME as NETWORK_NAME,
+			t1.PLATFORM_NO as PLATFORM_NO,
+			t1.VLAN_ID as VLAN_ID,
+			t1.VSWITCH_NAME as VSWITCH_NAME,
+			t1.FARM_NO as FARM_NO,
 			t1.PUBLIC_NETWORK as PUBLIC_NETWORK
 		from
 			VMWARE_NETWORK t1
@@ -89,20 +89,20 @@
 	<insert id="create" parameterClass="VmwareNetwork">
 		<![CDATA[
 		insert into VMWARE_NETWORK (
-			NETWORK_NO, 
-			NETWORK_NAME, 
-			PLATFORM_NO, 
-			VLAN_ID, 
-			VSWITCH_NAME, 
-			FARM_NO, 
+			NETWORK_NO,
+			NETWORK_NAME,
+			PLATFORM_NO,
+			VLAN_ID,
+			VSWITCH_NAME,
+			FARM_NO,
 			PUBLIC_NETWORK
 		) values (
-			#networkNo#, 
-			#networkName#, 
-			#platformNo#, 
-			#vlanId#, 
-			#vswitchName#, 
-			#farmNo#, 
+			#networkNo#,
+			#networkName#,
+			#platformNo#,
+			#vlanId#,
+			#vswitchName#,
+			#farmNo#,
 			#publicNetwork#
 		)
 		]]>
@@ -111,20 +111,20 @@
 	<insert id="createAuto" parameterClass="VmwareNetwork">
 		<![CDATA[
 		insert into VMWARE_NETWORK (
-			NETWORK_NO, 
-			NETWORK_NAME, 
-			PLATFORM_NO, 
-			VLAN_ID, 
-			VSWITCH_NAME, 
-			FARM_NO, 
+			NETWORK_NO,
+			NETWORK_NAME,
+			PLATFORM_NO,
+			VLAN_ID,
+			VSWITCH_NAME,
+			FARM_NO,
 			PUBLIC_NETWORK
 		) values (
-			#networkNo#, 
-			#networkName#, 
-			#platformNo#, 
-			#vlanId#, 
-			#vswitchName#, 
-			#farmNo#, 
+			#networkNo#,
+			#networkName#,
+			#platformNo#,
+			#vlanId#,
+			#vswitchName#,
+			#farmNo#,
 			#publicNetwork#
 		)
 		]]>
@@ -138,11 +138,11 @@
 	<update id="update" parameterClass="VmwareNetwork">
 		<![CDATA[
 		update VMWARE_NETWORK set
-			NETWORK_NAME = #networkName#, 
-			PLATFORM_NO = #platformNo#, 
-			VLAN_ID = #vlanId#, 
-			VSWITCH_NAME = #vswitchName#, 
-			FARM_NO = #farmNo#, 
+			NETWORK_NAME = #networkName#,
+			PLATFORM_NO = #platformNo#,
+			VLAN_ID = #vlanId#,
+			VSWITCH_NAME = #vswitchName#,
+			FARM_NO = #farmNo#,
 			PUBLIC_NETWORK = #publicNetwork#
 		where
 			NETWORK_NO = #networkNo#

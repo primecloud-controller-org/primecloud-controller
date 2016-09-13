@@ -76,12 +76,12 @@ public abstract class BaseAwsSnapshotDaoImpl extends SqlMapClientDaoSupport impl
      */
     @Override
     @SuppressWarnings("unchecked")
-    public List<AwsSnapshot> readByVolumeNo(
-            Long volumeNo
+    public List<AwsSnapshot> readByPlatformNo(
+            Long platformNo
         ) {
         Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("volumeNo", volumeNo);
-        return (List<AwsSnapshot>) getSqlMapClientTemplate().queryForList(getSqlMapId("readByVolumeNo"), paramMap);
+        paramMap.put("platformNo", platformNo);
+        return (List<AwsSnapshot>) getSqlMapClientTemplate().queryForList(getSqlMapId("readByPlatformNo"), paramMap);
     }
 
     /**
@@ -89,12 +89,12 @@ public abstract class BaseAwsSnapshotDaoImpl extends SqlMapClientDaoSupport impl
      */
     @Override
     @SuppressWarnings("unchecked")
-    public List<AwsSnapshot> readByPlatformNo(
-            Long platformNo
+    public List<AwsSnapshot> readByVolumeNo(
+            Long volumeNo
         ) {
         Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("platformNo", platformNo);
-        return (List<AwsSnapshot>) getSqlMapClientTemplate().queryForList(getSqlMapId("readByPlatformNo"), paramMap);
+        paramMap.put("volumeNo", volumeNo);
+        return (List<AwsSnapshot>) getSqlMapClientTemplate().queryForList(getSqlMapId("readByVolumeNo"), paramMap);
     }
 
     /**
@@ -182,24 +182,24 @@ public abstract class BaseAwsSnapshotDaoImpl extends SqlMapClientDaoSupport impl
      * {@inheritDoc}
      */
     @Override
-    public void deleteByVolumeNo(
-            Long volumeNo
-        ) {
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("volumeNo", volumeNo);
-        getSqlMapClientTemplate().delete(getSqlMapId("deleteByVolumeNo"), paramMap);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void deleteByPlatformNo(
             Long platformNo
         ) {
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("platformNo", platformNo);
         getSqlMapClientTemplate().delete(getSqlMapId("deleteByPlatformNo"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void deleteByVolumeNo(
+            Long volumeNo
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("volumeNo", volumeNo);
+        getSqlMapClientTemplate().delete(getSqlMapId("deleteByVolumeNo"), paramMap);
     }
 
     /**
@@ -238,24 +238,24 @@ public abstract class BaseAwsSnapshotDaoImpl extends SqlMapClientDaoSupport impl
      * {@inheritDoc}
      */
     @Override
-    public long countByVolumeNo(
-            Long volumeNo
-        ) {
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("volumeNo", volumeNo);
-        return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByVolumeNo"), paramMap);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public long countByPlatformNo(
             Long platformNo
         ) {
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("platformNo", platformNo);
         return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByPlatformNo"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long countByVolumeNo(
+            Long volumeNo
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("volumeNo", volumeNo);
+        return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByVolumeNo"), paramMap);
     }
 
     protected String getSqlMapId(String id) {

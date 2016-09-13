@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE sqlMap
 	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 <sqlMap namespace="Template">
@@ -40,6 +40,14 @@
 
 	<select id="readAll" resultMap="templateResultMap">
 		<include refid="selectSql" />
+	</select>
+
+	<select id="readByTemplateName" parameterClass="java.util.Map" resultMap="templateResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.TEMPLATE_NAME = #templateName#
+		]]>
 	</select>
 
 	<select id="readInTemplateNos" parameterClass="java.util.Map" resultMap="templateResultMap">
@@ -125,6 +133,14 @@
 		]]>
 	</delete>
 
+	<delete id="deleteByTemplateName" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from TEMPLATE
+		where
+			TEMPLATE_NAME = #templateName#
+		]]>
+	</delete>
+
 	<select id="countAll" resultClass="java.lang.Long">
 		<include refid="countSql" />
 	</select>
@@ -134,6 +150,14 @@
 		<![CDATA[
 		where
 			TEMPLATE_NO = #templateNo#
+		]]>
+	</select>
+
+	<select id="countByTemplateName" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			TEMPLATE_NAME = #templateName#
 		]]>
 	</select>
 

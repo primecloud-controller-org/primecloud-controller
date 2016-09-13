@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE sqlMap
 	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 <sqlMap namespace="VmwareAddress">
@@ -60,19 +60,19 @@
 		]]>
 	</select>
 
-	<select id="readByUserNo" parameterClass="java.util.Map" resultMap="vmwareAddressResultMap">
-		<include refid="selectSql" />
-		<![CDATA[
-		where
-			t1.USER_NO = #userNo#
-		]]>
-	</select>
-
 	<select id="readByPlatformNo" parameterClass="java.util.Map" resultMap="vmwareAddressResultMap">
 		<include refid="selectSql" />
 		<![CDATA[
 		where
 			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="readByUserNo" parameterClass="java.util.Map" resultMap="vmwareAddressResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.USER_NO = #userNo#
 		]]>
 	</select>
 
@@ -192,19 +192,19 @@
 		]]>
 	</delete>
 
-	<delete id="deleteByUserNo" parameterClass="java.util.Map">
-		<![CDATA[
-		delete from VMWARE_ADDRESS
-		where
-			USER_NO = #userNo#
-		]]>
-	</delete>
-
 	<delete id="deleteByPlatformNo" parameterClass="java.util.Map">
 		<![CDATA[
 		delete from VMWARE_ADDRESS
 		where
 			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByUserNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from VMWARE_ADDRESS
+		where
+			USER_NO = #userNo#
 		]]>
 	</delete>
 
@@ -228,19 +228,19 @@
 		]]>
 	</select>
 
-	<select id="countByUserNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
-		<include refid="countSql" />
-		<![CDATA[
-		where
-			USER_NO = #userNo#
-		]]>
-	</select>
-
 	<select id="countByPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
 		<include refid="countSql" />
 		<![CDATA[
 		where
 			PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="countByUserNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			USER_NO = #userNo#
 		]]>
 	</select>
 

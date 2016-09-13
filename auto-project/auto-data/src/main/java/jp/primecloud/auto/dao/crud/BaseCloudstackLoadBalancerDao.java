@@ -24,7 +24,7 @@ import jp.primecloud.auto.entity.crud.CloudstackLoadBalancer;
 
 /**
  * <p>
- * cloudstack_load_balancerに対応したDAOのベースインタフェースです。
+ * CLOUDSTACK_LOAD_BALANCERに対応したDAOのベースインタフェースです。
  * </p>
  *
  */
@@ -32,7 +32,7 @@ public interface BaseCloudstackLoadBalancerDao {
 
     /**
      * 主キーに該当するレコードを検索します。
-     * 
+     *
      * @param loadBalancerNo loadBalancerNo
      * @return 主キーに該当するレコードのエンティティ。レコードがない場合はnull。
      */
@@ -42,14 +42,14 @@ public interface BaseCloudstackLoadBalancerDao {
 
     /**
      * 全てのレコードを検索します。
-     * 
+     *
      * @return 全てのレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
     public List<CloudstackLoadBalancer> readAll();
 
     /**
      * 主キーのコレクションに該当するレコードを検索します。
-     * 
+     *
      * @param loadBalancerNos loadBalancerNoのコレクション
      * @return 主キーのコレクションに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
@@ -59,21 +59,21 @@ public interface BaseCloudstackLoadBalancerDao {
 
     /**
      * 与えられたエンティティの内容でレコードを挿入します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void create(CloudstackLoadBalancer entity);
 
     /**
      * 与えられたエンティティの内容でレコードを更新します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void update(CloudstackLoadBalancer entity);
 
     /**
      * 与えられたエンティティのレコードを削除します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void delete(CloudstackLoadBalancer entity);
@@ -85,7 +85,7 @@ public interface BaseCloudstackLoadBalancerDao {
 
     /**
      * 主キーに該当するレコードを削除します。
-     * 
+     *
      * @param loadBalancerNo loadBalancerNo
      */
     public void deleteByLoadBalancerNo(
@@ -94,14 +94,14 @@ public interface BaseCloudstackLoadBalancerDao {
 
     /**
      * 全てのレコードの件数を取得します。
-     * 
+     *
      * @return 全てのレコードの件数。
      */
     public long countAll();
 
     /**
      * 主キーに該当するレコードの件数を取得します。
-     * 
+     *
      * @param loadBalancerNo loadBalancerNo
      * @return 主キーに該当するレコードの件数。
      */

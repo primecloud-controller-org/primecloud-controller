@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE sqlMap      
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
 	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 <sqlMap namespace="LoadBalancerHealthCheck">
 
@@ -19,13 +19,13 @@
 	<sql id="selectSql">
 		<![CDATA[
 		select
-			t1.LOAD_BALANCER_NO as LOAD_BALANCER_NO, 
-			t1.CHECK_PROTOCOL as CHECK_PROTOCOL, 
-			t1.CHECK_PORT as CHECK_PORT, 
-			t1.CHECK_PATH as CHECK_PATH, 
-			t1.CHECK_TIMEOUT as CHECK_TIMEOUT, 
-			t1.CHECK_INTERVAL as CHECK_INTERVAL, 
-			t1.HEALTHY_THRESHOLD as HEALTHY_THRESHOLD, 
+			t1.LOAD_BALANCER_NO as LOAD_BALANCER_NO,
+			t1.CHECK_PROTOCOL as CHECK_PROTOCOL,
+			t1.CHECK_PORT as CHECK_PORT,
+			t1.CHECK_PATH as CHECK_PATH,
+			t1.CHECK_TIMEOUT as CHECK_TIMEOUT,
+			t1.CHECK_INTERVAL as CHECK_INTERVAL,
+			t1.HEALTHY_THRESHOLD as HEALTHY_THRESHOLD,
 			t1.UNHEALTHY_THRESHOLD as UNHEALTHY_THRESHOLD
 		from
 			LOAD_BALANCER_HEALTH_CHECK t1
@@ -66,22 +66,22 @@
 	<insert id="create" parameterClass="LoadBalancerHealthCheck">
 		<![CDATA[
 		insert into LOAD_BALANCER_HEALTH_CHECK (
-			LOAD_BALANCER_NO, 
-			CHECK_PROTOCOL, 
-			CHECK_PORT, 
-			CHECK_PATH, 
-			CHECK_TIMEOUT, 
-			CHECK_INTERVAL, 
-			HEALTHY_THRESHOLD, 
+			LOAD_BALANCER_NO,
+			CHECK_PROTOCOL,
+			CHECK_PORT,
+			CHECK_PATH,
+			CHECK_TIMEOUT,
+			CHECK_INTERVAL,
+			HEALTHY_THRESHOLD,
 			UNHEALTHY_THRESHOLD
 		) values (
-			#loadBalancerNo#, 
-			#checkProtocol#, 
-			#checkPort#, 
-			#checkPath#, 
-			#checkTimeout#, 
-			#checkInterval#, 
-			#healthyThreshold#, 
+			#loadBalancerNo#,
+			#checkProtocol#,
+			#checkPort#,
+			#checkPath#,
+			#checkTimeout#,
+			#checkInterval#,
+			#healthyThreshold#,
 			#unhealthyThreshold#
 		)
 		]]>
@@ -90,12 +90,12 @@
 	<update id="update" parameterClass="LoadBalancerHealthCheck">
 		<![CDATA[
 		update LOAD_BALANCER_HEALTH_CHECK set
-			CHECK_PROTOCOL = #checkProtocol#, 
-			CHECK_PORT = #checkPort#, 
-			CHECK_PATH = #checkPath#, 
-			CHECK_TIMEOUT = #checkTimeout#, 
-			CHECK_INTERVAL = #checkInterval#, 
-			HEALTHY_THRESHOLD = #healthyThreshold#, 
+			CHECK_PROTOCOL = #checkProtocol#,
+			CHECK_PORT = #checkPort#,
+			CHECK_PATH = #checkPath#,
+			CHECK_TIMEOUT = #checkTimeout#,
+			CHECK_INTERVAL = #checkInterval#,
+			HEALTHY_THRESHOLD = #healthyThreshold#,
 			UNHEALTHY_THRESHOLD = #unhealthyThreshold#
 		where
 			LOAD_BALANCER_NO = #loadBalancerNo#

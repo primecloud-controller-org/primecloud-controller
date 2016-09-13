@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE sqlMap      
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
 	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 <sqlMap namespace="User">
 
@@ -16,10 +16,10 @@
 	<sql id="selectSql">
 		<![CDATA[
 		select
-			t1.USER_NO as USER_NO, 
-			t1.USERNAME as USERNAME, 
-			t1.PASSWORD as PASSWORD, 
-			t1.MASTER_USER as MASTER_USER, 
+			t1.USER_NO as USER_NO,
+			t1.USERNAME as USERNAME,
+			t1.PASSWORD as PASSWORD,
+			t1.MASTER_USER as MASTER_USER,
 			t1.POWER_USER as POWER_USER
 		from
 			USER t1
@@ -52,6 +52,14 @@
 		]]>
 	</select>
 
+	<select id="readByMasterUser" parameterClass="java.util.Map" resultMap="userResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.MASTER_USER = #masterUser#
+		]]>
+	</select>
+
 	<select id="readInUserNos" parameterClass="java.util.Map" resultMap="userResultMap">
 		<include refid="selectSql" />
 		<![CDATA[
@@ -68,16 +76,16 @@
 	<insert id="create" parameterClass="User">
 		<![CDATA[
 		insert into USER (
-			USER_NO, 
-			USERNAME, 
-			PASSWORD, 
-			MASTER_USER, 
+			USER_NO,
+			USERNAME,
+			PASSWORD,
+			MASTER_USER,
 			POWER_USER
 		) values (
-			#userNo#, 
-			#username#, 
-			#password#, 
-			#masterUser#, 
+			#userNo#,
+			#username#,
+			#password#,
+			#masterUser#,
 			#powerUser#
 		)
 		]]>
@@ -86,16 +94,16 @@
 	<insert id="createAuto" parameterClass="User">
 		<![CDATA[
 		insert into USER (
-			USER_NO, 
-			USERNAME, 
-			PASSWORD, 
-			MASTER_USER, 
+			USER_NO,
+			USERNAME,
+			PASSWORD,
+			MASTER_USER,
 			POWER_USER
 		) values (
-			#userNo#, 
-			#username#, 
-			#password#, 
-			#masterUser#, 
+			#userNo#,
+			#username#,
+			#password#,
+			#masterUser#,
 			#powerUser#
 		)
 		]]>
@@ -109,9 +117,9 @@
 	<update id="update" parameterClass="User">
 		<![CDATA[
 		update USER set
-			USERNAME = #username#, 
-			PASSWORD = #password#, 
-			MASTER_USER = #masterUser#, 
+			USERNAME = #username#,
+			PASSWORD = #password#,
+			MASTER_USER = #masterUser#,
 			POWER_USER = #powerUser#
 		where
 			USER_NO = #userNo#
@@ -148,6 +156,14 @@
 		]]>
 	</delete>
 
+	<delete id="deleteByMasterUser" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from USER
+		where
+			MASTER_USER = #masterUser#
+		]]>
+	</delete>
+
 	<select id="countAll" resultClass="java.lang.Long">
 		<include refid="countSql" />
 	</select>
@@ -168,12 +184,11 @@
 		]]>
 	</select>
 
-	<select id="readByMasterUser" parameterClass="java.util.Map" resultMap="userResultMap">
-		<include refid="selectSql" />
+	<select id="countByMasterUser" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
 		<![CDATA[
 		where
-			MASTER_USER = #masterUser# and
-			USER_NO != #userNo#
+			MASTER_USER = #masterUser#
 		]]>
 	</select>
 

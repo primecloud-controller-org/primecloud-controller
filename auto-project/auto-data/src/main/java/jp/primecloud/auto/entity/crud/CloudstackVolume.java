@@ -21,7 +21,7 @@ package jp.primecloud.auto.entity.crud;
 
 /**
  * <p>
- * cloudstack_volumeに対応したエンティティです。
+ * CLOUDSTACK_VOLUMEに対応したエンティティです。
  * </p>
  *
  */

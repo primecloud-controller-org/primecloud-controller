@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE sqlMap      
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
 	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 <sqlMap namespace="PlatformOpenstack">
 
@@ -17,11 +17,11 @@
 	<sql id="selectSql">
 		<![CDATA[
 		select
-			t1.PLATFORM_NO as PLATFORM_NO, 
-			t1.URL as URL, 
-			t1.NETWORK_ID as NETWORK_ID, 
-			t1.TENANT_ID as TENANT_ID, 
-			t1.TENANT_NM as TENANT_NM, 
+			t1.PLATFORM_NO as PLATFORM_NO,
+			t1.URL as URL,
+			t1.NETWORK_ID as NETWORK_ID,
+			t1.TENANT_ID as TENANT_ID,
+			t1.TENANT_NM as TENANT_NM,
 			t1.AVAILABILITY_ZONE as AVAILABILITY_ZONE
 		from
 			PLATFORM_OPENSTACK t1
@@ -62,18 +62,18 @@
 	<insert id="create" parameterClass="PlatformOpenstack">
 		<![CDATA[
 		insert into PLATFORM_OPENSTACK (
-			PLATFORM_NO, 
-			URL, 
-			NETWORK_ID, 
-			TENANT_ID, 
-			TENANT_NM, 
+			PLATFORM_NO,
+			URL,
+			NETWORK_ID,
+			TENANT_ID,
+			TENANT_NM,
 			AVAILABILITY_ZONE
 		) values (
-			#platformNo#, 
-			#url#, 
-			#networkId#, 
-			#tenantId#, 
-			#tenantNm#, 
+			#platformNo#,
+			#url#,
+			#networkId#,
+			#tenantId#,
+			#tenantNm#,
 			#availabilityZone#
 		)
 		]]>
@@ -82,10 +82,10 @@
 	<update id="update" parameterClass="PlatformOpenstack">
 		<![CDATA[
 		update PLATFORM_OPENSTACK set
-			URL = #url#, 
-			NETWORK_ID = #networkId#, 
-			TENANT_ID = #tenantId#, 
-			TENANT_NM = #tenantNm#, 
+			URL = #url#,
+			NETWORK_ID = #networkId#,
+			TENANT_ID = #tenantId#,
+			TENANT_NM = #tenantNm#,
 			AVAILABILITY_ZONE = #availabilityZone#
 		where
 			PLATFORM_NO = #platformNo#

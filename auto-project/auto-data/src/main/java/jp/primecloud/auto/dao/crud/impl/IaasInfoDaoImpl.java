@@ -16,18 +16,16 @@
  * You should have received a copy of the GNU General Public License
  * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
  */
-package jp.primecloud.auto.entity.crud;
+package jp.primecloud.auto.dao.crud.impl;
 
+import jp.primecloud.auto.dao.crud.IaasInfoDao;
 
 /**
  * <p>
- * TEMPLATE_INSTANCE_AWSに対応したエンティティです。
+ * {@link IaasInfoDao}の実装クラスです。
  * </p>
  *
  */
-public class TemplateInstanceAws extends jp.primecloud.auto.entity.crud.BaseTemplateInstanceAws {
-
-    /** SerialVersionUID */
-    private static final long serialVersionUID = 1L;
+public class IaasInfoDaoImpl extends BaseIaasInfoDaoImpl implements IaasInfoDao {
 
 }

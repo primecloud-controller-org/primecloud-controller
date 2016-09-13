@@ -60,21 +60,21 @@ public interface BaseAwsSnapshotDao {
     /**
      * 与えられたキーに該当するレコードを検索します。
      *
-     * @param volumeNo volumeNo
-     * @return 与えられたキーに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
-     */
-    public List<AwsSnapshot> readByVolumeNo(
-            Long volumeNo
-        );
-
-    /**
-     * 与えられたキーに該当するレコードを検索します。
-     *
      * @param platformNo platformNo
      * @return 与えられたキーに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
     public List<AwsSnapshot> readByPlatformNo(
             Long platformNo
+        );
+
+    /**
+     * 与えられたキーに該当するレコードを検索します。
+     *
+     * @param volumeNo volumeNo
+     * @return 与えられたキーに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
+     */
+    public List<AwsSnapshot> readByVolumeNo(
+            Long volumeNo
         );
 
     /**
@@ -134,19 +134,19 @@ public interface BaseAwsSnapshotDao {
     /**
      * 与えられたキーに該当するレコードを削除します。
      *
-     * @param volumeNo volumeNo
+     * @param platformNo platformNo
      */
-    public void deleteByVolumeNo(
-            Long volumeNo
+    public void deleteByPlatformNo(
+            Long platformNo
         );
 
     /**
      * 与えられたキーに該当するレコードを削除します。
      *
-     * @param platformNo platformNo
+     * @param volumeNo volumeNo
      */
-    public void deleteByPlatformNo(
-            Long platformNo
+    public void deleteByVolumeNo(
+            Long volumeNo
         );
 
     /**
@@ -179,21 +179,21 @@ public interface BaseAwsSnapshotDao {
     /**
      * 与えられたキーに該当するレコードの件数を取得します。
      *
-     * @param volumeNo volumeNo
-     * @return 与えられたキーに該当するレコードの件数。
-     */
-    public long countByVolumeNo(
-            Long volumeNo
-        );
-
-    /**
-     * 与えられたキーに該当するレコードの件数を取得します。
-     *
      * @param platformNo platformNo
      * @return 与えられたキーに該当するレコードの件数。
      */
     public long countByPlatformNo(
             Long platformNo
+        );
+
+    /**
+     * 与えられたキーに該当するレコードの件数を取得します。
+     *
+     * @param volumeNo volumeNo
+     * @return 与えられたキーに該当するレコードの件数。
+     */
+    public long countByVolumeNo(
+            Long volumeNo
         );
 
 }

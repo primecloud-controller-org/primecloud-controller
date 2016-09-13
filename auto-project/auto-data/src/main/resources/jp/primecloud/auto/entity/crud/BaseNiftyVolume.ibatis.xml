@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE sqlMap
 	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 <sqlMap namespace="NiftyVolume">
@@ -65,11 +65,11 @@
 		]]>
 	</select>
 
-	<select id="readByComponentNo" parameterClass="java.util.Map" resultMap="niftyVolumeResultMap">
+	<select id="readByFarmNo" parameterClass="java.util.Map" resultMap="niftyVolumeResultMap">
 		<include refid="selectSql" />
 		<![CDATA[
 		where
-			t1.COMPONENT_NO = #componentNo#
+			t1.FARM_NO = #farmNo#
 		]]>
 	</select>
 
@@ -81,19 +81,19 @@
 		]]>
 	</select>
 
+	<select id="readByComponentNo" parameterClass="java.util.Map" resultMap="niftyVolumeResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.COMPONENT_NO = #componentNo#
+		]]>
+	</select>
+
 	<select id="readByInstanceNo" parameterClass="java.util.Map" resultMap="niftyVolumeResultMap">
 		<include refid="selectSql" />
 		<![CDATA[
 		where
 			t1.INSTANCE_NO = #instanceNo#
-		]]>
-	</select>
-
-	<select id="readByFarmNo" parameterClass="java.util.Map" resultMap="niftyVolumeResultMap">
-		<include refid="selectSql" />
-		<![CDATA[
-		where
-			t1.FARM_NO = #farmNo#
 		]]>
 	</select>
 
@@ -224,11 +224,11 @@
 		]]>
 	</delete>
 
-	<delete id="deleteByComponentNo" parameterClass="java.util.Map">
+	<delete id="deleteByFarmNo" parameterClass="java.util.Map">
 		<![CDATA[
 		delete from NIFTY_VOLUME
 		where
-			COMPONENT_NO = #componentNo#
+			FARM_NO = #farmNo#
 		]]>
 	</delete>
 
@@ -240,19 +240,19 @@
 		]]>
 	</delete>
 
+	<delete id="deleteByComponentNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from NIFTY_VOLUME
+		where
+			COMPONENT_NO = #componentNo#
+		]]>
+	</delete>
+
 	<delete id="deleteByInstanceNo" parameterClass="java.util.Map">
 		<![CDATA[
 		delete from NIFTY_VOLUME
 		where
 			INSTANCE_NO = #instanceNo#
-		]]>
-	</delete>
-
-	<delete id="deleteByFarmNo" parameterClass="java.util.Map">
-		<![CDATA[
-		delete from NIFTY_VOLUME
-		where
-			FARM_NO = #farmNo#
 		]]>
 	</delete>
 
@@ -277,11 +277,11 @@
 		]]>
 	</select>
 
-	<select id="countByComponentNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+	<select id="countByFarmNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
 		<include refid="countSql" />
 		<![CDATA[
 		where
-			COMPONENT_NO = #componentNo#
+			FARM_NO = #farmNo#
 		]]>
 	</select>
 
@@ -293,19 +293,19 @@
 		]]>
 	</select>
 
+	<select id="countByComponentNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			COMPONENT_NO = #componentNo#
+		]]>
+	</select>
+
 	<select id="countByInstanceNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
 		<include refid="countSql" />
 		<![CDATA[
 		where
 			INSTANCE_NO = #instanceNo#
-		]]>
-	</select>
-
-	<select id="countByFarmNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
-		<include refid="countSql" />
-		<![CDATA[
-		where
-			FARM_NO = #farmNo#
 		]]>
 	</select>
 

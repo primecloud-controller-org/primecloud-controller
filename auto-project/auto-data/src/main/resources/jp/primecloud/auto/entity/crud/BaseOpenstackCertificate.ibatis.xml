@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE sqlMap      
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
 	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 <sqlMap namespace="OpenstackCertificate">
 
@@ -16,10 +16,10 @@
 	<sql id="selectSql">
 		<![CDATA[
 		select
-			t1.USER_NO as USER_NO, 
-			t1.PLATFORM_NO as PLATFORM_NO, 
-			t1.OS_ACCESS_ID as OS_ACCESS_ID, 
-			t1.OS_SECRET_KEY as OS_SECRET_KEY, 
+			t1.USER_NO as USER_NO,
+			t1.PLATFORM_NO as PLATFORM_NO,
+			t1.OS_ACCESS_ID as OS_ACCESS_ID,
+			t1.OS_SECRET_KEY as OS_SECRET_KEY,
 			t1.DEF_KEYPAIR as DEF_KEYPAIR
 		from
 			OPENSTACK_CERTIFICATE t1
@@ -53,6 +53,14 @@
 		]]>
 	</select>
 
+	<select id="readByPlatformNo" parameterClass="java.util.Map" resultMap="openstackCertificateResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
 	<select id="readInUserNos" parameterClass="java.util.Map" resultMap="openstackCertificateResultMap">
 		<include refid="selectSql" />
 		<![CDATA[
@@ -82,16 +90,16 @@
 	<insert id="create" parameterClass="OpenstackCertificate">
 		<![CDATA[
 		insert into OPENSTACK_CERTIFICATE (
-			USER_NO, 
-			PLATFORM_NO, 
-			OS_ACCESS_ID, 
-			OS_SECRET_KEY, 
+			USER_NO,
+			PLATFORM_NO,
+			OS_ACCESS_ID,
+			OS_SECRET_KEY,
 			DEF_KEYPAIR
 		) values (
-			#userNo#, 
-			#platformNo#, 
-			#osAccessId#, 
-			#osSecretKey#, 
+			#userNo#,
+			#platformNo#,
+			#osAccessId#,
+			#osSecretKey#,
 			#defKeypair#
 		)
 		]]>
@@ -100,11 +108,11 @@
 	<update id="update" parameterClass="OpenstackCertificate">
 		<![CDATA[
 		update OPENSTACK_CERTIFICATE set
-			OS_ACCESS_ID = #osAccessId#, 
-			OS_SECRET_KEY = #osSecretKey#, 
+			OS_ACCESS_ID = #osAccessId#,
+			OS_SECRET_KEY = #osSecretKey#,
 			DEF_KEYPAIR = #defKeypair#
 		where
-			USER_NO = #userNo# and 
+			USER_NO = #userNo# and
 			PLATFORM_NO = #platformNo#
 		]]>
 	</update>
@@ -113,7 +121,7 @@
 		<![CDATA[
 		delete from OPENSTACK_CERTIFICATE
 		where
-			USER_NO = #userNo# and 
+			USER_NO = #userNo# and
 			PLATFORM_NO = #platformNo#
 		]]>
 	</delete>
@@ -141,6 +149,14 @@
 		]]>
 	</delete>
 
+	<delete id="deleteByPlatformNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from OPENSTACK_CERTIFICATE
+		where
+			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
 	<select id="countAll" resultClass="java.lang.Long">
 		<include refid="countSql" />
 	</select>
@@ -159,6 +175,14 @@
 		<![CDATA[
 		where
 			USER_NO = #userNo#
+		]]>
+	</select>
+
+	<select id="countByPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			PLATFORM_NO = #platformNo#
 		]]>
 	</select>
 

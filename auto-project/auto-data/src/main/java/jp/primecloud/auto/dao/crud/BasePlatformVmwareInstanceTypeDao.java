@@ -48,6 +48,18 @@ public interface BasePlatformVmwareInstanceTypeDao {
     public List<PlatformVmwareInstanceType> readAll();
 
     /**
+     * 一意キーに該当するレコードを検索します。
+     *
+     * @param platformNo platformNo
+     * @param instanceTypeName instanceTypeName
+     * @return 一意キーに該当するレコードのエンティティ。レコードがない場合はnull。
+     */
+    public PlatformVmwareInstanceType readByPlatformNoAndInstanceTypeName(
+            Long platformNo,
+            String instanceTypeName
+        );
+
+    /**
      * 与えられたキーに該当するレコードを検索します。
      *
      * @param platformNo platformNo
@@ -103,6 +115,17 @@ public interface BasePlatformVmwareInstanceTypeDao {
         );
 
     /**
+     * 一意キーに該当するレコードを削除します。
+     *
+     * @param platformNo platformNo
+     * @param instanceTypeName instanceTypeName
+     */
+    public void deleteByPlatformNoAndInstanceTypeName(
+            Long platformNo,
+            String instanceTypeName
+        );
+
+    /**
      * 与えられたキーに該当するレコードを削除します。
      *
      * @param platformNo platformNo
@@ -126,6 +149,18 @@ public interface BasePlatformVmwareInstanceTypeDao {
      */
     public long countByInstanceTypeNo(
             Long instanceTypeNo
+        );
+
+    /**
+     * 一意キーに該当するレコードの件数を取得します。
+     *
+     * @param platformNo platformNo
+     * @param instanceTypeName instanceTypeName
+     * @return 一意キーに該当するレコードの件数。
+     */
+    public long countByPlatformNoAndInstanceTypeName(
+            Long platformNo,
+            String instanceTypeName
         );
 
     /**

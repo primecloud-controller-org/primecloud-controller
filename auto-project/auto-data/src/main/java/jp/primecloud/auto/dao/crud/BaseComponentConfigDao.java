@@ -32,7 +32,7 @@ public interface BaseComponentConfigDao {
 
     /**
      * 主キーに該当するレコードを検索します。
-     * 
+     *
      * @param configNo configNo
      * @return 主キーに該当するレコードのエンティティ。レコードがない場合はnull。
      */
@@ -42,7 +42,7 @@ public interface BaseComponentConfigDao {
 
     /**
      * 全てのレコードを検索します。
-     * 
+     *
      * @return 全てのレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
     public List<ComponentConfig> readAll();
@@ -71,7 +71,7 @@ public interface BaseComponentConfigDao {
 
     /**
      * 主キーのコレクションに該当するレコードを検索します。
-     * 
+     *
      * @param configNos configNoのコレクション
      * @return 主キーのコレクションに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
@@ -81,21 +81,21 @@ public interface BaseComponentConfigDao {
 
     /**
      * 与えられたエンティティの内容でレコードを挿入します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void create(ComponentConfig entity);
 
     /**
      * 与えられたエンティティの内容でレコードを更新します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void update(ComponentConfig entity);
 
     /**
      * 与えられたエンティティのレコードを削除します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void delete(ComponentConfig entity);
@@ -107,7 +107,7 @@ public interface BaseComponentConfigDao {
 
     /**
      * 主キーに該当するレコードを削除します。
-     * 
+     *
      * @param configNo configNo
      */
     public void deleteByConfigNo(
@@ -136,14 +136,14 @@ public interface BaseComponentConfigDao {
 
     /**
      * 全てのレコードの件数を取得します。
-     * 
+     *
      * @return 全てのレコードの件数。
      */
     public long countAll();
 
     /**
      * 主キーに該当するレコードの件数を取得します。
-     * 
+     *
      * @param configNo configNo
      * @return 主キーに該当するレコードの件数。
      */

@@ -75,12 +75,12 @@ public abstract class BaseVmwareAddressDaoImpl extends SqlMapClientDaoSupport im
      */
     @Override
     @SuppressWarnings("unchecked")
-    public List<VmwareAddress> readByUserNo(
-            Long userNo
+    public List<VmwareAddress> readByPlatformNo(
+            Long platformNo
         ) {
         Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("userNo", userNo);
-        return (List<VmwareAddress>) getSqlMapClientTemplate().queryForList(getSqlMapId("readByUserNo"), paramMap);
+        paramMap.put("platformNo", platformNo);
+        return (List<VmwareAddress>) getSqlMapClientTemplate().queryForList(getSqlMapId("readByPlatformNo"), paramMap);
     }
 
     /**
@@ -88,12 +88,12 @@ public abstract class BaseVmwareAddressDaoImpl extends SqlMapClientDaoSupport im
      */
     @Override
     @SuppressWarnings("unchecked")
-    public List<VmwareAddress> readByPlatformNo(
-            Long platformNo
+    public List<VmwareAddress> readByUserNo(
+            Long userNo
         ) {
         Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("platformNo", platformNo);
-        return (List<VmwareAddress>) getSqlMapClientTemplate().queryForList(getSqlMapId("readByPlatformNo"), paramMap);
+        paramMap.put("userNo", userNo);
+        return (List<VmwareAddress>) getSqlMapClientTemplate().queryForList(getSqlMapId("readByUserNo"), paramMap);
     }
 
     /**
@@ -181,24 +181,24 @@ public abstract class BaseVmwareAddressDaoImpl extends SqlMapClientDaoSupport im
      * {@inheritDoc}
      */
     @Override
-    public void deleteByUserNo(
-            Long userNo
-        ) {
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("userNo", userNo);
-        getSqlMapClientTemplate().delete(getSqlMapId("deleteByUserNo"), paramMap);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void deleteByPlatformNo(
             Long platformNo
         ) {
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("platformNo", platformNo);
         getSqlMapClientTemplate().delete(getSqlMapId("deleteByPlatformNo"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void deleteByUserNo(
+            Long userNo
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("userNo", userNo);
+        getSqlMapClientTemplate().delete(getSqlMapId("deleteByUserNo"), paramMap);
     }
 
     /**
@@ -237,24 +237,24 @@ public abstract class BaseVmwareAddressDaoImpl extends SqlMapClientDaoSupport im
      * {@inheritDoc}
      */
     @Override
-    public long countByUserNo(
-            Long userNo
-        ) {
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("userNo", userNo);
-        return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByUserNo"), paramMap);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public long countByPlatformNo(
             Long platformNo
         ) {
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("platformNo", platformNo);
         return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByPlatformNo"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long countByUserNo(
+            Long userNo
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("userNo", userNo);
+        return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByUserNo"), paramMap);
     }
 
     protected String getSqlMapId(String id) {

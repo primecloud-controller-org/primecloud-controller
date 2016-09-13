@@ -22,7 +22,7 @@ import java.io.Serializable;
 
 /**
  * <p>
- * userに対応したエンティティのベースクラスです。
+ * USERに対応したエンティティのベースクラスです。
  * </p>
  *
  */

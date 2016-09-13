@@ -108,6 +108,10 @@
 		<property name="sqlMapClient" ref="sqlMapClient" />
 	</bean>
 
+	<bean id="iaasInfoDao" class="jp.primecloud.auto.dao.crud.impl.IaasInfoDaoImpl">
+		<property name="sqlMapClient" ref="sqlMapClient" />
+	</bean>
+
 	<bean id="imageDao" class="jp.primecloud.auto.dao.crud.impl.ImageDaoImpl">
 		<property name="sqlMapClient" ref="sqlMapClient" />
 	</bean>
@@ -281,6 +285,10 @@
 	</bean>
 
 	<bean id="vcloudKeyPairDao" class="jp.primecloud.auto.dao.crud.impl.VcloudKeyPairDaoImpl">
+		<property name="sqlMapClient" ref="sqlMapClient" />
+	</bean>
+
+	<bean id="vcloudTaskDao" class="jp.primecloud.auto.dao.crud.impl.VcloudTaskDaoImpl">
 		<property name="sqlMapClient" ref="sqlMapClient" />
 	</bean>
 

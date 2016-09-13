@@ -21,7 +21,7 @@ package jp.primecloud.auto.entity.crud;
 
 /**
  * <p>
- * cloudstack_instanceに対応したエンティティです。
+ * CLOUDSTACK_INSTANCEに対応したエンティティです。
  * </p>
  *
  */

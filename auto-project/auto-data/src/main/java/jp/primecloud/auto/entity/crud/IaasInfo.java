@@ -21,11 +21,11 @@ package jp.primecloud.auto.entity.crud;
 
 /**
  * <p>
- * TEMPLATE_INSTANCE_VMWAREに対応したエンティティです。
+ * IAAS_INFOに対応したエンティティです。
  * </p>
  *
  */
-public class TemplateInstanceVmware extends jp.primecloud.auto.entity.crud.BaseTemplateInstanceVmware {
+public class IaasInfo extends jp.primecloud.auto.entity.crud.BaseIaasInfo {
 
     /** SerialVersionUID */
     private static final long serialVersionUID = 1L;

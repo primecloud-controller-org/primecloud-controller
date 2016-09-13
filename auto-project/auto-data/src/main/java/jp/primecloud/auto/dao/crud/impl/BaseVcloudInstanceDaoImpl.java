@@ -63,12 +63,12 @@ public abstract class BaseVcloudInstanceDaoImpl extends SqlMapClientDaoSupport i
      */
     @Override
     @SuppressWarnings("unchecked")
-    public List<VcloudInstance> readByKeyPairNo(
-            Long keyPairNo
+    public List<VcloudInstance> readByStorageTypeNo(
+            Long storageTypeNo
         ) {
         Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("keyPairNo", keyPairNo);
-        return (List<VcloudInstance>) getSqlMapClientTemplate().queryForList(getSqlMapId("readByKeyPairNo"), paramMap);
+        paramMap.put("storageTypeNo", storageTypeNo);
+        return (List<VcloudInstance>) getSqlMapClientTemplate().queryForList(getSqlMapId("readByStorageTypeNo"), paramMap);
     }
 
     /**
@@ -76,12 +76,12 @@ public abstract class BaseVcloudInstanceDaoImpl extends SqlMapClientDaoSupport i
      */
     @Override
     @SuppressWarnings("unchecked")
-    public List<VcloudInstance> readByStorageTypeNo(
-            Long storageTypeNo
+    public List<VcloudInstance> readByKeyPairNo(
+            Long keyPairNo
         ) {
         Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("storageTypeNo", storageTypeNo);
-        return (List<VcloudInstance>) getSqlMapClientTemplate().queryForList(getSqlMapId("readByStorageTypeNo"), paramMap);
+        paramMap.put("keyPairNo", keyPairNo);
+        return (List<VcloudInstance>) getSqlMapClientTemplate().queryForList(getSqlMapId("readByKeyPairNo"), paramMap);
     }
 
     /**
@@ -154,24 +154,24 @@ public abstract class BaseVcloudInstanceDaoImpl extends SqlMapClientDaoSupport i
      * {@inheritDoc}
      */
     @Override
-    public void deleteByKeyPairNo(
-            Long keyPairNo
-        ) {
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("keyPairNo", keyPairNo);
-        getSqlMapClientTemplate().delete(getSqlMapId("deleteByKeyPairNo"), paramMap);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void deleteByStorageTypeNo(
             Long storageTypeNo
         ) {
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("storageTypeNo", storageTypeNo);
         getSqlMapClientTemplate().delete(getSqlMapId("deleteByStorageTypeNo"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void deleteByKeyPairNo(
+            Long keyPairNo
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("keyPairNo", keyPairNo);
+        getSqlMapClientTemplate().delete(getSqlMapId("deleteByKeyPairNo"), paramMap);
     }
 
     /**
@@ -198,24 +198,24 @@ public abstract class BaseVcloudInstanceDaoImpl extends SqlMapClientDaoSupport i
      * {@inheritDoc}
      */
     @Override
-    public long countByKeyPairNo(
-            Long keyPairNo
-        ) {
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("keyPairNo", keyPairNo);
-        return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByKeyPairNo"), paramMap);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public long countByStorageTypeNo(
             Long storageTypeNo
         ) {
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("storageTypeNo", storageTypeNo);
         return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByStorageTypeNo"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long countByKeyPairNo(
+            Long keyPairNo
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("keyPairNo", keyPairNo);
+        return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByKeyPairNo"), paramMap);
     }
 
     protected String getSqlMapId(String id) {

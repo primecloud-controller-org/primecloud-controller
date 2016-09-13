@@ -44,7 +44,7 @@ public abstract class BaseAwsSnapshot implements Serializable {
     /** VOLUME_NO [BIGINT(19,0)] */
     private Long volumeNo;
 
-    /** SNAPSHOT_ID [VARCHAR(20,0)] */
+    /** SNAPSHOT_ID [VARCHAR(30,0)] */
     private String snapshotId;
 
     /** CREATE_DATE [DATETIME(0,0)] */

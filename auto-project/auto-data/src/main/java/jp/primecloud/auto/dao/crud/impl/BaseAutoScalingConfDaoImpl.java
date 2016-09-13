@@ -76,32 +76,6 @@ public abstract class BaseAutoScalingConfDaoImpl extends SqlMapClientDaoSupport 
      */
     @Override
     @SuppressWarnings("unchecked")
-    public List<AutoScalingConf> readByPlatformNo(
-            Long platformNo
-        ) {
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("platformNo", platformNo);
-        return (List<AutoScalingConf>) getSqlMapClientTemplate().queryForList(getSqlMapId("readByPlatformNo"), paramMap);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @SuppressWarnings("unchecked")
-    public List<AutoScalingConf> readByImageNo(
-            Long imageNo
-        ) {
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("imageNo", imageNo);
-        return (List<AutoScalingConf>) getSqlMapClientTemplate().queryForList(getSqlMapId("readByImageNo"), paramMap);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @SuppressWarnings("unchecked")
     public List<AutoScalingConf> readInLoadBalancerNos(
             Collection<Long> loadBalancerNos
         ) {
@@ -179,30 +153,6 @@ public abstract class BaseAutoScalingConfDaoImpl extends SqlMapClientDaoSupport 
      * {@inheritDoc}
      */
     @Override
-    public void deleteByPlatformNo(
-            Long platformNo
-        ) {
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("platformNo", platformNo);
-        getSqlMapClientTemplate().delete(getSqlMapId("deleteByPlatformNo"), paramMap);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void deleteByImageNo(
-            Long imageNo
-        ) {
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("imageNo", imageNo);
-        getSqlMapClientTemplate().delete(getSqlMapId("deleteByImageNo"), paramMap);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public long countAll() {
         return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countAll"));
     }
@@ -229,30 +179,6 @@ public abstract class BaseAutoScalingConfDaoImpl extends SqlMapClientDaoSupport 
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("farmNo", farmNo);
         return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByFarmNo"), paramMap);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long countByPlatformNo(
-            Long platformNo
-        ) {
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("platformNo", platformNo);
-        return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByPlatformNo"), paramMap);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long countByImageNo(
-            Long imageNo
-        ) {
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("imageNo", imageNo);
-        return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByImageNo"), paramMap);
     }
 
     protected String getSqlMapId(String id) {

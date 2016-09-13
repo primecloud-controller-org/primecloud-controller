@@ -32,7 +32,7 @@ public interface BaseComponentInstanceDao {
 
     /**
      * 主キーに該当するレコードを検索します。
-     * 
+     *
      * @param componentNo componentNo
      * @param instanceNo instanceNo
      * @return 主キーに該当するレコードのエンティティ。レコードがない場合はnull。
@@ -44,7 +44,7 @@ public interface BaseComponentInstanceDao {
 
     /**
      * 全てのレコードを検索します。
-     * 
+     *
      * @return 全てのレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
     public List<ComponentInstance> readAll();
@@ -71,7 +71,7 @@ public interface BaseComponentInstanceDao {
 
     /**
      * 主キーのコレクションに該当するレコードを検索します。
-     * 
+     *
      * @param componentNos componentNoのコレクション
      * @return 主キーのコレクションに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
@@ -81,7 +81,7 @@ public interface BaseComponentInstanceDao {
 
     /**
      * 主キーのコレクションに該当するレコードを検索します。
-     * 
+     *
      * @param instanceNos instanceNoのコレクション
      * @return 主キーのコレクションに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
@@ -91,21 +91,21 @@ public interface BaseComponentInstanceDao {
 
     /**
      * 与えられたエンティティの内容でレコードを挿入します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void create(ComponentInstance entity);
 
     /**
      * 与えられたエンティティの内容でレコードを更新します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void update(ComponentInstance entity);
 
     /**
      * 与えられたエンティティのレコードを削除します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void delete(ComponentInstance entity);
@@ -117,7 +117,7 @@ public interface BaseComponentInstanceDao {
 
     /**
      * 主キーに該当するレコードを削除します。
-     * 
+     *
      * @param componentNo componentNo
      * @param instanceNo instanceNo
      */
@@ -146,14 +146,14 @@ public interface BaseComponentInstanceDao {
 
     /**
      * 全てのレコードの件数を取得します。
-     * 
+     *
      * @return 全てのレコードの件数。
      */
     public long countAll();
 
     /**
      * 主キーに該当するレコードの件数を取得します。
-     * 
+     *
      * @param componentNo componentNo
      * @param instanceNo instanceNo
      * @return 主キーに該当するレコードの件数。

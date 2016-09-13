@@ -41,22 +41,23 @@ import jp.primecloud.auto.dao.crud.CloudstackInstanceDao;
 import jp.primecloud.auto.dao.crud.CloudstackLoadBalancerDao;
 import jp.primecloud.auto.dao.crud.CloudstackSnapshotDao;
 import jp.primecloud.auto.dao.crud.CloudstackVolumeDao;
-import jp.primecloud.auto.dao.crud.ComponentConfigDao;
 import jp.primecloud.auto.dao.crud.ComponentDao;
+import jp.primecloud.auto.dao.crud.ComponentConfigDao;
 import jp.primecloud.auto.dao.crud.ComponentInstanceDao;
 import jp.primecloud.auto.dao.crud.ComponentLoadBalancerDao;
 import jp.primecloud.auto.dao.crud.ComponentTypeDao;
 import jp.primecloud.auto.dao.crud.FarmDao;
+import jp.primecloud.auto.dao.crud.IaasInfoDao;
+import jp.primecloud.auto.dao.crud.ImageDao;
 import jp.primecloud.auto.dao.crud.ImageAwsDao;
 import jp.primecloud.auto.dao.crud.ImageAzureDao;
 import jp.primecloud.auto.dao.crud.ImageCloudstackDao;
-import jp.primecloud.auto.dao.crud.ImageDao;
 import jp.primecloud.auto.dao.crud.ImageNiftyDao;
 import jp.primecloud.auto.dao.crud.ImageOpenstackDao;
 import jp.primecloud.auto.dao.crud.ImageVcloudDao;
 import jp.primecloud.auto.dao.crud.ImageVmwareDao;
-import jp.primecloud.auto.dao.crud.InstanceConfigDao;
 import jp.primecloud.auto.dao.crud.InstanceDao;
+import jp.primecloud.auto.dao.crud.InstanceConfigDao;
 import jp.primecloud.auto.dao.crud.LoadBalancerDao;
 import jp.primecloud.auto.dao.crud.LoadBalancerHealthCheckDao;
 import jp.primecloud.auto.dao.crud.LoadBalancerInstanceDao;
@@ -70,10 +71,10 @@ import jp.primecloud.auto.dao.crud.OpenstackInstanceDao;
 import jp.primecloud.auto.dao.crud.OpenstackSslKeyDao;
 import jp.primecloud.auto.dao.crud.OpenstackVolumeDao;
 import jp.primecloud.auto.dao.crud.PccSystemInfoDao;
+import jp.primecloud.auto.dao.crud.PlatformDao;
 import jp.primecloud.auto.dao.crud.PlatformAwsDao;
 import jp.primecloud.auto.dao.crud.PlatformAzureDao;
 import jp.primecloud.auto.dao.crud.PlatformCloudstackDao;
-import jp.primecloud.auto.dao.crud.PlatformDao;
 import jp.primecloud.auto.dao.crud.PlatformNiftyDao;
 import jp.primecloud.auto.dao.crud.PlatformOpenstackDao;
 import jp.primecloud.auto.dao.crud.PlatformVcloudDao;
@@ -83,16 +84,17 @@ import jp.primecloud.auto.dao.crud.PlatformVmwareDao;
 import jp.primecloud.auto.dao.crud.PlatformVmwareInstanceTypeDao;
 import jp.primecloud.auto.dao.crud.ProxyDao;
 import jp.primecloud.auto.dao.crud.PuppetInstanceDao;
-import jp.primecloud.auto.dao.crud.TemplateComponentDao;
 import jp.primecloud.auto.dao.crud.TemplateDao;
+import jp.primecloud.auto.dao.crud.TemplateComponentDao;
 import jp.primecloud.auto.dao.crud.TemplateInstanceDao;
-import jp.primecloud.auto.dao.crud.UserAuthDao;
 import jp.primecloud.auto.dao.crud.UserDao;
+import jp.primecloud.auto.dao.crud.UserAuthDao;
 import jp.primecloud.auto.dao.crud.VcloudCertificateDao;
 import jp.primecloud.auto.dao.crud.VcloudDiskDao;
 import jp.primecloud.auto.dao.crud.VcloudInstanceDao;
 import jp.primecloud.auto.dao.crud.VcloudInstanceNetworkDao;
 import jp.primecloud.auto.dao.crud.VcloudKeyPairDao;
+import jp.primecloud.auto.dao.crud.VcloudTaskDao;
 import jp.primecloud.auto.dao.crud.VmwareAddressDao;
 import jp.primecloud.auto.dao.crud.VmwareDiskDao;
 import jp.primecloud.auto.dao.crud.VmwareInstanceDao;
@@ -162,6 +164,8 @@ public abstract class BaseServiceSupport {
     protected ComponentTypeDao componentTypeDao;
 
     protected FarmDao farmDao;
+
+    protected IaasInfoDao iaasInfoDao;
 
     protected ImageDao imageDao;
 
@@ -254,6 +258,8 @@ public abstract class BaseServiceSupport {
     protected VcloudInstanceNetworkDao vcloudInstanceNetworkDao;
 
     protected VcloudKeyPairDao vcloudKeyPairDao;
+
+    protected VcloudTaskDao vcloudTaskDao;
 
     protected VmwareAddressDao vmwareAddressDao;
 
@@ -348,15 +354,6 @@ public abstract class BaseServiceSupport {
      */
     public void setAwsSslKeyDao(AwsSslKeyDao awsSslKeyDao) {
         this.awsSslKeyDao = awsSslKeyDao;
-    }
-
-    /**
-     * openstackVolumeDaoを設定します。
-     *
-     * @param openstackVolumeDao openstackVolumeDao
-     */
-    public void setOpenstackVolumeDao(OpenstackVolumeDao openstackVolumeDao) {
-        this.openstackVolumeDao = openstackVolumeDao;
     }
 
     /**
@@ -510,6 +507,15 @@ public abstract class BaseServiceSupport {
      */
     public void setFarmDao(FarmDao farmDao) {
         this.farmDao = farmDao;
+    }
+
+    /**
+     * iaasInfoDaoを設定します。
+     *
+     * @param iaasInfoDao iaasInfoDao
+     */
+    public void setIaasInfoDao(IaasInfoDao iaasInfoDao) {
+        this.iaasInfoDao = iaasInfoDao;
     }
 
     /**
@@ -699,6 +705,15 @@ public abstract class BaseServiceSupport {
      */
     public void setOpenstackSslKeyDao(OpenstackSslKeyDao openstackSslKeyDao) {
         this.openstackSslKeyDao = openstackSslKeyDao;
+    }
+
+    /**
+     * openstackVolumeDaoを設定します。
+     *
+     * @param openstackVolumeDao openstackVolumeDao
+     */
+    public void setOpenstackVolumeDao(OpenstackVolumeDao openstackVolumeDao) {
+        this.openstackVolumeDao = openstackVolumeDao;
     }
 
     /**
@@ -915,6 +930,15 @@ public abstract class BaseServiceSupport {
      */
     public void setVcloudKeyPairDao(VcloudKeyPairDao vcloudKeyPairDao) {
         this.vcloudKeyPairDao = vcloudKeyPairDao;
+    }
+
+    /**
+     * vcloudTaskDaoを設定します。
+     *
+     * @param vcloudTaskDao vcloudTaskDao
+     */
+    public void setVcloudTaskDao(VcloudTaskDao vcloudTaskDao) {
+        this.vcloudTaskDao = vcloudTaskDao;
     }
 
     /**

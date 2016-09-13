@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="VcloudTask">
+
+	<typeAlias alias="VcloudTask" type="jp.primecloud.auto.entity.crud.VcloudTask" />
+
+	<resultMap id="vcloudTaskResultMap" class="VcloudTask">
+		<result property="PId" column="P_ID" />
+		<result property="registTime" column="REGIST_TIME" />
+		<result property="vapp" column="VAPP" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.P_ID as P_ID,
+			t1.REGIST_TIME as REGIST_TIME,
+			t1.VAPP as VAPP
+		from
+			VCLOUD_TASK t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from VCLOUD_TASK t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="vcloudTaskResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.P_ID = #PId#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="vcloudTaskResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readInPIds" parameterClass="java.util.Map" resultMap="vcloudTaskResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.P_ID in
+		]]>
+		<iterate property="PIds" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#PIds[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="VcloudTask">
+		<![CDATA[
+		insert into VCLOUD_TASK (
+			P_ID,
+			REGIST_TIME,
+			VAPP
+		) values (
+			#PId#,
+			#registTime#,
+			#vapp#
+		)
+		]]>
+	</insert>
+
+	<update id="update" parameterClass="VcloudTask">
+		<![CDATA[
+		update VCLOUD_TASK set
+			REGIST_TIME = #registTime#,
+			VAPP = #vapp#
+		where
+			P_ID = #PId#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="VcloudTask">
+		<![CDATA[
+		delete from VCLOUD_TASK
+		where
+			P_ID = #PId#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from VCLOUD_TASK
+		]]>
+	</delete>
+
+	<delete id="deleteByPId" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from VCLOUD_TASK
+		where
+			P_ID = #PId#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByPId" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			P_ID = #PId#
+		]]>
+	</select>
+
+</sqlMap>

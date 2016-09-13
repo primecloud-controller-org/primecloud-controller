@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE sqlMap      
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
 	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 <sqlMap namespace="LoadBalancerListener">
 
@@ -19,13 +19,13 @@
 	<sql id="selectSql">
 		<![CDATA[
 		select
-			t1.LOAD_BALANCER_NO as LOAD_BALANCER_NO, 
-			t1.LOAD_BALANCER_PORT as LOAD_BALANCER_PORT, 
-			t1.SERVICE_PORT as SERVICE_PORT, 
-			t1.PROTOCOL as PROTOCOL, 
+			t1.LOAD_BALANCER_NO as LOAD_BALANCER_NO,
+			t1.LOAD_BALANCER_PORT as LOAD_BALANCER_PORT,
+			t1.SERVICE_PORT as SERVICE_PORT,
+			t1.PROTOCOL as PROTOCOL,
 			t1.SSL_KEY_NO as SSL_KEY_NO,
-			t1.ENABLED as ENABLED, 
-			t1.STATUS as STATUS, 
+			t1.ENABLED as ENABLED,
+			t1.STATUS as STATUS,
 			t1.CONFIGURE as CONFIGURE
 		from
 			LOAD_BALANCER_LISTENER t1
@@ -88,22 +88,22 @@
 	<insert id="create" parameterClass="LoadBalancerListener">
 		<![CDATA[
 		insert into LOAD_BALANCER_LISTENER (
-			LOAD_BALANCER_NO, 
-			LOAD_BALANCER_PORT, 
-			SERVICE_PORT, 
-			PROTOCOL, 
+			LOAD_BALANCER_NO,
+			LOAD_BALANCER_PORT,
+			SERVICE_PORT,
+			PROTOCOL,
 			SSL_KEY_NO,
-			ENABLED, 
-			STATUS, 
+			ENABLED,
+			STATUS,
 			CONFIGURE
 		) values (
-			#loadBalancerNo#, 
-			#loadBalancerPort#, 
-			#servicePort#, 
-			#protocol#, 
+			#loadBalancerNo#,
+			#loadBalancerPort#,
+			#servicePort#,
+			#protocol#,
 			#sslKeyNo#,
-			#enabled#, 
-			#status#, 
+			#enabled#,
+			#status#,
 			#configure#
 		)
 		]]>
@@ -112,14 +112,14 @@
 	<update id="update" parameterClass="LoadBalancerListener">
 		<![CDATA[
 		update LOAD_BALANCER_LISTENER set
-			SERVICE_PORT = #servicePort#, 
-			PROTOCOL = #protocol#, 
+			SERVICE_PORT = #servicePort#,
+			PROTOCOL = #protocol#,
 			SSL_KEY_NO = #sslKeyNo#,
-			ENABLED = #enabled#, 
-			STATUS = #status#, 
+			ENABLED = #enabled#,
+			STATUS = #status#,
 			CONFIGURE = #configure#
 		where
-			LOAD_BALANCER_NO = #loadBalancerNo# and 
+			LOAD_BALANCER_NO = #loadBalancerNo# and
 			LOAD_BALANCER_PORT = #loadBalancerPort#
 		]]>
 	</update>
@@ -128,7 +128,7 @@
 		<![CDATA[
 		delete from LOAD_BALANCER_LISTENER
 		where
-			LOAD_BALANCER_NO = #loadBalancerNo# and 
+			LOAD_BALANCER_NO = #loadBalancerNo# and
 			LOAD_BALANCER_PORT = #loadBalancerPort#
 		]]>
 	</delete>

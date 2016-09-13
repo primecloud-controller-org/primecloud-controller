@@ -24,7 +24,7 @@ import jp.primecloud.auto.entity.crud.UserAuth;
 
 /**
  * <p>
- * user_authに対応したDAOのベースインタフェースです。
+ * USER_AUTHに対応したDAOのベースインタフェースです。
  * </p>
  *
  */
@@ -136,6 +136,15 @@ public interface BaseUserAuthDao {
         );
 
     /**
+     * 与えられたキーに該当するレコードを削除します。
+     *
+     * @param userNo userNo
+     */
+    public void deleteByUserNo(
+            Long userNo
+        );
+
+    /**
      * 全てのレコードの件数を取得します。
      *
      * @return 全てのレコードの件数。
@@ -162,6 +171,16 @@ public interface BaseUserAuthDao {
      */
     public long countByFarmNo(
             Long farmNo
+        );
+
+    /**
+     * 与えられたキーに該当するレコードの件数を取得します。
+     *
+     * @param userNo userNo
+     * @return 与えられたキーに該当するレコードの件数。
+     */
+    public long countByUserNo(
+            Long userNo
         );
 
 }

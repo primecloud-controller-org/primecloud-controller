@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE sqlMap
 	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 <sqlMap namespace="PlatformVmwareInstanceType">
@@ -42,6 +42,15 @@
 
 	<select id="readAll" resultMap="platformVmwareInstanceTypeResultMap">
 		<include refid="selectSql" />
+	</select>
+
+	<select id="readByPlatformNoAndInstanceTypeName" parameterClass="java.util.Map" resultMap="platformVmwareInstanceTypeResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.PLATFORM_NO = #platformNo# and
+			t1.INSTANCE_TYPE_NAME = #instanceTypeName#
+		]]>
 	</select>
 
 	<select id="readByPlatformNo" parameterClass="java.util.Map" resultMap="platformVmwareInstanceTypeResultMap">
@@ -140,6 +149,15 @@
 		]]>
 	</delete>
 
+	<delete id="deleteByPlatformNoAndInstanceTypeName" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from PLATFORM_VMWARE_INSTANCE_TYPE
+		where
+			PLATFORM_NO = #platformNo# and
+			INSTANCE_TYPE_NAME = #instanceTypeName#
+		]]>
+	</delete>
+
 	<delete id="deleteByPlatformNo" parameterClass="java.util.Map">
 		<![CDATA[
 		delete from PLATFORM_VMWARE_INSTANCE_TYPE
@@ -157,6 +175,15 @@
 		<![CDATA[
 		where
 			INSTANCE_TYPE_NO = #instanceTypeNo#
+		]]>
+	</select>
+
+	<select id="countByPlatformNoAndInstanceTypeName" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			PLATFORM_NO = #platformNo# and
+			INSTANCE_TYPE_NAME = #instanceTypeName#
 		]]>
 	</select>
 

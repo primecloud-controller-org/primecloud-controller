@@ -37,10 +37,10 @@ public abstract class BasePlatformOpenstack implements Serializable {
     /** URL [VARCHAR(500,0)] */
     private String url;
 
-    /** NETWORK_ID [VARCHAR(20,0)] */
+    /** NETWORK_ID [VARCHAR(40,0)] */
     private String networkId;
 
-    /** TENANT_ID [VARCHAR(20,0)] */
+    /** TENANT_ID [VARCHAR(40,0)] */
     private String tenantId;
 
     /** TENANT_NM [VARCHAR(100,0)] */

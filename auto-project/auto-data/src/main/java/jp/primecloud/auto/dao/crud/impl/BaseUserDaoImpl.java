@@ -75,6 +75,19 @@ public abstract class BaseUserDaoImpl extends SqlMapClientDaoSupport implements 
      */
     @Override
     @SuppressWarnings("unchecked")
+    public List<User> readByMasterUser(
+            Long masterUser
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("masterUser", masterUser);
+        return (List<User>) getSqlMapClientTemplate().queryForList(getSqlMapId("readByMasterUser"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @SuppressWarnings("unchecked")
     public List<User> readInUserNos(
             Collection<Long> userNos
         ) {
@@ -155,6 +168,18 @@ public abstract class BaseUserDaoImpl extends SqlMapClientDaoSupport implements 
      * {@inheritDoc}
      */
     @Override
+    public void deleteByMasterUser(
+            Long masterUser
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("masterUser", masterUser);
+        getSqlMapClientTemplate().delete(getSqlMapId("deleteByMasterUser"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public long countAll() {
         return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countAll"));
     }
@@ -187,14 +212,12 @@ public abstract class BaseUserDaoImpl extends SqlMapClientDaoSupport implements 
      * {@inheritDoc}
      */
     @Override
-    @SuppressWarnings("unchecked")
-    public List<User>  readByMasterUser(
-            Long masterUserNo
+    public long countByMasterUser(
+            Long masterUser
         ) {
         Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("masterUser", masterUserNo);
-        paramMap.put("userNo", masterUserNo);
-        return (List<User>) getSqlMapClientTemplate().queryForList(getSqlMapId("readByMasterUser"), paramMap);
+        paramMap.put("masterUser", masterUser);
+        return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByMasterUser"), paramMap);
     }
 
     protected String getSqlMapId(String id) {

@@ -32,7 +32,7 @@ public interface BaseFarmDao {
 
     /**
      * 主キーに該当するレコードを検索します。
-     * 
+     *
      * @param farmNo farmNo
      * @return 主キーに該当するレコードのエンティティ。レコードがない場合はnull。
      */
@@ -42,7 +42,7 @@ public interface BaseFarmDao {
 
     /**
      * 全てのレコードを検索します。
-     * 
+     *
      * @return 全てのレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
     public List<Farm> readAll();
@@ -69,7 +69,7 @@ public interface BaseFarmDao {
 
     /**
      * 主キーのコレクションに該当するレコードを検索します。
-     * 
+     *
      * @param farmNos farmNoのコレクション
      * @return 主キーのコレクションに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
@@ -79,21 +79,21 @@ public interface BaseFarmDao {
 
     /**
      * 与えられたエンティティの内容でレコードを挿入します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void create(Farm entity);
 
     /**
      * 与えられたエンティティの内容でレコードを更新します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void update(Farm entity);
 
     /**
      * 与えられたエンティティのレコードを削除します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void delete(Farm entity);
@@ -105,7 +105,7 @@ public interface BaseFarmDao {
 
     /**
      * 主キーに該当するレコードを削除します。
-     * 
+     *
      * @param farmNo farmNo
      */
     public void deleteByFarmNo(
@@ -132,14 +132,14 @@ public interface BaseFarmDao {
 
     /**
      * 全てのレコードの件数を取得します。
-     * 
+     *
      * @return 全てのレコードの件数。
      */
     public long countAll();
 
     /**
      * 主キーに該当するレコードの件数を取得します。
-     * 
+     *
      * @param farmNo farmNo
      * @return 主キーに該当するレコードの件数。
      */

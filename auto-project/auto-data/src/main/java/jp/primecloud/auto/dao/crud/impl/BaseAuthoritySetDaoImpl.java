@@ -97,6 +97,9 @@ public abstract class BaseAuthoritySetDaoImpl extends SqlMapClientDaoSupport imp
     @Override
     public void create(AuthoritySet entity) {
         String id = "create";
+        if (entity.getSetNo() == null) {
+            id = "createAuto";
+        }
         getSqlMapClientTemplate().insert(getSqlMapId(id), entity);
     }
 

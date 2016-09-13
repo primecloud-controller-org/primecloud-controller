@@ -19,7 +19,6 @@
 package jp.primecloud.auto.dao.crud.impl;
 
 import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
-
 import jp.primecloud.auto.dao.crud.BaseProxyDao;
 import jp.primecloud.auto.entity.crud.Proxy;
 
@@ -74,6 +73,7 @@ public abstract class BaseProxyDaoImpl extends SqlMapClientDaoSupport implements
         getSqlMapClientTemplate().delete(getSqlMapId("deleteAll"));
     }
 
+
     /**
      * {@inheritDoc}
      */
@@ -88,4 +88,5 @@ public abstract class BaseProxyDaoImpl extends SqlMapClientDaoSupport implements
         }
         return namespace + "." + id;
     }
+
 }

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE sqlMap
 	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 <sqlMap namespace="PlatformVmware">
@@ -34,7 +34,7 @@
 
 	<sql id="countSql">
 		<![CDATA[
-		select count(*) as COUNT from platform_vmware t1
+		select count(*) as COUNT from PLATFORM_VMWARE t1
 		]]>
 	</sql>
 

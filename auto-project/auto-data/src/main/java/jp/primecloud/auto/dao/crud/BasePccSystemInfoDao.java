@@ -1,4 +1,3 @@
-package jp.primecloud.auto.dao.crud;
 /*
  * Copyright 2014 by SCSK Corporation.
  * 
@@ -17,23 +16,22 @@ package jp.primecloud.auto.dao.crud;
  * You should have received a copy of the GNU General Public License
  * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
  */
-
+package jp.primecloud.auto.dao.crud;
 
 import jp.primecloud.auto.entity.crud.PccSystemInfo;
 
 /**
  * <p>
- * PCC_SYSTEM_INFOに対応したDAOのベーススインタフェースです。
+ * PCC_SYSTEM_INFOに対応したDAOのベースインタフェースです。
  * </p>
  *
  */
 public interface BasePccSystemInfoDao {
 
     /**
-     * 主キーに該当するレコードを検索します。
+     * レコードを検索します。
      *
-     * @param secretKey secretKey
-     * @return 主キーに該当するレコードのエンティティ。レコードがない場合はnull。
+     * @return レコードのエンティティ。レコードがない場合はnull。
      */
     public PccSystemInfo read();
 
@@ -69,4 +67,5 @@ public interface BasePccSystemInfoDao {
      * @return 全てのレコードの件数。
      */
     public long countAll();
+
 }

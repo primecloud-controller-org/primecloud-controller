@@ -22,7 +22,7 @@ import java.io.Serializable;
 
 /**
  * <p>
- * cloudstack_addressに対応したエンティティのベースクラスです。
+ * CLOUDSTACK_ADDRESSに対応したエンティティのベースクラスです。
  * </p>
  *
  */

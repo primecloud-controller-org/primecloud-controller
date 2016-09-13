@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE sqlMap
 	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 <sqlMap namespace="VcloudInstance">
@@ -50,19 +50,19 @@
 		<include refid="selectSql" />
 	</select>
 
-	<select id="readByKeyPairNo" parameterClass="java.util.Map" resultMap="vcloudInstanceResultMap">
-		<include refid="selectSql" />
-		<![CDATA[
-		where
-			t1.KEY_PAIR_NO = #keyPairNo#
-		]]>
-	</select>
-
 	<select id="readByStorageTypeNo" parameterClass="java.util.Map" resultMap="vcloudInstanceResultMap">
 		<include refid="selectSql" />
 		<![CDATA[
 		where
 			t1.STORAGE_TYPE_NO = #storageTypeNo#
+		]]>
+	</select>
+
+	<select id="readByKeyPairNo" parameterClass="java.util.Map" resultMap="vcloudInstanceResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.KEY_PAIR_NO = #keyPairNo#
 		]]>
 	</select>
 
@@ -140,19 +140,19 @@
 		]]>
 	</delete>
 
-	<delete id="deleteByKeyPairNo" parameterClass="java.util.Map">
-		<![CDATA[
-		delete from VCLOUD_INSTANCE
-		where
-			KEY_PAIR_NO = #keyPairNo#
-		]]>
-	</delete>
-
 	<delete id="deleteByStorageTypeNo" parameterClass="java.util.Map">
 		<![CDATA[
 		delete from VCLOUD_INSTANCE
 		where
 			STORAGE_TYPE_NO = #storageTypeNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByKeyPairNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from VCLOUD_INSTANCE
+		where
+			KEY_PAIR_NO = #keyPairNo#
 		]]>
 	</delete>
 
@@ -168,19 +168,19 @@
 		]]>
 	</select>
 
-	<select id="countByKeyPairNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
-		<include refid="countSql" />
-		<![CDATA[
-		where
-			KEY_PAIR_NO = #keyPairNo#
-		]]>
-	</select>
-
 	<select id="countByStorageTypeNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
 		<include refid="countSql" />
 		<![CDATA[
 		where
 			STORAGE_TYPE_NO = #storageTypeNo#
+		]]>
+	</select>
+
+	<select id="countByKeyPairNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			KEY_PAIR_NO = #keyPairNo#
 		]]>
 	</select>
 

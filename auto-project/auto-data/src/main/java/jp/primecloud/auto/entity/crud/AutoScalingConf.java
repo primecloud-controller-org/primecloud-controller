@@ -21,7 +21,7 @@ package jp.primecloud.auto.entity.crud;
 
 /**
  * <p>
- * auto_scaling_confに対応したエンティティです。
+ * AUTO_SCALING_CONFに対応したエンティティです。
  * </p>
  *
  */

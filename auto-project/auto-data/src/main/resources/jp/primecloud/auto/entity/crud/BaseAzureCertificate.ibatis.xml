@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE sqlMap      
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
 	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 <sqlMap namespace="AzureCertificate">
 
@@ -18,12 +18,12 @@
 	<sql id="selectSql">
 		<![CDATA[
 		select
-			t1.USER_NO as USER_NO, 
-			t1.PLATFORM_NO as PLATFORM_NO, 
-			t1.SUBSCRIPTION_ID as SUBSCRIPTION_ID, 
-			t1.CERTIFICATE as CERTIFICATE, 
-			t1.DEFAULT_SUBNET_ID as DEFAULT_SUBNET_ID, 
-			t1.KEY_NAME as KEY_NAME, 
+			t1.USER_NO as USER_NO,
+			t1.PLATFORM_NO as PLATFORM_NO,
+			t1.SUBSCRIPTION_ID as SUBSCRIPTION_ID,
+			t1.CERTIFICATE as CERTIFICATE,
+			t1.DEFAULT_SUBNET_ID as DEFAULT_SUBNET_ID,
+			t1.KEY_NAME as KEY_NAME,
 			t1.KEY_PUBLIC as KEY_PUBLIC
 		from
 			AZURE_CERTIFICATE t1
@@ -94,20 +94,20 @@
 	<insert id="create" parameterClass="AzureCertificate">
 		<![CDATA[
 		insert into AZURE_CERTIFICATE (
-			USER_NO, 
-			PLATFORM_NO, 
-			SUBSCRIPTION_ID, 
-			CERTIFICATE, 
-			DEFAULT_SUBNET_ID, 
-			KEY_NAME, 
+			USER_NO,
+			PLATFORM_NO,
+			SUBSCRIPTION_ID,
+			CERTIFICATE,
+			DEFAULT_SUBNET_ID,
+			KEY_NAME,
 			KEY_PUBLIC
 		) values (
-			#userNo#, 
-			#platformNo#, 
-			#subscriptionId#, 
-			#certificate#, 
-			#defaultSubnetId#, 
-			#keyName#, 
+			#userNo#,
+			#platformNo#,
+			#subscriptionId#,
+			#certificate#,
+			#defaultSubnetId#,
+			#keyName#,
 			#keyPublic#
 		)
 		]]>
@@ -116,13 +116,13 @@
 	<update id="update" parameterClass="AzureCertificate">
 		<![CDATA[
 		update AZURE_CERTIFICATE set
-			SUBSCRIPTION_ID = #subscriptionId#, 
-			CERTIFICATE = #certificate#, 
-			DEFAULT_SUBNET_ID = #defaultSubnetId#, 
-			KEY_NAME = #keyName#, 
+			SUBSCRIPTION_ID = #subscriptionId#,
+			CERTIFICATE = #certificate#,
+			DEFAULT_SUBNET_ID = #defaultSubnetId#,
+			KEY_NAME = #keyName#,
 			KEY_PUBLIC = #keyPublic#
 		where
-			USER_NO = #userNo# and 
+			USER_NO = #userNo# and
 			PLATFORM_NO = #platformNo#
 		]]>
 	</update>
@@ -131,7 +131,7 @@
 		<![CDATA[
 		delete from AZURE_CERTIFICATE
 		where
-			USER_NO = #userNo# and 
+			USER_NO = #userNo# and
 			PLATFORM_NO = #platformNo#
 		]]>
 	</delete>

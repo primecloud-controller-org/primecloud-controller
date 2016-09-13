@@ -62,6 +62,18 @@ public abstract class BaseComponentTypeDaoImpl extends SqlMapClientDaoSupport im
      * {@inheritDoc}
      */
     @Override
+    public ComponentType readByComponentTypeName(
+            String componentTypeName
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("componentTypeName", componentTypeName);
+        return (ComponentType) getSqlMapClientTemplate().queryForObject(getSqlMapId("readByComponentTypeName"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     @SuppressWarnings("unchecked")
     public List<ComponentType> readInComponentTypeNos(
             Collection<Long> componentTypeNos
@@ -131,6 +143,18 @@ public abstract class BaseComponentTypeDaoImpl extends SqlMapClientDaoSupport im
      * {@inheritDoc}
      */
     @Override
+    public void deleteByComponentTypeName(
+            String componentTypeName
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("componentTypeName", componentTypeName);
+        getSqlMapClientTemplate().delete(getSqlMapId("deleteByComponentTypeName"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public long countAll() {
         return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countAll"));
     }
@@ -145,6 +169,18 @@ public abstract class BaseComponentTypeDaoImpl extends SqlMapClientDaoSupport im
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("componentTypeNo", componentTypeNo);
         return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByComponentTypeNo"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long countByComponentTypeName(
+            String componentTypeName
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("componentTypeName", componentTypeName);
+        return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByComponentTypeName"), paramMap);
     }
 
     protected String getSqlMapId(String id) {

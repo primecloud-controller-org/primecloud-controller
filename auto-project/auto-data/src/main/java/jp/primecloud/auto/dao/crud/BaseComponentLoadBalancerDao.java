@@ -32,7 +32,7 @@ public interface BaseComponentLoadBalancerDao {
 
     /**
      * 主キーに該当するレコードを検索します。
-     * 
+     *
      * @param loadBalancerNo loadBalancerNo
      * @return 主キーに該当するレコードのエンティティ。レコードがない場合はnull。
      */
@@ -42,7 +42,7 @@ public interface BaseComponentLoadBalancerDao {
 
     /**
      * 全てのレコードを検索します。
-     * 
+     *
      * @return 全てのレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
     public List<ComponentLoadBalancer> readAll();
@@ -59,7 +59,7 @@ public interface BaseComponentLoadBalancerDao {
 
     /**
      * 主キーのコレクションに該当するレコードを検索します。
-     * 
+     *
      * @param loadBalancerNos loadBalancerNoのコレクション
      * @return 主キーのコレクションに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
@@ -69,21 +69,21 @@ public interface BaseComponentLoadBalancerDao {
 
     /**
      * 与えられたエンティティの内容でレコードを挿入します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void create(ComponentLoadBalancer entity);
 
     /**
      * 与えられたエンティティの内容でレコードを更新します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void update(ComponentLoadBalancer entity);
 
     /**
      * 与えられたエンティティのレコードを削除します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void delete(ComponentLoadBalancer entity);
@@ -95,7 +95,7 @@ public interface BaseComponentLoadBalancerDao {
 
     /**
      * 主キーに該当するレコードを削除します。
-     * 
+     *
      * @param loadBalancerNo loadBalancerNo
      */
     public void deleteByLoadBalancerNo(
@@ -113,14 +113,14 @@ public interface BaseComponentLoadBalancerDao {
 
     /**
      * 全てのレコードの件数を取得します。
-     * 
+     *
      * @return 全てのレコードの件数。
      */
     public long countAll();
 
     /**
      * 主キーに該当するレコードの件数を取得します。
-     * 
+     *
      * @param loadBalancerNo loadBalancerNo
      * @return 主キーに該当するレコードの件数。
      */

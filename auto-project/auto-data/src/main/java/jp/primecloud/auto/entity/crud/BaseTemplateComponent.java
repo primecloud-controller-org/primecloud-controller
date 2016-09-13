@@ -49,7 +49,7 @@ public abstract class BaseTemplateComponent implements Serializable {
     /** DISK_SIZE [INT(10,0)] */
     private Integer diskSize;
 
-    /** ASSOCIATE [VARCHAR(500,0)] */
+    /** ASSOCIATE [VARCHAR(1,000,0)] */
     private String associate;
 
     /**

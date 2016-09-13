@@ -49,7 +49,7 @@ public abstract class BaseAwsInstance implements Serializable {
     /** SUBNET_ID [VARCHAR(30,0)] */
     private String subnetId;
 
-    /** INSTANCE_ID [VARCHAR(20,0)] */
+    /** INSTANCE_ID [VARCHAR(30,0)] */
     private String instanceId;
 
     /** STATUS [VARCHAR(20,0)] */

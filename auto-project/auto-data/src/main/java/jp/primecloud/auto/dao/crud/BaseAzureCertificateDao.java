@@ -32,7 +32,7 @@ public interface BaseAzureCertificateDao {
 
     /**
      * 主キーに該当するレコードを検索します。
-     * 
+     *
      * @param userNo userNo
      * @param platformNo platformNo
      * @return 主キーに該当するレコードのエンティティ。レコードがない場合はnull。
@@ -44,7 +44,7 @@ public interface BaseAzureCertificateDao {
 
     /**
      * 全てのレコードを検索します。
-     * 
+     *
      * @return 全てのレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
     public List<AzureCertificate> readAll();
@@ -71,7 +71,7 @@ public interface BaseAzureCertificateDao {
 
     /**
      * 主キーのコレクションに該当するレコードを検索します。
-     * 
+     *
      * @param userNos userNoのコレクション
      * @return 主キーのコレクションに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
@@ -81,7 +81,7 @@ public interface BaseAzureCertificateDao {
 
     /**
      * 主キーのコレクションに該当するレコードを検索します。
-     * 
+     *
      * @param platformNos platformNoのコレクション
      * @return 主キーのコレクションに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
@@ -91,21 +91,21 @@ public interface BaseAzureCertificateDao {
 
     /**
      * 与えられたエンティティの内容でレコードを挿入します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void create(AzureCertificate entity);
 
     /**
      * 与えられたエンティティの内容でレコードを更新します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void update(AzureCertificate entity);
 
     /**
      * 与えられたエンティティのレコードを削除します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void delete(AzureCertificate entity);
@@ -117,7 +117,7 @@ public interface BaseAzureCertificateDao {
 
     /**
      * 主キーに該当するレコードを削除します。
-     * 
+     *
      * @param userNo userNo
      * @param platformNo platformNo
      */
@@ -146,14 +146,14 @@ public interface BaseAzureCertificateDao {
 
     /**
      * 全てのレコードの件数を取得します。
-     * 
+     *
      * @return 全てのレコードの件数。
      */
     public long countAll();
 
     /**
      * 主キーに該当するレコードの件数を取得します。
-     * 
+     *
      * @param userNo userNo
      * @param platformNo platformNo
      * @return 主キーに該当するレコードの件数。

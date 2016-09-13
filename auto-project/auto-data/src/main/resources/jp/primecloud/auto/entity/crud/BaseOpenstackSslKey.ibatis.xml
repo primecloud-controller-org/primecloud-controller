@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE sqlMap      
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
 	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 <sqlMap namespace="OpenstackSslKey">
 
@@ -16,10 +16,10 @@
 	<sql id="selectSql">
 		<![CDATA[
 		select
-			t1.KEY_NO as KEY_NO, 
-			t1.KEY_NAME as KEY_NAME, 
-			t1.SSLCERTIFICATEID as SSLCERTIFICATEID, 
-			t1.FARM_NO as FARM_NO, 
+			t1.KEY_NO as KEY_NO,
+			t1.KEY_NAME as KEY_NAME,
+			t1.SSLCERTIFICATEID as SSLCERTIFICATEID,
+			t1.FARM_NO as FARM_NO,
 			t1.PLATFORM_NO as PLATFORM_NO
 		from
 			OPENSTACK_SSL_KEY t1
@@ -60,16 +60,16 @@
 	<insert id="create" parameterClass="OpenstackSslKey">
 		<![CDATA[
 		insert into OPENSTACK_SSL_KEY (
-			KEY_NO, 
-			KEY_NAME, 
-			SSLCERTIFICATEID, 
-			FARM_NO, 
+			KEY_NO,
+			KEY_NAME,
+			SSLCERTIFICATEID,
+			FARM_NO,
 			PLATFORM_NO
 		) values (
-			#keyNo#, 
-			#keyName#, 
-			#sslcertificateid#, 
-			#farmNo#, 
+			#keyNo#,
+			#keyName#,
+			#sslcertificateid#,
+			#farmNo#,
 			#platformNo#
 		)
 		]]>
@@ -78,9 +78,9 @@
 	<update id="update" parameterClass="OpenstackSslKey">
 		<![CDATA[
 		update OPENSTACK_SSL_KEY set
-			KEY_NAME = #keyName#, 
-			SSLCERTIFICATEID = #sslcertificateid#, 
-			FARM_NO = #farmNo#, 
+			KEY_NAME = #keyName#,
+			SSLCERTIFICATEID = #sslcertificateid#,
+			FARM_NO = #farmNo#,
 			PLATFORM_NO = #platformNo#
 		where
 			KEY_NO = #keyNo#

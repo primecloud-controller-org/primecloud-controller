@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="IaasInfo">
+
+	<typeAlias alias="IaasInfo" type="jp.primecloud.auto.entity.crud.IaasInfo" />
+
+	<resultMap id="iaasInfoResultMap" class="IaasInfo">
+		<result property="iaasNo" column="IAAS_NO" />
+		<result property="iaasName" column="IAAS_NAME" nullValue="" />
+		<result property="comment" column="COMMENT" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.IAAS_NO as IAAS_NO,
+			t1.IAAS_NAME as IAAS_NAME,
+			t1.COMMENT as COMMENT
+		from
+			IAAS_INFO t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from IAAS_INFO t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="iaasInfoResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.IAAS_NO = #iaasNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="iaasInfoResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readInIaasNos" parameterClass="java.util.Map" resultMap="iaasInfoResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.IAAS_NO in
+		]]>
+		<iterate property="iaasNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#iaasNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="IaasInfo">
+		<![CDATA[
+		insert into IAAS_INFO (
+			IAAS_NO,
+			IAAS_NAME,
+			COMMENT
+		) values (
+			#iaasNo#,
+			#iaasName#,
+			#comment#
+		)
+		]]>
+	</insert>
+
+	<update id="update" parameterClass="IaasInfo">
+		<![CDATA[
+		update IAAS_INFO set
+			IAAS_NAME = #iaasName#,
+			COMMENT = #comment#
+		where
+			IAAS_NO = #iaasNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="IaasInfo">
+		<![CDATA[
+		delete from IAAS_INFO
+		where
+			IAAS_NO = #iaasNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from IAAS_INFO
+		]]>
+	</delete>
+
+	<delete id="deleteByIaasNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from IAAS_INFO
+		where
+			IAAS_NO = #iaasNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByIaasNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			IAAS_NO = #iaasNo#
+		]]>
+	</select>
+
+</sqlMap>

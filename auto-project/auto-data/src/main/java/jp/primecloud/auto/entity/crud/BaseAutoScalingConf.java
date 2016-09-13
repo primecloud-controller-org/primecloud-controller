@@ -22,7 +22,7 @@ import java.io.Serializable;
 
 /**
  * <p>
- * auto_scaling_confに対応したエンティティのベースクラスです。
+ * AUTO_SCALING_CONFに対応したエンティティのベースクラスです。
  * </p>
  *
  */
@@ -46,6 +46,9 @@ public abstract class BaseAutoScalingConf implements Serializable {
     /** INSTANCE_TYPE [VARCHAR(20,0)] */
     private String instanceType;
 
+    /** NAMING_RULE [VARCHAR(30,0)] */
+    private String namingRule;
+
     /** IDLE_TIME_MAX [BIGINT(19,0)] */
     private Long idleTimeMax;
 
@@ -63,9 +66,6 @@ public abstract class BaseAutoScalingConf implements Serializable {
 
     /** ENABLED [BIT(0,0)] */
     private Boolean enabled;
-
-    /** NAMING_RULE [VARCHAR(20,0)] */
-    private String namingRule;
 
     /**
      * loadBalancerNoを取得します。
@@ -155,6 +155,24 @@ public abstract class BaseAutoScalingConf implements Serializable {
      */
     public void setInstanceType(String instanceType) {
         this.instanceType = instanceType;
+    }
+
+    /**
+     * namingRuleを取得します。
+     *
+     * @return namingRule
+     */
+    public String getNamingRule() {
+        return namingRule;
+    }
+
+    /**
+     * namingRuleを設定します。
+     *
+     * @param namingRule namingRule
+     */
+    public void setNamingRule(String namingRule) {
+        this.namingRule = namingRule;
     }
 
     /**
@@ -265,24 +283,6 @@ public abstract class BaseAutoScalingConf implements Serializable {
         this.enabled = enabled;
     }
 
-    /**
-     * namingRuleを取得します。
-     *
-     * @return namingRule
-     */
-    public String getNamingRule() {
-        return namingRule;
-    }
-
-    /**
-     * namingRuleを設定します。
-     *
-     * @param namingRule namingRule
-     */
-    public void setNamingRule(String namingRule) {
-        this.namingRule = namingRule;
-    }
-
 
     /**
      * {@inheritDoc}
@@ -297,13 +297,13 @@ public abstract class BaseAutoScalingConf implements Serializable {
         result = prime * result + ((platformNo == null) ? 0 : platformNo.hashCode());
         result = prime * result + ((imageNo == null) ? 0 : imageNo.hashCode());
         result = prime * result + ((instanceType == null) ? 0 : instanceType.hashCode());
+        result = prime * result + ((namingRule == null) ? 0 : namingRule.hashCode());
         result = prime * result + ((idleTimeMax == null) ? 0 : idleTimeMax.hashCode());
         result = prime * result + ((idleTimeMin == null) ? 0 : idleTimeMin.hashCode());
         result = prime * result + ((continueLimit == null) ? 0 : continueLimit.hashCode());
         result = prime * result + ((addCount == null) ? 0 : addCount.hashCode());
         result = prime * result + ((delCount == null) ? 0 : delCount.hashCode());
         result = prime * result + ((enabled == null) ? 0 : enabled.hashCode());
-        result = prime * result + ((namingRule == null) ? 0 : namingRule.hashCode());
 
         return result;
     }
@@ -343,6 +343,11 @@ public abstract class BaseAutoScalingConf implements Serializable {
         } else if (!instanceType.equals(other.instanceType)) {
             return false;
         }
+        if (namingRule == null) {
+            if (other.namingRule != null) { return false; }
+        } else if (!namingRule.equals(other.namingRule)) {
+            return false;
+        }
         if (idleTimeMax == null) {
             if (other.idleTimeMax != null) { return false; }
         } else if (!idleTimeMax.equals(other.idleTimeMax)) {
@@ -373,11 +378,6 @@ public abstract class BaseAutoScalingConf implements Serializable {
         } else if (!enabled.equals(other.enabled)) {
             return false;
         }
-        if (namingRule == null) {
-            if (other.namingRule != null) { return false; }
-        } else if (!namingRule.equals(other.namingRule)) {
-            return false;
-        }
 
         return true;
     }
@@ -394,13 +394,13 @@ public abstract class BaseAutoScalingConf implements Serializable {
         sb.append("platformNo=").append(platformNo).append(", ");
         sb.append("imageNo=").append(imageNo).append(", ");
         sb.append("instanceType=").append(instanceType).append(", ");
+        sb.append("namingRule=").append(namingRule).append(", ");
         sb.append("idleTimeMax=").append(idleTimeMax).append(", ");
         sb.append("idleTimeMin=").append(idleTimeMin).append(", ");
         sb.append("continueLimit=").append(continueLimit).append(", ");
         sb.append("addCount=").append(addCount).append(", ");
         sb.append("delCount=").append(delCount).append(", ");
-        sb.append("enabled=").append(enabled).append(", ");
-        sb.append("namingRule=").append(namingRule);
+        sb.append("enabled=").append(enabled);
         sb.append("]");
         return sb.toString();
     }

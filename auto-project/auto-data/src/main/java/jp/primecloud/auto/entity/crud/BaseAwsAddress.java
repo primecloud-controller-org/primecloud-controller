@@ -49,7 +49,7 @@ public abstract class BaseAwsAddress implements Serializable {
     /** INSTANCE_NO [BIGINT(19,0)] */
     private Long instanceNo;
 
-    /** INSTANCE_ID [VARCHAR(20,0)] */
+    /** INSTANCE_ID [VARCHAR(30,0)] */
     private String instanceId;
 
     /**

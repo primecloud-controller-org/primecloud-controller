@@ -22,7 +22,7 @@ import java.io.Serializable;
 
 /**
  * <p>
- * cloudstack_instanceに対応したエンティティのベースクラスです。
+ * CLOUDSTACK_INSTANCEに対応したエンティティのベースクラスです。
  * </p>
  *
  */
@@ -55,11 +55,11 @@ public abstract class BaseCloudstackInstance implements Serializable {
     /** ZONEID [VARCHAR(100,0)] */
     private String zoneid;
 
+    /** NETWORKID [VARCHAR(20,0)] */
+    private String networkid;
+
     /** SECURITYGROUP [VARCHAR(100,0)] */
     private String securitygroup;
-
-    /** NETWORKID [VARCHAR(100,0)] */
-    private String networkid;
 
     /**
      * instanceNoを取得します。
@@ -206,24 +206,6 @@ public abstract class BaseCloudstackInstance implements Serializable {
     }
 
     /**
-     * securitygroupを取得します。
-     *
-     * @return securitygroup
-     */
-    public String getSecuritygroup() {
-        return securitygroup;
-    }
-
-    /**
-     * securitygroupを設定します。
-     *
-     * @param securitygroup securitygroup
-     */
-    public void setSecuritygroup(String securitygroup) {
-        this.securitygroup = securitygroup;
-    }
-
-    /**
      * networkidを取得します。
      *
      * @return networkid
@@ -239,6 +221,24 @@ public abstract class BaseCloudstackInstance implements Serializable {
      */
     public void setNetworkid(String networkid) {
         this.networkid = networkid;
+    }
+
+    /**
+     * securitygroupを取得します。
+     *
+     * @return securitygroup
+     */
+    public String getSecuritygroup() {
+        return securitygroup;
+    }
+
+    /**
+     * securitygroupを設定します。
+     *
+     * @param securitygroup securitygroup
+     */
+    public void setSecuritygroup(String securitygroup) {
+        this.securitygroup = securitygroup;
     }
 
 
@@ -258,8 +258,8 @@ public abstract class BaseCloudstackInstance implements Serializable {
         result = prime * result + ((ipaddress == null) ? 0 : ipaddress.hashCode());
         result = prime * result + ((state == null) ? 0 : state.hashCode());
         result = prime * result + ((zoneid == null) ? 0 : zoneid.hashCode());
-        result = prime * result + ((securitygroup == null) ? 0 : securitygroup.hashCode());
         result = prime * result + ((networkid == null) ? 0 : networkid.hashCode());
+        result = prime * result + ((securitygroup == null) ? 0 : securitygroup.hashCode());
 
         return result;
     }
@@ -314,14 +314,14 @@ public abstract class BaseCloudstackInstance implements Serializable {
         } else if (!zoneid.equals(other.zoneid)) {
             return false;
         }
-        if (securitygroup == null) {
-            if (other.securitygroup != null) { return false; }
-        } else if (!securitygroup.equals(other.securitygroup)) {
-            return false;
-        }
         if (networkid == null) {
             if (other.networkid != null) { return false; }
         } else if (!networkid.equals(other.networkid)) {
+            return false;
+        }
+        if (securitygroup == null) {
+            if (other.securitygroup != null) { return false; }
+        } else if (!securitygroup.equals(other.securitygroup)) {
             return false;
         }
 
@@ -343,8 +343,8 @@ public abstract class BaseCloudstackInstance implements Serializable {
         sb.append("ipaddress=").append(ipaddress).append(", ");
         sb.append("state=").append(state).append(", ");
         sb.append("zoneid=").append(zoneid).append(", ");
-        sb.append("securitygroup=").append(securitygroup).append(", ");
-        sb.append("networkid=").append(networkid);
+        sb.append("networkid=").append(networkid).append(", ");
+        sb.append("securitygroup=").append(securitygroup);
         sb.append("]");
         return sb.toString();
     }

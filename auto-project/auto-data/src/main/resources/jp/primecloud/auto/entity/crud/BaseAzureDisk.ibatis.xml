@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE sqlMap      
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
 	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 <sqlMap namespace="AzureDisk">
 
@@ -21,15 +21,15 @@
 	<sql id="selectSql">
 		<![CDATA[
 		select
-			t1.DISK_NO as DISK_NO, 
-			t1.FARM_NO as FARM_NO, 
-			t1.PLATFORM_NO as PLATFORM_NO, 
-			t1.COMPONENT_NO as COMPONENT_NO, 
-			t1.INSTANCE_NO as INSTANCE_NO, 
-			t1.DISK_NAME as DISK_NAME, 
-			t1.INSTANCE_NAME as INSTANCE_NAME, 
-			t1.LUN as LUN, 
-			t1.SIZE as SIZE, 
+			t1.DISK_NO as DISK_NO,
+			t1.FARM_NO as FARM_NO,
+			t1.PLATFORM_NO as PLATFORM_NO,
+			t1.COMPONENT_NO as COMPONENT_NO,
+			t1.INSTANCE_NO as INSTANCE_NO,
+			t1.DISK_NAME as DISK_NAME,
+			t1.INSTANCE_NAME as INSTANCE_NAME,
+			t1.LUN as LUN,
+			t1.SIZE as SIZE,
 			t1.DEVICE as DEVICE
 		from
 			AZURE_DISK t1
@@ -63,14 +63,6 @@
 		]]>
 	</select>
 
-	<select id="readByComponentNo" parameterClass="java.util.Map" resultMap="azureDiskResultMap">
-		<include refid="selectSql" />
-		<![CDATA[
-		where
-			t1.COMPONENT_NO = #componentNo#
-		]]>
-	</select>
-
 	<select id="readByFarmNo" parameterClass="java.util.Map" resultMap="azureDiskResultMap">
 		<include refid="selectSql" />
 		<![CDATA[
@@ -79,19 +71,27 @@
 		]]>
 	</select>
 
-	<select id="readByInstanceNo" parameterClass="java.util.Map" resultMap="azureDiskResultMap">
-		<include refid="selectSql" />
-		<![CDATA[
-		where
-			t1.INSTANCE_NO = #instanceNo#
-		]]>
-	</select>
-
 	<select id="readByPlatformNo" parameterClass="java.util.Map" resultMap="azureDiskResultMap">
 		<include refid="selectSql" />
 		<![CDATA[
 		where
 			t1.PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="readByComponentNo" parameterClass="java.util.Map" resultMap="azureDiskResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.COMPONENT_NO = #componentNo#
+		]]>
+	</select>
+
+	<select id="readByInstanceNo" parameterClass="java.util.Map" resultMap="azureDiskResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.INSTANCE_NO = #instanceNo#
 		]]>
 	</select>
 
@@ -111,26 +111,26 @@
 	<insert id="create" parameterClass="AzureDisk">
 		<![CDATA[
 		insert into AZURE_DISK (
-			DISK_NO, 
-			FARM_NO, 
-			PLATFORM_NO, 
-			COMPONENT_NO, 
-			INSTANCE_NO, 
-			DISK_NAME, 
-			INSTANCE_NAME, 
-			LUN, 
-			SIZE, 
+			DISK_NO,
+			FARM_NO,
+			PLATFORM_NO,
+			COMPONENT_NO,
+			INSTANCE_NO,
+			DISK_NAME,
+			INSTANCE_NAME,
+			LUN,
+			SIZE,
 			DEVICE
 		) values (
-			#diskNo#, 
-			#farmNo#, 
-			#platformNo#, 
-			#componentNo#, 
-			#instanceNo#, 
-			#diskName#, 
-			#instanceName#, 
-			#lun#, 
-			#size#, 
+			#diskNo#,
+			#farmNo#,
+			#platformNo#,
+			#componentNo#,
+			#instanceNo#,
+			#diskName#,
+			#instanceName#,
+			#lun#,
+			#size#,
 			#device#
 		)
 		]]>
@@ -139,26 +139,26 @@
 	<insert id="createAuto" parameterClass="AzureDisk">
 		<![CDATA[
 		insert into AZURE_DISK (
-			DISK_NO, 
-			FARM_NO, 
-			PLATFORM_NO, 
-			COMPONENT_NO, 
-			INSTANCE_NO, 
-			DISK_NAME, 
-			INSTANCE_NAME, 
-			LUN, 
-			SIZE, 
+			DISK_NO,
+			FARM_NO,
+			PLATFORM_NO,
+			COMPONENT_NO,
+			INSTANCE_NO,
+			DISK_NAME,
+			INSTANCE_NAME,
+			LUN,
+			SIZE,
 			DEVICE
 		) values (
-			#diskNo#, 
-			#farmNo#, 
-			#platformNo#, 
-			#componentNo#, 
-			#instanceNo#, 
-			#diskName#, 
-			#instanceName#, 
-			#lun#, 
-			#size#, 
+			#diskNo#,
+			#farmNo#,
+			#platformNo#,
+			#componentNo#,
+			#instanceNo#,
+			#diskName#,
+			#instanceName#,
+			#lun#,
+			#size#,
 			#device#
 		)
 		]]>
@@ -172,14 +172,14 @@
 	<update id="update" parameterClass="AzureDisk">
 		<![CDATA[
 		update AZURE_DISK set
-			FARM_NO = #farmNo#, 
-			PLATFORM_NO = #platformNo#, 
-			COMPONENT_NO = #componentNo#, 
-			INSTANCE_NO = #instanceNo#, 
-			DISK_NAME = #diskName#, 
-			INSTANCE_NAME = #instanceName#, 
-			LUN = #lun#, 
-			SIZE = #size#, 
+			FARM_NO = #farmNo#,
+			PLATFORM_NO = #platformNo#,
+			COMPONENT_NO = #componentNo#,
+			INSTANCE_NO = #instanceNo#,
+			DISK_NAME = #diskName#,
+			INSTANCE_NAME = #instanceName#,
+			LUN = #lun#,
+			SIZE = #size#,
 			DEVICE = #device#
 		where
 			DISK_NO = #diskNo#
@@ -217,14 +217,6 @@
 		]]>
 	</delete>
 
-	<delete id="deleteByComponentNo" parameterClass="java.util.Map">
-		<![CDATA[
-		delete from AZURE_DISK
-		where
-			COMPONENT_NO = #componentNo#
-		]]>
-	</delete>
-
 	<delete id="deleteByFarmNo" parameterClass="java.util.Map">
 		<![CDATA[
 		delete from AZURE_DISK
@@ -233,19 +225,27 @@
 		]]>
 	</delete>
 
-	<delete id="deleteByInstanceNo" parameterClass="java.util.Map">
-		<![CDATA[
-		delete from AZURE_DISK
-		where
-			INSTANCE_NO = #instanceNo#
-		]]>
-	</delete>
-
 	<delete id="deleteByPlatformNo" parameterClass="java.util.Map">
 		<![CDATA[
 		delete from AZURE_DISK
 		where
 			PLATFORM_NO = #platformNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByComponentNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from AZURE_DISK
+		where
+			COMPONENT_NO = #componentNo#
+		]]>
+	</delete>
+
+	<delete id="deleteByInstanceNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from AZURE_DISK
+		where
+			INSTANCE_NO = #instanceNo#
 		]]>
 	</delete>
 
@@ -270,14 +270,6 @@
 		]]>
 	</select>
 
-	<select id="countByComponentNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
-		<include refid="countSql" />
-		<![CDATA[
-		where
-			COMPONENT_NO = #componentNo#
-		]]>
-	</select>
-
 	<select id="countByFarmNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
 		<include refid="countSql" />
 		<![CDATA[
@@ -286,19 +278,27 @@
 		]]>
 	</select>
 
-	<select id="countByInstanceNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
-		<include refid="countSql" />
-		<![CDATA[
-		where
-			INSTANCE_NO = #instanceNo#
-		]]>
-	</select>
-
 	<select id="countByPlatformNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
 		<include refid="countSql" />
 		<![CDATA[
 		where
 			PLATFORM_NO = #platformNo#
+		]]>
+	</select>
+
+	<select id="countByComponentNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			COMPONENT_NO = #componentNo#
+		]]>
+	</select>
+
+	<select id="countByInstanceNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			INSTANCE_NO = #instanceNo#
 		]]>
 	</select>
 

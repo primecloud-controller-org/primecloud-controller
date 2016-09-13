@@ -24,7 +24,7 @@ import jp.primecloud.auto.entity.crud.AuthoritySet;
 
 /**
  * <p>
- * authority_setに対応したDAOのベースインタフェースです。
+ * AUTHORITY_SETに対応したDAOのベースインタフェースです。
  * </p>
  *
  */
@@ -32,7 +32,7 @@ public interface BaseAuthoritySetDao {
 
     /**
      * 主キーに該当するレコードを検索します。
-     * 
+     *
      * @param setNo setNo
      * @return 主キーに該当するレコードのエンティティ。レコードがない場合はnull。
      */
@@ -42,7 +42,7 @@ public interface BaseAuthoritySetDao {
 
     /**
      * 全てのレコードを検索します。
-     * 
+     *
      * @return 全てのレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
     public List<AuthoritySet> readAll();
@@ -59,7 +59,7 @@ public interface BaseAuthoritySetDao {
 
     /**
      * 主キーのコレクションに該当するレコードを検索します。
-     * 
+     *
      * @param setNos setNoのコレクション
      * @return 主キーのコレクションに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
@@ -69,21 +69,21 @@ public interface BaseAuthoritySetDao {
 
     /**
      * 与えられたエンティティの内容でレコードを挿入します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void create(AuthoritySet entity);
 
     /**
      * 与えられたエンティティの内容でレコードを更新します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void update(AuthoritySet entity);
 
     /**
      * 与えられたエンティティのレコードを削除します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void delete(AuthoritySet entity);
@@ -95,7 +95,7 @@ public interface BaseAuthoritySetDao {
 
     /**
      * 主キーに該当するレコードを削除します。
-     * 
+     *
      * @param setNo setNo
      */
     public void deleteBySetNo(
@@ -113,14 +113,14 @@ public interface BaseAuthoritySetDao {
 
     /**
      * 全てのレコードの件数を取得します。
-     * 
+     *
      * @return 全てのレコードの件数。
      */
     public long countAll();
 
     /**
      * 主キーに該当するレコードの件数を取得します。
-     * 
+     *
      * @param setNo setNo
      * @return 主キーに該当するレコードの件数。
      */

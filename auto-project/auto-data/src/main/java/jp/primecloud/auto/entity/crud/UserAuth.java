@@ -21,7 +21,7 @@ package jp.primecloud.auto.entity.crud;
 
 /**
  * <p>
- * user_authに対応したエンティティです。
+ * USER_AUTHに対応したエンティティです。
  * </p>
  *
  */

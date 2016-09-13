@@ -32,7 +32,7 @@ public interface BaseInstanceConfigDao {
 
     /**
      * 主キーに該当するレコードを検索します。
-     * 
+     *
      * @param configNo configNo
      * @return 主キーに該当するレコードのエンティティ。レコードがない場合はnull。
      */
@@ -42,7 +42,7 @@ public interface BaseInstanceConfigDao {
 
     /**
      * 全てのレコードを検索します。
-     * 
+     *
      * @return 全てのレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
     public List<InstanceConfig> readAll();
@@ -79,7 +79,7 @@ public interface BaseInstanceConfigDao {
      * @return 与えられたキーに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
     public List<InstanceConfig> readByInstanceNoAndComponentNo(
-            Long instanceNo, 
+            Long instanceNo,
             Long componentNo
         );
 
@@ -95,7 +95,7 @@ public interface BaseInstanceConfigDao {
 
     /**
      * 主キーのコレクションに該当するレコードを検索します。
-     * 
+     *
      * @param configNos configNoのコレクション
      * @return 主キーのコレクションに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
@@ -105,21 +105,21 @@ public interface BaseInstanceConfigDao {
 
     /**
      * 与えられたエンティティの内容でレコードを挿入します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void create(InstanceConfig entity);
 
     /**
      * 与えられたエンティティの内容でレコードを更新します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void update(InstanceConfig entity);
 
     /**
      * 与えられたエンティティのレコードを削除します。
-     * 
+     *
      * @param entity エンティティ
      */
     public void delete(InstanceConfig entity);
@@ -131,7 +131,7 @@ public interface BaseInstanceConfigDao {
 
     /**
      * 主キーに該当するレコードを削除します。
-     * 
+     *
      * @param configNo configNo
      */
     public void deleteByConfigNo(
@@ -167,7 +167,7 @@ public interface BaseInstanceConfigDao {
      * @param componentNo componentNo
      */
     public void deleteByInstanceNoAndComponentNo(
-            Long instanceNo, 
+            Long instanceNo,
             Long componentNo
         );
 
@@ -182,14 +182,14 @@ public interface BaseInstanceConfigDao {
 
     /**
      * 全てのレコードの件数を取得します。
-     * 
+     *
      * @return 全てのレコードの件数。
      */
     public long countAll();
 
     /**
      * 主キーに該当するレコードの件数を取得します。
-     * 
+     *
      * @param configNo configNo
      * @return 主キーに該当するレコードの件数。
      */
@@ -229,7 +229,7 @@ public interface BaseInstanceConfigDao {
      * @return 与えられたキーに該当するレコードの件数。
      */
     public long countByInstanceNoAndComponentNo(
-            Long instanceNo, 
+            Long instanceNo,
             Long componentNo
         );
 

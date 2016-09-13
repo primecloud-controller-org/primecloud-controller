@@ -78,6 +78,19 @@ public abstract class BaseOpenstackCertificateDaoImpl extends SqlMapClientDaoSup
      */
     @Override
     @SuppressWarnings("unchecked")
+    public List<OpenstackCertificate> readByPlatformNo(
+            Long platformNo
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("platformNo", platformNo);
+        return (List<OpenstackCertificate>) getSqlMapClientTemplate().queryForList(getSqlMapId("readByPlatformNo"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @SuppressWarnings("unchecked")
     public List<OpenstackCertificate> readInUserNos(
             Collection<Long> userNos
         ) {
@@ -178,6 +191,18 @@ public abstract class BaseOpenstackCertificateDaoImpl extends SqlMapClientDaoSup
      * {@inheritDoc}
      */
     @Override
+    public void deleteByPlatformNo(
+            Long platformNo
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("platformNo", platformNo);
+        getSqlMapClientTemplate().delete(getSqlMapId("deleteByPlatformNo"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public long countAll() {
         return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countAll"));
     }
@@ -206,6 +231,18 @@ public abstract class BaseOpenstackCertificateDaoImpl extends SqlMapClientDaoSup
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("userNo", userNo);
         return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByUserNo"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long countByPlatformNo(
+            Long platformNo
+        ) {
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("platformNo", platformNo);
+        return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByPlatformNo"), paramMap);
     }
 
     protected String getSqlMapId(String id) {

@@ -21,7 +21,7 @@ package jp.primecloud.auto.dao.crud;
 
 /**
  * <p>
- * aws_ssl_keyに対応したDAOインタフェースです。
+ * AWS_SSL_KEYに対応したDAOインタフェースです。
  * </p>
  *
  */
