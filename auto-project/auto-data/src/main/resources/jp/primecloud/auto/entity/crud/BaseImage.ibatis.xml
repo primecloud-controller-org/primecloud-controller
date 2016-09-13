@@ -17,6 +17,7 @@
 		<result property="zabbixTemplate" column="ZABBIX_TEMPLATE" nullValue="" />
 		<result property="zabbixDisabled" column="ZABBIX_DISABLED" />
 		<result property="puppetDisabled" column="PUPPET_DISABLED" />
+		<result property="viewOrder" column="VIEW_ORDER" />
 	</resultMap>
 
 	<sql id="selectSql">
@@ -32,7 +33,8 @@
 			t1.COMPONENT_TYPE_NOS as COMPONENT_TYPE_NOS,
 			t1.ZABBIX_TEMPLATE as ZABBIX_TEMPLATE,
 			t1.ZABBIX_DISABLED as ZABBIX_DISABLED,
-			t1.PUPPET_DISABLED as PUPPET_DISABLED
+			t1.PUPPET_DISABLED as PUPPET_DISABLED,
+			t1.VIEW_ORDER as VIEW_ORDER
 		from
 			IMAGE t1
 		]]>
@@ -99,7 +101,8 @@
 			COMPONENT_TYPE_NOS,
 			ZABBIX_TEMPLATE,
 			ZABBIX_DISABLED,
-			PUPPET_DISABLED
+			PUPPET_DISABLED,
+			VIEW_ORDER
 		) values (
 			#imageNo#,
 			#platformNo#,
@@ -111,7 +114,8 @@
 			#componentTypeNos#,
 			#zabbixTemplate#,
 			#zabbixDisabled#,
-			#puppetDisabled#
+			#puppetDisabled#,
+			#viewOrder#
 		)
 		]]>
 	</insert>
@@ -129,7 +133,8 @@
 			COMPONENT_TYPE_NOS,
 			ZABBIX_TEMPLATE,
 			ZABBIX_DISABLED,
-			PUPPET_DISABLED
+			PUPPET_DISABLED,
+			VIEW_ORDER
 		) values (
 			#imageNo#,
 			#platformNo#,
@@ -141,7 +146,8 @@
 			#componentTypeNos#,
 			#zabbixTemplate#,
 			#zabbixDisabled#,
-			#puppetDisabled#
+			#puppetDisabled#,
+			#viewOrder#
 		)
 		]]>
 		<selectKey keyProperty="imageNo" resultClass="java.lang.Long" type="post">
@@ -163,7 +169,8 @@
 			COMPONENT_TYPE_NOS = #componentTypeNos#,
 			ZABBIX_TEMPLATE = #zabbixTemplate#,
 			ZABBIX_DISABLED = #zabbixDisabled#,
-			PUPPET_DISABLED = #puppetDisabled#
+			PUPPET_DISABLED = #puppetDisabled#,
+			VIEW_ORDER = #viewOrder#
 		where
 			IMAGE_NO = #imageNo#
 		]]>

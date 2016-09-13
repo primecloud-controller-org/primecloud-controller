@@ -10,5 +10,6 @@ create table IMAGE (
     ZABBIX_TEMPLATE varchar(100),
     ZABBIX_DISABLED tinyint(1) not null,
     PUPPET_DISABLED tinyint(1) not null,
+    VIEW_ORDER int(10),
     constraint IMAGE_PK primary key(IMAGE_NO)
 );

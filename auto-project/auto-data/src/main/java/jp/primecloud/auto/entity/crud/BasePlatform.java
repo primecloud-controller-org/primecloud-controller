@@ -55,6 +55,9 @@ public abstract class BasePlatform implements Serializable {
     /** SELECTABLE [BIT(0,0)] */
     private Boolean selectable;
 
+    /** VIEW_ORDER [INT(10,0)] */
+    private Integer viewOrder;
+
     /**
      * platformNoを取得します。
      *
@@ -199,6 +202,24 @@ public abstract class BasePlatform implements Serializable {
         this.selectable = selectable;
     }
 
+    /**
+     * viewOrderを取得します。
+     *
+     * @return viewOrder
+     */
+    public Integer getViewOrder() {
+        return viewOrder;
+    }
+
+    /**
+     * viewOrderを設定します。
+     *
+     * @param viewOrder viewOrder
+     */
+    public void setViewOrder(Integer viewOrder) {
+        this.viewOrder = viewOrder;
+    }
+
 
     /**
      * {@inheritDoc}
@@ -216,6 +237,7 @@ public abstract class BasePlatform implements Serializable {
         result = prime * result + ((proxy == null) ? 0 : proxy.hashCode());
         result = prime * result + ((platformType == null) ? 0 : platformType.hashCode());
         result = prime * result + ((selectable == null) ? 0 : selectable.hashCode());
+        result = prime * result + ((viewOrder == null) ? 0 : viewOrder.hashCode());
 
         return result;
     }
@@ -270,6 +292,11 @@ public abstract class BasePlatform implements Serializable {
         } else if (!selectable.equals(other.selectable)) {
             return false;
         }
+        if (viewOrder == null) {
+            if (other.viewOrder != null) { return false; }
+        } else if (!viewOrder.equals(other.viewOrder)) {
+            return false;
+        }
 
         return true;
     }
@@ -288,7 +315,8 @@ public abstract class BasePlatform implements Serializable {
         sb.append("internal=").append(internal).append(", ");
         sb.append("proxy=").append(proxy).append(", ");
         sb.append("platformType=").append(platformType).append(", ");
-        sb.append("selectable=").append(selectable);
+        sb.append("selectable=").append(selectable).append(", ");
+        sb.append("viewOrder=").append(viewOrder);
         sb.append("]");
         return sb.toString();
     }

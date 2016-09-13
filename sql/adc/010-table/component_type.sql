@@ -8,5 +8,6 @@ create table COMPONENT_TYPE (
     SELECTABLE tinyint(1) not null,
     ZABBIX_TEMPLATE varchar(100),
     ADDRESS_URL varchar(100),
+    VIEW_ORDER int(10),
     constraint COMPONENT_TYPE_PK primary key(COMPONENT_TYPE_NO)
 );

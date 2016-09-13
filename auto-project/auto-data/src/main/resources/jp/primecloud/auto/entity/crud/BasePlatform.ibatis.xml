@@ -14,6 +14,7 @@
 		<result property="proxy" column="PROXY" />
 		<result property="platformType" column="PLATFORM_TYPE" nullValue="" />
 		<result property="selectable" column="SELECTABLE" />
+		<result property="viewOrder" column="VIEW_ORDER" />
 	</resultMap>
 
 	<sql id="selectSql">
@@ -26,7 +27,8 @@
 			t1.INTERNAL as INTERNAL,
 			t1.PROXY as PROXY,
 			t1.PLATFORM_TYPE as PLATFORM_TYPE,
-			t1.SELECTABLE as SELECTABLE
+			t1.SELECTABLE as SELECTABLE,
+			t1.VIEW_ORDER as VIEW_ORDER
 		from
 			PLATFORM t1
 		]]>
@@ -81,7 +83,8 @@
 			INTERNAL,
 			PROXY,
 			PLATFORM_TYPE,
-			SELECTABLE
+			SELECTABLE,
+			VIEW_ORDER
 		) values (
 			#platformNo#,
 			#platformName#,
@@ -90,7 +93,8 @@
 			#internal#,
 			#proxy#,
 			#platformType#,
-			#selectable#
+			#selectable#,
+			#viewOrder#
 		)
 		]]>
 	</insert>
@@ -105,7 +109,8 @@
 			INTERNAL,
 			PROXY,
 			PLATFORM_TYPE,
-			SELECTABLE
+			SELECTABLE,
+			VIEW_ORDER
 		) values (
 			#platformNo#,
 			#platformName#,
@@ -114,7 +119,8 @@
 			#internal#,
 			#proxy#,
 			#platformType#,
-			#selectable#
+			#selectable#,
+			#viewOrder#
 		)
 		]]>
 		<selectKey keyProperty="platformNo" resultClass="java.lang.Long" type="post">
@@ -133,7 +139,8 @@
 			INTERNAL = #internal#,
 			PROXY = #proxy#,
 			PLATFORM_TYPE = #platformType#,
-			SELECTABLE = #selectable#
+			SELECTABLE = #selectable#,
+			VIEW_ORDER = #viewOrder#
 		where
 			PLATFORM_NO = #platformNo#
 		]]>

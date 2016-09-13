@@ -7,5 +7,6 @@ create table PLATFORM (
     PROXY tinyint(1) not null,
     PLATFORM_TYPE varchar(100) not null,
     SELECTABLE tinyint(1) not null,
+    VIEW_ORDER int(10),
     constraint PLATFORM_PK primary key(PLATFORM_NO)
 );

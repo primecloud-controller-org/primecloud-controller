@@ -64,6 +64,9 @@ public abstract class BaseImage implements Serializable {
     /** PUPPET_DISABLED [BIT(0,0)] */
     private Boolean puppetDisabled;
 
+    /** VIEW_ORDER [INT(10,0)] */
+    private Integer viewOrder;
+
     /**
      * imageNoを取得します。
      *
@@ -262,6 +265,24 @@ public abstract class BaseImage implements Serializable {
         this.puppetDisabled = puppetDisabled;
     }
 
+    /**
+     * viewOrderを取得します。
+     *
+     * @return viewOrder
+     */
+    public Integer getViewOrder() {
+        return viewOrder;
+    }
+
+    /**
+     * viewOrderを設定します。
+     *
+     * @param viewOrder viewOrder
+     */
+    public void setViewOrder(Integer viewOrder) {
+        this.viewOrder = viewOrder;
+    }
+
 
     /**
      * {@inheritDoc}
@@ -282,6 +303,7 @@ public abstract class BaseImage implements Serializable {
         result = prime * result + ((zabbixTemplate == null) ? 0 : zabbixTemplate.hashCode());
         result = prime * result + ((zabbixDisabled == null) ? 0 : zabbixDisabled.hashCode());
         result = prime * result + ((puppetDisabled == null) ? 0 : puppetDisabled.hashCode());
+        result = prime * result + ((viewOrder == null) ? 0 : viewOrder.hashCode());
 
         return result;
     }
@@ -351,6 +373,11 @@ public abstract class BaseImage implements Serializable {
         } else if (!puppetDisabled.equals(other.puppetDisabled)) {
             return false;
         }
+        if (viewOrder == null) {
+            if (other.viewOrder != null) { return false; }
+        } else if (!viewOrder.equals(other.viewOrder)) {
+            return false;
+        }
 
         return true;
     }
@@ -372,7 +399,8 @@ public abstract class BaseImage implements Serializable {
         sb.append("componentTypeNos=").append(componentTypeNos).append(", ");
         sb.append("zabbixTemplate=").append(zabbixTemplate).append(", ");
         sb.append("zabbixDisabled=").append(zabbixDisabled).append(", ");
-        sb.append("puppetDisabled=").append(puppetDisabled);
+        sb.append("puppetDisabled=").append(puppetDisabled).append(", ");
+        sb.append("viewOrder=").append(viewOrder);
         sb.append("]");
         return sb.toString();
     }

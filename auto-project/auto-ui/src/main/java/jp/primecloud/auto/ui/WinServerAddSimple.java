@@ -19,6 +19,8 @@
 package jp.primecloud.auto.ui;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.lang.BooleanUtils;
@@ -42,6 +44,7 @@ import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
 import com.vaadin.Application;
 import com.vaadin.data.Validator;
 import com.vaadin.data.Validator.InvalidValueException;
@@ -259,6 +262,16 @@ public class WinServerAddSimple extends Window {
         // クラウド情報を取得
         InstanceService instanceService = BeanContext.getBean(InstanceService.class);
         platforms = instanceService.getPlatforms(userNo);
+
+        // クラウド情報をソート
+        Collections.sort(platforms, new Comparator<PlatformDto>() {
+            @Override
+            public int compare(PlatformDto o1, PlatformDto o2) {
+                int order1 = (o1.getPlatform().getViewOrder() != null) ? o1.getPlatform().getViewOrder() : Integer.MAX_VALUE;
+                int order2 = (o2.getPlatform().getViewOrder() != null) ? o2.getPlatform().getViewOrder() : Integer.MAX_VALUE;
+                return order1 - order2;
+            }
+        });
 
         // コンポーネント情報を取得
         ComponentType componentType = null;

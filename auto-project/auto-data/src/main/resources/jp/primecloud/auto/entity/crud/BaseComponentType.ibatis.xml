@@ -15,6 +15,7 @@
 		<result property="selectable" column="SELECTABLE" />
 		<result property="zabbixTemplate" column="ZABBIX_TEMPLATE" nullValue="" />
 		<result property="addressUrl" column="ADDRESS_URL" nullValue="" />
+		<result property="viewOrder" column="VIEW_ORDER" />
 	</resultMap>
 
 	<sql id="selectSql">
@@ -28,7 +29,8 @@
 			t1.RUN_ORDER as RUN_ORDER,
 			t1.SELECTABLE as SELECTABLE,
 			t1.ZABBIX_TEMPLATE as ZABBIX_TEMPLATE,
-			t1.ADDRESS_URL as ADDRESS_URL
+			t1.ADDRESS_URL as ADDRESS_URL,
+			t1.VIEW_ORDER as VIEW_ORDER
 		from
 			COMPONENT_TYPE t1
 		]]>
@@ -84,7 +86,8 @@
 			RUN_ORDER,
 			SELECTABLE,
 			ZABBIX_TEMPLATE,
-			ADDRESS_URL
+			ADDRESS_URL,
+			VIEW_ORDER
 		) values (
 			#componentTypeNo#,
 			#componentTypeName#,
@@ -94,7 +97,8 @@
 			#runOrder#,
 			#selectable#,
 			#zabbixTemplate#,
-			#addressUrl#
+			#addressUrl#,
+			#viewOrder#
 		)
 		]]>
 	</insert>
@@ -110,7 +114,8 @@
 			RUN_ORDER,
 			SELECTABLE,
 			ZABBIX_TEMPLATE,
-			ADDRESS_URL
+			ADDRESS_URL,
+			VIEW_ORDER
 		) values (
 			#componentTypeNo#,
 			#componentTypeName#,
@@ -120,7 +125,8 @@
 			#runOrder#,
 			#selectable#,
 			#zabbixTemplate#,
-			#addressUrl#
+			#addressUrl#,
+			#viewOrder#
 		)
 		]]>
 		<selectKey keyProperty="componentTypeNo" resultClass="java.lang.Long" type="post">
@@ -140,7 +146,8 @@
 			RUN_ORDER = #runOrder#,
 			SELECTABLE = #selectable#,
 			ZABBIX_TEMPLATE = #zabbixTemplate#,
-			ADDRESS_URL = #addressUrl#
+			ADDRESS_URL = #addressUrl#,
+			VIEW_ORDER = #viewOrder#
 		where
 			COMPONENT_TYPE_NO = #componentTypeNo#
 		]]>

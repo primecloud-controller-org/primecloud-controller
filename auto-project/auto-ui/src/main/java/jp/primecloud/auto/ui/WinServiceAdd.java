@@ -20,6 +20,8 @@ package jp.primecloud.auto.ui;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.lang.BooleanUtils;
@@ -37,6 +39,7 @@ import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
 import com.vaadin.Application;
 import com.vaadin.data.Property;
 import com.vaadin.data.Validator.InvalidValueException;
@@ -319,6 +322,16 @@ public class WinServiceAdd extends Window {
         // サービス種類情報を取得
         ComponentService componentService = BeanContext.getBean(ComponentService.class);
         componentTypes = componentService.getComponentTypes(farmNo);
+
+        // サービス種類情報をソート
+        Collections.sort(componentTypes, new Comparator<ComponentTypeDto>() {
+            @Override
+            public int compare(ComponentTypeDto o1, ComponentTypeDto o2) {
+                int order1 = (o1.getComponentType().getViewOrder() != null) ? o1.getComponentType().getViewOrder() : Integer.MAX_VALUE;
+                int order2 = (o2.getComponentType().getViewOrder() != null) ? o2.getComponentType().getViewOrder() : Integer.MAX_VALUE;
+                return order1 - order2;
+            }
+        });
 
         // 全インスタンスを取得
         InstanceService instanceService = BeanContext.getBean(InstanceService.class);

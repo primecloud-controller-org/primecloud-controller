@@ -58,6 +58,9 @@ public abstract class BaseComponentType implements Serializable {
     /** ADDRESS_URL [VARCHAR(100,0)] */
     private String addressUrl;
 
+    /** VIEW_ORDER [INT(10,0)] */
+    private Integer viewOrder;
+
     /**
      * componentTypeNoを取得します。
      *
@@ -220,6 +223,24 @@ public abstract class BaseComponentType implements Serializable {
         this.addressUrl = addressUrl;
     }
 
+    /**
+     * viewOrderを取得します。
+     *
+     * @return viewOrder
+     */
+    public Integer getViewOrder() {
+        return viewOrder;
+    }
+
+    /**
+     * viewOrderを設定します。
+     *
+     * @param viewOrder viewOrder
+     */
+    public void setViewOrder(Integer viewOrder) {
+        this.viewOrder = viewOrder;
+    }
+
 
     /**
      * {@inheritDoc}
@@ -238,6 +259,7 @@ public abstract class BaseComponentType implements Serializable {
         result = prime * result + ((selectable == null) ? 0 : selectable.hashCode());
         result = prime * result + ((zabbixTemplate == null) ? 0 : zabbixTemplate.hashCode());
         result = prime * result + ((addressUrl == null) ? 0 : addressUrl.hashCode());
+        result = prime * result + ((viewOrder == null) ? 0 : viewOrder.hashCode());
 
         return result;
     }
@@ -297,6 +319,11 @@ public abstract class BaseComponentType implements Serializable {
         } else if (!addressUrl.equals(other.addressUrl)) {
             return false;
         }
+        if (viewOrder == null) {
+            if (other.viewOrder != null) { return false; }
+        } else if (!viewOrder.equals(other.viewOrder)) {
+            return false;
+        }
 
         return true;
     }
@@ -316,7 +343,8 @@ public abstract class BaseComponentType implements Serializable {
         sb.append("runOrder=").append(runOrder).append(", ");
         sb.append("selectable=").append(selectable).append(", ");
         sb.append("zabbixTemplate=").append(zabbixTemplate).append(", ");
-        sb.append("addressUrl=").append(addressUrl);
+        sb.append("addressUrl=").append(addressUrl).append(", ");
+        sb.append("viewOrder=").append(viewOrder);
         sb.append("]");
         return sb.toString();
     }

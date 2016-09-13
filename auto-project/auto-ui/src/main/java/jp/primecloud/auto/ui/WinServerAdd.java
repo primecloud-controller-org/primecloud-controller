@@ -18,6 +18,8 @@
  */
 package jp.primecloud.auto.ui;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.lang.BooleanUtils;
@@ -36,6 +38,7 @@ import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
 import com.vaadin.Application;
 import com.vaadin.data.Property;
 import com.vaadin.data.Validator.InvalidValueException;
@@ -375,6 +378,42 @@ public class WinServerAdd extends Window {
         // クラウド情報を取得
         InstanceService instanceService = BeanContext.getBean(InstanceService.class);
         platforms = instanceService.getPlatforms(userNo);
+
+        // クラウド情報をソート
+        Collections.sort(platforms, new Comparator<PlatformDto>() {
+            @Override
+            public int compare(PlatformDto o1, PlatformDto o2) {
+                int order1 = (o1.getPlatform().getViewOrder() != null) ? o1.getPlatform().getViewOrder() : Integer.MAX_VALUE;
+                int order2 = (o2.getPlatform().getViewOrder() != null) ? o2.getPlatform().getViewOrder() : Integer.MAX_VALUE;
+                return order1 - order2;
+            }
+        });
+
+        // サーバ種別情報をソート
+        for (PlatformDto platform : platforms) {
+            Collections.sort(platform.getImages(), new Comparator<ImageDto>() {
+                @Override
+                public int compare(ImageDto o1, ImageDto o2) {
+                    int order1 = (o1.getImage().getViewOrder() != null) ? o1.getImage().getViewOrder() : Integer.MAX_VALUE;
+                    int order2 = (o2.getImage().getViewOrder() != null) ? o2.getImage().getViewOrder() : Integer.MAX_VALUE;
+                    return order1 - order2;
+                }
+            });
+        }
+
+        // 利用可能なサービス情報
+        for (PlatformDto platform : platforms) {
+            for (ImageDto image : platform.getImages()) {
+                Collections.sort(image.getComponentTypes(), new Comparator<ComponentType>() {
+                    @Override
+                    public int compare(ComponentType o1, ComponentType o2) {
+                        int order1 = (o1.getViewOrder() != null) ? o1.getViewOrder() : Integer.MAX_VALUE;
+                        int order2 = (o2.getViewOrder() != null) ? o2.getViewOrder() : Integer.MAX_VALUE;
+                        return order1 - order2;
+                    }
+                });
+            }
+        }
     }
 
     private void showClouds() {

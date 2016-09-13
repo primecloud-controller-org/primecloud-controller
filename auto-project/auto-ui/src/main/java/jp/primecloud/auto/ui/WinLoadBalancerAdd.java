@@ -1,5 +1,7 @@
 package jp.primecloud.auto.ui;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import jp.primecloud.auto.common.constant.PCCConstant;
@@ -277,6 +279,16 @@ public class WinLoadBalancerAdd extends Window {
         // クラウド情報を取得
         LoadBalancerService loadBalancerService = BeanContext.getBean(LoadBalancerService.class);
         platforms = loadBalancerService.getPlatforms(userNo);
+
+        // クラウド情報をソート
+        Collections.sort(platforms, new Comparator<LoadBalancerPlatformDto>() {
+            @Override
+            public int compare(LoadBalancerPlatformDto o1, LoadBalancerPlatformDto o2) {
+                int order1 = (o1.getPlatform().getViewOrder() != null) ? o1.getPlatform().getViewOrder() : Integer.MAX_VALUE;
+                int order2 = (o2.getPlatform().getViewOrder() != null) ? o2.getPlatform().getViewOrder() : Integer.MAX_VALUE;
+                return order1 - order2;
+            }
+        });
 
         // サービス情報を取得
         ComponentService componentService = BeanContext.getBean(ComponentService.class);
