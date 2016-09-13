@@ -1,27 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!--
-/*
- * Copyright 2014 by SCSK Corporation.
- * 
- * This file is part of PrimeCloud Controller(TM).
- * 
- * PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
- * 
- * PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
- */
-/*
- */
--->
-<!DOCTYPE sqlMap      
+<!DOCTYPE sqlMap
 	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 <sqlMap namespace="PccSystemInfo">
 
@@ -30,5 +8,57 @@
 	<resultMap id="pccSystemInfoResultMap" class="PccSystemInfo">
 		<result property="secretKey" column="SECRET_KEY" nullValue="" />
 	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.SECRET_KEY as SECRET_KEY
+		from
+			PCC_SYSTEM_INFO t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from PCC_SYSTEM_INFO t1
+		]]>
+	</sql>
+
+	<select id="read" resultMap="pccSystemInfoResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<insert id="create" parameterClass="PccSystemInfo">
+		<![CDATA[
+		insert into PCC_SYSTEM_INFO (
+			SECRET_KEY
+		) values (
+			#secretKey#
+		)
+		]]>
+	</insert>
+
+	<update id="update" parameterClass="PccSystemInfo">
+		<![CDATA[
+		update PCC_SYSTEM_INFO set
+			SECRET_KEY = #secretKey#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="PccSystemInfo">
+		<![CDATA[
+		delete from PCC_SYSTEM_INFO
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from PCC_SYSTEM_INFO
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
 
 </sqlMap>
