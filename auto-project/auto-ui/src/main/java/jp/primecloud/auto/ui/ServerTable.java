@@ -49,6 +49,7 @@ import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
 import com.vaadin.data.Container;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
@@ -85,8 +86,14 @@ public class ServerTable extends Table {
 
     private Map<Long, List<Button>> map = new HashMap<Long, List<Button>>();
 
+    boolean enableService = true;
+
     ServerTable(String caption, Container container, final MyCloudTabs sender) {
         super(caption, container);
+
+        // サービスを有効にするかどうか
+        String enableService = Config.getProperty("ui.enableService");
+        this.enableService = (enableService == null) || (BooleanUtils.toBoolean(enableService));
 
         this.sender = sender;
         setVisibleColumns(new Object[] {});
@@ -425,6 +432,9 @@ public class ServerTable extends Table {
         final CheckBox checkBox = new CheckBox(ViewMessages.getMessage("IUI-000035"), false);
         checkBox.setImmediate(true);
         optionLayout.addComponent(checkBox);
+        if (!enableService) {
+            optionLayout = null;
+        }
 
         String actionName = event.getButton().getDescription();
         String message = ViewMessages.getMessage("IUI-000013", new Object[]{dto.getInstance().getInstanceName(), actionName});

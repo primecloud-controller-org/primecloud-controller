@@ -91,6 +91,8 @@ public class MyCloudTabs extends Panel {
 
     protected Log log = LogFactory.getLog(MyCloudTabs.class);
 
+    boolean enableService = true;
+
     boolean enableLoadBalancer = true;
 
     TabSheet tabDesc = new TabSheet();
@@ -124,6 +126,9 @@ public class MyCloudTabs extends Panel {
     LoadBalancerTable loadBalancerTable = new LoadBalancerTable(null, new LoadBalancerDtoContainer(), this);
 
     MyCloudTabs() {
+        // サービスを有効にするかどうか
+        String enableService = Config.getProperty("ui.enableService");
+        this.enableService = (enableService == null) || (BooleanUtils.toBoolean(enableService));
 
         // ロードバランサの有効/無効を判定
         String enableLoadBalancer = Config.getProperty("ui.enableLoadBalancer");
@@ -172,7 +177,9 @@ public class MyCloudTabs extends Panel {
         //スプリットパネル下段
         splService.addComponent(serviceDesc);
 
-        tabDesc.addTab(pnService, ViewProperties.getCaption("tab.service"), Icons.SERVICETAB.resource());
+        if (this.enableService) {
+            tabDesc.addTab(pnService, ViewProperties.getCaption("tab.service"), Icons.SERVICETAB.resource());
+        }
 
         //サーバ用タブ
         pnServer.setSizeFull();
@@ -615,6 +622,9 @@ public class MyCloudTabs extends Panel {
                 checkBox.setImmediate(true);
                 optionLayout.addComponent(checkBox);
                 optionLayout.setComponentAlignment(checkBox, Alignment.MIDDLE_CENTER);
+                if (!enableService) {
+                    optionLayout = null;
+                }
 
                 String message = ViewMessages.getMessage("IUI-000011");
                 DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message,
@@ -1054,13 +1064,17 @@ public class MyCloudTabs extends Panel {
     }
 
     public void refreshTable() {
-        ((ComponentDtoContainer) serviceTable.getContainerDataSource()).refresh();
+        if (enableService) {
+            ((ComponentDtoContainer) serviceTable.getContainerDataSource()).refresh();
+        }
         ((InstanceDtoContainer) serverTable.getContainerDataSource()).refresh();
         if (enableLoadBalancer) {
             ((LoadBalancerDtoContainer) loadBalancerTable.getContainerDataSource()).refresh();
         }
         refreshTableSelectItem();
-        serviceDesc.initializeData();
+        if (enableService) {
+            serviceDesc.initializeData();
+        }
         serverDesc.initializeData();
         if (enableLoadBalancer) {
             loadBalancerDesc.initializeData();
@@ -1068,7 +1082,9 @@ public class MyCloudTabs extends Panel {
     }
 
     public void refreshTableSelectItem() {
-        serviceTable.setValue(null);
+        if (enableService) {
+            serviceTable.setValue(null);
+        }
         serverTable.setValue(null);
         if (enableLoadBalancer) {
             loadBalancerTable.setValue(null);
@@ -1076,7 +1092,9 @@ public class MyCloudTabs extends Panel {
     }
 
     public void refreshTableOnly() {
-        serviceTable.refreshData();
+        if (enableService) {
+            serviceTable.refreshData();
+        }
         serverTable.refreshData();
         if (enableLoadBalancer) {
             loadBalancerTable.refreshData();

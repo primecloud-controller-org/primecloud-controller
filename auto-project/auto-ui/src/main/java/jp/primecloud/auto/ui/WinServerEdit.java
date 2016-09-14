@@ -184,11 +184,17 @@ public class WinServerEdit extends Window {
 
     List<String> zoneNames;
 
+    boolean enableService = true;
+
     boolean attachService = false;
 
     WinServerEdit(Application ap, Long instanceNo) {
         apl = ap;
         this.instanceNo = instanceNo;
+
+        // サービスを有効にするかどうか
+        String enableService = Config.getProperty("ui.enableService");
+        this.enableService = (enableService == null) || (BooleanUtils.toBoolean(enableService));
 
         // 初期データの取得
         initData();
@@ -395,7 +401,9 @@ public class WinServerEdit extends Window {
                 Panel panel = new Panel();
                 serviceTable = new AvailableServiceTable();
                 panel.addComponent(serviceTable);
-                form.getLayout().addComponent(panel);
+                if (enableService) {
+                    form.getLayout().addComponent(panel);
+                }
                 panel.setSizeFull();
                 form.setSizeFull();
 
@@ -430,7 +438,9 @@ public class WinServerEdit extends Window {
                 hlay.addComponent(txt);
                 hlay.setComponentAlignment(txt, Alignment.MIDDLE_LEFT);
 
-                form.getLayout().addComponent(hlay);
+                if (enableService) {
+                    form.getLayout().addComponent(hlay);
+                }
             }
             addComponent(form);
 

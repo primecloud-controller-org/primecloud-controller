@@ -46,6 +46,7 @@ import jp.primecloud.auto.ui.util.CommonUtils;
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
 import com.vaadin.data.Container;
 import com.vaadin.terminal.ExternalResource;
 import com.vaadin.ui.Button;
@@ -75,8 +76,13 @@ public class ServerDescBasic extends Panel {
 
     AttachService right = new AttachService("", null);
 
+    boolean enableService = true;
 
     public ServerDescBasic() {
+        // サービスを有効にするかどうか
+        String enableService = Config.getProperty("ui.enableService");
+        this.enableService = (enableService == null) || (BooleanUtils.toBoolean(enableService));
+
         setHeight("100%");
         addStyleName(Reindeer.PANEL_LIGHT);
 

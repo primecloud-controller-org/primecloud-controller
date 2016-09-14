@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.commons.lang.BooleanUtils;
 
 import jp.primecloud.auto.common.constant.PCCConstant;
+import jp.primecloud.auto.config.Config;
 import jp.primecloud.auto.entity.crud.ComponentType;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.InstanceService;
@@ -86,10 +87,16 @@ public class WinServerAdd extends Window {
 
     List<Long> componentNos;
 
+    boolean enableService = true;
+
     boolean attachService = false;
 
     WinServerAdd(Application ap) {
         apl = ap;
+
+        // サービスを有効にするかどうか
+        String enableService = Config.getProperty("ui.enableService");
+        this.enableService = (enableService == null) || (BooleanUtils.toBoolean(enableService));
 
         //モーダルウインドウ
         setIcon(Icons.ADD.resource());
@@ -178,7 +185,9 @@ public class WinServerAdd extends Window {
             lay.addStyleName("win-server-add-panel");
             serviceTable = new AvailableServiceTable();
             panel.addComponent(serviceTable);
-            getLayout().addComponent(panel);
+            if (enableService) {
+                getLayout().addComponent(panel);
+            }
 
             //サービス選択ボタン
             Button btnService = new Button(ViewProperties.getCaption("button.serverAttachService"));
@@ -211,7 +220,9 @@ public class WinServerAdd extends Window {
             hlay.addComponent(txt);
             hlay.setComponentAlignment(txt, Alignment.MIDDLE_LEFT);
 
-            getLayout().addComponent(hlay);
+            if (enableService) {
+                getLayout().addComponent(hlay);
+            }
         }
     }
 
