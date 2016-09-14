@@ -304,12 +304,14 @@ public class AutoApplication extends Application {
             btnAccount.addListener(new Button.ClickListener() {
                 @Override
                 public void buttonClick(ClickEvent event) {
+                    /*
                     //マスターユーザーにのみ開放する
                     if (ViewContext.getPowerDefaultMaster().equals(ViewContext.getLoginUser())){
                         WinUserManagement window = new WinUserManagement();
                         getApplication().addWindow(window);
                         mainWindow.open(new ExternalResource( window.getURL()) , "_user" );
                     }
+                    */
                 }
             });
             addComponent(btnAccount);
