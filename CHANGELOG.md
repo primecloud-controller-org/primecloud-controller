@@ -1,6 +1,87 @@
 
-[こちら](https://github.com/primecloud-controller-org/primecloud-controller-build)のプロジェクトを使い、ビルドしたものを[公開](http://www.primecloud-controller.org/download.html)
+[こちら](https://github.com/primecloud-controller-org/primecloud-controller-build)のプロジェクトを使い、ビルドしたものを[公開](http://www.primecloud-controller.org/download/index.html)
 しています。
+
+
+2016-09-22 PrimeCloud Controller 2.7.0リリース
+============================================
+
+## 主な変更点
+
+### 機能追加
+
+- サーバのイメージごとにPuppetやZabbixを利用しないように設定できるようにしました。 [#61](https://github.com/primecloud-controller-org/primecloud-controller/issues/61)
+- 1つのイメージやサービスで複数のZabbixテンプレートを利用できるようにしました。 [#65](https://github.com/primecloud-controller-org/primecloud-controller/issues/65)
+- 画面上のサービスViewを非表示にできるようにしました。 [#69](https://github.com/primecloud-controller-org/primecloud-controller/issues/69)
+- 画面上におけるプラットフォーム、イメージ、サービス種類の表示順を変更できるようにしました。 [#70](https://github.com/primecloud-controller-org/primecloud-controller/issues/70)
+
+### 改善
+
+- AWSプラットフォームのサーバ作成時に、1つ目のサブネットが自動的に選択されるようにしました。 [#48](https://github.com/primecloud-controller-org/primecloud-controller/issues/48)
+- Amazon EC2の長いリソースIDに対応しました。 [#53](https://github.com/primecloud-controller-org/primecloud-controller/issues/53)
+- イメージごとのZabbixテンプレートの指定を必須から任意に緩和しました。
+- 参照系のいくつかのAPIにおいて、レスポンスに含まれる情報を追加しました。
+- データベースのいくつかのテーブルに外部キー制約を追加しました。 [#71](https://github.com/primecloud-controller-org/primecloud-controller/issues/71)
+
+### 修正
+
+- インストールスクリプトにおいて、SQLAlchemyが正しくインストールされない問題を修正しました。 [#59](https://github.com/primecloud-controller-org/primecloud-controller/issues/59)
+- AWSプラットフォームのサーバのサブネットを選択すると、それ以降変更できなくなる問題を修正しました。 [#60](https://github.com/primecloud-controller-org/primecloud-controller/issues/60)
+- IaaS Gatewayでエラーが発生すると、クラウドの状態とデータベースの間に不整合が生じることがある問題を修正しました。 [#62](https://github.com/primecloud-controller-org/primecloud-controller/issues/62)
+- ListAwsAddress APIで別のユーザのリソースを参照できてしまう問題を修正しました。 [#66](https://github.com/primecloud-controller-org/primecloud-controller/issues/66)
+- AWSプラットフォームでElastic IPを利用していると、EditInstance APIの実行時にエラーが発生する問題を修正しました。 [#67](https://github.com/primecloud-controller-org/primecloud-controller/issues/67)
+- いくつかのAPIで不要なパラメータが必須になっている問題を修正しました。 [#68](https://github.com/primecloud-controller-org/primecloud-controller/issues/68)
+
+### 変更
+
+- 画面上で行える子ユーザの管理機能を無効にしました。
+
+## アップグレード
+
+バージョン2.6.1の環境をアップグレードする場合、次の点に注意してください。
+
+### コンフィグファイルの変更
+
+```/opt/adc/conf/config.properties``` ファイルに次の設定を追加してください。  
+（※追加しなくても動作に影響はありません。）
+
+```
+ui.enableService = true
+```
+
+### データベースのスキーマの変更
+
+データベースで次のDDL文を実行し、スキーマを変更してください。
+
+```sql
+alter table AWS_INSTANCE modify INSTANCE_ID varchar(30);
+alter table AWS_VOLUME modify INSTANCE_ID varchar(30);
+alter table AWS_VOLUME modify VOLUME_ID varchar(30);
+alter table AWS_VOLUME modify SNAPSHOT_ID varchar(30);
+alter table AWS_ADDRESS modify INSTANCE_ID varchar(30);
+alter table AWS_SNAPSHOT modify SNAPSHOT_ID varchar(30);
+
+alter table IMAGE add ZABBIX_DISABLED tinyint(1) not null;
+alter table IMAGE add PUPPET_DISABLED tinyint(1) not null;
+
+alter table USER add constraint USER_FK1 foreign key (MASTER_USER) references USER (USER_NO); 
+alter table USER_AUTH add constraint USER_AUTH_FK1 foreign key (USER_NO) references USER (USER_NO);
+
+alter table PLATFORM add VIEW_ORDER int(10);
+alter table IMAGE add VIEW_ORDER int(10);
+alter table COMPONENT_TYPE add VIEW_ORDER int(10);
+```
+
+### IaaS Gatewayの変更
+
+配布パッケージに含まれる IaaS Gateway のソースコードのうち、4つのファイルを次のパスにコピーして置き換えてください。
+
+```
+cp PrimeCloud-Controller-2.7.0/2.7.0/iaasgw/AllocateAddress.py /opt/adc/iaasgw/AllocateAddress.py
+cp PrimeCloud-Controller-2.7.0/2.7.0/iaasgw/ReleaseAddress.py /opt/adc/iaasgw/ReleaseAddress.py
+cp PrimeCloud-Controller-2.7.0/2.7.0/iaasgw/iaasgw/controller/ec2/ec2controller.py /opt/adc/iaasgw/iaasgw/controller/ec2/ec2controller.py
+cp PrimeCloud-Controller-2.7.0/2.7.0/iaasgw/iaasgw/db/mysqlConnector.py /opt/adc/iaasgw/iaasgw/db/mysqlConnector.py
+```
 
 
 2016-06-16 PrimeCloud Controller 2.6.1リリース
