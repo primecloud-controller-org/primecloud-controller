@@ -582,15 +582,19 @@ cp -p ${SOFTWARE_DIR}/python/python-${PYTHON_VERSION}.conf /etc/ld.so.conf.d/pyt
 ldconfig
 
 #install ez_setup and pip
-which pip > /dev/null 2>&1
+ls /usr/local/bin/easy_install > /dev/null 2>&1
 if [ $? -ne 0 ]; then
-    wget https://bootstrap.pypa.io/ez_setup.py -q -O - | python >> $LOG_FILE 2>&1
+    wget https://bootstrap.pypa.io/ez_setup.py -q -O - | /usr/local/bin/python >> $LOG_FILE 2>&1
     if [ $? -ne 0 ]; then
         echo "Error: python ez_setup install failed." >> $LOG_FILE 2>&1
         echo "Error: python ez_setup install failed."
         exit 1
     fi
-    easy_install pip >> $LOG_FILE 2>&1
+fi
+
+ls /usr/local/bin/pip > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+    /usr/local/bin/easy_install pip >> $LOG_FILE 2>&1
     if [ $? -ne 0 ]; then
         echo "Error: python pip install failed." >> $LOG_FILE 2>&1
         echo "Error: python pip install failed."
@@ -599,27 +603,27 @@ if [ $? -ne 0 ]; then
 fi
 
 #install SQLAlchemy
-easy_install SQLAlchemy\=\=${SQLALCHEMY_VERSION} >> $LOG_FILE 2&>1
+/usr/local/bin/easy_install SQLAlchemy\=\=${SQLALCHEMY_VERSION} >> $LOG_FILE 2&>1
 if [ ${SQLALCHEMY_VERSION} == 0.7.3 ]; then
     if [ -e /usr/local/lib/python2.7/site-packages/SQLAlchemy-0.7.3-py2.7-linux-x86_64.egg/sqlalchemy/dialects/mysql/mysqlconnector.py ]; then
         cp -p /usr/local/lib/python2.7/site-packages/SQLAlchemy-0.7.3-py2.7-linux-x86_64.egg/sqlalchemy/dialects/mysql/mysqlconnector.py ${BACKUP_DIR}/mysqlconnector.py.${BACKUP_DATE}
     fi
 
     sed -i -e 's/return connection.connection.get_characterset_info()/return connection.connection.get_charset()/' /usr/local/lib/python2.7/site-packages/SQLAlchemy-0.7.3-py2.7-linux-x86_64.egg/sqlalchemy/dialects/mysql/mysqlconnector.py
-    python -m compileall -f /usr/local/lib/python2.7/site-packages/SQLAlchemy-0.7.3-py2.7-linux-x86_64.egg/sqlalchemy/dialects/mysql/mysqlconnector.py
+    /usr/local/bin/python -m compileall -f /usr/local/lib/python2.7/site-packages/SQLAlchemy-0.7.3-py2.7-linux-x86_64.egg/sqlalchemy/dialects/mysql/mysqlconnector.py
     ldconfig
 fi
 
 #install libcloud
-easy_install apache-libcloud\=\=${LIBCLOUD_VERSION} >> $LOG_FILE 2&>1
+/usr/local/bin/easy_install apache-libcloud\=\=${LIBCLOUD_VERSION} >> $LOG_FILE 2&>1
 
 #install mysql-connector
 wget -q https://launchpad.net/myconnpy/0.3/0.3.2/+download/mysql-connector-python-0.3.2-devel.tar.gz
-easy_install -Z mysql-connector-python-0.3.2-devel.tar.gz >> $LOG_FILE 2>&1
+/usr/local/bin/easy_install -Z mysql-connector-python-0.3.2-devel.tar.gz >> $LOG_FILE 2>&1
 #easy_install mysql-connector-python\=\=${MYSQL_CONNECTOR_PYTHON_VERSION} >> $LOG_FILE 2&>1
 
 #install pycrypto
-pip install pycrypto==2.6.1 >> $LOG_FILE 2>&1
+/usr/local/bin/pip install pycrypto==2.6.1 >> $LOG_FILE 2>&1
 if [ $? -ne 0 ]; then
     echo "Error: python pycrypto install failed." >> $LOG_FILE 2>&1
     echo "Error: python pycrypto install failed."
@@ -627,7 +631,7 @@ if [ $? -ne 0 ]; then
 fi
 
 #install OpenStack liblary
-pip install python-cinderclient==1.0.8 python-novaclient==2.15.0 >> $LOG_FILE 2>&1
+/usr/local/bin/pip install python-cinderclient==1.0.8 python-novaclient==2.15.0 >> $LOG_FILE 2>&1
 if [ $? -ne 0 ]; then
     echo "Error: python cinderclient/novaclient install failed." >> $LOG_FILE 2>&1
     echo "Error: python cinderclient/novaclient install failed."
@@ -646,7 +650,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 cd /tmp/azure-sdk-for-python
-python setup.py install >> $LOG_FILE 2>&1
+/usr/local/bin/python setup.py install >> $LOG_FILE 2>&1
 if [ $? -ne 0 ]; then
     echo "Error: python Azure SDK install failed." >> $LOG_FILE 2>&1
     echo "Error: python Azure SDK install failed."
