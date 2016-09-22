@@ -18,7 +18,7 @@ public class AwsAddressResponse {
     @JsonProperty("Comment")
     private String comment;
 
-    @JsonProperty("AssociateInstanceno")
+    @JsonProperty("AssociateInstanceNo")
     private Long associateInstanceNo;
 
     public AwsAddressResponse(AwsAddress awsAddress) {
