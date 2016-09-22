@@ -3,7 +3,7 @@
 	<groupId>jp.primecloud.auto</groupId>
 	<artifactId>auto-project</artifactId>
 	<packaging>pom</packaging>
-	<version>2.7.0</version>
+	<version>2.7.1-SNAPSHOT</version>
 	<name>${pom.artifactId}</name>
 	<properties>
 		<github.global.server>github</github.global.server>
@@ -92,7 +92,7 @@
 		<url>https://github.com/primecloud-controller-org/primecloud-controller</url>
 		<connection>scm:git:https://github.com/primecloud-controller-org/primecloud-controller.git</connection>
 		<developerConnection>scm:git:https://github.com/primecloud-controller-org/primecloud-controller.git</developerConnection>
-	  <tag>2.7.0</tag>
+	  <tag>HEAD</tag>
   </scm>
 	<reporting>
 		<plugins>
