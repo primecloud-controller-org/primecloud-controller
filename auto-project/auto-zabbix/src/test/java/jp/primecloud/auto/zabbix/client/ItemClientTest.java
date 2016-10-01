@@ -97,16 +97,28 @@ public class ItemClientTest {
 
     @Test
     public void testGetByApplication() {
-        ItemGetParam param = new ItemGetParam();
-        param.setHostids(Arrays.asList("10001"));
-        param.setApplication("OS");
-        param.setOutput("extend");
+        List<Item> items;
+        {
+            ItemGetParam param = new ItemGetParam();
+            param.setHostids(Arrays.asList("10001"));
+            param.setOutput("extend");
 
-        List<Item> items = client.item().get(param);
-        assertTrue(items.size() > 0);
-        for (Item item : items) {
-            assertEquals("OS", item.getApplication());
+            items = client.item().get(param);
+            assertTrue(items.size() > 0);
         }
+
+        List<Item> items2;
+        {
+            ItemGetParam param = new ItemGetParam();
+            param.setHostids(Arrays.asList("10001"));
+            param.setApplication("OS");
+            param.setOutput("extend");
+
+            items2 = client.item().get(param);
+            assertTrue(items2.size() > 0);
+        }
+
+        assertTrue(items.size() > items2.size());
     }
 
     @Test

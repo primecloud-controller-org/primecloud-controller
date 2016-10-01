@@ -19,8 +19,10 @@
 package jp.primecloud.auto.zabbix;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import jp.primecloud.auto.exception.AutoException;
@@ -50,6 +52,8 @@ public class ZabbixAccessor {
 
     private static ZabbixAccessor zAccessor = new ZabbixAccessor();
 
+    protected static List<String> ignoreAuthMethods;
+
     protected HttpClient httpClient;
 
     protected String apiUrl;
@@ -63,6 +67,12 @@ public class ZabbixAccessor {
     private int id;
 
     private String apiVersion;
+
+    static {
+        ignoreAuthMethods = new ArrayList<String>();
+        ignoreAuthMethods.add("apiinfo.version");
+        ignoreAuthMethods.add("user.login");
+    }
 
     private ZabbixAccessor(){}
 
@@ -89,7 +99,7 @@ public class ZabbixAccessor {
 
     public synchronized Object execute(String method, JSON params) {
         // authが空の場合、認証する
-        if (!"user.login".equals(method) && StringUtils.isEmpty(auth)) {
+        if (!ignoreAuthMethods.contains(method) && StringUtils.isEmpty(auth)) {
             authenticate();
         }
 
@@ -97,8 +107,11 @@ public class ZabbixAccessor {
         request.put("jsonrpc", "2.0");
         request.put("method", method);
         request.put("params", params == null ? Collections.EMPTY_MAP : params);
-        request.put("auth", auth == null ? "" : auth);
         request.put("id", ++id);
+
+        if (!ignoreAuthMethods.contains(method)) {
+            request.put("auth", auth == null ? "" : auth);
+        }
 
         String jsonRequest = JSONObject.fromObject(request).toString();
         if (log.isDebugEnabled()) {

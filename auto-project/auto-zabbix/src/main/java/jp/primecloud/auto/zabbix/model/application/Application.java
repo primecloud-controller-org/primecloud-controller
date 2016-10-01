@@ -41,6 +41,8 @@ public class Application implements Serializable {
 
     private String name;
 
+    private String flags;
+
     private List<String> templateids;
 
     private String templateid;
@@ -115,6 +117,24 @@ public class Application implements Serializable {
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * flagsを取得します。
+     *
+     * @return flags
+     */
+    public String getFlags() {
+        return flags;
+    }
+
+    /**
+     * flagsを設定します。
+     *
+     * @param flags String
+     */
+    public void setFlags(String flags) {
+        this.flags = flags;
     }
 
     /**

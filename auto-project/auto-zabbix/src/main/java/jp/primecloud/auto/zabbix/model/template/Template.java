@@ -112,6 +112,20 @@ public class Template implements Serializable {
 
     private String flags;
 
+    private String description;
+
+    private Integer tlsConnect;
+
+    private Integer tlsAccept;
+
+    private String tlsIssuer;
+
+    private String tlsSubject;
+
+    private String tlsPskIdentity;
+
+    private String tlsPsk;
+
     /**
      * templateidを取得します。
      *
@@ -848,6 +862,132 @@ public class Template implements Serializable {
      */
     public void setFlags(String flags) {
         this.flags = flags;
+    }
+
+    /**
+     * descriptionを取得します。
+     *
+     * @return description
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * descriptionを設定します。
+     *
+     * @param description description
+     */
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    /**
+     * tlsConnectを取得します。
+     *
+     * @return tlsConnect
+     */
+    public Integer getTlsConnect() {
+        return tlsConnect;
+    }
+
+    /**
+     * tlsConnectを設定します。
+     *
+     * @param tlsConnect tlsConnect
+     */
+    public void setTlsConnect(Integer tlsConnect) {
+        this.tlsConnect = tlsConnect;
+    }
+
+    /**
+     * tlsAcceptを取得します。
+     *
+     * @return tlsAccept
+     */
+    public Integer getTlsAccept() {
+        return tlsAccept;
+    }
+
+    /**
+     * tlsAcceptを設定します。
+     *
+     * @param tlsAccept tlsAccept
+     */
+    public void setTlsAccept(Integer tlsAccept) {
+        this.tlsAccept = tlsAccept;
+    }
+
+    /**
+     * tlsIssuerを取得します。
+     *
+     * @return tlsIssuer
+     */
+    public String getTlsIssuer() {
+        return tlsIssuer;
+    }
+
+    /**
+     * tlsIssuerを設定します。
+     *
+     * @param tlsIssuer tlsIssuer
+     */
+    public void setTlsIssuer(String tlsIssuer) {
+        this.tlsIssuer = tlsIssuer;
+    }
+
+    /**
+     * tlsSubjectを取得します。
+     *
+     * @return tlsSubject
+     */
+    public String getTlsSubject() {
+        return tlsSubject;
+    }
+
+    /**
+     * tlsSubjectを設定します。
+     *
+     * @param tlsSubject tlsSubject
+     */
+    public void setTlsSubject(String tlsSubject) {
+        this.tlsSubject = tlsSubject;
+    }
+
+    /**
+     * tlsPskIdentityを取得します。
+     *
+     * @return tlsPskIdentity
+     */
+    public String getTlsPskIdentity() {
+        return tlsPskIdentity;
+    }
+
+    /**
+     * tlsPskIdentityを設定します。
+     *
+     * @param tlsPskIdentity tlsPskIdentity
+     */
+    public void setTlsPskIdentity(String tlsPskIdentity) {
+        this.tlsPskIdentity = tlsPskIdentity;
+    }
+
+    /**
+     * tlsPskを取得します。
+     *
+     * @return tlsPsk
+     */
+    public String getTlsPsk() {
+        return tlsPsk;
+    }
+
+    /**
+     * tlsPskを設定します。
+     *
+     * @param tlsPsk tlsPsk
+     */
+    public void setTlsPsk(String tlsPsk) {
+        this.tlsPsk = tlsPsk;
     }
 
 }

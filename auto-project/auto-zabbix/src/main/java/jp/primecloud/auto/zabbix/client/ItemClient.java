@@ -18,18 +18,17 @@
  */
 package jp.primecloud.auto.zabbix.client;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jp.primecloud.auto.zabbix.ZabbixAccessor;
 import jp.primecloud.auto.zabbix.model.item.Item;
 import jp.primecloud.auto.zabbix.model.item.ItemGetParam;
 import jp.primecloud.auto.zabbix.model.item.ItemUpdateParam;
-
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
 import net.sf.json.util.PropertyFilter;
-
 
 /**
  * <p>
@@ -113,7 +112,6 @@ public class ItemClient {
      * @param itemids itemids
      * @return 削除したアイテム情報のitemidのリスト
      */
-    @SuppressWarnings("unchecked")
     public List<String> delete(List<String> itemids) {
         if (itemids == null || itemids.isEmpty()) {
             throw new IllegalArgumentException("itemid is required.");
@@ -122,11 +120,22 @@ public class ItemClient {
         JSONArray params = JSONArray.fromObject(itemids, defaultConfig);
         JSONObject result = (JSONObject) accessor.execute("item.delete", params);
 
-        JSONArray retItemids = result.getJSONArray("itemids");
+        JSONArray itemIds = result.getJSONArray("itemids");
         JsonConfig config = defaultConfig.copy();
         config.setCollectionType(List.class);
         config.setRootClass(String.class);
 
-        return (List<String>) JSONArray.toCollection(retItemids, config);
+        List<?> list = (List<?>) JSONArray.toCollection(itemIds, config);
+
+        List<String> itemIdsList = new ArrayList<String>();
+        for (Object object : list) {
+            if (object instanceof String) {
+                itemIdsList.add(String.class.cast(object));
+            } else {
+                itemIdsList.add(object.toString());
+            }
+        }
+
+        return itemIdsList;
     }
 }

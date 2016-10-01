@@ -165,7 +165,12 @@ public class UserClientTest {
                 param.setTheme("css_ob.css");
             } else {
                 param.setLang("jp_JP");
-                param.setTheme("originalblue");
+
+                if (client.checkVersion("3.0.0") < 0) {
+                    param.setTheme("originalblue");
+                } else {
+                    param.setTheme("blue-theme");
+                }
 
                 // 2.0からusrgrpsの指定が必須
                 Usergroup usergroup = new Usergroup();
@@ -207,7 +212,12 @@ public class UserClientTest {
                 assertEquals("css_ob.css", user.getTheme());
             } else {
                 assertEquals("jp_JP", user.getLang());
-                assertEquals("originalblue", user.getTheme());
+
+                if (client.checkVersion("3.0.0") < 0) {
+                    assertEquals("originalblue", user.getTheme());
+                } else {
+                    assertEquals("blue-theme", user.getTheme());
+                }
 
                 assertEquals(1, user.getUsrgrps().size());
                 assertEquals("8", user.getUsrgrps().get(0).getUsrgrpid());
@@ -234,7 +244,12 @@ public class UserClientTest {
                 param.setTheme("css_bb.css");
             } else {
                 param.setLang("en_GB");
-                param.setTheme("darkblue");
+
+                if (client.checkVersion("3.0.0") < 0) {
+                    param.setTheme("darkblue");
+                } else {
+                    param.setTheme("dark-theme");
+                }
             }
 
             List<String> userids = client.user().update(param);
@@ -269,7 +284,12 @@ public class UserClientTest {
                 assertEquals("css_bb.css", user.getTheme());
             } else {
                 assertEquals("en_GB", user.getLang());
-                assertEquals("darkblue", user.getTheme());
+
+                if (client.checkVersion("3.0.0") < 0) {
+                    assertEquals("darkblue", user.getTheme());
+                } else {
+                    assertEquals("dark-theme", user.getTheme());
+                }
 
                 assertEquals(1, user.getUsrgrps().size());
                 assertEquals("8", user.getUsrgrps().get(0).getUsrgrpid());

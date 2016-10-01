@@ -138,6 +138,8 @@ public class Item implements Serializable {
 
     private Integer lifetime;
 
+    private String evaltype;
+
     /**
      * itemidを取得します。
      *
@@ -1120,6 +1122,24 @@ public class Item implements Serializable {
      */
     public void setLifetime(Integer lifetime) {
         this.lifetime = lifetime;
+    }
+
+    /**
+     * evaltypeを取得します。
+     *
+     * @return evaltype
+     */
+    public String getEvaltype() {
+        return evaltype;
+    }
+
+    /**
+     * evaltypeを設定します。
+     *
+     * @param evaltype evaltype
+     */
+    public void setEvaltype(String evaltype) {
+        this.evaltype = evaltype;
     }
 
 }

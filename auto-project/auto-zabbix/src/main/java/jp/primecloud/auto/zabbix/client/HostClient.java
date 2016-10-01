@@ -270,14 +270,20 @@ public class HostClient {
             throw new IllegalArgumentException("hostid is required.");
         }
 
-        List<Map<String, String>> list = new ArrayList<Map<String, String>>();
-        for (String hostid : hostids) {
-            Map<String, String> map = new HashMap<String, String>();
-            map.put("hostid", hostid);
-            list.add(map);
+        List<?> param;
+        if (accessor.checkVersion("3.0.0") < 0) {
+            List<Map<String, String>> list = new ArrayList<Map<String, String>>();
+            for (String hostid : hostids) {
+                Map<String, String> map = new HashMap<String, String>();
+                map.put("hostid", hostid);
+                list.add(map);
+            }
+            param = list;
+        } else {
+            param = hostids;
         }
-        //JSONObject params = JSONObject.fromObject(list, defaultConfig);
-        JSONArray params = JSONArray.fromObject(list, defaultConfig);
+
+        JSONArray params = JSONArray.fromObject(param, defaultConfig);
         JSONObject result = (JSONObject) accessor.execute("host.delete", params);
 
         JSONArray resultHostids = result.getJSONArray("hostids");

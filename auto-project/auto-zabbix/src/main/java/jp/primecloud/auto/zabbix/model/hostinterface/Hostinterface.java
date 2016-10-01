@@ -46,6 +46,8 @@ public class Hostinterface implements Serializable {
 
     private Integer useip;
 
+    private Integer bulk;
+
     /**
      * interfaceidを取得します。
      * 
@@ -188,6 +190,24 @@ public class Hostinterface implements Serializable {
      */
     public void setUseip(Integer useip) {
         this.useip = useip;
+    }
+
+    /**
+     * bulkを取得します。
+     *
+     * @return bulk
+     */
+    public Integer getBulk() {
+        return bulk;
+    }
+
+    /**
+     * bulkを設定します。
+     *
+     * @param bulk bulk
+     */
+    public void setBulk(Integer bulk) {
+        this.bulk = bulk;
     }
 
 }
