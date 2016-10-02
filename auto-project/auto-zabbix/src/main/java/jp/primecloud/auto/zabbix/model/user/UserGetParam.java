@@ -78,7 +78,6 @@ public class UserGetParam implements Serializable {
      *
      * @return selectUsrgrps
      */
-
     public String getSelectUsrgrps() {
         return selectUsrgrps;
     }

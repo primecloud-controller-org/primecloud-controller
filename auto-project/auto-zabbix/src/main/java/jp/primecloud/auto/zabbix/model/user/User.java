@@ -360,7 +360,6 @@ public class User implements Serializable {
      *
      * @return usrgrps
      */
-
     public List<Usergroup> getUsrgrps() {
         return usrgrps;
     }

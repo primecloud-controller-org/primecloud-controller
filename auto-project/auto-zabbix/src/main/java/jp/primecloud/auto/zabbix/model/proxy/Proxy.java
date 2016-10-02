@@ -167,7 +167,6 @@ public class Proxy implements Serializable {
      *
      * @return lastaccess
      */
-
     public Integer getLastaccess() {
         return lastaccess;
     }
@@ -186,7 +185,6 @@ public class Proxy implements Serializable {
      *
      * @return proxyHostid
      */
-
     public String getProxyHostid() {
         return proxyHostid;
     }
@@ -205,7 +203,6 @@ public class Proxy implements Serializable {
      *
      * @return disableUntil
      */
-
     public Integer getDisableUntil() {
         return disableUntil;
     }
@@ -224,7 +221,6 @@ public class Proxy implements Serializable {
      *
      * @return error
      */
-
     public String getError() {
         return error;
     }
@@ -243,7 +239,6 @@ public class Proxy implements Serializable {
      *
      * @return available
      */
-
     public Integer getAvailable() {
         return available;
     }
@@ -262,7 +257,6 @@ public class Proxy implements Serializable {
      *
      * @return errorsFrom
      */
-
     public Integer getErrorsFrom() {
         return errorsFrom;
     }
@@ -281,7 +275,6 @@ public class Proxy implements Serializable {
      *
      * @return ipmiAuthtype
      */
-
     public Integer getIpmiAuthtype() {
         return ipmiAuthtype;
     }
@@ -300,7 +293,6 @@ public class Proxy implements Serializable {
      *
      * @return ipmiPrivilege
      */
-
     public Integer getIpmiPrivilege() {
         return ipmiPrivilege;
     }
@@ -319,7 +311,6 @@ public class Proxy implements Serializable {
      *
      * @return ipmiUsername
      */
-
     public String getIpmiUsername() {
         return ipmiUsername;
     }
@@ -338,7 +329,6 @@ public class Proxy implements Serializable {
      *
      * @return ipmiPassword
      */
-
     public String getIpmiPassword() {
         return ipmiPassword;
     }
@@ -357,7 +347,6 @@ public class Proxy implements Serializable {
      *
      * @return ipmiDisableUntil
      */
-
     public Integer getIpmiDisableUntil() {
         return ipmiDisableUntil;
     }
@@ -376,7 +365,6 @@ public class Proxy implements Serializable {
      *
      * @return ipmiAvailable
      */
-
     public Integer getIpmiAvailable() {
         return ipmiAvailable;
     }
@@ -395,7 +383,6 @@ public class Proxy implements Serializable {
      *
      * @return snmpDisableUntil
      */
-
     public Integer getSnmpDisableUntil() {
         return snmpDisableUntil;
     }
@@ -414,7 +401,6 @@ public class Proxy implements Serializable {
      *
      * @return snmpAvailable
      */
-
     public Integer getSnmpAvailable() {
         return snmpAvailable;
     }
@@ -433,7 +419,6 @@ public class Proxy implements Serializable {
      *
      * @return maintenanceid
      */
-
     public Integer getMaintenanceid() {
         return maintenanceid;
     }
@@ -452,7 +437,6 @@ public class Proxy implements Serializable {
      *
      * @return maintenanceStatus
      */
-
     public Integer getMaintenanceStatus() {
         return maintenanceStatus;
     }
@@ -471,7 +455,6 @@ public class Proxy implements Serializable {
      *
      * @return maintenanceType
      */
-
     public Integer getMaintenanceType() {
         return maintenanceType;
     }
@@ -490,7 +473,6 @@ public class Proxy implements Serializable {
      *
      * @return maintenanceFrom
      */
-
     public Integer getMaintenanceFrom() {
         return maintenanceFrom;
     }
@@ -509,7 +491,6 @@ public class Proxy implements Serializable {
      *
      * @return ipmiErrorsFrom
      */
-
     public Integer getIpmiErrorsFrom() {
         return ipmiErrorsFrom;
     }
@@ -528,7 +509,6 @@ public class Proxy implements Serializable {
      *
      * @return snmpErrorsFrom
      */
-
     public Integer getSnmpErrorsFrom() {
         return snmpErrorsFrom;
     }
@@ -547,7 +527,6 @@ public class Proxy implements Serializable {
      *
      * @return ipmiError
      */
-
     public String getIpmiError() {
         return ipmiError;
     }
@@ -566,7 +545,6 @@ public class Proxy implements Serializable {
      *
      * @return snmpError
      */
-
     public String getSnmpError() {
         return snmpError;
     }
@@ -585,7 +563,6 @@ public class Proxy implements Serializable {
      *
      * @return jmxDisableUntil
      */
-
     public String getJmxDisableUntil() {
         return jmxDisableUntil;
     }
@@ -604,7 +581,6 @@ public class Proxy implements Serializable {
      *
      * @return jmxAvailable
      */
-
     public String getJmxAvailable() {
         return jmxAvailable;
     }
@@ -623,7 +599,6 @@ public class Proxy implements Serializable {
      *
      * @return jmxErrorsFrom
      */
-
     public String getJmxErrorsFrom() {
         return jmxErrorsFrom;
     }
@@ -642,7 +617,6 @@ public class Proxy implements Serializable {
      *
      * @return jmxError
      */
-
     public String getJmxError() {
         return jmxError;
     }
@@ -661,7 +635,6 @@ public class Proxy implements Serializable {
      *
      * @return name
      */
-
     public String getName() {
         return name;
     }
@@ -680,7 +653,6 @@ public class Proxy implements Serializable {
      *
      * @return flags
      */
-
     public String getFlags() {
         return flags;
     }
@@ -699,7 +671,6 @@ public class Proxy implements Serializable {
      *
      * @return templateid
      */
-
     public String getTemplateid() {
         return templateid;
     }

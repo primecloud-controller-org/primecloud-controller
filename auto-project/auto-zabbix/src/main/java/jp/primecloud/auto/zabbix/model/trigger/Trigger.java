@@ -87,7 +87,6 @@ public class Trigger implements Serializable {
      *
      * @return hostid
      */
-
     public String getHostid() {
         return hostid;
     }
@@ -322,7 +321,6 @@ public class Trigger implements Serializable {
      *
      * @return state
      */
-
     public Integer getState() {
         return state;
     }
@@ -341,7 +339,6 @@ public class Trigger implements Serializable {
      *
      * @return flags
      */
-
     public Integer getFlags() {
         return flags;
     }
@@ -360,7 +357,6 @@ public class Trigger implements Serializable {
      *
      * @return valueFlags
      */
-
     public Integer getValueFlags() {
         return valueFlags;
     }

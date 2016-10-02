@@ -901,7 +901,6 @@ public class Item implements Serializable {
      *
      * @return name
      */
-
     public String getName() {
         return name;
     }
@@ -920,7 +919,6 @@ public class Item implements Serializable {
      *
      * @return flags
      */
-
     public Integer getFlags() {
         return flags;
     }
@@ -939,7 +937,6 @@ public class Item implements Serializable {
      *
      * @return interfaceid
      */
-
     public String getInterfaceid() {
         return interfaceid;
     }
@@ -958,7 +955,6 @@ public class Item implements Serializable {
      *
      * @return port
      */
-
     public String getPort() {
         return port;
     }
@@ -977,7 +973,6 @@ public class Item implements Serializable {
      *
      * @return inventoryLink
      */
-
     public Integer getInventoryLink() {
         return inventoryLink;
     }
@@ -996,7 +991,6 @@ public class Item implements Serializable {
      *
      * @return state
      */
-
     public Integer getState() {
         return state;
     }
@@ -1015,7 +1009,6 @@ public class Item implements Serializable {
      *
      * @return snmpv3Authprotocol
      */
-
     public Integer getSnmpv3Authprotocol() {
         return snmpv3Authprotocol;
     }
@@ -1034,7 +1027,6 @@ public class Item implements Serializable {
      *
      * @return snmpv3Privprotocol
      */
-
     public Integer getSnmpv3Privprotocol() {
         return snmpv3Privprotocol;
     }
@@ -1053,7 +1045,6 @@ public class Item implements Serializable {
      *
      * @return snmpv3Contextname
      */
-
     public String getSnmpv3Contextname() {
         return snmpv3Contextname;
     }
@@ -1072,7 +1063,6 @@ public class Item implements Serializable {
      *
      * @return lastns
      */
-
     public Integer getLastns() {
         return lastns;
     }
@@ -1091,7 +1081,6 @@ public class Item implements Serializable {
      *
      * @return filter
      */
-
     public String getFilter() {
         return filter;
     }
@@ -1110,7 +1099,6 @@ public class Item implements Serializable {
      *
      * @return lifetime
      */
-
     public Integer getLifetime() {
         return lifetime;
     }
