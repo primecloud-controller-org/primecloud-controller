@@ -82,7 +82,7 @@ import com.vaadin.ui.Window;
  * </p>
  *
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({"serial", "unchecked"})
 public class WinServiceEdit extends Window {
 
     final String TAB_HEIGHT = "352px";
@@ -303,9 +303,7 @@ public class WinServiceEdit extends Window {
 
             // サービス
             String name = componentType.getComponentType().getComponentTypeNameDisp();
-            Icons nameIcon = Icons.fromName(componentType.getComponentType().getComponentTypeName());
             serviceLabel.setCaption(name);
-            //            serviceLabel.setIcon(nameIcon.resource());
 
             // コメント
             String comment = component.getComponent().getComment();

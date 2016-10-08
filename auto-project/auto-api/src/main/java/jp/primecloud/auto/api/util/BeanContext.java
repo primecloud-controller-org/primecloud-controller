@@ -37,7 +37,6 @@ public class BeanContext implements ApplicationContextAware, DisposableBean {
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        System.out.println("*********");
         context = applicationContext;
     }
 
@@ -50,7 +49,6 @@ public class BeanContext implements ApplicationContextAware, DisposableBean {
         return context.getBean(id);
     }
 
-    @SuppressWarnings("unchecked")
     public static <T> T getBean(Class<T> type) {
         Map<String, T> beans = context.getBeansOfType(type);
         if (beans.size() == 0) {

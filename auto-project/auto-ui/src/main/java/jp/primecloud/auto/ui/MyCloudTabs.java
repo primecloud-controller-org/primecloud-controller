@@ -38,7 +38,6 @@ import jp.primecloud.auto.common.status.LoadBalancerListenerStatus;
 import jp.primecloud.auto.common.status.LoadBalancerStatus;
 import jp.primecloud.auto.common.status.ZabbixInstanceStatus;
 import jp.primecloud.auto.config.Config;
-import jp.primecloud.auto.entity.crud.Component;
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.LoadBalancerInstance;
 import jp.primecloud.auto.entity.crud.LoadBalancerListener;
@@ -61,6 +60,7 @@ import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
 import com.vaadin.data.Property;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -86,7 +86,7 @@ import com.vaadin.ui.themes.Reindeer;
  * </p>
  *
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({"serial", "unchecked"})
 public class MyCloudTabs extends Panel {
 
     protected Log log = LogFactory.getLog(MyCloudTabs.class);
@@ -1191,7 +1191,6 @@ public class MyCloudTabs extends Panel {
             serviceButtonsTop.hide();
             serviceButtonsBottom.refresh(dto);
             if (dto != null) {
-                Component component = dto.getComponent();
                 table.setButtonStatus(dto);
                 // サービス情報の更新(選択されているTabだけ更新する)
                 if ( serviceDesc.tabDesc.getSelectedTab() == serviceDesc.serviceDescBasic ){

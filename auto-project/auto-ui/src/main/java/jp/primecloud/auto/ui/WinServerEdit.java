@@ -106,7 +106,7 @@ import com.vmware.vim25.mo.ComputeResource;
  * </p>
  *
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({"serial", "unchecked"})
 public class WinServerEdit extends Window {
     final String COLUMN_HEIGHT = "30px";
 
@@ -2640,7 +2640,6 @@ public class WinServerEdit extends Window {
         Long keyNo = null;
         String groupName = null;
         String serverSize = null;
-        String network = null;
         String cluster = null;
         ZoneDto zoneDto = null;
         String zoneName = null;
@@ -2651,7 +2650,6 @@ public class WinServerEdit extends Window {
         AddressDto address = null;
         VmwareAddressDto vmwareAddressDto = null;
         Long storageTypeNo = null;
-        List<InstanceNetworkDto> instanceNetworkDtos = null;
         String availabilitySet = null;
 
         // TODO: 入力チェック
@@ -2788,7 +2786,6 @@ public class WinServerEdit extends Window {
             }
         } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platformDto.getPlatform().getPlatformType())) {
             // 入力値を取得
-            network = (String) cloudStackDetailTab.networkSelect.getValue();
             keyName = (String) cloudStackDetailTab.keySelect.getValue();
             groupName = (String) cloudStackDetailTab.grpSelect.getValue();
             serverSize = (String) cloudStackDetailTab.sizeSelect.getValue();

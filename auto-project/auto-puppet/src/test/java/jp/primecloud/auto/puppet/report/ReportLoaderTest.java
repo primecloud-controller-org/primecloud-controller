@@ -24,8 +24,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -37,8 +35,6 @@ import org.junit.Test;
  *
  */
 public class ReportLoaderTest {
-
-    private Log log = LogFactory.getLog(ReportLoaderTest.class);
 
     private ReportLoader reportLoader;
 

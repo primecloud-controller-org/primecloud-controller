@@ -25,7 +25,6 @@ import jp.primecloud.auto.service.FarmService;
 import jp.primecloud.auto.service.UserService;
 import jp.primecloud.auto.service.dto.FarmDto;
 import jp.primecloud.auto.service.dto.UserAuthDto;
-import jp.primecloud.auto.service.dto.UserDto;
 import jp.primecloud.auto.ui.DialogConfirm.Buttons;
 import jp.primecloud.auto.ui.DialogConfirm.Callback;
 import jp.primecloud.auto.ui.DialogConfirm.Result;

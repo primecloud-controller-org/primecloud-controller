@@ -65,7 +65,7 @@ import com.vaadin.ui.Window;
  * </p>
  *
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({"serial", "unchecked"})
 public class WinServiceAdd extends Window {
     final String COLUMN_HEIGHT = "30px";
 

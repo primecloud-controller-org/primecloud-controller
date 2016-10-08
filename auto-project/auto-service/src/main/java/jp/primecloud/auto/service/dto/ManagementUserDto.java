@@ -20,8 +20,6 @@ package jp.primecloud.auto.service.dto;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.entity.crud.UserAuth;

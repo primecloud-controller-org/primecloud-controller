@@ -13,6 +13,7 @@ import jp.primecloud.auto.ui.util.CommonUtils;
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
 import com.vaadin.data.Container;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
@@ -24,7 +25,7 @@ import com.vaadin.ui.Table;
  * </p>
  *
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({"serial", "unchecked"})
 public class LoadBalancerTable  extends Table {
 
     final String COLUMN_HEIGHT = "28px";

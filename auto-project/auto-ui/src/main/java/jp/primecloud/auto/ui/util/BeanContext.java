@@ -49,7 +49,6 @@ public class BeanContext implements ApplicationContextAware, DisposableBean {
         return context.getBean(id);
     }
 
-    @SuppressWarnings("unchecked")
     public static <T> T getBean(Class<T> type) {
         Map<String, T> beans = context.getBeansOfType(type);
         if (beans.size() == 0) {

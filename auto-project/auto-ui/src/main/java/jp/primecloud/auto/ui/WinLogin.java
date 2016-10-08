@@ -19,7 +19,6 @@
 package jp.primecloud.auto.ui;
 
 import jp.primecloud.auto.entity.crud.User;
-import jp.primecloud.auto.entity.crud.UserAuth;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.UserService;
 import jp.primecloud.auto.service.dto.UserAuthDto;

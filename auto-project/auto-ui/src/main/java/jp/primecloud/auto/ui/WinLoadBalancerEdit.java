@@ -69,7 +69,7 @@ import com.vaadin.ui.Window;
  * </p>
  *
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({"serial", "unchecked"})
 public class WinLoadBalancerEdit extends Window {
     final String COLUMN_HEIGHT = "30px";
 
@@ -1277,10 +1277,8 @@ public class WinLoadBalancerEdit extends Window {
         componentDtos = componentService.getComponents(farmNo);
 
         //ultramonkeyはインスタンスを特定
-        System.out.println("LB-TYPE:"+type);
         if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(type)) {
             this.instanceNo = loadBalancerService.getLoadBalancerInstance(loadBalancerNo);
-            System.out.println("INSTANCE:"+this.instanceNo);
         }
 
         //サブネットを取得

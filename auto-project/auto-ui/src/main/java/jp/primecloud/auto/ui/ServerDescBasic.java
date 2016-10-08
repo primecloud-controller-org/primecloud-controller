@@ -248,7 +248,6 @@ public class ServerDescBasic extends Panel {
             addGeneratedColumn("serviceDetail", new ColumnGenerator() {
                 public Component generateCell(Table source, Object itemId, Object columnId) {
                     ComponentDto componentDto = (ComponentDto) itemId;
-                    jp.primecloud.auto.entity.crud.Component p = componentDto.getComponent();
                     ComponentType componentType = componentDto.getComponentType();
                     String type = componentType.getComponentTypeName();
                     String name = componentType.getComponentTypeNameDisp();

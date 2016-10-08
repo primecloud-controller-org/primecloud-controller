@@ -37,7 +37,6 @@ import jp.primecloud.auto.ui.util.ConvertUtil;
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
-import jp.primecloud.auto.util.MessageUtils;
 import com.vaadin.data.Item;
 import com.vaadin.data.Validator;
 import com.vaadin.data.Validator.InvalidValueException;
