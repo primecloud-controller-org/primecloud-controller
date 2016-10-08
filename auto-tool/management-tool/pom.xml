@@ -7,17 +7,22 @@
 	<dependencies>
 		<dependency>
 			<groupId>jp.primecloud.auto</groupId>
+			<artifactId>auto-common</artifactId>
+			<version>${pom.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>jp.primecloud.auto</groupId>
 			<artifactId>auto-zabbix</artifactId>
 			<version>${pom.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>jp.primecloud.auto</groupId>
-			<artifactId>auto-aws</artifactId>
+			<artifactId>auto-data</artifactId>
 			<version>${pom.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>jp.primecloud.auto</groupId>
-			<artifactId>auto-data</artifactId>
+			<artifactId>auto-process</artifactId>
 			<version>${pom.version}</version>
 		</dependency>
 		<dependency>
@@ -50,21 +55,6 @@
 			<artifactId>junit</artifactId>
 			<version>4.4</version>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>jp.primecloud.auto</groupId>
-			<artifactId>auto-process</artifactId>
-			<version>${pom.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>jp.primecloud.auto</groupId>
-			<artifactId>auto-common</artifactId>
-			<version>${pom.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>jp.primecloud.auto</groupId>
-			<artifactId>auto-api</artifactId>
-			<version>${pom.version}</version>
 		</dependency>
 	</dependencies>
 

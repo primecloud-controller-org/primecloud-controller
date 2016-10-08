@@ -24,14 +24,12 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import jp.primecloud.auto.api.ApiConstants;
-import jp.primecloud.auto.api.util.SecureRandamGenerator;
 import jp.primecloud.auto.entity.crud.ApiCertificate;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.tool.management.main.SQLMain;
 
-public class PccApiGenerateService extends ApiConstants {
+public class PccApiGenerateService {
 
     private static Log log = LogFactory.getLog(PccApiGenerateService.class);
 
@@ -80,11 +78,11 @@ public class PccApiGenerateService extends ApiConstants {
 
     public static String generateAccessId() throws AutoException {
         SecureRandamGenerator generator = new SecureRandamGenerator();
-        return generator.generate(ACCESS_ID_LENGTH).toUpperCase();
+        return generator.generate(30).toUpperCase();
     }
 
     private static String generateSecretKey() {
         SecureRandamGenerator generator = new SecureRandamGenerator();
-        return generator.generate(SECRET_KEY_LENGTH);
+        return generator.generate(100);
     }
 }
