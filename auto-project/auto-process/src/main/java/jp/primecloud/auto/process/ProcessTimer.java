@@ -53,7 +53,7 @@ public class ProcessTimer implements InitializingBean, DisposableBean {
             }
         };
         timer = new Timer();
-        timer.schedule(timerTask, 0, 15 * 1000);
+        timer.schedule(timerTask, 15 * 1000, 15 * 1000);
     }
 
     @Override
