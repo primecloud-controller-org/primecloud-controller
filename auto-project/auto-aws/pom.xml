@@ -14,11 +14,6 @@
 			<version>${pom.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>commons-logging</groupId>
-			<artifactId>commons-logging</artifactId>
-			<version>1.1.1</version>
-		</dependency>
-		<dependency>
 			<groupId>com.amazonaws</groupId>
 			<artifactId>aws-java-sdk</artifactId>
 			<version>1.8.7</version>
@@ -37,12 +32,6 @@
 			<groupId>com.google.code.typica</groupId>
 			<artifactId>typica</artifactId>
 			<version>1.6</version>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.4</version>
-			<scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>

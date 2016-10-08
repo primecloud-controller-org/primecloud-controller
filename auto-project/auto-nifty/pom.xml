@@ -9,11 +9,6 @@
 	<name>${pom.artifactId}</name>
 	<dependencies>
 		<dependency>
-			<groupId>com.nifty.cloud.sdk</groupId>
-			<artifactId>nifty-cloud-api-lib</artifactId>
-			<version>1.17</version>
-		</dependency>
-		<dependency>
 			<groupId>jp.primecloud.auto</groupId>
 			<artifactId>auto-common</artifactId>
 			<version>${pom.version}</version>
@@ -22,6 +17,26 @@
 			<groupId>jp.primecloud.auto</groupId>
 			<artifactId>auto-data</artifactId>
 			<version>${pom.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.nifty.cloud.sdk</groupId>
+			<artifactId>nifty-cloud-api-lib</artifactId>
+			<version>1.17</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-httpclient</groupId>
+			<artifactId>commons-httpclient</artifactId>
+			<version>3.1</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.4</version>
 		</dependency>
 		<dependency>
 			<groupId>com.thoughtworks.xstream</groupId>
