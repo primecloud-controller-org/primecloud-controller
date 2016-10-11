@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.VcloudCertificate;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseVcloudCertificateDaoImpl extends SqlMapClientDaoSupport implements BaseVcloudCertificateDao {
 
     protected String namespace = "VcloudCertificate";

@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.AzureDisk;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseAzureDiskDaoImpl extends SqlMapClientDaoSupport implements BaseAzureDiskDao {
 
     protected String namespace = "AzureDisk";

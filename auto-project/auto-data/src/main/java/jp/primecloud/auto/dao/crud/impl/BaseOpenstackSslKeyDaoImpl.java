@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.OpenstackSslKey;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseOpenstackSslKeyDaoImpl extends SqlMapClientDaoSupport implements BaseOpenstackSslKeyDao {
 
     protected String namespace = "OpenstackSslKey";

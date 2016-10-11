@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.OpenstackInstance;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseOpenstackInstanceDaoImpl extends SqlMapClientDaoSupport implements BaseOpenstackInstanceDao {
 
     protected String namespace = "OpenstackInstance";

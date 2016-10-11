@@ -30,6 +30,7 @@ import jp.primecloud.auto.log.entity.crud.EventLog;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public class EventLogDaoImpl extends BaseEventLogDaoImpl implements EventLogDao {
 
     @Override

@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.ImageAws;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseImageAwsDaoImpl extends SqlMapClientDaoSupport implements BaseImageAwsDao {
 
     protected String namespace = "ImageAws";

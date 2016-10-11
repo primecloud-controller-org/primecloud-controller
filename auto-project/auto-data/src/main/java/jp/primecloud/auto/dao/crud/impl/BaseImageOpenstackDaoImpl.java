@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.ImageOpenstack;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseImageOpenstackDaoImpl extends SqlMapClientDaoSupport implements BaseImageOpenstackDao {
 
     protected String namespace = "ImageOpenstack";

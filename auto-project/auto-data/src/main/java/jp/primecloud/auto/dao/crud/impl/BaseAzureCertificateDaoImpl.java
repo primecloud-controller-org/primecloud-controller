@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.AzureCertificate;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseAzureCertificateDaoImpl extends SqlMapClientDaoSupport implements BaseAzureCertificateDao {
 
     protected String namespace = "AzureCertificate";

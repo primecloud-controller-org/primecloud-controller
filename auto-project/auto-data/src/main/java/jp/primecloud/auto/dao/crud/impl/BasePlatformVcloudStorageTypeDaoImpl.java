@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.PlatformVcloudStorageType;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BasePlatformVcloudStorageTypeDaoImpl extends SqlMapClientDaoSupport implements BasePlatformVcloudStorageTypeDao {
 
     protected String namespace = "PlatformVcloudStorageType";

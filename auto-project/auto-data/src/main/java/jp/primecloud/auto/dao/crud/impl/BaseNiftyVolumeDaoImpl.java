@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.NiftyVolume;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseNiftyVolumeDaoImpl extends SqlMapClientDaoSupport implements BaseNiftyVolumeDao {
 
     protected String namespace = "NiftyVolume";

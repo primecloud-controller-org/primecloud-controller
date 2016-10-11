@@ -35,6 +35,7 @@ import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseEventLogDaoImpl extends SqlMapClientDaoSupport implements BaseEventLogDao {
 
     protected String namespace = "EventLog";

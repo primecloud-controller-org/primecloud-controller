@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.OpenstackCertificate;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseOpenstackCertificateDaoImpl extends SqlMapClientDaoSupport implements BaseOpenstackCertificateDao {
 
     protected String namespace = "OpenstackCertificate";

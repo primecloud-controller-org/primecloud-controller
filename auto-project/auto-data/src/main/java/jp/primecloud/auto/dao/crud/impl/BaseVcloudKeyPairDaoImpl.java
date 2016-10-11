@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.VcloudKeyPair;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseVcloudKeyPairDaoImpl extends SqlMapClientDaoSupport implements BaseVcloudKeyPairDao {
 
     protected String namespace = "VcloudKeyPair";

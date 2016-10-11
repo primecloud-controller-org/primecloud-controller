@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.PlatformAws;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BasePlatformAwsDaoImpl extends SqlMapClientDaoSupport implements BasePlatformAwsDao {
 
     protected String namespace = "PlatformAws";

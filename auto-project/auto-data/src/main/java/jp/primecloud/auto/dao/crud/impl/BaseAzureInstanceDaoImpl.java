@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.AzureInstance;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseAzureInstanceDaoImpl extends SqlMapClientDaoSupport implements BaseAzureInstanceDao {
 
     protected String namespace = "AzureInstance";

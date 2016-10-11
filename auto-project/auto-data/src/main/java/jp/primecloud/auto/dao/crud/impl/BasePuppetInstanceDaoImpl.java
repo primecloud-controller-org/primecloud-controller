@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.PuppetInstance;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BasePuppetInstanceDaoImpl extends SqlMapClientDaoSupport implements BasePuppetInstanceDao {
 
     protected String namespace = "PuppetInstance";

@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.CloudstackAddress;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseCloudstackAddressDaoImpl extends SqlMapClientDaoSupport implements BaseCloudstackAddressDao {
 
     protected String namespace = "CloudstackAddress";

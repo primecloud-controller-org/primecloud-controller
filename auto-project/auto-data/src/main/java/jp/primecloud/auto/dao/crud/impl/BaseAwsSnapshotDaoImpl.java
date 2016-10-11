@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.AwsSnapshot;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseAwsSnapshotDaoImpl extends SqlMapClientDaoSupport implements BaseAwsSnapshotDao {
 
     protected String namespace = "AwsSnapshot";

@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.VcloudInstanceNetwork;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseVcloudInstanceNetworkDaoImpl extends SqlMapClientDaoSupport implements BaseVcloudInstanceNetworkDao {
 
     protected String namespace = "VcloudInstanceNetwork";

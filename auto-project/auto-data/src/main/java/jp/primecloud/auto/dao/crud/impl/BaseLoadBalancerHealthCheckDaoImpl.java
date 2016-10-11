@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.LoadBalancerHealthCheck;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseLoadBalancerHealthCheckDaoImpl extends SqlMapClientDaoSupport implements BaseLoadBalancerHealthCheckDao {
 
     protected String namespace = "LoadBalancerHealthCheck";

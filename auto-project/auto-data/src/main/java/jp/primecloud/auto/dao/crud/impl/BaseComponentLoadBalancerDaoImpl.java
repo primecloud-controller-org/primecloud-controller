@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.ComponentLoadBalancer;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseComponentLoadBalancerDaoImpl extends SqlMapClientDaoSupport implements BaseComponentLoadBalancerDao {
 
     protected String namespace = "ComponentLoadBalancer";

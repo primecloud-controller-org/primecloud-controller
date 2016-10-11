@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.NiftyKeyPair;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseNiftyKeyPairDaoImpl extends SqlMapClientDaoSupport implements BaseNiftyKeyPairDao {
 
     protected String namespace = "NiftyKeyPair";

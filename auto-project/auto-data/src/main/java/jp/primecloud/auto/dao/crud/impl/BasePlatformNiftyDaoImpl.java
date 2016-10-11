@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.PlatformNifty;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BasePlatformNiftyDaoImpl extends SqlMapClientDaoSupport implements BasePlatformNiftyDao {
 
     protected String namespace = "PlatformNifty";

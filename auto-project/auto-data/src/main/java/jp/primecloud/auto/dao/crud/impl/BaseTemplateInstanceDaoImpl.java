@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.TemplateInstance;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseTemplateInstanceDaoImpl extends SqlMapClientDaoSupport implements BaseTemplateInstanceDao {
 
     protected String namespace = "TemplateInstance";

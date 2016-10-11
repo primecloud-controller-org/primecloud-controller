@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.ZabbixData;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseZabbixDataDaoImpl extends SqlMapClientDaoSupport implements BaseZabbixDataDao {
 
     protected String namespace = "ZabbixData";

@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.AwsSslKey;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseAwsSslKeyDaoImpl extends SqlMapClientDaoSupport implements BaseAwsSslKeyDao {
 
     protected String namespace = "AwsSslKey";

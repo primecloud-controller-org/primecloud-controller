@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.ImageVcloud;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseImageVcloudDaoImpl extends SqlMapClientDaoSupport implements BaseImageVcloudDao {
 
     protected String namespace = "ImageVcloud";

@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.AwsInstance;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseAwsInstanceDaoImpl extends SqlMapClientDaoSupport implements BaseAwsInstanceDao {
 
     protected String namespace = "AwsInstance";

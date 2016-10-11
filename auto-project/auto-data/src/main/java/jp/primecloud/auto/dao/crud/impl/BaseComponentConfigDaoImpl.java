@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.ComponentConfig;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseComponentConfigDaoImpl extends SqlMapClientDaoSupport implements BaseComponentConfigDao {
 
     protected String namespace = "ComponentConfig";

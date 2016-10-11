@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.AwsAddress;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseAwsAddressDaoImpl extends SqlMapClientDaoSupport implements BaseAwsAddressDao {
 
     protected String namespace = "AwsAddress";

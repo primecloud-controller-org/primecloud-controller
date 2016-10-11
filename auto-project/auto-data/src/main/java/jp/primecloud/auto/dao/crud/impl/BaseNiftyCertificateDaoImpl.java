@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.NiftyCertificate;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseNiftyCertificateDaoImpl extends SqlMapClientDaoSupport implements BaseNiftyCertificateDao {
 
     protected String namespace = "NiftyCertificate";

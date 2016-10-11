@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.ImageNifty;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseImageNiftyDaoImpl extends SqlMapClientDaoSupport implements BaseImageNiftyDao {
 
     protected String namespace = "ImageNifty";

@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.VmwareAddress;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseVmwareAddressDaoImpl extends SqlMapClientDaoSupport implements BaseVmwareAddressDao {
 
     protected String namespace = "VmwareAddress";

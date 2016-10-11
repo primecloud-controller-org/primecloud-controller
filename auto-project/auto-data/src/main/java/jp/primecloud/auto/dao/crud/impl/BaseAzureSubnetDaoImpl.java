@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.AzureSubnet;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseAzureSubnetDaoImpl extends SqlMapClientDaoSupport implements BaseAzureSubnetDao {
 
     protected String namespace = "AzureSubnet";

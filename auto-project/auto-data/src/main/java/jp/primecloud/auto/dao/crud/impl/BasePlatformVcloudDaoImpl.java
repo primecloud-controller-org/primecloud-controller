@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.PlatformVcloud;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BasePlatformVcloudDaoImpl extends SqlMapClientDaoSupport implements BasePlatformVcloudDao {
 
     protected String namespace = "PlatformVcloud";

@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.UserAuth;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseUserAuthDaoImpl extends SqlMapClientDaoSupport implements BaseUserAuthDao {
 
     protected String namespace = "UserAuth";

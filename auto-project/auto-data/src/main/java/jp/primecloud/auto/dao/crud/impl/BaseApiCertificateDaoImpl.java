@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.ApiCertificate;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseApiCertificateDaoImpl extends SqlMapClientDaoSupport implements BaseApiCertificateDao {
 
     protected String namespace = "ApiCertificate";

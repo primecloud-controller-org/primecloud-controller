@@ -36,6 +36,7 @@ import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseOperationLogDaoImpl extends SqlMapClientDaoSupport implements BaseOperationLogDao {
 
     protected String namespace = "OperationLog";

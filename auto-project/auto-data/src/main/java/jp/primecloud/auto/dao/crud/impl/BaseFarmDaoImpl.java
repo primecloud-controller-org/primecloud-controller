@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.Farm;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseFarmDaoImpl extends SqlMapClientDaoSupport implements BaseFarmDao {
 
     protected String namespace = "Farm";

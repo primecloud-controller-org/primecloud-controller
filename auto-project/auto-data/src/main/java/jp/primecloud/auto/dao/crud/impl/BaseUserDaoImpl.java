@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.User;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseUserDaoImpl extends SqlMapClientDaoSupport implements BaseUserDao {
 
     protected String namespace = "User";

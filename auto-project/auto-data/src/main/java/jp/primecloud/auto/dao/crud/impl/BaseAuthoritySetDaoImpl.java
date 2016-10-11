@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.AuthoritySet;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseAuthoritySetDaoImpl extends SqlMapClientDaoSupport implements BaseAuthoritySetDao {
 
     protected String namespace = "AuthoritySet";

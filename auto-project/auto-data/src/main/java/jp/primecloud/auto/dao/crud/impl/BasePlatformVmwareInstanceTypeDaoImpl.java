@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.PlatformVmwareInstanceType;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BasePlatformVmwareInstanceTypeDaoImpl extends SqlMapClientDaoSupport implements BasePlatformVmwareInstanceTypeDao {
 
     protected String namespace = "PlatformVmwareInstanceType";

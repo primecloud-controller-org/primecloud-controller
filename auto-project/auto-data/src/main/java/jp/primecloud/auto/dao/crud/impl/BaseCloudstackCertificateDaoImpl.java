@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.CloudstackCertificate;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseCloudstackCertificateDaoImpl extends SqlMapClientDaoSupport implements BaseCloudstackCertificateDao {
 
     protected String namespace = "CloudstackCertificate";

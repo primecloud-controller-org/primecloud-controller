@@ -28,6 +28,7 @@ import jp.primecloud.auto.entity.crud.PccSystemInfo;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BasePccSystemInfoDaoImpl extends SqlMapClientDaoSupport implements BasePccSystemInfoDao {
 
     protected String namespace = "PccSystemInfo";

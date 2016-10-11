@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.CloudstackVolume;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseCloudstackVolumeDaoImpl extends SqlMapClientDaoSupport implements BaseCloudstackVolumeDao {
 
     protected String namespace = "CloudstackVolume";

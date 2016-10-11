@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.Instance;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseInstanceDaoImpl extends SqlMapClientDaoSupport implements BaseInstanceDao {
 
     protected String namespace = "Instance";

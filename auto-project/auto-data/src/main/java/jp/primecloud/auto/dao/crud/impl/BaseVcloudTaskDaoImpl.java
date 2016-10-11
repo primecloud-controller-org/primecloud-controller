@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.VcloudTask;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseVcloudTaskDaoImpl extends SqlMapClientDaoSupport implements BaseVcloudTaskDao {
 
     protected String namespace = "VcloudTask";

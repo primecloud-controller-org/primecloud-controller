@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.AutoScalingConf;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseAutoScalingConfDaoImpl extends SqlMapClientDaoSupport implements BaseAutoScalingConfDao {
 
     protected String namespace = "AutoScalingConf";

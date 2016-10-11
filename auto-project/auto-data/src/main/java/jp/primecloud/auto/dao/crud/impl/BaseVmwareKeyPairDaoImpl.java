@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.VmwareKeyPair;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseVmwareKeyPairDaoImpl extends SqlMapClientDaoSupport implements BaseVmwareKeyPairDao {
 
     protected String namespace = "VmwareKeyPair";

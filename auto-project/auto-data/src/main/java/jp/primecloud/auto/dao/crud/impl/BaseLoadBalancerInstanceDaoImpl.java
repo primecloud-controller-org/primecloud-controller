@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.LoadBalancerInstance;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseLoadBalancerInstanceDaoImpl extends SqlMapClientDaoSupport implements BaseLoadBalancerInstanceDao {
 
     protected String namespace = "LoadBalancerInstance";

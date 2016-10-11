@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.IaasInfo;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseIaasInfoDaoImpl extends SqlMapClientDaoSupport implements BaseIaasInfoDao {
 
     protected String namespace = "IaasInfo";

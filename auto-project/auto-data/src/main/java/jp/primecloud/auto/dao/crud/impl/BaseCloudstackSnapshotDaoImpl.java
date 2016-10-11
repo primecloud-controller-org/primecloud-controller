@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.CloudstackSnapshot;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseCloudstackSnapshotDaoImpl extends SqlMapClientDaoSupport implements BaseCloudstackSnapshotDao {
 
     protected String namespace = "CloudstackSnapshot";

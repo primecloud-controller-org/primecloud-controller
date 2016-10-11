@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.CloudstackInstance;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseCloudstackInstanceDaoImpl extends SqlMapClientDaoSupport implements BaseCloudstackInstanceDao {
 
     protected String namespace = "CloudstackInstance";

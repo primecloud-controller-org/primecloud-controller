@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.ImageVmware;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseImageVmwareDaoImpl extends SqlMapClientDaoSupport implements BaseImageVmwareDao {
 
     protected String namespace = "ImageVmware";

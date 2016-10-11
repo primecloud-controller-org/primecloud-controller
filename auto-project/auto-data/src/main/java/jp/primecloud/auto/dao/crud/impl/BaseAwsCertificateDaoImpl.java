@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.AwsCertificate;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseAwsCertificateDaoImpl extends SqlMapClientDaoSupport implements BaseAwsCertificateDao {
 
     protected String namespace = "AwsCertificate";

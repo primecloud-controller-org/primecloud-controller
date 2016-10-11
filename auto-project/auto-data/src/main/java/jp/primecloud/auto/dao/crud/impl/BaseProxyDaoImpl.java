@@ -28,6 +28,7 @@ import jp.primecloud.auto.entity.crud.Proxy;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseProxyDaoImpl extends SqlMapClientDaoSupport implements BaseProxyDao {
 
     protected String namespace = "Proxy";

@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.VcloudDisk;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseVcloudDiskDaoImpl extends SqlMapClientDaoSupport implements BaseVcloudDiskDao {
 
     protected String namespace = "VcloudDisk";

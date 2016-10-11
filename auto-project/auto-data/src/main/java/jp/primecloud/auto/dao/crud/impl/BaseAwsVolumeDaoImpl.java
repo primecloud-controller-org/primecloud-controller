@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.AwsVolume;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseAwsVolumeDaoImpl extends SqlMapClientDaoSupport implements BaseAwsVolumeDao {
 
     protected String namespace = "AwsVolume";

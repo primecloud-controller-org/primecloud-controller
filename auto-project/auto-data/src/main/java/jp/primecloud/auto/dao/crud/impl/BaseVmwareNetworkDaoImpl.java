@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.VmwareNetwork;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseVmwareNetworkDaoImpl extends SqlMapClientDaoSupport implements BaseVmwareNetworkDao {
 
     protected String namespace = "VmwareNetwork";

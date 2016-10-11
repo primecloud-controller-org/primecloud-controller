@@ -33,6 +33,7 @@ import jp.primecloud.auto.entity.crud.ImageAzure;
  * </p>
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class BaseImageAzureDaoImpl extends SqlMapClientDaoSupport implements BaseImageAzureDao {
 
     protected String namespace = "ImageAzure";
