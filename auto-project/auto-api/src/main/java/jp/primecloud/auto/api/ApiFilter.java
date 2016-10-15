@@ -23,6 +23,8 @@ import java.net.URI;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
@@ -39,7 +41,6 @@ import jp.primecloud.auto.util.MessageUtils;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
 import com.sun.jersey.spi.container.ContainerRequest;
@@ -53,45 +54,34 @@ public class ApiFilter extends ApiSupport implements ContainerRequestFilter {
     private HttpServletRequest servletRequest;
 
     /**
-     * PCC-API フィルター処理
-     *
-     * オートスケーリングからの呼び出しの際、
-     * notUseFarmApies以外のAPIへのパラメータのユーザ名は
-     * ファームと紐づいているユーザにユーザ名称を置き換えて呼び出す。
-     * (ファームと紐づいてないユーザはAPIでエラーとなる為)
      * {@inheritDoc}
      */
     public ContainerRequest filter(ContainerRequest request) {
-
-        // URI(フルパス)
         URI uri = request.getRequestUri();
 
-        // BASE64デコードした、URIパラメータ部をマップ(LinkedHashMap)で取得
-        LinkedHashMap<String, String> decodeParamMap = getDecodedParamMap(uri);
-
+        // API名のチェック
         String apiName = uri.getPath().substring(request.getBaseUri().getPath().length());
         if (StringUtils.isEmpty(apiName)) {
-            //API名が存在しない
+            // API名が存在しない場合
             throw new AutoApplicationException("EAPI-000008", "URL", uri.toString());
         }
 
-        //String userName = decodeParamMap.get(PARAM_NAME_KEY);
+        // URIのパラメータをBase64デコードしてマップにする
+        Map<String, String> decodeParamMap = getDecodedParamMap(uri);
+
         String accessId = decodeParamMap.get(PARAM_NAME_ACCESS_ID);
         String signature = decodeParamMap.get(PARAM_NAME_SIGNATURE);
         String timestamp = decodeParamMap.get(PARAM_NAME_TIMESTAMP);
 
-        // 入力チェック
-        // Key(ユーザ名)
+        // パラメータの存在チェック
         ApiValidate.validateAccessId(accessId);
-        // Signature
         ApiValidate.validateSignature(signature);
-        // Timestamp(yyyy/MM/dd HH:mm:ss)
         ApiValidate.validateTimestamp(timestamp);
 
-        // PCC-API認証情報取得
+        // API認証情報の取得
         ApiCertificate apiCertificate = apiCertificateDao.readByApiAccessId(accessId);
         if (apiCertificate == null) {
-            // PCC-API認証情報が存在しない
+            // API認証情報が存在しない場合
             try {
                 Thread.sleep(SECURE_WAIT_TIME.intValue() * 1000);
             } catch (InterruptedException ignore) {
@@ -99,18 +89,18 @@ public class ApiFilter extends ApiSupport implements ContainerRequestFilter {
             throw new AutoApplicationException("EAPI-000008", PARAM_NAME_ACCESS_ID, accessId);
         }
 
-        //ユーザ(APIアクセスユーザ)取得
+        // ユーザ情報の取得
         User accessUser = userDao.read(apiCertificate.getUserNo());
         if (accessUser == null) {
-            // ユーザが存在しない
+            // ユーザ情報が存在しない場合
             throw new AutoApplicationException("EAPI-100000", "User", "UserNo", apiCertificate.getUserNo());
         }
 
-        // Signature合致チェック
+        // Signatureの合致チェック
         String uriText = createUriQueryParams(decodeParamMap);
         String encodeUriText = encodeSHA256(uriText, apiCertificate.getApiSecretKey());
-        if (BooleanUtils.isFalse(encodeUriText.equals(signature))) {
-            //Signatureが合致しない場合
+        if (!encodeUriText.equals(signature)) {
+            // Signatureが合致しない場合
             try {
                 Thread.sleep(SECURE_WAIT_TIME.intValue() * 1000);
             } catch (InterruptedException ignore) {
@@ -118,15 +108,15 @@ public class ApiFilter extends ApiSupport implements ContainerRequestFilter {
             throw new AutoApplicationException("EAPI-000008", "URL", uri.toString());
         }
 
-        //Userをリクエストに保存
+        // ユーザ情報をリクエストに保存
         servletRequest.setAttribute(PARAM_NAME_USER, accessUser);
 
-        //LoggingUtilsにデータを設定
+        // ログ出力用データを設定
         LoggingUtils.setUserNo(accessUser.getUserNo());
         LoggingUtils.setLoginUserNo(accessUser.getUserNo());
         LoggingUtils.setUserName(accessUser.getUsername());
 
-        // デコードしたURLを再設定
+        // デコードしたパラメータを再設定
         for (String key : decodeParamMap.keySet()) {
             request.getQueryParameters().putSingle(key, decodeParamMap.get(key));
         }
@@ -138,38 +128,38 @@ public class ApiFilter extends ApiSupport implements ContainerRequestFilter {
     }
 
     /**
-     * BASE64デコード済みのリクエストパラメータをLinkedHashMapで取得
-     * ※リクエストパラメータ全てをBASE64エンコード
+     * Base64デコード済みのリクエストパラメータを取得する。
      *
      * @param url URL
      * @return LinkedHashMap<パラメータ名, パラメータ値>
      */
     @SuppressWarnings("static-access")
-    private LinkedHashMap<String, String> getDecodedParamMap(URI uri) {
+    private Map<String, String> getDecodedParamMap(URI uri) {
         LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
+
         String queryUrlText = uri.getQuery();
-        if (StringUtils.isNotEmpty(queryUrlText)) {
-            try {
-                Base64 base64 = new Base64(true);
-                String decodedUri = new String(base64.decodeBase64(queryUrlText.getBytes("UTF-8")), "UTF-8");
-                for (String param : decodedUri.split("&")) {
-                    String key = param.substring(0, param.indexOf("="));
-                    String value = param.substring(param.indexOf("=") + 1, param.length());
-                    if (PARAM_NAME_SIGNATURE.equals(key)) {
-                        map.put(key, value);
-                    } else {
-                        map.put(key, value);
-                    }
-                }
-            } catch (Exception e) {
-                throw new AutoApplicationException("EAPI-000008", e, "URL", uri.toString());
-            }
+        if (StringUtils.isEmpty(queryUrlText)) {
+            return map;
         }
+
+        try {
+            Base64 base64 = new Base64(true);
+            String decodedUri = new String(base64.decodeBase64(queryUrlText.getBytes("UTF-8")), "UTF-8");
+            for (String param : StringUtils.split(decodedUri, "&")) {
+                String[] array = StringUtils.split(param, "=", 2);
+                String key = array[0];
+                String value = array[1];
+                map.put(key, value);
+            }
+        } catch (UnsupportedEncodingException e) {
+            throw new AutoApplicationException("EAPI-000008", e, "URL", uri.toString());
+        }
+
         return map;
     }
 
     /**
-     * HMAC-SHA256ハッシュアルゴリズムでエンコードを行う。
+     * HMAC-SHA256ハッシュアルゴリズムでエンコードする。
      *
      * @param plainText エンコード対象の文字列
      * @param keyText
@@ -196,21 +186,23 @@ public class ApiFilter extends ApiSupport implements ContainerRequestFilter {
     }
 
     /**
-     * URI(Signature含まない)文字列を作成
+     * URI(Signature含まない)文字列を作成する。
      *
      * @param decodeParamMap base64デコード済みのリクエストパラメータ
      * @return リクエストパラメータを元にしたURL(Signature含まない)
      */
-    private String createUriQueryParams(LinkedHashMap<String, String> decodeParamMap) {
+    private String createUriQueryParams(Map<String, String> decodeParamMap) {
         String baseUriText = servletRequest.getServletPath() + servletRequest.getPathInfo() + "?";
-        StringBuffer uriText = new StringBuffer(baseUriText);
-        String splitChar = "";
-        for (String key : decodeParamMap.keySet()) {
-            if (PARAM_NAME_SIGNATURE.equals(key) == false) {
-                uriText.append(splitChar + key + "=" + decodeParamMap.get(key));
-                splitChar = "&";
+        StringBuilder uriText = new StringBuilder(baseUriText);
+
+        for (Entry<String, String> parameter : decodeParamMap.entrySet()) {
+            if (PARAM_NAME_SIGNATURE.equals(parameter.getKey())) {
+                continue;
             }
+            uriText.append(parameter.getKey()).append("=").append(parameter.getValue()).append("&");
         }
+        uriText.delete(uriText.length() - 1, uriText.length());
+
         return uriText.toString();
     }
 
