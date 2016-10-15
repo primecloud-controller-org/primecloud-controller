@@ -40,10 +40,16 @@ libcloud.security.VERIFY_SSL_CERT = False
 proxyinfo = getProxy()
 proxy_host = ""
 proxy_port = ""
+proxy_user = ""
+proxy_pass = ""
 if "host" in proxyinfo:
     proxy_host = proxyinfo["host"]
 if "port" in proxyinfo:
     proxy_port = proxyinfo["port"]
+if "user" in proxyinfo:
+    proxy_user = proxyinfo["user"]
+if "pass" in proxyinfo:
+    proxy_pass = proxyinfo["pass"]
 
 
 #EC2 ロードバランサ用の設定
@@ -85,7 +91,11 @@ class PCCEC2Connection(EC2Connection):
             connection = self.conn_classes[secure](**kwargs)
         else:
             #self.logger.debug("**************** ON PROXY !")
-            connection = self.conn_classes[False](proxy_host, proxy_port)
+            connection = self.conn_classes[secure](proxy_host, proxy_port)
+            if proxy_user is not None and proxy_user != "":
+                 headers = {"Proxy-Authorization":"Basic " + base64.b64encode(proxy_user + ":" + proxy_pass)}
+                 kwargs["headers"] = headers
+            connection.set_tunnel(**kwargs)
 
         self.connection = connection
 
@@ -122,7 +132,11 @@ class EC2LBConnectionUSE(ConnectionUserAndKey):
             connection = self.conn_classes[secure](**kwargs)
         else:
             #self.logger.debug("**************** ON PROXY !")
-            connection = self.conn_classes[False](proxy_host, proxy_port)
+            connection = self.conn_classes[secure](proxy_host, proxy_port)
+            if proxy_user is not None and proxy_user != "":
+                 headers = {"Proxy-Authorization":"Basic " + base64.b64encode(proxy_user + ":" + proxy_pass)}
+                 kwargs["headers"] = headers
+            connection.set_tunnel(**kwargs)
 
         self.connection = connection
 
@@ -177,7 +191,11 @@ class PCCCloudStackConnection(CloudStackConnection):
             connection = self.conn_classes[secure](**kwargs)
         else:
             #self.logger.debug("**************** ON PROXY !")
-            connection = self.conn_classes[False](proxy_host, proxy_port)
+            connection = self.conn_classes[secure](proxy_host, proxy_port)
+            if proxy_user is not None and proxy_user != "":
+                 headers = {"Proxy-Authorization":"Basic " + base64.b64encode(proxy_user + ":" + proxy_pass)}
+                 kwargs["headers"] = headers
+            connection.set_tunnel(**kwargs)
 
         self.connection = connection
 
@@ -207,7 +225,11 @@ class PCCVCloudConnection(VCloud_1_5_Connection):
             connection = self.conn_classes[secure](**kwargs)
         else:
             #self.logger.debug("**************** ON PROXY !")
-            connection = self.conn_classes[False](proxy_host, proxy_port)
+            connection = self.conn_classes[secure](proxy_host, proxy_port)
+            if proxy_user is not None and proxy_user != "":
+                 headers = {"Proxy-Authorization":"Basic " + base64.b64encode(proxy_user + ":" + proxy_pass)}
+                 kwargs["headers"] = headers
+            connection.set_tunnel(**kwargs)
 
         self.connection = connection
 
