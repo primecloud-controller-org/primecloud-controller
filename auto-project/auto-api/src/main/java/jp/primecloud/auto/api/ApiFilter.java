@@ -25,6 +25,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
@@ -50,6 +52,8 @@ public class ApiFilter extends ApiSupport implements ContainerRequestFilter {
 
     private static final Integer SECURE_WAIT_TIME = Integer.parseInt(Config.getProperty("pccApi.secureWaitTime"));
 
+    private static final String ALLOW_API = Config.getProperty("pccApi.allowApi");
+
     @Context
     private HttpServletRequest servletRequest;
 
@@ -64,6 +68,16 @@ public class ApiFilter extends ApiSupport implements ContainerRequestFilter {
         if (StringUtils.isEmpty(apiName)) {
             // API名が存在しない場合
             throw new AutoApplicationException("EAPI-000008", "URL", uri.toString());
+        }
+
+        // APIの実行許可チェック
+        if (StringUtils.isNotEmpty(ALLOW_API)) {
+            Pattern pattern = Pattern.compile(ALLOW_API);
+            Matcher matcher = pattern.matcher(apiName);
+            if (!matcher.matches()) {
+                // APIの実行が許可されていない場合
+                throw new AutoApplicationException("EAPI-000023", apiName);
+            }
         }
 
         // URIのパラメータをBase64デコードしてマップにする
