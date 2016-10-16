@@ -52,7 +52,7 @@ public class ApiFilter extends ApiSupport implements ContainerRequestFilter {
 
     private static final Integer SECURE_WAIT_TIME = Integer.parseInt(Config.getProperty("pccApi.secureWaitTime"));
 
-    private static final String ALLOW_API = Config.getProperty("pccApi.allowApi");
+    private static final String ALLOW_API = Config.getProperty("api.allowApi");
 
     @Context
     private HttpServletRequest servletRequest;
