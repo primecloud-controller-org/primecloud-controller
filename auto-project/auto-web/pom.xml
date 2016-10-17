@@ -18,6 +18,7 @@
 			<groupId>jp.primecloud.auto</groupId>
 			<artifactId>auto-api</artifactId>
 			<version>${pom.version}</version>
+			<classifier>classes</classifier>
 		</dependency>
 		<dependency>
 			<groupId>jp.primecloud.auto</groupId>
