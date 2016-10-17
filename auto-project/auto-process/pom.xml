@@ -27,6 +27,12 @@
 			<groupId>jp.primecloud.auto</groupId>
 			<artifactId>auto-vmware</artifactId>
 			<version>${pom.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.httpcomponents</groupId>
+					<artifactId>httpclient</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>jp.primecloud.auto</groupId>
