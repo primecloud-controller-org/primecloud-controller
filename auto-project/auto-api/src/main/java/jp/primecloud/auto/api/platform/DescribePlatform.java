@@ -42,12 +42,6 @@ import jp.primecloud.auto.entity.crud.AwsCertificate;
 import jp.primecloud.auto.entity.crud.CloudstackCertificate;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.PlatformAws;
-import jp.primecloud.auto.entity.crud.PlatformAzure;
-import jp.primecloud.auto.entity.crud.PlatformCloudstack;
-import jp.primecloud.auto.entity.crud.PlatformNifty;
-import jp.primecloud.auto.entity.crud.PlatformOpenstack;
-import jp.primecloud.auto.entity.crud.PlatformVcloud;
-import jp.primecloud.auto.entity.crud.PlatformVmware;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.dto.KeyPairDto;
@@ -136,8 +130,8 @@ public class DescribePlatform extends ApiSupport {
     }
 
     private PlatformAwsResponse getAwsDetail(Long userNo, Long platformNo) {
+        PlatformAwsResponse response = new PlatformAwsResponse();
         PlatformAws aws = platformAwsDao.read(platformNo);
-        PlatformAwsResponse response = new PlatformAwsResponse(aws);
 
         // キー名
         List<KeyPairDto> keyPairDtos = iaasDescribeService.getKeyPairs(userNo, platformNo);
@@ -172,8 +166,7 @@ public class DescribePlatform extends ApiSupport {
     }
 
     private PlatformCloudstackResponse getCloudstackDetail(Long userNo, Long platformNo) {
-        PlatformCloudstack cloudstack = platformCloudstackDao.read(platformNo);
-        PlatformCloudstackResponse response = new PlatformCloudstackResponse(cloudstack);
+        PlatformCloudstackResponse response = new PlatformCloudstackResponse();
 
         //デフォルトキーペア
         CloudstackCertificate certificate = cloudstackCertificateDao.read(userNo, platformNo);
@@ -183,28 +176,23 @@ public class DescribePlatform extends ApiSupport {
     }
 
     private PlatformVmwareResponse getVmwareDetail(Long userNo, Long platformNo) {
-        PlatformVmware vmware = platformVmwareDao.read(platformNo);
-        return new PlatformVmwareResponse(vmware);
+        return new PlatformVmwareResponse();
     }
 
     private PlatformNiftyResponse getNiftyDetail(Long userNo, Long platformNo) {
-        PlatformNifty nifty = platformNiftyDao.read(platformNo);
-        return new PlatformNiftyResponse(nifty);
+        return new PlatformNiftyResponse();
     }
 
     private PlatformVcloudResponse getVcloudDetail(Long userNo, Long platformNo) {
-        PlatformVcloud vcloud = platformVcloudDao.read(platformNo);
-        return new PlatformVcloudResponse(vcloud);
+        return new PlatformVcloudResponse();
     }
 
     private PlatformOpenstackResponse getOpenstackDetail(Long userNo, Long platformNo) {
-        PlatformOpenstack openstack = platformOpenstackDao.read(platformNo);
-        return new PlatformOpenstackResponse(openstack);
+        return new PlatformOpenstackResponse();
     }
 
     private PlatformAzureResponse getAzureDetail(Long userNo, Long platformNo) {
-        PlatformAzure azure = platformAzureDao.read(platformNo);
-        return new PlatformAzureResponse(azure);
+        return new PlatformAzureResponse();
     }
 
     private String getCidrBlockBySubnetId(List<SubnetDto> subnetDtos, String subnetId) {

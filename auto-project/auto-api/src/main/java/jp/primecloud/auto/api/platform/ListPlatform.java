@@ -27,22 +27,8 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.response.platform.ListPlatformResponse;
-import jp.primecloud.auto.api.response.platform.PlatformAwsResponse;
-import jp.primecloud.auto.api.response.platform.PlatformAzureResponse;
-import jp.primecloud.auto.api.response.platform.PlatformCloudstackResponse;
-import jp.primecloud.auto.api.response.platform.PlatformNiftyResponse;
-import jp.primecloud.auto.api.response.platform.PlatformOpenstackResponse;
 import jp.primecloud.auto.api.response.platform.PlatformResponse;
-import jp.primecloud.auto.api.response.platform.PlatformVcloudResponse;
-import jp.primecloud.auto.api.response.platform.PlatformVmwareResponse;
 import jp.primecloud.auto.entity.crud.Platform;
-import jp.primecloud.auto.entity.crud.PlatformAws;
-import jp.primecloud.auto.entity.crud.PlatformAzure;
-import jp.primecloud.auto.entity.crud.PlatformCloudstack;
-import jp.primecloud.auto.entity.crud.PlatformNifty;
-import jp.primecloud.auto.entity.crud.PlatformOpenstack;
-import jp.primecloud.auto.entity.crud.PlatformVcloud;
-import jp.primecloud.auto.entity.crud.PlatformVmware;
 import jp.primecloud.auto.entity.crud.User;
 
 import org.apache.commons.lang.BooleanUtils;
@@ -73,69 +59,10 @@ public class ListPlatform extends ApiSupport {
                 continue;
             }
             PlatformResponse platformResponse = new PlatformResponse(platform);
-            // TODO CLOUD BRANCHING
-            if (PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
-                PlatformAwsResponse awsResponse = getAwsDetail(user.getUserNo(), platform.getPlatformNo());
-                platformResponse.setAws(awsResponse);
-            } else if (PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
-                PlatformCloudstackResponse csResponse = getCloudstackDetail(user.getUserNo(), platform.getPlatformNo());
-                platformResponse.setCloudstack(csResponse);
-            } else if (PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
-                PlatformVmwareResponse vmwareResponse = getVmwareDetail(user.getUserNo(), platform.getPlatformNo());
-                platformResponse.setVmware(vmwareResponse);
-            } else if (PLATFORM_TYPE_NIFTY.equals(platform.getPlatformType())) {
-                PlatformNiftyResponse niftyResponse = getNiftyDetail(user.getUserNo(), platform.getPlatformNo());
-                platformResponse.setNifty(niftyResponse);
-            } else if (PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
-                PlatformVcloudResponse vcloudResponse = getVcloudDetail(user.getUserNo(), platform.getPlatformNo());
-                platformResponse.setVcloud(vcloudResponse);
-            } else if (PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
-                PlatformOpenstackResponse openstackResponse = getOpenstackDetail(user.getUserNo(),
-                        platform.getPlatformNo());
-                platformResponse.setOpenstack(openstackResponse);
-            } else if (PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
-                PlatformAzureResponse azureResponse = getAzureDetail(user.getUserNo(), platform.getPlatformNo());
-                platformResponse.setAzure(azureResponse);
-            }
             response.getPlatforms().add(platformResponse);
         }
 
         return response;
-    }
-
-    private PlatformAwsResponse getAwsDetail(Long userNo, Long platformNo) {
-        PlatformAws aws = platformAwsDao.read(platformNo);
-        return new PlatformAwsResponse(aws);
-    }
-
-    private PlatformCloudstackResponse getCloudstackDetail(Long userNo, Long platformNo) {
-        PlatformCloudstack cloudstack = platformCloudstackDao.read(platformNo);
-        return new PlatformCloudstackResponse(cloudstack);
-    }
-
-    private PlatformVmwareResponse getVmwareDetail(Long userNo, Long platformNo) {
-        PlatformVmware vmware = platformVmwareDao.read(platformNo);
-        return new PlatformVmwareResponse(vmware);
-    }
-
-    private PlatformNiftyResponse getNiftyDetail(Long userNo, Long platformNo) {
-        PlatformNifty nifty = platformNiftyDao.read(platformNo);
-        return new PlatformNiftyResponse(nifty);
-    }
-
-    private PlatformVcloudResponse getVcloudDetail(Long userNo, Long platformNo) {
-        PlatformVcloud vcloud = platformVcloudDao.read(platformNo);
-        return new PlatformVcloudResponse(vcloud);
-    }
-
-    private PlatformOpenstackResponse getOpenstackDetail(Long userNo, Long platformNo) {
-        PlatformOpenstack openstack = platformOpenstackDao.read(platformNo);
-        return new PlatformOpenstackResponse(openstack);
-    }
-
-    private PlatformAzureResponse getAzureDetail(Long userNo, Long platformNo) {
-        PlatformAzure azure = platformAzureDao.read(platformNo);
-        return new PlatformAzureResponse(azure);
     }
 
 }

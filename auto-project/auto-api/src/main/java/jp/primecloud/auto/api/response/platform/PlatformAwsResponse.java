@@ -3,36 +3,9 @@ package jp.primecloud.auto.api.response.platform;
 import java.util.ArrayList;
 import java.util.List;
 
-import jp.primecloud.auto.entity.crud.PlatformAws;
-
-import org.apache.commons.lang.BooleanUtils;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 public class PlatformAwsResponse {
-
-    @JsonProperty("Host")
-    private String host;
-
-    @JsonProperty("Port")
-    private Integer port;
-
-    @JsonProperty("Secure")
-    private Boolean secure;
-
-    @JsonProperty("Euca")
-    private Boolean euca;
-
-    @JsonProperty("Vpc")
-    private Boolean vpc;
-
-    @JsonProperty("Region")
-    private String region;
-
-    @JsonProperty("AvailabilityZone")
-    private String availabilityZone;
-
-    @JsonProperty("VpcId")
-    private String vpcId;
 
     @JsonProperty("KeyNames")
     private List<String> keyNames = new ArrayList<String>();
@@ -51,81 +24,6 @@ public class PlatformAwsResponse {
 
     @JsonProperty("DefLbSubnet")
     private String defLbSubnet;
-
-    public PlatformAwsResponse(PlatformAws aws) {
-        this.host = aws.getHost();
-        this.port = aws.getPort();
-        this.secure = BooleanUtils.isTrue(aws.getSecure());
-        this.euca = BooleanUtils.isTrue(aws.getEuca());
-        this.vpc = BooleanUtils.isTrue(aws.getVpc());
-        this.region = aws.getRegion();
-        this.availabilityZone = aws.getAvailabilityZone();
-        this.vpcId = aws.getVpcId();
-    }
-
-    public String getHost() {
-        return host;
-    }
-
-    public void setHost(String host) {
-        this.host = host;
-    }
-
-    public Integer getPort() {
-        return port;
-    }
-
-    public void setPort(Integer port) {
-        this.port = port;
-    }
-
-    public Boolean getSecure() {
-        return secure;
-    }
-
-    public void setSecure(Boolean secure) {
-        this.secure = secure;
-    }
-
-    public Boolean getEuca() {
-        return euca;
-    }
-
-    public void setEuca(Boolean euca) {
-        this.euca = euca;
-    }
-
-    public Boolean getVpc() {
-        return vpc;
-    }
-
-    public void setVpc(Boolean vpc) {
-        this.vpc = vpc;
-    }
-
-    public String getRegion() {
-        return region;
-    }
-
-    public void setRegion(String region) {
-        this.region = region;
-    }
-
-    public String getAvailabilityZone() {
-        return availabilityZone;
-    }
-
-    public void setAvailabilityZone(String availabilityZone) {
-        this.availabilityZone = availabilityZone;
-    }
-
-    public String getVpcId() {
-        return vpcId;
-    }
-
-    public void setVpcId(String vpcId) {
-        this.vpcId = vpcId;
-    }
 
     public List<String> getKeyNames() {
         return keyNames;
