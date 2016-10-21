@@ -43,6 +43,7 @@ import jp.primecloud.auto.entity.crud.CloudstackCertificate;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.PlatformAws;
 import jp.primecloud.auto.entity.crud.User;
+import jp.primecloud.auto.entity.crud.VmwareKeyPair;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.dto.KeyPairDto;
 import jp.primecloud.auto.service.dto.SecurityGroupDto;
@@ -50,6 +51,8 @@ import jp.primecloud.auto.service.dto.SubnetDto;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
+
+import com.vmware.vim25.mo.ComputeResource;
 
 /**
  * <p>
@@ -176,7 +179,21 @@ public class DescribePlatform extends ApiSupport {
     }
 
     private PlatformVmwareResponse getVmwareDetail(Long userNo, Long platformNo) {
-        return new PlatformVmwareResponse();
+        PlatformVmwareResponse response = new PlatformVmwareResponse();
+
+        // キー名
+        List<VmwareKeyPair> keyPairs = vmwareDescribeService.getKeyPairs(userNo, platformNo);
+        for (VmwareKeyPair keyPair : keyPairs) {
+            response.getKeyNames().add(keyPair.getKeyName());
+        }
+
+        // ComputeResource
+        List<ComputeResource> computeResources = vmwareDescribeService.getComputeResources(platformNo);
+        for (ComputeResource computeResource : computeResources) {
+            response.getComputeResources().add(computeResource.getName());
+        }
+
+        return response;
     }
 
     private PlatformNiftyResponse getNiftyDetail(Long userNo, Long platformNo) {

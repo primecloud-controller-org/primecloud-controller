@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.api.instance;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.GET;
@@ -61,7 +60,6 @@ public class EditInstanceVmware extends ApiSupport {
      * @param subnetMask サブネットマスク
      * @param defaultGateway ゲートウェイ
      * @param comment コメント
-     *
      * @return EditInstanceVmwareResponse
      */
     @GET
@@ -76,30 +74,32 @@ public class EditInstanceVmware extends ApiSupport {
             @QueryParam(PARAM_NAME_COMMENT) String comment) {
 
         // 入力チェック
-        // InstanceNo
         ApiValidate.validateInstanceNo(instanceNo);
 
-        //インスタンス取得
+        // インスタンス取得
         Instance instance = instanceDao.read(Long.parseLong(instanceNo));
 
         // 権限チェック
         User user = checkAndGetUser(instance);
 
+        // インスタンスのステータスチェック
         InstanceStatus status = InstanceStatus.fromStatus(instance.getStatus());
         if (InstanceStatus.STOPPED != status) {
             // インスタンスが停止済み以外
             throw new AutoApplicationException("EAPI-100014", instanceNo);
         }
 
-        //プラットフォーム取得
+        // プラットフォーム取得
         Platform platform = platformDao.read(instance.getPlatformNo());
         if (platform == null) {
             // プラットフォームが存在しない
             throw new AutoApplicationException("EAPI-100000", "Platform", PARAM_NAME_PLATFORM_NO,
                     instance.getPlatformNo());
         }
+
+        // プラットフォーム種別チェック
         if (!PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
-            //プラットフォームがVMware以外
+            // プラットフォームがVMware以外
             throw new AutoApplicationException("EAPI-100031", "VMware", instanceNo, instance.getPlatformNo());
         }
 
@@ -136,11 +136,8 @@ public class EditInstanceVmware extends ApiSupport {
         ApiValidate.validateIsStaticIp(isStaticIp);
         VmwareAddressDto addressDto = null;
         if (Boolean.parseBoolean(isStaticIp)) {
-            //IpAddress
             ApiValidate.validateIpAddress(ipAddress, true);
-            //SubnetMask
             ApiValidate.validateSubnetMask(subnetMask);
-            //DefaultGateway
             ApiValidate.validateDefaultGateway(defaultGateway);
 
             addressDto = new VmwareAddressDto();
@@ -148,32 +145,17 @@ public class EditInstanceVmware extends ApiSupport {
             addressDto.setSubnetMask(subnetMask);
             addressDto.setDefaultGateway(defaultGateway);
         }
+
         // Comment
         ApiValidate.validateComment(comment);
 
-        //インスタンス(VMware)の更新
+        // インスタンス(VMware)の更新
         instanceService.updateVmwareInstance(Long.parseLong(instanceNo), instance.getInstanceName(), comment,
                 instanceType, computeResource, null, keyPairNo, addressDto);
 
         EditInstanceVmwareResponse response = new EditInstanceVmwareResponse();
 
         return response;
-    }
-
-    /**
-     * カンマ区切りのインスタンスタイプ(名称)の文字列からインスタンスタイプ(名称)のリストを作成する
-     *
-     * @param instanceTypesText カンマ区切りのインスタンスタイプ(名称)文字列
-     * @return インスタンスタイプ(名称)のリスト
-     */
-    private static List<String> getInstanceTypes(String instanceTypesText) {
-        List<String> instanceTypes = new ArrayList<String>();
-        if (StringUtils.isNotEmpty(instanceTypesText)) {
-            for (String instanceType : StringUtils.split(instanceTypesText, ",")) {
-                instanceTypes.add(instanceType.trim());
-            }
-        }
-        return instanceTypes;
     }
 
     /**
@@ -185,11 +167,18 @@ public class EditInstanceVmware extends ApiSupport {
      * @return true:存在する、false:存在しない
      */
     private boolean checkInstanceType(Platform platform, Image image, String instanceType) {
-        List<String> instanceTypes = new ArrayList<String>();
-        //VMWare
         ImageVmware imageVmware = imageVmwareDao.read(image.getImageNo());
-        instanceTypes = getInstanceTypes(imageVmware.getInstanceTypes());
-        return instanceTypes.contains(instanceType);
+        if (StringUtils.isEmpty(imageVmware.getInstanceTypes())) {
+            return false;
+        }
+
+        for (String instanceType2 : StringUtils.split(imageVmware.getInstanceTypes(), ",")) {
+            if (StringUtils.equals(instanceType, instanceType2.trim())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -201,17 +190,14 @@ public class EditInstanceVmware extends ApiSupport {
      * @return キーペアNo(存在しない場合はNull)
      */
     private Long getKeyPairNo(Long userNo, Long platformNo, String keyName) {
-        Long keyPairNo = null;
-        //VMWare
         List<VmwareKeyPair> vmwareKeyPairs = vmwareDescribeService.getKeyPairs(userNo, platformNo);
         for (VmwareKeyPair vmwareKeyPair : vmwareKeyPairs) {
             if (StringUtils.equals(vmwareKeyPair.getKeyName(), keyName)) {
-                keyPairNo = vmwareKeyPair.getKeyNo();
-                break;
+                return vmwareKeyPair.getKeyNo();
             }
         }
 
-        return keyPairNo;
+        return null;
     }
 
     /**
@@ -222,16 +208,14 @@ public class EditInstanceVmware extends ApiSupport {
      * @return
      */
     private boolean checkComputeResource(Long platformNo, String computeResourceName) {
-        boolean isContain = false;
-        //VMWare
         List<ComputeResource> computeResources = vmwareDescribeService.getComputeResources(platformNo);
         for (ComputeResource computeResource : computeResources) {
-            if (computeResource.getName().equals(computeResourceName)) {
-                isContain = true;
-                break;
+            if (StringUtils.equals(computeResourceName, computeResource.getName())) {
+                return true;
             }
         }
-        return isContain;
+
+        return false;
     }
 
 }
