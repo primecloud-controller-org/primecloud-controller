@@ -85,7 +85,7 @@ public class DescribePlatform extends ApiSupport {
         }
 
         // プラットフォームを利用できない場合
-        if (!platformService.isUseablePlatforms(user.getUserNo(), platform)) {
+        if (!platformService.isUsablePlatform(user.getUserNo(), platform)) {
             throw new AutoApplicationException("EAPI-000020", "Platform", PARAM_NAME_PLATFORM_NO, platformNo);
         }
 

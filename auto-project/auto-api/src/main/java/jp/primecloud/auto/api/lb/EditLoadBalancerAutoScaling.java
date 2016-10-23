@@ -101,7 +101,7 @@ public class EditLoadBalancerAutoScaling extends ApiSupport {
                 //プラットフォームが存在しない
                 throw new AutoApplicationException("EAPI-100000", "Platform", PARAM_NAME_PLATFORM_NO, platformNo);
             }
-            if (!platformService.isUseablePlatforms(user.getUserNo(), platform)
+            if (!platformService.isUsablePlatform(user.getUserNo(), platform)
                     || BooleanUtils.isNotTrue(platform.getSelectable())) {
                 //認証情報が存在しない or 有効ではないプラットフォーム
                 throw new AutoApplicationException("EAPI-000020", "Platform", PARAM_NAME_PLATFORM_NO, platformNo);

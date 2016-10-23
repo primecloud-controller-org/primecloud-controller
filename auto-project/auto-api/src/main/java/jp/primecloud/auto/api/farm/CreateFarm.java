@@ -144,7 +144,7 @@ public class CreateFarm extends ApiSupport {
         List<Long> platformNos = new ArrayList<Long>();
         List<Platform> platforms = platformDao.readAll();
         for (Platform platform : platforms) {
-            if (!platformService.isUseablePlatforms(userNo, platform)
+            if (!platformService.isUsablePlatform(userNo, platform)
                     || BooleanUtils.isNotTrue(platform.getSelectable())) {
                 //認証情報が存在しない or 有効プラットフォームではない場合はリストに含めない
                 continue;

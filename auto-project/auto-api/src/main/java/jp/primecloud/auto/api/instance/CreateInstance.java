@@ -97,7 +97,7 @@ public class CreateInstance extends ApiSupport {
             // プラットフォームが使用可能でない場合
             throw new AutoApplicationException("EAPI-000020", "Image", PARAM_NAME_IMAGE_NO, imageNo);
         }
-        if (!platformService.isUseablePlatforms(user.getUserNo(), platform)) {
+        if (!platformService.isUsablePlatform(user.getUserNo(), platform)) {
             // プラットフォームが使用可能でない場合
             throw new AutoApplicationException("EAPI-000020", "Image", PARAM_NAME_IMAGE_NO, imageNo);
         }

@@ -53,7 +53,7 @@ public class ListPlatform extends ApiSupport {
         // プラットフォーム情報取得
         List<Platform> platforms = platformDao.readAll();
         for (Platform platform : platforms) {
-            if (!platformService.isUseablePlatforms(user.getUserNo(), platform)
+            if (!platformService.isUsablePlatform(user.getUserNo(), platform)
                     || BooleanUtils.isNotTrue(platform.getSelectable())) {
                 //認証情報が存在しない or 無効プラットフォーム → 表示しない
                 continue;
