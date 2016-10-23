@@ -36,9 +36,11 @@ import jp.primecloud.auto.service.dto.FarmDto;
 import jp.primecloud.auto.service.dto.ManagementUserDto;
 import jp.primecloud.auto.service.dto.UserAuthDto;
 
-
 public class UserManagementServiceImpl extends ServiceSupport implements UserManagementService {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<ManagementUserDto> getManagementUsers(Long userNo) {
 
@@ -46,11 +48,11 @@ public class UserManagementServiceImpl extends ServiceSupport implements UserMan
 
         List<User> users = userDao.readByMasterUser(userNo);
 
-        for (User user:users) {
+        for (User user : users) {
             ManagementUserDto mUser = new ManagementUserDto();
             HashMap<Long, UserAuth> authMap = new HashMap<Long, UserAuth>();
             List<UserAuth> userAuth = userAuthDao.readByUserNo(user.getUserNo());
-            for (UserAuth auth: userAuth) {
+            for (UserAuth auth : userAuth) {
                 authMap.put(auth.getFarmNo(), auth);
             }
 
@@ -74,7 +76,7 @@ public class UserManagementServiceImpl extends ServiceSupport implements UserMan
 
         //マスターユーザに紐づくファームを取得
         List<Farm> farms = farmDao.readByUserNo(masterUserNo);
-        for (Farm farm: farms) {
+        for (Farm farm : farms) {
             FarmDto dto = new FarmDto();
             dto.setFarm(farm);
             dtos.add(dto);
@@ -90,6 +92,9 @@ public class UserManagementServiceImpl extends ServiceSupport implements UserMan
         return userAuthDao.read(farmNo, userNo);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<AuthoritySet> getAuthoritySet() {
 
@@ -105,7 +110,7 @@ public class UserManagementServiceImpl extends ServiceSupport implements UserMan
     public Map<Long, UserAuth> getUserAuthMap(Long userNo) {
         Map<Long, UserAuth> authMap = new HashMap<Long, UserAuth>();
         List<UserAuth> userAuths = userAuthDao.readByUserNo(userNo);
-        for (UserAuth userAuth: userAuths) {
+        for (UserAuth userAuth : userAuths) {
             authMap.put(userAuth.getFarmNo(), userAuth);
         }
         return authMap;
@@ -115,8 +120,7 @@ public class UserManagementServiceImpl extends ServiceSupport implements UserMan
      * {@inheritDoc}
      */
     @Override
-    public void createUserAndUserAuth(Long masterUserNo, String userName,
-            String password, Map<Long, Long> authMap) {
+    public void createUserAndUserAuth(Long masterUserNo, String userName, String password, Map<Long, Long> authMap) {
         final Long SET_NO_NOTHING = new Long(0);
 
         //ユーザ情報取得
@@ -141,12 +145,12 @@ public class UserManagementServiceImpl extends ServiceSupport implements UserMan
         //AUTHORITY_SET取得
         List<AuthoritySet> authoritySets = authoritySetDao.readAll();
         Map<Long, AuthoritySet> authSetMap = new HashMap<Long, AuthoritySet>();
-        for (AuthoritySet authoritySet: authoritySets) {
+        for (AuthoritySet authoritySet : authoritySets) {
             authSetMap.put(authoritySet.getSetNo(), authoritySet);
         }
 
         //USER_AUTH作成
-        for (Long farmNo: authMap.keySet()) {
+        for (Long farmNo : authMap.keySet()) {
             Long setNo = authMap.get(farmNo);
             AuthoritySet authoritySet = authSetMap.get(setNo);
 
@@ -187,8 +191,7 @@ public class UserManagementServiceImpl extends ServiceSupport implements UserMan
      * {@inheritDoc}
      */
     @Override
-    public void updateUserAndUserAuth(Long userNo, String userName,
-            String password, Map<Long, Long> authMap) {
+    public void updateUserAndUserAuth(Long userNo, String userName, String password, Map<Long, Long> authMap) {
         final Long SET_NO_NOTHING = new Long(0);
 
         //ユーザ情報取得
@@ -219,12 +222,12 @@ public class UserManagementServiceImpl extends ServiceSupport implements UserMan
         //AUTHORITY_SET取得
         List<AuthoritySet> authoritySets = authoritySetDao.readAll();
         Map<Long, AuthoritySet> authSetMap = new HashMap<Long, AuthoritySet>();
-        for (AuthoritySet authoritySet: authoritySets) {
+        for (AuthoritySet authoritySet : authoritySets) {
             authSetMap.put(authoritySet.getSetNo(), authoritySet);
         }
 
         //USER_AUTH更新
-        for (Long farmNo: authMap.keySet()) {
+        for (Long farmNo : authMap.keySet()) {
             boolean isCreate = false;
             UserAuth userAuth = userAuthDao.read(farmNo, userNo);
             if (userAuth == null) {
@@ -328,7 +331,7 @@ public class UserManagementServiceImpl extends ServiceSupport implements UserMan
 
         //USER_AUTHテーブル削除
         List<UserAuth> userAuths = userAuthDao.readByUserNo(userNo);
-        for (UserAuth userAuth: userAuths) {
+        for (UserAuth userAuth : userAuths) {
             userAuthDao.deleteByFarmNoAndUserNo(userAuth.getFarmNo(), userAuth.getUserNo());
         }
 
@@ -338,4 +341,5 @@ public class UserManagementServiceImpl extends ServiceSupport implements UserMan
         //USERテーブル削除
         userDao.deleteByUserNo(userNo);
     }
+
 }

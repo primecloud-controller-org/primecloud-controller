@@ -20,8 +20,7 @@ package jp.primecloud.auto.service.dto;
 
 import java.io.Serializable;
 
-public class KeyPairDto  implements Serializable {
-
+public class KeyPairDto implements Serializable {
 
     /** TODO: フィールドコメントを記述 */
     private static final long serialVersionUID = -3555137064603440344L;
@@ -35,23 +34,30 @@ public class KeyPairDto  implements Serializable {
     public String getKeyName() {
         return keyName;
     }
+
     public void setKeyName(String keyName) {
         this.keyName = keyName;
     }
+
     public String getKeyFingerprint() {
         return keyFingerprint;
     }
+
     public void setKeyFingerprint(String keyFingerprint) {
         this.keyFingerprint = keyFingerprint;
     }
-    public KeyPairDto withKeyName(String keyName){
+
+    public KeyPairDto withKeyName(String keyName) {
         this.keyName = keyName;
         return this;
     }
+
     public Long getKeyNo() {
         return keyNo;
     }
+
     public void setKeyNo(Long keyNo) {
         this.keyNo = keyNo;
     }
+
 }

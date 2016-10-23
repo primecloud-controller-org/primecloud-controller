@@ -28,7 +28,6 @@ import jp.primecloud.auto.entity.crud.LoadBalancerHealthCheck;
 import jp.primecloud.auto.entity.crud.LoadBalancerInstance;
 import jp.primecloud.auto.entity.crud.LoadBalancerListener;
 
-
 /**
  * <p>
  * TODO: クラスコメントを記述
@@ -56,7 +55,6 @@ public class LoadBalancerDto implements Serializable {
     private List<LoadBalancerInstance> loadBalancerInstances;
 
     private AutoScalingConfDto autoScalingConf;
-
 
     /**
      * AutoScalingConfを取得します。
@@ -219,4 +217,5 @@ public class LoadBalancerDto implements Serializable {
     public void setLoadBalancerInstances(List<LoadBalancerInstance> loadBalancerInstances) {
         this.loadBalancerInstances = loadBalancerInstances;
     }
+
 }

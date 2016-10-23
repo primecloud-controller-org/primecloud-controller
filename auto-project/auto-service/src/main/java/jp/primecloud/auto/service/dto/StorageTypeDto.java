@@ -22,7 +22,7 @@ import java.io.Serializable;
 
 import jp.primecloud.auto.entity.crud.PlatformVcloudStorageType;
 
-public class StorageTypeDto  implements Serializable {
+public class StorageTypeDto implements Serializable {
 
     /** TODO: フィールドコメントを記述 */
     private static final long serialVersionUID = 1L;
@@ -30,6 +30,11 @@ public class StorageTypeDto  implements Serializable {
     private Long storageTypeNo;
 
     private String storageTypeName;
+
+    public StorageTypeDto(PlatformVcloudStorageType storageType) {
+        this.storageTypeNo = storageType.getStorageTypeNo();
+        this.storageTypeName = storageType.getStorageTypeName();
+    }
 
     public Long getStorageTypeNo() {
         return storageTypeNo;
@@ -47,8 +52,4 @@ public class StorageTypeDto  implements Serializable {
         this.storageTypeName = storageTypeName;
     }
 
-    public StorageTypeDto(PlatformVcloudStorageType storageType){
-        this.storageTypeNo = storageType.getStorageTypeNo();
-        this.storageTypeName = storageType.getStorageTypeName();
-    }
 }

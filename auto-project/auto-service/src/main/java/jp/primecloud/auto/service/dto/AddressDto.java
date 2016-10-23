@@ -5,8 +5,7 @@ import java.io.Serializable;
 import jp.primecloud.auto.entity.crud.AwsAddress;
 import jp.primecloud.auto.entity.crud.CloudstackAddress;
 
-
-public class AddressDto  implements Serializable {
+public class AddressDto implements Serializable {
 
     /** TODO: フィールドコメントを記述 */
     private static final long serialVersionUID = -725492940968709342L;
@@ -20,6 +19,30 @@ public class AddressDto  implements Serializable {
     private Long platformNo;
 
     private Long instanceNo;
+
+    public AddressDto() {
+        addressNo = null;
+        publicIp = null;
+        instanceNo = null;
+        userNo = null;
+        platformNo = null;
+    }
+
+    public AddressDto(AwsAddress address) {
+        addressNo = address.getAddressNo();
+        publicIp = address.getPublicIp();
+        instanceNo = address.getInstanceNo();
+        userNo = address.getUserNo();
+        platformNo = address.getPlatformNo();
+    }
+
+    public AddressDto(CloudstackAddress address) {
+        addressNo = address.getAddressNo();
+        publicIp = address.getIpaddress();
+        instanceNo = address.getInstanceNo();
+        userNo = address.getAccount();
+        platformNo = address.getPlatformNo();
+    }
 
     public Long getAddressNo() {
         return addressNo;
@@ -35,14 +58,6 @@ public class AddressDto  implements Serializable {
 
     public void setPublicIp(String publicIp) {
         this.publicIp = publicIp;
-    }
-
-    public Long getInstanceNo() {
-        return instanceNo;
-    }
-
-    public void setInstanceNo(Long instanceNo) {
-        this.instanceNo = instanceNo;
     }
 
     public Long getUserNo() {
@@ -61,26 +76,12 @@ public class AddressDto  implements Serializable {
         this.platformNo = platformNo;
     }
 
-    public AddressDto(){
-        addressNo = null;
-        publicIp = null;
-        instanceNo = null;
-        userNo = null;
-        platformNo = null;
-    }
-    public AddressDto(AwsAddress address){
-        addressNo = address.getAddressNo();
-        publicIp = address.getPublicIp();
-        instanceNo = address.getInstanceNo();
-        userNo = address.getUserNo();
-        platformNo = address.getPlatformNo();
+    public Long getInstanceNo() {
+        return instanceNo;
     }
 
-    public AddressDto(CloudstackAddress address){
-        addressNo = address.getAddressNo();
-        publicIp = address.getIpaddress();
-        instanceNo = address.getInstanceNo();
-        userNo = address.getAccount();
-        platformNo = address.getPlatformNo();
+    public void setInstanceNo(Long instanceNo) {
+        this.instanceNo = instanceNo;
     }
+
 }

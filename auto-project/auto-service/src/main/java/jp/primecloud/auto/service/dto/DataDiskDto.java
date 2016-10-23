@@ -20,7 +20,7 @@ package jp.primecloud.auto.service.dto;
 
 import java.io.Serializable;
 
-public class DataDiskDto  implements Serializable {
+public class DataDiskDto implements Serializable {
 
     /** TODO: フィールドコメントを記述 */
     private static final long serialVersionUID = 1L;
@@ -54,4 +54,5 @@ public class DataDiskDto  implements Serializable {
     public void setUnitNo(Integer unitNo) {
         this.unitNo = unitNo;
     }
+
 }

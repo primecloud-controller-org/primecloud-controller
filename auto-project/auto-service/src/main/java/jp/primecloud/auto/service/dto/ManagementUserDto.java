@@ -24,19 +24,14 @@ import java.util.HashMap;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.entity.crud.UserAuth;
 
-
 public class ManagementUserDto implements Serializable {
-
 
     /** TODO: フィールドコメントを記述 */
     private static final long serialVersionUID = 3636683948507828492L;
 
-
     private User user;
 
     private HashMap<Long, UserAuth> authMap;
-
-
 
     public User getUser() {
         return user;

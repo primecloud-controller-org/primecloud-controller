@@ -22,7 +22,6 @@ import java.io.Serializable;
 
 import jp.primecloud.auto.entity.crud.AutoScalingConf;
 
-
 /**
  * <p>
  * TODO: クラスコメントを記述
@@ -92,4 +91,5 @@ public class AutoScalingConfDto implements Serializable {
     public void setImage(ImageDto image) {
         this.image = image;
     }
+
 }

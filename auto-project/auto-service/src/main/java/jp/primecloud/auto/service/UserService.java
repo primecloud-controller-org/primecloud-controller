@@ -34,4 +34,5 @@ public interface UserService {
     public UserDto getUser(Long userNo);
 
     public UserAuthDto getUserAuth(Long userNo, Long farmNo);
+
 }

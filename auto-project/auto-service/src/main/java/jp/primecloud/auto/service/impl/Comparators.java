@@ -37,6 +37,7 @@ import jp.primecloud.auto.service.dto.ComponentTypeDto;
 import jp.primecloud.auto.service.dto.FarmDto;
 import jp.primecloud.auto.service.dto.InstanceDto;
 import jp.primecloud.auto.service.dto.LoadBalancerDto;
+
 import com.vmware.vim25.mo.ComputeResource;
 
 /**
@@ -69,7 +70,7 @@ public class Comparators {
 
     public static final Comparator<NiftyKeyPair> COMPARATOR_NIFTY_KEY_PAIR;
 
-    public static final Comparator<VcloudKeyPair>  COMPARATOR_VCLOUD_KEY_PAIR;
+    public static final Comparator<VcloudKeyPair> COMPARATOR_VCLOUD_KEY_PAIR;
 
     public static final Comparator<LoadBalancerDto> COMPARATOR_LOAD_BALANCER_DTO;
 

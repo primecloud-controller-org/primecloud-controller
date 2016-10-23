@@ -22,7 +22,6 @@ import java.util.List;
 
 import jp.primecloud.auto.service.dto.TemplateDto;
 
-
 /**
  * <p>
  * TODO: クラスコメントを記述

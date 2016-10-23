@@ -37,7 +37,6 @@ import jp.primecloud.auto.util.MessageUtils;
  * </p>
  *
  */
-
 public class UserServiceImpl extends ServiceSupport implements UserService {
 
     protected EventLogger eventLogger;
@@ -51,14 +50,14 @@ public class UserServiceImpl extends ServiceSupport implements UserService {
 
         if (user == null) {
             // ユーザ情報が見つからない場合
-            eventLogger.log(EventLogLevel.INFO, null, null, null, null, null,
-                    null, null, null, "AuditLoginFailure", null, null, new Object[] { username });
+            eventLogger.log(EventLogLevel.INFO, null, null, null, null, null, null, null, null, "AuditLoginFailure",
+                    null, null, new Object[] { username });
             throw new AutoApplicationException("ESERVICE-000101", username);
         } else {
             // ユーザパスワード暗号化キーを取得
             PccSystemInfo pccSystemInfo = pccSystemInfoDao.read();
 
-            if(pccSystemInfo == null){
+            if (pccSystemInfo == null) {
                 // PCC_SYSTEM_INFOのレコードが存在しない場合
                 log.error(MessageUtils.getMessage("ESERVICE-000103") + " UserServiceImpl.java");
                 throw new AutoApplicationException("ESERVICE-000103");
@@ -69,10 +68,10 @@ public class UserServiceImpl extends ServiceSupport implements UserService {
             String encryptPass = encryptor.encrypt(password, pccSystemInfo.getSecretKey());
 
             // DBから取得したパスワードを比較
-            if(!user.getPassword().equals(encryptPass)) {
+            if (!user.getPassword().equals(encryptPass)) {
                 // パスワードが異なっていた場合
-                eventLogger.log(EventLogLevel.INFO, user.getUserNo(), user.getUsername(), null, null, null,
-                                null, null, null, "AuditLoginFailure", null, null, new Object[] { user.getUserNo() });
+                eventLogger.log(EventLogLevel.INFO, user.getUserNo(), user.getUsername(), null, null, null, null, null,
+                        null, "AuditLoginFailure", null, null, new Object[] { user.getUserNo() });
                 throw new AutoApplicationException("ESERVICE-000102", username);
             }
 
@@ -82,8 +81,8 @@ public class UserServiceImpl extends ServiceSupport implements UserService {
         UserDto dto = new UserDto();
         dto.setUser(user);
 
-        eventLogger.log(EventLogLevel.INFO, user.getUserNo(), user.getUsername(), null, null, null,
-                        null, null, null, "AuditLoginSuccess", null, null, null);
+        eventLogger.log(EventLogLevel.INFO, user.getUserNo(), user.getUsername(), null, null, null, null, null, null,
+                "AuditLoginSuccess", null, null, null);
 
         return dto;
     }
@@ -118,19 +117,19 @@ public class UserServiceImpl extends ServiceSupport implements UserService {
         User user = userDao.read(loginUser);
         //パワーユーザ
         if (user.getPowerUser()) {
-            return new  UserAuthDto(true);
+            return new UserAuthDto(true);
         }
 
         //マスターユーザ
         if (loginUser.equals(user.getMasterUser())) {
-            return new  UserAuthDto(true);
+            return new UserAuthDto(true);
         }
 
         //一般ユーザ
         UserAuth userAuth = userAuthDao.read(farmNo, loginUser);
-        UserAuthDto authDto = new  UserAuthDto(false);
+        UserAuthDto authDto = new UserAuthDto(false);
         if (userAuth != null) {
-            authDto = new  UserAuthDto(userAuth);
+            authDto = new UserAuthDto(userAuth);
         }
         return authDto;
     }

@@ -24,7 +24,6 @@ import jp.primecloud.auto.service.dto.LoadBalancerDto;
 import jp.primecloud.auto.service.dto.LoadBalancerPlatformDto;
 import jp.primecloud.auto.service.dto.SslKeyDto;
 
-
 /**
  * <p>
  * TODO: クラスコメントを記述
@@ -40,23 +39,25 @@ public interface LoadBalancerService {
     public Long createAwsLoadBalancer(Long farmNo, String loadBalancerName, String comment, Long platformNo,
             Long componentNo, boolean internal);
 
-    public Long createCloudstackLoadBalancer(Long farmNo, String loadBalancerName, String comment, Long platformNo, Long componentNo);
+    public Long createCloudstackLoadBalancer(Long farmNo, String loadBalancerName, String comment, Long platformNo,
+            Long componentNo);
 
     public Long createUltraMonkeyLoadBalancer(Long farmNo, String loadBalancerName, String comment, Long platformNo,
             Long componentNo);
 
-    public void updateCloudstackLoadBalancer(Long loadBalancerNo, String loadBalancerName, String comment, Long componentNo,
-                                        String algorithm, String pubricPort, String privatePort);
+    public void updateCloudstackLoadBalancer(Long loadBalancerNo, String loadBalancerName, String comment,
+            Long componentNo, String algorithm, String pubricPort, String privatePort);
 
-    public void updateAwsLoadBalancer(Long loadBalancerNo, String loadBalancerName, String comment,
-            Long componentNo, String subnetId, String securityGroupName, String availabilityZone, boolean internal);
+    public void updateAwsLoadBalancer(Long loadBalancerNo, String loadBalancerName, String comment, Long componentNo,
+            String subnetId, String securityGroupName, String availabilityZone, boolean internal);
 
     public void updateUltraMonkeyLoadBalancer(Long loadBalancerNo, String loadBalancerName, String comment,
             Long componentNo);
 
     public void deleteLoadBalancer(Long loadBalancerNo);
 
-    public void createListener(Long loadBalancerNo, Integer loadBalancerPort, Integer servicePort, String protocol, Long sslKeyNo);
+    public void createListener(Long loadBalancerNo, Integer loadBalancerPort, Integer servicePort, String protocol,
+            Long sslKeyNo);
 
     public void updateListener(Long loadBalancerNo, Integer originalLoadBalancerPort, Integer loadBalancerPort,
             Integer servicePort, String protocol, Long sslKeyNo);
@@ -66,8 +67,9 @@ public interface LoadBalancerService {
     public void configureHealthCheck(Long loadBalancerNo, String checkProtocol, Integer checkPort, String checkPath,
             Integer checkTimeout, Integer checkInterval, Integer healthyThreshold, Integer unhealthyThreshold);
 
-    public void updateAutoScalingConf(Long farmNo, Long loadBalancerNo, Long platformNo, Long imageNo, String instanceType,
-            Integer enabled, String namingRule, Long idleTimeMax, Long idleTimeMin,  Long continueLimit, Long addCount, Long delCount);
+    public void updateAutoScalingConf(Long farmNo, Long loadBalancerNo, Long platformNo, Long imageNo,
+            String instanceType, Integer enabled, String namingRule, Long idleTimeMax, Long idleTimeMin,
+            Long continueLimit, Long addCount, Long delCount);
 
     public void enableInstances(Long loadBalancerNo, List<Long> instanceNos);
 
@@ -76,6 +78,5 @@ public interface LoadBalancerService {
     public List<LoadBalancerPlatformDto> getPlatforms(Long userNo);
 
     public List<SslKeyDto> getSSLKey(Long loadBalancerNo);
-
 
 }

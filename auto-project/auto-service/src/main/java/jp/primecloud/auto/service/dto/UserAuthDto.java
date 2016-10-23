@@ -22,7 +22,6 @@ import java.io.Serializable;
 
 import jp.primecloud.auto.entity.crud.UserAuth;
 
-
 /**
  * <p>
  * TODO: クラスコメントを記述
@@ -34,14 +33,23 @@ public class UserAuthDto implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private boolean farmUse = false;
+
     private boolean serverMake = false;
+
     private boolean serverDelete = false;
+
     private boolean serverOperate = false;
+
     private boolean serviceMake = false;
+
     private boolean serviceDelete = false;
+
     private boolean serviceOperate = false;
+
     private boolean lbMake = false;
+
     private boolean lbDelete = false;
+
     private boolean lbOperate = false;
 
     public UserAuthDto(boolean isTrue) {
@@ -69,7 +77,6 @@ public class UserAuthDto implements Serializable {
         lbDelete = auth.getLbDelete();
         lbOperate = auth.getLbOperate();
     }
-
 
     public boolean isFarmUse() {
         return farmUse;
@@ -152,18 +159,11 @@ public class UserAuthDto implements Serializable {
     }
 
     @Override
-    public String toString()
-    {
-        return "[UserAuthDto: farmUse=" + serverMake +
-            " serverMake=" + serverDelete +
-            " serverDelete=" + serverDelete +
-            " serverOperate=" + serverOperate +
-            " serviceMake=" + serviceMake +
-            " serviceDelete=" + serviceDelete +
-            " serviceOperate=" + serviceOperate +
-            " lbMake=" + lbMake +
-            " lbDelete=" + lbDelete +
-            " lbOperate=" + lbOperate +
-            "]";
+    public String toString() {
+        return "[UserAuthDto: farmUse=" + serverMake + " serverMake=" + serverDelete + " serverDelete=" + serverDelete
+                + " serverOperate=" + serverOperate + " serviceMake=" + serviceMake + " serviceDelete=" + serviceDelete
+                + " serviceOperate=" + serviceOperate + " lbMake=" + lbMake + " lbDelete=" + lbDelete + " lbOperate="
+                + lbOperate + "]";
     }
+
 }

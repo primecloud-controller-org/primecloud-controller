@@ -22,7 +22,6 @@ import java.io.Serializable;
 
 import jp.primecloud.auto.entity.crud.ComponentInstance;
 
-
 /**
  * <p>
  * TODO: クラスコメントを記述

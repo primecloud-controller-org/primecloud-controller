@@ -178,12 +178,12 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
                 componentInstanceDto.setComponentInstance(componentInstance);
                 Instance instance = instanceMap.get(componentInstance.getInstanceNo());
 
-//                for (Instance tmpInstance : instances) {
-//                    if (componentInstance.getInstanceNo().equals(tmpInstance.getInstanceNo())) {
-//                        instance = tmpInstance;
-//                        break;
-//                    }
-//                }
+                //                for (Instance tmpInstance : instances) {
+                //                    if (componentInstance.getInstanceNo().equals(tmpInstance.getInstanceNo())) {
+                //                        instance = tmpInstance;
+                //                        break;
+                //                    }
+                //                }
 
                 String url;
                 Boolean showPublicIp = BooleanUtils.toBooleanObject(Config.getProperty("ui.showPublicIp"));
@@ -198,66 +198,64 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
                 componentInstanceDto.setUrl(url);
                 componentInstanceDtos.add(componentInstanceDto);
             }
-//            // TODO: インスタンスごとのコンポーネントのステータスを調整する（暫定処理）
-//            for (ComponentInstanceDto componentInstanceDto : componentInstances) {
-//                ComponentInstance componentInstance = componentInstanceDto.getComponentInstance();
-//                ComponentInstanceStatus status = ComponentInstanceStatus.fromStatus(componentInstance.getStatus());
-//                if (BooleanUtils.isTrue(componentInstance.getEnabled())) {
-//                    if (status == ComponentInstanceStatus.STOPPED) {
-//                        Instance instance = instanceMap.get(componentInstance.getInstanceNo());
-//                        InstanceStatus instanceStatus = InstanceStatus.fromStatus(instance.getStatus());
-//                        if (instanceStatus == InstanceStatus.WARNING) {
-//                            // インスタンスがWaringであれば、コンポーネントもWarningとする
-//                            componentInstance.setStatus(ComponentInstanceStatus.WARNING.toString());
-//                        } else if (BooleanUtils.isTrue(farm.getScheduled())) {
-//                            // ファームが処理対象であれば、Startingにする
-//                            componentInstance.setStatus(ComponentInstanceStatus.STARTING.toString());
-//                        }
-//                    } else if (status == ComponentInstanceStatus.RUNNING
-//                            && BooleanUtils.isTrue(componentInstance.getConfigure())) {
-//                        if (BooleanUtils.isTrue(farm.getScheduled())) {
-//                            // コンポーネントがRunningでも処理対象であれば、Configuringにする
-//                            componentInstance.setStatus(ComponentInstanceStatus.CONFIGURING.toString());
-//                        }
-//                    }
-//                } else {
-//                    if (status == ComponentInstanceStatus.RUNNING || status == ComponentInstanceStatus.WARNING) {
-//                        if (BooleanUtils.isTrue(farm.getScheduled())) {
-//                            // ファームが処理対象であれば、Stoppingにする
-//                            componentInstance.setStatus(ComponentInstanceStatus.STOPPING.toString());
-//                        }
-//                    }
-//                }
-//            }
+            //            // TODO: インスタンスごとのコンポーネントのステータスを調整する（暫定処理）
+            //            for (ComponentInstanceDto componentInstanceDto : componentInstances) {
+            //                ComponentInstance componentInstance = componentInstanceDto.getComponentInstance();
+            //                ComponentInstanceStatus status = ComponentInstanceStatus.fromStatus(componentInstance.getStatus());
+            //                if (BooleanUtils.isTrue(componentInstance.getEnabled())) {
+            //                    if (status == ComponentInstanceStatus.STOPPED) {
+            //                        Instance instance = instanceMap.get(componentInstance.getInstanceNo());
+            //                        InstanceStatus instanceStatus = InstanceStatus.fromStatus(instance.getStatus());
+            //                        if (instanceStatus == InstanceStatus.WARNING) {
+            //                            // インスタンスがWaringであれば、コンポーネントもWarningとする
+            //                            componentInstance.setStatus(ComponentInstanceStatus.WARNING.toString());
+            //                        } else if (BooleanUtils.isTrue(farm.getScheduled())) {
+            //                            // ファームが処理対象であれば、Startingにする
+            //                            componentInstance.setStatus(ComponentInstanceStatus.STARTING.toString());
+            //                        }
+            //                    } else if (status == ComponentInstanceStatus.RUNNING
+            //                            && BooleanUtils.isTrue(componentInstance.getConfigure())) {
+            //                        if (BooleanUtils.isTrue(farm.getScheduled())) {
+            //                            // コンポーネントがRunningでも処理対象であれば、Configuringにする
+            //                            componentInstance.setStatus(ComponentInstanceStatus.CONFIGURING.toString());
+            //                        }
+            //                    }
+            //                } else {
+            //                    if (status == ComponentInstanceStatus.RUNNING || status == ComponentInstanceStatus.WARNING) {
+            //                        if (BooleanUtils.isTrue(farm.getScheduled())) {
+            //                            // ファームが処理対象であれば、Stoppingにする
+            //                            componentInstance.setStatus(ComponentInstanceStatus.STOPPING.toString());
+            //                        }
+            //                    }
+            //                }
+            //            }
 
-
-
-//            // コンポーネントのステータスを求める
-//            ComponentStatus componentStatus;
-//            Set<ComponentInstanceStatus> statuses = new HashSet<ComponentInstanceStatus>();
-//            for (ComponentInstanceDto componentInstanceDto : componentInstances) {
-//                statuses.add(ComponentInstanceStatus
-//                        .fromStatus(componentInstanceDto.getComponentInstance().getStatus()));
-//            }
-//            if (statuses.contains(ComponentInstanceStatus.WARNING)) {
-//                componentStatus = ComponentStatus.WARNING;
-//            } else if (statuses.contains(ComponentInstanceStatus.CONFIGURING)) {
-//                componentStatus = ComponentStatus.CONFIGURING;
-//            } else if (statuses.contains(ComponentInstanceStatus.RUNNING)) {
-//                if (statuses.contains(ComponentInstanceStatus.STARTING)) {
-//                    componentStatus = ComponentStatus.CONFIGURING;
-//                } else if (statuses.contains(ComponentInstanceStatus.STOPPING)) {
-//                    componentStatus = ComponentStatus.CONFIGURING;
-//                } else {
-//                    componentStatus = ComponentStatus.RUNNING;
-//                }
-//            } else if (statuses.contains(ComponentInstanceStatus.STARTING)) {
-//                componentStatus = ComponentStatus.STARTING;
-//            } else if (statuses.contains(ComponentInstanceStatus.STOPPING)) {
-//                componentStatus = ComponentStatus.STOPPING;
-//            } else {
-//                componentStatus = ComponentStatus.STOPPED;
-//            }
+            //            // コンポーネントのステータスを求める
+            //            ComponentStatus componentStatus;
+            //            Set<ComponentInstanceStatus> statuses = new HashSet<ComponentInstanceStatus>();
+            //            for (ComponentInstanceDto componentInstanceDto : componentInstances) {
+            //                statuses.add(ComponentInstanceStatus
+            //                        .fromStatus(componentInstanceDto.getComponentInstance().getStatus()));
+            //            }
+            //            if (statuses.contains(ComponentInstanceStatus.WARNING)) {
+            //                componentStatus = ComponentStatus.WARNING;
+            //            } else if (statuses.contains(ComponentInstanceStatus.CONFIGURING)) {
+            //                componentStatus = ComponentStatus.CONFIGURING;
+            //            } else if (statuses.contains(ComponentInstanceStatus.RUNNING)) {
+            //                if (statuses.contains(ComponentInstanceStatus.STARTING)) {
+            //                    componentStatus = ComponentStatus.CONFIGURING;
+            //                } else if (statuses.contains(ComponentInstanceStatus.STOPPING)) {
+            //                    componentStatus = ComponentStatus.CONFIGURING;
+            //                } else {
+            //                    componentStatus = ComponentStatus.RUNNING;
+            //                }
+            //            } else if (statuses.contains(ComponentInstanceStatus.STARTING)) {
+            //                componentStatus = ComponentStatus.STARTING;
+            //            } else if (statuses.contains(ComponentInstanceStatus.STOPPING)) {
+            //                componentStatus = ComponentStatus.STOPPING;
+            //            } else {
+            //                componentStatus = ComponentStatus.STOPPED;
+            //            }
 
             // ソート
             Collections.sort(componentInstanceDtos, Comparators.COMPARATOR_COMPONENT_INSTANCE_DTO);
@@ -435,8 +433,9 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
             names.deleteCharAt(names.length() - 1);
         }
         Farm farm = farmDao.read(component.getFarmNo());
-        eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), componentNo, component
-                .getComponentName(), null, null, "ComponentAssociateInstance", null, null, new Object[] { names.toString() });
+        eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), componentNo,
+                component.getComponentName(), null, null, "ComponentAssociateInstance", null, null,
+                new Object[] { names.toString() });
     }
 
     /**
@@ -492,11 +491,12 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
                          * ※現在はVCLOUD（USiZE）のみがこのタイプ
                          ******************************************************************/
                         List<VcloudDisk> vdisks = vcloudDiskDao.readByInstanceNo(instance.getInstanceNo());
-                        for (VcloudDisk disk:vdisks) {
+                        for (VcloudDisk disk : vdisks) {
                             if (componentNo.equals(disk.getComponentNo())) {
                                 //componentNoの一致するディスクが存在していれば削除する
                                 Farm farm = farmDao.read(instance.getFarmNo());
-                                IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), instance.getPlatformNo());
+                                IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(),
+                                        instance.getPlatformNo());
                                 try {
                                     gateway.deleteVolume(String.valueOf(disk.getDiskNo()));
                                 } catch (AutoException ignore) {
@@ -570,8 +570,8 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
      * {@inheritDoc}
      */
     @Override
-    public void updateComponent(Long componentNo, String comment, Integer diskSize,
-            String customParam1, String customParam2, String customParam3) {
+    public void updateComponent(Long componentNo, String comment, Integer diskSize, String customParam1,
+            String customParam2, String customParam3) {
         // 引数チェック
         if (componentNo == null) {
             throw new AutoApplicationException("ECOMMON-000003", "componentNo");
@@ -595,7 +595,7 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
 
         // 既存と異なるディスクサイズ設定が与えられた場合、ボリュームの非存在チェックをする
         if (oldDiskSize != null && !oldDiskSize.equals(diskSize)) {
-         // TODO CLOUD BRANCHING
+            // TODO CLOUD BRANCHING
             long count = awsVolumeDao.countByComponentNo(componentNo);
             count += vmwareDiskDao.countByComponentNo(componentNo);
             count += cloudstackVolumeDao.countByComponentNo(componentNo);
@@ -612,7 +612,7 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
         Farm farm = farmDao.read(component.getFarmNo());
         // コンポーネントインスタンス取得
         List<ComponentInstance> componentInstances = componentInstanceDao.readByComponentNo(componentNo);
-        for (ComponentInstance componentInstance: componentInstances) {
+        for (ComponentInstance componentInstance : componentInstances) {
             Instance instance = instanceDao.read(componentInstance.getInstanceNo());
             componentInstance.setStatus(getComponentInstanceStatus(farm, componentInstance, instance).toString());
         }
@@ -719,8 +719,8 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
         }
 
         // イベントログ出力
-        eventLogger.log(EventLogLevel.INFO, farm.getFarmNo(), farm.getFarmName(), componentNo, component
-                .getComponentName(), null, null, "ComponentUpdate", null, null, null);
+        eventLogger.log(EventLogLevel.INFO, farm.getFarmNo(), farm.getFarmName(), componentNo,
+                component.getComponentName(), null, null, "ComponentUpdate", null, null, null);
 
         // フック処理の実行
         processHook.execute("post-update-component", farm.getUserNo(), farm.getFarmNo(), componentNo);
@@ -942,7 +942,7 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
             }
         }
         List<VcloudDisk> vcloudDisks = vcloudDiskDao.readByComponentNo(componentNo);
-        for (VcloudDisk vcloudDisk: vcloudDisks) {
+        for (VcloudDisk vcloudDisk : vcloudDisks) {
             if (BooleanUtils.isTrue(vcloudDisk.getAttached())) {
                 // Vcloudはディスクがデタッチされていない場合、サーバが停止していないと削除できない
                 Instance instance = instanceDao.read(vcloudDisk.getInstanceNo());
@@ -1010,7 +1010,8 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
                 continue;
             }
 
-            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), awsVolume.getPlatformNo());
+            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(),
+                    awsVolume.getPlatformNo());
 
             //イベントログ出力
             Platform platform = platformDao.read(gateway.getPlatformNo());
@@ -1018,7 +1019,8 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
             AwsInstance awsInstance = awsInstanceDao.read(awsVolume.getInstanceNo());
             eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), awsVolume.getComponentNo(),
                     component.getComponentName(), awsVolume.getInstanceNo(), instance.getInstanceName(),
-                    "AwsEbsDelete", awsInstance.getInstanceType(),  instance.getPlatformNo(), new Object[] { platform.getPlatformName(), awsVolume.getVolumeId() });
+                    "AwsEbsDelete", awsInstance.getInstanceType(), instance.getPlatformNo(),
+                    new Object[] { platform.getPlatformName(), awsVolume.getVolumeId() });
 
             try {
                 // ボリュームの削除
@@ -1027,7 +1029,8 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
                 //イベントログ出力
                 eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), awsVolume.getComponentNo(),
                         component.getComponentName(), awsVolume.getInstanceNo(), instance.getInstanceName(),
-                        "AwsEbsDeleteFinish", awsInstance.getInstanceType(), instance.getPlatformNo(), new Object[] { platform.getPlatformName(), awsVolume.getVolumeId() });
+                        "AwsEbsDeleteFinish", awsInstance.getInstanceType(), instance.getPlatformNo(), new Object[] {
+                                platform.getPlatformName(), awsVolume.getVolumeId() });
 
                 // EC2ではDeleteVolumeに時間がかかるため、Waitしない
                 //awsProcessClient.waitDeleteVolume(volumeId);
@@ -1044,7 +1047,8 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
                 continue;
             }
 
-            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), csVolume.getPlatformNo());
+            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(),
+                    csVolume.getPlatformNo());
 
             //イベントログ出力
             Platform platform = platformDao.read(gateway.getPlatformNo());
@@ -1052,7 +1056,8 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
             CloudstackInstance csInstance = cloudstackInstanceDao.read(csVolume.getInstanceNo());
             eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), csVolume.getComponentNo(),
                     component.getComponentName(), csVolume.getInstanceNo(), instance.getInstanceName(),
-                    "CloudStackVolumeDelete", csInstance.getInstanceType(), instance.getPlatformNo(), new Object[] { platform.getPlatformName(), csVolume.getVolumeId() });
+                    "CloudStackVolumeDelete", csInstance.getInstanceType(), instance.getPlatformNo(), new Object[] {
+                            platform.getPlatformName(), csVolume.getVolumeId() });
 
             try {
                 // ボリュームの削除
@@ -1061,7 +1066,8 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
                 //イベントログ出力
                 eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), csVolume.getComponentNo(),
                         component.getComponentName(), csVolume.getInstanceNo(), instance.getInstanceName(),
-                        "CloudStackVolumeDeleteFinish", csInstance.getInstanceType(), instance.getPlatformNo(), new Object[] { platform.getPlatformName(), csVolume.getVolumeId() });
+                        "CloudStackVolumeDeleteFinish", csInstance.getInstanceType(), instance.getPlatformNo(),
+                        new Object[] { platform.getPlatformName(), csVolume.getVolumeId() });
 
             } catch (AutoException ignore) {
                 // ボリュームが存在しない場合などに備えて例外を握りつぶす
@@ -1069,14 +1075,14 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
         }
         cloudstackVolumeDao.deleteByComponentNo(componentNo);
 
-
         // VMwareディスクの削除処理
         // TODO: 削除処理を別で行うようにする
         for (VmwareDisk vmwareDisk : vmwareDisks) {
             if (StringUtils.isEmpty(vmwareDisk.getFileName())) {
                 continue;
             }
-            VmwareProcessClient vmwareProcessClient = vmwareProcessClientFactory.createVmwareProcessClient(vmwareDisk.getPlatformNo());
+            VmwareProcessClient vmwareProcessClient = vmwareProcessClientFactory.createVmwareProcessClient(vmwareDisk
+                    .getPlatformNo());
             try {
                 vmwareDiskProcess.deleteDisk(vmwareProcessClient, vmwareDisk.getDiskNo());
             } catch (AutoException ignore) {
@@ -1089,37 +1095,37 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
 
         // VCloudディスクの削除処理
         // VCLoudの場合は関連付け解除時（doAssociate呼出）にディスクを削除する為必要なし
-//        for (VcloudDisk vcloudDisk : vcloudDisks) {
-//            if (StringUtils.isEmpty(vcloudDisk.getDiskId())) {
-//                continue;
-//            }
-//
-//            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), vcloudDisk.getPlatformNo());
-//
-//            //イベントログ出力
-//            Platform platform = platformDao.read(gateway.getPlatformNo());
-//            Instance instance = instanceDao.read(vcloudDisk.getInstanceNo());
-//            VcloudInstance vcloudInstance = vcloudInstanceDao.read(vcloudDisk.getInstanceNo());
-//            //TODO イベントログのメッセージと引数
-//            eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), vcloudDisk.getComponentNo(),
-//                    component.getComponentName(), vcloudDisk.getInstanceNo(), instance.getInstanceName(),
-//                    "VcloudVolumeDelete", vcloudInstance.getInstanceType(),  instance.getPlatformNo(), new Object[] { platform.getPlatformName(), vcloudDisk.getDiskId() });
-//
-//            try {
-//                // ボリュームの削除
-//                // ※VCloudの引数はDiskNo
-//                gateway.deleteVolume(String.valueOf(vcloudDisk.getDiskNo()));
-//
-//                //イベントログ出力
-//                eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), vcloudDisk.getComponentNo(),
-//                        component.getComponentName(), vcloudDisk.getInstanceNo(), instance.getInstanceName(),
-//                        "VcloudVolumeDeleteFinish", vcloudInstance.getInstanceType(), instance.getPlatformNo(), new Object[] { platform.getPlatformName(), vcloudDisk.getDiskId() });
-//
-//            } catch (AutoException ignore) {
-//                // ボリュームが存在しない場合などに備えて例外を握りつぶす
-//            }
-//        }
-//        vcloudDiskDao.deleteByComponentNo(componentNo);
+        //        for (VcloudDisk vcloudDisk : vcloudDisks) {
+        //            if (StringUtils.isEmpty(vcloudDisk.getDiskId())) {
+        //                continue;
+        //            }
+        //
+        //            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), vcloudDisk.getPlatformNo());
+        //
+        //            //イベントログ出力
+        //            Platform platform = platformDao.read(gateway.getPlatformNo());
+        //            Instance instance = instanceDao.read(vcloudDisk.getInstanceNo());
+        //            VcloudInstance vcloudInstance = vcloudInstanceDao.read(vcloudDisk.getInstanceNo());
+        //            //TODO イベントログのメッセージと引数
+        //            eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), vcloudDisk.getComponentNo(),
+        //                    component.getComponentName(), vcloudDisk.getInstanceNo(), instance.getInstanceName(),
+        //                    "VcloudVolumeDelete", vcloudInstance.getInstanceType(),  instance.getPlatformNo(), new Object[] { platform.getPlatformName(), vcloudDisk.getDiskId() });
+        //
+        //            try {
+        //                // ボリュームの削除
+        //                // ※VCloudの引数はDiskNo
+        //                gateway.deleteVolume(String.valueOf(vcloudDisk.getDiskNo()));
+        //
+        //                //イベントログ出力
+        //                eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), vcloudDisk.getComponentNo(),
+        //                        component.getComponentName(), vcloudDisk.getInstanceNo(), instance.getInstanceName(),
+        //                        "VcloudVolumeDeleteFinish", vcloudInstance.getInstanceType(), instance.getPlatformNo(), new Object[] { platform.getPlatformName(), vcloudDisk.getDiskId() });
+        //
+        //            } catch (AutoException ignore) {
+        //                // ボリュームが存在しない場合などに備えて例外を握りつぶす
+        //            }
+        //        }
+        //        vcloudDiskDao.deleteByComponentNo(componentNo);
 
         // Azureボリュームの削除処理
         // TODO: ボリューム自体の削除処理を別で行うようにする
@@ -1128,7 +1134,8 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
                 continue;
             }
 
-            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), azureDisk.getPlatformNo());
+            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(),
+                    azureDisk.getPlatformNo());
 
             //イベントログ出力
             Platform platform = platformDao.read(gateway.getPlatformNo());
@@ -1136,7 +1143,8 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
             AzureInstance azureInstance = azureInstanceDao.read(azureDisk.getInstanceNo());
             eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), azureDisk.getComponentNo(),
                     component.getComponentName(), azureDisk.getInstanceNo(), instance.getInstanceName(),
-                    "AzureDiskDelete", azureInstance.getInstanceType(), instance.getPlatformNo(), new Object[] { platform.getPlatformName(), azureDisk.getDiskName() });
+                    "AzureDiskDelete", azureInstance.getInstanceType(), instance.getPlatformNo(), new Object[] {
+                            platform.getPlatformName(), azureDisk.getDiskName() });
 
             try {
                 // ボリュームの削除
@@ -1145,7 +1153,8 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
                 //イベントログ出力
                 eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), azureDisk.getComponentNo(),
                         component.getComponentName(), azureDisk.getInstanceNo(), instance.getInstanceName(),
-                        "AzureDiskDeleteFinish", azureInstance.getInstanceType(), instance.getPlatformNo(), new Object[] { platform.getPlatformName(), azureDisk.getDiskName() });
+                        "AzureDiskDeleteFinish", azureInstance.getInstanceType(), instance.getPlatformNo(),
+                        new Object[] { platform.getPlatformName(), azureDisk.getDiskName() });
 
             } catch (AutoException ignore) {
                 // ボリュームが存在しない場合などに備えて例外を握りつぶす
@@ -1160,7 +1169,8 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
                 continue;
             }
 
-            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), osVolume.getPlatformNo());
+            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(),
+                    osVolume.getPlatformNo());
 
             //イベントログ出力
             Platform platform = platformDao.read(gateway.getPlatformNo());
@@ -1168,7 +1178,8 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
             OpenstackInstance osInstance = openstackInstanceDao.read(osVolume.getInstanceNo());
             eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), osVolume.getComponentNo(),
                     component.getComponentName(), osVolume.getInstanceNo(), instance.getInstanceName(),
-                    "OpenstackVolumeDelete", osInstance.getInstanceType(),  instance.getPlatformNo(), new Object[] { platform.getPlatformName(), osVolume.getVolumeId() });
+                    "OpenstackVolumeDelete", osInstance.getInstanceType(), instance.getPlatformNo(), new Object[] {
+                            platform.getPlatformName(), osVolume.getVolumeId() });
 
             try {
                 // ボリュームの削除
@@ -1177,7 +1188,8 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
                 //イベントログ出力
                 eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), osVolume.getComponentNo(),
                         component.getComponentName(), osVolume.getInstanceNo(), instance.getInstanceName(),
-                        "OpenstackVolumeDeleteFinish", osInstance.getInstanceType(), instance.getPlatformNo(), new Object[] { platform.getPlatformName(), osVolume.getVolumeId() });
+                        "OpenstackVolumeDeleteFinish", osInstance.getInstanceType(), instance.getPlatformNo(),
+                        new Object[] { platform.getPlatformName(), osVolume.getVolumeId() });
 
             } catch (AutoException ignore) {
                 // ボリュームが存在しない場合などに備えて例外を握りつぶす
@@ -1195,8 +1207,8 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
             // NiftyProcessClientの作成
             String clientType;
             clientType = PCCConstant.NIFTYCLIENT_TYPE_DISK;
-            NiftyProcessClient niftyProcessClient = niftyProcessClientFactory.createNiftyProcessClient(farm.getUserNo(),
-                    niftyVolume.getPlatformNo(), clientType);
+            NiftyProcessClient niftyProcessClient = niftyProcessClientFactory.createNiftyProcessClient(
+                    farm.getUserNo(), niftyVolume.getPlatformNo(), clientType);
 
             //イベントログ出力
             Platform platform = platformDao.read(niftyProcessClient.getPlatformNo());
@@ -1204,16 +1216,19 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
             NiftyInstance niftyInstance = niftyInstanceDao.read(niftyVolume.getInstanceNo());
             eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), niftyVolume.getComponentNo(),
                     component.getComponentName(), niftyVolume.getInstanceNo(), instance.getInstanceName(),
-                    "NiftyDiskDelete", niftyInstance.getInstanceType(),  instance.getPlatformNo(), new Object[] { platform.getPlatformName(), niftyVolume.getVolumeId() });
+                    "NiftyDiskDelete", niftyInstance.getInstanceType(), instance.getPlatformNo(), new Object[] {
+                            platform.getPlatformName(), niftyVolume.getVolumeId() });
 
             try {
                 // ボリュームの削除
                 niftyProcessClient.deleteVolume(niftyVolume.getVolumeId());
 
                 //イベントログ出力
-                eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), niftyVolume.getComponentNo(),
-                        component.getComponentName(), niftyVolume.getInstanceNo(), instance.getInstanceName(),
-                        "NiftyDiskDeleteFinish", niftyInstance.getInstanceType(), instance.getPlatformNo(), new Object[] { platform.getPlatformName(), niftyVolume.getVolumeId() });
+                eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(),
+                        niftyVolume.getComponentNo(), component.getComponentName(), niftyVolume.getInstanceNo(),
+                        instance.getInstanceName(), "NiftyDiskDeleteFinish", niftyInstance.getInstanceType(),
+                        instance.getPlatformNo(),
+                        new Object[] { platform.getPlatformName(), niftyVolume.getVolumeId() });
 
             } catch (AutoException ignore) {
                 // ボリュームが存在しない場合などに備えて例外を握りつぶす
@@ -1237,34 +1252,33 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
         }
 
         // イベントログ出力
-        eventLogger.log(EventLogLevel.INFO, farm.getFarmNo(), farm.getFarmName(), componentNo, component
-                .getComponentName(), null, null, "ComponentDelete", null, null, null);
+        eventLogger.log(EventLogLevel.INFO, farm.getFarmNo(), farm.getFarmName(), componentNo,
+                component.getComponentName(), null, null, "ComponentDelete", null, null, null);
 
         // フック処理の実行
         processHook.execute("post-delete-component", farm.getUserNo(), farm.getFarmNo(), componentNo);
     }
 
-
     private void deleteDirectoryAndFile(File delFile) {
-        if ( delFile == null || !delFile.exists() ) { return; }
-        if ( delFile.isFile() ) {
+        if (delFile == null || !delFile.exists()) {
+            return;
+        }
+        if (delFile.isFile()) {
             // ファイル削除
-            if ( delFile.exists() && !delFile.delete() ) {
+            if (delFile.exists() && !delFile.delete()) {
                 delFile.deleteOnExit();
             }
         } else {
             // ディレクトリの場合、再帰する
             File[] list = delFile.listFiles();
-            for ( int i = 0 ; i < list.length ; i++ ) {
-                deleteDirectoryAndFile( list[i] );
+            for (int i = 0; i < list.length; i++) {
+                deleteDirectoryAndFile(list[i]);
             }
-            if ( delFile.exists() && !delFile.delete() ) {
+            if (delFile.exists() && !delFile.delete()) {
                 delFile.deleteOnExit();
             }
         }
     }
-
-
 
     protected Image getImage(Long platformNo, String imageName) {
         List<Image> images = imageDao.readAll();
@@ -1278,19 +1292,19 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
 
     protected String createUrl(String ipAddress, Long componentTypeNo) {
 
-//        String url = "http://";
-//        ComponentType componentType = componentTypeDao.read(componentTypeNo);
-//        if (componentType.getComponentTypeName().equals("apache")) {
-//            url = url + ipAddress + ":80/";
-//        } else if (componentType.getComponentTypeName().equals("tomcat")) {
-//            url = url + ipAddress + ":8080/";
-//        } else if (componentType.getComponentTypeName().equals("geronimo")) {
-//            url = url + ipAddress + ":8080/console/";
-//        } else if (componentType.getComponentTypeName().equals("mysql")) {
-//            url = url + ipAddress + ":8085/phpmyadmin/";
-//        } else if (componentType.getComponentTypeName().equals("prjserver")) {
-//            url = url + ipAddress + "/trac/prj/top/";
-//        }
+        //        String url = "http://";
+        //        ComponentType componentType = componentTypeDao.read(componentTypeNo);
+        //        if (componentType.getComponentTypeName().equals("apache")) {
+        //            url = url + ipAddress + ":80/";
+        //        } else if (componentType.getComponentTypeName().equals("tomcat")) {
+        //            url = url + ipAddress + ":8080/";
+        //        } else if (componentType.getComponentTypeName().equals("geronimo")) {
+        //            url = url + ipAddress + ":8080/console/";
+        //        } else if (componentType.getComponentTypeName().equals("mysql")) {
+        //            url = url + ipAddress + ":8085/phpmyadmin/";
+        //        } else if (componentType.getComponentTypeName().equals("prjserver")) {
+        //            url = url + ipAddress + "/trac/prj/top/";
+        //        }
 
         ComponentType componentType = componentTypeDao.read(componentTypeNo);
         String url = componentType.getAddressUrl();
@@ -1314,7 +1328,8 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
         return 0;
     }
 
-    protected ComponentInstanceStatus getComponentInstanceStatus(Farm farm, ComponentInstance componentInstance, Instance instance) {
+    protected ComponentInstanceStatus getComponentInstanceStatus(Farm farm, ComponentInstance componentInstance,
+            Instance instance) {
         // インスタンスごとのコンポーネントのステータスを調整する（暫定処理）
         ComponentInstanceStatus status = ComponentInstanceStatus.fromStatus(componentInstance.getStatus());
         if (BooleanUtils.isTrue(componentInstance.getEnabled())) {
@@ -1350,8 +1365,7 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
         ComponentStatus componentStatus;
         Set<ComponentInstanceStatus> statuses = new HashSet<ComponentInstanceStatus>();
         for (ComponentInstance componentInstance : componentInstances) {
-            statuses.add(ComponentInstanceStatus
-                    .fromStatus(componentInstance.getStatus()));
+            statuses.add(ComponentInstanceStatus.fromStatus(componentInstance.getStatus()));
         }
         if (statuses.contains(ComponentInstanceStatus.WARNING)) {
             componentStatus = ComponentStatus.WARNING;
@@ -1397,8 +1411,7 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
                             break;
                         }
                     }
-                }
-                else if (instance.getVmwareDisks() != null) {
+                } else if (instance.getVmwareDisks() != null) {
                     // VmwareDiskをチェック
                     for (VmwareDisk vmwareDisk : instance.getVmwareDisks()) {
                         if (componentNo.equals(vmwareDisk.getComponentNo())) {
@@ -1409,8 +1422,7 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
                             break;
                         }
                     }
-                }
-                else if (instance.getCloudstackVolumes() != null) {
+                } else if (instance.getCloudstackVolumes() != null) {
                     // CloudstackVolumeをチェック
                     for (CloudstackVolume cloudstackVolume : instance.getCloudstackVolumes()) {
                         if (componentNo.equals(cloudstackVolume.getComponentNo())) {
@@ -1421,8 +1433,7 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
                             break;
                         }
                     }
-                }
-                else if (instance.getVcloudDisks() != null) {
+                } else if (instance.getVcloudDisks() != null) {
                     // VcloudDiskをチェック
                     for (VcloudDisk vcloudDisk : instance.getVcloudDisks()) {
                         if (componentNo.equals(vcloudDisk.getComponentNo())) {
@@ -1435,8 +1446,7 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
                             break;
                         }
                     }
-                }
-                else if (instance.getAzureDisks() != null) {
+                } else if (instance.getAzureDisks() != null) {
                     // AzureDiskをチェック
                     for (AzureDisk azureDisk : instance.getAzureDisks()) {
                         if (componentNo.equals(azureDisk.getComponentNo())) {
@@ -1449,8 +1459,7 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
                             break;
                         }
                     }
-                }
-                else if (instance.getNiftyVolumes() != null) {
+                } else if (instance.getNiftyVolumes() != null) {
                     // NiftyVolumeをチェック
                     for (NiftyVolume niftyVolume : instance.getNiftyVolumes()) {
                         if (componentNo.equals(niftyVolume.getComponentNo())) {
@@ -1461,8 +1470,7 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
                             break;
                         }
                     }
-                }
-                else if (instance.getOpenstackVolumes() != null) {
+                } else if (instance.getOpenstackVolumes() != null) {
                     // OpenstackVolumeをチェック
                     for (OpenstackVolume openstackVolume : instance.getOpenstackVolumes()) {
                         if (componentNo.equals(openstackVolume.getComponentNo())) {

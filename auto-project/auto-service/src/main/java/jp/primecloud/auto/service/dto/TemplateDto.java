@@ -22,7 +22,6 @@ import java.io.Serializable;
 
 import jp.primecloud.auto.entity.crud.Template;
 
-
 /**
  * <p>
  * TODO: クラスコメントを記述
@@ -52,4 +51,5 @@ public class TemplateDto implements Serializable {
     public void setTemplate(Template template) {
         this.template = template;
     }
+
 }

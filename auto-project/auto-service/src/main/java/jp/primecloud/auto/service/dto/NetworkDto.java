@@ -20,7 +20,7 @@ package jp.primecloud.auto.service.dto;
 
 import java.io.Serializable;
 
-public class NetworkDto  implements Serializable {
+public class NetworkDto implements Serializable {
 
     /** TODO: フィールドコメントを記述 */
     private static final long serialVersionUID = 1L;
@@ -40,7 +40,6 @@ public class NetworkDto  implements Serializable {
     private String rangeTo;
 
     private boolean isPcc;
-
 
     public String getNetworkName() {
         return networkName;
@@ -105,4 +104,5 @@ public class NetworkDto  implements Serializable {
     public void setIsPcc(boolean isPcc) {
         this.isPcc = isPcc;
     }
+
 }

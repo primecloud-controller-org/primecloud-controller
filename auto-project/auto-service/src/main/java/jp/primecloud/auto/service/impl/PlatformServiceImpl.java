@@ -30,14 +30,13 @@ import jp.primecloud.auto.service.ServiceSupport;
  * </p>
  *
  */
-
 public class PlatformServiceImpl extends ServiceSupport implements PlatformService {
 
     protected EventLogger eventLogger;
 
-   /**
-    * {@inheritDoc}
-    */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isUseablePlatforms(Long userNo, Platform platform) {
         // TODO CLOUD BRANCHING
@@ -67,7 +66,7 @@ public class PlatformServiceImpl extends ServiceSupport implements PlatformServi
             }
         } else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
             // VCloud認証情報のチェック
-            if (vcloudCertificateDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo())== 0) {
+            if (vcloudCertificateDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) == 0) {
                 return false;
             }
             // VCloudキーペアのチェック
@@ -98,4 +97,5 @@ public class PlatformServiceImpl extends ServiceSupport implements PlatformServi
     public void setEventLogger(EventLogger eventLogger) {
         this.eventLogger = eventLogger;
     }
+
 }

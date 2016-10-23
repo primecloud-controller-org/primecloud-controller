@@ -31,7 +31,6 @@ import jp.primecloud.auto.entity.crud.ImageOpenstack;
 import jp.primecloud.auto.entity.crud.ImageVcloud;
 import jp.primecloud.auto.entity.crud.ImageVmware;
 
-
 /**
  * <p>
  * TODO: クラスコメントを記述

@@ -23,9 +23,6 @@ import java.util.List;
 
 import jp.primecloud.auto.entity.crud.ComponentType;
 
-
-
-
 /**
  * <p>
  * TODO: クラスコメントを記述

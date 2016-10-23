@@ -23,9 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.entity.crud.Component;
 import jp.primecloud.auto.entity.crud.ComponentType;
@@ -42,6 +39,9 @@ import jp.primecloud.auto.service.InstanceService;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.service.TemplateService;
 import jp.primecloud.auto.service.dto.TemplateDto;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * <p>
@@ -78,7 +78,7 @@ public class TemplateServiceImpl extends ServiceSupport implements TemplateServi
             // 全てのインスタンスのプラットフォームを利用できるかどうかのチェック
             Platform platform = null;
             List<TemplateInstance> templateInstances = templateInstanceDao.readByTemplateNo(template.getTemplateNo());
-            for (TemplateInstance templateInstance: templateInstances) {
+            for (TemplateInstance templateInstance : templateInstances) {
                 platform = platformMap.get(templateInstance.getPlatformNo());
                 if (platform == null) {
                     //認証情報が存在しない or 使用不可プラットフォーム
@@ -97,8 +97,9 @@ public class TemplateServiceImpl extends ServiceSupport implements TemplateServi
                 continue;
             }
 
-            List<TemplateComponent> templateComponents = templateComponentDao.readByTemplateNo(template.getTemplateNo());
-            for (TemplateComponent templateComponent: templateComponents) {
+            List<TemplateComponent> templateComponents = templateComponentDao
+                    .readByTemplateNo(template.getTemplateNo());
+            for (TemplateComponent templateComponent : templateComponents) {
                 if (!componentTypeNos.contains(templateComponent.getComponentTypeNo())) {
                     //使用不可コンポーネントタイプ
                     available = false;
@@ -162,30 +163,30 @@ public class TemplateServiceImpl extends ServiceSupport implements TemplateServi
         Map<String, Long> instanceNoMap = new HashMap<String, Long>();
 
         List<TemplateInstance> templateInstances = templateInstanceDao.readByTemplateNo(templateNo);
-        for (TemplateInstance templateInstance: templateInstances) {
+        for (TemplateInstance templateInstance : templateInstances) {
             Long instanceNo = null;
             Platform platform = platformMap.get(templateInstance.getPlatformNo());
             // TODO CLOUD BRANCHING
-            if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType()) ||
-                PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType()) ||
-                PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType()) ||
-                PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType()) ||
-                PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
+            if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())
+                    || PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())
+                    || PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())
+                    || PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())
+                    || PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
                 //Iaas(AWS or CloudStack or VCloud or Azure or OpenStack)
-                instanceNo = instanceService.createIaasInstance(
-                        farmNo, templateInstance.getTemplateInstanceName(),templateInstance.getPlatformNo(),
-                        templateInstance.getComment(), templateInstance.getImageNo(), templateInstance.getInstanceType());
+                instanceNo = instanceService.createIaasInstance(farmNo, templateInstance.getTemplateInstanceName(),
+                        templateInstance.getPlatformNo(), templateInstance.getComment(), templateInstance.getImageNo(),
+                        templateInstance.getInstanceType());
             } else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
                 //VMware
-                instanceNo = instanceService.createVmwareInstance(
-                        farmNo, templateInstance.getTemplateInstanceName(), templateInstance.getPlatformNo(),
-                        templateInstance.getComment(), templateInstance.getImageNo(), templateInstance.getInstanceType());
+                instanceNo = instanceService.createVmwareInstance(farmNo, templateInstance.getTemplateInstanceName(),
+                        templateInstance.getPlatformNo(), templateInstance.getComment(), templateInstance.getImageNo(),
+                        templateInstance.getInstanceType());
 
             } else if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platform.getPlatformType())) {
                 //Nifty
-                instanceNo = instanceService.createNiftyInstance(
-                        farmNo, templateInstance.getTemplateInstanceName(),templateInstance.getPlatformNo(),
-                        templateInstance.getComment(), templateInstance.getImageNo(), templateInstance.getInstanceType());
+                instanceNo = instanceService.createNiftyInstance(farmNo, templateInstance.getTemplateInstanceName(),
+                        templateInstance.getPlatformNo(), templateInstance.getComment(), templateInstance.getImageNo(),
+                        templateInstance.getInstanceType());
             } else {
                 continue;
             }
@@ -194,9 +195,10 @@ public class TemplateServiceImpl extends ServiceSupport implements TemplateServi
 
         // コンポーネントを作成
         List<TemplateComponent> templateComponents = templateComponentDao.readByTemplateNo(templateNo);
-        for (TemplateComponent templateComponent: templateComponents) {
+        for (TemplateComponent templateComponent : templateComponents) {
             Long componentNo = componentService.createComponent(farmNo, templateComponent.getTemplateComponentName(),
-                    templateComponent.getComponentTypeNo(), templateComponent.getComment(), templateComponent.getDiskSize());
+                    templateComponent.getComponentTypeNo(), templateComponent.getComment(),
+                    templateComponent.getDiskSize());
 
             // コンポーネントにインスタンスを関連付け
             List<Long> instanceNos = new ArrayList<Long>();
@@ -216,9 +218,7 @@ public class TemplateServiceImpl extends ServiceSupport implements TemplateServi
     }
 
     /**
-     *
      * プラットフォーム情報をマップで取得
-     *
      *
      * @param userNo
      * @return プラットフォーム情報のマップ(認証情報がないプラットフォームはマップに含まれない)
@@ -258,7 +258,7 @@ public class TemplateServiceImpl extends ServiceSupport implements TemplateServi
                 }
             } else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
                 // 認証情報とキーペアがない場合はスキップ
-                if (vcloudCertificateDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo())== 0) {
+                if (vcloudCertificateDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) == 0) {
                     continue;
                 }
                 if (vcloudKeyPairDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) == 0) {
@@ -266,12 +266,12 @@ public class TemplateServiceImpl extends ServiceSupport implements TemplateServi
                 }
             } else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
                 // 認証情報がない場合はスキップ
-                if (azureCertificateDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo())== 0) {
+                if (azureCertificateDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) == 0) {
                     continue;
                 }
             } else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
                 // 認証情報がない場合はスキップ
-                if (openstackCertificateDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo())== 0) {
+                if (openstackCertificateDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) == 0) {
                     continue;
                 }
             }
@@ -283,7 +283,6 @@ public class TemplateServiceImpl extends ServiceSupport implements TemplateServi
     }
 
     /**
-     *
      * 使用可能なイメージ番号のリストを取得する
      *
      * @return 使用可能なイメージ番号のリスト
@@ -291,7 +290,7 @@ public class TemplateServiceImpl extends ServiceSupport implements TemplateServi
     private List<Long> getEnabledImageNos() {
         List<Long> imageNos = new ArrayList<Long>();
         List<Image> images = imageDao.readAll();
-        for (Image image: images) {
+        for (Image image : images) {
             if (BooleanUtils.isNotTrue(image.getSelectable())) {
                 //有効イメージではない場合、ロードバランサーイメージの場合はリストに含めない
                 continue;
@@ -302,7 +301,6 @@ public class TemplateServiceImpl extends ServiceSupport implements TemplateServi
     }
 
     /**
-     *
      * 使用可能なコンポーネントタイプ番号のリストを取得する
      *
      * @return 使用可能なコンポーネントタイプ番号のリスト
@@ -310,7 +308,7 @@ public class TemplateServiceImpl extends ServiceSupport implements TemplateServi
     private List<Long> getEnabledComponentTypeNos() {
         List<Long> componentTypeNos = new ArrayList<Long>();
         List<ComponentType> componentTypes = componentTypeDao.readAll();
-        for (ComponentType componentType: componentTypes) {
+        for (ComponentType componentType : componentTypes) {
             if (BooleanUtils.isNotTrue(componentType.getSelectable())) {
                 //有効コンポーネントタイプではない場合、ロードバランサーイメージの場合はリストに含めない
                 continue;
@@ -337,4 +335,5 @@ public class TemplateServiceImpl extends ServiceSupport implements TemplateServi
     public void setInstanceService(InstanceService instanceService) {
         this.instanceService = instanceService;
     }
+
 }

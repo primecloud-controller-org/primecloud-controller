@@ -23,7 +23,6 @@ import java.io.Serializable;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.entity.crud.UserAuth;
 
-
 /**
  * <p>
  * TODO: クラスコメントを記述
@@ -35,6 +34,7 @@ public class UserDto implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private User user;
+
     private UserAuth userAuth;
 
     /**
@@ -72,4 +72,5 @@ public class UserDto implements Serializable {
     public void setUser(UserAuth userAuth) {
         this.userAuth = userAuth;
     }
+
 }

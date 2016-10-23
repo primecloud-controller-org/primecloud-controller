@@ -22,7 +22,6 @@ import java.util.List;
 
 import jp.primecloud.auto.entity.crud.NiftyKeyPair;
 
-
 /**
  * <p>
  * TODO: クラスコメントを記述

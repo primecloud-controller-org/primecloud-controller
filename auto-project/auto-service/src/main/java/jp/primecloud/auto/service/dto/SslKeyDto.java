@@ -20,7 +20,7 @@ package jp.primecloud.auto.service.dto;
 
 import java.io.Serializable;
 
-public class SslKeyDto   implements Serializable {
+public class SslKeyDto implements Serializable {
 
     /** TODO: フィールドコメントを記述 */
     private static final long serialVersionUID = -2684249648440988501L;

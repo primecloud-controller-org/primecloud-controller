@@ -502,6 +502,7 @@ public class InstanceDto implements Serializable {
     public void setVcloudKeyPair(VcloudKeyPair vcloudKeyPair) {
         this.vcloudKeyPair = vcloudKeyPair;
     }
+
     /**
      * vcloudDisksを取得します。
      *

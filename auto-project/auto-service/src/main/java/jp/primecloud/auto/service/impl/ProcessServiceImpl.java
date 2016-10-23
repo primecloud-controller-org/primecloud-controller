@@ -25,9 +25,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.InstanceStatus;
 import jp.primecloud.auto.entity.crud.AwsInstance;
@@ -42,6 +39,9 @@ import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.PlatformAws;
 import jp.primecloud.auto.service.ProcessService;
 import jp.primecloud.auto.service.ServiceSupport;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * <p>
@@ -596,8 +596,8 @@ public class ProcessServiceImpl extends ServiceSupport implements ProcessService
      */
     @Override
     public boolean checkSubnet(String platformType, Boolean vpc, String subnetId) {
-        if (PCCConstant.PLATFORM_TYPE_AWS.equals(platformType) && vpc && StringUtils.isEmpty(subnetId) ||
-                (PCCConstant.PLATFORM_TYPE_AZURE.equals(platformType) && StringUtils.isEmpty(subnetId))) {
+        if (PCCConstant.PLATFORM_TYPE_AWS.equals(platformType) && vpc && StringUtils.isEmpty(subnetId)
+                || (PCCConstant.PLATFORM_TYPE_AZURE.equals(platformType) && StringUtils.isEmpty(subnetId))) {
             //EC2+VPCまたは、Azureの場合、サブネットを設定しないと起動不可
             return true;
         }
@@ -613,16 +613,14 @@ public class ProcessServiceImpl extends ServiceSupport implements ProcessService
         if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platformType)) {
             // インスタンスが未作成のものがあった場合（同時起動）
             // インスタンスが未作成のものは、2件目以降は起動不可
-            if (StringUtils.isEmpty(instanceName)
-                    && skipServer == true) {
+            if (StringUtils.isEmpty(instanceName) && skipServer == true) {
                 // インスタンス作成中のものがあった場合は、起動不可
                 flgMap.put("skipServer", skipServer);
                 flgMap.put("startupAllErrFlg", true);
                 return flgMap;
             }
             // インスタンスが未作成のものは、1件目のみ起動
-            if (StringUtils.isEmpty(instanceName)
-                    && skipServer == false) {
+            if (StringUtils.isEmpty(instanceName) && skipServer == false) {
                 skipServer = true;
             }
         }
@@ -643,10 +641,10 @@ public class ProcessServiceImpl extends ServiceSupport implements ProcessService
                 // 全Azureサーバーにインスタンス作成中のものがあるかのチェック
                 for (AzureInstance azureInstance : azureInstances) {
                     Instance instance = instanceDao.read(azureInstance.getInstanceNo());
-                    if (instanceNo.equals(instance.getInstanceNo()) == false &&
-                            (instance.getStatus().equals(InstanceStatus.STARTING.toString()) ||
-                                    instance.getStatus().equals(InstanceStatus.CONFIGURING.toString())) &&
-                                    StringUtils.isEmpty(azureInstance.getInstanceName())) {
+                    if (instanceNo.equals(instance.getInstanceNo()) == false
+                            && (instance.getStatus().equals(InstanceStatus.STARTING.toString()) || instance.getStatus()
+                                    .equals(InstanceStatus.CONFIGURING.toString()))
+                            && StringUtils.isEmpty(azureInstance.getInstanceName())) {
                         // インスタンス作成中のものがあった場合は、起動不可
                         // 同一インスタンスNoは、除外する
                         return true;

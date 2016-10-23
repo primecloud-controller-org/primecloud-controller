@@ -30,11 +30,6 @@ import java.util.List;
 
 import javax.crypto.Cipher;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.StringUtils;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.openssl.PEMReader;
-
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.entity.crud.AwsAddress;
 import jp.primecloud.auto.entity.crud.CloudstackAddress;
@@ -59,6 +54,11 @@ import jp.primecloud.auto.service.dto.SecurityGroupDto;
 import jp.primecloud.auto.service.dto.StorageTypeDto;
 import jp.primecloud.auto.service.dto.SubnetDto;
 import jp.primecloud.auto.service.dto.ZoneDto;
+
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.StringUtils;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.openssl.PEMReader;
 
 /**
  * <p>
@@ -107,9 +107,9 @@ public class IaasDescribeServiceImpl extends ServiceSupport implements IaasDescr
         ArrayList<KeyPairDto> retArray = new ArrayList<KeyPairDto>();
         Platform platform = platformDao.read(platformNo);
 
-        if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType()) ||
-            PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType()) ||
-            PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
+        if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())
+                || PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())
+                || PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
             IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(userNo, platformNo);
             String result = gateway.describeKeyPairs();
             if (!"".equals(result)) {
@@ -189,7 +189,8 @@ public class IaasDescribeServiceImpl extends ServiceSupport implements IaasDescr
     @Override
     public List<StorageTypeDto> getStorageTypes(Long userNo, Long platformNo) {
         List<StorageTypeDto> retArray = new ArrayList<StorageTypeDto>();
-        List<PlatformVcloudStorageType> platformVcloudStorageTypes = platformVcloudStorageTypeDao.readByPlatformNo(platformNo);
+        List<PlatformVcloudStorageType> platformVcloudStorageTypes = platformVcloudStorageTypeDao
+                .readByPlatformNo(platformNo);
         Collections.sort(platformVcloudStorageTypes, Comparators.COMPARATOR_PLATFORM_VCLOUD_STORAGE_TYPE);
         for (PlatformVcloudStorageType storageType : platformVcloudStorageTypes) {
             StorageTypeDto storageTypeDto = new StorageTypeDto(storageType);

@@ -110,7 +110,4 @@ public class ComponentCreateParam implements Serializable {
         this.comment = comment;
     }
 
-    
-    
-    
 }

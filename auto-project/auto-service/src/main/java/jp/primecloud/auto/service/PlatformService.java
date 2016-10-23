@@ -29,4 +29,5 @@ import jp.primecloud.auto.entity.crud.Platform;
 public interface PlatformService {
 
     public boolean isUseablePlatforms(Long userNo, Platform platform);
+
 }

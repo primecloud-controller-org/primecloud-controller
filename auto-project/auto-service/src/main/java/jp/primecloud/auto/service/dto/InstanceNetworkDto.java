@@ -20,7 +20,7 @@ package jp.primecloud.auto.service.dto;
 
 import java.io.Serializable;
 
-public class InstanceNetworkDto  implements Serializable {
+public class InstanceNetworkDto implements Serializable {
 
     /** TODO: フィールドコメントを記述 */
     private static final long serialVersionUID = 1L;
@@ -104,4 +104,5 @@ public class InstanceNetworkDto  implements Serializable {
     public void setPrimary(boolean isPrimary) {
         this.isPrimary = isPrimary;
     }
+
 }

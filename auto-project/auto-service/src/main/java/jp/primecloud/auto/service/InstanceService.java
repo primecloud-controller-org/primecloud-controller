@@ -50,13 +50,14 @@ public interface InstanceService {
             String instanceType);
 
     public void updateAwsInstance(Long instanceNo, String instanceName, String comment, String keyName,
-            String instanceType, String securityGroupName, String availabilityZoneName, Long addressNo, String subnetId, String privateIpAddress);
+            String instanceType, String securityGroupName, String availabilityZoneName, Long addressNo,
+            String subnetId, String privateIpAddress);
 
     public void updateCloudstackInstance(Long instanceNo, String instanceName, String comment, String keyName,
             String instanceType, String securityGroupName, String availabilityZoneName, Long addressNo);
 
-    public void updateVcloudInstance(Long instanceNo, String instanceName, String comment, Long storageTypeNo, Long keyPairNo,
-            String instanceType, List<InstanceNetworkDto> instanceNetworkDtos);
+    public void updateVcloudInstance(Long instanceNo, String instanceName, String comment, Long storageTypeNo,
+            Long keyPairNo, String instanceType, List<InstanceNetworkDto> instanceNetworkDtos);
 
     public void updateAzureInstance(Long instanceNo, String instanceName, String comment, String instanceType,
             String availabilitySet, String subnetId);
@@ -92,4 +93,5 @@ public interface InstanceService {
     public void disableZabbixMonitoring(Long instanceNo);
 
     public InstanceStatus getInstanceStatus(Instance instance);
+
 }

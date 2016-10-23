@@ -29,6 +29,21 @@ public class ZoneDto implements Serializable {
 
     private String zoneName;
 
+    public ZoneDto withZoneName(String zoneName) {
+        this.zoneName = zoneName;
+        return this;
+    }
+
+    public boolean isSameById(String id) {
+        if (zoneId == null && id != null)
+            return false;
+
+        if (zoneId.equals(id))
+            return true;
+        else
+            return false;
+    }
+
     public String getZoneId() {
         return zoneId;
     }
@@ -44,18 +59,5 @@ public class ZoneDto implements Serializable {
     public void setZoneName(String zoneName) {
         this.zoneName = zoneName;
     }
-
-    public ZoneDto withZoneName(String zoneName){
-        this.zoneName = zoneName;
-        return this;
-    }
-
-    public boolean isSameById(String id){
-        if(zoneId == null && id != null)return false;
-
-        if(zoneId.equals(id)) return true;
-        else return false;
-    }
-
 
 }

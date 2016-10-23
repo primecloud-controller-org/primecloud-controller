@@ -30,8 +30,6 @@ import jp.primecloud.auto.entity.crud.PlatformOpenstack;
 import jp.primecloud.auto.entity.crud.PlatformVcloud;
 import jp.primecloud.auto.entity.crud.PlatformVmware;
 
-
-
 /**
  * <p>
  * TODO: クラスコメントを記述

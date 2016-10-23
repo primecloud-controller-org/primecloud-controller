@@ -134,42 +134,42 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         // プラットフォーム情報(AWS)を取得
         List<PlatformAws> platformAwss = platformAwsDao.readAll();
         Map<Long, PlatformAws> platformAwsMap = new LinkedHashMap<Long, PlatformAws>();
-        for (PlatformAws platformAws: platformAwss) {
+        for (PlatformAws platformAws : platformAwss) {
             platformAwsMap.put(platformAws.getPlatformNo(), platformAws);
         }
 
         // プラットフォーム情報(VMWare)を取得
         List<PlatformVmware> platformVmwares = platformVmwareDao.readAll();
         Map<Long, PlatformVmware> platformVmwareMap = new LinkedHashMap<Long, PlatformVmware>();
-        for (PlatformVmware platformVmware: platformVmwares) {
+        for (PlatformVmware platformVmware : platformVmwares) {
             platformVmwareMap.put(platformVmware.getPlatformNo(), platformVmware);
         }
 
         // プラットフォーム情報(Nifty)を取得
         List<PlatformNifty> platformNifties = platformNiftyDao.readAll();
         Map<Long, PlatformNifty> platformNiftyMap = new LinkedHashMap<Long, PlatformNifty>();
-        for (PlatformNifty platformNifty: platformNifties) {
+        for (PlatformNifty platformNifty : platformNifties) {
             platformNiftyMap.put(platformNifty.getPlatformNo(), platformNifty);
         }
 
         // プラットフォーム情報(CloudStack)を取得
         List<PlatformCloudstack> platformCloudstacks = platformCloudstackDao.readAll();
         Map<Long, PlatformCloudstack> platformCloudstackMap = new LinkedHashMap<Long, PlatformCloudstack>();
-        for (PlatformCloudstack platformCloudstack: platformCloudstacks) {
+        for (PlatformCloudstack platformCloudstack : platformCloudstacks) {
             platformCloudstackMap.put(platformCloudstack.getPlatformNo(), platformCloudstack);
         }
 
         // プラットフォーム情報(Vcloud)を取得
         List<PlatformVcloud> platformVclouds = platformVcloudDao.readAll();
         Map<Long, PlatformVcloud> platformVcloudMap = new LinkedHashMap<Long, PlatformVcloud>();
-        for (PlatformVcloud platformVcloud: platformVclouds) {
+        for (PlatformVcloud platformVcloud : platformVclouds) {
             platformVcloudMap.put(platformVcloud.getPlatformNo(), platformVcloud);
         }
 
         // プラットフォーム情報(Azure)を取得
         List<PlatformAzure> platformAzures = platformAzureDao.readAll();
         Map<Long, PlatformAzure> platformAzureMap = new LinkedHashMap<Long, PlatformAzure>();
-        for (PlatformAzure platformAzure: platformAzures) {
+        for (PlatformAzure platformAzure : platformAzures) {
             platformAzureMap.put(platformAzure.getPlatformNo(), platformAzure);
         }
 
@@ -178,7 +178,7 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
 
         // PlatformDtoを作成
         Map<Long, PlatformDto> platformDtoMap = new LinkedHashMap<Long, PlatformDto>();
-        for (Platform platform: platforms) {
+        for (Platform platform : platforms) {
             PlatformDto platformDto = new PlatformDto();
             platformDto.setPlatform(platform);
             platformDto.setPlatformAws(platformAwsMap.get(platform.getPlatformNo()));
@@ -193,42 +193,42 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         // イメージ情報(AWS)を取得
         List<ImageAws> imageAwses = imageAwsDao.readAll();
         Map<Long, ImageAws> imageAwsMap = new LinkedHashMap<Long, ImageAws>();
-        for (ImageAws imageAws: imageAwses) {
+        for (ImageAws imageAws : imageAwses) {
             imageAwsMap.put(imageAws.getImageNo(), imageAws);
         }
 
         // イメージ情報(Cloudstack)を取得
         List<ImageCloudstack> imageCloudstacks = imageCloudstackDao.readAll();
         Map<Long, ImageCloudstack> imageCloudstackMap = new LinkedHashMap<Long, ImageCloudstack>();
-        for (ImageCloudstack imageCloudstack: imageCloudstacks) {
+        for (ImageCloudstack imageCloudstack : imageCloudstacks) {
             imageCloudstackMap.put(imageCloudstack.getImageNo(), imageCloudstack);
         }
 
         // イメージ情報(VMWare)を取得
         List<ImageVmware> imageVmwares = imageVmwareDao.readAll();
         Map<Long, ImageVmware> imageVmwareMap = new LinkedHashMap<Long, ImageVmware>();
-        for (ImageVmware imageVmware: imageVmwares) {
+        for (ImageVmware imageVmware : imageVmwares) {
             imageVmwareMap.put(imageVmware.getImageNo(), imageVmware);
         }
 
         // イメージ情報(Nifty)を取得
         List<ImageNifty> imageNifties = imageNiftyDao.readAll();
         Map<Long, ImageNifty> imageNiftyMap = new LinkedHashMap<Long, ImageNifty>();
-        for (ImageNifty imageNifty: imageNifties) {
+        for (ImageNifty imageNifty : imageNifties) {
             imageNiftyMap.put(imageNifty.getImageNo(), imageNifty);
         }
 
         // イメージ情報(VCloud)を取得
         List<ImageVcloud> imageVclouds = imageVcloudDao.readAll();
         Map<Long, ImageVcloud> imageVcloudMap = new LinkedHashMap<Long, ImageVcloud>();
-        for (ImageVcloud imageVcloud: imageVclouds) {
+        for (ImageVcloud imageVcloud : imageVclouds) {
             imageVcloudMap.put(imageVcloud.getImageNo(), imageVcloud);
         }
 
         // イメージ情報(Azure)を取得
         List<ImageAzure> imageAzures = imageAzureDao.readAll();
         Map<Long, ImageAzure> imageAzureMap = new LinkedHashMap<Long, ImageAzure>();
-        for (ImageAzure imageAzure: imageAzures) {
+        for (ImageAzure imageAzure : imageAzures) {
             imageAzureMap.put(imageAzure.getImageNo(), imageAzure);
         }
 
@@ -237,7 +237,7 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
 
         // ImageDto作成
         Map<Long, ImageDto> imageDtoMap = new LinkedHashMap<Long, ImageDto>();
-        for (Image image: images) {
+        for (Image image : images) {
             ImageDto imageDto = new ImageDto();
             imageDto.setImage(image);
             imageDto.setImageAws(imageAwsMap.get(image.getImageNo()));
@@ -257,7 +257,8 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         }
 
         // CloudStackロードバランサ情報を取得
-        List<CloudstackLoadBalancer> cloudstackLoadBalancers = cloudstackLoadBalancerDao.readInLoadBalancerNos(loadBalancerNos);
+        List<CloudstackLoadBalancer> cloudstackLoadBalancers = cloudstackLoadBalancerDao
+                .readInLoadBalancerNos(loadBalancerNos);
         Map<Long, CloudstackLoadBalancer> cloudstackLoadBalancerMap = new LinkedHashMap<Long, CloudstackLoadBalancer>();
         for (CloudstackLoadBalancer cloudstackLoadBalancer : cloudstackLoadBalancers) {
             cloudstackLoadBalancerMap.put(cloudstackLoadBalancer.getLoadBalancerNo(), cloudstackLoadBalancer);
@@ -297,7 +298,6 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         for (AutoScalingConf autoScalingConf : autoScalingConfs) {
             autoScalingConfMap.put(autoScalingConf.getLoadBalancerNo(), autoScalingConf);
         }
-
 
         // 振り分けインスタンス情報を取得
         List<LoadBalancerInstance> allLbInstances = loadBalancerInstanceDao.readInLoadBalancerNos(loadBalancerNos);
@@ -442,21 +442,20 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         return dtos;
     }
 
-
     /**
      * {@inheritDoc}
      */
     @Override
-    public Long getLoadBalancerInstance(Long loadBalancerNo){
+    public Long getLoadBalancerInstance(Long loadBalancerNo) {
         //コンポーネント形ロードバランサのインスタンスIDを取得する
         ComponentLoadBalancer componentLoadBalancer = componentLoadBalancerDao.read(loadBalancerNo);
-        List<ComponentInstance> componentInstances = componentInstanceDao.readByComponentNo(componentLoadBalancer.getComponentNo());
+        List<ComponentInstance> componentInstances = componentInstanceDao.readByComponentNo(componentLoadBalancer
+                .getComponentNo());
         if (!componentInstances.isEmpty()) {
             return componentInstances.get(0).getInstanceNo();
         }
         return null;
     }
-
 
     /**
      * {@inheritDoc}
@@ -495,7 +494,8 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         Image image = null;
         List<Image> images = imageDao.readAll();
         for (Image image2 : images) {
-            if (image2.getPlatformNo().equals(platformNo.longValue()) && PCCConstant.IMAGE_NAME_ELB.equals(image2.getImageName())) {
+            if (image2.getPlatformNo().equals(platformNo.longValue())
+                    && PCCConstant.IMAGE_NAME_ELB.equals(image2.getImageName())) {
                 image = image2;
                 break;
             }
@@ -542,17 +542,19 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         if (platformAws.getVpc() && StringUtils.isNotEmpty(awsCertificate.getDefLbSubnet())) {
             //VPC かつ デフォルトサブネット(ロードバランサ用)が存在する場合
             List<String> defLbSubnets = new ArrayList<String>();
-            for (String lbSubnet: awsCertificate.getDefLbSubnet().split(",")) {
+            for (String lbSubnet : awsCertificate.getDefLbSubnet().split(",")) {
                 defLbSubnets.add(lbSubnet.trim());
             }
             List<String> zones = new ArrayList<String>();
             StringBuffer subnetBuffer = new StringBuffer();
             StringBuffer zoneBuffer = new StringBuffer();
-            List<SubnetDto> subnetDtos = iaasDescribeService.getSubnets(farm.getUserNo(), platformNo, platformAws.getVpcId());
-            for (SubnetDto subnetDto: subnetDtos) {
+            List<SubnetDto> subnetDtos = iaasDescribeService.getSubnets(farm.getUserNo(), platformNo,
+                    platformAws.getVpcId());
+            for (SubnetDto subnetDto : subnetDtos) {
                 if (defLbSubnets.contains(subnetDto.getSubnetId()) && zones.contains(subnetDto.getZoneid()) == false) {
-                    subnetBuffer.append(subnetBuffer.length() > 0 ? "," +subnetDto.getSubnetId(): subnetDto.getSubnetId());
-                    zoneBuffer.append(zoneBuffer.length() > 0 ? "," +subnetDto.getZoneid(): subnetDto.getZoneid());
+                    subnetBuffer.append(subnetBuffer.length() > 0 ? "," + subnetDto.getSubnetId() : subnetDto
+                            .getSubnetId());
+                    zoneBuffer.append(zoneBuffer.length() > 0 ? "," + subnetDto.getZoneid() : subnetDto.getZoneid());
                     zones.add(subnetDto.getZoneid());
                 }
             }
@@ -565,9 +567,9 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         String groupName = null;
         if (platformAws.getVpc()) {
             //VPCの場合
-            List<SecurityGroupDto> securityGroupDtos =
-                iaasDescribeService.getSecurityGroups(farm.getUserNo(), platformNo, platformAws.getVpcId());
-            for (SecurityGroupDto securityGroupDto: securityGroupDtos) {
+            List<SecurityGroupDto> securityGroupDtos = iaasDescribeService.getSecurityGroups(farm.getUserNo(),
+                    platformNo, platformAws.getVpcId());
+            for (SecurityGroupDto securityGroupDto : securityGroupDtos) {
                 if ("default".equals(securityGroupDto.getGroupName())) {
                     //「default」のセキュリティグループがあれば「default」を設定
                     groupName = securityGroupDto.getGroupName();
@@ -575,7 +577,7 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
                 }
             }
             if (groupName == null && securityGroupDtos.size() > 0) {
-                 //「default」が無ければ1件目
+                //「default」が無ければ1件目
                 groupName = securityGroupDtos.get(0).getGroupName();
             }
         }
@@ -621,10 +623,10 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
             elbZabbixHostProcess.createElbHostgroup(loadBalancerNo);
         }
 
-
         // イベントログ出力
         eventLogger.log(EventLogLevel.INFO, farmNo, farm.getFarmName(), null, null, null, null, "LoadBalancerCreate",
-                null, null, new Object[] { loadBalancerName, platform.getPlatformName(), PCCConstant.LOAD_BALANCER_ELB });
+                null, null,
+                new Object[] { loadBalancerName, platform.getPlatformName(), PCCConstant.LOAD_BALANCER_ELB });
 
         // フック処理の実行
         processHook.execute("post-create-loadbalancer", farm.getUserNo(), farm.getFarmNo(), loadBalancerNo);
@@ -636,7 +638,8 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
      * {@inheritDoc}
      */
     @Override
-    public Long createCloudstackLoadBalancer(Long farmNo, String loadBalancerName, String comment, Long platformNo, Long componentNo){
+    public Long createCloudstackLoadBalancer(Long farmNo, String loadBalancerName, String comment, Long platformNo,
+            Long componentNo) {
         // 引数チェック
         if (farmNo == null) {
             throw new AutoApplicationException("ECOMMON-000003", "farmNo");
@@ -729,14 +732,14 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
 
         // イベントログ出力
         eventLogger.log(EventLogLevel.INFO, farmNo, farm.getFarmName(), null, null, null, null, "LoadBalancerCreate",
-                null, null, new Object[] { loadBalancerName, platform.getPlatformName(), PCCConstant.LOAD_BALANCER_ELB });
+                null, null,
+                new Object[] { loadBalancerName, platform.getPlatformName(), PCCConstant.LOAD_BALANCER_ELB });
 
         // フック処理の実行
         processHook.execute("post-create-loadbalancer", farm.getUserNo(), farm.getFarmNo(), loadBalancerNo);
 
         return loadBalancerNo;
     }
-
 
     /**
      * {@inheritDoc}
@@ -769,7 +772,8 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         Image image = null;
         List<Image> images = imageDao.readAll();
         for (Image image2 : images) {
-            if (image2.getPlatformNo().equals(platformNo.longValue()) && PCCConstant.IMAGE_NAME_ULTRAMONKEY.equals(image2.getImageName())) {
+            if (image2.getPlatformNo().equals(platformNo.longValue())
+                    && PCCConstant.IMAGE_NAME_ULTRAMONKEY.equals(image2.getImageName())) {
                 image = image2;
                 break;
             }
@@ -806,7 +810,6 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
             throw new AutoApplicationException("ESERVICE-000607", componentNo);
         }
 
-
         // UltraMonkeyインスタンス情報の作成
         //String lbInstanceName = "lb-" + loadBalancerNo;
         String lbInstanceName = loadBalancerName;
@@ -816,8 +819,8 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
             ImageAws imageAws = imageAwsDao.read(image.getImageNo());
             String[] instanceTypes = StringUtils.split(imageAws.getInstanceTypes(), ",");
-            lbInstanceNo = instanceService.createIaasInstance(farmNo, lbInstanceName, platformNo, null, image.getImageNo(),
-                    instanceTypes[0].trim());
+            lbInstanceNo = instanceService.createIaasInstance(farmNo, lbInstanceName, platformNo, null,
+                    image.getImageNo(), instanceTypes[0].trim());
         } else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
             ImageVmware imageVmware = imageVmwareDao.read(image.getImageNo());
             String[] instanceTypes = StringUtils.split(imageVmware.getInstanceTypes(), ",");
@@ -826,28 +829,28 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         } else if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platform.getPlatformType())) {
             ImageNifty imageNifty = imageNiftyDao.read(image.getImageNo());
             String[] instanceTypes = StringUtils.split(imageNifty.getInstanceTypes(), ",");
-            lbInstanceNo = instanceService.createNiftyInstance(farmNo, lbInstanceName, platformNo, null, image.getImageNo(),
-                    instanceTypes[0].trim());
+            lbInstanceNo = instanceService.createNiftyInstance(farmNo, lbInstanceName, platformNo, null,
+                    image.getImageNo(), instanceTypes[0].trim());
         } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
             ImageCloudstack imageCloudstack = imageCloudstackDao.read(image.getImageNo());
             String[] instanceTypes = StringUtils.split(imageCloudstack.getInstanceTypes(), ",");
-            lbInstanceNo = instanceService.createIaasInstance(farmNo, lbInstanceName, platformNo, null, image.getImageNo(),
-                    instanceTypes[0].trim());
+            lbInstanceNo = instanceService.createIaasInstance(farmNo, lbInstanceName, platformNo, null,
+                    image.getImageNo(), instanceTypes[0].trim());
         } else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
             ImageVcloud imageVcloud = imageVcloudDao.read(image.getImageNo());
             String[] instanceTypes = StringUtils.split(imageVcloud.getInstanceTypes(), ",");
-            lbInstanceNo = instanceService.createIaasInstance(farmNo, lbInstanceName, platformNo, null, image.getImageNo(),
-                    instanceTypes[0].trim());
+            lbInstanceNo = instanceService.createIaasInstance(farmNo, lbInstanceName, platformNo, null,
+                    image.getImageNo(), instanceTypes[0].trim());
         } else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
             ImageAzure imageAzure = imageAzureDao.read(image.getImageNo());
             String[] instanceTypes = StringUtils.split(imageAzure.getInstanceTypes(), ",");
-            lbInstanceNo = instanceService.createIaasInstance(farmNo, lbInstanceName, platformNo, null, image.getImageNo(),
-                    instanceTypes[0].trim());
+            lbInstanceNo = instanceService.createIaasInstance(farmNo, lbInstanceName, platformNo, null,
+                    image.getImageNo(), instanceTypes[0].trim());
         } else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
             ImageOpenstack imageOpenstack = imageOpenstackDao.read(image.getImageNo());
             String[] instanceTypes = StringUtils.split(imageOpenstack.getInstanceTypes(), ",");
-            lbInstanceNo = instanceService.createIaasInstance(farmNo, lbInstanceName, platformNo, null, image.getImageNo(),
-                    instanceTypes[0].trim());
+            lbInstanceNo = instanceService.createIaasInstance(farmNo, lbInstanceName, platformNo, null,
+                    image.getImageNo(), instanceTypes[0].trim());
         }
         // UltraMonkeyインスタンス情報のロードバランサフラグを立てる
         Instance lbInstance = instanceDao.read(lbInstanceNo);
@@ -899,7 +902,8 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
 
         // イベントログ出力
         eventLogger.log(EventLogLevel.INFO, farmNo, farm.getFarmName(), null, null, null, null, "LoadBalancerCreate",
-                null, null, new Object[] { loadBalancerName, platform.getPlatformName(), PCCConstant.LOAD_BALANCER_ULTRAMONKEY });
+                null, null, new Object[] { loadBalancerName, platform.getPlatformName(),
+                        PCCConstant.LOAD_BALANCER_ULTRAMONKEY });
 
         // フック処理の実行
         processHook.execute("post-create-loadbalancer", farm.getUserNo(), farm.getFarmNo(), loadBalancerNo);
@@ -923,7 +927,8 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
             checkProtocol = "HTTP";
             checkPort = 80;
             checkPath = "/index.html";
-        } else if ("tomcat".equals(componentType.getComponentTypeName()) || "geronimo".equals(componentType.getComponentTypeName())) {
+        } else if ("tomcat".equals(componentType.getComponentTypeName())
+                || "geronimo".equals(componentType.getComponentTypeName())) {
             checkProtocol = "HTTP";
             checkPort = 8080;
             checkPath = "/index.html";
@@ -937,7 +942,6 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         configureHealthCheck(loadBalancer.getLoadBalancerNo(), checkProtocol, checkPort, checkPath, checkTimeout,
                 checkInterval, healthyThreshold, unhealthyThreshold);
     }
-
 
     protected void createDefaultAutoScalingConf(LoadBalancer loadBalancer) {
         // オートスケーリング情報の登録/更新
@@ -1043,7 +1047,7 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
 
                 LoadBalancer loadBalancer2 = allLoadBalancerMap.get(lbInstance.getLoadBalancerNo());
                 String type2 = loadBalancer2.getType();
-                if (PCCConstant.LOAD_BALANCER_ELB.equals(type2) || PCCConstant.LOAD_BALANCER_CLOUDSTACK.equals(type2) ) {
+                if (PCCConstant.LOAD_BALANCER_ELB.equals(type2) || PCCConstant.LOAD_BALANCER_CLOUDSTACK.equals(type2)) {
                     // 異なるAWSロードバランサの振り分け対象になっている場合は、振り分け不可
                     return false;
                 }
@@ -1060,7 +1064,7 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
                 } else {
                     //ロードバランサのゾーンが存在する場合(デフォルトサブネットが存在する場合)
                     List<String> zones = new ArrayList<String>();
-                    for (String zone :awsLoadBalancer.getAvailabilityZone().split(",")) {
+                    for (String zone : awsLoadBalancer.getAvailabilityZone().split(",")) {
                         zones.add(zone.trim());
                     }
                     if (zones.contains(awsInstance.getAvailabilityZone()) == false) {
@@ -1078,8 +1082,8 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
      * {@inheritDoc}
      */
     @Override
-    public void updateAwsLoadBalancer(Long loadBalancerNo, String loadBalancerName, String comment,
-            Long componentNo, String subnetId, String securityGroupName, String availabilityZone, boolean internal) {
+    public void updateAwsLoadBalancer(Long loadBalancerNo, String loadBalancerName, String comment, Long componentNo,
+            String subnetId, String securityGroupName, String availabilityZone, boolean internal) {
         // 引数チェック
         if (loadBalancerNo == null) {
             throw new AutoApplicationException("ECOMMON-000003", "loadBalancerNo");
@@ -1113,8 +1117,8 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
                     || !componentNo.equals(loadBalancer.getComponentNo())) {
                 throw new AutoApplicationException("ESERVICE-000604", loadBalancer.getLoadBalancerName());
             }
-            if (StringUtils.isEmpty(awsLoadBalancer.getSubnetId()) ? StringUtils.isNotEmpty(subnetId)
-                    : !StringUtils.equals(awsLoadBalancer.getSubnetId(), subnetId)) {
+            if (StringUtils.isEmpty(awsLoadBalancer.getSubnetId()) ? StringUtils.isNotEmpty(subnetId) : !StringUtils
+                    .equals(awsLoadBalancer.getSubnetId(), subnetId)) {
                 throw new AutoApplicationException("ESERVICE-000604", loadBalancer.getLoadBalancerName());
             }
             if (StringUtils.isEmpty(awsLoadBalancer.getSecurityGroups()) ? StringUtils.isNotEmpty(securityGroupName)
@@ -1163,11 +1167,13 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         processHook.execute("pre-update-loadbalancer", farm.getUserNo(), farm.getFarmNo(), loadBalancerNo);
 
         //ロードバランサーインスタンス更新
-        if (loadBalancer.getComponentNo().equals(componentNo) == false ||
-            (StringUtils.isNotEmpty(awsLoadBalancer.getAvailabilityZone()) && StringUtils.equals(awsLoadBalancer.getAvailabilityZone(), availabilityZone) == false)) {
+        if (loadBalancer.getComponentNo().equals(componentNo) == false
+                || (StringUtils.isNotEmpty(awsLoadBalancer.getAvailabilityZone()) && StringUtils.equals(
+                        awsLoadBalancer.getAvailabilityZone(), availabilityZone) == false)) {
             //割り当てサービス変更時、またはサブネット変更時にロードバランサインスタンスのEnableをFalseにする
-            List<LoadBalancerInstance> loadBalancerInstances = loadBalancerInstanceDao.readByLoadBalancerNo(loadBalancerNo);
-            for (LoadBalancerInstance loadBalancerInstance: loadBalancerInstances) {
+            List<LoadBalancerInstance> loadBalancerInstances = loadBalancerInstanceDao
+                    .readByLoadBalancerNo(loadBalancerNo);
+            for (LoadBalancerInstance loadBalancerInstance : loadBalancerInstances) {
                 loadBalancerInstance.setEnabled(false);
                 loadBalancerInstanceDao.update(loadBalancerInstance);
             }
@@ -1195,13 +1201,12 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         processHook.execute("post-update-loadbalancer", farm.getUserNo(), farm.getFarmNo(), loadBalancerNo);
     }
 
-
     /**
      * {@inheritDoc}
      */
     @Override
-    public void updateCloudstackLoadBalancer(Long loadBalancerNo, String loadBalancerName, String comment, Long componentNo,
-                                                                    String algorithm, String pubricPort, String privatePort) {
+    public void updateCloudstackLoadBalancer(Long loadBalancerNo, String loadBalancerName, String comment,
+            Long componentNo, String algorithm, String pubricPort, String privatePort) {
         // 引数チェック
         if (loadBalancerNo == null) {
             throw new AutoApplicationException("ECOMMON-000003", "loadBalancerNo");
@@ -1291,7 +1296,6 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         loadBalancer.setComponentNo(componentNo);
         loadBalancerDao.update(loadBalancer);
 
-
         // ロードバランサの更新
         csloadBalancer.setAlgorithm(algorithm);
         csloadBalancer.setPublicport(pubricPort);
@@ -1305,7 +1309,6 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         // フック処理の実行
         processHook.execute("post-update-loadbalancer", farm.getUserNo(), farm.getFarmNo(), loadBalancerNo);
     }
-
 
     /**
      * {@inheritDoc}
@@ -1464,9 +1467,9 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
             client.deleteHost(awsLoadbalancer.getHostid());
 
             //イベントログ出力
-            eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), null, null, null,
-                    null, "ZabbixUnregist", null, loadBalancer.getPlatformNo(),
-                    new Object[] { loadBalancer.getFqdn(), awsLoadbalancer.getHostid() });
+            eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), null, null, null, null,
+                    "ZabbixUnregist", null, loadBalancer.getPlatformNo(), new Object[] { loadBalancer.getFqdn(),
+                            awsLoadbalancer.getHostid() });
 
         } catch (RuntimeException ignore) {
             // 登録解除に失敗した場合、警告ログを出してエラーを握りつぶす
@@ -1475,7 +1478,6 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
 
         // AWSロードバランサ情報の削除処理
         awsLoadBalancerDao.deleteByLoadBalancerNo(loadBalancerNo);
-
 
     }
 
@@ -1505,7 +1507,8 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
      * {@inheritDoc}
      */
     @Override
-    public void createListener(Long loadBalancerNo, Integer loadBalancerPort, Integer servicePort, String protocol, Long sslKeyNo){
+    public void createListener(Long loadBalancerNo, Integer loadBalancerPort, Integer servicePort, String protocol,
+            Long sslKeyNo) {
         // 引数チェック
         if (loadBalancerNo == null) {
             throw new AutoApplicationException("ECOMMON-000003", "loadBalancerNo");
@@ -1577,7 +1580,8 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         // イベントログ出力
         Farm farm = farmDao.read(loadBalancer.getFarmNo());
         eventLogger.log(EventLogLevel.INFO, farm.getFarmNo(), farm.getFarmName(), null, null, null, null,
-                "LoadBalancerListenerCreate", null, null, new Object[] { loadBalancer.getLoadBalancerName(), loadBalancerPort });
+                "LoadBalancerListenerCreate", null, null, new Object[] { loadBalancer.getLoadBalancerName(),
+                        loadBalancerPort });
     }
 
     /**
@@ -1681,7 +1685,8 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         // イベントログ出力
         Farm farm = farmDao.read(loadBalancer.getFarmNo());
         eventLogger.log(EventLogLevel.INFO, farm.getFarmNo(), farm.getFarmName(), null, null, null, null,
-                "LoadBalancerListenerUpdate", null, null, new Object[] { loadBalancer.getLoadBalancerName(), loadBalancerPort });
+                "LoadBalancerListenerUpdate", null, null, new Object[] { loadBalancer.getLoadBalancerName(),
+                        loadBalancerPort });
     }
 
     /**
@@ -1717,7 +1722,8 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         LoadBalancer loadBalancer = loadBalancerDao.read(loadBalancerNo);
         Farm farm = farmDao.read(loadBalancer.getFarmNo());
         eventLogger.log(EventLogLevel.INFO, farm.getFarmNo(), farm.getFarmName(), null, null, null, null,
-                "LoadBalancerListenerDelete", null, null, new Object[] { loadBalancer.getLoadBalancerName(), loadBalancerPort });
+                "LoadBalancerListenerDelete", null, null, new Object[] { loadBalancer.getLoadBalancerName(),
+                        loadBalancerPort });
     }
 
     /**
@@ -1830,13 +1836,13 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         }
     }
 
-
     /**
      * {@inheritDoc}
      */
     @Override
-    public void updateAutoScalingConf(Long farmNo, Long loadBalancerNo, Long platformNo, Long imageNo, String instanceType,
-            Integer enabled, String namingRule, Long idleTimeMax, Long idleTimeMin,  Long continueLimit, Long addCount, Long delCount) {
+    public void updateAutoScalingConf(Long farmNo, Long loadBalancerNo, Long platformNo, Long imageNo,
+            String instanceType, Integer enabled, String namingRule, Long idleTimeMax, Long idleTimeMin,
+            Long continueLimit, Long addCount, Long delCount) {
 
         // 引数チェックは画面入力チェックで行える為省略
 
@@ -1866,7 +1872,7 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         autoScalingConf.setDelCount(delCount);
         if (enabled == 1) {
             autoScalingConf.setEnabled(true);
-        }else{
+        } else {
             autoScalingConf.setEnabled(false);
         }
 
@@ -1876,6 +1882,7 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
             autoScalingConfDao.update(autoScalingConf);
         }
     }
+
     /**
      * {@inheritDoc}
      */
@@ -1934,13 +1941,13 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
             if (!contain) {
                 // インスタンスがコンポーネントに含まれていない場合
                 Component component = componentDao.read(loadBalancer.getComponentNo());
-                throw new AutoApplicationException("ESERVICE-000622", instance.getInstanceName(), component
-                        .getComponentName());
+                throw new AutoApplicationException("ESERVICE-000622", instance.getInstanceName(),
+                        component.getComponentName());
             }
         }
 
         // AWSロードバランサの場合のチェック
-//        if ("aws".equals(loadBalancer.getType()) || "cloudstack".equals(loadBalancer.getType())) {
+        //        if ("aws".equals(loadBalancer.getType()) || "cloudstack".equals(loadBalancer.getType())) {
         if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancer.getType())) {
             // プラットフォームチェック
             Long platformNo = loadBalancer.getPlatformNo();
@@ -1975,26 +1982,26 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
                 }
             }
 
-//            //VPCの場合、サブネットのゾーンがロードバランサのサブネットのゾーンに含まれているかのチェック
-//            PlatformAws platformAws = platformAwsDao.read(platformNo);
-//            if (platformAws.getVpc()) {
-//                AwsLoadBalancer awsLoadBalancer = awsLoadBalancerDao.read(loadBalancerNo);
-//                List<String> zones = new ArrayList<String>();
-//                if (StringUtils.isEmpty(awsLoadBalancer.getAvailabilityZone())) {
-//                    //ELBにゾーン(サブネット)が設定されていない場合→どのサーバとも紐付け不可
-//                    throw new AutoApplicationException("ESERVICE-000630", loadBalancer.getLoadBalancerName());
-//                }
-//                for (String zone: awsLoadBalancer.getAvailabilityZone().split(",")) {
-//                    zones.add(zone.trim());
-//                }
-//                for (Instance instance : instances) {
-//                    AwsInstance awsInstance = awsInstanceDao.read(instance.getInstanceNo());
-//                    if (zones.contains(awsInstance.getAvailabilityZone()) == false) {
-//                        //ロードバランサーのゾーンにサーバのゾーンが含まれていない
-//                        throw new AutoApplicationException("ESERVICE-000629", instance.getInstanceName());
-//                    }
-//                }
-//            }
+            //            //VPCの場合、サブネットのゾーンがロードバランサのサブネットのゾーンに含まれているかのチェック
+            //            PlatformAws platformAws = platformAwsDao.read(platformNo);
+            //            if (platformAws.getVpc()) {
+            //                AwsLoadBalancer awsLoadBalancer = awsLoadBalancerDao.read(loadBalancerNo);
+            //                List<String> zones = new ArrayList<String>();
+            //                if (StringUtils.isEmpty(awsLoadBalancer.getAvailabilityZone())) {
+            //                    //ELBにゾーン(サブネット)が設定されていない場合→どのサーバとも紐付け不可
+            //                    throw new AutoApplicationException("ESERVICE-000630", loadBalancer.getLoadBalancerName());
+            //                }
+            //                for (String zone: awsLoadBalancer.getAvailabilityZone().split(",")) {
+            //                    zones.add(zone.trim());
+            //                }
+            //                for (Instance instance : instances) {
+            //                    AwsInstance awsInstance = awsInstanceDao.read(instance.getInstanceNo());
+            //                    if (zones.contains(awsInstance.getAvailabilityZone()) == false) {
+            //                        //ロードバランサーのゾーンにサーバのゾーンが含まれていない
+            //                        throw new AutoApplicationException("ESERVICE-000629", instance.getInstanceName());
+            //                    }
+            //                }
+            //            }
         }
 
         // ロードバランサとインスタンスの関連を更新
@@ -2099,8 +2106,8 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
             if (!contain) {
                 // インスタンスがコンポーネントに含まれていない場合
                 Component component = componentDao.read(loadBalancer.getComponentNo());
-                throw new AutoApplicationException("ESERVICE-000622", instance.getInstanceName(), component
-                        .getComponentName());
+                throw new AutoApplicationException("ESERVICE-000622", instance.getInstanceName(),
+                        component.getComponentName());
             }
         }
 
@@ -2196,7 +2203,7 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
                 platformNifty = platformNiftyDao.read(platform.getPlatformNo());
             } else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
                 // 認証情報とキーペアがない場合はスキップ
-                if (vcloudCertificateDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo())== 0) {
+                if (vcloudCertificateDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) == 0) {
                     continue;
                 }
                 if (vcloudKeyPairDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) == 0) {
@@ -2205,13 +2212,13 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
                 platformVcloud = platformVcloudDao.read(platform.getPlatformNo());
             } else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
                 // 認証情報とキーペアがない場合はスキップ
-                if (azureCertificateDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo())== 0) {
+                if (azureCertificateDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) == 0) {
                     continue;
                 }
                 platformAzure = platformAzureDao.read(platform.getPlatformNo());
             } else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
                 // 認証情報とキーペアがない場合はスキップ
-                if (openstackCertificateDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo())== 0) {
+                if (openstackCertificateDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) == 0) {
                     continue;
                 }
                 platformOpenstack = platformOpenstackDao.read(platform.getPlatformNo());
@@ -2304,12 +2311,11 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         return imageDtos;
     }
 
-
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<SslKeyDto> getSSLKey(Long loadBalancerNo){
+    public List<SslKeyDto> getSSLKey(Long loadBalancerNo) {
         // イメージを取得
         List<SslKeyDto> keyDtos = new ArrayList<SslKeyDto>();
         LoadBalancer loadBalancer = loadBalancerDao.read(loadBalancerNo);
@@ -2317,9 +2323,9 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         //当面はAWSのみ対応
         if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancer.getType())) {
             List<AwsSslKey> keys = awsSslKeyDao.readAll();
-            for (AwsSslKey key: keys) {
+            for (AwsSslKey key : keys) {
                 if (loadBalancer.getFarmNo().equals(key.getFarmNo())
-                    && loadBalancer.getPlatformNo().equals(key.getPlatformNo())) {
+                        && loadBalancer.getPlatformNo().equals(key.getPlatformNo())) {
                     SslKeyDto sslkey = new SslKeyDto();
                     sslkey.setKeyNo(key.getKeyNo());
                     sslkey.setKeyName(key.getKeyName());
@@ -2330,7 +2336,6 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         }
         return keyDtos;
     }
-
 
     /**
      * componentServiceを設定します。

@@ -32,17 +32,20 @@ public class SecurityGroupDto implements Serializable {
     public String getId() {
         return id;
     }
+
     public void setId(String id) {
         this.id = id;
     }
+
     public String getGroupName() {
         return groupName;
     }
+
     public void setGroupName(String groupName) {
         this.groupName = groupName;
     }
 
-    public SecurityGroupDto withGroupName(String groupName){
+    public SecurityGroupDto withGroupName(String groupName) {
         this.groupName = groupName;
         return this;
     }

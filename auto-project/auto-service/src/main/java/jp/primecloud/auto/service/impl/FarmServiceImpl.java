@@ -99,7 +99,6 @@ public class FarmServiceImpl extends ServiceSupport implements FarmService {
         //戻り値用
         List<FarmDto> dtos = new ArrayList<FarmDto>();
 
-
         //パワーユーザは全権
         if (user.getPowerUser()) {
             farms = farmDao.readAll();
@@ -117,7 +116,7 @@ public class FarmServiceImpl extends ServiceSupport implements FarmService {
             //ユーザー権限取得
             List<UserAuth> userAuth = userAuthDao.readByUserNo(loginUserNo);
             HashMap<Long, Boolean> authMap = new HashMap<Long, Boolean>();
-            for (UserAuth auth : userAuth){
+            for (UserAuth auth : userAuth) {
                 if (auth.getFarmUse()) {
                     authMap.put(auth.getFarmNo(), auth.getFarmUse());
                 }
@@ -125,8 +124,7 @@ public class FarmServiceImpl extends ServiceSupport implements FarmService {
 
             for (Farm farm : farms) {
                 //利用可能なファームのみ登録する ※マスターユーザーは全て
-                if ((loginUserNo.equals(userNo))
-                        || authMap.containsKey(farm.getFarmNo())) {
+                if ((loginUserNo.equals(userNo)) || authMap.containsKey(farm.getFarmNo())) {
                     FarmDto dto = new FarmDto();
                     dto.setFarm(farm);
                     dtos.add(dto);
@@ -234,20 +232,20 @@ public class FarmServiceImpl extends ServiceSupport implements FarmService {
                         vmwareNetworkDao.update(privateNetwork);
                     }
                 }
-            // VCloud関連情報の作成
+                // VCloud関連情報の作成
             } else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
                 //プラットフォームが有効で認証情報、キーペア情報を保持している場合、空のvAppを作成する
-                if (BooleanUtils.isTrue(platform.getSelectable()) &&
-                    vcloudCertificateDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) > 0 &&
-                    vcloudKeyPairDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) > 0) {
+                if (BooleanUtils.isTrue(platform.getSelectable())
+                        && vcloudCertificateDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) > 0
+                        && vcloudKeyPairDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) > 0) {
                     //vApp作成
                     IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(userNo, platform.getPlatformNo());
                     gateway.createMyCloud(farmName);
                 }
-            // Azure関連情報の作成
+                // Azure関連情報の作成
             } else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
                 // 現状処理なし
-            // OpenStack関連情報の作成
+                // OpenStack関連情報の作成
             } else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
                 // 現状処理なし
             }
@@ -261,7 +259,8 @@ public class FarmServiceImpl extends ServiceSupport implements FarmService {
         }
 
         // イベントログ出力
-        eventLogger.log(EventLogLevel.INFO, farm.getFarmNo(), farmName, null, null, null, null, "FarmCreate", null, null, null);
+        eventLogger.log(EventLogLevel.INFO, farm.getFarmNo(), farmName, null, null, null, null, "FarmCreate", null,
+                null, null);
 
         // フック処理の実行
         processHook.execute("post-create-farm", farm.getUserNo(), farm.getFarmNo());
@@ -322,7 +321,8 @@ public class FarmServiceImpl extends ServiceSupport implements FarmService {
         farmDao.update(farm);
 
         // イベントログ出力
-        eventLogger.log(EventLogLevel.INFO, farmNo, farm.getFarmName(), null, null, null, null, "FarmUpdate", null, null, null);
+        eventLogger.log(EventLogLevel.INFO, farmNo, farm.getFarmName(), null, null, null, null, "FarmUpdate", null,
+                null, null);
 
         // フック処理の実行
         processHook.execute("post-update-farm", farm.getUserNo(), farm.getFarmNo());
@@ -421,7 +421,8 @@ public class FarmServiceImpl extends ServiceSupport implements FarmService {
                 continue;
             }
 
-            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), awsVolume.getPlatformNo());
+            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(),
+                    awsVolume.getPlatformNo());
             try {
                 // ボリュームの削除
                 gateway.deleteVolume(awsVolume.getVolumeId());
@@ -439,7 +440,8 @@ public class FarmServiceImpl extends ServiceSupport implements FarmService {
         List<VmwareNetwork> vmwareNetworks = vmwareNetworkDao.readByFarmNo(farmNo);
         for (VmwareNetwork vmwareNetwork : vmwareNetworks) {
             // PortGroupを削除
-            VmwareProcessClient vmwareProcessClient = vmwareProcessClientFactory.createVmwareProcessClient(vmwareNetwork.getPlatformNo());
+            VmwareProcessClient vmwareProcessClient = vmwareProcessClientFactory
+                    .createVmwareProcessClient(vmwareNetwork.getPlatformNo());
             try {
                 vmwareNetworkProcess.removeNetwork(vmwareProcessClient, vmwareNetwork.getNetworkNo());
             } finally {
@@ -454,17 +456,18 @@ public class FarmServiceImpl extends ServiceSupport implements FarmService {
         // VCloud関連の削除処理
         // VCloud vAppの削除処理
         List<Platform> platforms = platformDao.readAll();
-        for (Platform platform: platforms) {
+        for (Platform platform : platforms) {
             if (!PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
                 //VCloudのみ処理を行う
                 continue;
             }
 
-            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), platform.getPlatformNo());
+            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(),
+                    platform.getPlatformNo());
             try {
-                if (BooleanUtils.isTrue(platform.getSelectable()) &&
-                        vcloudCertificateDao.countByUserNoAndPlatformNo(farm.getUserNo(), platform.getPlatformNo()) > 0 &&
-                        vcloudKeyPairDao.countByUserNoAndPlatformNo(farm.getUserNo(), platform.getPlatformNo()) > 0) {
+                if (BooleanUtils.isTrue(platform.getSelectable())
+                        && vcloudCertificateDao.countByUserNoAndPlatformNo(farm.getUserNo(), platform.getPlatformNo()) > 0
+                        && vcloudKeyPairDao.countByUserNoAndPlatformNo(farm.getUserNo(), platform.getPlatformNo()) > 0) {
                     // myCloud(vApp)の削除
                     gateway.deleteMyCloud(farmNo);
                 }
@@ -487,7 +490,8 @@ public class FarmServiceImpl extends ServiceSupport implements FarmService {
         farmDao.deleteByFarmNo(farmNo);
 
         // イベントログ出力
-        eventLogger.log(EventLogLevel.INFO, farmNo, farm.getFarmName(), null, null, null, null, "FarmDelete", null, null, null);
+        eventLogger.log(EventLogLevel.INFO, farmNo, farm.getFarmName(), null, null, null, null, "FarmDelete", null,
+                null, null);
 
         // フック処理の実行
         processHook.execute("post-delete-farm", farm.getUserNo(), farm.getFarmNo());

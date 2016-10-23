@@ -27,29 +27,30 @@ import jp.primecloud.auto.service.dto.FarmDto;
 import jp.primecloud.auto.service.dto.ManagementUserDto;
 import jp.primecloud.auto.service.dto.UserAuthDto;
 
-
 /**
  * <p>
  * TODO: クラスコメントを記述
  * </p>
  *
- */public interface UserManagementService {
+ */
+public interface UserManagementService {
 
-     public List<ManagementUserDto> getManagementUsers(Long userNo);
+    public List<ManagementUserDto> getManagementUsers(Long userNo);
 
-     public List<FarmDto> getFarms(Long masterUserNo);
+    public List<FarmDto> getFarms(Long masterUserNo);
 
-     public UserAuth getUserAuth(Long userNo, Long farmNo);
+    public UserAuth getUserAuth(Long userNo, Long farmNo);
 
-     public List<AuthoritySet> getAuthoritySet();
+    public List<AuthoritySet> getAuthoritySet();
 
-     public Map<Long, UserAuth> getUserAuthMap(Long userNo);
+    public Map<Long, UserAuth> getUserAuthMap(Long userNo);
 
-     public void createUserAndUserAuth(Long masterUserNo, String userName, String password, Map<Long, Long> authMap);
+    public void createUserAndUserAuth(Long masterUserNo, String userName, String password, Map<Long, Long> authMap);
 
-     public void updateUserAndUserAuth(Long userNo, String userName, String password, Map<Long, Long> authMap);
+    public void updateUserAndUserAuth(Long userNo, String userName, String password, Map<Long, Long> authMap);
 
-     public void updateUserAuth(Long farmNo, Long userNo, UserAuthDto userAuthDto);
+    public void updateUserAuth(Long farmNo, Long userNo, UserAuthDto userAuthDto);
 
-     public void deleteUser(Long userNo);
+    public void deleteUser(Long userNo);
+
 }

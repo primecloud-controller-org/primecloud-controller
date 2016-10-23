@@ -24,7 +24,6 @@ import java.util.List;
 import jp.primecloud.auto.service.dto.ComponentDto;
 import jp.primecloud.auto.service.dto.ComponentTypeDto;
 
-
 /**
  * <p>
  * TODO: クラスコメントを記述
@@ -40,8 +39,8 @@ public interface ComponentService {
 
     public void associateInstances(Long componentNo, List<Long> instanceNos);
 
-    public void updateComponent(Long componentNo, String comment, Integer diskSize,
-            String customParam1, String customParam2, String customParam3);
+    public void updateComponent(Long componentNo, String comment, Integer diskSize, String customParam1,
+            String customParam2, String customParam3);
 
     public void deleteComponent(Long componentNo);
 

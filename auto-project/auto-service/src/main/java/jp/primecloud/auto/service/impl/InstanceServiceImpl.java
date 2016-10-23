@@ -414,7 +414,7 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         // サーバステータス(Running)かつ協調設定ステータス(Coodinating)⇒「Configuring」
         if (instanceStatus == InstanceStatus.RUNNING && insCoodiStatus == InstanceCoodinateStatus.COODINATING) {
             instance.setStatus(InstanceStatus.CONFIGURING.toString());
-        // サーバステータス(Running)かつ協調設定ステータス(Warning)⇒「Warning」
+            // サーバステータス(Running)かつ協調設定ステータス(Warning)⇒「Warning」
         } else if (instanceStatus == InstanceStatus.RUNNING && insCoodiStatus == InstanceCoodinateStatus.WARNING) {
             instance.setStatus(InstanceStatus.WARNING.toString());
         }
@@ -810,7 +810,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         List<VcloudInstanceNetwork> allVcloudInstanceNetworks = vcloudInstanceNetworkDao.readByFarmNo(farmNo);
         Map<Long, List<VcloudInstanceNetwork>> vcloudInstanceNetworkMap = new LinkedHashMap<Long, List<VcloudInstanceNetwork>>();
         for (VcloudInstanceNetwork vcloudInstanceNetwork : allVcloudInstanceNetworks) {
-            List<VcloudInstanceNetwork> instanceNetworks = vcloudInstanceNetworkMap.get(vcloudInstanceNetwork.getInstanceNo());
+            List<VcloudInstanceNetwork> instanceNetworks = vcloudInstanceNetworkMap.get(vcloudInstanceNetwork
+                    .getInstanceNo());
             if (instanceNetworks == null) {
                 instanceNetworks = new ArrayList<VcloudInstanceNetwork>();
             }
@@ -972,7 +973,7 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
             // サーバステータス(Running)かつ協調設定ステータス(Coodinating)⇒「Configuring」
             if (instanceStatus == InstanceStatus.RUNNING && insCoodiStatus == InstanceCoodinateStatus.COODINATING) {
                 instance.setStatus(InstanceStatus.CONFIGURING.toString());
-            // サーバステータス(Running)かつ協調設定ステータス(Warning)⇒「Warning」
+                // サーバステータス(Running)かつ協調設定ステータス(Warning)⇒「Warning」
             } else if (instanceStatus == InstanceStatus.RUNNING && insCoodiStatus == InstanceCoodinateStatus.WARNING) {
                 instance.setStatus(InstanceStatus.WARNING.toString());
             }
@@ -1153,7 +1154,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
 
         // VMwareプラットフォームでのWindowsの場合、VMwareプラットフォーム全体の中に同名のWindowsがいないことのチェック
         // TODO: OS種別の判定方法を見直す
-        if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType()) && StringUtils.startsWithIgnoreCase(image.getOs(), PCCConstant.OS_NAME_WIN)) {
+        if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())
+                && StringUtils.startsWithIgnoreCase(image.getOs(), PCCConstant.OS_NAME_WIN)) {
             List<Instance> allInstances = instanceDao.readAll();
             for (Instance instance2 : allInstances) {
                 if (StringUtils.equals(instanceName, instance2.getInstanceName())) {
@@ -1186,10 +1188,13 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         instanceDao.create(instance);
 
         // TODO: OS種別の判定方法を見直す
-        if (!StringUtils.startsWithIgnoreCase(image.getOs(), PCCConstant.OS_NAME_WIN) ||
-           (StringUtils.startsWithIgnoreCase(image.getOs(), PCCConstant.OS_NAME_WIN) && PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) ||
-           (StringUtils.startsWithIgnoreCase(image.getOs(), PCCConstant.OS_NAME_WIN) && PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) ||
-           (StringUtils.startsWithIgnoreCase(image.getOs(), PCCConstant.OS_NAME_WIN) && PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType()))) {
+        if (!StringUtils.startsWithIgnoreCase(image.getOs(), PCCConstant.OS_NAME_WIN)
+                || (StringUtils.startsWithIgnoreCase(image.getOs(), PCCConstant.OS_NAME_WIN) && PCCConstant.PLATFORM_TYPE_VMWARE
+                        .equals(platform.getPlatformType()))
+                || (StringUtils.startsWithIgnoreCase(image.getOs(), PCCConstant.OS_NAME_WIN) && PCCConstant.PLATFORM_TYPE_AZURE
+                        .equals(platform.getPlatformType()))
+                || (StringUtils.startsWithIgnoreCase(image.getOs(), PCCConstant.OS_NAME_WIN) && PCCConstant.PLATFORM_TYPE_OPENSTACK
+                        .equals(platform.getPlatformType()))) {
             if (BooleanUtils.isNotTrue(image.getPuppetDisabled())) {
                 // Puppetインスタンスの作成
                 PuppetInstance puppetInstance = new PuppetInstance();
@@ -1215,18 +1220,18 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
      * {@inheritDoc}
      */
     @Override
-    public Long createIaasInstance(Long farmNo, String instanceName,
-                        Long platformNo, String comment, Long imageNo, String instanceType) {
+    public Long createIaasInstance(Long farmNo, String instanceName, Long platformNo, String comment, Long imageNo,
+            String instanceType) {
         // インスタンスの作成
         Long instanceNo = createInstance(farmNo, instanceName, platformNo, comment, imageNo);
 
         // プラットフォームのチェック
         Platform platform = platformDao.read(platformNo);
-        if (!PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType()) &&
-            !PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType()) &&
-            !PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType()) &&
-            !PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType()) &&
-            !PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
+        if (!PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())
+                && !PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())
+                && !PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())
+                && !PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())
+                && !PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
             throw new AutoApplicationException("ESERVICE-000404", instanceName);
         }
 
@@ -1295,7 +1300,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         if (platformAws.getEuca() == false && platformAws.getVpc()) {
             // VPCの場合
             // SubnetId & AvailabilityZone
-            List<SubnetDto> subnets = iaasDescribeService.getSubnets(farm.getUserNo(), platformAws.getPlatformNo(), platformAws.getVpcId());
+            List<SubnetDto> subnets = iaasDescribeService.getSubnets(farm.getUserNo(), platformAws.getPlatformNo(),
+                    platformAws.getVpcId());
             SubnetDto subnet = null;
             for (SubnetDto subnetDto : subnets) {
                 //デフォルトサブネットを設定
@@ -1320,8 +1326,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
             String zoneName = platformAws.getAvailabilityZone();
             if (StringUtils.isEmpty(zoneName) && platformAws.getEuca()) {
                 // デフォルトのゾーン名が指定されておらず、Eucalyptusの場合のみAPIでゾーン名を取得する
-                List<ZoneDto> availabilityZones =
-                        iaasDescribeService.getAvailabilityZones(farm.getUserNo(), platformAws.getPlatformNo());
+                List<ZoneDto> availabilityZones = iaasDescribeService.getAvailabilityZones(farm.getUserNo(),
+                        platformAws.getPlatformNo());
 
                 zoneName = availabilityZones.get(0).getZoneName();
             }
@@ -1333,7 +1339,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         List<SecurityGroupDto> securityGroups = null;
         if (platformAws.getEuca() == false && platformAws.getVpc()) {
             // VPCの場合
-            securityGroups = iaasDescribeService.getSecurityGroups(farm.getUserNo(), platformAws.getPlatformNo(), platformAws.getVpcId());
+            securityGroups = iaasDescribeService.getSecurityGroups(farm.getUserNo(), platformAws.getPlatformNo(),
+                    platformAws.getVpcId());
         } else {
             // VPCでない場合
             securityGroups = iaasDescribeService.getSecurityGroups(farm.getUserNo(), platformAws.getPlatformNo(), null);
@@ -1394,7 +1401,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         return groupName;
     }
 
-    private void makeCloudStackData(Farm farm, Long instanceNo, String instanceType, PlatformCloudstack platformCloudstack) {
+    private void makeCloudStackData(Farm farm, Long instanceNo, String instanceType,
+            PlatformCloudstack platformCloudstack) {
 
         // AWSインスタンスの作成
         CloudstackInstance cloudstackInstance = new CloudstackInstance();
@@ -1403,9 +1411,11 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
 
         //KeyName
         //Cloudstack認証情報の取得
-        CloudstackCertificate cloudstackCertificate = cloudstackCertificateDao.read(farm.getUserNo(), platformCloudstack.getPlatformNo());
+        CloudstackCertificate cloudstackCertificate = cloudstackCertificateDao.read(farm.getUserNo(),
+                platformCloudstack.getPlatformNo());
         //キーペアの取得
-        List<KeyPairDto> keyPairInfos = iaasDescribeService.getKeyPairs(farm.getUserNo(), platformCloudstack.getPlatformNo());
+        List<KeyPairDto> keyPairInfos = iaasDescribeService.getKeyPairs(farm.getUserNo(),
+                platformCloudstack.getPlatformNo());
         String keyName = null;
         // CLOUDSTACK認証情報に設定されているデフォルトキーペアを設定
         for (KeyPairDto keyPairDto : keyPairInfos) {
@@ -1429,7 +1439,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         cloudstackInstance.setNetworkid(netId);
 
         String groupName = null;
-        List<SecurityGroupDto> securityGroups = iaasDescribeService.getSecurityGroups(farm.getUserNo(), platformCloudstack.getPlatformNo(), null);
+        List<SecurityGroupDto> securityGroups = iaasDescribeService.getSecurityGroups(farm.getUserNo(),
+                platformCloudstack.getPlatformNo(), null);
 
         groupName = setSecurityGroup(securityGroups, "cloudStack.defaultSecurityGroup");
 
@@ -1438,7 +1449,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         cloudstackInstanceDao.create(cloudstackInstance);
     }
 
-    private void makeVcloudData(Farm farm, Long instanceNo, String instanceName, String instanceType, PlatformVcloud platformVcloud) {
+    private void makeVcloudData(Farm farm, Long instanceNo, String instanceName, String instanceType,
+            PlatformVcloud platformVcloud) {
 
         // VCloudインスタンスの作成
         VcloudInstance vcloudInstance = new VcloudInstance();
@@ -1451,12 +1463,14 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
 
         //キーペア
         //キーペアはユーザ名のキーペアをデフォルトとして設定
-        List<VcloudKeyPair> vcloudKeyPairs = vcloudKeyPairDao.readByUserNoAndPlatformNo(farm.getUserNo(), platformVcloud.getPlatformNo());
+        List<VcloudKeyPair> vcloudKeyPairs = vcloudKeyPairDao.readByUserNoAndPlatformNo(farm.getUserNo(),
+                platformVcloud.getPlatformNo());
         Long keyPairNo = vcloudKeyPairs.get(0).getKeyNo();
         vcloudInstance.setKeyPairNo(keyPairNo);
 
         //ストレージタイプ
-        List<PlatformVcloudStorageType> storageTypes = platformVcloudStorageTypeDao.readByPlatformNo(platformVcloud.getPlatformNo());
+        List<PlatformVcloudStorageType> storageTypes = platformVcloudStorageTypeDao.readByPlatformNo(platformVcloud
+                .getPlatformNo());
         Collections.sort(storageTypes, Comparators.COMPARATOR_PLATFORM_VCLOUD_STORAGE_TYPE);
         vcloudInstance.setStorageTypeNo(storageTypes.get(0).getStorageTypeNo());
 
@@ -1471,15 +1485,17 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         //IaasGateWay処理で一律、PCCネットワークを先頭に設定する為、
         //VCLOUD_INSTANCE_NETWORKもPCCネットワークを先頭に設定する。
         Boolean showPublicIp = BooleanUtils.toBooleanObject(Config.getProperty("ui.showPublicIp"));
-        List<NetworkDto> networkDtos = iaasDescribeService.getNetworks(farm.getUserNo(), platformVcloud.getPlatformNo());
+        List<NetworkDto> networkDtos = iaasDescribeService
+                .getNetworks(farm.getUserNo(), platformVcloud.getPlatformNo());
         for (int i = 0; i < networkDtos.size(); i++) {
             NetworkDto networkDto = networkDtos.get(i);
             //PCCネットワークと デフォルトネットワークを初期設定とする
             //インデックスはサーバ起動時にIaasGateWay側で設定されるのでNULLを設定
             //IPアドレスはサーバ編集時またはサーバ起動時にIaasGateWay側で設定されるのでNULLを設定
             //PCCネットワークとデフォルトネットワークの設定値が同じ場合は1件だけ追加する
-            if (networkDto.isPcc() ||
-                (!networkDto.isPcc() && StringUtils.equals(networkDto.getNetworkName(), platformVcloud.getDefNetwork()))) {
+            if (networkDto.isPcc()
+                    || (!networkDto.isPcc() && StringUtils.equals(networkDto.getNetworkName(),
+                            platformVcloud.getDefNetwork()))) {
                 VcloudInstanceNetwork vcloudInstanceNetwork = new VcloudInstanceNetwork();
                 vcloudInstanceNetwork.setPlatformNo(platformVcloud.getPlatformNo());
                 vcloudInstanceNetwork.setInstanceNo(instanceNo);
@@ -1561,20 +1577,23 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         //INSTANCE_NO
         openstackInstance.setInstanceNo(instanceNo);
         //KEY_NAME
-        OpenstackCertificate openstackCertificate = openstackCertificateDao.read(farm.getUserNo(), platformOpenstack.getPlatformNo());
+        OpenstackCertificate openstackCertificate = openstackCertificateDao.read(farm.getUserNo(),
+                platformOpenstack.getPlatformNo());
         openstackInstance.setKeyName(openstackCertificate.getDefKeypair());
         //INSTANCE_TYPE
         openstackInstance.setInstanceType(instanceType);
         //SECURITY_GROUPS
         String groupName = null;
-        List<SecurityGroupDto> securityGroups = iaasDescribeService.getSecurityGroups(farm.getUserNo(), platformOpenstack.getPlatformNo(), null);
+        List<SecurityGroupDto> securityGroups = iaasDescribeService.getSecurityGroups(farm.getUserNo(),
+                platformOpenstack.getPlatformNo(), null);
         groupName = setSecurityGroup(securityGroups, "openStack.defaultSecurityGroup");
         openstackInstance.setSecurityGroups(groupName);
         //AVAILABILITY_ZONE
         String zoneName = platformOpenstack.getAvailabilityZone();
         if (StringUtils.isEmpty(zoneName)) {
             // デフォルトのゾーン名が指定されていない場合
-            List<ZoneDto> availabilityZones = iaasDescribeService.getAvailabilityZones(farm.getUserNo(), platformOpenstack.getPlatformNo());
+            List<ZoneDto> availabilityZones = iaasDescribeService.getAvailabilityZones(farm.getUserNo(),
+                    platformOpenstack.getPlatformNo());
             zoneName = availabilityZones.get(0).getZoneName();
         }
         openstackInstance.setAvailabilityZone(zoneName);
@@ -1759,7 +1778,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
      */
     @Override
     public void updateAwsInstance(Long instanceNo, String instanceName, String comment, String keyName,
-            String instanceType, String securityGroupName, String availabilityZoneName, Long addressNo, String subnetId, String privateIpAddress) {
+            String instanceType, String securityGroupName, String availabilityZoneName, Long addressNo,
+            String subnetId, String privateIpAddress) {
         // インスタンスの更新
         updateInstance(instanceNo, instanceName, comment);
 
@@ -1804,8 +1824,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
                     : !StringUtils.equals(awsInstance.getAvailabilityZone(), availabilityZoneName)) {
                 throw new AutoApplicationException("ESERVICE-000407", instance.getInstanceName());
             }
-            if (StringUtils.isEmpty(awsInstance.getSubnetId()) ? StringUtils.isNotEmpty(subnetId)
-                    : !StringUtils.equals(awsInstance.getSubnetId(), subnetId)) {
+            if (StringUtils.isEmpty(awsInstance.getSubnetId()) ? StringUtils.isNotEmpty(subnetId) : !StringUtils
+                    .equals(awsInstance.getSubnetId(), subnetId)) {
                 throw new AutoApplicationException("ESERVICE-000407", instance.getInstanceName());
             }
             if (StringUtils.isEmpty(awsInstance.getPrivateIpAddress()) ? StringUtils.isNotEmpty(privateIpAddress)
@@ -1858,8 +1878,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
             }
             List<AwsInstance> awsInstances = awsInstanceDao.readInInstanceNos(instanceNos);
             for (AwsInstance tmpAwsInstance : awsInstances) {
-                if (subnetId.equals(tmpAwsInstance.getSubnetId()) &&
-                    privateIpAddress.equals(tmpAwsInstance.getPrivateIpAddress())) {
+                if (subnetId.equals(tmpAwsInstance.getSubnetId())
+                        && privateIpAddress.equals(tmpAwsInstance.getPrivateIpAddress())) {
                     //同じsubnetIdで同じprivateIpAddressの別のAWS_INSTANCEが存在する場合
                     throw new AutoApplicationException("ESERVICE-000420", privateIpAddress);
                 }
@@ -1955,15 +1975,15 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
                     : !StringUtils.equals(cloudstackInstance.getSecuritygroup(), securityGroupName)) {
                 throw new AutoApplicationException("ESERVICE-000407", instance.getInstanceName());
             }
-            if (StringUtils.isEmpty(cloudstackInstance.getZoneid()) ? StringUtils.isNotEmpty(zoneid)
-                    : !StringUtils.equals(cloudstackInstance.getZoneid(), zoneid)) {
+            if (StringUtils.isEmpty(cloudstackInstance.getZoneid()) ? StringUtils.isNotEmpty(zoneid) : !StringUtils
+                    .equals(cloudstackInstance.getZoneid(), zoneid)) {
                 throw new AutoApplicationException("ESERVICE-000407", instance.getInstanceName());
             }
         }
 
         // ゾーンのチェック
-        if (StringUtils.isEmpty(cloudstackInstance.getZoneid()) ? StringUtils.isNotEmpty(zoneid)
-                : !StringUtils.equals(cloudstackInstance.getZoneid(), zoneid)) {
+        if (StringUtils.isEmpty(cloudstackInstance.getZoneid()) ? StringUtils.isNotEmpty(zoneid) : !StringUtils.equals(
+                cloudstackInstance.getZoneid(), zoneid)) {
             if (cloudstackVolumeDao.countByInstanceNo(instanceNo) > 0) {
                 // EBS作成後はゾーンを変更できない
                 throw new AutoApplicationException("ESERVICE-000412", instance.getInstanceName());
@@ -2022,8 +2042,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
      * {@inheritDoc}
      */
     @Override
-    public void updateVcloudInstance(Long instanceNo, String instanceName, String comment, Long storageTypeNo, Long keyPairNo,
-            String instanceType, List<InstanceNetworkDto> instanceNetworkDtos) {
+    public void updateVcloudInstance(Long instanceNo, String instanceName, String comment, Long storageTypeNo,
+            Long keyPairNo, String instanceType, List<InstanceNetworkDto> instanceNetworkDtos) {
         // インスタンスの更新
         updateInstance(instanceNo, instanceName, comment);
 
@@ -2070,9 +2090,11 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
                     //削除されている場合
                     throw new AutoApplicationException("ESERVICE-000407", instance.getInstanceName());
                 } else {
-                    VcloudInstanceNetwork oldVcloudInstanceNetwork = vcloudInstanceNetworkMap.get(instanceNetworkDto.getNetworkNo());
-                    if (!StringUtils.equals(oldVcloudInstanceNetwork.getIpMode(), instanceNetworkDto.getIpMode()) ||
-                        !StringUtils.equals(oldVcloudInstanceNetwork.getIpAddress(), instanceNetworkDto.getIpAddress())) {
+                    VcloudInstanceNetwork oldVcloudInstanceNetwork = vcloudInstanceNetworkMap.get(instanceNetworkDto
+                            .getNetworkNo());
+                    if (!StringUtils.equals(oldVcloudInstanceNetwork.getIpMode(), instanceNetworkDto.getIpMode())
+                            || !StringUtils.equals(oldVcloudInstanceNetwork.getIpAddress(),
+                                    instanceNetworkDto.getIpAddress())) {
                         //編集されている場合
                         throw new AutoApplicationException("ESERVICE-000407", instance.getInstanceName());
                     }
@@ -2105,11 +2127,13 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
                 vcloudInstanceNetworkDao.create(vcloudInstanceNetwork);
             } else if (instanceNetworkDto.isDelete()) {
                 //削除
-                VcloudInstanceNetwork vcloudInstanceNetwork = vcloudInstanceNetworkMap.get(instanceNetworkDto.getNetworkNo());
+                VcloudInstanceNetwork vcloudInstanceNetwork = vcloudInstanceNetworkMap.get(instanceNetworkDto
+                        .getNetworkNo());
                 vcloudInstanceNetworkDao.delete(vcloudInstanceNetwork);
             } else {
                 //更新
-                VcloudInstanceNetwork vcloudInstanceNetwork = vcloudInstanceNetworkMap.get(instanceNetworkDto.getNetworkNo());
+                VcloudInstanceNetwork vcloudInstanceNetwork = vcloudInstanceNetworkMap.get(instanceNetworkDto
+                        .getNetworkNo());
                 vcloudInstanceNetwork.setIpMode(instanceNetworkDto.getIpMode());
                 vcloudInstanceNetwork.setIpAddress(instanceNetworkDto.getIpAddress());
                 vcloudInstanceNetwork.setIsPrimary(instanceNetworkDto.isPrimary());
@@ -2129,7 +2153,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
      * {@inheritDoc}
      */
     @Override
-    public void updateAzureInstance(Long instanceNo, String instanceName, String comment, String instanceType, String availabilitySet, String subnetId) {
+    public void updateAzureInstance(Long instanceNo, String instanceName, String comment, String instanceType,
+            String availabilitySet, String subnetId) {
         // インスタンスの更新
         updateInstance(instanceNo, instanceName, comment);
 
@@ -2252,8 +2277,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         }
 
         //ステータスチェック
-        if (InstanceStatus.fromStatus(instance.getStatus()) != InstanceStatus.STOPPED &&
-            InstanceStatus.fromStatus(instance.getStatus()) != InstanceStatus.RUNNING) {
+        if (InstanceStatus.fromStatus(instance.getStatus()) != InstanceStatus.STOPPED
+                && InstanceStatus.fromStatus(instance.getStatus()) != InstanceStatus.RUNNING) {
             //インスタンスが停止済み or 起動済み状態で無い場合
             throw new AutoApplicationException("ESERVICE-000429", instance.getInstanceName());
         }
@@ -2292,8 +2317,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
 
         //ステータスチェック
         VcloudDisk vcloudDisk = vcloudDiskDao.read(dataDiskDto.getDiskNo());
-        if (InstanceStatus.fromStatus(instance.getStatus()) != InstanceStatus.STOPPED &&
-            InstanceStatus.fromStatus(instance.getStatus()) != InstanceStatus.RUNNING) {
+        if (InstanceStatus.fromStatus(instance.getStatus()) != InstanceStatus.STOPPED
+                && InstanceStatus.fromStatus(instance.getStatus()) != InstanceStatus.RUNNING) {
             //インスタンスが停止済み or 起動済み状態で無い場合
             if (!vcloudDisk.getSize().equals(dataDiskDto.getDiskSize())) {
                 //ディスクサイズが変更された場合
@@ -2323,8 +2348,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         }
 
         //ステータスチェック
-        if (InstanceStatus.fromStatus(instance.getStatus()) != InstanceStatus.STOPPED &&
-            InstanceStatus.fromStatus(instance.getStatus()) != InstanceStatus.RUNNING) {
+        if (InstanceStatus.fromStatus(instance.getStatus()) != InstanceStatus.STOPPED
+                && InstanceStatus.fromStatus(instance.getStatus()) != InstanceStatus.RUNNING) {
             //インスタンスが停止済み or 起動済み状態で無い場合
             throw new AutoApplicationException("ESERVICE-000429", instance.getInstanceName());
         }
@@ -2335,7 +2360,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         if (StringUtils.isNotEmpty(vcloudInstance.getVmName())) {
             //VCloud上にインスタンスが存在する場合のみ、ディスクのアタッチ処理を行う
             Farm farm = farmDao.read(instance.getFarmNo());
-            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), instance.getPlatformNo());
+            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(),
+                    instance.getPlatformNo());
 
             //IaasGateWay処理
             gateway.startVolume(instanceNo, vcloudDisk.getDiskNo());
@@ -2359,8 +2385,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         }
 
         //ステータスチェック
-        if (InstanceStatus.fromStatus(instance.getStatus()) != InstanceStatus.STOPPED &&
-            InstanceStatus.fromStatus(instance.getStatus()) != InstanceStatus.RUNNING) {
+        if (InstanceStatus.fromStatus(instance.getStatus()) != InstanceStatus.STOPPED
+                && InstanceStatus.fromStatus(instance.getStatus()) != InstanceStatus.RUNNING) {
             //インスタンスが停止済み or 起動済み状態で無い場合
             throw new AutoApplicationException("ESERVICE-000429", instance.getInstanceName());
         }
@@ -2370,7 +2396,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         if (BooleanUtils.isTrue(vcloudDisk.getAttached())) {
             //アタッチされているディスクのみ、ディスクのデタッチ処理を行う
             Farm farm = farmDao.read(instance.getFarmNo());
-            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), instance.getPlatformNo());
+            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(),
+                    instance.getPlatformNo());
             // ディスクの削除
             // ※VCloudの引数はDiskNo
             gateway.deleteVolume(String.valueOf(vcloudDisk.getDiskNo()));
@@ -2625,8 +2652,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
 
                     //イベントログ出力
                     eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), null, null, instanceNo,
-                            instance.getInstanceName(), "ZabbixUnregist", null, instance.getPlatformNo(),
-                            new Object[] { instance.getFqdn(), zabbixInstance.getHostid() });
+                            instance.getInstanceName(), "ZabbixUnregist", null, instance.getPlatformNo(), new Object[] {
+                                    instance.getFqdn(), zabbixInstance.getHostid() });
 
                 } catch (RuntimeException ignore) {
                     // 登録解除に失敗した場合、警告ログを出してエラーを握りつぶす
@@ -2712,15 +2739,19 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
             if (StringUtils.isEmpty(cloudstackVolume.getVolumeId())) {
                 continue;
             }
-            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), cloudstackVolume.getPlatformNo());
+            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(),
+                    cloudstackVolume.getPlatformNo());
 
             //イベントログ出力
             Platform platform = platformDao.read(gateway.getPlatformNo());
             Component component = componentDao.read(cloudstackVolume.getComponentNo());
-            eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), cloudstackVolume.getComponentNo(),
+            eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(),
+                    farm.getFarmName(),
+                    cloudstackVolume.getComponentNo(),
                     //component.getComponentName(), instanceNo, instance.getInstanceName(), "AwsEbsDelete", new Object[] {
                     component.getComponentName(), instanceNo, instance.getInstanceName(), "CloudStackVolumeDelete",
-                    cloudstackInstance.getInstanceType(), instance.getPlatformNo(), new Object[] { platform.getPlatformName(), cloudstackVolume.getVolumeId() });
+                    cloudstackInstance.getInstanceType(), instance.getPlatformNo(),
+                    new Object[] { platform.getPlatformName(), cloudstackVolume.getVolumeId() });
 
             try {
                 // ボリュームの削除
@@ -2728,10 +2759,13 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
                 //awsProcessClient.waitDeleteVolume(volumeId); // TODO: EC2ではDeleteVolumeに時間がかかるため、Waitしない
 
                 //イベントログ出力
-                eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), cloudstackVolume.getComponentNo(),
+                eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(),
+                        farm.getFarmName(),
+                        cloudstackVolume.getComponentNo(),
                         //component.getComponentName(), instanceNo, instance.getInstanceName(), "AwsEbsDeleteFinish",
-                        component.getComponentName(), instanceNo, instance.getInstanceName(), "CloudStackVolumeDeleteFinish",
-                        cloudstackInstance.getInstanceType(), instance.getPlatformNo(), new Object[] { platform.getPlatformName(), cloudstackVolume.getVolumeId() });
+                        component.getComponentName(), instanceNo, instance.getInstanceName(),
+                        "CloudStackVolumeDeleteFinish", cloudstackInstance.getInstanceType(), instance.getPlatformNo(),
+                        new Object[] { platform.getPlatformName(), cloudstackVolume.getVolumeId() });
 
             } catch (AutoException ignore) {
                 // ボリュームが存在しない場合などに備えて例外を握りつぶす
@@ -2742,13 +2776,15 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         // インスタンスの削除処理
         if (StringUtils.isNotEmpty(cloudstackInstance.getInstanceId())) {
             // インスタンス自体の削除処理を別で行うようにする
-            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), instance.getPlatformNo());
+            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(),
+                    instance.getPlatformNo());
 
             // イベントログ出力
             Platform platform = platformDao.read(gateway.getPlatformNo());
-            eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), null, null, instanceNo, instance
-                    .getInstanceName(), "CloudStackInstanceDelete", cloudstackInstance.getInstanceType(),
-                    instance.getPlatformNo(), new Object[] { platform.getPlatformName(), cloudstackInstance.getInstanceId() });
+            eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), null, null, instanceNo,
+                    instance.getInstanceName(), "CloudStackInstanceDelete", cloudstackInstance.getInstanceType(),
+                    instance.getPlatformNo(),
+                    new Object[] { platform.getPlatformName(), cloudstackInstance.getInstanceId() });
 
             try {
                 // インスタンスの削除
@@ -2760,7 +2796,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
             // イベントログ出力
             eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), null, null, instanceNo,
                     instance.getInstanceName(), "CloudStackInstanceDeleteFinish", cloudstackInstance.getInstanceType(),
-                    instance.getPlatformNo(), new Object[] { platform.getPlatformName(), cloudstackInstance.getInstanceId() });
+                    instance.getPlatformNo(),
+                    new Object[] { platform.getPlatformName(), cloudstackInstance.getInstanceId() });
         }
         cloudstackInstanceDao.deleteByInstanceNo(instanceNo);
     }
@@ -2783,14 +2820,16 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
             if (StringUtils.isEmpty(awsVolume.getVolumeId())) {
                 continue;
             }
-            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), awsVolume.getPlatformNo());
+            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(),
+                    awsVolume.getPlatformNo());
 
             //イベントログ出力
             Platform platform = platformDao.read(gateway.getPlatformNo());
             Component component = componentDao.read(awsVolume.getComponentNo());
             eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), awsVolume.getComponentNo(),
                     component.getComponentName(), instanceNo, instance.getInstanceName(), "AwsEbsDelete",
-                    awsInstance.getInstanceType(), instance.getPlatformNo(), new Object[] { platform.getPlatformName(), awsVolume.getVolumeId() });
+                    awsInstance.getInstanceType(), instance.getPlatformNo(), new Object[] { platform.getPlatformName(),
+                            awsVolume.getVolumeId() });
 
             try {
                 // ボリュームの削除
@@ -2800,7 +2839,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
                 //イベントログ出力
                 eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), awsVolume.getComponentNo(),
                         component.getComponentName(), instanceNo, instance.getInstanceName(), "AwsEbsDeleteFinish",
-                        awsInstance.getInstanceType(), instance.getPlatformNo(), new Object[] { platform.getPlatformName(), awsVolume.getVolumeId() });
+                        awsInstance.getInstanceType(), instance.getPlatformNo(),
+                        new Object[] { platform.getPlatformName(), awsVolume.getVolumeId() });
 
             } catch (AutoException ignore) {
                 // ボリュームが存在しない場合などに備えて例外を握りつぶす
@@ -2812,7 +2852,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         ImageAws imageAws = imageAwsDao.read(instance.getImageNo());
         if (imageAws.getEbsImage() && StringUtils.isNotEmpty(awsInstance.getInstanceId())) {
             // TODO: インスタンス自体の削除処理を別で行うようにする
-            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), instance.getPlatformNo());
+            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(),
+                    instance.getPlatformNo());
 
             // イベントログ出力
             Platform platform = platformDao.read(gateway.getPlatformNo());
@@ -2826,7 +2867,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
 
                 // イベントログ出力
                 eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), null, null, instanceNo,
-                        instance.getInstanceName(), "AwsInstanceDeleteFinish", awsInstance.getInstanceType(), instance.getPlatformNo(),
+                        instance.getInstanceName(), "AwsInstanceDeleteFinish", awsInstance.getInstanceType(),
+                        instance.getPlatformNo(),
                         new Object[] { platform.getPlatformName(), awsInstance.getInstanceId() });
             } catch (AutoException ignore) {
                 // インスタンスが存在しない場合などに備えて例外を握りつぶす
@@ -2844,7 +2886,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
             vmwareAddressDao.delete(vmwareAddress);
         }
 
-        VmwareProcessClient vmwareProcessClient = vmwareProcessClientFactory.createVmwareProcessClient(instance.getPlatformNo());
+        VmwareProcessClient vmwareProcessClient = vmwareProcessClientFactory.createVmwareProcessClient(instance
+                .getPlatformNo());
 
         try {
             // ディスクの削除
@@ -2895,8 +2938,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
                 // NiftyProcessClientの作成
                 String clientType;
                 clientType = PCCConstant.NIFTYCLIENT_TYPE_DISK;
-                NiftyProcessClient niftyProcessClient = niftyProcessClientFactory.createNiftyProcessClient(farm.getUserNo(),
-                        niftyVolume.getPlatformNo(), clientType);
+                NiftyProcessClient niftyProcessClient = niftyProcessClientFactory.createNiftyProcessClient(
+                        farm.getUserNo(), niftyVolume.getPlatformNo(), clientType);
 
                 // デタッチ処理
                 niftyVolumeProcess.stopVolume(niftyProcessClient, instanceNo, niftyVolume.getVolumeNo());
@@ -2904,17 +2947,21 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
                 //イベントログ出力
                 Platform platform = platformDao.read(niftyProcessClient.getPlatformNo());
                 Component component = componentDao.read(niftyVolume.getComponentNo());
-                eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), niftyVolume.getComponentNo(),
-                        component.getComponentName(), instanceNo, instance.getInstanceName(),
-                        "NiftyDiskDelete", niftyInstance.getInstanceType(),  instance.getPlatformNo(), new Object[] { platform.getPlatformName(), niftyVolume.getVolumeId() });
+                eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(),
+                        niftyVolume.getComponentNo(), component.getComponentName(), instanceNo,
+                        instance.getInstanceName(), "NiftyDiskDelete", niftyInstance.getInstanceType(),
+                        instance.getPlatformNo(),
+                        new Object[] { platform.getPlatformName(), niftyVolume.getVolumeId() });
 
                 // ボリュームの削除
                 niftyProcessClient.deleteVolume(niftyVolume.getVolumeId());
 
                 //イベントログ出力
-                eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), niftyVolume.getComponentNo(),
-                        component.getComponentName(), instanceNo, instance.getInstanceName(),
-                        "NiftyDiskDeleteFinish", niftyInstance.getInstanceType(), instance.getPlatformNo(), new Object[] { platform.getPlatformName(), niftyVolume.getVolumeId() });
+                eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(),
+                        niftyVolume.getComponentNo(), component.getComponentName(), instanceNo,
+                        instance.getInstanceName(), "NiftyDiskDeleteFinish", niftyInstance.getInstanceType(),
+                        instance.getPlatformNo(),
+                        new Object[] { platform.getPlatformName(), niftyVolume.getVolumeId() });
 
             } catch (AutoException ignore) {
                 // ボリュームが存在しない場合などに備えて例外を握りつぶす
@@ -2994,14 +3041,16 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
             if (StringUtils.isEmpty(azureDisk.getDiskName())) {
                 continue;
             }
-            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), azureDisk.getPlatformNo());
+            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(),
+                    azureDisk.getPlatformNo());
 
             //イベントログ出力
             Platform platform = platformDao.read(gateway.getPlatformNo());
             Component component = componentDao.read(azureDisk.getComponentNo());
             eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), azureDisk.getComponentNo(),
                     component.getComponentName(), instanceNo, instance.getInstanceName(), "AzureDiskDelete",
-                    azureInstance.getInstanceType(), instance.getPlatformNo(), new Object[] { platform.getPlatformName(), azureDisk.getDiskName() });
+                    azureInstance.getInstanceType(), instance.getPlatformNo(),
+                    new Object[] { platform.getPlatformName(), azureDisk.getDiskName() });
 
             try {
                 // ボリュームの削除
@@ -3010,7 +3059,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
                 //イベントログ出力
                 eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), azureDisk.getComponentNo(),
                         component.getComponentName(), instanceNo, instance.getInstanceName(), "AzureDiskDeleteFinish",
-                        azureInstance.getInstanceType(), instance.getPlatformNo(), new Object[] { platform.getPlatformName(), azureDisk.getDiskName() });
+                        azureInstance.getInstanceType(), instance.getPlatformNo(),
+                        new Object[] { platform.getPlatformName(), azureDisk.getDiskName() });
 
             } catch (AutoException ignore) {
                 // ボリュームが存在しない場合などに備えて例外を握りつぶす
@@ -3021,7 +3071,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         // インスタンスの削除処理
         if (StringUtils.isNotEmpty(azureInstance.getInstanceName())) {
             // インスタンス自体の削除処理を別で行うようにする
-            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), instance.getPlatformNo());
+            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(),
+                    instance.getPlatformNo());
 
             // イベントログ出力
             Platform platform = platformDao.read(gateway.getPlatformNo());
@@ -3040,7 +3091,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
             // イベントログ出力
             eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), null, null, instanceNo,
                     instance.getInstanceName(), "AzureInstanceDeleteFinish", azureInstance.getInstanceType(),
-                    instance.getPlatformNo(), new Object[] { platform.getPlatformName(), azureInstance.getInstanceName() });
+                    instance.getPlatformNo(),
+                    new Object[] { platform.getPlatformName(), azureInstance.getInstanceName() });
         }
         azureInstanceDao.deleteByInstanceNo(instanceNo);
     }
@@ -3067,16 +3119,18 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
             eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(),
                     openstackVolume.getComponentNo(), component.getComponentName(), instanceNo,
                     instance.getInstanceName(), "OpenstackVolumeDelete", openstackInstance.getInstanceType(),
-                    instance.getPlatformNo(), new Object[] { platform.getPlatformName(), openstackVolume.getVolumeId() });
+                    instance.getPlatformNo(),
+                    new Object[] { platform.getPlatformName(), openstackVolume.getVolumeId() });
 
             try {
                 // ボリュームの削除
                 gateway.deleteVolume(openstackVolume.getVolumeId());
 
                 //イベントログ出力
-                eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), openstackVolume.getComponentNo(),
-                        component.getComponentName(), instanceNo, instance.getInstanceName(), "OpenstackVolumeDeleteFinish",
-                        openstackInstance.getInstanceType(), instance.getPlatformNo(),
+                eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(),
+                        openstackVolume.getComponentNo(), component.getComponentName(), instanceNo,
+                        instance.getInstanceName(), "OpenstackVolumeDeleteFinish", openstackInstance.getInstanceType(),
+                        instance.getPlatformNo(),
                         new Object[] { platform.getPlatformName(), openstackVolume.getVolumeId() });
 
             } catch (AutoException ignore) {
@@ -3095,7 +3149,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
             // α実装のため、"m1.tiny"で固定
             Platform platform = platformDao.read(gateway.getPlatformNo());
             eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), null, null, instanceNo,
-                    instance.getInstanceName(), "OpenStackInstanceDelete", openstackInstance.getInstanceType(), instance.getPlatformNo(),
+                    instance.getInstanceName(), "OpenStackInstanceDelete", openstackInstance.getInstanceType(),
+                    instance.getPlatformNo(),
                     new Object[] { platform.getPlatformName(), openstackInstance.getInstanceId() });
 
             try {
@@ -3107,7 +3162,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
             }
             // イベントログ出力
             eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), null, null, instanceNo,
-                    instance.getInstanceName(), "OpenStackInstanceDeleteFinish", openstackInstance.getInstanceType(), instance.getPlatformNo(),
+                    instance.getInstanceName(), "OpenStackInstanceDeleteFinish", openstackInstance.getInstanceType(),
+                    instance.getPlatformNo(),
                     new Object[] { platform.getPlatformName(), openstackInstance.getInstanceId() });
         }
         openstackInstanceDao.deleteByInstanceNo(instanceNo);
@@ -3216,7 +3272,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
                             if (component.getComponentNo().equals(disk.getComponentNo())) {
                                 //componentNoの一致するディスクが存在していれば削除する
                                 Farm farm = farmDao.read(instance.getFarmNo());
-                                IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), instance.getPlatformNo());
+                                IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(),
+                                        instance.getPlatformNo());
                                 try {
                                     gateway.deleteVolume(String.valueOf(disk.getDiskNo()));
                                 } catch (AutoException ignore) {
@@ -3284,8 +3341,9 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
             names.deleteCharAt(names.length() - 1);
         }
         Farm farm = farmDao.read(instance.getFarmNo());
-        eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), null, null, instanceNo, instance.getInstanceName(),
-                "InstanceAssociateComponent", null, instance.getPlatformNo(), new Object[] { names.toString() });
+        eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), null, null, instanceNo,
+                instance.getInstanceName(), "InstanceAssociateComponent", null, instance.getPlatformNo(),
+                new Object[] { names.toString() });
     }
 
     /**
@@ -3574,7 +3632,7 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         // サーバステータス(Running)かつ協調設定ステータス(Coodinating)⇒「Configuring」
         if (instanceStatus == InstanceStatus.RUNNING && insCoodiStatus == InstanceCoodinateStatus.COODINATING) {
             instance.setStatus(InstanceStatus.CONFIGURING.toString());
-        // サーバステータス(Running)かつ協調設定ステータス(Warning)⇒「Warning」
+            // サーバステータス(Running)かつ協調設定ステータス(Warning)⇒「Warning」
         } else if (instanceStatus == InstanceStatus.RUNNING && insCoodiStatus == InstanceCoodinateStatus.WARNING) {
             instance.setStatus(InstanceStatus.WARNING.toString());
         }
