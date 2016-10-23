@@ -34,11 +34,8 @@ public class PlatformServiceImpl extends ServiceSupport implements PlatformServi
 
     protected EventLogger eventLogger;
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public boolean isUseablePlatforms(Long userNo, Platform platform) {
+    public boolean isUsablePlatform(Long userNo, Platform platform) {
         // TODO CLOUD BRANCHING
         if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
             // AWS認証情報のチェック
@@ -87,6 +84,15 @@ public class PlatformServiceImpl extends ServiceSupport implements PlatformServi
             return false;
         }
         return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Deprecated
+    public boolean isUseablePlatforms(Long userNo, Platform platform) {
+        return isUsablePlatform(userNo, platform);
     }
 
     /**

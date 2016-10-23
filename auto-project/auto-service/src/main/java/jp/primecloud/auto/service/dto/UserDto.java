@@ -21,7 +21,6 @@ package jp.primecloud.auto.service.dto;
 import java.io.Serializable;
 
 import jp.primecloud.auto.entity.crud.User;
-import jp.primecloud.auto.entity.crud.UserAuth;
 
 /**
  * <p>
@@ -34,8 +33,6 @@ public class UserDto implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private User user;
-
-    private UserAuth userAuth;
 
     /**
      * userを取得します。
@@ -53,24 +50,6 @@ public class UserDto implements Serializable {
      */
     public void setUser(User user) {
         this.user = user;
-    }
-
-    /**
-     * userAuthを取得します。
-     *
-     * @return userAuth
-     */
-    public UserAuth getUserAuth() {
-        return userAuth;
-    }
-
-    /**
-     * userを設定します。
-     *
-     * @param userAuth userAuth
-     */
-    public void setUser(UserAuth userAuth) {
-        this.userAuth = userAuth;
     }
 
 }

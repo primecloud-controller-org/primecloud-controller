@@ -20,6 +20,8 @@ package jp.primecloud.auto.service.dto;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.StringUtils;
+
 public class ZoneDto implements Serializable {
 
     /** TODO: フィールドコメントを記述 */
@@ -35,13 +37,7 @@ public class ZoneDto implements Serializable {
     }
 
     public boolean isSameById(String id) {
-        if (zoneId == null && id != null)
-            return false;
-
-        if (zoneId.equals(id))
-            return true;
-        else
-            return false;
+        return StringUtils.equals(zoneId, id);
     }
 
     public String getZoneId() {

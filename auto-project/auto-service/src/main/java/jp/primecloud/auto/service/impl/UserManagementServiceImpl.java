@@ -36,6 +36,8 @@ import jp.primecloud.auto.service.dto.FarmDto;
 import jp.primecloud.auto.service.dto.ManagementUserDto;
 import jp.primecloud.auto.service.dto.UserAuthDto;
 
+import org.apache.commons.lang.StringUtils;
+
 public class UserManagementServiceImpl extends ServiceSupport implements UserManagementService {
 
     /**
@@ -43,27 +45,21 @@ public class UserManagementServiceImpl extends ServiceSupport implements UserMan
      */
     @Override
     public List<ManagementUserDto> getManagementUsers(Long userNo) {
-
-        List<ManagementUserDto> mUsers = new ArrayList<ManagementUserDto>();
+        List<ManagementUserDto> dtos = new ArrayList<ManagementUserDto>();
 
         List<User> users = userDao.readByMasterUser(userNo);
 
         for (User user : users) {
-            ManagementUserDto mUser = new ManagementUserDto();
-            HashMap<Long, UserAuth> authMap = new HashMap<Long, UserAuth>();
-            List<UserAuth> userAuth = userAuthDao.readByUserNo(user.getUserNo());
-            for (UserAuth auth : userAuth) {
-                authMap.put(auth.getFarmNo(), auth);
-            }
+            Map<Long, UserAuth> authMap = getUserAuthMap(user.getUserNo());
 
-            mUser.setUser(user);
-            mUser.setAuthMap(authMap);
+            ManagementUserDto dto = new ManagementUserDto();
+            dto.setUser(user);
+            dto.setAuthMap(authMap);
 
-            mUsers.add(mUser);
+            dtos.add(dto);
         }
 
-        return mUsers;
-
+        return dtos;
     }
 
     /**
@@ -71,16 +67,16 @@ public class UserManagementServiceImpl extends ServiceSupport implements UserMan
      */
     @Override
     public List<FarmDto> getFarms(Long masterUserNo) {
-        //戻り値用
         List<FarmDto> dtos = new ArrayList<FarmDto>();
 
-        //マスターユーザに紐づくファームを取得
+        // マスターユーザに紐づくファームを取得
         List<Farm> farms = farmDao.readByUserNo(masterUserNo);
         for (Farm farm : farms) {
             FarmDto dto = new FarmDto();
             dto.setFarm(farm);
             dtos.add(dto);
         }
+
         return dtos;
     }
 
@@ -97,7 +93,6 @@ public class UserManagementServiceImpl extends ServiceSupport implements UserMan
      */
     @Override
     public List<AuthoritySet> getAuthoritySet() {
-
         List<AuthoritySet> sets = authoritySetDao.readAll();
 
         return sets;
@@ -109,10 +104,12 @@ public class UserManagementServiceImpl extends ServiceSupport implements UserMan
     @Override
     public Map<Long, UserAuth> getUserAuthMap(Long userNo) {
         Map<Long, UserAuth> authMap = new HashMap<Long, UserAuth>();
+
         List<UserAuth> userAuths = userAuthDao.readByUserNo(userNo);
         for (UserAuth userAuth : userAuths) {
             authMap.put(userAuth.getFarmNo(), userAuth);
         }
+
         return authMap;
     }
 
@@ -121,35 +118,34 @@ public class UserManagementServiceImpl extends ServiceSupport implements UserMan
      */
     @Override
     public void createUserAndUserAuth(Long masterUserNo, String userName, String password, Map<Long, Long> authMap) {
-        final Long SET_NO_NOTHING = new Long(0);
-
-        //ユーザ情報取得
+        // ユーザ情報取得
         User user = userDao.readByUsername(userName);
         if (user != null) {
             //同じユーザ名のユーザが存在する場合
             throw new AutoApplicationException("ESERVICE-000105", userName);
         }
 
-        PasswordEncryptor passEncrypt = new PasswordEncryptor();
-        //PCCシステム情報取得
+        // パスワードを暗号化
+        PasswordEncryptor encryptor = new PasswordEncryptor();
         PccSystemInfo systemInfo = pccSystemInfoDao.read();
+        String encryptedPassword = encryptor.encrypt(password, systemInfo.getSecretKey());
 
-        //ユーザ作成
+        // ユーザ作成
         User newUser = new User();
         newUser.setUsername(userName);
-        newUser.setPassword(passEncrypt.encrypt(password, systemInfo.getSecretKey()));
+        newUser.setPassword(encryptedPassword);
         newUser.setMasterUser(masterUserNo);
         newUser.setPowerUser(false);
         userDao.create(newUser);
 
-        //AUTHORITY_SET取得
+        // AUTHORITY_SET取得
         List<AuthoritySet> authoritySets = authoritySetDao.readAll();
         Map<Long, AuthoritySet> authSetMap = new HashMap<Long, AuthoritySet>();
         for (AuthoritySet authoritySet : authoritySets) {
             authSetMap.put(authoritySet.getSetNo(), authoritySet);
         }
 
-        //USER_AUTH作成
+        // USER_AUTH作成
         for (Long farmNo : authMap.keySet()) {
             Long setNo = authMap.get(farmNo);
             AuthoritySet authoritySet = authSetMap.get(setNo);
@@ -157,7 +153,8 @@ public class UserManagementServiceImpl extends ServiceSupport implements UserMan
             UserAuth userAuth = new UserAuth();
             userAuth.setFarmNo(farmNo);
             userAuth.setUserNo(newUser.getUserNo());
-            if (SET_NO_NOTHING.equals(setNo)) {
+
+            if (Long.valueOf(0L).equals(setNo)) {
                 //SET_NAME →「無し」
                 userAuth.setFarmUse(false);
                 userAuth.setServerMake(false);
@@ -192,43 +189,43 @@ public class UserManagementServiceImpl extends ServiceSupport implements UserMan
      */
     @Override
     public void updateUserAndUserAuth(Long userNo, String userName, String password, Map<Long, Long> authMap) {
-        final Long SET_NO_NOTHING = new Long(0);
-
-        //ユーザ情報取得
+        // ユーザ情報取得
         User user = userDao.read(userNo);
         if (user == null) {
-            //ユーザが存在しない場合
+            // ユーザが存在しない場合
             throw new AutoApplicationException("ESERVICE-000104", userNo);
         }
 
-        if (!user.getUsername().equals(userName)) {
-            //ユーザ名の変更があった場合
+        if (!StringUtils.equals(userName, user.getUsername())) {
+            // ユーザ名の変更があった場合
             User sameNameUer = userDao.readByUsername(userName);
             if (sameNameUer != null && !sameNameUer.getUserNo().equals(userNo)) {
-                //同じユーザ名のユーザが存在する場合
+                // 同じユーザ名のユーザが存在する場合
                 throw new AutoApplicationException("ESERVICE-000105", userName);
             }
         }
 
-        PasswordEncryptor passEncrypt = new PasswordEncryptor();
-        //PCCシステム情報取得
+        // パスワードを暗号化
+        PasswordEncryptor encryptor = new PasswordEncryptor();
         PccSystemInfo systemInfo = pccSystemInfoDao.read();
+        String encryptedPassword = encryptor.encrypt(password, systemInfo.getSecretKey());
 
-        //ユーザ更新
+        // ユーザ更新
         user.setUsername(userName);
-        user.setPassword(passEncrypt.encrypt(password, systemInfo.getSecretKey()));
+        user.setPassword(encryptedPassword);
         userDao.update(user);
 
-        //AUTHORITY_SET取得
+        // AUTHORITY_SET取得
         List<AuthoritySet> authoritySets = authoritySetDao.readAll();
         Map<Long, AuthoritySet> authSetMap = new HashMap<Long, AuthoritySet>();
         for (AuthoritySet authoritySet : authoritySets) {
             authSetMap.put(authoritySet.getSetNo(), authoritySet);
         }
 
-        //USER_AUTH更新
+        // USER_AUTH更新
         for (Long farmNo : authMap.keySet()) {
             boolean isCreate = false;
+
             UserAuth userAuth = userAuthDao.read(farmNo, userNo);
             if (userAuth == null) {
                 isCreate = true;
@@ -236,45 +233,41 @@ public class UserManagementServiceImpl extends ServiceSupport implements UserMan
                 userAuth.setFarmNo(farmNo);
                 userAuth.setUserNo(userNo);
             }
+
             Long setNo = authMap.get(farmNo);
             AuthoritySet authoritySet = authSetMap.get(setNo);
-            if (SET_NO_NOTHING.equals(setNo)) {
+
+            if (Long.valueOf(0L).equals(setNo)) {
                 //SET_NAME →「権限無し」
                 userAuth.setFarmUse(false);
-
                 userAuth.setServerMake(false);
                 userAuth.setServerDelete(false);
                 userAuth.setServerOperate(false);
-
                 userAuth.setServiceMake(false);
                 userAuth.setServiceDelete(false);
                 userAuth.setServiceOperate(false);
-
                 userAuth.setLbMake(false);
                 userAuth.setLbDelete(false);
                 userAuth.setLbOperate(false);
             } else if (authoritySet != null) {
                 userAuth.setFarmUse(authoritySet.getFarmUse());
-
                 userAuth.setServerMake(authoritySet.getServerMake());
                 userAuth.setServerDelete(authoritySet.getServerDelete());
                 userAuth.setServerOperate(authoritySet.getServerOperate());
-
                 userAuth.setServiceMake(authoritySet.getServiceMake());
                 userAuth.setServiceDelete(authoritySet.getServiceDelete());
                 userAuth.setServiceOperate(authoritySet.getServiceOperate());
-
                 userAuth.setLbMake(authoritySet.getLbMake());
                 userAuth.setLbDelete(authoritySet.getLbDelete());
                 userAuth.setLbOperate(authoritySet.getLbOperate());
             }
 
             if (isCreate) {
-                //作成
-                //この分岐に来るのは、ユーザ作成後に新たにmyCloud(ファーム)が作成された場合
+                // 作成
+                // この分岐に来るのは、ユーザ作成後に新たにmyCloud(ファーム)が作成された場合
                 userAuthDao.create(userAuth);
             } else {
-                //更新
+                // 更新
                 userAuthDao.update(userAuth);
             }
         }
@@ -286,6 +279,7 @@ public class UserManagementServiceImpl extends ServiceSupport implements UserMan
     @Override
     public void updateUserAuth(Long farmNo, Long userNo, UserAuthDto userAuthDto) {
         boolean isCreate = false;
+
         UserAuth userAuth = userAuthDao.read(farmNo, userNo);
         if (userAuth == null) {
             isCreate = true;
@@ -293,26 +287,24 @@ public class UserManagementServiceImpl extends ServiceSupport implements UserMan
             userAuth.setFarmNo(farmNo);
             userAuth.setUserNo(userNo);
         }
-        userAuth.setFarmUse(userAuthDto.isFarmUse());
 
+        userAuth.setFarmUse(userAuthDto.isFarmUse());
         userAuth.setServerMake(userAuthDto.isServerMake());
         userAuth.setServerDelete(userAuthDto.isServerDelete());
         userAuth.setServerOperate(userAuthDto.isServerOperate());
-
         userAuth.setServiceMake(userAuthDto.isServiceMake());
         userAuth.setServiceDelete(userAuthDto.isServiceDelete());
         userAuth.setServiceOperate(userAuthDto.isServiceOperate());
-
         userAuth.setLbMake(userAuthDto.isLbMake());
         userAuth.setLbDelete(userAuthDto.isLbDelete());
         userAuth.setLbOperate(userAuthDto.isLbOperate());
 
         if (isCreate) {
-            //作成
-            //この分岐に来るのは、ユーザ作成後に新たにmyCloud(ファーム)が作成された場合
+            // 作成
+            // この分岐に来るのは、ユーザ作成後に新たにmyCloud(ファーム)が作成された場合
             userAuthDao.create(userAuth);
         } else {
-            //更新
+            // 更新
             userAuthDao.update(userAuth);
         }
     }
@@ -322,23 +314,19 @@ public class UserManagementServiceImpl extends ServiceSupport implements UserMan
      */
     @Override
     public void deleteUser(Long userNo) {
-        //ユーザ情報取得
+        // ユーザ情報取得
         User user = userDao.read(userNo);
         if (user == null) {
-            //ユーザが存在しない場合
+            // ユーザが存在しない場合
             throw new AutoApplicationException("ESERVICE-000104", userNo);
         }
 
-        //USER_AUTHテーブル削除
         List<UserAuth> userAuths = userAuthDao.readByUserNo(userNo);
         for (UserAuth userAuth : userAuths) {
             userAuthDao.deleteByFarmNoAndUserNo(userAuth.getFarmNo(), userAuth.getUserNo());
         }
 
-        //API_CERTIFICATEテーブル削除
         apiCertificateDao.deleteByUserNo(userNo);
-
-        //USERテーブル削除
         userDao.deleteByUserNo(userNo);
     }
 

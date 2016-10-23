@@ -19,7 +19,7 @@
 package jp.primecloud.auto.service.dto;
 
 import java.io.Serializable;
-import java.util.HashMap;
+import java.util.Map;
 
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.entity.crud.UserAuth;
@@ -31,7 +31,7 @@ public class ManagementUserDto implements Serializable {
 
     private User user;
 
-    private HashMap<Long, UserAuth> authMap;
+    private Map<Long, UserAuth> authMap;
 
     public User getUser() {
         return user;
@@ -41,11 +41,11 @@ public class ManagementUserDto implements Serializable {
         this.user = user;
     }
 
-    public HashMap<Long, UserAuth> getAuthMap() {
+    public Map<Long, UserAuth> getAuthMap() {
         return authMap;
     }
 
-    public void setAuthMap(HashMap<Long, UserAuth> authMap) {
+    public void setAuthMap(Map<Long, UserAuth> authMap) {
         this.authMap = authMap;
     }
 

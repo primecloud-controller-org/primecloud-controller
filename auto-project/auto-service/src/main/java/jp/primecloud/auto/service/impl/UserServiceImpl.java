@@ -23,13 +23,13 @@ import jp.primecloud.auto.entity.crud.PccSystemInfo;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.entity.crud.UserAuth;
 import jp.primecloud.auto.exception.AutoApplicationException;
+import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.log.EventLogLevel;
 import jp.primecloud.auto.log.EventLogger;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.service.UserService;
 import jp.primecloud.auto.service.dto.UserAuthDto;
 import jp.primecloud.auto.service.dto.UserDto;
-import jp.primecloud.auto.util.MessageUtils;
 
 /**
  * <p>
@@ -53,30 +53,29 @@ public class UserServiceImpl extends ServiceSupport implements UserService {
             eventLogger.log(EventLogLevel.INFO, null, null, null, null, null, null, null, null, "AuditLoginFailure",
                     null, null, new Object[] { username });
             throw new AutoApplicationException("ESERVICE-000101", username);
-        } else {
-            // ユーザパスワード暗号化キーを取得
-            PccSystemInfo pccSystemInfo = pccSystemInfoDao.read();
-
-            if (pccSystemInfo == null) {
-                // PCC_SYSTEM_INFOのレコードが存在しない場合
-                log.error(MessageUtils.getMessage("ESERVICE-000103") + " UserServiceImpl.java");
-                throw new AutoApplicationException("ESERVICE-000103");
-            }
-
-            // 入力パスワードを暗号化
-            PasswordEncryptor encryptor = new PasswordEncryptor();
-            String encryptPass = encryptor.encrypt(password, pccSystemInfo.getSecretKey());
-
-            // DBから取得したパスワードを比較
-            if (!user.getPassword().equals(encryptPass)) {
-                // パスワードが異なっていた場合
-                eventLogger.log(EventLogLevel.INFO, user.getUserNo(), user.getUsername(), null, null, null, null, null,
-                        null, "AuditLoginFailure", null, null, new Object[] { user.getUserNo() });
-                throw new AutoApplicationException("ESERVICE-000102", username);
-            }
-
-            user.setPassword(password);
         }
+
+        // ユーザパスワード暗号化キーを取得
+        PccSystemInfo pccSystemInfo = pccSystemInfoDao.read();
+
+        if (pccSystemInfo == null) {
+            // PCC_SYSTEM_INFOのレコードが存在しない場合
+            throw new AutoException("ESERVICE-000103");
+        }
+
+        // 入力パスワードを暗号化
+        PasswordEncryptor encryptor = new PasswordEncryptor();
+        String encryptedPassword = encryptor.encrypt(password, pccSystemInfo.getSecretKey());
+
+        // DBから取得したパスワードを比較
+        if (!user.getPassword().equals(encryptedPassword)) {
+            // パスワードが異なっていた場合
+            eventLogger.log(EventLogLevel.INFO, user.getUserNo(), user.getUsername(), null, null, null, null, null,
+                    null, "AuditLoginFailure", null, null, new Object[] { user.getUserNo() });
+            throw new AutoApplicationException("ESERVICE-000102", username);
+        }
+
+        user.setPassword(password);
 
         UserDto dto = new UserDto();
         dto.setUser(user);
@@ -99,11 +98,12 @@ public class UserServiceImpl extends ServiceSupport implements UserService {
             return null;
         }
 
-        UserDto dto = new UserDto();
-        //パスワードを複合化
+        // パスワードを復号
         PasswordEncryptor passEncrypt = new PasswordEncryptor();
         PccSystemInfo systemInfo = pccSystemInfoDao.read();
         user.setPassword(passEncrypt.decrypt(user.getPassword(), systemInfo.getSecretKey()));
+
+        UserDto dto = new UserDto();
         dto.setUser(user);
 
         return dto;
@@ -115,23 +115,24 @@ public class UserServiceImpl extends ServiceSupport implements UserService {
     @Override
     public UserAuthDto getUserAuth(Long loginUser, Long farmNo) {
         User user = userDao.read(loginUser);
-        //パワーユーザ
+
+        // パワーユーザ
         if (user.getPowerUser()) {
             return new UserAuthDto(true);
         }
 
-        //マスターユーザ
+        // マスターユーザ
         if (loginUser.equals(user.getMasterUser())) {
             return new UserAuthDto(true);
         }
 
-        //一般ユーザ
+        // 一般ユーザ
         UserAuth userAuth = userAuthDao.read(farmNo, loginUser);
-        UserAuthDto authDto = new UserAuthDto(false);
         if (userAuth != null) {
-            authDto = new UserAuthDto(userAuth);
+            return new UserAuthDto(userAuth);
         }
-        return authDto;
+
+        return new UserAuthDto(false);
     }
 
     /**

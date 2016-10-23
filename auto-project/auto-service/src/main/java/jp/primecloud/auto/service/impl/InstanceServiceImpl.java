@@ -215,7 +215,6 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         AwsInstance awsInstance = null;
         AwsAddress awsAddress = null;
         List<AwsVolume> awsVolumes = null;
-        AwsCertificate awsCertificate = null;
 
         CloudstackInstance cloudstackInstance = null;
         CloudstackAddress cloudstackAddress = null;
@@ -263,9 +262,6 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
 
             // AWSボリュームを取得
             awsVolumes = awsVolumeDao.readByInstanceNo(instanceNo);
-
-            // AWS認証情報を取得
-            awsCertificate = awsCertificateDao.read(farm.getUserNo(), instance.getPlatformNo());
 
         } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
             PlatformCloudstack platformCloudstack = platformCloudstackDao.read(platform.getPlatformNo());
@@ -459,7 +455,6 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         dto.setAwsInstance(awsInstance);
         dto.setAwsAddress(awsAddress);
         dto.setAwsVolumes(awsVolumes);
-        dto.setAwsCertificate(awsCertificate);
 
         dto.setCloudstackInstance(cloudstackInstance);
         dto.setCloudstackAddress(cloudstackAddress);
@@ -606,13 +601,6 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
                 }
                 awsVolumes.add(awsVolume);
             }
-        }
-
-        // AWS認証情報を取得
-        List<AwsCertificate> awsCertificates = awsCertificateDao.readByUserNo(farm.getUserNo());
-        Map<Long, AwsCertificate> awsCertificateMap = new LinkedHashMap<Long, AwsCertificate>();
-        for (AwsCertificate awsCertificate : awsCertificates) {
-            awsCertificateMap.put(awsCertificate.getPlatformNo(), awsCertificate);
         }
 
         //★★★★★ CloudStack ★★★★★
@@ -1005,7 +993,6 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
             AwsInstance awsInstance = awsInstanceMap.get(instance.getInstanceNo());
             AwsAddress awsAddress = awsAddressMap.get(instance.getInstanceNo());
             List<AwsVolume> awsVolumes = awsVolumesMap.get(instance.getInstanceNo());
-            AwsCertificate awsCertificate = awsCertificateMap.get(instance.getPlatformNo());
 
             CloudstackInstance cloudstackInstance = cloudstackInstanceMap.get(instance.getInstanceNo());
             CloudstackAddress cloudstackAddress = cloudstackAddressMap.get(instance.getInstanceNo());
@@ -1060,7 +1047,6 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
             dto.setAwsInstance(awsInstance);
             dto.setAwsAddress(awsAddress);
             dto.setAwsVolumes(awsVolumes);
-            dto.setAwsCertificate(awsCertificate);
 
             dto.setCloudstackInstance(cloudstackInstance);
             dto.setCloudstackAddress(cloudstackAddress);

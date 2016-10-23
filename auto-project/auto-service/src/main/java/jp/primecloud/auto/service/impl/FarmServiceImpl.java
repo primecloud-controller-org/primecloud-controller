@@ -91,29 +91,35 @@ public class FarmServiceImpl extends ServiceSupport implements FarmService {
      */
     @Override
     public List<FarmDto> getFarms(Long userNo, Long loginUserNo) {
-
-        //ユーザー取得
-        User user = userDao.read(loginUserNo);
-        //検索結果ファーム
-        List<Farm> farms = new ArrayList<Farm>();
-        //戻り値用
         List<FarmDto> dtos = new ArrayList<FarmDto>();
 
-        //パワーユーザは全権
+        // ユーザ情報取得
+        User user = userDao.read(loginUserNo);
+
+        // パワーユーザは全てのファーム
         if (user.getPowerUser()) {
-            farms = farmDao.readAll();
+            List<Farm> farms = farmDao.readAll();
             for (Farm farm : farms) {
                 FarmDto dto = new FarmDto();
                 dto.setFarm(farm);
                 dtos.add(dto);
             }
         }
-        //マスターユーザー及び一般はマスター管理下
-        else {
-            //データ取得はマスターユーザ
-            farms = farmDao.readByUserNo(userNo);
+        // マスターユーザは自身の管理下のファーム
+        else if (loginUserNo.equals(userNo)) {
+            List<Farm> farms = farmDao.readByUserNo(userNo);
+            for (Farm farm : farms) {
+                FarmDto dto = new FarmDto();
+                dto.setFarm(farm);
+                dtos.add(dto);
+            }
+        }
 
-            //ユーザー権限取得
+        // 一般ユーザはマスターユーザ管理下のファームのうち、権限のあるもの
+        else {
+            List<Farm> farms = farmDao.readByUserNo(userNo);
+
+            // ユーザ権限取得
             List<UserAuth> userAuth = userAuthDao.readByUserNo(loginUserNo);
             HashMap<Long, Boolean> authMap = new HashMap<Long, Boolean>();
             for (UserAuth auth : userAuth) {
@@ -123,8 +129,8 @@ public class FarmServiceImpl extends ServiceSupport implements FarmService {
             }
 
             for (Farm farm : farms) {
-                //利用可能なファームのみ登録する ※マスターユーザーは全て
-                if ((loginUserNo.equals(userNo)) || authMap.containsKey(farm.getFarmNo())) {
+                // 利用可能なファームのみ
+                if (authMap.containsKey(farm.getFarmNo())) {
                     FarmDto dto = new FarmDto();
                     dto.setFarm(farm);
                     dtos.add(dto);
@@ -232,8 +238,9 @@ public class FarmServiceImpl extends ServiceSupport implements FarmService {
                         vmwareNetworkDao.update(privateNetwork);
                     }
                 }
-                // VCloud関連情報の作成
-            } else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
+            }
+            // VCloud関連情報の作成
+            else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
                 //プラットフォームが有効で認証情報、キーペア情報を保持している場合、空のvAppを作成する
                 if (BooleanUtils.isTrue(platform.getSelectable())
                         && vcloudCertificateDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) > 0
@@ -242,16 +249,15 @@ public class FarmServiceImpl extends ServiceSupport implements FarmService {
                     IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(userNo, platform.getPlatformNo());
                     gateway.createMyCloud(farmName);
                 }
-                // Azure関連情報の作成
-            } else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
-                // 現状処理なし
-                // OpenStack関連情報の作成
-            } else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
-                // 現状処理なし
+            }
+            // Azure関連情報の作成
+            else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
+            }
+            // OpenStack関連情報の作成
+            else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
             }
         }
 
-        // ※VCloud対応の為(iaasGateWayの呼び出しを行うので)、最後にZabbix処理を行うように修正しました。
         // ファームごとのホストグループ作成
         Boolean useZabbix = BooleanUtils.toBooleanObject(Config.getProperty("zabbix.useZabbix"));
         if (BooleanUtils.isTrue(useZabbix)) {
@@ -411,7 +417,6 @@ public class FarmServiceImpl extends ServiceSupport implements FarmService {
             instanceService.deleteInstance(instance.getInstanceNo());
         }
 
-        // TODO CLOUD BRANCHING
         // AWS関連の削除処理
         // AWSボリュームの削除処理
         // TODO: ボリューム自体の削除処理を別で行うようにする
@@ -476,12 +481,6 @@ public class FarmServiceImpl extends ServiceSupport implements FarmService {
                 // ボリュームが存在しない場合などに備えて例外を握りつぶす
             }
         }
-
-        // Azure関連の削除処理
-        // 現状処理なし
-
-        // OpenStack関連の削除処理
-        // 現状処理なし
 
         //ユーザ権限の削除
         userAuthDao.deleteByFarmNo(farmNo);

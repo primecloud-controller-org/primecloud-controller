@@ -28,6 +28,12 @@ import jp.primecloud.auto.entity.crud.Platform;
  */
 public interface PlatformService {
 
+    public boolean isUsablePlatform(Long userNo, Platform platform);
+
+    /**
+     * @deprecated Use {@link PlatformService#isUsablePlatform(Long, Platform)}
+     */
+    @Deprecated
     public boolean isUseablePlatforms(Long userNo, Platform platform);
 
 }

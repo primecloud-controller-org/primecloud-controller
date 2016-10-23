@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.util.List;
 
 import jp.primecloud.auto.entity.crud.AwsAddress;
-import jp.primecloud.auto.entity.crud.AwsCertificate;
 import jp.primecloud.auto.entity.crud.AwsInstance;
 import jp.primecloud.auto.entity.crud.AwsVolume;
 import jp.primecloud.auto.entity.crud.AzureCertificate;
@@ -78,8 +77,6 @@ public class InstanceDto implements Serializable {
     private AwsAddress awsAddress;
 
     private List<AwsVolume> awsVolumes;
-
-    private AwsCertificate awsCertificate;
 
     private CloudstackInstance cloudstackInstance;
 
@@ -285,24 +282,6 @@ public class InstanceDto implements Serializable {
      */
     public void setAwsVolumes(List<AwsVolume> awsVolumes) {
         this.awsVolumes = awsVolumes;
-    }
-
-    /**
-     * awsCertificateを取得します。
-     *
-     * @return awsCertificate
-     */
-    public AwsCertificate getAwsCertificate() {
-        return awsCertificate;
-    }
-
-    /**
-     * awsCertificateを設定します。
-     *
-     * @param awsCertificate awsCertificate
-     */
-    public void setAwsCertificate(AwsCertificate awsCertificate) {
-        this.awsCertificate = awsCertificate;
     }
 
     /**

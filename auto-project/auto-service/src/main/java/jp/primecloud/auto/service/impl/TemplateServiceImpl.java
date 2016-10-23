@@ -36,6 +36,7 @@ import jp.primecloud.auto.entity.crud.TemplateInstance;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.ComponentService;
 import jp.primecloud.auto.service.InstanceService;
+import jp.primecloud.auto.service.PlatformService;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.service.TemplateService;
 import jp.primecloud.auto.service.dto.TemplateDto;
@@ -55,6 +56,8 @@ public class TemplateServiceImpl extends ServiceSupport implements TemplateServi
 
     protected InstanceService instanceService;
 
+    protected PlatformService platformService;
+
     /**
      * {@inheritDoc}
      */
@@ -62,53 +65,49 @@ public class TemplateServiceImpl extends ServiceSupport implements TemplateServi
     public List<TemplateDto> getTemplates(Long userNo) {
         List<TemplateDto> dtos = new ArrayList<TemplateDto>();
 
-        //プラットフォーム取得(プラットフォームの認証情報チェックもここで行う)
-        Map<Long, Platform> platformMap = getPlatformMap(userNo);
-
-        //イメージ取得
-        List<Long> imageNos = getEnabledImageNos();
-
-        //コンポーネントタイプ取得
+        Map<Long, Platform> usablePlatformMap = getUsablePlatformMap(userNo);
+        List<Long> enabledImageNos = getEnabledImageNos();
         List<Long> componentTypeNos = getEnabledComponentTypeNos();
 
-        //テンプレート取得
         List<Template> templates = templateDao.readAll();
         for (Template template : templates) {
             boolean available = true;
-            // 全てのインスタンスのプラットフォームを利用できるかどうかのチェック
-            Platform platform = null;
+
+            // インスタンスのプラットフォームやイメージが利用できるかどうかのチェック
             List<TemplateInstance> templateInstances = templateInstanceDao.readByTemplateNo(template.getTemplateNo());
             for (TemplateInstance templateInstance : templateInstances) {
-                platform = platformMap.get(templateInstance.getPlatformNo());
+                Platform platform = usablePlatformMap.get(templateInstance.getPlatformNo());
                 if (platform == null) {
-                    //認証情報が存在しない or 使用不可プラットフォーム
+                    // 利用できないプラットフォームの場合
                     available = false;
                     break;
                 }
-                if (!imageNos.contains(templateInstance.getImageNo())) {
-                    //使用不可イメージ
+
+                if (!enabledImageNos.contains(templateInstance.getImageNo())) {
+                    // 利用できないイメージの場合
                     available = false;
                     break;
                 }
             }
 
             if (!available) {
-                //インスタンスのプラットフォーム、イメージが使用不可の場合、テンプレート非表示
+                // プラットフォームまたはイメージが利用できないインスタンスがある場合、このテンプレートを含めない
                 continue;
             }
 
+            // コンポーネントのタイプが利用できるかどうかのチェック
             List<TemplateComponent> templateComponents = templateComponentDao
                     .readByTemplateNo(template.getTemplateNo());
             for (TemplateComponent templateComponent : templateComponents) {
                 if (!componentTypeNos.contains(templateComponent.getComponentTypeNo())) {
-                    //使用不可コンポーネントタイプ
+                    // 利用できないコンポーネントタイプの場合
                     available = false;
                     break;
                 }
             }
 
             if (!available) {
-                //インスタンスのプラットフォーム、イメージが使用不可の場合、テンプレート非表示
+                // コンポーネントタイプが利用できないコンポーネントがある場合、このテンプレートを含めない
                 continue;
             }
 
@@ -157,7 +156,7 @@ public class TemplateServiceImpl extends ServiceSupport implements TemplateServi
         }
 
         // プラットフォーム情報を取得
-        Map<Long, Platform> platformMap = getPlatformMap(farm.getUserNo());
+        Map<Long, Platform> usablePlatformMap = getUsablePlatformMap(farm.getUserNo());
 
         // インスタンスを作成
         Map<String, Long> instanceNoMap = new HashMap<String, Long>();
@@ -165,31 +164,30 @@ public class TemplateServiceImpl extends ServiceSupport implements TemplateServi
         List<TemplateInstance> templateInstances = templateInstanceDao.readByTemplateNo(templateNo);
         for (TemplateInstance templateInstance : templateInstances) {
             Long instanceNo = null;
-            Platform platform = platformMap.get(templateInstance.getPlatformNo());
-            // TODO CLOUD BRANCHING
+
+            Platform platform = usablePlatformMap.get(templateInstance.getPlatformNo());
+            // TODO: CLOUD BRANCHING
             if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())
                     || PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())
                     || PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())
                     || PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())
                     || PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
-                //Iaas(AWS or CloudStack or VCloud or Azure or OpenStack)
                 instanceNo = instanceService.createIaasInstance(farmNo, templateInstance.getTemplateInstanceName(),
                         templateInstance.getPlatformNo(), templateInstance.getComment(), templateInstance.getImageNo(),
                         templateInstance.getInstanceType());
             } else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
-                //VMware
                 instanceNo = instanceService.createVmwareInstance(farmNo, templateInstance.getTemplateInstanceName(),
                         templateInstance.getPlatformNo(), templateInstance.getComment(), templateInstance.getImageNo(),
                         templateInstance.getInstanceType());
 
             } else if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platform.getPlatformType())) {
-                //Nifty
                 instanceNo = instanceService.createNiftyInstance(farmNo, templateInstance.getTemplateInstanceName(),
                         templateInstance.getPlatformNo(), templateInstance.getComment(), templateInstance.getImageNo(),
                         templateInstance.getInstanceType());
             } else {
                 continue;
             }
+
             instanceNoMap.put(templateInstance.getTemplateInstanceName(), instanceNo);
         }
 
@@ -223,63 +221,23 @@ public class TemplateServiceImpl extends ServiceSupport implements TemplateServi
      * @param userNo
      * @return プラットフォーム情報のマップ(認証情報がないプラットフォームはマップに含まれない)
      */
-    private Map<Long, Platform> getPlatformMap(Long userNo) {
-        // プラットフォームを取得
-        Map<Long, Platform> platformMap = new HashMap<Long, Platform>();
+    protected Map<Long, Platform> getUsablePlatformMap(Long userNo) {
+        Map<Long, Platform> usablePlatformMap = new HashMap<Long, Platform>();
+
         List<Platform> platforms = platformDao.readAll();
         for (Platform platform : platforms) {
             if (BooleanUtils.isNotTrue(platform.getSelectable())) {
                 // 使用不可プラットフォームの場合スキップ
                 continue;
             }
-            // TODO CLOUD BRANCHING
-            if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
-                // 認証情報がない場合はスキップ
-                if (awsCertificateDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) == 0) {
-                    continue;
-                }
-            } else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
-                // キーペアがない場合はスキップ
-                if (vmwareKeyPairDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) == 0) {
-                    continue;
-                }
-            } else if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platform.getPlatformType())) {
-                // 認証情報とキーペアがない場合はスキップ
-                if (niftyCertificateDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) == 0) {
-                    continue;
-                }
-                if (niftyKeyPairDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) == 0) {
-                    continue;
-                }
-            } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
-                // 認証情報がない場合はスキップ
-                if (cloudstackCertificateDao.countByAccountAndPlatformNo(userNo, platform.getPlatformNo()) == 0) {
-                    continue;
-                }
-            } else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
-                // 認証情報とキーペアがない場合はスキップ
-                if (vcloudCertificateDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) == 0) {
-                    continue;
-                }
-                if (vcloudKeyPairDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) == 0) {
-                    continue;
-                }
-            } else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
-                // 認証情報がない場合はスキップ
-                if (azureCertificateDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) == 0) {
-                    continue;
-                }
-            } else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
-                // 認証情報がない場合はスキップ
-                if (openstackCertificateDao.countByUserNoAndPlatformNo(userNo, platform.getPlatformNo()) == 0) {
-                    continue;
-                }
-            }
 
-            platformMap.put(platform.getPlatformNo(), platform);
+            boolean usable = platformService.isUsablePlatform(userNo, platform);
+            if (usable) {
+                usablePlatformMap.put(platform.getPlatformNo(), platform);
+            }
         }
 
-        return platformMap;
+        return usablePlatformMap;
     }
 
     /**
@@ -287,8 +245,9 @@ public class TemplateServiceImpl extends ServiceSupport implements TemplateServi
      *
      * @return 使用可能なイメージ番号のリスト
      */
-    private List<Long> getEnabledImageNos() {
+    protected List<Long> getEnabledImageNos() {
         List<Long> imageNos = new ArrayList<Long>();
+
         List<Image> images = imageDao.readAll();
         for (Image image : images) {
             if (BooleanUtils.isNotTrue(image.getSelectable())) {
@@ -297,6 +256,7 @@ public class TemplateServiceImpl extends ServiceSupport implements TemplateServi
             }
             imageNos.add(image.getImageNo());
         }
+
         return imageNos;
     }
 
@@ -305,8 +265,9 @@ public class TemplateServiceImpl extends ServiceSupport implements TemplateServi
      *
      * @return 使用可能なコンポーネントタイプ番号のリスト
      */
-    private List<Long> getEnabledComponentTypeNos() {
+    protected List<Long> getEnabledComponentTypeNos() {
         List<Long> componentTypeNos = new ArrayList<Long>();
+
         List<ComponentType> componentTypes = componentTypeDao.readAll();
         for (ComponentType componentType : componentTypes) {
             if (BooleanUtils.isNotTrue(componentType.getSelectable())) {
@@ -315,6 +276,7 @@ public class TemplateServiceImpl extends ServiceSupport implements TemplateServi
             }
             componentTypeNos.add(componentType.getComponentTypeNo());
         }
+
         return componentTypeNos;
     }
 
@@ -334,6 +296,10 @@ public class TemplateServiceImpl extends ServiceSupport implements TemplateServi
      */
     public void setInstanceService(InstanceService instanceService) {
         this.instanceService = instanceService;
+    }
+
+    public void setPlatformService(PlatformService platformService) {
+        this.platformService = platformService;
     }
 
 }

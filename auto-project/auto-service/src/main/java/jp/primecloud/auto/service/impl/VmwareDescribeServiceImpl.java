@@ -67,7 +67,6 @@ public class VmwareDescribeServiceImpl extends ServiceSupport implements VmwareD
         factory.setUsername(platformVmware.getUsername());
         factory.setPassword(platformVmware.getPassword());
         factory.setDatacenterName(platformVmware.getDatacenter());
-
         factory.setIgnoreCert(true);
         VmwareClient vmwareClient = factory.createVmwareClient();
 
