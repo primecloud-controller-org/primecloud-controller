@@ -146,43 +146,7 @@ public class WinServerEdit extends Window {
 
     ImageDto image;
 
-    List<String> keyPairs;
-
-    List<String> securityGroups;
-
-    List<String> instanceTypes;
-
-    List<VmwareKeyPair> vmwareKeyPairs;
-
-    List<String> clusters;
-
-    List<ZoneDto> zones;
-
     List<Long> componentNos;
-
-    List<String> networks;
-
-    List<NiftyKeyPair> niftyKeyPairs;
-
-    List<AddressDto> elasticIps;
-
-    List<SubnetDto> subnets;
-
-    List<KeyPairDto> vcloudKeyPairs;
-
-    List<StorageTypeDto> storageTypes;
-
-    List<DataDiskDto> dataDisks;
-
-    List<DataDiskDto> deleteDataDisks;
-
-    Map<String, NetworkDto> networkMap;
-
-    List<InstanceNetworkDto> instanceNetworks;
-
-    List<String> availabilitySets;
-
-    List<String> zoneNames;
 
     boolean enableService = true;
 
@@ -225,6 +189,10 @@ public class WinServerEdit extends Window {
             awsDetailTab = new AWSDetailTab();
             tab.addTab(awsDetailTab, ViewProperties.getCaption("tab.detail"), Icons.DETAIL.resource());
             layout.addComponent(tab);
+
+            // 初期データの取得
+            awsDetailTab.initData();
+
             // 入力チェックの設定
             awsDetailTab.initValidation();
             // 詳細設定のデータ表示
@@ -232,6 +200,10 @@ public class WinServerEdit extends Window {
         } else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platformType)) {
             vmwareDetailTab = new VMWareDetailTab();
             tab.addTab(vmwareDetailTab, ViewProperties.getCaption("tab.detail"), Icons.DETAIL.resource());
+
+            // 初期データの取得
+            vmwareDetailTab.initData();
+
             // 入力チェックの設定
             vmwareDetailTab.initValidation();
             // 詳細設定のデータ表示
@@ -251,6 +223,10 @@ public class WinServerEdit extends Window {
             niftyDetailTab = new NiftyDetailTab();
             tab.addTab(niftyDetailTab, ViewProperties.getCaption("tab.detail"), Icons.DETAIL.resource());
             layout.addComponent(tab);
+
+            // 初期データの取得
+            niftyDetailTab.initData();
+
             // 入力チェックの設定
             niftyDetailTab.initValidation();
             // 詳細設定のデータ表示
@@ -260,6 +236,10 @@ public class WinServerEdit extends Window {
             cloudStackDetailTab = new CloudStackDetailTab();
             tab.addTab(cloudStackDetailTab, ViewProperties.getCaption("tab.detail"), Icons.DETAIL.resource());
             layout.addComponent(tab);
+
+            // 初期データの取得
+            cloudStackDetailTab.initData();
+
             // 入力チェックの設定
             cloudStackDetailTab.initValidation();
             // 詳細設定のデータ表示
@@ -268,6 +248,10 @@ public class WinServerEdit extends Window {
             //詳細設定タブ
             vcloudDetailTab = new VcloudDetailTab();
             tab.addTab(vcloudDetailTab, ViewProperties.getCaption("tab.detail"), Icons.DETAIL.resource());
+
+            // 初期データの取得
+            vcloudDetailTab.initData();
+
             // 入力チェックの設定
             vcloudDetailTab.initValidation();
             // 詳細設定のデータ表示
@@ -276,6 +260,7 @@ public class WinServerEdit extends Window {
             //ネットワーク設定タブ
             vcloudNetworkTab = new VcloudNetworkTab();
             tab.addTab(vcloudNetworkTab, ViewProperties.getCaption("tab.network"), Icons.DETAIL.resource());
+            vcloudNetworkTab.initData();
             vcloudNetworkTab.showData();
 
             layout.addComponent(tab);
@@ -283,6 +268,10 @@ public class WinServerEdit extends Window {
             azureDetailTab = new AzureDetailTab();
             tab.addTab(azureDetailTab, ViewProperties.getCaption("tab.detail"), Icons.DETAIL.resource());
             layout.addComponent(tab);
+
+            // 初期データの取得
+            azureDetailTab.initData();
+
             // 入力チェックの設定
             azureDetailTab.initValidation();
             // 詳細設定のデータ表示
@@ -291,6 +280,10 @@ public class WinServerEdit extends Window {
             openStackDetailTab = new OpenStackDetailTab();
             tab.addTab(openStackDetailTab, ViewProperties.getCaption("tab.detail"), Icons.DETAIL.resource());
             layout.addComponent(tab);
+
+            // 初期データの取得
+            openStackDetailTab.initData();
+
             // 入力チェックの設定
             openStackDetailTab.initValidation();
             // 詳細設定のデータ表示
@@ -578,6 +571,18 @@ public class WinServerEdit extends Window {
 
         ComboBox elasticIpSelect;
 
+        List<String> keyPairs;
+
+        List<String> securityGroups;
+
+        List<String> instanceTypes;
+
+        List<ZoneDto> zones;
+
+        List<AddressDto> elasticIps;
+
+        List<SubnetDto> subnets;
+
         final String CIDR_BLOCK_CAPTION_ID = "cidrBlock";
 
         final String ZONE_CAPTION_ID = "zoneName";
@@ -721,6 +726,64 @@ public class WinServerEdit extends Window {
 //                deleteElasticIp.setEnabled(false);
 //                labelElasticIp.setEnabled(false);
 //            }
+        }
+
+        private void initData() {
+            Platform platform = platformDto.getPlatform();
+            PlatformAws platformAws = platformDto.getPlatformAws();
+
+            // 情報を取得
+            // TODO: ロジックを必ずリファクタリングすること
+            IaasDescribeService describeService = BeanContext.getBean(IaasDescribeService.class);
+            //キーペア
+            List<KeyPairDto> infos = describeService.getKeyPairs(ViewContext.getUserNo(), platform.getPlatformNo());
+            List<String> keyPairs = new ArrayList<String>();
+            for (KeyPairDto info : infos) {
+                keyPairs.add(info.getKeyName());
+            }
+            this.keyPairs = keyPairs;
+
+            //セキュリティグループ
+            List<String> securityGroups = new ArrayList<String>();
+            List<SecurityGroupDto> groups;
+            if (platformAws.getEuca() == false && platformAws.getVpc()) {
+                groups = describeService.getSecurityGroups(ViewContext.getUserNo(), platform.getPlatformNo(), platformAws.getVpcId());
+            } else {
+                groups = describeService.getSecurityGroups(ViewContext.getUserNo(), platform.getPlatformNo(), null);
+            }
+            for (SecurityGroupDto group : groups) {
+                securityGroups.add(group.getGroupName());
+            }
+            this.securityGroups = securityGroups;
+
+            //インスタンスタイプ
+            List<String>  instanceTypes = new ArrayList<String>();
+            for (String instanceType : image.getImageAws().getInstanceTypes().split(",")) {
+                instanceTypes.add(instanceType.trim());
+            }
+            this.instanceTypes = instanceTypes;
+
+            //ゾーン
+            List<ZoneDto> zones = describeService.getAvailabilityZones(ViewContext.getUserNo(), platform.getPlatformNo());
+            if (platformAws.getEuca() == false && platformAws.getVpc() == false) {
+                //EC2 VPCではない場合、空行を先頭に追加してゾーンを無指定にできるようにする
+                zones.add(0, new ZoneDto());
+            }
+            this.zones = zones;
+
+            //サブネット
+            if (platformAws.getEuca() == false && platformAws.getVpc()) {
+                List<SubnetDto> subnets = describeService.getSubnets(ViewContext.getUserNo(), platform.getPlatformNo(), platformAws.getVpcId());
+                this.subnets = subnets;
+            }
+
+            //ElasticIp
+            List<AddressDto> elasticIps = new ArrayList<AddressDto>();
+            List<AddressDto> addresses = describeService.getAddresses(ViewContext.getUserNo(), platform.getPlatformNo());
+            for (AddressDto address : addresses) {
+                elasticIps.add(address);
+            }
+            this.elasticIps = elasticIps;
         }
 
         private void addButtonClick() {
@@ -958,6 +1021,14 @@ public class WinServerEdit extends Window {
 
         ComboBox clusterSelect;
 
+        List<String> keyPairs;
+
+        List<String> instanceTypes;
+
+        List<VmwareKeyPair> vmwareKeyPairs;
+
+        List<String> clusters;
+
         VMWareDetailTab() {
             setHeight(TAB_HEIGHT);
             setMargin(false, true, false, true);
@@ -987,6 +1058,34 @@ public class WinServerEdit extends Window {
                 form.setEnabled(false);
             }
 
+        }
+
+        private void initData() {
+            Platform platform = platformDto.getPlatform();
+
+            // VMware情報を取得
+            // TODO: ロジックを必ずリファクタリングすること
+            VmwareDescribeService vmwareDescribeService = BeanContext.getBean(VmwareDescribeService.class);
+            List<VmwareKeyPair> vmwareKeyPairs = vmwareDescribeService.getKeyPairs(ViewContext.getUserNo(), platform.getPlatformNo());
+            List<String> keyPairs = new ArrayList<String>();
+            for (VmwareKeyPair vmwareKeyPair : vmwareKeyPairs) {
+                keyPairs.add(vmwareKeyPair.getKeyName());
+            }
+            this.keyPairs = keyPairs;
+            this.vmwareKeyPairs = vmwareKeyPairs;
+
+            List<ComputeResource> computeResources = vmwareDescribeService.getComputeResources(platform.getPlatformNo());
+            List<String> clusters = new ArrayList<String>();
+            for (ComputeResource computeResource : computeResources) {
+                clusters.add(computeResource.getName());
+            }
+            this.clusters = clusters;
+
+            List<String> instanceTypes = new ArrayList<String>();
+            for (String instanceType : image.getImageVmware().getInstanceTypes().split(",")) {
+                instanceTypes.add(instanceType.trim());
+            }
+            this.instanceTypes = instanceTypes;
         }
 
         private void showData() {
@@ -1143,6 +1242,12 @@ public class WinServerEdit extends Window {
 
         ComboBox sizeSelect;
 
+        List<String> keyPairs;
+
+        List<String> instanceTypes;
+
+        List<NiftyKeyPair> niftyKeyPairs;
+
         NiftyDetailTab() {
             setHeight(TAB_HEIGHT);
             setMargin(false, true, false, true);
@@ -1169,6 +1274,27 @@ public class WinServerEdit extends Window {
                     keySelect.setEnabled(false);
                 }
             }
+        }
+
+        private void initData() {
+            Platform platform = platformDto.getPlatform();
+
+            // Nifty情報を取得
+            // TODO: ロジックを必ずリファクタリングすること
+            NiftyDescribeService niftyDescribeService = BeanContext.getBean(NiftyDescribeService.class);
+            List<NiftyKeyPair> niftyKeyPairs = niftyDescribeService.getKeyPairs(ViewContext.getUserNo(), platform.getPlatformNo());
+            List<String> keyPairs = new ArrayList<String>();
+            for (NiftyKeyPair niftyKeyPair : niftyKeyPairs) {
+                keyPairs.add(niftyKeyPair.getKeyName());
+            }
+            this.keyPairs = keyPairs;
+            this.niftyKeyPairs = niftyKeyPairs;
+
+            List<String> instanceTypes = new ArrayList<String>();
+            for (String instanceType : image.getImageNifty().getInstanceTypes().split(",")) {
+                instanceTypes.add(instanceType.trim());
+            }
+            this.instanceTypes = instanceTypes;
         }
 
         private void showData() {
@@ -1205,6 +1331,18 @@ public class WinServerEdit extends Window {
         ComboBox zoneSelect;
 
         ComboBox elasticIpSelect;
+
+        List<String> keyPairs;
+
+        List<String> securityGroups;
+
+        List<String> instanceTypes;
+
+        List<ZoneDto> zones;
+
+        List<String> networks;
+
+        List<AddressDto> elasticIps;
 
         final String ELASTIC_IP_CAPTION_ID = "ElasticIP";
 
@@ -1313,6 +1451,52 @@ public class WinServerEdit extends Window {
                 deleteElasticIp.setEnabled(false);
             }
 
+        }
+
+        private void initData() {
+            Platform platform = platformDto.getPlatform();
+
+            // CloudStack情報を取得
+            // 情報を取得
+            // TODO: ロジックを必ずリファクタリングすること
+            IaasDescribeService describeService = BeanContext.getBean(IaasDescribeService.class);
+            List<KeyPairDto> infos = describeService.getKeyPairs(ViewContext.getUserNo(), platform.getPlatformNo());
+            List<String> keyPairs = new ArrayList<String>();
+            for (KeyPairDto info : infos) {
+                keyPairs.add(info.getKeyName());
+            }
+            this.keyPairs = keyPairs;
+
+            List<String> networks = new ArrayList<String>();
+            for (String network : platformDto.getPlatformCloudstack().getNetworkId().split(",")) {
+                networks.add(network);
+            }
+            this.networks = networks;
+
+            List<String> securityGroups = new ArrayList<String>();
+            if (StringUtils.isEmpty(instance.getCloudstackInstance().getNetworkid())) {
+                List<SecurityGroupDto> groups = describeService.getSecurityGroups(ViewContext.getUserNo(), platform.getPlatformNo(), null);
+                for (SecurityGroupDto group : groups) {
+                    securityGroups.add(group.getGroupName());
+                }
+            }
+            this.securityGroups = securityGroups;
+
+            List<String> instanceTypes = new ArrayList<String>();
+            for (String instanceType : image.getImageCloudstack().getInstanceTypes().split(",")) {
+                instanceTypes.add(instanceType.trim());
+            }
+            this.instanceTypes = instanceTypes;
+
+            List<ZoneDto> zones = describeService.getAvailabilityZones(ViewContext.getUserNo(), platform.getPlatformNo());
+            this.zones = zones;
+
+            List<AddressDto> elasticIps = new ArrayList<AddressDto>();
+            List<AddressDto> addresses = describeService.getAddresses(ViewContext.getUserNo(), platform.getPlatformNo());
+            for (AddressDto address : addresses) {
+                elasticIps.add(address);
+            }
+            this.elasticIps = elasticIps;
         }
 
         private void addButtonClick() {
@@ -1497,6 +1681,14 @@ public class WinServerEdit extends Window {
         DataDiskTable dataDiskTable;
         DataDiskTableButtons dataDiskTableButtons;
 
+        List<String> instanceTypes;
+
+        List<KeyPairDto> vcloudKeyPairs;
+
+        List<StorageTypeDto> storageTypes;
+
+        List<DataDiskDto> dataDisks;
+
         VcloudDetailTab() {
             setHeight(TAB_HEIGHT);
             setMargin(false, true, false, true);
@@ -1551,6 +1743,41 @@ public class WinServerEdit extends Window {
                 sizeSelect.setEnabled(false);
                 keySelect.setEnabled(false);
             }
+        }
+
+        private void initData() {
+            Platform platform = platformDto.getPlatform();
+
+            // VCloud情報を取得
+            IaasDescribeService describeService = BeanContext.getBean(IaasDescribeService.class);
+            //StorageType
+            List<StorageTypeDto> storageTypes = describeService.getStorageTypes(ViewContext.getUserNo(), platform.getPlatformNo());
+            this.storageTypes = storageTypes;
+
+            //KeyPair
+            List<KeyPairDto> vcloudKeyPairs = describeService.getKeyPairs(ViewContext.getUserNo(), platform.getPlatformNo());
+            this.vcloudKeyPairs = vcloudKeyPairs;
+
+            //InstanceType
+            List<String> instanceTypes = new ArrayList<String>();
+            for (String instanceType : image.getImageVcloud().getInstanceTypes().split(",")) {
+                instanceTypes.add(instanceType.trim());
+            }
+            this.instanceTypes = instanceTypes;
+
+            //DataDisk
+            List<DataDiskDto> dataDisks = new ArrayList<DataDiskDto>();
+            List<VcloudDisk> vcloudDisks = instance.getVcloudDisks();
+            for (VcloudDisk vcloudDisk : vcloudDisks) {
+                if (BooleanUtils.isTrue(vcloudDisk.getDataDisk())) {
+                    DataDiskDto diskDto = new DataDiskDto();
+                    diskDto.setDiskNo(vcloudDisk.getDiskNo());
+                    diskDto.setDiskSize(vcloudDisk.getSize());
+                    diskDto.setUnitNo(vcloudDisk.getUnitNo());
+                    dataDisks.add(diskDto);
+                }
+            }
+            this.dataDisks = dataDisks;
         }
 
         private void showData() {
@@ -1831,6 +2058,10 @@ public class WinServerEdit extends Window {
         NetworkTable networkTable;
         NetworkTableButtons networkTableButtons;
 
+        Map<String, NetworkDto> networkMap;
+
+        List<InstanceNetworkDto> instanceNetworks;
+
         VcloudNetworkTab() {
             setHeight(TAB_HEIGHT);
             setMargin(false, true, false, true);
@@ -1851,8 +2082,36 @@ public class WinServerEdit extends Window {
             if (status != InstanceStatus.STOPPED) {
                 form.setEnabled(false);
             }
+        }
 
-            showData();
+        private void initData() {
+            Platform platform = platformDto.getPlatform();
+            IaasDescribeService describeService = BeanContext.getBean(IaasDescribeService.class);
+
+            //Network
+            List<NetworkDto> networkDtos = describeService.getNetworks(ViewContext.getUserNo(), platform.getPlatformNo());
+            Map<String, NetworkDto> networkMap = new HashMap<String, NetworkDto>();
+            for (NetworkDto networkDto : networkDtos) {
+                networkMap.put(networkDto.getNetworkName(), networkDto);
+            }
+            this.networkMap = networkMap;
+
+            //InstanceNetwork
+            List<InstanceNetworkDto> instanceNetworks = new ArrayList<InstanceNetworkDto>();
+            List<VcloudInstanceNetwork> tmpInstanceNetworks = instance.getVcloudInstanceNetworks();
+            for (VcloudInstanceNetwork instanceNetwork : tmpInstanceNetworks) {
+                InstanceNetworkDto instanceNetworkDto = new InstanceNetworkDto();
+                instanceNetworkDto.setNetworkNo(instanceNetwork.getNetworkNo());
+                instanceNetworkDto.setNetworkName(instanceNetwork.getNetworkName());
+                instanceNetworkDto.setNew(false);
+                instanceNetworkDto.setDelete(false);
+                instanceNetworkDto.setIpMode(instanceNetwork.getIpMode());
+                instanceNetworkDto.setIpAddress(instanceNetwork.getIpAddress());
+                instanceNetworkDto.setRequired(networkMap.get(instanceNetwork.getNetworkName()).isPcc());
+                instanceNetworkDto.setPrimary(BooleanUtils.isTrue(instanceNetwork.getIsPrimary()));
+                instanceNetworks.add(instanceNetworkDto);
+            }
+            this.instanceNetworks = instanceNetworks;
         }
 
         private void showData() {
@@ -2101,6 +2360,12 @@ public class WinServerEdit extends Window {
 
         TextField storageAccountField;
 
+        List<String> instanceTypes;
+
+        List<SubnetDto> subnets;
+
+        List<String> availabilitySets;
+
         final String COMBOBOX_WIDTH = "150px";
 
         final String TEXT_WIDTH = "150px";
@@ -2189,6 +2454,33 @@ public class WinServerEdit extends Window {
 
         }
 
+        private void initData() {
+            Platform platform = platformDto.getPlatform();
+
+            // Azure情報を取得
+            PlatformAzure platformAzure = platformDto.getPlatformAzure();
+            // 情報を取得
+            IaasDescribeService describeService = BeanContext.getBean(IaasDescribeService.class);
+
+            List<String> instanceTypes = new ArrayList<String>();
+            for (String instanceType : image.getImageAzure().getInstanceTypes().split(",")) {
+                instanceTypes.add(instanceType.trim());
+            }
+            this.instanceTypes = instanceTypes;
+
+            // 可用性セット
+            List<String> availabilitySets = new ArrayList<String>();
+            for (String availabilitySet : platformAzure.getAvailabilitySets().split(",")) {
+                availabilitySets.add(availabilitySet.trim());
+            }
+            this.availabilitySets = availabilitySets;
+
+            //サブネット
+            List<SubnetDto> subnets = describeService.getAzureSubnets(ViewContext.getUserNo(), platform.getPlatformNo(),
+                    platformAzure.getNetworkName());
+            this.subnets = subnets;
+        }
+
         private void showData() {
             sizeSelect.setContainerDataSource(new IndexedContainer(instanceTypes));
             sizeSelect.select(instance.getAzureInstance().getInstanceType());
@@ -2267,6 +2559,14 @@ public class WinServerEdit extends Window {
 
         ComboBox keySelect;
 
+        List<String> keyPairs;
+
+        List<String> securityGroups;
+
+        List<String> instanceTypes;
+
+        List<ZoneDto> zones;
+
         final String ZONE_CAPTION_ID = "zoneName";
 
         final String COMBOBOX_WIDTH = "150px";
@@ -2326,6 +2626,41 @@ public class WinServerEdit extends Window {
                 }
             }
 
+        }
+
+        private void initData() {
+            Platform platform = platformDto.getPlatform();
+
+            // 情報を取得
+            IaasDescribeService describeService = BeanContext.getBean(IaasDescribeService.class);
+            //instanceTypes
+            List<String> instanceTypes = new ArrayList<String>();
+            for (String instanceType : image.getImageOpenstack().getInstanceTypes().split(",")) {
+                //IDで取得されるため、今後名称に変換する必要有り
+                instanceTypes.add(instanceType.trim());
+            }
+            this.instanceTypes = instanceTypes;
+
+            // Availablility Zone
+            List<ZoneDto> zones = describeService.getAvailabilityZones(ViewContext.getUserNo(), platform.getPlatformNo());
+            this.zones = zones;
+
+            //セキュリティグループ
+            List<String> securityGroups = new ArrayList<String>();
+            List<SecurityGroupDto> groups;
+            groups = describeService.getSecurityGroups(ViewContext.getUserNo(), platform.getPlatformNo(), null);
+            for (SecurityGroupDto group : groups) {
+                securityGroups.add(group.getGroupName());
+            }
+            this.securityGroups = securityGroups;
+
+            //キーペア
+            List<KeyPairDto> infos = describeService.getKeyPairs(ViewContext.getUserNo(), platform.getPlatformNo());
+            List<String> keyPairs = new ArrayList<String>();
+            for (KeyPairDto info : infos) {
+                keyPairs.add(info.getKeyName());
+            }
+            this.keyPairs = keyPairs;
         }
 
         private void showData() {
@@ -2398,229 +2733,6 @@ public class WinServerEdit extends Window {
                 }
                 break;
             }
-        }
-
-        Platform platform = platformDto.getPlatform();
-        String platformType = platform.getPlatformType();
-        // TODO CLOUD BRANCHING
-        if (PCCConstant.PLATFORM_TYPE_AWS.equals(platformType)) {
-            PlatformAws platformAws = platformDto.getPlatformAws();
-            // 情報を取得
-            // TODO: ロジックを必ずリファクタリングすること
-            IaasDescribeService describeService = BeanContext.getBean(IaasDescribeService.class);
-            //キーペア
-            List<KeyPairDto> infos = describeService.getKeyPairs(ViewContext.getUserNo(), platform.getPlatformNo());
-            keyPairs = new ArrayList<String>();
-            for (KeyPairDto info : infos) {
-                keyPairs.add(info.getKeyName());
-            }
-
-            //セキュリティグループ
-            securityGroups = new ArrayList<String>();
-            List<SecurityGroupDto> groups;
-            if (platformAws.getEuca() == false && platformAws.getVpc()) {
-                groups = describeService.getSecurityGroups(ViewContext.getUserNo(), platform.getPlatformNo(), platformAws.getVpcId());
-            } else {
-                groups = describeService.getSecurityGroups(ViewContext.getUserNo(), platform.getPlatformNo(), null);
-            }
-            for (SecurityGroupDto group : groups) {
-                securityGroups.add(group.getGroupName());
-            }
-
-            //インスタンスタイプ
-            instanceTypes = new ArrayList<String>();
-            for (String instanceType : image.getImageAws().getInstanceTypes().split(",")) {
-                instanceTypes.add(instanceType.trim());
-            }
-
-            //ゾーン
-            zones = describeService.getAvailabilityZones(ViewContext.getUserNo(), platform.getPlatformNo());
-            if (platformAws.getEuca() == false && platformAws.getVpc() == false) {
-                //EC2 VPCではない場合、空行を先頭に追加してゾーンを無指定にできるようにする
-                zones.add(0, new ZoneDto());
-            }
-
-            //サブネット
-            if (platformAws.getEuca() == false && platformAws.getVpc()) {
-                subnets = describeService.getSubnets(ViewContext.getUserNo(), platform.getPlatformNo(), platformAws.getVpcId());
-            }
-
-            //ElasticIp
-            elasticIps = new ArrayList<AddressDto>();
-            List<AddressDto> addresses = describeService.getAddresses(ViewContext.getUserNo(), platform.getPlatformNo());
-            for (AddressDto address : addresses) {
-                elasticIps.add(address);
-            }
-
-        } else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platformType)) {
-            // VMware情報を取得
-            // TODO: ロジックを必ずリファクタリングすること
-            VmwareDescribeService vmwareDescribeService = BeanContext.getBean(VmwareDescribeService.class);
-            vmwareKeyPairs = vmwareDescribeService.getKeyPairs(ViewContext.getUserNo(), platform.getPlatformNo());
-            keyPairs = new ArrayList<String>();
-            for (VmwareKeyPair vmwareKeyPair : vmwareKeyPairs) {
-                keyPairs.add(vmwareKeyPair.getKeyName());
-            }
-
-            List<ComputeResource> computeResources = vmwareDescribeService.getComputeResources(platform.getPlatformNo());
-            clusters = new ArrayList<String>();
-            for (ComputeResource computeResource : computeResources) {
-                clusters.add(computeResource.getName());
-            }
-
-            instanceTypes = new ArrayList<String>();
-            for (String instanceType : image.getImageVmware().getInstanceTypes().split(",")) {
-                instanceTypes.add(instanceType.trim());
-            }
-        } else if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platformType)) {
-            // Nifty情報を取得
-            // TODO: ロジックを必ずリファクタリングすること
-            NiftyDescribeService niftyDescribeService = BeanContext.getBean(NiftyDescribeService.class);
-            niftyKeyPairs = niftyDescribeService.getKeyPairs(ViewContext.getUserNo(), platform.getPlatformNo());
-            keyPairs = new ArrayList<String>();
-            for (NiftyKeyPair niftyKeyPair : niftyKeyPairs) {
-                keyPairs.add(niftyKeyPair.getKeyName());
-            }
-
-            instanceTypes = new ArrayList<String>();
-            for (String instanceType : image.getImageNifty().getInstanceTypes().split(",")) {
-                instanceTypes.add(instanceType.trim());
-            }
-        } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platformType)) {
-            // CloudStack情報を取得
-            // 情報を取得
-            // TODO: ロジックを必ずリファクタリングすること
-            IaasDescribeService describeService = BeanContext.getBean(IaasDescribeService.class);
-            List<KeyPairDto> infos = describeService.getKeyPairs(ViewContext.getUserNo(), platform.getPlatformNo());
-            keyPairs = new ArrayList<String>();
-            for (KeyPairDto info : infos) {
-                keyPairs.add(info.getKeyName());
-            }
-
-            networks = new ArrayList<String>();
-            for (String network : platformDto.getPlatformCloudstack().getNetworkId().split(",")) {
-                networks.add(network);
-            }
-
-            securityGroups = new ArrayList<String>();
-            if (StringUtils.isEmpty(instance.getCloudstackInstance().getNetworkid())) {
-                List<SecurityGroupDto> groups = describeService.getSecurityGroups(ViewContext.getUserNo(), platform.getPlatformNo(), null);
-                for (SecurityGroupDto group : groups) {
-                    securityGroups.add(group.getGroupName());
-                }
-            }
-
-            instanceTypes = new ArrayList<String>();
-            for (String instanceType : image.getImageCloudstack().getInstanceTypes().split(",")) {
-                instanceTypes.add(instanceType.trim());
-            }
-
-            zones = describeService.getAvailabilityZones(ViewContext.getUserNo(), platform.getPlatformNo());
-
-            elasticIps = new ArrayList<AddressDto>();
-            List<AddressDto> addresses = describeService.getAddresses(ViewContext.getUserNo(), platform.getPlatformNo());
-            for (AddressDto address : addresses) {
-                elasticIps.add(address);
-            }
-
-        } else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platformType)) {
-            // VCloud情報を取得
-            IaasDescribeService describeService = BeanContext.getBean(IaasDescribeService.class);
-            //StorageType
-            storageTypes = describeService.getStorageTypes(ViewContext.getUserNo(), platform.getPlatformNo());
-
-            //KeyPair
-            vcloudKeyPairs = describeService.getKeyPairs(ViewContext.getUserNo(), platform.getPlatformNo());
-
-            //InstanceType
-            instanceTypes = new ArrayList<String>();
-            for (String instanceType : image.getImageVcloud().getInstanceTypes().split(",")) {
-                instanceTypes.add(instanceType.trim());
-            }
-
-            //DataDisk
-            deleteDataDisks = new ArrayList<DataDiskDto>();
-            dataDisks = new ArrayList<DataDiskDto>();
-            List<VcloudDisk> vcloudDisks = instance.getVcloudDisks();
-            for (VcloudDisk vcloudDisk : vcloudDisks) {
-                if (BooleanUtils.isTrue(vcloudDisk.getDataDisk())) {
-                    DataDiskDto diskDto = new DataDiskDto();
-                    diskDto.setDiskNo(vcloudDisk.getDiskNo());
-                    diskDto.setDiskSize(vcloudDisk.getSize());
-                    diskDto.setUnitNo(vcloudDisk.getUnitNo());
-                    dataDisks.add(diskDto);
-                }
-            }
-
-            //Network
-            List<NetworkDto> networkDtos = describeService.getNetworks(ViewContext.getUserNo(), platform.getPlatformNo());
-            networkMap = new HashMap<String, NetworkDto>();
-            for (NetworkDto networkDto : networkDtos) {
-                networkMap.put(networkDto.getNetworkName(), networkDto);
-            }
-
-            //InstanceNetwork
-            instanceNetworks = new ArrayList<InstanceNetworkDto>();
-            List<VcloudInstanceNetwork> tmpInstanceNetworks = this.instance.getVcloudInstanceNetworks();
-            for (VcloudInstanceNetwork instanceNetwork : tmpInstanceNetworks) {
-                InstanceNetworkDto instanceNetworkDto = new InstanceNetworkDto();
-                instanceNetworkDto.setNetworkNo(instanceNetwork.getNetworkNo());
-                instanceNetworkDto.setNetworkName(instanceNetwork.getNetworkName());
-                instanceNetworkDto.setNew(false);
-                instanceNetworkDto.setDelete(false);
-                instanceNetworkDto.setIpMode(instanceNetwork.getIpMode());
-                instanceNetworkDto.setIpAddress(instanceNetwork.getIpAddress());
-                instanceNetworkDto.setRequired(networkMap.get(instanceNetwork.getNetworkName()).isPcc());
-                instanceNetworkDto.setPrimary(BooleanUtils.isTrue(instanceNetwork.getIsPrimary()));
-                instanceNetworks.add(instanceNetworkDto);
-            }
-
-        } else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platformType)) {
-            // Azure情報を取得
-            PlatformAzure platformAzure = platformDto.getPlatformAzure();
-            // 情報を取得
-            IaasDescribeService describeService = BeanContext.getBean(IaasDescribeService.class);
-
-            instanceTypes = new ArrayList<String>();
-            for (String instanceType : image.getImageAzure().getInstanceTypes().split(",")) {
-                instanceTypes.add(instanceType.trim());
-            }
-            // 可用性セット
-            availabilitySets = new ArrayList<String>();
-            for (String availabilitySet : platformAzure.getAvailabilitySets().split(",")) {
-                availabilitySets.add(availabilitySet.trim());
-            }
-            //サブネット
-            subnets = describeService.getAzureSubnets(ViewContext.getUserNo(), platform.getPlatformNo(),
-                    platformAzure.getNetworkName());
-
-        } else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platformType)) {
-            // 情報を取得
-            IaasDescribeService describeService = BeanContext.getBean(IaasDescribeService.class);
-            //instanceTypes
-            instanceTypes = new ArrayList<String>();
-            for (String instanceType : image.getImageOpenstack().getInstanceTypes().split(",")) {
-                //IDで取得されるため、今後名称に変換する必要有り
-                instanceTypes.add(instanceType.trim());
-            }
-            // Availablility Zone
-            zones = describeService.getAvailabilityZones(ViewContext.getUserNo(), platform.getPlatformNo());
-
-            //セキュリティグループ
-            securityGroups = new ArrayList<String>();
-            List<SecurityGroupDto> groups;
-            groups = describeService.getSecurityGroups(ViewContext.getUserNo(), platform.getPlatformNo(), null);
-            for (SecurityGroupDto group : groups) {
-                securityGroups.add(group.getGroupName());
-            }
-
-            //キーペア
-            List<KeyPairDto> infos = describeService.getKeyPairs(ViewContext.getUserNo(), platform.getPlatformNo());
-            keyPairs = new ArrayList<String>();
-            for (KeyPairDto info : infos) {
-                keyPairs.add(info.getKeyName());
-            }
-
         }
 
         // サーバに関連付けられたサービスを取得
@@ -2893,7 +3005,7 @@ public class WinServerEdit extends Window {
         } else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platformDto.getPlatform().getPlatformType())) {
             // VMwareサーバを更新
             VmwareKeyPair selectedKeyPair = null;
-            for (VmwareKeyPair vmwareKeyPair : vmwareKeyPairs) {
+            for (VmwareKeyPair vmwareKeyPair : vmwareDetailTab.vmwareKeyPairs) {
                 if (vmwareKeyPair.getKeyName().equals(keyName)) {
                     selectedKeyPair = vmwareKeyPair;
                     break;
@@ -2912,7 +3024,7 @@ public class WinServerEdit extends Window {
         } else if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platformDto.getPlatform().getPlatformType())) {
             // Niftyサーバを更新
             NiftyKeyPair selectedKeyPair = null;
-            for (NiftyKeyPair niftyKeyPair : niftyKeyPairs) {
+            for (NiftyKeyPair niftyKeyPair : niftyDetailTab.niftyKeyPairs) {
                 if (niftyKeyPair.getKeyName().equals(keyName)) {
                     selectedKeyPair = niftyKeyPair;
                     break;
@@ -2945,7 +3057,7 @@ public class WinServerEdit extends Window {
             //VCloudサーバを更新
             try {
                 instanceService.updateVcloudInstance(instanceNo, instance.getInstance().getInstanceName(), comment,
-                        storageTypeNo, keyNo, serverSize, instanceNetworks);
+                        storageTypeNo, keyNo, serverSize, vcloudNetworkTab.instanceNetworks);
             } catch (AutoApplicationException e) {
                 String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
                 DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
