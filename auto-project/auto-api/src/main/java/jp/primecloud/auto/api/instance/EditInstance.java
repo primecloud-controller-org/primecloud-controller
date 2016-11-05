@@ -57,6 +57,7 @@ import jp.primecloud.auto.service.dto.ZoneDto;
 import org.apache.commons.lang.StringUtils;
 
 @Path("/EditInstance")
+@Deprecated
 public class EditInstance extends ApiSupport {
 
     /**
