@@ -12,8 +12,8 @@ import jp.primecloud.auto.entity.crud.LoadBalancerHealthCheck;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.PlatformAws;
 import jp.primecloud.auto.exception.AutoApplicationException;
+import jp.primecloud.auto.service.AwsDescribeService;
 import jp.primecloud.auto.service.ComponentService;
-import jp.primecloud.auto.service.IaasDescribeService;
 import jp.primecloud.auto.service.InstanceService;
 import jp.primecloud.auto.service.LoadBalancerService;
 import jp.primecloud.auto.service.dto.AutoScalingConfDto;
@@ -22,8 +22,6 @@ import jp.primecloud.auto.service.dto.ImageDto;
 import jp.primecloud.auto.service.dto.LoadBalancerDto;
 import jp.primecloud.auto.service.dto.LoadBalancerPlatformDto;
 import jp.primecloud.auto.service.dto.PlatformDto;
-import jp.primecloud.auto.service.dto.SecurityGroupDto;
-import jp.primecloud.auto.service.dto.SubnetDto;
 import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.CommonUtils;
 import jp.primecloud.auto.ui.util.Icons;
@@ -36,6 +34,8 @@ import jp.primecloud.auto.ui.validator.IntegerRangeValidator;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
+import com.amazonaws.services.ec2.model.SecurityGroup;
+import com.amazonaws.services.ec2.model.Subnet;
 import com.vaadin.Application;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
@@ -95,7 +95,7 @@ public class WinLoadBalancerEdit extends Window {
 
     List<PlatformDto> platforms;
 
-    List<SubnetDto> subnets;
+    List<Subnet> subnets;
 
     List<String> securityGroups = new ArrayList<String>();
 
@@ -435,9 +435,9 @@ public class WinLoadBalancerEdit extends Window {
                     for (String lbSubnet: loadBalancerDto.getAwsLoadBalancer().getSubnetId().split(",")) {
                         lbSubnets.add(lbSubnet.trim());
                     }
-                    for (SubnetDto subnetDto: subnets) {
-                        if (lbSubnets.contains(subnetDto.getSubnetId())) {
-                            subnetSelect.select(subnetDto);
+                    for (Subnet subnet: subnets) {
+                        if (lbSubnets.contains(subnet.getSubnetId())) {
+                            subnetSelect.select(subnet);
                         }
                     }
                 } else {
@@ -473,13 +473,13 @@ public class WinLoadBalancerEdit extends Window {
             subnetContainer.addContainerProperty("subnetId", String.class, null);
             subnetContainer.addContainerProperty("zoneid", String.class, null);
 
-            for (SubnetDto subnetDto: subnets) {
-                Item item = subnetContainer.addItem(subnetDto);
-                String subnetDisp = subnetDto.getCidrBlock() + "[" + subnetDto.getZoneid() + "]";
+            for (Subnet subnet: subnets) {
+                Item item = subnetContainer.addItem(subnet);
+                String subnetDisp = subnet.getCidrBlock() + "[" + subnet.getAvailabilityZone() + "]";
                 item.getItemProperty(SUBNET_CAPTION_ID).setValue(subnetDisp);
-                item.getItemProperty("cidrBlock").setValue(subnetDto.getCidrBlock());
-                item.getItemProperty("subnetId").setValue(subnetDto.getSubnetId());
-                item.getItemProperty("zoneid").setValue(subnetDto.getZoneid());
+                item.getItemProperty("cidrBlock").setValue(subnet.getCidrBlock());
+                item.getItemProperty("subnetId").setValue(subnet.getSubnetId());
+                item.getItemProperty("zoneid").setValue(subnet.getAvailabilityZone());
             }
 
             return subnetContainer;
@@ -1281,24 +1281,24 @@ public class WinLoadBalancerEdit extends Window {
             this.instanceNo = loadBalancerService.getLoadBalancerInstance(loadBalancerNo);
         }
 
+        AwsDescribeService awsDescribeService = BeanContext.getBean(AwsDescribeService.class);
+
         //サブネットを取得
         PlatformAws platformAws = platformDto.getPlatformAws();
-        this.subnets = new ArrayList<SubnetDto>();
+        this.subnets = new ArrayList<Subnet>();
         if (PCCConstant.LOAD_BALANCER_ELB.equals(type) && platformAws.getVpc()) {
-            IaasDescribeService iaasDescribeService = BeanContext.getBean(IaasDescribeService.class);
-            List<SubnetDto> subnetDtos = iaasDescribeService.getSubnets(userNo, platformNo, platformAws.getVpcId());
-            for (SubnetDto subnetDto: subnetDtos) {
-                subnets.add(subnetDto);
+            List<Subnet> subnets = awsDescribeService.getSubnets(userNo, platformNo);
+            for (Subnet subnet: subnets) {
+                this.subnets.add(subnet);
             }
         }
 
         //セキュリティグループを取得
         this.securityGroups = new ArrayList<String>();
         if (PCCConstant.LOAD_BALANCER_ELB.equals(type) && platformAws.getVpc()) {
-            IaasDescribeService iaasDescribeService = BeanContext.getBean(IaasDescribeService.class);
-            List<SecurityGroupDto> securityGroupDtos = iaasDescribeService.getSecurityGroups(userNo, platformNo, platformAws.getVpcId());
-            for (SecurityGroupDto securityGroupDto: securityGroupDtos) {
-                this.securityGroups.add(securityGroupDto.getGroupName());
+            List<SecurityGroup> groups = awsDescribeService.getSecurityGroups(userNo, platformNo);
+            for (SecurityGroup group : groups) {
+                this.securityGroups.add(group.getGroupName());
             }
         }
 
@@ -1329,11 +1329,11 @@ public class WinLoadBalancerEdit extends Window {
         ComponentDto componentDto = (ComponentDto) basicTab.serviceSelect.getValue();
         String subnetId = null;
         String zone = null;
-        Collection<SubnetDto> subnets = null;
+        Collection<Subnet> subnets = null;
         String securityGroup = null;
         boolean isInternalLb = false;
         if (PCCConstant.LOAD_BALANCER_ELB.equals(type) && platformAws.getVpc()) {
-            subnets = (Collection<SubnetDto>) basicTab.subnetSelect.getValue();
+            subnets = (Collection<Subnet>) basicTab.subnetSelect.getValue();
             securityGroup = (String) basicTab.grpSelect.getValue();
             if ("有効".equals((String)basicTab.internalSelect.getValue())) {
                 isInternalLb = true;
@@ -1411,16 +1411,16 @@ public class WinLoadBalancerEdit extends Window {
                 StringBuffer subnetBuffer = new StringBuffer();
                 StringBuffer zoneBuffer = new StringBuffer();
                 List<String> zones = new ArrayList<String>();
-                for (SubnetDto subnetDto: subnets) {
-                    if (zones.contains(subnetDto.getZoneid())){
+                for (Subnet subnet: subnets) {
+                    if (zones.contains(subnet.getAvailabilityZone())){
                         //同じゾーンのサブネットを複数選択している場合
                         DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), ViewMessages.getMessage("IUI-000110"));
                         getApplication().getMainWindow().addWindow(dialog);
                         return;
                     }
-                    zones.add(subnetDto.getZoneid());
-                    subnetBuffer.append(subnetBuffer.length() > 0 ? ","+ subnetDto.getSubnetId(): subnetDto.getSubnetId());
-                    zoneBuffer.append(zoneBuffer.length() > 0 ? ","+ subnetDto.getZoneid(): subnetDto.getZoneid());
+                    zones.add(subnet.getAvailabilityZone());
+                    subnetBuffer.append(subnetBuffer.length() > 0 ? ","+ subnet.getSubnetId(): subnet.getSubnetId());
+                    zoneBuffer.append(zoneBuffer.length() > 0 ? ","+ subnet.getAvailabilityZone(): subnet.getAvailabilityZone());
                 }
                 subnetId = subnetBuffer.toString();
                 zone = zoneBuffer.toString();

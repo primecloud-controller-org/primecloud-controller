@@ -100,6 +100,8 @@ import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.log.service.EventLogService;
+import jp.primecloud.auto.process.aws.AwsProcessClientFactory;
+import jp.primecloud.auto.service.AwsDescribeService;
 import jp.primecloud.auto.service.ComponentService;
 import jp.primecloud.auto.service.FarmService;
 import jp.primecloud.auto.service.IaasDescribeService;
@@ -406,6 +408,9 @@ public class ApiSupport extends ApiConstants {
 
     protected AwsSslKeyDao awsSslKeyDao = BeanContext.getBean(AwsSslKeyDao.class);
 
+    //auto-process
+    protected AwsProcessClientFactory awsProcessClientFactory = BeanContext.getBean(AwsProcessClientFactory.class);
+
     //auto-service
     protected FarmService farmService = BeanContext.getBean(FarmService.class);
 
@@ -430,4 +435,7 @@ public class ApiSupport extends ApiConstants {
     protected PlatformService platformService = BeanContext.getBean(PlatformService.class);
 
     protected UserService userService = BeanContext.getBean(UserService.class);
+
+    protected AwsDescribeService awsDescribeService = BeanContext.getBean(AwsDescribeService.class);
+
 }

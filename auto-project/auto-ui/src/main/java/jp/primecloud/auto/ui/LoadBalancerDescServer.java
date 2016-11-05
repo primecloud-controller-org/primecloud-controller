@@ -22,7 +22,7 @@ import jp.primecloud.auto.entity.crud.LoadBalancerHealthCheck;
 import jp.primecloud.auto.entity.crud.LoadBalancerInstance;
 import jp.primecloud.auto.entity.crud.PlatformAws;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.service.IaasDescribeService;
+import jp.primecloud.auto.service.AwsDescribeService;
 import jp.primecloud.auto.service.LoadBalancerService;
 import jp.primecloud.auto.service.dto.AutoScalingConfDto;
 import jp.primecloud.auto.service.dto.ComponentDto;
@@ -31,7 +31,6 @@ import jp.primecloud.auto.service.dto.ImageDto;
 import jp.primecloud.auto.service.dto.InstanceDto;
 import jp.primecloud.auto.service.dto.LoadBalancerDto;
 import jp.primecloud.auto.service.dto.PlatformDto;
-import jp.primecloud.auto.service.dto.SubnetDto;
 import jp.primecloud.auto.service.dto.UserAuthDto;
 import jp.primecloud.auto.ui.DialogConfirm.Buttons;
 import jp.primecloud.auto.ui.DialogConfirm.Result;
@@ -45,6 +44,7 @@ import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
 import jp.primecloud.auto.util.MessageUtils;
 
+import com.amazonaws.services.ec2.model.Subnet;
 import com.vaadin.data.Container;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
@@ -367,12 +367,12 @@ public class LoadBalancerDescServer extends Panel {
                     for (String lbSubnet: dto.getAwsLoadBalancer().getSubnetId().split(",")) {
                         lbSubnets.add(lbSubnet.trim());
                     }
-                    IaasDescribeService iaasDescribeService = BeanContext.getBean(IaasDescribeService.class);
-                    List<SubnetDto> subnets = iaasDescribeService.getSubnets(ViewContext.getUserNo(), lb.getPlatformNo(), platformAws.getVpcId());
+                    AwsDescribeService awsDescribeService = BeanContext.getBean(AwsDescribeService.class);
+                    List<Subnet> subnets = awsDescribeService.getSubnets(ViewContext.getUserNo(), lb.getPlatformNo());
                     StringBuffer subnetBuffer = new StringBuffer();
-                    for (SubnetDto subnetDto: subnets) {
-                        if (lbSubnets.contains(subnetDto.getSubnetId())) {
-                            subnetBuffer.append(subnetBuffer.length() > 0 ? "<br>" + subnetDto.getCidrBlock(): subnetDto.getCidrBlock());
+                    for (Subnet subnet: subnets) {
+                        if (lbSubnets.contains(subnet.getSubnetId())) {
+                            subnetBuffer.append(subnetBuffer.length() > 0 ? "<br>" + subnet.getCidrBlock(): subnet.getCidrBlock());
                         }
                     }
                     displayLabels.get("field.subnet").setValue(subnetBuffer.toString());

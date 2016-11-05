@@ -58,6 +58,7 @@ public interface IaasDescribeService {
 
     public void deleteAddress(Long userNo, Long platformNo, Long addressNo);
 
+    @Deprecated
     public String getPassword(Long instanceNo, String privateKey);
 
 }

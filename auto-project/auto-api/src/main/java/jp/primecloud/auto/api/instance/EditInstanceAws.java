@@ -30,7 +30,6 @@ import javax.ws.rs.core.MediaType;
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
 import jp.primecloud.auto.api.response.instance.EditInstanceAwsResponse;
-import jp.primecloud.auto.common.component.Subnet;
 import jp.primecloud.auto.common.status.InstanceStatus;
 import jp.primecloud.auto.entity.crud.AwsAddress;
 import jp.primecloud.auto.entity.crud.ImageAws;
@@ -39,13 +38,14 @@ import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.PlatformAws;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.service.dto.KeyPairDto;
-import jp.primecloud.auto.service.dto.SecurityGroupDto;
-import jp.primecloud.auto.service.dto.SubnetDto;
-import jp.primecloud.auto.service.dto.ZoneDto;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
+
+import com.amazonaws.services.ec2.model.AvailabilityZone;
+import com.amazonaws.services.ec2.model.KeyPairInfo;
+import com.amazonaws.services.ec2.model.SecurityGroup;
+import com.amazonaws.services.ec2.model.Subnet;
 
 @Path("/EditInstanceAws")
 public class EditInstanceAws extends ApiSupport {
@@ -100,22 +100,22 @@ public class EditInstanceAws extends ApiSupport {
             throw new AutoApplicationException("EAPI-000012", instance.getPlatformNo(), keyName);
         }
 
-        PlatformAws platformAws = platformAwsDao.read(instance.getPlatformNo());
-
         // SecurityGroups
         ApiValidate.validateSecurityGroups(securityGroups);
-        if (!checkSecurityGroups(user.getUserNo(), instance.getPlatformNo(), platformAws.getVpcId(), securityGroups)) {
+        if (!checkSecurityGroups(user.getUserNo(), instance.getPlatformNo(), securityGroups)) {
             // SecurityGroupsが存在しない
             throw new AutoApplicationException("EAPI-100019", instance.getPlatformNo(), securityGroups);
         }
 
+        PlatformAws platformAws = platformAwsDao.read(instance.getPlatformNo());
+
         // Subnet(VPCのみ)
-        SubnetDto subnetDto = null;
+        Subnet awsSubnet = null;
         if (BooleanUtils.isTrue(platformAws.getVpc())) {
             ApiValidate.validateSubnet(subnet);
 
-            subnetDto = getSubnet(user.getUserNo(), instance.getPlatformNo(), platformAws.getVpcId(), subnet);
-            if (subnetDto == null) {
+            awsSubnet = getSubnet(user.getUserNo(), instance.getPlatformNo(), subnet);
+            if (awsSubnet == null) {
                 // CidrBlockが存在しない
                 throw new AutoApplicationException("EAPI-000017", instance.getPlatformNo(), subnet);
             }
@@ -167,7 +167,8 @@ public class EditInstanceAws extends ApiSupport {
         // 更新処理
         if (BooleanUtils.isTrue(platformAws.getVpc())) {
             instanceService.updateAwsInstance(instance.getInstanceNo(), instance.getInstanceName(), comment, keyName,
-                    instanceType, securityGroups, subnetDto.getZoneid(), addressNo, subnetDto.getSubnetId(), privateIp);
+                    instanceType, securityGroups, awsSubnet.getAvailabilityZone(), addressNo, awsSubnet.getSubnetId(),
+                    privateIp);
         } else {
             instanceService.updateAwsInstance(instance.getInstanceNo(), instance.getInstanceName(), comment, keyName,
                     instanceType, securityGroups, availabilityZone, addressNo, null, null);
@@ -194,8 +195,8 @@ public class EditInstanceAws extends ApiSupport {
     }
 
     private boolean checkKeyName(Long userNo, Long platformNo, String keyName) {
-        List<KeyPairDto> keyPairs = iaasDescribeService.getKeyPairs(userNo, platformNo);
-        for (KeyPairDto keyPair : keyPairs) {
+        List<KeyPairInfo> keyPairs = awsDescribeService.getKeyPairs(userNo, platformNo);
+        for (KeyPairInfo keyPair : keyPairs) {
             if (StringUtils.equals(keyName, keyPair.getKeyName())) {
                 return true;
             }
@@ -204,7 +205,7 @@ public class EditInstanceAws extends ApiSupport {
         return false;
     }
 
-    private boolean checkSecurityGroups(Long userNo, Long platformNo, String vpcId, String securityGroups) {
+    private boolean checkSecurityGroups(Long userNo, Long platformNo, String securityGroups) {
         List<String> groupNames = new ArrayList<String>();
         for (String groupName : StringUtils.split(securityGroups, ",")) {
             groupNames.add(groupName.trim());
@@ -215,9 +216,9 @@ public class EditInstanceAws extends ApiSupport {
         }
 
         List<String> groupNames2 = new ArrayList<String>();
-        List<SecurityGroupDto> securityGroupDtos = iaasDescribeService.getSecurityGroups(userNo, platformNo, vpcId);
-        for (SecurityGroupDto securityGroupDto : securityGroupDtos) {
-            groupNames2.add(securityGroupDto.getGroupName());
+        List<SecurityGroup> groups = awsDescribeService.getSecurityGroups(userNo, platformNo);
+        for (SecurityGroup group : groups) {
+            groupNames2.add(group.getGroupName());
         }
 
         for (String groupName : groupNames) {
@@ -230,9 +231,9 @@ public class EditInstanceAws extends ApiSupport {
     }
 
     private boolean checkAvailabilityZoneName(Long userNo, Long platformNo, String zoneName) {
-        List<ZoneDto> zones = iaasDescribeService.getAvailabilityZones(userNo, platformNo);
-        for (ZoneDto zone : zones) {
-            if (StringUtils.equals(zoneName, zone.getZoneName())) {
+        List<AvailabilityZone> availabilityZones = awsDescribeService.getAvailabilityZones(userNo, platformNo);
+        for (AvailabilityZone availabilityZone : availabilityZones) {
+            if (StringUtils.equals(zoneName, availabilityZone.getZoneName())) {
                 return true;
             }
         }
@@ -240,11 +241,11 @@ public class EditInstanceAws extends ApiSupport {
         return false;
     }
 
-    private SubnetDto getSubnet(Long userNo, Long platformNo, String vpcId, String cidrBlock) {
-        List<SubnetDto> subnets = iaasDescribeService.getSubnets(userNo, platformNo, vpcId);
-        for (SubnetDto subnetDto : subnets) {
-            if (subnetDto.getCidrBlock().equals(cidrBlock)) {
-                return subnetDto;
+    private Subnet getSubnet(Long userNo, Long platformNo, String cidrBlock) {
+        List<Subnet> subnets = awsDescribeService.getSubnets(userNo, platformNo);
+        for (Subnet subnet : subnets) {
+            if (subnet.getCidrBlock().equals(cidrBlock)) {
+                return subnet;
             }
         }
 
@@ -253,11 +254,12 @@ public class EditInstanceAws extends ApiSupport {
 
     private boolean checkPrivateIp(String cidrBlock, String privateIpAddress) {
         String[] splitCidr = cidrBlock.split("/");
-        Subnet subnet = new Subnet(splitCidr[0].trim(), Integer.parseInt(splitCidr[1].trim()));
+        jp.primecloud.auto.common.component.Subnet subnet = new jp.primecloud.auto.common.component.Subnet(
+                splitCidr[0].trim(), Integer.parseInt(splitCidr[1].trim()));
         String subnetIp = splitCidr[0].trim();
         //AWS(VPC)では先頭3つまでのIPが予約済みIP
         for (int i = 0; i < 3; i++) {
-            subnetIp = Subnet.getNextAddress(subnetIp);
+            subnetIp = jp.primecloud.auto.common.component.Subnet.getNextAddress(subnetIp);
             subnet.addReservedIp(subnetIp);
         }
         return subnet.isScorp(privateIpAddress);

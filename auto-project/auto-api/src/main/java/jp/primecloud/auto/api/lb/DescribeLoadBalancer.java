@@ -46,13 +46,13 @@ import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.entity.crud.LoadBalancerHealthCheck;
 import jp.primecloud.auto.entity.crud.LoadBalancerInstance;
 import jp.primecloud.auto.entity.crud.LoadBalancerListener;
-import jp.primecloud.auto.entity.crud.PlatformAws;
 import jp.primecloud.auto.entity.crud.User;
-import jp.primecloud.auto.service.dto.SubnetDto;
 import jp.primecloud.auto.service.impl.Comparators;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
+
+import com.amazonaws.services.ec2.model.Subnet;
 
 @Path("/DescribeLoadBalancer")
 public class DescribeLoadBalancer extends ApiSupport {
@@ -149,21 +149,19 @@ public class DescribeLoadBalancer extends ApiSupport {
 
             // Subnet
             if (StringUtils.isNotEmpty(awsLoadBalancer.getSubnetId())) {
-                PlatformAws platformAws = platformAwsDao.read(loadBalancer.getPlatformNo());
-                List<SubnetDto> subnetDtos = iaasDescribeService.getSubnets(user.getUserNo(),
-                        loadBalancer.getPlatformNo(), platformAws.getVpcId());
+                List<Subnet> subnets = awsDescribeService.getSubnets(user.getUserNo(), loadBalancer.getPlatformNo());
 
-                List<String> subnets = new ArrayList<String>();
+                List<String> cidrBlocks = new ArrayList<String>();
                 for (String subnetId : StringUtils.split(awsLoadBalancer.getSubnetId(), ",")) {
-                    for (SubnetDto subnetDto : subnetDtos) {
-                        if (subnetDto.getSubnetId().equals(subnetId)) {
-                            subnets.add(subnetDto.getCidrBlock());
+                    for (Subnet subnet : subnets) {
+                        if (StringUtils.equals(subnet.getSubnetId(), subnetId)) {
+                            cidrBlocks.add(subnet.getCidrBlock());
                             break;
                         }
                     }
                 }
 
-                awsLoadBalancerResponse.setSubnets(StringUtils.join(subnets, ","));
+                awsLoadBalancerResponse.setSubnets(StringUtils.join(cidrBlocks, ","));
             }
 
             loadBalancerResponse.setAws(awsLoadBalancerResponse);

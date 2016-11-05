@@ -105,6 +105,7 @@ import jp.primecloud.auto.process.vmware.VmwareProcessClientFactory;
 import jp.primecloud.auto.process.zabbix.ZabbixHostProcess;
 import jp.primecloud.auto.process.zabbix.ZabbixProcessClient;
 import jp.primecloud.auto.process.zabbix.ZabbixProcessClientFactory;
+import jp.primecloud.auto.service.AwsDescribeService;
 import jp.primecloud.auto.service.IaasDescribeService;
 import jp.primecloud.auto.service.InstanceService;
 import jp.primecloud.auto.service.ServiceSupport;
@@ -126,6 +127,10 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
+import com.amazonaws.services.ec2.model.AvailabilityZone;
+import com.amazonaws.services.ec2.model.KeyPairInfo;
+import com.amazonaws.services.ec2.model.SecurityGroup;
+import com.amazonaws.services.ec2.model.Subnet;
 import com.vmware.vim25.mo.ComputeResource;
 
 /**
@@ -139,6 +144,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
     protected IaasGatewayFactory iaasGatewayFactory;
 
     protected IaasDescribeService iaasDescribeService;
+
+    protected AwsDescribeService awsDescribeService;
 
     protected VmwareDescribeService vmwareDescribeService;
 
@@ -1268,31 +1275,30 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         //KeyName
         AwsCertificate awsCertificate = awsCertificateDao.read(farm.getUserNo(), platformAws.getPlatformNo());
         //キーペアの取得
-        List<KeyPairDto> keyPairInfos = iaasDescribeService.getKeyPairs(farm.getUserNo(), platformAws.getPlatformNo());
+        List<KeyPairInfo> keyPairs = awsDescribeService.getKeyPairs(farm.getUserNo(), platformAws.getPlatformNo());
         String keyName = null;
         // AWS認証情報に設定されているデフォルトキーペアを設定
-        for (KeyPairDto keyPairDto : keyPairInfos) {
-            if (StringUtils.equals(awsCertificate.getDefKeypair(), keyPairDto.getKeyName())) {
-                keyName = keyPairDto.getKeyName();
+        for (KeyPairInfo keyPair : keyPairs) {
+            if (StringUtils.equals(awsCertificate.getDefKeypair(), keyPair.getKeyName())) {
+                keyName = keyPair.getKeyName();
                 break;
             }
         }
-        if (keyName == null && keyPairInfos.size() > 0) {
+        if (keyName == null && keyPairs.size() > 0) {
             //デフォルトキーペアが存在しない場合は1件目
-            keyName = keyPairInfos.get(0).getKeyName();
+            keyName = keyPairs.get(0).getKeyName();
         }
         awsInstance.setKeyName(keyName);
 
         if (platformAws.getEuca() == false && platformAws.getVpc()) {
             // VPCの場合
             // SubnetId & AvailabilityZone
-            List<SubnetDto> subnets = iaasDescribeService.getSubnets(farm.getUserNo(), platformAws.getPlatformNo(),
-                    platformAws.getVpcId());
-            SubnetDto subnet = null;
-            for (SubnetDto subnetDto : subnets) {
+            List<Subnet> subnets = awsDescribeService.getSubnets(farm.getUserNo(), platformAws.getPlatformNo());
+            Subnet subnet = null;
+            for (Subnet subnet2 : subnets) {
                 //デフォルトサブネットを設定
-                if (StringUtils.equals(awsCertificate.getDefSubnet(), subnetDto.getSubnetId())) {
-                    subnet = subnetDto;
+                if (StringUtils.equals(awsCertificate.getDefSubnet(), subnet2.getSubnetId())) {
+                    subnet = subnet2;
                     break;
                 }
             }
@@ -1304,7 +1310,7 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
 
             if (subnet != null) {
                 awsInstance.setSubnetId(subnet.getSubnetId());
-                awsInstance.setAvailabilityZone(subnet.getZoneid());
+                awsInstance.setAvailabilityZone(subnet.getAvailabilityZone());
             }
         } else {
             // VPCでない場合
@@ -1312,7 +1318,7 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
             String zoneName = platformAws.getAvailabilityZone();
             if (StringUtils.isEmpty(zoneName) && platformAws.getEuca()) {
                 // デフォルトのゾーン名が指定されておらず、Eucalyptusの場合のみAPIでゾーン名を取得する
-                List<ZoneDto> availabilityZones = iaasDescribeService.getAvailabilityZones(farm.getUserNo(),
+                List<AvailabilityZone> availabilityZones = awsDescribeService.getAvailabilityZones(farm.getUserNo(),
                         platformAws.getPlatformNo());
 
                 zoneName = availabilityZones.get(0).getZoneName();
@@ -1322,21 +1328,61 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
 
         // SecurityGroup
         String groupName = null;
-        List<SecurityGroupDto> securityGroups = null;
-        if (platformAws.getEuca() == false && platformAws.getVpc()) {
-            // VPCの場合
-            securityGroups = iaasDescribeService.getSecurityGroups(farm.getUserNo(), platformAws.getPlatformNo(),
-                    platformAws.getVpcId());
-        } else {
-            // VPCでない場合
-            securityGroups = iaasDescribeService.getSecurityGroups(farm.getUserNo(), platformAws.getPlatformNo(), null);
-        }
-
-        groupName = setSecurityGroup(securityGroups, "aws.defaultSecurityGroup");
+        List<SecurityGroup> securityGroups = awsDescribeService.getSecurityGroups(farm.getUserNo(),
+                platformAws.getPlatformNo());
+        groupName = setSecurityGroupAws(securityGroups, "aws.defaultSecurityGroup");
 
         awsInstance.setSecurityGroups(groupName);
 
         awsInstanceDao.create(awsInstance);
+    }
+
+    /**
+     * セキュリティグループ設定
+     *
+     * ３つのパターンで作成するインスタンスのデフォルトのセキュリティグループを設定します。
+     *
+     * １．第二引数のconfigKeyで取得した値がセキュリティグループ一覧に存在した場合に
+     * 　　そのセキュリティグループ名を設定する。
+     * ２．第二引数のconfigKeyが設定されておらず(または設定されている値が一覧に無い)、
+     * 　　かつ"default"がセキュリティグループ一覧に存在する場合は"default"を設定する。
+     * ３．上記１、２の条件を満たすセキュリティグループが存在しない場合は、取得した
+     * 　　セキュリティグループ一覧の１件目を設定する。
+     *
+     * @param securityGroups 利用クラウド環境から取得したセキュリティグループ一覧
+     * @param configKey config.propertiesの設定キー名
+     * @return
+     */
+    protected String setSecurityGroupAws(List<SecurityGroup> securityGroups, String configKey) {
+
+        String groupName = null;
+        String defaultSecurityGroup = StringUtils.defaultIfEmpty(Config.getProperty(configKey), "default");
+
+        // １のパターン
+        if (!defaultSecurityGroup.equals("default")) {
+            for (SecurityGroup securityGroup : securityGroups) {
+                if (defaultSecurityGroup.equals(securityGroup.getGroupName())) {
+                    groupName = securityGroup.getGroupName();
+                    break;
+                }
+            }
+        }
+
+        // ２のパターン("groupName == null"は設定値が一覧に無い)
+        if (groupName == null) {
+            for (SecurityGroup securityGroup : securityGroups) {
+                if ("default".equals(securityGroup.getGroupName())) {
+                    groupName = securityGroup.getGroupName();
+                    break;
+                }
+            }
+        }
+
+        // ３のパターン
+        if (groupName == null && securityGroups.size() > 0) {
+            groupName = securityGroups.get(0).getGroupName();
+        }
+        return groupName;
     }
 
     /**
@@ -3626,22 +3672,16 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         return InstanceStatus.fromStatus(instance.getStatus());
     }
 
-    /**
-     * awsProcessClientFactoryを設定します。
-     *
-     * @param awsProcessClientFactory awsProcessClientFactory
-     */
     public void setIaasGatewayFactory(IaasGatewayFactory iaasGatewayFactory) {
         this.iaasGatewayFactory = iaasGatewayFactory;
     }
 
-    /**
-     * awsDescribeServiceを設定します。
-     *
-     * @param awsDescribeService awsDescribeService
-     */
-    public void setAwsDescribeService(IaasDescribeService awsDescribeService) {
-        this.iaasDescribeService = awsDescribeService;
+    public void setIaasDescribeService(IaasDescribeService iaasDescribeService) {
+        this.iaasDescribeService = iaasDescribeService;
+    }
+
+    public void setAwsDescribeService(AwsDescribeService awsDescribeService) {
+        this.awsDescribeService = awsDescribeService;
     }
 
     /**

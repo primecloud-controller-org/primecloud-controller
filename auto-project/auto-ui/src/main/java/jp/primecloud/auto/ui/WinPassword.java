@@ -20,13 +20,14 @@ package jp.primecloud.auto.ui;
 
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.service.IaasDescribeService;
+import jp.primecloud.auto.service.AwsDescribeService;
 import jp.primecloud.auto.service.dto.InstanceDto;
 import jp.primecloud.auto.service.dto.PlatformDto;
 import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
 import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -147,10 +148,10 @@ public class WinPassword extends Window {
             return;
         }
 
-        IaasDescribeService describeService = BeanContext.getBean(IaasDescribeService.class);
+        AwsDescribeService awsDescribeService = BeanContext.getBean(AwsDescribeService.class);
         String password = "";
         try {
-            password = describeService.getPassword(instanceNo, privateKeyField.getValue().toString());
+            password = awsDescribeService.getPassword(instanceNo, privateKeyField.getValue().toString());
         } catch (AutoApplicationException e) {
             String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
             DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);

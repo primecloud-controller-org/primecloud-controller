@@ -39,11 +39,12 @@ import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.entity.crud.PlatformAws;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.service.dto.SecurityGroupDto;
-import jp.primecloud.auto.service.dto.SubnetDto;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
+
+import com.amazonaws.services.ec2.model.SecurityGroup;
+import com.amazonaws.services.ec2.model.Subnet;
 
 @Path("/EditLoadBalancer")
 public class EditLoadBalancer extends ApiSupport {
@@ -113,23 +114,23 @@ public class EditLoadBalancer extends ApiSupport {
             //ELB+VPCの場合
             ApiValidate.validateSubnet(cidrBlock);
             List<String> cidrBlocks = commaTextToList(cidrBlock);
-            List<SubnetDto> subnetDtos = getSubnet(user.getUserNo(), loadBalancer.getPlatformNo(), vpcId, cidrBlocks);
-            if (subnetDtos.size() != cidrBlocks.size()) {
+            List<Subnet> subnets = getSubnet(user.getUserNo(), loadBalancer.getPlatformNo(), vpcId, cidrBlocks);
+            if (subnets.size() != cidrBlocks.size()) {
                 //サブネットがプラットフォームに存在しない
                 throw new AutoApplicationException("EAPI-000017", loadBalancer.getPlatformNo(), cidrBlock);
             }
             StringBuffer subnetBuffer = new StringBuffer();
             StringBuffer zoneBuffer = new StringBuffer();
             List<String> zones = new ArrayList<String>();
-            for (SubnetDto subnetDto : subnetDtos) {
-                if (zones.contains(subnetDto.getZoneid())) {
+            for (Subnet subnet : subnets) {
+                if (zones.contains(subnet.getAvailabilityZone())) {
                     //同じゾーンのサブネットを複数選択している場合
                     throw new AutoApplicationException("EAPI-100032", cidrBlock);
                 }
-                zones.add(subnetDto.getZoneid());
-                subnetBuffer
-                        .append(subnetBuffer.length() > 0 ? "," + subnetDto.getSubnetId() : subnetDto.getSubnetId());
-                zoneBuffer.append(zoneBuffer.length() > 0 ? "," + subnetDto.getZoneid() : subnetDto.getZoneid());
+                zones.add(subnet.getAvailabilityZone());
+                subnetBuffer.append(subnetBuffer.length() > 0 ? "," + subnet.getSubnetId() : subnet.getSubnetId());
+                zoneBuffer.append(zoneBuffer.length() > 0 ? "," + subnet.getAvailabilityZone() : subnet
+                        .getAvailabilityZone());
             }
             subnetId = subnetBuffer.toString();
             availabilityZone = zoneBuffer.toString();
@@ -197,19 +198,19 @@ public class EditLoadBalancer extends ApiSupport {
      * @param platformNo プラットフォーム番号
      * @param vpcId vpcId
      * @param cidrBlocks cidrBlockのリスト
-     * @return List<SubnetDto> cidrBlockに合致するサブネットのみ取得
+     * @return List<Subnet> cidrBlockに合致するサブネットのみ取得
      */
-    private List<SubnetDto> getSubnet(Long userNo, Long platformNo, String vpcId, List<String> cidrBlocks) {
-        List<SubnetDto> subnetDtos = new ArrayList<SubnetDto>();
+    private List<Subnet> getSubnet(Long userNo, Long platformNo, String vpcId, List<String> cidrBlocks) {
+        List<Subnet> subnets = new ArrayList<Subnet>();
         if (cidrBlocks.size() > 0) {
-            List<SubnetDto> tmpSubnetDtos = iaasDescribeService.getSubnets(userNo, platformNo, vpcId);
-            for (SubnetDto subnetDto : tmpSubnetDtos) {
-                if (cidrBlocks.contains(subnetDto.getCidrBlock())) {
-                    subnetDtos.add(subnetDto);
+            List<Subnet> subnets2 = awsDescribeService.getSubnets(userNo, platformNo);
+            for (Subnet subnet : subnets2) {
+                if (cidrBlocks.contains(subnet.getCidrBlock())) {
+                    subnets.add(subnet);
                 }
             }
         }
-        return subnetDtos;
+        return subnets;
     }
 
     /**
@@ -246,9 +247,9 @@ public class EditLoadBalancer extends ApiSupport {
      */
     private List<String> getSecurityGroupNames(Long userNo, Long platformNo, String vpcId) {
         List<String> groupNames = new ArrayList<String>();
-        List<SecurityGroupDto> securityGroupDtos = iaasDescribeService.getSecurityGroups(userNo, platformNo, vpcId);
-        for (SecurityGroupDto dto : securityGroupDtos) {
-            groupNames.add(dto.getGroupName());
+        List<SecurityGroup> groups = awsDescribeService.getSecurityGroups(userNo, platformNo);
+        for (SecurityGroup group : groups) {
+            groupNames.add(group.getGroupName());
         }
         return groupNames;
     }

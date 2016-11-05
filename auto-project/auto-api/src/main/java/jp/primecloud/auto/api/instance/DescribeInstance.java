@@ -48,7 +48,6 @@ import jp.primecloud.auto.entity.crud.NiftyInstance;
 import jp.primecloud.auto.entity.crud.NiftyKeyPair;
 import jp.primecloud.auto.entity.crud.OpenstackInstance;
 import jp.primecloud.auto.entity.crud.Platform;
-import jp.primecloud.auto.entity.crud.PlatformAws;
 import jp.primecloud.auto.entity.crud.PlatformVcloudStorageType;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.entity.crud.VcloudInstance;
@@ -58,10 +57,11 @@ import jp.primecloud.auto.entity.crud.VmwareInstance;
 import jp.primecloud.auto.entity.crud.VmwareKeyPair;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.dto.KeyPairDto;
-import jp.primecloud.auto.service.dto.SubnetDto;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
+
+import com.amazonaws.services.ec2.model.Subnet;
 
 @Path("/DescribeInstance")
 public class DescribeInstance extends ApiSupport {
@@ -99,7 +99,6 @@ public class DescribeInstance extends ApiSupport {
         // TODO CLOUD BRANCHING
         if (PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
             //AWS
-            PlatformAws platformAws = platformAwsDao.read(instance.getPlatformNo());
             AwsInstance awsInstance = awsInstanceDao.read(Long.parseLong(instanceNo));
             if (awsInstance == null) {
                 // AWSインスタンスが存在しない
@@ -109,10 +108,9 @@ public class DescribeInstance extends ApiSupport {
 
             //SUBNET取得
             if (StringUtils.isNotEmpty(awsInstance.getSubnetId())) {
-                List<SubnetDto> subnets = iaasDescribeService.getSubnets(user.getUserNo(), platform.getPlatformNo(),
-                        platformAws.getVpcId());
-                for (SubnetDto subnet : subnets) {
-                    if (subnet.getSubnetId().equals(awsInstance.getSubnetId())) {
+                List<Subnet> subnets = awsDescribeService.getSubnets(user.getUserNo(), platform.getPlatformNo());
+                for (Subnet subnet : subnets) {
+                    if (StringUtils.equals(subnet.getSubnetId(), awsInstance.getSubnetId())) {
                         awsResponse.setSubnet(subnet.getCidrBlock());
                         break;
                     }

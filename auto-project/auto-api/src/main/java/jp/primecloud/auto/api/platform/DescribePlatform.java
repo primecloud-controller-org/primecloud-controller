@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.api.platform;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.GET;
@@ -45,13 +44,13 @@ import jp.primecloud.auto.entity.crud.PlatformAws;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.entity.crud.VmwareKeyPair;
 import jp.primecloud.auto.exception.AutoApplicationException;
-import jp.primecloud.auto.service.dto.KeyPairDto;
-import jp.primecloud.auto.service.dto.SecurityGroupDto;
-import jp.primecloud.auto.service.dto.SubnetDto;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
+import com.amazonaws.services.ec2.model.KeyPairInfo;
+import com.amazonaws.services.ec2.model.SecurityGroup;
+import com.amazonaws.services.ec2.model.Subnet;
 import com.vmware.vim25.mo.ComputeResource;
 
 /**
@@ -137,16 +136,15 @@ public class DescribePlatform extends ApiSupport {
         PlatformAws aws = platformAwsDao.read(platformNo);
 
         // キー名
-        List<KeyPairDto> keyPairDtos = iaasDescribeService.getKeyPairs(userNo, platformNo);
-        for (KeyPairDto keyPairDto : keyPairDtos) {
-            response.getKeyNames().add(keyPairDto.getKeyName());
+        List<KeyPairInfo> keyPairs = awsDescribeService.getKeyPairs(userNo, platformNo);
+        for (KeyPairInfo keyPair : keyPairs) {
+            response.getKeyNames().add(keyPair.getKeyName());
         }
 
         // セキュリティグループ
-        List<SecurityGroupDto> securityGroupDtos = iaasDescribeService.getSecurityGroups(userNo, platformNo,
-                aws.getVpcId());
-        for (SecurityGroupDto securityGroupDto : securityGroupDtos) {
-            response.getSecurityGroups().add(securityGroupDto.getGroupName());
+        List<SecurityGroup> securityGroups = awsDescribeService.getSecurityGroups(userNo, platformNo);
+        for (SecurityGroup securityGroup : securityGroups) {
+            response.getSecurityGroups().add(securityGroup.getGroupName());
         }
 
         // デフォルトキーペア
@@ -155,14 +153,28 @@ public class DescribePlatform extends ApiSupport {
 
         // サブネット
         if (BooleanUtils.isTrue(aws.getVpc())) {
-            List<SubnetDto> subnetDtos = iaasDescribeService.getSubnets(userNo, platformNo, aws.getVpcId());
-            for (SubnetDto subnetDto : subnetDtos) {
-                response.getSubnets().add(subnetDto.getCidrBlock());
+            List<Subnet> subnets = awsDescribeService.getSubnets(userNo, platformNo);
+            for (Subnet subnet : subnets) {
+                response.getSubnets().add(subnet.getCidrBlock());
             }
 
             // デフォルトサブネット
-            response.setDefSubnet(getCidrBlockBySubnetId(subnetDtos, certificate.getDefSubnet()));
-            response.setDefLbSubnet(getCidrBlockBySubnetId(subnetDtos, certificate.getDefSubnet()));
+            if (StringUtils.isNotEmpty(certificate.getDefSubnet())) {
+                for (Subnet subnet : subnets) {
+                    if (StringUtils.equals(subnet.getSubnetId(), certificate.getDefSubnet())) {
+                        response.setDefSubnet(subnet.getCidrBlock());
+                    }
+                }
+            }
+
+            // ELBのデフォルトサブネット
+            if (StringUtils.isNotEmpty(certificate.getDefLbSubnet())) {
+                for (Subnet subnet : subnets) {
+                    if (StringUtils.equals(subnet.getSubnetId(), certificate.getDefLbSubnet())) {
+                        response.setDefLbSubnet(subnet.getCidrBlock());
+                    }
+                }
+            }
         }
 
         return response;
@@ -210,22 +222,6 @@ public class DescribePlatform extends ApiSupport {
 
     private PlatformAzureResponse getAzureDetail(Long userNo, Long platformNo) {
         return new PlatformAzureResponse();
-    }
-
-    private String getCidrBlockBySubnetId(List<SubnetDto> subnetDtos, String subnetId) {
-        StringBuffer buffer = new StringBuffer();
-        if (StringUtils.isNotEmpty(subnetId)) {
-            List<String> subnetIds = new ArrayList<String>();
-            for (String tmpSubnet : subnetId.split(",")) {
-                subnetIds.add(tmpSubnet.trim());
-            }
-            for (SubnetDto subnetDto : subnetDtos) {
-                if (subnetIds.contains(subnetDto.getSubnetId())) {
-                    buffer.append(buffer.length() > 0 ? "," + subnetDto.getCidrBlock() : subnetDto.getCidrBlock());
-                }
-            }
-        }
-        return buffer.length() > 0 ? buffer.toString() : null;
     }
 
 }

@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import jp.primecloud.auto.common.component.Subnet;
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.InstanceStatus;
 import jp.primecloud.auto.config.Config;
@@ -37,6 +36,7 @@ import jp.primecloud.auto.entity.crud.VcloudInstanceNetwork;
 import jp.primecloud.auto.entity.crud.VmwareAddress;
 import jp.primecloud.auto.entity.crud.VmwareKeyPair;
 import jp.primecloud.auto.exception.AutoApplicationException;
+import jp.primecloud.auto.service.AwsDescribeService;
 import jp.primecloud.auto.service.IaasDescribeService;
 import jp.primecloud.auto.service.InstanceService;
 import jp.primecloud.auto.service.NiftyDescribeService;
@@ -70,6 +70,10 @@ import jp.primecloud.auto.ui.util.ViewProperties;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
+import com.amazonaws.services.ec2.model.AvailabilityZone;
+import com.amazonaws.services.ec2.model.KeyPairInfo;
+import com.amazonaws.services.ec2.model.SecurityGroup;
+import com.amazonaws.services.ec2.model.Subnet;
 import com.vaadin.Application;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
@@ -577,11 +581,11 @@ public class WinServerEdit extends Window {
 
         List<String> instanceTypes;
 
-        List<ZoneDto> zones;
+        List<AvailabilityZone> zones;
 
         List<AddressDto> elasticIps;
 
-        List<SubnetDto> subnets;
+        List<Subnet> subnets;
 
         final String CIDR_BLOCK_CAPTION_ID = "cidrBlock";
 
@@ -734,24 +738,20 @@ public class WinServerEdit extends Window {
 
             // 情報を取得
             // TODO: ロジックを必ずリファクタリングすること
+            AwsDescribeService awsDescribeService = BeanContext.getBean(AwsDescribeService.class);
             IaasDescribeService describeService = BeanContext.getBean(IaasDescribeService.class);
             //キーペア
-            List<KeyPairDto> infos = describeService.getKeyPairs(ViewContext.getUserNo(), platform.getPlatformNo());
+            List<KeyPairInfo> infos = awsDescribeService.getKeyPairs(ViewContext.getUserNo(), platform.getPlatformNo());
             List<String> keyPairs = new ArrayList<String>();
-            for (KeyPairDto info : infos) {
+            for (KeyPairInfo info : infos) {
                 keyPairs.add(info.getKeyName());
             }
             this.keyPairs = keyPairs;
 
             //セキュリティグループ
             List<String> securityGroups = new ArrayList<String>();
-            List<SecurityGroupDto> groups;
-            if (platformAws.getEuca() == false && platformAws.getVpc()) {
-                groups = describeService.getSecurityGroups(ViewContext.getUserNo(), platform.getPlatformNo(), platformAws.getVpcId());
-            } else {
-                groups = describeService.getSecurityGroups(ViewContext.getUserNo(), platform.getPlatformNo(), null);
-            }
-            for (SecurityGroupDto group : groups) {
+            List<SecurityGroup> groups = awsDescribeService.getSecurityGroups(ViewContext.getUserNo(), platform.getPlatformNo());
+            for (SecurityGroup group : groups) {
                 securityGroups.add(group.getGroupName());
             }
             this.securityGroups = securityGroups;
@@ -764,16 +764,16 @@ public class WinServerEdit extends Window {
             this.instanceTypes = instanceTypes;
 
             //ゾーン
-            List<ZoneDto> zones = describeService.getAvailabilityZones(ViewContext.getUserNo(), platform.getPlatformNo());
+            List<AvailabilityZone> zones = awsDescribeService.getAvailabilityZones(ViewContext.getUserNo(), platform.getPlatformNo());
             if (platformAws.getEuca() == false && platformAws.getVpc() == false) {
                 //EC2 VPCではない場合、空行を先頭に追加してゾーンを無指定にできるようにする
-                zones.add(0, new ZoneDto());
+                zones.add(0, new AvailabilityZone());
             }
             this.zones = zones;
 
             //サブネット
             if (platformAws.getEuca() == false && platformAws.getVpc()) {
-                List<SubnetDto> subnets = describeService.getSubnets(ViewContext.getUserNo(), platform.getPlatformNo(), platformAws.getVpcId());
+                List<Subnet> subnets = awsDescribeService.getSubnets(ViewContext.getUserNo(), platform.getPlatformNo());
                 this.subnets = subnets;
             }
 
@@ -874,9 +874,9 @@ public class WinServerEdit extends Window {
 
             if (platformAws.getEuca() == false && platformAws.getVpc()) {
                 subnetSelect.setContainerDataSource(createSubnetContainer());
-                for (SubnetDto subnetDto : subnets) {
-                    if (subnetDto.getSubnetId().equals(instance.getAwsInstance().getSubnetId())) {
-                        subnetSelect.select(subnetDto);
+                for (Subnet subnet : subnets) {
+                    if (subnet.getSubnetId().equals(instance.getAwsInstance().getSubnetId())) {
+                        subnetSelect.select(subnet);
                         break;
                     }
                 }
@@ -893,9 +893,9 @@ public class WinServerEdit extends Window {
             sizeSelect.select(instance.getAwsInstance().getInstanceType());
 
             zoneSelect.setContainerDataSource(createZoneContainer());
-            for (ZoneDto zoneDto : zones) {
-                if (StringUtils.equals(zoneDto.getZoneName(), instance.getAwsInstance().getAvailabilityZone())) {
-                    zoneSelect.select(zoneDto);
+            for (AvailabilityZone zone : zones) {
+                if (StringUtils.equals(zone.getZoneName(), instance.getAwsInstance().getAvailabilityZone())) {
+                    zoneSelect.select(zone);
                     break;
                 }
             }
@@ -923,9 +923,9 @@ public class WinServerEdit extends Window {
             IndexedContainer subnetContainer = new IndexedContainer();
             subnetContainer.addContainerProperty(CIDR_BLOCK_CAPTION_ID, String.class, null);
 
-            for (SubnetDto subnetDto : subnets) {
-                Item item = subnetContainer.addItem(subnetDto);
-                item.getItemProperty(CIDR_BLOCK_CAPTION_ID).setValue(subnetDto.getCidrBlock());
+            for (Subnet subnet : subnets) {
+                Item item = subnetContainer.addItem(subnet);
+                item.getItemProperty(CIDR_BLOCK_CAPTION_ID).setValue(subnet.getCidrBlock());
             }
 
             return subnetContainer;
@@ -935,9 +935,9 @@ public class WinServerEdit extends Window {
             IndexedContainer zoneContainer = new IndexedContainer();
             zoneContainer.addContainerProperty(ZONE_CAPTION_ID, String.class, null);
 
-            for (ZoneDto zoneDto : zones) {
-                Item item = zoneContainer.addItem(zoneDto);
-                item.getItemProperty(ZONE_CAPTION_ID).setValue(zoneDto.getZoneName());
+            for (AvailabilityZone zone : zones) {
+                Item item = zoneContainer.addItem(zone);
+                item.getItemProperty(ZONE_CAPTION_ID).setValue(zone.getZoneName());
             }
 
             return zoneContainer;
@@ -2780,17 +2780,18 @@ public class WinServerEdit extends Window {
             groupName = (String) awsDetailTab.grpSelect.getValue();
             serverSize = (String) awsDetailTab.sizeSelect.getValue();
 
+            Subnet subnet = null;
             if (platformAws.getEuca() == false && platformAws.getVpc()) {
-                subnetDto = (SubnetDto) awsDetailTab.subnetSelect.getValue();
-                if (subnetDto != null) {
-                    subnetId = subnetDto.getSubnetId();
-                    zoneName = subnetDto.getZoneid();
+                subnet = (Subnet) awsDetailTab.subnetSelect.getValue();
+                if (subnet != null) {
+                    subnetId = subnet.getSubnetId();
+                    zoneName = subnet.getAvailabilityZone();
                 }
                 privateIp = (String) awsDetailTab.privateIpField.getValue();
             } else {
-                zoneDto = (ZoneDto) awsDetailTab.zoneSelect.getValue();
-                if (zoneDto != null) {
-                    zoneName = zoneDto.getZoneName();
+                AvailabilityZone zone = (AvailabilityZone) awsDetailTab.zoneSelect.getValue();
+                if (zone != null) {
+                    zoneName = zone.getZoneName();
                 }
                 privateIp = (String) awsDetailTab.privateIpField.getValue();
             }
@@ -2817,17 +2818,17 @@ public class WinServerEdit extends Window {
 
             //サブネットのIPアドレスの有効チェック
             if (platformAws.getEuca() == false && platformAws.getVpc() && StringUtils.isNotEmpty(privateIp)) {
-                String[] cidr = subnetDto.getCidrBlock().split("/");
-                Subnet subnet = new Subnet(cidr[0], Integer.parseInt(cidr[1]));
+                String[] cidr = subnet.getCidrBlock().split("/");
+                jp.primecloud.auto.common.component.Subnet subnet1 = new jp.primecloud.auto.common.component.Subnet(cidr[0], Integer.parseInt(cidr[1]));
                 String subnetIp = cidr[0];
                 //AWS(VPC)では先頭3つまでのIPが予約済みIP
                 for (int i = 0; i < 3; i++) {
-                    subnetIp = Subnet.getNextAddress(subnetIp);
-                    subnet.addReservedIp(subnetIp);
+                    subnetIp = jp.primecloud.auto.common.component.Subnet.getNextAddress(subnetIp);
+                    subnet1.addReservedIp(subnetIp);
                 }
-                if (subnet.isScorp(privateIp) == false) {
+                if (subnet1.isScorp(privateIp) == false) {
                     //有効なサブネットではない
-                    String message = ViewMessages.getMessage("IUI-000109", subnet.getAvailableMinIp(), subnet.getAvailableMaxIp());
+                    String message = ViewMessages.getMessage("IUI-000109", subnet1.getAvailableMinIp(), subnet1.getAvailableMaxIp());
                     DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
                     getApplication().getMainWindow().addWindow(dialog);
                     return;

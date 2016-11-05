@@ -36,6 +36,11 @@
 		<property name="timeToLive" value="${dns.timeToLive}" />
 	</bean>
 
+	<!-- AwsProcess -->
+	<bean id="awsProcessClientFactory" class="jp.primecloud.auto.process.aws.AwsProcessClientFactory">
+		<property name="logging" value="${aws.logging}" />
+		<property name="sync" value="${aws.synchronized}" />
+	</bean>
 
 	<!-- VmwareProcess -->
 	<bean id="vmwareProcess" class="jp.primecloud.auto.process.vmware.VmwareProcess" />

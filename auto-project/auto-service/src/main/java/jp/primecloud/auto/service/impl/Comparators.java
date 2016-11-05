@@ -38,6 +38,12 @@ import jp.primecloud.auto.service.dto.FarmDto;
 import jp.primecloud.auto.service.dto.InstanceDto;
 import jp.primecloud.auto.service.dto.LoadBalancerDto;
 
+import org.apache.commons.lang.StringUtils;
+
+import com.amazonaws.services.ec2.model.AvailabilityZone;
+import com.amazonaws.services.ec2.model.KeyPairInfo;
+import com.amazonaws.services.ec2.model.SecurityGroup;
+import com.amazonaws.services.ec2.model.Subnet;
 import com.vmware.vim25.mo.ComputeResource;
 
 /**
@@ -83,6 +89,14 @@ public class Comparators {
     public static final Comparator<VcloudInstanceNetwork> COMPARATOR_VCLOUD_INSTANCE_NETWORK;
 
     public static final Comparator<PlatformVcloudStorageType> COMPARATOR_PLATFORM_VCLOUD_STORAGE_TYPE;
+
+    public static final Comparator<AvailabilityZone> COMPARATOR_AVAILABILITY_ZONE;
+
+    public static final Comparator<KeyPairInfo> COMPARATOR_KEY_PAIR_INFO;
+
+    public static final Comparator<SecurityGroup> COMPARATOR_SECURITY_GROUP;
+
+    public static final Comparator<Subnet> COMPARATOR_SUBNET;
 
     static {
         COMPARATOR_FARM_DTO = new Comparator<FarmDto>() {
@@ -267,6 +281,41 @@ public class Comparators {
                 } else {
                     return o1.getStorageTypeNo().compareTo(o2.getStorageTypeNo());
                 }
+            }
+        };
+
+        COMPARATOR_AVAILABILITY_ZONE = new Comparator<AvailabilityZone>() {
+            @Override
+            public int compare(AvailabilityZone o1, AvailabilityZone o2) {
+                return o1.getZoneName().compareTo(o2.getZoneName());
+            }
+        };
+
+        COMPARATOR_KEY_PAIR_INFO = new Comparator<KeyPairInfo>() {
+            @Override
+            public int compare(KeyPairInfo o1, KeyPairInfo o2) {
+                return o1.getKeyName().compareTo(o2.getKeyName());
+            }
+        };
+
+        COMPARATOR_SECURITY_GROUP = new Comparator<SecurityGroup>() {
+            @Override
+            public int compare(SecurityGroup o1, SecurityGroup o2) {
+                return o1.getGroupName().compareTo(o2.getGroupName());
+            }
+        };
+
+        COMPARATOR_SUBNET = new Comparator<Subnet>() {
+            @Override
+            public int compare(Subnet o1, Subnet o2) {
+                long diff = toLong(o1.getCidrBlock()) - toLong(o2.getCidrBlock());
+                return diff == 0 ? 0 : (diff > 0 ? 1 : -1);
+            }
+
+            private long toLong(String cidrBlock) {
+                String[] array = StringUtils.split(StringUtils.split(cidrBlock, "/")[0], ".");
+                return Long.parseLong(array[0]) * 256 * 256 * 256 + Long.parseLong(array[1]) * 256 * 256
+                        + Long.parseLong(array[2]) * 256 + Long.parseLong(array[3]);
             }
         };
     }

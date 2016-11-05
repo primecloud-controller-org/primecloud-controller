@@ -73,8 +73,8 @@ import jp.primecloud.auto.process.hook.ProcessHook;
 import jp.primecloud.auto.process.zabbix.ElbZabbixHostProcess;
 import jp.primecloud.auto.process.zabbix.ZabbixProcessClient;
 import jp.primecloud.auto.process.zabbix.ZabbixProcessClientFactory;
+import jp.primecloud.auto.service.AwsDescribeService;
 import jp.primecloud.auto.service.ComponentService;
-import jp.primecloud.auto.service.IaasDescribeService;
 import jp.primecloud.auto.service.InstanceService;
 import jp.primecloud.auto.service.LoadBalancerService;
 import jp.primecloud.auto.service.ServiceSupport;
@@ -84,12 +84,13 @@ import jp.primecloud.auto.service.dto.ImageDto;
 import jp.primecloud.auto.service.dto.LoadBalancerDto;
 import jp.primecloud.auto.service.dto.LoadBalancerPlatformDto;
 import jp.primecloud.auto.service.dto.PlatformDto;
-import jp.primecloud.auto.service.dto.SecurityGroupDto;
 import jp.primecloud.auto.service.dto.SslKeyDto;
-import jp.primecloud.auto.service.dto.SubnetDto;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
+
+import com.amazonaws.services.ec2.model.SecurityGroup;
+import com.amazonaws.services.ec2.model.Subnet;
 
 /**
  * <p>
@@ -103,7 +104,7 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
 
     protected InstanceService instanceService;
 
-    protected IaasDescribeService iaasDescribeService;
+    protected AwsDescribeService awsDescribeService;
 
     protected EventLogger eventLogger;
 
@@ -548,14 +549,14 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
             List<String> zones = new ArrayList<String>();
             StringBuffer subnetBuffer = new StringBuffer();
             StringBuffer zoneBuffer = new StringBuffer();
-            List<SubnetDto> subnetDtos = iaasDescribeService.getSubnets(farm.getUserNo(), platformNo,
-                    platformAws.getVpcId());
-            for (SubnetDto subnetDto : subnetDtos) {
-                if (defLbSubnets.contains(subnetDto.getSubnetId()) && zones.contains(subnetDto.getZoneid()) == false) {
-                    subnetBuffer.append(subnetBuffer.length() > 0 ? "," + subnetDto.getSubnetId() : subnetDto
-                            .getSubnetId());
-                    zoneBuffer.append(zoneBuffer.length() > 0 ? "," + subnetDto.getZoneid() : subnetDto.getZoneid());
-                    zones.add(subnetDto.getZoneid());
+            List<Subnet> subnets = awsDescribeService.getSubnets(farm.getUserNo(), platformNo);
+            for (Subnet subnet : subnets) {
+                if (defLbSubnets.contains(subnet.getSubnetId())
+                        && zones.contains(subnet.getAvailabilityZone()) == false) {
+                    subnetBuffer.append(subnetBuffer.length() > 0 ? "," + subnet.getSubnetId() : subnet.getSubnetId());
+                    zoneBuffer.append(zoneBuffer.length() > 0 ? "," + subnet.getAvailabilityZone() : subnet
+                            .getAvailabilityZone());
+                    zones.add(subnet.getAvailabilityZone());
                 }
             }
             //サブネットとゾーンを設定
@@ -567,18 +568,17 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         String groupName = null;
         if (platformAws.getVpc()) {
             //VPCの場合
-            List<SecurityGroupDto> securityGroupDtos = iaasDescribeService.getSecurityGroups(farm.getUserNo(),
-                    platformNo, platformAws.getVpcId());
-            for (SecurityGroupDto securityGroupDto : securityGroupDtos) {
-                if ("default".equals(securityGroupDto.getGroupName())) {
+            List<SecurityGroup> securityGroups = awsDescribeService.getSecurityGroups(farm.getUserNo(), platformNo);
+            for (SecurityGroup securityGroup : securityGroups) {
+                if ("default".equals(securityGroup.getGroupName())) {
                     //「default」のセキュリティグループがあれば「default」を設定
-                    groupName = securityGroupDto.getGroupName();
+                    groupName = securityGroup.getGroupName();
                     break;
                 }
             }
-            if (groupName == null && securityGroupDtos.size() > 0) {
+            if (groupName == null && securityGroups.size() > 0) {
                 //「default」が無ければ1件目
-                groupName = securityGroupDtos.get(0).getGroupName();
+                groupName = securityGroups.get(0).getGroupName();
             }
         }
 
@@ -2355,13 +2355,8 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         this.instanceService = instanceService;
     }
 
-    /**
-     * iaasDescribeServiceを設定します。
-     *
-     * @param iaasDescribeService iaasDescribeService
-     */
-    public void setIaasDescribeService(IaasDescribeService iaasDescribeService) {
-        this.iaasDescribeService = iaasDescribeService;
+    public void setAwsDescribeService(AwsDescribeService awsDescribeService) {
+        this.awsDescribeService = awsDescribeService;
     }
 
     /**
