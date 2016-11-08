@@ -18,13 +18,19 @@
  */
 package jp.primecloud.auto.tool.management.iaasgw;
 
+import jp.primecloud.auto.entity.crud.Platform;
+
 
 public class IaasGatewayScriptFactory {
 
     public IaasGatewayScriptFactory() {
     }
 
-    public static IaasGatewayScriptService createIaasGatewayScriptService(Long userNo, Long platformNo, String platformName) {
-        return new IaasGatewayScriptService(userNo, platformNo, platformName);
+    public static IaasGatewayScriptService createIaasGatewayScriptService(Long userNo, Platform platform) {
+        if ("aws".equals(platform.getPlatformType())) {
+            return new AwsIaasGatewayScriptService(userNo, platform);
+        } else {
+            return new IaasGatewayScriptService(userNo, platform);
+        }
     }
 }

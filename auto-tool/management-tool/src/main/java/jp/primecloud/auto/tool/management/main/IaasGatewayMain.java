@@ -48,7 +48,7 @@ public class IaasGatewayMain {
             List<Platform> platforms = SQLMain.selectExecuteWithResult(platformSql, Platform.class);
             Platform platform = platforms.get(0);
 
-            IaasGatewayScriptService scriptService = IaasGatewayScriptFactory.createIaasGatewayScriptService(userNo, platformNo, platform.getPlatformName());
+            IaasGatewayScriptService scriptService = IaasGatewayScriptFactory.createIaasGatewayScriptService(userNo, platform);
             if ("aws".equals(platformKind)) {
                 String platformAwsSql = "SELECT * FROM PLATFORM_AWS WHERE PLATFORM_NO=" + platformNo;
                 List<PlatformAws> platformAwses = SQLMain.selectExecuteWithResult(platformAwsSql, PlatformAws.class);

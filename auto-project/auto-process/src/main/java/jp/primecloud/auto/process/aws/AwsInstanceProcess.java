@@ -824,7 +824,7 @@ public class AwsInstanceProcess extends ServiceSupport {
         for (int i = 0; i < count; i++) {
             BlockDeviceMapping mapping = new BlockDeviceMapping();
             mapping.withVirtualName("ephemeral" + i);
-            if (image.getPlatform().equals(PlatformValues.Windows.toString())) {
+            if (StringUtils.equals(image.getPlatform(), PlatformValues.Windows.toString())) {
                 mapping.withDeviceName("xvd" + (char) ('b' + i));
             } else {
                 mapping.withDeviceName("/dev/sd" + (char) ('b' + i));

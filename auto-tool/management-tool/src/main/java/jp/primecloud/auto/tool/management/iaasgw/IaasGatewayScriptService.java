@@ -24,6 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import jp.primecloud.auto.config.Config;
+import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.iaasgw.IaasGatewayWrapper;
 
@@ -33,16 +34,16 @@ public class IaasGatewayScriptService {
 
     protected IaasGatewayWrapper gateway;
 
-    protected String platformName;
+    protected Platform platform;
 
-    public IaasGatewayScriptService(Long userNo, Long platformNo, String platformName) throws AutoException {
+    public IaasGatewayScriptService(Long userNo, Platform platform) throws AutoException {
         try {
             log.info("IaasGatewayScriptService before context.getBean(iaasGatewayFactory)");
             Integer interval = Integer.parseInt(Config.getProperty("aws.describeInterval"));
             Boolean sync = BooleanUtils.toBoolean(Config.getProperty("aws.synchronized"));
             IaasGatewayFactory factory = new IaasGatewayFactory(interval, sync);
-            gateway = factory.createIaasGateway(userNo, platformNo);
-            this.platformName = platformName;
+            gateway = factory.createIaasGateway(userNo, platform.getPlatformNo());
+            this.platform = platform;
         } catch (Exception e) {
             e.printStackTrace();
             log.error(e.getMessage(), e);
@@ -56,7 +57,7 @@ public class IaasGatewayScriptService {
         if (StringUtils.isNotEmpty(keyPairs)) {
             for (String keyPair: keyPairs.split("##")) {
                 if (StringUtils.equals(keyName, keyPair)) {
-                    log.info(platformName + " の " + keyName + " はすでに登録されている為、キーのインポートをスキップします");
+                    log.info(platform.getPlatformName() + " の " + keyName + " はすでに登録されている為、キーのインポートをスキップします");
                     System.out.println("IMPORT_SKIPPED");
                     return;
                 }
@@ -69,14 +70,14 @@ public class IaasGatewayScriptService {
 
     public boolean hasSubnets(String vpcId) throws AutoException {
         if (StringUtils.isEmpty(vpcId)){
-            log.info(platformName + " にvpcIdが有りません");
+            log.info(platform.getPlatformName() + " にvpcIdが有りません");
             System.out.println("VPCID_EMPTY");
             return false;
         }
 
         String subnets = gateway.describeSubnets(vpcId);
         if (StringUtils.isEmpty(subnets)){
-            log.info(platformName + " にサブネットが有りません");
+            log.info(platform.getPlatformName() + " にサブネットが有りません");
             System.out.println("SUBNET_EMPTY");
             return false;
         }
