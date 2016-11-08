@@ -29,6 +29,7 @@ import java.util.List;
 
 import javax.crypto.Cipher;
 
+import jp.primecloud.auto.entity.crud.AwsAddress;
 import jp.primecloud.auto.entity.crud.AwsInstance;
 import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.Instance;
@@ -151,6 +152,28 @@ public class AwsDescribeServiceImpl extends ServiceSupport implements AwsDescrib
         Collections.sort(subnets, Comparators.COMPARATOR_SUBNET);
 
         return subnets;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<AwsAddress> getAddresses(Long userNo, Long platformNo) {
+        // ユーザに紐づくAWSアドレス情報を取得
+        List<AwsAddress> allAwsAddresses = awsAddressDao.readByUserNo(userNo);
+
+        // プラットフォームが一致するものを抽出
+        List<AwsAddress> awsAddresses = new ArrayList<AwsAddress>();
+        for (AwsAddress awsAddress : allAwsAddresses) {
+            if (platformNo.equals(awsAddress.getPlatformNo())) {
+                awsAddresses.add(awsAddress);
+            }
+        }
+
+        // ソート
+        Collections.sort(awsAddresses, Comparators.COMPARATOR_AWS_ADDRESS);
+
+        return awsAddresses;
     }
 
     /**

@@ -96,6 +96,10 @@ import jp.primecloud.auto.log.EventLogLevel;
 import jp.primecloud.auto.log.EventLogger;
 import jp.primecloud.auto.nifty.process.NiftyProcessClient;
 import jp.primecloud.auto.nifty.process.NiftyProcessClientFactory;
+import jp.primecloud.auto.process.aws.AwsInstanceProcess;
+import jp.primecloud.auto.process.aws.AwsProcessClient;
+import jp.primecloud.auto.process.aws.AwsProcessClientFactory;
+import jp.primecloud.auto.process.aws.AwsVolumeProcess;
 import jp.primecloud.auto.process.hook.ProcessHook;
 import jp.primecloud.auto.process.nifty.NiftyVolumeProcess;
 import jp.primecloud.auto.process.vmware.VmwareDiskProcess;
@@ -146,6 +150,12 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
     protected IaasDescribeService iaasDescribeService;
 
     protected AwsDescribeService awsDescribeService;
+
+    protected AwsProcessClientFactory awsProcessClientFactory;
+
+    protected AwsInstanceProcess awsInstanceProcess;
+
+    protected AwsVolumeProcess awsVolumeProcess;
 
     protected VmwareDescribeService vmwareDescribeService;
 
@@ -2852,28 +2862,13 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
             if (StringUtils.isEmpty(awsVolume.getVolumeId())) {
                 continue;
             }
-            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(),
+            AwsProcessClient awsProcessClient = awsProcessClientFactory.createAwsProcessClient(farm.getUserNo(),
                     awsVolume.getPlatformNo());
-
-            //イベントログ出力
-            Platform platform = platformDao.read(gateway.getPlatformNo());
-            Component component = componentDao.read(awsVolume.getComponentNo());
-            eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), awsVolume.getComponentNo(),
-                    component.getComponentName(), instanceNo, instance.getInstanceName(), "AwsEbsDelete",
-                    awsInstance.getInstanceType(), instance.getPlatformNo(), new Object[] { platform.getPlatformName(),
-                            awsVolume.getVolumeId() });
 
             try {
                 // ボリュームの削除
-                gateway.deleteVolume(awsVolume.getVolumeId());
-                //awsProcessClient.waitDeleteVolume(volumeId); // TODO: EC2ではDeleteVolumeに時間がかかるため、Waitしない
-
-                //イベントログ出力
-                eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), awsVolume.getComponentNo(),
-                        component.getComponentName(), instanceNo, instance.getInstanceName(), "AwsEbsDeleteFinish",
-                        awsInstance.getInstanceType(), instance.getPlatformNo(),
-                        new Object[] { platform.getPlatformName(), awsVolume.getVolumeId() });
-
+                awsVolumeProcess.deleteVolume(awsProcessClient, instanceNo, awsVolume.getVolumeNo());
+                //awsVolumeProcess.waitDeleteVolume(awsProcessClient, instanceNo, awsVolume.getVolumeNo());
             } catch (AutoException ignore) {
                 // ボリュームが存在しない場合などに備えて例外を握りつぶす
             }
@@ -2884,24 +2879,13 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         ImageAws imageAws = imageAwsDao.read(instance.getImageNo());
         if (imageAws.getEbsImage() && StringUtils.isNotEmpty(awsInstance.getInstanceId())) {
             // TODO: インスタンス自体の削除処理を別で行うようにする
-            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(),
+            AwsProcessClient awsProcessClient = awsProcessClientFactory.createAwsProcessClient(farm.getUserNo(),
                     instance.getPlatformNo());
-
-            // イベントログ出力
-            Platform platform = platformDao.read(gateway.getPlatformNo());
-            eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), null, null, instanceNo,
-                    instance.getInstanceName(), "AwsInstanceDelete", awsInstance.getInstanceType(),
-                    instance.getPlatformNo(), new Object[] { platform.getPlatformName(), awsInstance.getInstanceId() });
 
             try {
                 // インスタンスの削除
-                gateway.terminateInstance(awsInstance.getInstanceId());
-
-                // イベントログ出力
-                eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), null, null, instanceNo,
-                        instance.getInstanceName(), "AwsInstanceDeleteFinish", awsInstance.getInstanceType(),
-                        instance.getPlatformNo(),
-                        new Object[] { platform.getPlatformName(), awsInstance.getInstanceId() });
+                awsInstanceProcess.terminate(awsProcessClient, instanceNo);
+                //awsInstanceProcess.waitTerminate(awsProcessClient, instanceNo);
             } catch (AutoException ignore) {
                 // インスタンスが存在しない場合などに備えて例外を握りつぶす
             }
@@ -3682,6 +3666,18 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
 
     public void setAwsDescribeService(AwsDescribeService awsDescribeService) {
         this.awsDescribeService = awsDescribeService;
+    }
+
+    public void setAwsProcessClientFactory(AwsProcessClientFactory awsProcessClientFactory) {
+        this.awsProcessClientFactory = awsProcessClientFactory;
+    }
+
+    public void setAwsInstanceProcess(AwsInstanceProcess awsInstanceProcess) {
+        this.awsInstanceProcess = awsInstanceProcess;
+    }
+
+    public void setAwsVolumeProcess(AwsVolumeProcess awsVolumeProcess) {
+        this.awsVolumeProcess = awsVolumeProcess;
     }
 
     /**

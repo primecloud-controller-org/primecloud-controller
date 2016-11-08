@@ -20,6 +20,8 @@ package jp.primecloud.auto.service;
 
 import java.util.List;
 
+import jp.primecloud.auto.entity.crud.AwsAddress;
+
 import com.amazonaws.services.ec2.model.AvailabilityZone;
 import com.amazonaws.services.ec2.model.KeyPairInfo;
 import com.amazonaws.services.ec2.model.SecurityGroup;
@@ -40,6 +42,8 @@ public interface AwsDescribeService {
     public List<SecurityGroup> getSecurityGroups(Long userNo, Long platformNo);
 
     public List<Subnet> getSubnets(Long userNo, Long platformNo);
+
+    public List<AwsAddress> getAddresses(Long userNo, Long platformNo);
 
     public String getPassword(Long instanceNo, String privateKey);
 

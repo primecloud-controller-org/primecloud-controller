@@ -45,6 +45,9 @@ import jp.primecloud.auto.iaasgw.IaasGatewayFactory;
 import jp.primecloud.auto.iaasgw.IaasGatewayWrapper;
 import jp.primecloud.auto.log.EventLogLevel;
 import jp.primecloud.auto.log.EventLogger;
+import jp.primecloud.auto.process.aws.AwsProcessClient;
+import jp.primecloud.auto.process.aws.AwsProcessClientFactory;
+import jp.primecloud.auto.process.aws.AwsVolumeProcess;
 import jp.primecloud.auto.process.hook.ProcessHook;
 import jp.primecloud.auto.process.vmware.VmwareNetworkProcess;
 import jp.primecloud.auto.process.vmware.VmwareProcessClient;
@@ -69,6 +72,10 @@ import org.apache.commons.lang.StringUtils;
 public class FarmServiceImpl extends ServiceSupport implements FarmService {
 
     protected IaasGatewayFactory iaasGatewayFactory;
+
+    protected AwsProcessClientFactory awsProcessClientFactory;
+
+    protected AwsVolumeProcess awsVolumeProcess;
 
     protected VmwareProcessClientFactory vmwareProcessClientFactory;
 
@@ -426,14 +433,12 @@ public class FarmServiceImpl extends ServiceSupport implements FarmService {
                 continue;
             }
 
-            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(),
+            AwsProcessClient awsProcessClient = awsProcessClientFactory.createAwsProcessClient(farm.getUserNo(),
                     awsVolume.getPlatformNo());
             try {
                 // ボリュームの削除
-                gateway.deleteVolume(awsVolume.getVolumeId());
-
-                // EC2ではDeleteVolumeに時間がかかるため、Waitしない
-                //awsProcessClient.waitDeleteVolume(volumeId);
+                awsVolumeProcess.deleteVolume(awsProcessClient, awsVolume.getInstanceNo(), awsVolume.getVolumeNo());
+                awsVolumeProcess.waitDeleteVolume(awsProcessClient, awsVolume.getInstanceNo(), awsVolume.getVolumeNo());
             } catch (AutoException ignore) {
                 // ボリュームが存在しない場合などに備えて例外を握りつぶす
             }
@@ -503,6 +508,14 @@ public class FarmServiceImpl extends ServiceSupport implements FarmService {
      */
     public void setIaasGatewayFactory(IaasGatewayFactory iaasGatewayFactory) {
         this.iaasGatewayFactory = iaasGatewayFactory;
+    }
+
+    public void setAwsProcessClientFactory(AwsProcessClientFactory awsProcessClientFactory) {
+        this.awsProcessClientFactory = awsProcessClientFactory;
+    }
+
+    public void setAwsVolumeProcess(AwsVolumeProcess awsVolumeProcess) {
+        this.awsVolumeProcess = awsVolumeProcess;
     }
 
     /**

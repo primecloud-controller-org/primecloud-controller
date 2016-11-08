@@ -37,7 +37,16 @@
 	</bean>
 
 	<!-- AwsProcess -->
+	<bean id="awsProcess" class="jp.primecloud.auto.process.aws.AwsProcess" />
+	<bean id="awsCommonProcess" class="jp.primecloud.auto.process.aws.AwsCommonProcess" />
+	<bean id="awsInstanceProcess" class="jp.primecloud.auto.process.aws.AwsInstanceProcess" />
+	<bean id="awsVolumeProcess" class="jp.primecloud.auto.process.aws.AwsVolumeProcess" />
+	<bean id="awsAddressProcess" class="jp.primecloud.auto.process.aws.AwsAddressProcess" />
+	<bean id="awsDnsProcess" class="jp.primecloud.auto.process.aws.AwsDnsProcess">
+		<property name="reverseEnabled" value="${dns.reverseEnabled}" />
+	</bean>
 	<bean id="awsProcessClientFactory" class="jp.primecloud.auto.process.aws.AwsProcessClientFactory">
+		<property name="describeInterval" value="${aws.describeInterval}" />
 		<property name="logging" value="${aws.logging}" />
 		<property name="sync" value="${aws.synchronized}" />
 	</bean>

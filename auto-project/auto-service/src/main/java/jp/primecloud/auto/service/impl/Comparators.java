@@ -20,6 +20,7 @@ package jp.primecloud.auto.service.impl;
 
 import java.util.Comparator;
 
+import jp.primecloud.auto.entity.crud.AwsAddress;
 import jp.primecloud.auto.entity.crud.Component;
 import jp.primecloud.auto.entity.crud.ComponentInstance;
 import jp.primecloud.auto.entity.crud.Instance;
@@ -97,6 +98,8 @@ public class Comparators {
     public static final Comparator<SecurityGroup> COMPARATOR_SECURITY_GROUP;
 
     public static final Comparator<Subnet> COMPARATOR_SUBNET;
+
+    public static final Comparator<AwsAddress> COMPARATOR_AWS_ADDRESS;
 
     static {
         COMPARATOR_FARM_DTO = new Comparator<FarmDto>() {
@@ -318,6 +321,18 @@ public class Comparators {
                         + Long.parseLong(array[2]) * 256 + Long.parseLong(array[3]);
             }
         };
+
+        COMPARATOR_AWS_ADDRESS = new Comparator<AwsAddress>() {
+            @Override
+            public int compare(AwsAddress o1, AwsAddress o2) {
+                long diff = o1.getAddressNo() - o2.getAddressNo();
+                if (diff == 0) {
+                    return 0;
+                }
+                return diff > 0 ? 1 : -1;
+            }
+        };
+
     }
 
 }

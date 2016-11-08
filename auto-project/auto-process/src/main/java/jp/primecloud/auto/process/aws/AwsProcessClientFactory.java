@@ -46,9 +46,11 @@ import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancing;
  */
 public class AwsProcessClientFactory {
 
-    protected boolean logging;
+    protected Integer describeInterval = 15;
 
-    protected boolean sync;
+    protected boolean logging = false;
+
+    protected boolean sync = true;
 
     protected PlatformDao platformDao;
 
@@ -129,7 +131,12 @@ public class AwsProcessClientFactory {
             elbClient = synchronizedAwsClientWrapper.wrap(elbClient);
         }
 
-        return new AwsProcessClient(awsCertificate.getUserNo(), platform, platformAws, ec2Client, elbClient);
+        return new AwsProcessClient(awsCertificate.getUserNo(), platform, platformAws, describeInterval, ec2Client,
+                elbClient);
+    }
+
+    public void setDescribeInterval(Integer describeInterval) {
+        this.describeInterval = describeInterval;
     }
 
     public void setLogging(boolean logging) {

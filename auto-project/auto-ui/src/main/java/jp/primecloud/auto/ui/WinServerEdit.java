@@ -26,6 +26,7 @@ import java.util.Map;
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.InstanceStatus;
 import jp.primecloud.auto.config.Config;
+import jp.primecloud.auto.entity.crud.AwsAddress;
 import jp.primecloud.auto.entity.crud.ComponentType;
 import jp.primecloud.auto.entity.crud.NiftyKeyPair;
 import jp.primecloud.auto.entity.crud.Platform;
@@ -36,6 +37,9 @@ import jp.primecloud.auto.entity.crud.VcloudInstanceNetwork;
 import jp.primecloud.auto.entity.crud.VmwareAddress;
 import jp.primecloud.auto.entity.crud.VmwareKeyPair;
 import jp.primecloud.auto.exception.AutoApplicationException;
+import jp.primecloud.auto.process.aws.AwsAddressProcess;
+import jp.primecloud.auto.process.aws.AwsProcessClient;
+import jp.primecloud.auto.process.aws.AwsProcessClientFactory;
 import jp.primecloud.auto.service.AwsDescribeService;
 import jp.primecloud.auto.service.IaasDescribeService;
 import jp.primecloud.auto.service.InstanceService;
@@ -583,7 +587,7 @@ public class WinServerEdit extends Window {
 
         List<AvailabilityZone> zones;
 
-        List<AddressDto> elasticIps;
+        List<AwsAddress> elasticIps;
 
         List<Subnet> subnets;
 
@@ -593,7 +597,7 @@ public class WinServerEdit extends Window {
 
         final String ELASTIC_IP_CAPTION_ID = "ElasticIP";
 
-        final AddressDto NULL_ADDRESS = new AddressDto();
+        final AwsAddress NULL_ADDRESS = new AwsAddress();
 
         final String TEXT_WIDTH = "150px";
 
@@ -739,7 +743,6 @@ public class WinServerEdit extends Window {
             // 情報を取得
             // TODO: ロジックを必ずリファクタリングすること
             AwsDescribeService awsDescribeService = BeanContext.getBean(AwsDescribeService.class);
-            IaasDescribeService describeService = BeanContext.getBean(IaasDescribeService.class);
             //キーペア
             List<KeyPairInfo> infos = awsDescribeService.getKeyPairs(ViewContext.getUserNo(), platform.getPlatformNo());
             List<String> keyPairs = new ArrayList<String>();
@@ -778,9 +781,9 @@ public class WinServerEdit extends Window {
             }
 
             //ElasticIp
-            List<AddressDto> elasticIps = new ArrayList<AddressDto>();
-            List<AddressDto> addresses = describeService.getAddresses(ViewContext.getUserNo(), platform.getPlatformNo());
-            for (AddressDto address : addresses) {
+            List<AwsAddress> elasticIps = new ArrayList<AwsAddress>();
+            List<AwsAddress> addresses = awsDescribeService.getAddresses(ViewContext.getUserNo(), platform.getPlatformNo());
+            for (AwsAddress address : addresses) {
                 elasticIps.add(address);
             }
             this.elasticIps = elasticIps;
@@ -788,16 +791,18 @@ public class WinServerEdit extends Window {
 
         private void addButtonClick() {
             // ElasticIPを取得する
-            IaasDescribeService describeService = BeanContext.getBean(IaasDescribeService.class);
-            Long addressNo = describeService.createAddress(ViewContext.getUserNo(), instance.getInstance().getPlatformNo());
+            AwsProcessClientFactory awsProcessClientFactory = BeanContext.getBean(AwsProcessClientFactory.class);
+            AwsAddressProcess awsAddressProcess = BeanContext.getBean(AwsAddressProcess.class);
+            AwsProcessClient awsProcessClient = awsProcessClientFactory.createAwsProcessClient(ViewContext.getUserNo(), instance.getInstance().getPlatformNo());
+            AwsAddress awsAddress = awsAddressProcess.createAddress(awsProcessClient);
 
             //ElasticIPをリセット
             resetElasticIps();
 
             // 取得したAddressを抽出する
-            AddressDto address = null;
-            for (AddressDto tmpAddress : elasticIps) {
-                if (tmpAddress.getAddressNo().equals(addressNo)) {
+            AwsAddress address = null;
+            for (AwsAddress tmpAddress : elasticIps) {
+                if (tmpAddress.getAddressNo().equals(awsAddress.getAddressNo())) {
                     address = tmpAddress;
                     break;
                 }
@@ -814,7 +819,7 @@ public class WinServerEdit extends Window {
         }
 
         private void deleteButtonClick() {
-            final AddressDto address = (AddressDto) elasticIpSelect.getValue();
+            final AwsAddress address = (AwsAddress) elasticIpSelect.getValue();
 
             // ElasticIPが選択されていない場合
             if (address == null || NULL_ADDRESS.equals(address)) {
@@ -843,8 +848,10 @@ public class WinServerEdit extends Window {
                 public void onDialogResult(Result result) {
                     if (result == Result.OK) {
                         // ElasticIPを削除する
-                        IaasDescribeService describeService = BeanContext.getBean(IaasDescribeService.class);
-                        describeService.deleteAddress(address.getUserNo(), address.getPlatformNo(), address.getAddressNo());
+                        AwsProcessClientFactory awsProcessClientFactory = BeanContext.getBean(AwsProcessClientFactory.class);
+                        AwsAddressProcess awsAddressProcess = BeanContext.getBean(AwsAddressProcess.class);
+                        AwsProcessClient awsProcessClient = awsProcessClientFactory.createAwsProcessClient(address.getUserNo(), address.getPlatformNo());
+                        awsAddressProcess.deleteAddress(awsProcessClient, address.getAddressNo());
 
                         //ElasticIPをリセット
                         resetElasticIps();
@@ -859,8 +866,8 @@ public class WinServerEdit extends Window {
 
         private void resetElasticIps() {
             // Addressの情報を取り直す
-            IaasDescribeService describeService = BeanContext.getBean(IaasDescribeService.class);
-            List<AddressDto> addresses = describeService.getAddresses(ViewContext.getUserNo(), instance.getInstance().getPlatformNo());
+            AwsDescribeService awsDescribeService = BeanContext.getBean(AwsDescribeService.class);
+            List<AwsAddress> addresses = awsDescribeService.getAddresses(ViewContext.getUserNo(), instance.getInstance().getPlatformNo());
 
             elasticIps = addresses;
             elasticIpSelect.setContainerDataSource(createElasticIpContainer());
@@ -908,9 +915,9 @@ public class WinServerEdit extends Window {
 
             elasticIpSelect.setContainerDataSource(createElasticIpContainer());
             if (null != instance.getAwsAddress()) {
-                for (AddressDto addressDto : elasticIps) {
-                    if (addressDto.getAddressNo().equals(instance.getAwsAddress().getAddressNo())) {
-                        elasticIpSelect.select(addressDto);
+                for (AwsAddress address : elasticIps) {
+                    if (address.getAddressNo().equals(instance.getAwsAddress().getAddressNo())) {
+                        elasticIpSelect.select(address);
                         break;
                     }
                 }
@@ -954,7 +961,7 @@ public class WinServerEdit extends Window {
             Item item = elasticIpContainer.addItem(NULL_ADDRESS);
             item.getItemProperty(ELASTIC_IP_CAPTION_ID).setValue(dynamic);
 
-            for (AddressDto address : elasticIps) {
+            for (AwsAddress address : elasticIps) {
                 item = elasticIpContainer.addItem(address);
 
                 //InstanceNoがNullならPool状態
@@ -2759,6 +2766,7 @@ public class WinServerEdit extends Window {
         SubnetDto subnetDto = null;
         String subnetId = null;
         String privateIp = null;
+        AwsAddress awsAddress = null;
         AddressDto address = null;
         VmwareAddressDto vmwareAddressDto = null;
         Long storageTypeNo = null;
@@ -2795,7 +2803,7 @@ public class WinServerEdit extends Window {
                 }
                 privateIp = (String) awsDetailTab.privateIpField.getValue();
             }
-            address = (AddressDto) awsDetailTab.elasticIpSelect.getValue();
+            awsAddress = (AwsAddress) awsDetailTab.elasticIpSelect.getValue();
 
             // TODO: 入力チェック
             try {
@@ -2836,9 +2844,9 @@ public class WinServerEdit extends Window {
             }
 
             //すでに設定されているElasticIPでなく、かつ割り当て済み済みの場合は登録できない
-            if (!awsDetailTab.NULL_ADDRESS.equals(address) && null != address.getInstanceNo()) {
+            if (!awsDetailTab.NULL_ADDRESS.equals(awsAddress) && null != awsAddress.getInstanceNo()) {
                 if (null == instance.getAwsAddress()
-                        || !instance.getAwsAddress().getAddressNo().equals(address.getAddressNo())) {
+                        || !instance.getAwsAddress().getAddressNo().equals(awsAddress.getAddressNo())) {
                     String message = ViewMessages.getMessage("IUI-000064");
                     DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
                     getApplication().getMainWindow().addWindow(dialog);
@@ -2994,7 +3002,7 @@ public class WinServerEdit extends Window {
         if (PCCConstant.PLATFORM_TYPE_AWS.equals(platformDto.getPlatform().getPlatformType())) {
             // AWSサーバを更新
             try {
-                Long addressNo = address.getAddressNo();
+                Long addressNo = awsAddress.getAddressNo();
                 instanceService.updateAwsInstance(instanceNo, instance.getInstance().getInstanceName(), comment,
                         keyName, serverSize, groupName, zoneName, addressNo, subnetId, privateIp);
             } catch (AutoApplicationException e) {

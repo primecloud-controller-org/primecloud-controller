@@ -14,6 +14,7 @@ import jp.primecloud.auto.entity.crud.AwsAddress;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.AutoApplicationException;
+import jp.primecloud.auto.process.aws.AwsProcessClient;
 
 import org.apache.commons.lang.BooleanUtils;
 
@@ -47,11 +48,10 @@ public class AddAwsAddress extends ApiSupport {
             throw new AutoApplicationException("EAPI-000020", "Platform", PARAM_NAME_PLATFORM_NO, platformNo);
         }
 
-        // Elastic IPを確保
-        Long addressNo = iaasDescribeService.createAddress(user.getUserNo(), platform.getPlatformNo());
-
-        // アドレス情報を取得
-        AwsAddress awsAddress = awsAddressDao.read(addressNo);
+        // AWSアドレスを作成
+        AwsProcessClient awsProcessClient = awsProcessClientFactory.createAwsProcessClient(user.getUserNo(),
+                platform.getPlatformNo());
+        AwsAddress awsAddress = awsAddressProcess.createAddress(awsProcessClient);
 
         AwsAddressResponse awsAddressResponse = new AwsAddressResponse(awsAddress);
         AddAwsAddressResponse response = new AddAwsAddressResponse(awsAddressResponse);

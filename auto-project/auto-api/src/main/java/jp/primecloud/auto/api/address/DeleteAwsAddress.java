@@ -13,9 +13,9 @@ import jp.primecloud.auto.entity.crud.AwsAddress;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.AutoApplicationException;
+import jp.primecloud.auto.process.aws.AwsProcessClient;
 
 import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
 
 @Path("/DeleteAwsAddress")
 public class DeleteAwsAddress extends ApiSupport {
@@ -56,12 +56,14 @@ public class DeleteAwsAddress extends ApiSupport {
         }
 
         // インスタンスに関連付けられている場合
-        if (StringUtils.isNotEmpty(awsAddress.getInstanceId())) {
+        if (awsAddress.getInstanceNo() != null) {
             throw new AutoApplicationException("EAPI-100046", "AwsAddress", PARAM_NAME_ADDRESS_NO, addressNo);
         }
 
-        // Elastic IPを削除
-        iaasDescribeService.deleteAddress(user.getUserNo(), platform.getPlatformNo(), awsAddress.getAddressNo());
+        // AWSアドレスを削除
+        AwsProcessClient awsProcessClient = awsProcessClientFactory.createAwsProcessClient(user.getUserNo(),
+                platform.getPlatformNo());
+        awsAddressProcess.deleteAddress(awsProcessClient, awsAddress.getAddressNo());
 
         DeleteAwsAddressResponse response = new DeleteAwsAddressResponse();
 

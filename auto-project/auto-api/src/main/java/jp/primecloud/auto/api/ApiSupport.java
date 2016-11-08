@@ -100,6 +100,7 @@ import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.log.service.EventLogService;
+import jp.primecloud.auto.process.aws.AwsAddressProcess;
 import jp.primecloud.auto.process.aws.AwsProcessClientFactory;
 import jp.primecloud.auto.service.AwsDescribeService;
 import jp.primecloud.auto.service.ComponentService;
@@ -410,6 +411,8 @@ public class ApiSupport extends ApiConstants {
 
     //auto-process
     protected AwsProcessClientFactory awsProcessClientFactory = BeanContext.getBean(AwsProcessClientFactory.class);
+
+    protected AwsAddressProcess awsAddressProcess = BeanContext.getBean(AwsAddressProcess.class);
 
     //auto-service
     protected FarmService farmService = BeanContext.getBean(FarmService.class);

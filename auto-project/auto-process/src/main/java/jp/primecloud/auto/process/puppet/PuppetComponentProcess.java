@@ -72,6 +72,9 @@ import jp.primecloud.auto.nifty.process.NiftyProcessClientFactory;
 import jp.primecloud.auto.process.ComponentConstants;
 import jp.primecloud.auto.process.ComponentProcessContext;
 import jp.primecloud.auto.process.ProcessLogger;
+import jp.primecloud.auto.process.aws.AwsProcessClient;
+import jp.primecloud.auto.process.aws.AwsProcessClientFactory;
+import jp.primecloud.auto.process.aws.AwsVolumeProcess;
 import jp.primecloud.auto.process.hook.ProcessHook;
 import jp.primecloud.auto.process.nifty.NiftyVolumeProcess;
 import jp.primecloud.auto.process.vmware.VmwareDiskProcess;
@@ -102,6 +105,10 @@ public class PuppetComponentProcess extends ServiceSupport {
     protected PuppetClient puppetClient;
 
     protected IaasGatewayFactory iaasGatewayFactory;
+
+    protected AwsProcessClientFactory awsProcessClientFactory;
+
+    protected AwsVolumeProcess awsVolumeProcess;
 
     protected VmwareProcessClientFactory vmwareProcessClientFactory;
 
@@ -1044,10 +1051,11 @@ public class PuppetComponentProcess extends ServiceSupport {
 
         // AwsProcessClientの作成
         Farm farm = farmDao.read(awsVolume.getFarmNo());
-        IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), awsVolume.getPlatformNo());
+        AwsProcessClient awsProcessClient = awsProcessClientFactory.createAwsProcessClient(farm.getUserNo(), awsVolume
+                .getPlatformNo());
 
         // ボリュームの開始処理
-        gateway.startVolume(instanceNo, awsVolume.getVolumeNo());
+        awsVolumeProcess.startVolume(awsProcessClient, instanceNo, awsVolume.getVolumeNo());
     }
 
     protected void startCloudStackVolume(Long componentNo, Long instanceNo) {
@@ -1442,10 +1450,11 @@ public class PuppetComponentProcess extends ServiceSupport {
 
         // AwsProcessClientの作成
         Farm farm = farmDao.read(awsVolume.getFarmNo());
-        IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), awsVolume.getPlatformNo());
+        AwsProcessClient awsProcessClient = awsProcessClientFactory.createAwsProcessClient(farm.getUserNo(), awsVolume
+                .getPlatformNo());
 
         // ボリュームの終了処理
-        gateway.stopVolume(instanceNo, awsVolume.getVolumeNo());
+        awsVolumeProcess.stopVolume(awsProcessClient, instanceNo, awsVolume.getVolumeNo());
     }
 
     protected void stopCloudStackVolume(Long componentNo, Long instanceNo) {
@@ -1602,6 +1611,14 @@ public class PuppetComponentProcess extends ServiceSupport {
      */
     public void setIaasGatewayFactory(IaasGatewayFactory iaasGatewayFactory) {
         this.iaasGatewayFactory = iaasGatewayFactory;
+    }
+
+    public void setAwsProcessClientFactory(AwsProcessClientFactory awsProcessClientFactory) {
+        this.awsProcessClientFactory = awsProcessClientFactory;
+    }
+
+    public void setAwsVolumeProcess(AwsVolumeProcess awsVolumeProcess) {
+        this.awsVolumeProcess = awsVolumeProcess;
     }
 
     /**

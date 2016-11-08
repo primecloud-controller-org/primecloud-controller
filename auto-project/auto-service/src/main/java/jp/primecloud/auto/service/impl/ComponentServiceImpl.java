@@ -38,7 +38,6 @@ import jp.primecloud.auto.common.status.ComponentStatus;
 import jp.primecloud.auto.common.status.InstanceStatus;
 import jp.primecloud.auto.component.mysql.MySQLConstants;
 import jp.primecloud.auto.config.Config;
-import jp.primecloud.auto.entity.crud.AwsInstance;
 import jp.primecloud.auto.entity.crud.AwsVolume;
 import jp.primecloud.auto.entity.crud.AzureDisk;
 import jp.primecloud.auto.entity.crud.AzureInstance;
@@ -69,6 +68,9 @@ import jp.primecloud.auto.log.EventLogger;
 import jp.primecloud.auto.nifty.process.NiftyProcessClient;
 import jp.primecloud.auto.nifty.process.NiftyProcessClientFactory;
 import jp.primecloud.auto.process.ComponentConstants;
+import jp.primecloud.auto.process.aws.AwsProcessClient;
+import jp.primecloud.auto.process.aws.AwsProcessClientFactory;
+import jp.primecloud.auto.process.aws.AwsVolumeProcess;
 import jp.primecloud.auto.process.hook.ProcessHook;
 import jp.primecloud.auto.process.vmware.VmwareDiskProcess;
 import jp.primecloud.auto.process.vmware.VmwareProcessClient;
@@ -96,6 +98,10 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
     protected InstanceService instanceService;
 
     protected IaasGatewayFactory iaasGatewayFactory;
+
+    protected AwsProcessClientFactory awsProcessClientFactory;
+
+    protected AwsVolumeProcess awsVolumeProcess;
 
     protected VmwareProcessClientFactory vmwareProcessClientFactory;
 
@@ -1010,30 +1016,13 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
                 continue;
             }
 
-            IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(),
+            AwsProcessClient awsProcessClient = awsProcessClientFactory.createAwsProcessClient(farm.getUserNo(),
                     awsVolume.getPlatformNo());
-
-            //イベントログ出力
-            Platform platform = platformDao.read(gateway.getPlatformNo());
-            Instance instance = instanceDao.read(awsVolume.getInstanceNo());
-            AwsInstance awsInstance = awsInstanceDao.read(awsVolume.getInstanceNo());
-            eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), awsVolume.getComponentNo(),
-                    component.getComponentName(), awsVolume.getInstanceNo(), instance.getInstanceName(),
-                    "AwsEbsDelete", awsInstance.getInstanceType(), instance.getPlatformNo(),
-                    new Object[] { platform.getPlatformName(), awsVolume.getVolumeId() });
 
             try {
                 // ボリュームの削除
-                gateway.deleteVolume(awsVolume.getVolumeId());
-
-                //イベントログ出力
-                eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), awsVolume.getComponentNo(),
-                        component.getComponentName(), awsVolume.getInstanceNo(), instance.getInstanceName(),
-                        "AwsEbsDeleteFinish", awsInstance.getInstanceType(), instance.getPlatformNo(), new Object[] {
-                                platform.getPlatformName(), awsVolume.getVolumeId() });
-
-                // EC2ではDeleteVolumeに時間がかかるため、Waitしない
-                //awsProcessClient.waitDeleteVolume(volumeId);
+                awsVolumeProcess.deleteVolume(awsProcessClient, awsVolume.getInstanceNo(), awsVolume.getVolumeNo());
+                //awsVolumeProcess.waitDeleteVolume(awsProcessClient, awsVolume.getInstanceNo(), awsVolume.getVolumeNo());
             } catch (AutoException ignore) {
                 // ボリュームが存在しない場合などに備えて例外を握りつぶす
             }
@@ -1504,6 +1493,14 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
      */
     public void setIaasGatewayFactory(IaasGatewayFactory iaasGatewayFactory) {
         this.iaasGatewayFactory = iaasGatewayFactory;
+    }
+
+    public void setAwsProcessClientFactory(AwsProcessClientFactory awsProcessClientFactory) {
+        this.awsProcessClientFactory = awsProcessClientFactory;
+    }
+
+    public void setAwsVolumeProcess(AwsVolumeProcess awsVolumeProcess) {
+        this.awsVolumeProcess = awsVolumeProcess;
     }
 
     /**
