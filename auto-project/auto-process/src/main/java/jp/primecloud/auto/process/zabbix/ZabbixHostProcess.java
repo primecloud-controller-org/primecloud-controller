@@ -251,8 +251,8 @@ public class ZabbixHostProcess extends ServiceSupport {
         }
 
         if (StringUtils.isEmpty(zabbixInstance.getHostid())) {
-            // 監視登録されていない場合
-            throw new AutoException("EPROCESS-000404", instanceNo);
+            // 監視登録されていない場合は何もしない
+            return;
         }
 
         Component component = componentDao.read(componentNo);

@@ -22,7 +22,6 @@ import java.util.List;
 
 import org.apache.commons.lang.BooleanUtils;
 
-import jp.primecloud.auto.common.component.DnsStrategy;
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.LoadBalancerInstanceStatus;
 import jp.primecloud.auto.common.status.LoadBalancerListenerStatus;
@@ -32,9 +31,11 @@ import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.entity.crud.LoadBalancerInstance;
 import jp.primecloud.auto.entity.crud.LoadBalancerListener;
 import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.iaasgw.IaasGatewayFactory;
 import jp.primecloud.auto.log.EventLogger;
 import jp.primecloud.auto.process.ProcessLogger;
+import jp.primecloud.auto.process.aws.AwsLoadBalancerProcess;
+import jp.primecloud.auto.process.aws.AwsProcessClient;
+import jp.primecloud.auto.process.aws.AwsProcessClientFactory;
 import jp.primecloud.auto.process.hook.ProcessHook;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
@@ -47,17 +48,17 @@ import jp.primecloud.auto.util.MessageUtils;
  */
 public class LoadBalancerProcess extends ServiceSupport {
 
+    protected AwsProcessClientFactory awsProcessClientFactory;
+
+    protected AwsLoadBalancerProcess awsLoadBalancerProcess;
+
     protected ComponentLoadBalancerProcess componentLoadBalancerProcess;
 
     protected ElasticLoadBalancerProcess elasticLoadBalancerProcess;
 
-    protected IaasGatewayFactory iaasGatewayFactory;
-
     protected ProcessLogger processLogger;
 
     protected EventLogger eventLogger;
-
-    protected DnsStrategy dnsStrategy;
 
     protected ProcessHook processHook;
 
@@ -319,38 +320,52 @@ public class LoadBalancerProcess extends ServiceSupport {
 
     protected void startLoadBalancer(LoadBalancer loadBalancer) {
         String type = loadBalancer.getType();
-        if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(type)) {
+        if (PCCConstant.LOAD_BALANCER_ELB.equals(type)) {
+            Farm farm = farmDao.read(loadBalancer.getFarmNo());
+            AwsProcessClient awsProcessClient = awsProcessClientFactory.createAwsProcessClient(farm.getUserNo(),
+                    loadBalancer.getPlatformNo());
+            awsLoadBalancerProcess.start(awsProcessClient, loadBalancer.getLoadBalancerNo());
+        } else if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(type)) {
             componentLoadBalancerProcess.start(loadBalancer.getLoadBalancerNo());
-        } else if (PCCConstant.LOAD_BALANCER_ELB.equals(type) || PCCConstant.LOAD_BALANCER_CLOUDSTACK.equals(type)) {
+        } else if (PCCConstant.LOAD_BALANCER_CLOUDSTACK.equals(type)) {
             elasticLoadBalancerProcess.start(loadBalancer.getLoadBalancerNo());
         }
     }
 
     protected void stopLoadBalancer(LoadBalancer loadBalancer) {
         String type = loadBalancer.getType();
-        if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(type)) {
+        if (PCCConstant.LOAD_BALANCER_ELB.equals(type)) {
+            Farm farm = farmDao.read(loadBalancer.getFarmNo());
+            AwsProcessClient awsProcessClient = awsProcessClientFactory.createAwsProcessClient(farm.getUserNo(),
+                    loadBalancer.getPlatformNo());
+            awsLoadBalancerProcess.stop(awsProcessClient, loadBalancer.getLoadBalancerNo());
+        } else if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(type)) {
             componentLoadBalancerProcess.stop(loadBalancer.getLoadBalancerNo());
-        } else if (PCCConstant.LOAD_BALANCER_ELB.equals(type) || PCCConstant.LOAD_BALANCER_CLOUDSTACK.equals(type)) {
+        } else if (PCCConstant.LOAD_BALANCER_CLOUDSTACK.equals(type)) {
             elasticLoadBalancerProcess.stop(loadBalancer.getLoadBalancerNo());
         }
     }
 
     protected void configureLoadBalancer(LoadBalancer loadBalancer) {
         String type = loadBalancer.getType();
-        if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(type)) {
+        if (PCCConstant.LOAD_BALANCER_ELB.equals(type)) {
+            Farm farm = farmDao.read(loadBalancer.getFarmNo());
+            AwsProcessClient awsProcessClient = awsProcessClientFactory.createAwsProcessClient(farm.getUserNo(),
+                    loadBalancer.getPlatformNo());
+            awsLoadBalancerProcess.configure(awsProcessClient, loadBalancer.getLoadBalancerNo());
+        } else if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(type)) {
             componentLoadBalancerProcess.configure(loadBalancer.getLoadBalancerNo());
-        } else if (PCCConstant.LOAD_BALANCER_ELB.equals(type) || PCCConstant.LOAD_BALANCER_CLOUDSTACK.equals(type)) {
+        } else if (PCCConstant.LOAD_BALANCER_CLOUDSTACK.equals(type)) {
             elasticLoadBalancerProcess.configure(loadBalancer.getLoadBalancerNo());
         }
     }
 
-    /**
-     * dnsStrategyを設定します。
-     *
-     * @param dnsStrategy dnsStrategy
-     */
-    public void setDnsStrategy(DnsStrategy dnsStrategy) {
-        this.dnsStrategy = dnsStrategy;
+    public void setAwsProcessClientFactory(AwsProcessClientFactory awsProcessClientFactory) {
+        this.awsProcessClientFactory = awsProcessClientFactory;
+    }
+
+    public void setAwsLoadBalancerProcess(AwsLoadBalancerProcess awsLoadBalancerProcess) {
+        this.awsLoadBalancerProcess = awsLoadBalancerProcess;
     }
 
     /**
@@ -369,15 +384,6 @@ public class LoadBalancerProcess extends ServiceSupport {
      */
     public void setElasticLoadBalancerProcess(ElasticLoadBalancerProcess elasticLoadBalancerProcess) {
         this.elasticLoadBalancerProcess = elasticLoadBalancerProcess;
-    }
-
-    /**
-     * iaasGatewayFactoryを設定します。
-     *
-     * @param iaasGatewayFactory iaasGatewayFactory
-     */
-    public void setIaasGatewayFactory(IaasGatewayFactory iaasGatewayFactory) {
-        this.iaasGatewayFactory = iaasGatewayFactory;
     }
 
     /**

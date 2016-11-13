@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -51,8 +50,6 @@ import jp.primecloud.auto.util.MessageUtils;
  *
  */
 public class ElasticLoadBalancerProcess extends ServiceSupport {
-
-    protected ExecutorService executorService;
 
     protected DnsStrategy dnsStrategy;
 
@@ -302,15 +299,6 @@ public class ElasticLoadBalancerProcess extends ServiceSupport {
         loadBalancer = loadBalancerDao.read(loadBalancerNo);
         loadBalancer.setCanonicalName(null);
         loadBalancerDao.update(loadBalancer);
-    }
-
-    /**
-     * executorServiceを設定します。
-     *
-     * @param executorService executorService
-     */
-    public void setExecutorService(ExecutorService executorService) {
-        this.executorService = executorService;
     }
 
     /**

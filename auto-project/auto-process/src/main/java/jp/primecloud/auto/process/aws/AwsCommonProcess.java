@@ -39,6 +39,8 @@ import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
 import com.amazonaws.services.ec2.model.DescribeInstancesResult;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
+import com.amazonaws.services.ec2.model.DescribeSubnetsRequest;
+import com.amazonaws.services.ec2.model.DescribeSubnetsResult;
 import com.amazonaws.services.ec2.model.DescribeVolumesRequest;
 import com.amazonaws.services.ec2.model.DescribeVolumesResult;
 import com.amazonaws.services.ec2.model.Filter;
@@ -47,9 +49,13 @@ import com.amazonaws.services.ec2.model.Instance;
 import com.amazonaws.services.ec2.model.InstanceStateName;
 import com.amazonaws.services.ec2.model.Reservation;
 import com.amazonaws.services.ec2.model.SecurityGroup;
+import com.amazonaws.services.ec2.model.Subnet;
 import com.amazonaws.services.ec2.model.Tag;
 import com.amazonaws.services.ec2.model.Volume;
 import com.amazonaws.services.ec2.model.VolumeState;
+import com.amazonaws.services.elasticloadbalancing.model.DescribeLoadBalancersRequest;
+import com.amazonaws.services.elasticloadbalancing.model.DescribeLoadBalancersResult;
+import com.amazonaws.services.elasticloadbalancing.model.LoadBalancerDescription;
 
 /**
  * <p>
@@ -199,6 +205,28 @@ public class AwsCommonProcess extends ServiceSupport {
         return addresses.get(0);
     }
 
+    public LoadBalancerDescription describeLoadBalancer(AwsProcessClient awsProcessClient, String loadBalancerName) {
+        // 単一ロードバランサの参照
+        DescribeLoadBalancersRequest request = new DescribeLoadBalancersRequest();
+        request.withLoadBalancerNames(loadBalancerName);
+        DescribeLoadBalancersResult result = awsProcessClient.getElbClient().describeLoadBalancers(request);
+        List<LoadBalancerDescription> descriptions = result.getLoadBalancerDescriptions();
+
+        // API実行結果チェック
+        if (descriptions.size() == 0) {
+            // アドレスが存在しない場合
+            throw new AutoException("EPROCESS-000131", loadBalancerName);
+
+        } else if (descriptions.size() > 1) {
+            // アドレスを複数参照できた場合
+            AutoException exception = new AutoException("EPROCESS-000132", loadBalancerName);
+            exception.addDetailInfo("result=" + descriptions);
+            throw exception;
+        }
+
+        return descriptions.get(0);
+    }
+
     public Image describeImage(AwsProcessClient awsProcessClient, String imageId) {
         DescribeImagesRequest request = new DescribeImagesRequest();
         request.withImageIds(imageId);
@@ -227,6 +255,15 @@ public class AwsCommonProcess extends ServiceSupport {
         List<SecurityGroup> securityGroups = result.getSecurityGroups();
 
         return securityGroups;
+    }
+
+    public List<Subnet> describeSubnetsByVpcId(AwsProcessClient awsProcessClient, String vpcId) {
+        DescribeSubnetsRequest request = new DescribeSubnetsRequest();
+        request.withFilters(new Filter().withName("vpc-id").withValues(vpcId));
+        DescribeSubnetsResult result = awsProcessClient.getEc2Client().describeSubnets(request);
+        List<Subnet> subnets = result.getSubnets();
+
+        return subnets;
     }
 
     public void createTag(AwsProcessClient awsProcessClient, String resourceId, List<Tag> tags) {

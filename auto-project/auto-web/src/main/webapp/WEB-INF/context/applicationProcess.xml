@@ -45,6 +45,7 @@
 	<bean id="awsDnsProcess" class="jp.primecloud.auto.process.aws.AwsDnsProcess">
 		<property name="reverseEnabled" value="${dns.reverseEnabled}" />
 	</bean>
+	<bean id="awsLoadBalancerProcess" class="jp.primecloud.auto.process.aws.AwsLoadBalancerProcess" />
 	<bean id="awsProcessClientFactory" class="jp.primecloud.auto.process.aws.AwsProcessClientFactory">
 		<property name="describeInterval" value="${aws.describeInterval}" />
 		<property name="logging" value="${aws.logging}" />
@@ -129,6 +130,7 @@
 
 	<!-- ZabbixProcess -->
 	<bean id="zabbixHostProcess" class="jp.primecloud.auto.process.zabbix.ZabbixHostProcess" />
+	<bean id="zabbixLoadBalancerProcess" class="jp.primecloud.auto.process.zabbix.ZabbixLoadBalancerProcess" />
 	<bean id="elbZabbixHostProcess" class="jp.primecloud.auto.process.zabbix.ElbZabbixHostProcess" />
 	<bean id="zabbixProcessClientFactory" class="jp.primecloud.auto.process.zabbix.ZabbixProcessClientFactory">
 		<property name="url" value="${zabbix.url}" />
