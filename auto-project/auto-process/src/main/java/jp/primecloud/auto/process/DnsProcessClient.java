@@ -21,7 +21,7 @@ package jp.primecloud.auto.process;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import jp.primecloud.auto.common.component.DnsStrategy;
+import jp.primecloud.auto.common.component.DnsStrategyInterface;
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
@@ -34,7 +34,7 @@ import jp.primecloud.auto.util.MessageUtils;
  */
 public class DnsProcessClient extends ServiceSupport {
 
-    protected DnsStrategy dnsStrategy;
+    protected DnsStrategyInterface dnsStrategy;
 
     protected boolean reverseEnabled = true;
 
@@ -133,7 +133,7 @@ public class DnsProcessClient extends ServiceSupport {
      *
      * @param dnsStrategy dnsStrategy
      */
-    public void setDnsStrategy(DnsStrategy dnsStrategy) {
+    public void setDnsStrategy(DnsStrategyInterface dnsStrategy) {
         this.dnsStrategy = dnsStrategy;
     }
 

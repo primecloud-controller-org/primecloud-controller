@@ -33,42 +33,24 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-
 /**
  * <p>
  * DNSサーバのレコードを制御するClassです。
  * </p>
  *
  */
-public class DnsStrategy {
+public class DnsStrategy implements DnsStrategyInterface {
 
     private static final Log log = LogFactory.getLog(DnsStrategy.class);
 
-    private String dnsServer;
+    protected String dnsServer;
 
-    private String domainName;
-
-    private int timeToLive = 3600;
+    protected int timeToLive = 3600;
 
     /**
-     * TODO: メソッドコメントを記述
-     *
-     * @param hostName
-     * @return
+     * {@inheritDoc}
      */
-    public String createFqdn(String hostName) {
-        if (domainName == null) {
-            return hostName;
-        }
-        return hostName + "." + domainName;
-    }
-
-    /**
-     * TODO: メソッドコメントを記述
-     *
-     * @param fqdn
-     * @param ipAddress
-     */
+    @Override
     public void addForward(String fqdn, String ipAddress) {
         List<String> commands = createCommands();
 
@@ -106,11 +88,9 @@ public class DnsStrategy {
     }
 
     /**
-     * TODO: メソッドコメントを記述
-     *
-     * @param fqdn
-     * @param ipAddress
+     * {@inheritDoc}
      */
+    @Override
     public void addReverse(String fqdn, String ipAddress) {
         List<String> commands = createCommands();
 
@@ -148,11 +128,9 @@ public class DnsStrategy {
     }
 
     /**
-     * TODO: メソッドコメントを記述
-     *
-     * @param fqdn
-     * @param canonicalName
+     * {@inheritDoc}
      */
+    @Override
     public void addCanonicalName(String fqdn, String canonicalName) {
         List<String> commands = createCommands();
 
@@ -174,10 +152,9 @@ public class DnsStrategy {
     }
 
     /**
-     * TODO: メソッドコメントを記述
-     *
-     * @param fqdn
+     * {@inheritDoc}
      */
+    @Override
     public void deleteForward(String fqdn) {
         List<String> commands = createCommands();
 
@@ -215,10 +192,9 @@ public class DnsStrategy {
     }
 
     /**
-     * TODO: メソッドコメントを記述
-     *
-     * @param ipAddress
+     * {@inheritDoc}
      */
+    @Override
     public void deleteReverse(String ipAddress) {
         List<String> commands = createCommands();
 
@@ -256,10 +232,9 @@ public class DnsStrategy {
     }
 
     /**
-     * TODO: メソッドコメントを記述
-     *
-     * @param fqdn
+     * {@inheritDoc}
      */
+    @Override
     public void deleteCanonicalName(String fqdn) {
         List<String> commands = createCommands();
 
@@ -427,48 +402,12 @@ public class DnsStrategy {
     }
 
     /**
-     * dnsServerを取得します。
-     *
-     * @return dnsServer
-     */
-    public String getDnsServer() {
-        return dnsServer;
-    }
-
-    /**
      * dnsServerを設定します。
      *
      * @param dnsServer dnsServer
      */
     public void setDnsServer(String dnsServer) {
         this.dnsServer = dnsServer;
-    }
-
-    /**
-     * domainNameを取得します。
-     *
-     * @return domainName
-     */
-    public String getDomainName() {
-        return domainName;
-    }
-
-    /**
-     * domainNameを設定します。
-     *
-     * @param domainName domainName
-     */
-    public void setDomainName(String domainName) {
-        this.domainName = domainName;
-    }
-
-    /**
-     * timeToLiveを取得します。
-     *
-     * @return timeToLive
-     */
-    public int getTimeToLive() {
-        return timeToLive;
     }
 
     /**
