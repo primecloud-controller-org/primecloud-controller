@@ -70,7 +70,6 @@ import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.log.EventLogLevel;
 import jp.primecloud.auto.log.EventLogger;
 import jp.primecloud.auto.process.hook.ProcessHook;
-import jp.primecloud.auto.process.zabbix.ElbZabbixHostProcess;
 import jp.primecloud.auto.process.zabbix.ZabbixProcessClient;
 import jp.primecloud.auto.process.zabbix.ZabbixProcessClientFactory;
 import jp.primecloud.auto.service.AwsDescribeService;
@@ -109,8 +108,6 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
     protected EventLogger eventLogger;
 
     protected ZabbixProcessClientFactory zabbixProcessClientFactory;
-
-    protected ElbZabbixHostProcess elbZabbixHostProcess;
 
     protected ProcessHook processHook;
 
@@ -616,12 +613,6 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
 
         // 振り分け対象のインスタンスを登録
         registerInstances(loadBalancer);
-
-        // ホストグループを作成する
-        Boolean useZabbix = BooleanUtils.toBooleanObject(Config.getProperty("zabbix.useZabbix"));
-        if (BooleanUtils.isTrue(useZabbix)) {
-            elbZabbixHostProcess.createElbHostgroup(loadBalancerNo);
-        }
 
         // イベントログ出力
         eventLogger.log(EventLogLevel.INFO, farmNo, farm.getFarmName(), null, null, null, null, "LoadBalancerCreate",
@@ -2375,15 +2366,6 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
      */
     public void setZabbixProcessClientFactory(ZabbixProcessClientFactory zabbixProcessClientFactory) {
         this.zabbixProcessClientFactory = zabbixProcessClientFactory;
-    }
-
-    /**
-     * elbZabbixHostProcessを設定します。
-     *
-     * @param elbZabbixHostProcess elbZabbixHostProcess
-     */
-    public void setElbZabbixHostProcess(ElbZabbixHostProcess elbZabbixHostProcess) {
-        this.elbZabbixHostProcess = elbZabbixHostProcess;
     }
 
     /**

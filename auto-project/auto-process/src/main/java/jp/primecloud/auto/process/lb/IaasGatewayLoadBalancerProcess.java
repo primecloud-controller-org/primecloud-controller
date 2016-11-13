@@ -29,6 +29,7 @@ import org.apache.commons.lang.StringUtils;
 import jp.primecloud.auto.common.component.DnsStrategy;
 import jp.primecloud.auto.common.status.LoadBalancerInstanceStatus;
 import jp.primecloud.auto.common.status.LoadBalancerListenerStatus;
+import jp.primecloud.auto.config.Config;
 import jp.primecloud.auto.entity.crud.AwsLoadBalancer;
 import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.Instance;
@@ -39,7 +40,7 @@ import jp.primecloud.auto.iaasgw.IaasGatewayFactory;
 import jp.primecloud.auto.iaasgw.IaasGatewayWrapper;
 import jp.primecloud.auto.log.EventLogger;
 import jp.primecloud.auto.process.ProcessLogger;
-import jp.primecloud.auto.process.zabbix.ElbZabbixHostProcess;
+import jp.primecloud.auto.process.zabbix.ZabbixLoadBalancerProcess;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
 
@@ -49,11 +50,11 @@ import jp.primecloud.auto.util.MessageUtils;
  * </p>
  *
  */
-public class ElasticLoadBalancerProcess extends ServiceSupport {
+public class IaasGatewayLoadBalancerProcess extends ServiceSupport {
 
     protected DnsStrategy dnsStrategy;
 
-    protected ElbZabbixHostProcess elbZabbixHostProcess;
+    protected ZabbixLoadBalancerProcess zabbixLoadBalancerProcess;
 
     protected ProcessLogger processLogger;
 
@@ -75,7 +76,10 @@ public class ElasticLoadBalancerProcess extends ServiceSupport {
         gateway.startLoadBalancer(loadBalancer.getLoadBalancerNo());
 
         //Zabbixへの登録
-        elbZabbixHostProcess.startHost(loadBalancerNo);
+        Boolean useZabbix = BooleanUtils.toBooleanObject(Config.getProperty("zabbix.useZabbix"));
+        if (BooleanUtils.isTrue(useZabbix)) {
+            zabbixLoadBalancerProcess.startHost(loadBalancerNo);
+        }
 
         // DNSサーバへの追加
         addDns(loadBalancer.getLoadBalancerNo());
@@ -96,7 +100,10 @@ public class ElasticLoadBalancerProcess extends ServiceSupport {
         deleteDns(loadBalancerNo);
 
         //Zabbixからの削除
-        elbZabbixHostProcess.stopHost(loadBalancerNo);
+        Boolean useZabbix = BooleanUtils.toBooleanObject(Config.getProperty("zabbix.useZabbix"));
+        if (BooleanUtils.isTrue(useZabbix)) {
+            zabbixLoadBalancerProcess.stopHost(loadBalancerNo);
+        }
 
 
         //IaasGatewayWrapper作成
@@ -123,18 +130,8 @@ public class ElasticLoadBalancerProcess extends ServiceSupport {
         IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), loadBalancer.getPlatformNo());
 
         try {
-            // ロードバランサが無効の場合、監視を停止する
-            if (BooleanUtils.isNotTrue(loadBalancer.getEnabled())) {
-                elbZabbixHostProcess.stopTemplate(loadBalancerNo);
-            }
             // 振り分け設定を変更
             gateway.configureLoadBalancer(loadBalancer.getLoadBalancerNo());
-
-
-            // ロードバランサが有効の場合、監視を開始する
-            if (BooleanUtils.isTrue(loadBalancer.getEnabled())) {
-                elbZabbixHostProcess.startTemplate(loadBalancerNo);
-            }
 
         } catch (RuntimeException e) {
             loadBalancer = loadBalancerDao.read(loadBalancerNo);
@@ -310,13 +307,8 @@ public class ElasticLoadBalancerProcess extends ServiceSupport {
         this.dnsStrategy = dnsStrategy;
     }
 
-    /**
-     * ElbZabbixHostProcessを設定します。
-     *
-     * @param ElbZabbixHostProcess elbZabbixHostProcess
-     */
-    public void setElbZabbixHostProcess(ElbZabbixHostProcess elbZabbixHostProcess) {
-        this.elbZabbixHostProcess = elbZabbixHostProcess;
+    public void setZabbixLoadBalancerProcess(ZabbixLoadBalancerProcess zabbixLoadBalancerProcess) {
+        this.zabbixLoadBalancerProcess = zabbixLoadBalancerProcess;
     }
 
     /**

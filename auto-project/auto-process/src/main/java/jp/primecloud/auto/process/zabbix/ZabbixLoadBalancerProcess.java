@@ -21,6 +21,7 @@ package jp.primecloud.auto.process.zabbix;
 import java.util.ArrayList;
 import java.util.List;
 
+import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.ZabbixInstanceStatus;
 import jp.primecloud.auto.config.Config;
 import jp.primecloud.auto.entity.crud.AwsLoadBalancer;
@@ -53,7 +54,12 @@ public class ZabbixLoadBalancerProcess extends ServiceSupport {
 
     public void startHost(Long loadBalancerNo) {
         LoadBalancer loadBalancer = loadBalancerDao.read(loadBalancerNo);
-        AwsLoadBalancer awsLoadbalancer = awsLoadBalancerDao.read(loadBalancerNo);
+
+        // AWSプラットフォームのロードバランサでない場合は何もしない
+        String type = loadBalancer.getType();
+        if (!PCCConstant.LOAD_BALANCER_ELB.equals(type)) {
+            return;
+        }
 
         // ログ出力
         if (log.isInfoEnabled()) {
@@ -62,6 +68,7 @@ public class ZabbixLoadBalancerProcess extends ServiceSupport {
 
         ZabbixProcessClient zabbixProcessClient = zabbixProcessClientFactory.createZabbixProcessClient();
 
+        AwsLoadBalancer awsLoadbalancer = awsLoadBalancerDao.read(loadBalancerNo);
         String hostid = awsLoadbalancer.getHostid();
 
         // Zabbixホスト名
@@ -108,7 +115,12 @@ public class ZabbixLoadBalancerProcess extends ServiceSupport {
 
     public void stopHost(Long loadBalancerNo) {
         LoadBalancer loadBalancer = loadBalancerDao.read(loadBalancerNo);
-        AwsLoadBalancer awsLoadbalancer = awsLoadBalancerDao.read(loadBalancerNo);
+
+        // AWSプラットフォームのロードバランサでない場合は何もしない
+        String type = loadBalancer.getType();
+        if (!PCCConstant.LOAD_BALANCER_ELB.equals(type)) {
+            return;
+        }
 
         // ログ出力
         if (log.isInfoEnabled()) {
@@ -125,6 +137,7 @@ public class ZabbixLoadBalancerProcess extends ServiceSupport {
             // ZabbixプロキシID取得
             String proxyHostid = getProxyHostid(zabbixProcessClient);
 
+            AwsLoadBalancer awsLoadbalancer = awsLoadBalancerDao.read(loadBalancerNo);
             zabbixProcessClient.updateHost(awsLoadbalancer.getHostid(), hostname, loadBalancer.getFqdn(), null, false,
                     false, null, proxyHostid);
 
@@ -147,43 +160,17 @@ public class ZabbixLoadBalancerProcess extends ServiceSupport {
         }
     }
 
-    public void createElbHostgroup(Long loadBalancerNo) {
-        LoadBalancer loadBalancer = loadBalancerDao.read(loadBalancerNo);
-        AwsLoadBalancer awsLoadbalancer = awsLoadBalancerDao.read(loadBalancerNo);
-        Farm farm = farmDao.read(loadBalancer.getFarmNo());
-        User user = userDao.read(farm.getUserNo());
-        String hostgroupName = getHostgroupName(user, farm, awsLoadbalancer);
-
-        ZabbixProcessClient zabbixProcessClient = zabbixProcessClientFactory.createZabbixProcessClient();
-
-        Hostgroup hostgroup = zabbixProcessClient.getHostgroupByName(hostgroupName);
-        if (hostgroup != null) {
-            // すでにホストグループが作られている場合は何もしない
-            return;
-        }
-
-        zabbixProcessClient.createHostgroup(hostgroupName);
-    }
-
     protected String getHostgroupName(User user) {
         return getHostgroupName(user, null);
     }
 
     protected String getHostgroupName(User user, Farm farm) {
-        return getHostgroupName(user, farm, null);
-    }
-
-    protected String getHostgroupName(User user, Farm farm, AwsLoadBalancer awsLoadbalancer) {
         String delimiter = "_";
         StringBuilder sb = new StringBuilder();
         sb.append(user.getUsername());
         if (farm != null) {
             sb.append(delimiter);
             sb.append(farm.getFarmName());
-        }
-        if (awsLoadbalancer != null) {
-            sb.append(delimiter);
-            sb.append(awsLoadbalancer.getName());
         }
 
         // 64文字でカットする

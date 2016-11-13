@@ -131,7 +131,6 @@
 	<!-- ZabbixProcess -->
 	<bean id="zabbixHostProcess" class="jp.primecloud.auto.process.zabbix.ZabbixHostProcess" />
 	<bean id="zabbixLoadBalancerProcess" class="jp.primecloud.auto.process.zabbix.ZabbixLoadBalancerProcess" />
-	<bean id="elbZabbixHostProcess" class="jp.primecloud.auto.process.zabbix.ElbZabbixHostProcess" />
 	<bean id="zabbixProcessClientFactory" class="jp.primecloud.auto.process.zabbix.ZabbixProcessClientFactory">
 		<property name="url" value="${zabbix.url}" />
 		<property name="username" value="${zabbix.username}" />
@@ -142,7 +141,7 @@
 	<!-- LoadBalancerProcess -->
 	<bean id="loadBalancerProcess" class="jp.primecloud.auto.process.lb.LoadBalancerProcess" />
 	<bean id="componentLoadBalancerProcess" class="jp.primecloud.auto.process.lb.ComponentLoadBalancerProcess" />
-	<bean id="elasticLoadBalancerProcess" class="jp.primecloud.auto.process.lb.ElasticLoadBalancerProcess" />
+	<bean id="iaasGatewayLoadBalancerProcess" class="jp.primecloud.auto.process.lb.IaasGatewayLoadBalancerProcess" />
 	<bean id="puppetLoadBalancerProcess" class="jp.primecloud.auto.process.lb.PuppetLoadBalancerProcess">
 		<property name="manifestDir" value="${puppet.outputDir}" />
 	</bean>

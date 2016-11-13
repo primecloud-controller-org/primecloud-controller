@@ -20,8 +20,6 @@ package jp.primecloud.auto.process.lb;
 
 import java.util.List;
 
-import org.apache.commons.lang.BooleanUtils;
-
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.LoadBalancerInstanceStatus;
 import jp.primecloud.auto.common.status.LoadBalancerListenerStatus;
@@ -40,6 +38,8 @@ import jp.primecloud.auto.process.hook.ProcessHook;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
 
+import org.apache.commons.lang.BooleanUtils;
+
 /**
  * <p>
  * TODO: クラスコメントを記述
@@ -54,7 +54,7 @@ public class LoadBalancerProcess extends ServiceSupport {
 
     protected ComponentLoadBalancerProcess componentLoadBalancerProcess;
 
-    protected ElasticLoadBalancerProcess elasticLoadBalancerProcess;
+    protected IaasGatewayLoadBalancerProcess iaasGatewayLoadBalancerProcess;
 
     protected ProcessLogger processLogger;
 
@@ -103,11 +103,11 @@ public class LoadBalancerProcess extends ServiceSupport {
 
         // イベントログ出力
         if (status == LoadBalancerStatus.STARTING) {
-            processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, null,
-                    "LoadBalancerStart", new Object[] { loadBalancer.getLoadBalancerName() });
+            processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, null, "LoadBalancerStart",
+                    new Object[] { loadBalancer.getLoadBalancerName() });
         } else if (status == LoadBalancerStatus.CONFIGURING) {
-            processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, null,
-                    "LoadBalancerReload", new Object[] { loadBalancer.getLoadBalancerName() });
+            processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, null, "LoadBalancerReload",
+                    new Object[] { loadBalancer.getLoadBalancerName() });
         }
 
         try {
@@ -120,11 +120,11 @@ public class LoadBalancerProcess extends ServiceSupport {
 
             // イベントログ出力
             if (status == LoadBalancerStatus.STARTING) {
-                processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, null,
-                        "LoadBalancerStartFail", new Object[] { loadBalancer.getLoadBalancerName() });
+                processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, null, "LoadBalancerStartFail",
+                        new Object[] { loadBalancer.getLoadBalancerName() });
             } else if (status == LoadBalancerStatus.CONFIGURING) {
-                processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, null,
-                        "LoadBalancerReloadFail", new Object[] { loadBalancer.getLoadBalancerName() });
+                processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, null, "LoadBalancerReloadFail",
+                        new Object[] { loadBalancer.getLoadBalancerName() });
             }
 
             // ステータスの更新
@@ -143,11 +143,11 @@ public class LoadBalancerProcess extends ServiceSupport {
 
         // イベントログ出力
         if (status == LoadBalancerStatus.STARTING) {
-            processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, null,
-                    "LoadBalancerStartFinish", new Object[] { loadBalancer.getLoadBalancerName() });
+            processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, null, "LoadBalancerStartFinish",
+                    new Object[] { loadBalancer.getLoadBalancerName() });
         } else if (status == LoadBalancerStatus.CONFIGURING) {
-            processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, null,
-                    "LoadBalancerReloadFinish", new Object[] { loadBalancer.getLoadBalancerName() });
+            processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, null, "LoadBalancerReloadFinish",
+                    new Object[] { loadBalancer.getLoadBalancerName() });
         }
 
         // ステータスの更新
@@ -199,8 +199,8 @@ public class LoadBalancerProcess extends ServiceSupport {
         loadBalancerDao.update(loadBalancer);
 
         // イベントログ出力
-        processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, null,
-                "LoadBalancerStop", new Object[] { loadBalancer.getLoadBalancerName() });
+        processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, null, "LoadBalancerStop",
+                new Object[] { loadBalancer.getLoadBalancerName() });
 
         try {
             // ロードバランサ終了処理
@@ -211,8 +211,8 @@ public class LoadBalancerProcess extends ServiceSupport {
         }
 
         // イベントログ出力
-        processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, null,
-                "LoadBalancerStopFinish", new Object[] { loadBalancer.getLoadBalancerName() });
+        processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, null, "LoadBalancerStopFinish",
+                new Object[] { loadBalancer.getLoadBalancerName() });
 
         // ステータスの更新
         loadBalancer = loadBalancerDao.read(loadBalancerNo);
@@ -267,8 +267,8 @@ public class LoadBalancerProcess extends ServiceSupport {
 
         // イベントログ出力
         if (BooleanUtils.isTrue(loadBalancer.getConfigure())) {
-            processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, null,
-                    "LoadBalancerConfig", new Object[] { loadBalancer.getLoadBalancerName() });
+            processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, null, "LoadBalancerConfig",
+                    new Object[] { loadBalancer.getLoadBalancerName() });
         }
 
         try {
@@ -278,8 +278,8 @@ public class LoadBalancerProcess extends ServiceSupport {
         } catch (RuntimeException e) {
             // イベントログ出力
             if (BooleanUtils.isTrue(loadBalancer.getConfigure())) {
-                processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, null,
-                        "LoadBalancerConfigFail", new Object[] { loadBalancer.getLoadBalancerName() });
+                processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, null, "LoadBalancerConfigFail",
+                        new Object[] { loadBalancer.getLoadBalancerName() });
             }
 
             // ステータスの更新
@@ -301,8 +301,8 @@ public class LoadBalancerProcess extends ServiceSupport {
 
         // イベントログ出力
         if (BooleanUtils.isTrue(loadBalancer.getConfigure())) {
-            processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, null,
-                    "LoadBalancerConfigFinish", new Object[] { loadBalancer.getLoadBalancerName() });
+            processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, null, "LoadBalancerConfigFinish",
+                    new Object[] { loadBalancer.getLoadBalancerName() });
         }
 
         // ステータスの更新
@@ -320,43 +320,61 @@ public class LoadBalancerProcess extends ServiceSupport {
 
     protected void startLoadBalancer(LoadBalancer loadBalancer) {
         String type = loadBalancer.getType();
+
+        // AWSプラットフォーム型ロードバランサ
         if (PCCConstant.LOAD_BALANCER_ELB.equals(type)) {
             Farm farm = farmDao.read(loadBalancer.getFarmNo());
             AwsProcessClient awsProcessClient = awsProcessClientFactory.createAwsProcessClient(farm.getUserNo(),
                     loadBalancer.getPlatformNo());
             awsLoadBalancerProcess.start(awsProcessClient, loadBalancer.getLoadBalancerNo());
-        } else if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(type)) {
+        }
+        // コンポーネント型ロードバランサ
+        else if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(type)) {
             componentLoadBalancerProcess.start(loadBalancer.getLoadBalancerNo());
-        } else if (PCCConstant.LOAD_BALANCER_CLOUDSTACK.equals(type)) {
-            elasticLoadBalancerProcess.start(loadBalancer.getLoadBalancerNo());
+        }
+        // IaaS Gateway型ロードバランサ
+        else if (PCCConstant.LOAD_BALANCER_CLOUDSTACK.equals(type)) {
+            iaasGatewayLoadBalancerProcess.start(loadBalancer.getLoadBalancerNo());
         }
     }
 
     protected void stopLoadBalancer(LoadBalancer loadBalancer) {
         String type = loadBalancer.getType();
+
+        // AWSプラットフォーム型ロードバランサ
         if (PCCConstant.LOAD_BALANCER_ELB.equals(type)) {
             Farm farm = farmDao.read(loadBalancer.getFarmNo());
             AwsProcessClient awsProcessClient = awsProcessClientFactory.createAwsProcessClient(farm.getUserNo(),
                     loadBalancer.getPlatformNo());
             awsLoadBalancerProcess.stop(awsProcessClient, loadBalancer.getLoadBalancerNo());
-        } else if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(type)) {
+        }
+        // コンポーネント型ロードバランサ
+        else if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(type)) {
             componentLoadBalancerProcess.stop(loadBalancer.getLoadBalancerNo());
-        } else if (PCCConstant.LOAD_BALANCER_CLOUDSTACK.equals(type)) {
-            elasticLoadBalancerProcess.stop(loadBalancer.getLoadBalancerNo());
+        }
+        // IaaS Gateway型ロードバランサ
+        else if (PCCConstant.LOAD_BALANCER_CLOUDSTACK.equals(type)) {
+            iaasGatewayLoadBalancerProcess.stop(loadBalancer.getLoadBalancerNo());
         }
     }
 
     protected void configureLoadBalancer(LoadBalancer loadBalancer) {
         String type = loadBalancer.getType();
+
+        // AWSプラットフォーム型ロードバランサ
         if (PCCConstant.LOAD_BALANCER_ELB.equals(type)) {
             Farm farm = farmDao.read(loadBalancer.getFarmNo());
             AwsProcessClient awsProcessClient = awsProcessClientFactory.createAwsProcessClient(farm.getUserNo(),
                     loadBalancer.getPlatformNo());
             awsLoadBalancerProcess.configure(awsProcessClient, loadBalancer.getLoadBalancerNo());
-        } else if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(type)) {
+        }
+        // コンポーネント型ロードバランサ
+        else if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(type)) {
             componentLoadBalancerProcess.configure(loadBalancer.getLoadBalancerNo());
-        } else if (PCCConstant.LOAD_BALANCER_CLOUDSTACK.equals(type)) {
-            elasticLoadBalancerProcess.configure(loadBalancer.getLoadBalancerNo());
+        }
+        // IaaS Gateway型ロードバランサ
+        else if (PCCConstant.LOAD_BALANCER_CLOUDSTACK.equals(type)) {
+            iaasGatewayLoadBalancerProcess.configure(loadBalancer.getLoadBalancerNo());
         }
     }
 
@@ -377,13 +395,8 @@ public class LoadBalancerProcess extends ServiceSupport {
         this.componentLoadBalancerProcess = componentLoadBalancerProcess;
     }
 
-    /**
-     * elasticLoadBalancerProcessを設定します。
-     *
-     * @param ElasticLoadBalancerProcess elasticLoadBalancerProcess
-     */
-    public void setElasticLoadBalancerProcess(ElasticLoadBalancerProcess elasticLoadBalancerProcess) {
-        this.elasticLoadBalancerProcess = elasticLoadBalancerProcess;
+    public void setIaasGatewayLoadBalancerProcess(IaasGatewayLoadBalancerProcess iaasGatewayLoadBalancerProcess) {
+        this.iaasGatewayLoadBalancerProcess = iaasGatewayLoadBalancerProcess;
     }
 
     /**
