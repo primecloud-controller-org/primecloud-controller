@@ -30,7 +30,6 @@
 
 	<bean id="dnsStrategy" class="jp.primecloud.auto.common.component.DnsStrategy">
 		<property name="dnsServer" value="${dns.server}" />
-		<property name="domainName" value="${dns.domain}" />
 		<property name="timeToLive" value="${dns.timeToLive}" />
 	</bean>
 	<bean id="dnsProcessClient" class="jp.primecloud.auto.process.DnsProcessClient">
