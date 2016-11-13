@@ -18,17 +18,14 @@
  */
 package jp.primecloud.auto.process.aws;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
-import jp.primecloud.auto.common.component.DnsStrategy;
 import jp.primecloud.auto.entity.crud.AwsInstance;
 import jp.primecloud.auto.entity.crud.Image;
 import jp.primecloud.auto.entity.crud.Instance;
-import jp.primecloud.auto.exception.AutoException;
+import jp.primecloud.auto.entity.crud.Platform;
+import jp.primecloud.auto.entity.crud.PlatformAws;
+import jp.primecloud.auto.process.DnsProcessClient;
 import jp.primecloud.auto.process.ProcessLogger;
 import jp.primecloud.auto.service.ServiceSupport;
-import jp.primecloud.auto.util.MessageUtils;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -41,49 +38,50 @@ import org.apache.commons.lang.StringUtils;
  */
 public class AwsDnsProcess extends ServiceSupport {
 
-    protected DnsStrategy dnsStrategy;
-
-    protected boolean reverseEnabled = true;
+    protected DnsProcessClient dnsProcessClient;
 
     protected ProcessLogger processLogger;
 
     /**
      * TODO: メソッドコメント
      * 
-     * @param awsProcessClient
      * @param instanceNo
      */
-    public void startDns(AwsProcessClient awsProcessClient, Long instanceNo) {
-        if (BooleanUtils.isTrue(awsProcessClient.getPlatform().getInternal())) {
+    public void startDns(Long instanceNo) {
+        Instance instance = instanceDao.read(instanceNo);
+        Platform platform = platformDao.read(instance.getPlatformNo());
+
+        if (BooleanUtils.isTrue(platform.getInternal())) {
             // 内部のプラットフォームの場合
-            if (BooleanUtils.isTrue(awsProcessClient.getPlatformAws().getEuca())) {
+            PlatformAws platformAws = platformAwsDao.read(platform.getPlatformNo());
+
+            if (BooleanUtils.isTrue(platformAws.getEuca())) {
                 // Eucalyptusの場合
-                startDnsEuca(awsProcessClient, instanceNo);
+                startDnsEuca(instanceNo);
             } else {
                 // Amazon EC2の場合
-                if (BooleanUtils.isTrue(awsProcessClient.getPlatformAws().getVpc())) {
+                if (BooleanUtils.isTrue(platformAws.getVpc())) {
                     // VPC環境の場合
-                    startDnsNormal(awsProcessClient, instanceNo);
+                    startDnsNormal(instanceNo);
                 } else {
                     // 非VPC環境の場合
-                    startDnsClassic(awsProcessClient, instanceNo);
+                    startDnsClassic(instanceNo);
                 }
             }
         } else {
             // 外部のプラットフォームの場合
-            Instance instance = instanceDao.read(instanceNo);
             Image image = imageDao.read(instance.getImageNo());
             if (StringUtils.startsWithIgnoreCase(image.getOs(), "windows")) {
                 // Windowsイメージの場合、VPNを使用していないものとする
-                startDnsClassic(awsProcessClient, instanceNo);
+                startDnsClassic(instanceNo);
             } else {
                 // VPNを使用している場合
-                startDnsVpn(awsProcessClient, instanceNo);
+                startDnsVpn(instanceNo);
             }
         }
 
         // イベントログ出力
-        Instance instance = instanceDao.read(instanceNo);
+        instance = instanceDao.read(instanceNo);
         processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance, "DnsRegist",
                 new Object[] { instance.getFqdn(), instance.getPublicIp() });
     }
@@ -91,24 +89,27 @@ public class AwsDnsProcess extends ServiceSupport {
     /**
      * TODO: メソッドコメント
      * 
-     * @param awsProcessClient
      * @param instanceNo
      */
-    public void stopDns(AwsProcessClient awsProcessClient, Long instanceNo) {
+    public void stopDns(Long instanceNo) {
         Instance instance = instanceDao.read(instanceNo);
-        if (BooleanUtils.isTrue(awsProcessClient.getPlatform().getInternal())) {
+        Platform platform = platformDao.read(instance.getPlatformNo());
+
+        if (BooleanUtils.isTrue(platform.getInternal())) {
             // 内部のプラットフォームの場合
-            if (BooleanUtils.isTrue(awsProcessClient.getPlatformAws().getEuca())) {
+            PlatformAws platformAws = platformAwsDao.read(platform.getPlatformNo());
+
+            if (BooleanUtils.isTrue(platformAws.getEuca())) {
                 // Eucalyptusの場合
-                stopDnsNormal(awsProcessClient, instanceNo);
+                stopDnsNormal(instanceNo);
             } else {
                 // Amazon EC2の場合
-                if (BooleanUtils.isTrue(awsProcessClient.getPlatformAws().getVpc())) {
+                if (BooleanUtils.isTrue(platformAws.getVpc())) {
                     // VPC環境の場合
-                    stopDnsNormal(awsProcessClient, instanceNo);
+                    stopDnsNormal(instanceNo);
                 } else {
                     // 非VPC環境の場合
-                    stopDnsClassic(awsProcessClient, instanceNo);
+                    stopDnsClassic(instanceNo);
                 }
             }
         } else {
@@ -116,10 +117,10 @@ public class AwsDnsProcess extends ServiceSupport {
             Image image = imageDao.read(instance.getImageNo());
             if (StringUtils.startsWithIgnoreCase(image.getOs(), "windows")) {
                 // Windowsイメージの場合、VPNを使用していないものとする
-                stopDnsClassic(awsProcessClient, instanceNo);
+                stopDnsClassic(instanceNo);
             } else {
                 // VPNを使用している場合
-                stopDnsNormal(awsProcessClient, instanceNo);
+                stopDnsNormal(instanceNo);
             }
         }
 
@@ -128,7 +129,7 @@ public class AwsDnsProcess extends ServiceSupport {
                 new Object[] { instance.getFqdn(), instance.getPublicIp() });
     }
 
-    protected void startDnsNormal(AwsProcessClient awsProcessClient, Long instanceNo) {
+    protected void startDnsNormal(Long instanceNo) {
         Instance instance = instanceDao.read(instanceNo);
         AwsInstance awsInstance = awsInstanceDao.read(instanceNo);
 
@@ -143,10 +144,10 @@ public class AwsDnsProcess extends ServiceSupport {
         String privateIp = awsInstance.getPrivateIpAddress();
 
         // 正引きの追加
-        addForward(fqdn, publicIp);
+        dnsProcessClient.addForward(fqdn, publicIp);
 
         // 逆引きの追加
-        addReverse(fqdn, publicIp);
+        dnsProcessClient.addReverse(fqdn, publicIp);
 
         // データベースの更新
         instance.setPublicIp(publicIp);
@@ -154,7 +155,7 @@ public class AwsDnsProcess extends ServiceSupport {
         instanceDao.update(instance);
     }
 
-    protected void startDnsClassic(AwsProcessClient awsProcessClient, Long instanceNo) {
+    protected void startDnsClassic(Long instanceNo) {
         Instance instance = instanceDao.read(instanceNo);
         AwsInstance awsInstance = awsInstanceDao.read(instanceNo);
 
@@ -168,7 +169,7 @@ public class AwsDnsProcess extends ServiceSupport {
         String privateIp = awsInstance.getPrivateIpAddress();
 
         // CNAMEの追加
-        addCanonicalName(fqdn, awsInstance.getDnsName());
+        dnsProcessClient.addCanonicalName(fqdn, awsInstance.getDnsName());
 
         // データベースの更新
         instance.setPublicIp(publicIp);
@@ -176,7 +177,7 @@ public class AwsDnsProcess extends ServiceSupport {
         instanceDao.update(instance);
     }
 
-    protected void startDnsEuca(AwsProcessClient awsProcessClient, Long instanceNo) {
+    protected void startDnsEuca(Long instanceNo) {
         Instance instance = instanceDao.read(instanceNo);
         AwsInstance awsInstance = awsInstanceDao.read(instanceNo);
 
@@ -191,10 +192,10 @@ public class AwsDnsProcess extends ServiceSupport {
         String privateIp = awsInstance.getPrivateDnsName();
 
         // 正引きの追加
-        addForward(fqdn, publicIp);
+        dnsProcessClient.addForward(fqdn, publicIp);
 
         // 逆引きの追加
-        addReverse(fqdn, publicIp);
+        dnsProcessClient.addReverse(fqdn, publicIp);
 
         // データベースの更新
         instance.setPublicIp(publicIp);
@@ -202,7 +203,7 @@ public class AwsDnsProcess extends ServiceSupport {
         instanceDao.update(instance);
     }
 
-    protected void startDnsVpn(AwsProcessClient awsProcessClient, Long instanceNo) {
+    protected void startDnsVpn(Long instanceNo) {
         Instance instance = instanceDao.read(instanceNo);
         AwsInstance awsInstance = awsInstanceDao.read(instanceNo);
 
@@ -213,11 +214,11 @@ public class AwsDnsProcess extends ServiceSupport {
 
         // IPアドレスを正引きにより取得する（正引きの追加はインスタンス内で行う）
         String fqdn = instance.getFqdn();
-        String publicIp = resolveHost(fqdn); // VPNインタフェースのIPアドレス
+        String publicIp = dnsProcessClient.resolveHost(fqdn); // VPNインタフェースのIPアドレス
         String privateIp = awsInstance.getPrivateIpAddress();
 
         // 逆引きの追加
-        addReverse(fqdn, publicIp);
+        dnsProcessClient.addReverse(fqdn, publicIp);
 
         // データベースの更新
         instance.setPublicIp(publicIp);
@@ -225,7 +226,7 @@ public class AwsDnsProcess extends ServiceSupport {
         instanceDao.update(instance);
     }
 
-    protected void stopDnsNormal(AwsProcessClient awsProcessClient, Long instanceNo) {
+    protected void stopDnsNormal(Long instanceNo) {
         Instance instance = instanceDao.read(instanceNo);
 
         // IPアドレスがない場合はスキップ
@@ -237,10 +238,10 @@ public class AwsDnsProcess extends ServiceSupport {
         String publicIp = instance.getPublicIp();
 
         // 正引きの削除
-        deleteForward(fqdn);
+        dnsProcessClient.deleteForward(fqdn);
 
         // 逆引きの削除
-        deleteReverse(publicIp);
+        dnsProcessClient.deleteReverse(publicIp);
 
         // データベースの更新
         instance.setPublicIp(null);
@@ -248,7 +249,7 @@ public class AwsDnsProcess extends ServiceSupport {
         instanceDao.update(instance);
     }
 
-    protected void stopDnsClassic(AwsProcessClient awsProcessClient, Long instanceNo) {
+    protected void stopDnsClassic(Long instanceNo) {
         Instance instance = instanceDao.read(instanceNo);
 
         // IPアドレスがない場合はスキップ
@@ -259,7 +260,7 @@ public class AwsDnsProcess extends ServiceSupport {
         String fqdn = instance.getFqdn();
 
         // CNAMEの削除
-        deleteCanonicalName(fqdn);
+        dnsProcessClient.deleteCanonicalName(fqdn);
 
         // データベースの更新
         instance.setPublicIp(null);
@@ -267,112 +268,8 @@ public class AwsDnsProcess extends ServiceSupport {
         instanceDao.update(instance);
     }
 
-    protected void addForward(String fqdn, String publicIp) {
-        // 正引きの追加
-        dnsStrategy.addForward(fqdn, publicIp);
-
-        // ログ出力
-        if (log.isInfoEnabled()) {
-            log.info(MessageUtils.getMessage("IPROCESS-100141", fqdn, publicIp));
-        }
-    }
-
-    protected void addReverse(String fqdn, String publicIp) {
-        if (!reverseEnabled) {
-            // 逆引きが無効の場合はスキップ
-            return;
-        }
-
-        // 逆引きの追加
-        dnsStrategy.addReverse(fqdn, publicIp);
-
-        // ログ出力
-        if (log.isInfoEnabled()) {
-            log.info(MessageUtils.getMessage("IPROCESS-100142", publicIp, fqdn));
-        }
-    }
-
-    protected void addCanonicalName(String fqdn, String canonicalName) {
-        // CNAMEの追加
-        dnsStrategy.addCanonicalName(fqdn, canonicalName);
-
-        // ログ出力
-        if (log.isInfoEnabled()) {
-            log.info(MessageUtils.getMessage("IPROCESS-100145", fqdn, canonicalName));
-        }
-    }
-
-    protected void deleteForward(String fqdn) {
-        // 正引きの削除
-        dnsStrategy.deleteForward(fqdn);
-
-        // ログ出力
-        if (log.isInfoEnabled()) {
-            log.info(MessageUtils.getMessage("IPROCESS-100143", fqdn));
-        }
-    }
-
-    protected void deleteReverse(String publicIp) {
-        if (!reverseEnabled) {
-            // 逆引きが無効の場合はスキップ
-            return;
-        }
-
-        // 逆引きの削除
-        dnsStrategy.deleteReverse(publicIp);
-
-        // ログ出力
-        if (log.isInfoEnabled()) {
-            log.info(MessageUtils.getMessage("IPROCESS-100144", publicIp));
-        }
-    }
-
-    protected void deleteCanonicalName(String fqdn) {
-        // CNAMEの削除
-        dnsStrategy.deleteCanonicalName(fqdn);
-
-        // ログ出力
-        if (log.isInfoEnabled()) {
-            log.info(MessageUtils.getMessage("IPROCESS-100146", fqdn));
-        }
-    }
-
-    protected String resolveHost(String fqdn) {
-        long timeout = 1000L * 60 * 5;
-        long startTime = System.currentTimeMillis();
-        while (true) {
-            try {
-                InetAddress address = InetAddress.getByName(fqdn);
-                return address.getHostAddress();
-            } catch (UnknownHostException ignore) {
-            }
-            if (System.currentTimeMillis() - startTime > timeout) {
-                // タイムアウト発生時
-                throw new AutoException("EPROCESS-000205", fqdn);
-            }
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException ignore) {
-            }
-        }
-    }
-
-    /**
-     * dnsStrategyを設定します。
-     *
-     * @param dnsStrategy dnsStrategy
-     */
-    public void setDnsStrategy(DnsStrategy dnsStrategy) {
-        this.dnsStrategy = dnsStrategy;
-    }
-
-    /**
-     * reverseEnabledを設定します。
-     *
-     * @param reverseEnabled reverseEnabled
-     */
-    public void setReverseEnabled(boolean reverseEnabled) {
-        this.reverseEnabled = reverseEnabled;
+    public void setDnsProcessClient(DnsProcessClient dnsProcessClient) {
+        this.dnsProcessClient = dnsProcessClient;
     }
 
     public void setProcessLogger(ProcessLogger processLogger) {

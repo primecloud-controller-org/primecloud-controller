@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 by SCSK Corporation.
+ * Copyright 2016 by PrimeCloud Controller/OSS Community.
  * 
  * This file is part of PrimeCloud Controller(TM).
  * 
@@ -16,11 +16,10 @@
  * You should have received a copy of the GNU General Public License
  * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
  */
-package jp.primecloud.auto.process.vmware;
+package jp.primecloud.auto.process.openstack;
 
 import jp.primecloud.auto.entity.crud.Instance;
-import jp.primecloud.auto.entity.crud.Platform;
-import jp.primecloud.auto.entity.crud.VmwareInstance;
+import jp.primecloud.auto.entity.crud.OpenstackInstance;
 import jp.primecloud.auto.process.DnsProcessClient;
 import jp.primecloud.auto.process.ProcessLogger;
 import jp.primecloud.auto.service.ServiceSupport;
@@ -29,11 +28,11 @@ import org.apache.commons.lang.StringUtils;
 
 /**
  * <p>
- * TODO: クラスコメントを記述
+ * TODO: クラスコメント
  * </p>
- *
+ * 
  */
-public class VmwareDnsProcess extends ServiceSupport {
+public class OpenstackDnsProcess extends ServiceSupport {
 
     protected DnsProcessClient dnsProcessClient;
 
@@ -45,19 +44,10 @@ public class VmwareDnsProcess extends ServiceSupport {
      * @param instanceNo
      */
     public void startDns(Long instanceNo) {
-        Instance instance = instanceDao.read(instanceNo);
-        Platform platform = platformDao.read(instance.getPlatformNo());
-
-        if (platform.getInternal()) {
-            // 内部のプラットフォームの場合
-            startDnsNormal(instanceNo);
-        } else {
-            // 外部のプラットフォームの場合
-            startDnsVpn(instanceNo);
-        }
+        startDnsOpenstack(instanceNo);
 
         // イベントログ出力
-        instance = instanceDao.read(instanceNo);
+        Instance instance = instanceDao.read(instanceNo);
         processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance, "DnsRegist",
                 new Object[] { instance.getFqdn(), instance.getPublicIp() });
     }
@@ -69,60 +59,27 @@ public class VmwareDnsProcess extends ServiceSupport {
      */
     public void stopDns(Long instanceNo) {
         Instance instance = instanceDao.read(instanceNo);
-        Platform platform = platformDao.read(instance.getPlatformNo());
 
-        if (platform.getInternal()) {
-            // 内部のプラットフォームの場合
-            stopDnsNormal(instanceNo);
-        } else {
-            // 外部のプラットフォームの場合
-            stopDnsVpn(instanceNo);
-        }
+        stopDnsNormal(instanceNo);
 
         // イベントログ出力
         processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance, "DnsUnregist",
                 new Object[] { instance.getFqdn(), instance.getPublicIp() });
     }
 
-    protected void startDnsNormal(Long instanceNo) {
+    protected void startDnsOpenstack(Long instanceNo) {
         Instance instance = instanceDao.read(instanceNo);
-        VmwareInstance vmwareInstance = vmwareInstanceDao.read(instanceNo);
-
-        // 最新のVmwareInstance情報がInstanceに登録されている場合はスキップする
-        if (StringUtils.equals(instance.getPublicIp(), vmwareInstance.getIpAddress())) {
-            return;
-        }
-
-        String fqdn = instance.getFqdn();
-        String publicIp = vmwareInstance.getIpAddress();
-        String privateIp = vmwareInstance.getPrivateIpAddress();
-
-        // 正引きの追加
-        dnsProcessClient.addForward(fqdn, publicIp);
-
-        // 逆引きの追加
-        dnsProcessClient.addReverse(fqdn, publicIp);
-
-        // データベースの更新
-        instance.setPublicIp(publicIp);
-        instance.setPrivateIp(privateIp);
-        instanceDao.update(instance);
-    }
-
-    protected void startDnsVpn(Long instanceNo) {
-        Instance instance = instanceDao.read(instanceNo);
+        OpenstackInstance osInstance = openstackInstanceDao.read(instanceNo);
 
         // InstanceにIPアドレスが登録済みの場合はスキップする
         if (!StringUtils.isEmpty(instance.getPublicIp())) {
             return;
         }
 
-        VmwareInstance vmwareInstance = vmwareInstanceDao.read(instanceNo);
-
         // IPアドレスを正引きにより取得する（正引きの追加はインスタンス内で行う）
         String fqdn = instance.getFqdn();
         String publicIp = dnsProcessClient.resolveHost(fqdn); // VPNインタフェースのIPアドレス
-        String privateIp = vmwareInstance.getPrivateIpAddress();
+        String privateIp = osInstance.getPrivateIpAddress();
 
         // 逆引きの追加
         dnsProcessClient.addReverse(fqdn, publicIp);
@@ -156,39 +113,12 @@ public class VmwareDnsProcess extends ServiceSupport {
         instanceDao.update(instance);
     }
 
-    protected void stopDnsVpn(Long instanceNo) {
-        Instance instance = instanceDao.read(instanceNo);
-
-        // IPアドレスがない場合はスキップ
-        if (StringUtils.isEmpty(instance.getPublicIp())) {
-            return;
-        }
-
-        String fqdn = instance.getFqdn();
-        String publicIp = instance.getPublicIp();
-
-        // 正引きの削除
-        dnsProcessClient.deleteForward(fqdn);
-
-        // 逆引きの削除
-        dnsProcessClient.deleteReverse(publicIp);
-
-        // データベースの更新
-        instance.setPublicIp(null);
-        instance.setPrivateIp(null);
-        instanceDao.update(instance);
-    }
-
     public void setDnsProcessClient(DnsProcessClient dnsProcessClient) {
         this.dnsProcessClient = dnsProcessClient;
     }
 
-    /**
-     * processLoggerを設定します。
-     *
-     * @param processLogger processLogger
-     */
     public void setProcessLogger(ProcessLogger processLogger) {
         this.processLogger = processLogger;
     }
+
 }

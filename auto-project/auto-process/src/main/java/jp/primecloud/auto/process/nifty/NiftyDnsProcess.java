@@ -18,20 +18,14 @@
  */
 package jp.primecloud.auto.process.nifty;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
-import org.apache.commons.lang.StringUtils;
-
-import jp.primecloud.auto.common.component.DnsStrategy;
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.NiftyInstance;
 import jp.primecloud.auto.entity.crud.Platform;
-import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.log.EventLogger;
+import jp.primecloud.auto.process.DnsProcessClient;
 import jp.primecloud.auto.process.ProcessLogger;
 import jp.primecloud.auto.service.ServiceSupport;
-import jp.primecloud.auto.util.MessageUtils;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  * <p>
@@ -41,17 +35,19 @@ import jp.primecloud.auto.util.MessageUtils;
  */
 public class NiftyDnsProcess extends ServiceSupport {
 
-    protected DnsStrategy dnsStrategy;
-
-    protected boolean reverseEnabled = true;
+    protected DnsProcessClient dnsProcessClient;
 
     protected ProcessLogger processLogger;
 
-    protected EventLogger eventLogger;
-
+    /**
+     * TODO: メソッドコメント
+     * 
+     * @param instanceNo
+     */
     public void startDns(Long instanceNo) {
         Instance instance = instanceDao.read(instanceNo);
         Platform platform = platformDao.read(instance.getPlatformNo());
+
         if (platform.getInternal()) {
             // 内部のプラットフォームの場合
             startDnsNormal(instanceNo);
@@ -66,9 +62,15 @@ public class NiftyDnsProcess extends ServiceSupport {
                 new Object[] { instance.getFqdn(), instance.getPublicIp() });
     }
 
+    /**
+     * TODO: メソッドコメント
+     * 
+     * @param instanceNo
+     */
     public void stopDns(Long instanceNo) {
         Instance instance = instanceDao.read(instanceNo);
         Platform platform = platformDao.read(instance.getPlatformNo());
+
         if (platform.getInternal()) {
             // 内部のプラットフォームの場合
             stopDnsNormal(instanceNo);
@@ -96,10 +98,10 @@ public class NiftyDnsProcess extends ServiceSupport {
         String privateIp = niftyInstance.getPrivateIpAddress();
 
         // 正引きの追加
-        addForward(fqdn, publicIp);
+        dnsProcessClient.addForward(fqdn, publicIp);
 
         // 逆引きの追加
-        addReverse(fqdn, publicIp);
+        dnsProcessClient.addReverse(fqdn, publicIp);
 
         // データベースの更新
         instance.setPublicIp(publicIp);
@@ -119,11 +121,11 @@ public class NiftyDnsProcess extends ServiceSupport {
 
         // IPアドレスを正引きにより取得する（正引きの追加はインスタンス内で行う）
         String fqdn = instance.getFqdn();
-        String publicIp = resolveHost(fqdn); // VPNインタフェースのIPアドレス
+        String publicIp = dnsProcessClient.resolveHost(fqdn); // VPNインタフェースのIPアドレス
         String privateIp = niftyInstance.getPrivateIpAddress();
 
         // 逆引きの追加
-        addReverse(fqdn, publicIp);
+        dnsProcessClient.addReverse(fqdn, publicIp);
 
         // データベースの更新
         instance.setPublicIp(publicIp);
@@ -143,10 +145,10 @@ public class NiftyDnsProcess extends ServiceSupport {
         String publicIp = instance.getPublicIp();
 
         // 正引きの削除
-        deleteForward(fqdn);
+        dnsProcessClient.deleteForward(fqdn);
 
         // 逆引きの削除
-        deleteReverse(publicIp);
+        dnsProcessClient.deleteReverse(publicIp);
 
         // データベースの更新
         instance.setPublicIp(null);
@@ -166,10 +168,10 @@ public class NiftyDnsProcess extends ServiceSupport {
         String publicIp = instance.getPublicIp();
 
         // 正引きの削除
-        deleteForward(fqdn);
+        dnsProcessClient.deleteForward(fqdn);
 
         // 逆引きの削除
-        deleteReverse(publicIp);
+        dnsProcessClient.deleteReverse(publicIp);
 
         // データベースの更新
         instance.setPublicIp(null);
@@ -177,101 +179,8 @@ public class NiftyDnsProcess extends ServiceSupport {
         instanceDao.update(instance);
     }
 
-    protected void addForward(String fqdn, String publicIp) {
-        // 正引きの追加
-        dnsStrategy.addForward(fqdn, publicIp);
-
-        // ログ出力
-        if (log.isInfoEnabled()) {
-            log.info(MessageUtils.getMessage("IPROCESS-100141", fqdn, publicIp));
-        }
-    }
-
-    protected void addReverse(String fqdn, String publicIp) {
-        if (!reverseEnabled) {
-            // 逆引きが無効の場合はスキップ
-            return;
-        }
-
-        // 逆引きの追加
-        dnsStrategy.addReverse(fqdn, publicIp);
-
-        // ログ出力
-        if (log.isInfoEnabled()) {
-            log.info(MessageUtils.getMessage("IPROCESS-100142", publicIp, fqdn));
-        }
-    }
-
-    protected void deleteForward(String fqdn) {
-        // 正引きの削除
-        dnsStrategy.deleteForward(fqdn);
-
-        // ログ出力
-        if (log.isInfoEnabled()) {
-            log.info(MessageUtils.getMessage("IPROCESS-100143", fqdn));
-        }
-    }
-
-    protected void deleteReverse(String publicIp) {
-        if (!reverseEnabled) {
-            // 逆引きが無効の場合はスキップ
-            return;
-        }
-
-        // 逆引きの削除
-        dnsStrategy.deleteReverse(publicIp);
-
-        // ログ出力
-        if (log.isInfoEnabled()) {
-            log.info(MessageUtils.getMessage("IPROCESS-100144", publicIp));
-        }
-    }
-
-    protected String resolveHost(String fqdn) {
-        long timeout = 1000L * 60 * 5;
-        long startTime = System.currentTimeMillis();
-        while (true) {
-            try {
-                InetAddress address = InetAddress.getByName(fqdn);
-                return address.getHostAddress();
-            } catch (UnknownHostException ignore) {
-            }
-            if (System.currentTimeMillis() - startTime > timeout) {
-                // タイムアウト発生時
-                throw new AutoException("EPROCESS-000205", fqdn);
-            }
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException ignore) {
-            }
-        }
-    }
-
-    /**
-     * dnsStrategyを設定します。
-     *
-     * @param dnsStrategy dnsStrategy
-     */
-    public void setDnsStrategy(DnsStrategy dnsStrategy) {
-        this.dnsStrategy = dnsStrategy;
-    }
-
-    /**
-     * reverseEnabledを設定します。
-     *
-     * @param reverseEnabled reverseEnabled
-     */
-    public void setReverseEnabled(boolean reverseEnabled) {
-        this.reverseEnabled = reverseEnabled;
-    }
-
-    /**
-     * eventLoggerを設定します。
-     *
-     * @param eventLogger eventLogger
-     */
-    public void setEventLogger(EventLogger eventLogger) {
-        this.eventLogger = eventLogger;
+    public void setDnsProcessClient(DnsProcessClient dnsProcessClient) {
+        this.dnsProcessClient = dnsProcessClient;
     }
 
     /**

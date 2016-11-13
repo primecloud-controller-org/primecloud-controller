@@ -125,7 +125,7 @@ public class AwsProcess extends ServiceSupport {
         awsAddressProcess.startAddress(awsProcessClient, instanceNo);
 
         // DNSに関する処理
-        awsDnsProcess.startDns(awsProcessClient, instanceNo);
+        awsDnsProcess.startDns(instanceNo);
 
         if (log.isInfoEnabled()) {
             log.info(MessageUtils.getMessage("IPROCESS-100102", instanceNo, instance.getInstanceName()));
@@ -151,7 +151,7 @@ public class AwsProcess extends ServiceSupport {
 
         try {
             // DNSに関する処理
-            awsDnsProcess.stopDns(awsProcessClient, instanceNo);
+            awsDnsProcess.stopDns(instanceNo);
         } catch (RuntimeException e) {
             log.warn(e.getMessage());
         }

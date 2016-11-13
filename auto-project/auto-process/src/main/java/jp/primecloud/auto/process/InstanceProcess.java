@@ -26,11 +26,10 @@ import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.iaasgw.IaasGatewayFactory;
-import jp.primecloud.auto.iaasgw.IaasGatewayWrapper;
 import jp.primecloud.auto.log.EventLogger;
 import jp.primecloud.auto.process.aws.AwsProcess;
 import jp.primecloud.auto.process.hook.ProcessHook;
+import jp.primecloud.auto.process.iaasgw.IaasGatewayProcess;
 import jp.primecloud.auto.process.nifty.NiftyProcess;
 import jp.primecloud.auto.process.puppet.PuppetNodeProcess;
 import jp.primecloud.auto.process.vmware.VmwareProcess;
@@ -48,7 +47,7 @@ import org.apache.commons.lang.BooleanUtils;
  */
 public class InstanceProcess extends ServiceSupport {
 
-    protected IaasGatewayFactory iaasGatewayFactory;
+    protected IaasGatewayProcess iaasGatewayProcess;
 
     protected AwsProcess awsProcess;
 
@@ -59,8 +58,6 @@ public class InstanceProcess extends ServiceSupport {
     protected PuppetNodeProcess puppetNodeProcess;
 
     protected ZabbixHostProcess zabbixHostProcess;
-
-    protected DnsProcess dnsProcess;
 
     protected ProcessLogger processLogger;
 
@@ -139,13 +136,7 @@ public class InstanceProcess extends ServiceSupport {
                     || PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())
                     || PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())
                     || PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
-                // 起動処理
-                IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(),
-                        instance.getPlatformNo());
-                gateway.startInstance(instanceNo);
-
-                // DNSに関する処理
-                dnsProcess.startDns(platform, instanceNo);
+                iaasGatewayProcess.start(instanceNo);
             }
             // VMwareの場合
             else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
@@ -301,13 +292,7 @@ public class InstanceProcess extends ServiceSupport {
                     || PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())
                     || PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())
                     || PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
-                // DNSに関する処理
-                dnsProcess.stopDns(platform, instanceNo);
-
-                // 停止処理
-                IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(),
-                        instance.getPlatformNo());
-                gateway.stopInstance(instanceNo);
+                iaasGatewayProcess.stop(instanceNo);
             }
             // VMwareの場合
             else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
@@ -360,8 +345,8 @@ public class InstanceProcess extends ServiceSupport {
         }
     }
 
-    public void setIaasGatewayFactory(IaasGatewayFactory iaasGatewayFactory) {
-        this.iaasGatewayFactory = iaasGatewayFactory;
+    public void setIaasGatewayProcess(IaasGatewayProcess iaasGatewayProcess) {
+        this.iaasGatewayProcess = iaasGatewayProcess;
     }
 
     public void setAwsProcess(AwsProcess awsProcess) {
@@ -420,15 +405,6 @@ public class InstanceProcess extends ServiceSupport {
      */
     public void setEventLogger(EventLogger eventLogger) {
         this.eventLogger = eventLogger;
-    }
-
-    /**
-     * dnsProcessを設定します。
-     *
-     * @param dnsProcess dnsProcess
-     */
-    public void setDnsProcess(DnsProcess dnsProcess) {
-        this.dnsProcess = dnsProcess;
     }
 
     /**

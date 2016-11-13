@@ -17,15 +17,13 @@
 	<bean id="componentProcess" class="jp.primecloud.auto.process.ComponentProcess">
 		<property name="puppetComponentProcess" ref="puppetComponentProcess" />
 	</bean>
-	<bean id="dnsProcess" class="jp.primecloud.auto.process.DnsProcess">
-		<property name="reverseEnabled" value="${dns.reverseEnabled}" />
-	</bean>
 
 	<!-- IaasGateway -->
 	<bean id="iaasGatewayFactory" class="jp.primecloud.auto.iaasgw.IaasGatewayFactory">
 		<property name="describeInterval" value="${aws.describeInterval}" />
 		<property name="sync" value="${aws.synchronized}" />
 	</bean>
+	<bean id="iaasGatewayProcess" class="jp.primecloud.auto.process.iaasgw.IaasGatewayProcess" />
 
 	<!-- ProcessLogger -->
 	<bean id="processLogger" class="jp.primecloud.auto.process.ProcessLogger"/>
@@ -35,6 +33,9 @@
 		<property name="domainName" value="${dns.domain}" />
 		<property name="timeToLive" value="${dns.timeToLive}" />
 	</bean>
+	<bean id="dnsProcessClient" class="jp.primecloud.auto.process.DnsProcessClient">
+		<property name="reverseEnabled" value="${dns.reverseEnabled}" />
+	</bean>
 
 	<!-- AwsProcess -->
 	<bean id="awsProcess" class="jp.primecloud.auto.process.aws.AwsProcess" />
@@ -42,9 +43,7 @@
 	<bean id="awsInstanceProcess" class="jp.primecloud.auto.process.aws.AwsInstanceProcess" />
 	<bean id="awsVolumeProcess" class="jp.primecloud.auto.process.aws.AwsVolumeProcess" />
 	<bean id="awsAddressProcess" class="jp.primecloud.auto.process.aws.AwsAddressProcess" />
-	<bean id="awsDnsProcess" class="jp.primecloud.auto.process.aws.AwsDnsProcess">
-		<property name="reverseEnabled" value="${dns.reverseEnabled}" />
-	</bean>
+	<bean id="awsDnsProcess" class="jp.primecloud.auto.process.aws.AwsDnsProcess" />
 	<bean id="awsLoadBalancerProcess" class="jp.primecloud.auto.process.aws.AwsLoadBalancerProcess" />
 	<bean id="awsProcessClientFactory" class="jp.primecloud.auto.process.aws.AwsProcessClientFactory">
 		<property name="describeInterval" value="${aws.describeInterval}" />
@@ -58,9 +57,7 @@
 	<bean id="vmwareNetworkProcess" class="jp.primecloud.auto.process.vmware.VmwareNetworkProcess" />
 	<bean id="vmwareDiskProcess" class="jp.primecloud.auto.process.vmware.VmwareDiskProcess" />
 	<bean id="vmwareInitProcess" class="jp.primecloud.auto.process.vmware.VmwareInitProcess" />
-	<bean id="vmwareDnsProcess" class="jp.primecloud.auto.process.vmware.VmwareDnsProcess">
-		<property name="reverseEnabled" value="${dns.reverseEnabled}" />
-	</bean>
+	<bean id="vmwareDnsProcess" class="jp.primecloud.auto.process.vmware.VmwareDnsProcess" />
 	<bean id="vmwareCustomizeProcess" class="jp.primecloud.auto.process.vmware.VmwareCustomizeProcess" />
 	<bean id="vmwareProcessClientFactory" class="jp.primecloud.auto.process.vmware.VmwareProcessClientFactory" />
 
@@ -71,14 +68,29 @@
 		<property name="imageDir" value="${nifty.imageDir}" />
 		<property name="initTimeout" value="${nifty.initTimeout}" />
 	</bean>
-	<bean id="niftyDnsProcess" class="jp.primecloud.auto.process.nifty.NiftyDnsProcess">
-		<property name="reverseEnabled" value="${dns.reverseEnabled}" />
-	</bean>
+	<bean id="niftyDnsProcess" class="jp.primecloud.auto.process.nifty.NiftyDnsProcess" />
 	<bean id="niftyProcessClientFactory" class="jp.primecloud.auto.nifty.process.NiftyProcessClientFactory">
 		<property name="describeInterval" value="${aws.describeInterval}" />
 		<property name="apiTimeout" value="${nifty.apiTimeout}" />
 	</bean>
 	<bean id="niftyVolumeProcess" class="jp.primecloud.auto.process.nifty.NiftyVolumeProcess" />
+
+
+	<!-- CloudstackProcess -->
+	<bean id="cloudstackDnsProcess" class="jp.primecloud.auto.process.cloudstack.CloudstackDnsProcess" />
+
+
+	<!-- VcloudProcess -->
+	<bean id="vcloudDnsProcess" class="jp.primecloud.auto.process.vcloud.VcloudDnsProcess" />
+
+
+	<!-- AzureProcess -->
+	<bean id="azureDnsProcess" class="jp.primecloud.auto.process.azure.AzureDnsProcess" />
+
+
+	<!-- OpenstackProcess -->
+	<bean id="openstackDnsProcess" class="jp.primecloud.auto.process.openstack.OpenstackDnsProcess" />
+
 
 	<!-- PuppetProcess -->
 	<bean id="puppetNodeProcess" class="jp.primecloud.auto.process.puppet.PuppetNodeProcess">
