@@ -488,21 +488,6 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
             throw new AutoApplicationException("ESERVICE-000606", platformNo);
         }
 
-        // イメージの存在チェック
-        Image image = null;
-        List<Image> images = imageDao.readAll();
-        for (Image image2 : images) {
-            if (image2.getPlatformNo().equals(platformNo.longValue())
-                    && PCCConstant.IMAGE_NAME_ELB.equals(image2.getImageName())) {
-                image = image2;
-                break;
-            }
-        }
-        if (image == null) {
-            // awsイメージが存在しない場合
-            throw new AutoApplicationException("ESERVICE-000631", platformNo);
-        }
-
         // ロードバランサ名の一意チェック
         LoadBalancer checkLoadBalancer = loadBalancerDao.readByFarmNoAndLoadBalancerName(farmNo, loadBalancerName);
         if (checkLoadBalancer != null) {
@@ -2217,14 +2202,21 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
 
             List<String> types = new ArrayList<String>();
 
+            // AWSの場合、AWSプラットフォーム型ロードバランサを利用可能とする
+            if (platformAws != null && BooleanUtils.isNotTrue(platformAws.getEuca())) {
+                types.add(PCCConstant.LOAD_BALANCER_ELB);
+            }
+
+            // CloudStackの場合、IaaS Gateway型ロードバランサを利用可能とする
+            if (platformCloudstack != null) {
+                types.add(PCCConstant.LOAD_BALANCER_CLOUDSTACK);
+            }
+
             // コンポーネント型のロードバランサの利用可否チェック
             for (Image image : images) {
                 if (image.getPlatformNo().equals(platform.getPlatformNo())) {
                     if (PCCConstant.IMAGE_NAME_ULTRAMONKEY.equals(image.getImageName())) {
                         types.add(PCCConstant.LOAD_BALANCER_ULTRAMONKEY);
-                    }
-                    if (PCCConstant.IMAGE_NAME_ELB.equals(image.getImageName())) {
-                        types.add(PCCConstant.LOAD_BALANCER_ELB);
                     }
                 }
             }
