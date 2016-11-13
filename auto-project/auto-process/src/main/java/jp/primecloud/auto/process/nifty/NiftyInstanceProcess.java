@@ -38,7 +38,6 @@ import jp.primecloud.auto.log.EventLogger;
 import jp.primecloud.auto.nifty.dto.InstanceDto;
 import jp.primecloud.auto.nifty.process.NiftyProcessClient;
 import jp.primecloud.auto.process.ProcessLogger;
-import jp.primecloud.auto.puppet.PuppetClient;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.JSchUtils;
 import jp.primecloud.auto.util.JSchUtils.JSchResult;
@@ -58,8 +57,6 @@ import com.jcraft.jsch.Session;
  *
  */
 public class NiftyInstanceProcess extends ServiceSupport {
-
-    protected PuppetClient puppetClient;
 
     protected File imageDir;
 
@@ -97,10 +94,6 @@ public class NiftyInstanceProcess extends ServiceSupport {
             // TODO: エラーコード
             throw new RuntimeException();
         }
-
-        // Puppet認証情報の削除
-        Instance instance = instanceDao.read(instanceNo);
-        puppetClient.clearCa(instance.getFqdn());
 
         // インスタンスの起動
         start(niftyProcessClient, instanceNo);
@@ -454,15 +447,6 @@ public class NiftyInstanceProcess extends ServiceSupport {
         map.put("vpnzippass", Config.getProperty("vpn.zippass"));
 
         return map;
-    }
-
-    /**
-     * puppetClientを設定します。
-     *
-     * @param puppetClient puppetClient
-     */
-    public void setPuppetClient(PuppetClient puppetClient) {
-        this.puppetClient = puppetClient;
     }
 
     /**

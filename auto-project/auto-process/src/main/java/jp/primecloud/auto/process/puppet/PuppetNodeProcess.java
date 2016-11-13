@@ -531,7 +531,7 @@ public class PuppetNodeProcess extends ServiceSupport {
         }
     }
 
-    protected void clearCa(Long instanceNo) {
+    public void clearCa(Long instanceNo) {
         Instance instance = instanceDao.read(instanceNo);
         puppetClient.clearCa(instance.getFqdn());
     }

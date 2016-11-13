@@ -122,11 +122,15 @@ public class InstanceProcess extends ServiceSupport {
             processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, instance, "InstanceReload", null);
         }
 
+        // インスタンス起動処理
         try {
-            // インスタンス起動処理
-            Platform platform = platformDao.read(instance.getPlatformNo());
+            // Puppet認証情報の削除
+            if (puppetInstanceDao.countByInstanceNo(instanceNo) > 0) {
+                puppetNodeProcess.clearCa(instanceNo);
+            }
 
             // AWSの場合
+            Platform platform = platformDao.read(instance.getPlatformNo());
             if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
                 awsProcess.start(instanceNo);
             }

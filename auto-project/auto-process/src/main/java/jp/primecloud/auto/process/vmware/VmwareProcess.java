@@ -24,7 +24,6 @@ import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.VmwareDisk;
 import jp.primecloud.auto.entity.crud.VmwareInstance;
 import jp.primecloud.auto.entity.crud.VmwareNetwork;
-import jp.primecloud.auto.puppet.PuppetClient;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
 import com.vmware.vim25.GuestInfo;
@@ -52,8 +51,6 @@ public class VmwareProcess extends ServiceSupport {
     protected VmwareDnsProcess vmwareDnsProcess;
 
     protected VmwareCustomizeProcess vmwareCustomizeProcess;
-
-    protected PuppetClient puppetClient;
 
     /**
      * TODO: メソッドコメントを記述
@@ -102,9 +99,6 @@ public class VmwareProcess extends ServiceSupport {
                 }
                 vmwareDiskProcess.attachDisk(vmwareProcessClient, instanceNo, vmwareDisk.getDiskNo());
             }
-
-            // Puppet認証情報の削除
-            clearPuppetCa(instanceNo);
 
             // 仮想マシンを起動
             vmwareMachineProcess.powerOnVM(vmwareProcessClient, instanceNo);
@@ -200,17 +194,6 @@ public class VmwareProcess extends ServiceSupport {
         }
     }
 
-    protected void clearPuppetCa(Long instanceNo) {
-        List<String> clients = puppetClient.listClients();
-
-        Instance instance = instanceDao.read(instanceNo);
-        String fqdn = instance.getFqdn();
-
-        if (clients.contains(fqdn)) {
-            puppetClient.clearCa(fqdn);
-        }
-    }
-
     /**
      * vmwareProcessClientFactoryを設定します。
      *
@@ -272,15 +255,6 @@ public class VmwareProcess extends ServiceSupport {
      */
     public void setVmwareCustomizeProcess(VmwareCustomizeProcess vmwareCustomizeProcess) {
         this.vmwareCustomizeProcess = vmwareCustomizeProcess;
-    }
-
-    /**
-     * puppetClientを設定します。
-     *
-     * @param puppetClient puppetClient
-     */
-    public void setPuppetClient(PuppetClient puppetClient) {
-        this.puppetClient = puppetClient;
     }
 
 }

@@ -35,7 +35,6 @@ import jp.primecloud.auto.entity.crud.PlatformAws;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.log.EventLogger;
-import jp.primecloud.auto.puppet.PuppetClient;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
 
@@ -77,8 +76,6 @@ public class AwsInstanceProcess extends ServiceSupport {
 
     protected AwsCommonProcess awsCommonProcess;
 
-    protected PuppetClient puppetClient;
-
     protected EventLogger eventLogger;
 
     /**
@@ -100,9 +97,6 @@ public class AwsInstanceProcess extends ServiceSupport {
                 return;
             }
 
-            // Puppet認証情報の削除
-            clearPuppetCa(awsProcessClient, instanceNo);
-
             // インスタンスの作成
             run(awsProcessClient, instanceNo);
 
@@ -123,9 +117,6 @@ public class AwsInstanceProcess extends ServiceSupport {
             if (!StringUtils.equals(awsInstance.getStatus(), InstanceStateName.Stopped.toString())) {
                 return;
             }
-
-            // Puppet認証情報の削除
-            clearPuppetCa(awsProcessClient, instanceNo);
 
             // インスタンスの設定変更
             modify(awsProcessClient, instanceNo);
@@ -835,17 +826,6 @@ public class AwsInstanceProcess extends ServiceSupport {
         return mappings;
     }
 
-    protected void clearPuppetCa(AwsProcessClient awsProcessClient, Long instanceNo) {
-        List<String> clients = puppetClient.listClients();
-
-        Instance instance = instanceDao.read(instanceNo);
-        String fqdn = instance.getFqdn();
-
-        if (clients.contains(fqdn)) {
-            puppetClient.clearCa(fqdn);
-        }
-    }
-
     public void createTag(AwsProcessClient awsProcessClient, Long instanceNo) {
         // Eucalyptusの場合はタグを付けない
         PlatformAws platformAws = awsProcessClient.getPlatformAws();
@@ -891,10 +871,6 @@ public class AwsInstanceProcess extends ServiceSupport {
 
     public void setAwsCommonProcess(AwsCommonProcess awsCommonProcess) {
         this.awsCommonProcess = awsCommonProcess;
-    }
-
-    public void setPuppetClient(PuppetClient puppetClient) {
-        this.puppetClient = puppetClient;
     }
 
     public void setEventLogger(EventLogger eventLogger) {
