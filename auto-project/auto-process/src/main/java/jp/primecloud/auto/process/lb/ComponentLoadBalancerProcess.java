@@ -27,7 +27,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-import jp.primecloud.auto.common.component.DnsStrategy;
 import jp.primecloud.auto.common.log.LoggingUtils;
 import jp.primecloud.auto.common.status.InstanceStatus;
 import jp.primecloud.auto.common.status.LoadBalancerInstanceStatus;
@@ -47,6 +46,7 @@ import jp.primecloud.auto.util.MessageUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
+import jp.primecloud.auto.process.DnsProcessClient;
 import jp.primecloud.auto.process.InstanceProcess;
 import jp.primecloud.auto.process.ProcessLogger;
 import jp.primecloud.auto.process.zabbix.ZabbixHostProcess;
@@ -65,7 +65,7 @@ public class ComponentLoadBalancerProcess extends ServiceSupport {
 
     protected ExecutorService executorService;
 
-    protected DnsStrategy dnsStrategy;
+    protected DnsProcessClient dnsProcessClient;
 
     protected ZabbixHostProcess zabbixHostProcess;
 
@@ -462,11 +462,7 @@ public class ComponentLoadBalancerProcess extends ServiceSupport {
         String canonicalName = instance.getFqdn();
 
         // CNAMEの追加
-        dnsStrategy.addCanonicalName(fqdn, canonicalName);
-
-        if (log.isInfoEnabled()) {
-            log.info(MessageUtils.getMessage("IPROCESS-100145", fqdn, canonicalName));
-        }
+        dnsProcessClient.addCanonicalName(fqdn, canonicalName);
 
         // イベントログ出力
         processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "DnsRegistCanonical", new Object[] { fqdn, canonicalName });
@@ -491,11 +487,7 @@ public class ComponentLoadBalancerProcess extends ServiceSupport {
 
         try {
             // CNAMEの削除
-            dnsStrategy.deleteCanonicalName(fqdn);
-
-            if (log.isInfoEnabled()) {
-                log.info(MessageUtils.getMessage("IPROCESS-100146", fqdn));
-            }
+            dnsProcessClient.deleteCanonicalName(fqdn);
 
             // イベントログ出力
             processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "DnsUnregistCanonical", new Object[] { fqdn, canonicalName });
@@ -537,13 +529,8 @@ public class ComponentLoadBalancerProcess extends ServiceSupport {
         this.executorService = executorService;
     }
 
-    /**
-     * dnsStrategyを設定します。
-     *
-     * @param dnsStrategy dnsStrategy
-     */
-    public void setDnsStrategy(DnsStrategy dnsStrategy) {
-        this.dnsStrategy = dnsStrategy;
+    public void setDnsProcessClient(DnsProcessClient dnsProcessClient) {
+        this.dnsProcessClient = dnsProcessClient;
     }
 
     /**

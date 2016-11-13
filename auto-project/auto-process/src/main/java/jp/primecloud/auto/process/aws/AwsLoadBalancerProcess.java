@@ -23,7 +23,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import jp.primecloud.auto.common.component.DnsStrategy;
 import jp.primecloud.auto.common.status.InstanceStatus;
 import jp.primecloud.auto.common.status.LoadBalancerInstanceStatus;
 import jp.primecloud.auto.common.status.LoadBalancerListenerStatus;
@@ -38,6 +37,7 @@ import jp.primecloud.auto.entity.crud.LoadBalancerInstance;
 import jp.primecloud.auto.entity.crud.LoadBalancerListener;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.log.EventLogger;
+import jp.primecloud.auto.process.DnsProcessClient;
 import jp.primecloud.auto.process.zabbix.ZabbixLoadBalancerProcess;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
@@ -75,7 +75,7 @@ public class AwsLoadBalancerProcess extends ServiceSupport {
 
     protected AwsCommonProcess awsCommonProcess;
 
-    protected DnsStrategy dnsStrategy;
+    protected DnsProcessClient dnsProcessClient;
 
     protected ZabbixLoadBalancerProcess zabbixLoadBalancerProcess;
 
@@ -795,11 +795,7 @@ public class AwsLoadBalancerProcess extends ServiceSupport {
         String canonicalName = awsLoadBalancer.getDnsName();
 
         // CNAMEの追加
-        dnsStrategy.addCanonicalName(fqdn, canonicalName);
-
-        if (log.isInfoEnabled()) {
-            log.info(MessageUtils.getMessage("IPROCESS-100145", fqdn, canonicalName));
-        }
+        dnsProcessClient.addCanonicalName(fqdn, canonicalName);
 
         // イベントログ出力
         eventLogger.debug(null, null, null, null, "DnsRegistCanonical", null, loadBalancer.getPlatformNo(),
@@ -824,11 +820,7 @@ public class AwsLoadBalancerProcess extends ServiceSupport {
 
         try {
             // CNAMEの削除
-            dnsStrategy.deleteCanonicalName(fqdn);
-
-            if (log.isInfoEnabled()) {
-                log.info(MessageUtils.getMessage("IPROCESS-100146", fqdn));
-            }
+            dnsProcessClient.deleteCanonicalName(fqdn);
 
             // イベントログ出力
             eventLogger.debug(null, null, null, null, "DnsUnregistCanonical", null, loadBalancer.getPlatformNo(),
@@ -848,8 +840,8 @@ public class AwsLoadBalancerProcess extends ServiceSupport {
         this.awsCommonProcess = awsCommonProcess;
     }
 
-    public void setDnsStrategy(DnsStrategy dnsStrategy) {
-        this.dnsStrategy = dnsStrategy;
+    public void setDnsProcessClient(DnsProcessClient dnsProcessClient) {
+        this.dnsProcessClient = dnsProcessClient;
     }
 
     public void setZabbixLoadBalancerProcess(ZabbixLoadBalancerProcess zabbixLoadBalancerProcess) {

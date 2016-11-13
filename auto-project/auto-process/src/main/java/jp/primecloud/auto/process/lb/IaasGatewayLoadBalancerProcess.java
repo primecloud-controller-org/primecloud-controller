@@ -26,7 +26,6 @@ import java.util.Map;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
-import jp.primecloud.auto.common.component.DnsStrategy;
 import jp.primecloud.auto.common.status.LoadBalancerInstanceStatus;
 import jp.primecloud.auto.common.status.LoadBalancerListenerStatus;
 import jp.primecloud.auto.config.Config;
@@ -39,6 +38,7 @@ import jp.primecloud.auto.entity.crud.LoadBalancerListener;
 import jp.primecloud.auto.iaasgw.IaasGatewayFactory;
 import jp.primecloud.auto.iaasgw.IaasGatewayWrapper;
 import jp.primecloud.auto.log.EventLogger;
+import jp.primecloud.auto.process.DnsProcessClient;
 import jp.primecloud.auto.process.ProcessLogger;
 import jp.primecloud.auto.process.zabbix.ZabbixLoadBalancerProcess;
 import jp.primecloud.auto.service.ServiceSupport;
@@ -52,7 +52,7 @@ import jp.primecloud.auto.util.MessageUtils;
  */
 public class IaasGatewayLoadBalancerProcess extends ServiceSupport {
 
-    protected DnsStrategy dnsStrategy;
+    protected DnsProcessClient dnsProcessClient;
 
     protected ZabbixLoadBalancerProcess zabbixLoadBalancerProcess;
 
@@ -250,11 +250,7 @@ public class IaasGatewayLoadBalancerProcess extends ServiceSupport {
         String canonicalName = awsLoadBalancer.getDnsName();
 
         // CNAMEの追加
-        dnsStrategy.addCanonicalName(fqdn, canonicalName);
-
-        if (log.isInfoEnabled()) {
-            log.info(MessageUtils.getMessage("IPROCESS-100145", fqdn, canonicalName));
-        }
+        dnsProcessClient.addCanonicalName(fqdn, canonicalName);
 
         // イベントログ出力
         processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "DnsRegistCanonical", new Object[] { fqdn, canonicalName });
@@ -279,11 +275,7 @@ public class IaasGatewayLoadBalancerProcess extends ServiceSupport {
 
         try {
             // CNAMEの削除
-            dnsStrategy.deleteCanonicalName(fqdn);
-
-            if (log.isInfoEnabled()) {
-                log.info(MessageUtils.getMessage("IPROCESS-100146", fqdn));
-            }
+            dnsProcessClient.deleteCanonicalName(fqdn);
 
             // イベントログ出力
             processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "DnsUnregistCanonical", new Object[] { fqdn, canonicalName });
@@ -298,13 +290,8 @@ public class IaasGatewayLoadBalancerProcess extends ServiceSupport {
         loadBalancerDao.update(loadBalancer);
     }
 
-    /**
-     * dnsStrategyを設定します。
-     *
-     * @param dnsStrategy dnsStrategy
-     */
-    public void setDnsStrategy(DnsStrategy dnsStrategy) {
-        this.dnsStrategy = dnsStrategy;
+    public void setDnsProcessClient(DnsProcessClient dnsProcessClient) {
+        this.dnsProcessClient = dnsProcessClient;
     }
 
     public void setZabbixLoadBalancerProcess(ZabbixLoadBalancerProcess zabbixLoadBalancerProcess) {
