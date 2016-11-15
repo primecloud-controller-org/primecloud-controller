@@ -21,6 +21,8 @@ package jp.primecloud.auto.process.puppet;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -720,6 +722,24 @@ public class PuppetComponentProcess extends ServiceSupport {
             }
         }
         map.put("configs", configs);
+
+        // Instances of same component
+        List<ComponentInstance> componentInstances = componentInstanceDao.readByComponentNo(componentNo);
+        List<Long> instanceNos = new ArrayList<Long>();
+        for (ComponentInstance componentInstance : componentInstances) {
+            if (BooleanUtils.isNotTrue(componentInstance.getEnabled())) {
+                continue;
+            }
+            instanceNos.add(componentInstance.getInstanceNo());
+        }
+        List<Instance> instances = instanceDao.readInInstanceNos(instanceNos);
+        Collections.sort(instances, new Comparator<Instance>() {
+            @Override
+            public int compare(Instance o1, Instance o2) {
+                return o1.getInstanceNo().compareTo(o2.getInstanceNo());
+            }
+        });
+        map.put("sameComponentInstances", instances);
 
         return map;
     }
