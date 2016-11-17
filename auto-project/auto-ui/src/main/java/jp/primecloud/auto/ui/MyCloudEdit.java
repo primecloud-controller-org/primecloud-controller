@@ -30,12 +30,12 @@ import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
 
-import com.vaadin.Application;
 import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.validator.StringLengthValidator;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Form;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
@@ -53,23 +53,19 @@ public class MyCloudEdit extends Window {
 
     final String COLUMN_HEIGHT = "30px";
 
-    Application apl;
+    private Long farmNo;
 
-    Long farmNo;
+    private BasicTab basicTab;
 
-    TextField cloudNameField;
+    private FarmDto farm;
 
-    TextField domainNameField;
-
-    TextField commentField;
-
-    FarmDto farmDto;
-
-    MyCloudEdit(Application apl, Long farmNo) {
-        this.apl = apl;
+    public MyCloudEdit(Long farmNo) {
         this.farmNo = farmNo;
+    }
 
-        //モーダルウインドウ
+    @Override
+    public void attach() {
+        // モーダルウインドウ
         setIcon(Icons.ADD.resource());
         setCaption(ViewProperties.getCaption("window.myCloudEdit"));
         setModal(true);
@@ -80,53 +76,58 @@ public class MyCloudEdit extends Window {
         layout.setSpacing(true);
 
         // 基本情報
-        layout.addComponent(new BasicTab());
+        basicTab = new BasicTab();
+        layout.addComponent(basicTab);
 
         // 下部のバー
-        HorizontalLayout okbar = new HorizontalLayout();
-        okbar.setSpacing(true);
-        okbar.setMargin(false, false, true, false);
+        HorizontalLayout bottomLayout = new HorizontalLayout();
+        bottomLayout.setSpacing(true);
+        bottomLayout.setMargin(false, false, true, false);
         //okbar.setWidth("100%");
-        layout.addComponent(okbar);
-        layout.setComponentAlignment(okbar, Alignment.BOTTOM_RIGHT);
+        layout.addComponent(bottomLayout);
+        layout.setComponentAlignment(bottomLayout, Alignment.BOTTOM_RIGHT);
 
         // OKボタン
         Button okButton = new Button(ViewProperties.getCaption("button.ok"));
         okButton.setDescription(ViewProperties.getCaption("description.editCloud.ok"));
-        okButton.addListener(new Button.ClickListener() {
+        okButton.addListener(new ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
-                MyCloudEdit.this.editButtonClick(event);
+                editButtonClick(event);
             }
         });
-        okbar.addComponent(okButton);
+        bottomLayout.addComponent(okButton);
 
         // Cancelボタン
         Button cancelButton = new Button(ViewProperties.getCaption("button.cancel"));
         cancelButton.setDescription(ViewProperties.getCaption("description.cancel"));
-        cancelButton.addListener(new Button.ClickListener() {
+        cancelButton.addListener(new ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
-                MyCloudEdit.this.close();
+                close();
             }
         });
-        okbar.addComponent(cancelButton);
+        bottomLayout.addComponent(cancelButton);
 
-        //初期データ読み込み
-        initData();
-
-        // 入力チェックの設定
-        initValidation();
+        // myCloud情報を表示
+        showCloud();
     }
 
     private class BasicTab extends Form {
 
-        BasicTab() {
-            // クラウド名
+        private TextField cloudNameField;
+
+        private TextField domainNameField;
+
+        private TextField commentField;
+
+        @Override
+        public void attach() {
+            // myCloud名
             cloudNameField = new TextField(ViewProperties.getCaption("field.cloudName"));
             getLayout().addComponent(cloudNameField);
 
-            //ドメイン
+            // ドメイン名
             domainNameField = new TextField(ViewProperties.getCaption("field.domainName"));
             domainNameField.setWidth("100%");
             getLayout().addComponent(domainNameField);
@@ -137,15 +138,34 @@ public class MyCloudEdit extends Window {
             getLayout().addComponent(commentField);
 
             cloudNameField.focus();
+
+            initValidation();
+        }
+
+        private void initValidation() {
+            String message = ViewMessages.getMessage("IUI-000003");
+            commentField.addValidator(new StringLengthValidator(message, -1, 100, true));
+        }
+
+        public void show(FarmDto farm) {
+            cloudNameField.setReadOnly(false);
+            cloudNameField.setValue(farm.getFarm().getFarmName());
+            cloudNameField.setReadOnly(true);
+
+            commentField.setValue(farm.getFarm().getComment());
+
+            domainNameField.setReadOnly(false);
+            domainNameField.setValue(farm.getFarm().getDomainName());
+            domainNameField.setReadOnly(true);
         }
 
     }
 
-    private void initData() {
+    private void showCloud() {
         try {
-            // ロジックを実行
+            // myCloud情報を取得
             FarmService farmService = BeanContext.getBean(FarmService.class);
-            farmDto = farmService.getFarm(farmNo);
+            farm = farmService.getFarm(farmNo);
         } catch (AutoApplicationException e) {
             String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
             DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
@@ -153,36 +173,26 @@ public class MyCloudEdit extends Window {
             return;
         }
 
-        cloudNameField.setReadOnly(false);
-        cloudNameField.setValue(farmDto.getFarm().getFarmName());
-        cloudNameField.setReadOnly(true);
-
-        commentField.setValue(farmDto.getFarm().getComment());
-
-        domainNameField.setReadOnly(false);
-        domainNameField.setValue(farmDto.getFarm().getDomainName());
-        domainNameField.setReadOnly(true);
-    }
-
-    private void initValidation() {
-        String message = ViewMessages.getMessage("IUI-000003");
-        commentField.addValidator(new StringLengthValidator(message, -1, 100, true));
+        // myCloud情報を表示
+        basicTab.show(farm);
     }
 
     private void editButtonClick(ClickEvent event) {
         // 入力値を取得
-        String cloudName = (String) cloudNameField.getValue();
+        final String cloudName = (String) basicTab.cloudNameField.getValue();
+        final String domainName = (String) basicTab.domainNameField.getValue();
+        final String comment = (String) basicTab.commentField.getValue();
 
         // 入力チェック
         try {
-            commentField.validate();
+            basicTab.commentField.validate();
         } catch (InvalidValueException e) {
             DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), e.getMessage());
             getApplication().getMainWindow().addWindow(dialog);
             return;
         }
 
-        //クラウド変更の確認ダイヤログを表示
+        // myCloud編集の確認ダイアログを表示
         String diagMessage = ViewMessages.getMessage("IUI-000041", cloudName);
         DialogConfirm dialogConfirm = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), diagMessage,
                 Buttons.OKCancel);
@@ -192,13 +202,11 @@ public class MyCloudEdit extends Window {
                 if (result != Result.OK) {
                     return;
                 }
-                String domainName = (String) domainNameField.getValue();
-                String comment = (String) commentField.getValue();
 
-                AutoApplication aapl = (AutoApplication) apl;
+                AutoApplication aapl = (AutoApplication) getApplication();
                 aapl.doOpLog("CLOUD", "Edit Cloud", farmNo, null);
 
-                // ロジックを実行
+                // myCloudを編集
                 FarmService farmService = BeanContext.getBean(FarmService.class);
                 try {
                     farmService.updateFarm(farmNo, comment, domainName);
@@ -209,13 +217,14 @@ public class MyCloudEdit extends Window {
                     return;
                 }
 
-                // 追加したクラウドのfarmNoをセッションに格納
+                // 編集したmyCloudのfarmNoをセッションに格納
                 ContextUtils.setAttribute("editFarmNo", farmNo);
 
                 // 画面を閉じる
                 close();
             }
         });
+
         getApplication().getMainWindow().addWindow(dialogConfirm);
     }
 

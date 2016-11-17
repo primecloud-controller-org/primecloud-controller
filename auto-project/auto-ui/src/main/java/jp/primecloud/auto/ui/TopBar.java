@@ -186,7 +186,7 @@ public class TopBar extends CssLayout {
     }
 
     public void showCloudEditWindow() {
-        MyCloudManage window = new MyCloudManage(getApplication());
+        MyCloudManage window = new MyCloudManage();
         window.addListener(new CloseListener() {
             @Override
             public void windowClose(CloseEvent e) {
