@@ -20,10 +20,11 @@ package jp.primecloud.auto.ui;
 
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TabSheet;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.TabSheet.SelectedTabChangeEvent;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
 /**
@@ -34,6 +35,7 @@ import com.vaadin.ui.themes.Reindeer;
  */
 @SuppressWarnings("serial")
 public class ServerDesc extends Panel {
+
     TabSheet tabDesc = new TabSheet();
 
     ServerDescBasic serverDescBasic = new ServerDescBasic();
@@ -64,7 +66,7 @@ public class ServerDesc extends Panel {
     }
 
     public void selectedTabChange(SelectedTabChangeEvent event) {
-        AutoApplication ap = (AutoApplication)getApplication();
+        AutoApplication ap = (AutoApplication) getApplication();
         ServerTable tbl = (ServerTable) ap.myCloud.myCloudTabs.serverTable;
         ap.myCloud.myCloudTabs.refreshDesc(tbl);
     }

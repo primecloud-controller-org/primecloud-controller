@@ -23,9 +23,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.component.apache.ApacheConstants;
 import jp.primecloud.auto.component.geronimo.GeronimoConstants;
 import jp.primecloud.auto.component.mysql.MySQLConstants;
@@ -38,6 +35,10 @@ import jp.primecloud.auto.process.ComponentConstants;
 import jp.primecloud.auto.service.dto.ComponentDto;
 import jp.primecloud.auto.service.dto.InstanceDto;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+
 import com.vaadin.data.util.BeanItemContainer;
 
 /**
@@ -89,8 +90,10 @@ public class ComponentParameterContainer extends BeanItemContainer<ComponentPara
             }
 
             String captionDisk = ViewProperties.getCaption("param.disk");
-            parameters.add(new ComponentParameter(captionDisk, ViewProperties.getCaption("param.disk.size"), diskSize + ViewProperties.getCaption("param.disk.gb")));
-            parameters.add(new ComponentParameter(captionDisk, ViewProperties.getCaption("param.disk.mountpoint"), mountPoint));
+            parameters.add(new ComponentParameter(captionDisk, ViewProperties.getCaption("param.disk.size"), diskSize
+                    + ViewProperties.getCaption("param.disk.gb")));
+            parameters.add(new ComponentParameter(captionDisk, ViewProperties.getCaption("param.disk.mountpoint"),
+                    mountPoint));
         }
 
         // MySQL
@@ -116,7 +119,8 @@ public class ComponentParameterContainer extends BeanItemContainer<ComponentPara
             }
             String master = masterInstance != null ? masterInstance.getInstance().getFqdn() : "";
             String captionMysql = ViewProperties.getCaption("param.mysql");
-            parameters.add(new ComponentParameter(captionMysql, ViewProperties.getCaption("param.mysql.master"), master));
+            parameters
+                    .add(new ComponentParameter(captionMysql, ViewProperties.getCaption("param.mysql.master"), master));
 
             // phpMyAdmin
             boolean phpMyAdmin = false;
@@ -125,8 +129,10 @@ public class ComponentParameterContainer extends BeanItemContainer<ComponentPara
                     phpMyAdmin = BooleanUtils.toBoolean(config.getConfigValue());
                 }
             }
-            String usePhpMyAdmin = phpMyAdmin ? ViewProperties.getCaption("param.phpmyadmin.enable") : ViewProperties.getCaption("param.phpmyadmin.disable");
-            parameters.add(new ComponentParameter(captionMysql, ViewProperties.getCaption("param.phpmyadmin"), usePhpMyAdmin));
+            String usePhpMyAdmin = phpMyAdmin ? ViewProperties.getCaption("param.phpmyadmin.enable") : ViewProperties
+                    .getCaption("param.phpmyadmin.disable");
+            parameters.add(new ComponentParameter(captionMysql, ViewProperties.getCaption("param.phpmyadmin"),
+                    usePhpMyAdmin));
         }
 
         for (ComponentParameter parameter : parameters) {

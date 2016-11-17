@@ -37,6 +37,7 @@ import jp.primecloud.auto.ui.util.ConvertUtil;
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
 import com.vaadin.data.Item;
 import com.vaadin.data.Validator;
 import com.vaadin.data.Validator.InvalidValueException;
@@ -65,40 +66,47 @@ import com.vaadin.ui.Window;
 @SuppressWarnings("serial")
 public class WinUserAuthAddEdit extends Window {
 
-    ///// 内部変数 /////
     //ユーザ番号(ログインユーザ)
     private Long masterUserNo;
+
     //ユーザ番号(ユーザ編集画面、編集対象ユーザ)
     private Long userNo;
+
     //ユーザ情報(編集対象のユーザ情報)
     private UserDto userDto;
+
     //ファーム情報
     //(新規ユーザ追加画面:マスタユーザに紐づくファーム、編集画面:対象ユーザに紐づく権限)
     private List<FarmDto> farmDtos;
+
     //権限情報マップ<ファーム番号, UserAuth>
     private Map<Long, UserAuth> userAuthMap;
+
     //権限セット情報
     private List<AuthoritySet> authoritySets;
+
     //新規ユーザー追加/ユーザ編集画面 判定フラグ
     private Boolean isAddUser;
+
     //権限セット変換ユーティリティクラス
     private ConvertUtil convertUtil;
 
     ///// vaadin component /////
     //ユーザ名 テキストフィールド
     private TextField userNameField;
+
     //ユーザ名 テキストフィールド
     private TextField passwordField;
+
     //ユーザ権限テーブル
     private UserAuthTable userAuthTable;
 
     WinUserAuthAddEdit(Long masterUserNo, Long userNo) {
-
         this.masterUserNo = masterUserNo;
         this.userNo = userNo;
 
         //画面判定フラグ設定
-        isAddUser = (userNo == null) ? true: false;
+        isAddUser = (userNo == null) ? true : false;
 
         // 初期データの取得
         initData();
@@ -190,13 +198,13 @@ public class WinUserAuthAddEdit extends Window {
 
     private void setCustomErrorHandler(Button button) {
         //※予期しないエラーのダイアログがPCCのメイン画面側に表示されることに対する処理
-        if(button.getErrorHandler() == null ||
-           button.getErrorHandler().getClass() != ComponentsErrorHandler.class) {
+        if (button.getErrorHandler() == null || button.getErrorHandler().getClass() != ComponentsErrorHandler.class) {
             button.setErrorHandler(new ComponentsErrorHandler(this.getParent()));
         }
     }
 
     private class AuthAddForm extends Form {
+
         AuthAddForm() {
             setImmediate(true);
 
@@ -211,35 +219,33 @@ public class WinUserAuthAddEdit extends Window {
             passwordField.setImmediate(true);
             getLayout().addComponent(passwordField);
         }
+
     }
 
     private class UserAuthTable extends Table {
-        private final String[] HEADER_NAMES_ADD = {
-            ViewProperties.getCaption("field.couldname"),
-            ViewProperties.getCaption("label.userAuth.authority")
-        };
 
-        private final String[] HEADER_NAMES_EDIT = {
-            ViewProperties.getCaption("field.couldname"),
-            ViewProperties.getCaption("label.userAuth.authority"),
-            ViewProperties.getCaption("label.userAuth.edit")
-        };
+        private final String[] HEADER_NAMES_ADD = { ViewProperties.getCaption("field.couldname"),
+                ViewProperties.getCaption("label.userAuth.authority") };
+
+        private final String[] HEADER_NAMES_EDIT = { ViewProperties.getCaption("field.couldname"),
+                ViewProperties.getCaption("label.userAuth.authority"), ViewProperties.getCaption("label.userAuth.edit") };
 
         private final String PID_TABLE_CLOUD_NAME = "CloudName";
+
         private final String PID_TABLE_AUTHORITY_SET = "AuthoritySet";
+
         private final String PID_TABLE_EDIT = "Edit";
 
         private final String COLUMN_HEIGHT = "28px";
 
         private final String PID_COMBOX_AUTHORITY_SET = "AuthoritySet";
 
-        private final String AUTHORITY_SET_NOTHING =
-            ViewProperties.getCaption("label.nothing");
+        private final String AUTHORITY_SET_NOTHING = ViewProperties.getCaption("label.nothing");
 
-        private final String AUTHORITY_SET_CUSTOM =
-            ViewProperties.getCaption("label.custom");
+        private final String AUTHORITY_SET_CUSTOM = ViewProperties.getCaption("label.custom");
 
         private final Long AUTHORITY_SET_SETNO_CUSTOM = new Long(-1);
+
         private final Long AUTHORITY_SET_SETNO_NOTHING = new Long(0);
 
         UserAuthTable() {
@@ -263,10 +269,11 @@ public class WinUserAuthAddEdit extends Window {
                 //ユーザ編集画面の場合
                 addContainerProperty(PID_TABLE_EDIT, Button.class, null);
             }
-            setColumnHeaders((isAddUser)? HEADER_NAMES_ADD: HEADER_NAMES_EDIT);
+            setColumnHeaders((isAddUser) ? HEADER_NAMES_ADD : HEADER_NAMES_EDIT);
 
             //テーブルのカラムに対してStyleNameを設定
             setCellStyleGenerator(new Table.CellStyleGenerator() {
+                @Override
                 public String getStyle(Object itemId, Object propertyId) {
                     if (propertyId == null) {
                         return "";
@@ -281,7 +288,7 @@ public class WinUserAuthAddEdit extends Window {
             userAuthTable.removeAllItems();
 
             // ファーム情報をテーブルに追加
-            for (FarmDto farmDto: farmDtos) {
+            for (FarmDto farmDto : farmDtos) {
                 final Farm farm = farmDto.getFarm();
 
                 //「マイクラウド名」カラム
@@ -337,7 +344,7 @@ public class WinUserAuthAddEdit extends Window {
             IndexedContainer authoritySetContainer = new IndexedContainer();
             authoritySetContainer.addContainerProperty(PID_COMBOX_AUTHORITY_SET, String.class, null);
 
-            for (AuthoritySet authoritySet: authoritySets) {
+            for (AuthoritySet authoritySet : authoritySets) {
                 Item item = authoritySetContainer.addItem(authoritySet.getSetNo());
                 item.getItemProperty(PID_COMBOX_AUTHORITY_SET).setValue(authoritySet.getSetName());
             }
@@ -358,8 +365,8 @@ public class WinUserAuthAddEdit extends Window {
         private void editButtonClick(ClickEvent event, final Long farmNo) {
             //編集中データ破棄確認
             String message = ViewMessages.getMessage("IUI-000119");
-            DialogConfirm dialog =
-                new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message, Buttons.OKCancel);
+            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message,
+                    Buttons.OKCancel);
             //※予期しないエラーのダイアログがPCCのメイン画面側に表示されることに対する処理
             setCustomErrorHandler(dialog.okButton);
             dialog.setCallback(new DialogConfirm.Callback() {
@@ -385,6 +392,7 @@ public class WinUserAuthAddEdit extends Window {
             });
             WinUserAuthAddEdit.this.getParent().addWindow(dialog);
         }
+
     }
 
     private void initValidation() {
@@ -407,6 +415,7 @@ public class WinUserAuthAddEdit extends Window {
                     throw new InvalidValueException(ViewMessages.getMessage("IUI-000118"));
                 }
             }
+
             @Override
             public boolean isValid(Object value) {
                 if (value == null || !(value instanceof String)) {
@@ -442,7 +451,7 @@ public class WinUserAuthAddEdit extends Window {
     }
 
     private void showData() {
-        if(!isAddUser) {
+        if (!isAddUser) {
             //ユーザ編集画面の場合
             //ユーザ名表示
             userNameField.setValue(userDto.getUser().getUsername());
@@ -467,9 +476,9 @@ public class WinUserAuthAddEdit extends Window {
             passwordField.validate();
         } catch (InvalidValueException e) {
             String errMes = e.getMessage();
-            if (null == errMes){
+            if (null == errMes) {
                 //メッセージが取得できない場合は複合エラー 先頭を表示する
-                InvalidValueException[] exceptions =  e.getCauses();
+                InvalidValueException[] exceptions = e.getCauses();
                 errMes = exceptions[0].getMessage();
             }
 
@@ -487,10 +496,10 @@ public class WinUserAuthAddEdit extends Window {
         //権限テーブル
         Map<Long, Long> authMap = new HashMap<Long, Long>();
         for (int i = 0; i < userAuthTable.getItemIds().size(); i++) {
-            Long farmNo = (Long)userAuthTable.getItemIds().toArray()[i];
+            Long farmNo = (Long) userAuthTable.getItemIds().toArray()[i];
             Item item = userAuthTable.getItem(farmNo);
             ComboBox comBox = (ComboBox) item.getItemProperty(userAuthTable.PID_TABLE_AUTHORITY_SET).getValue();
-            Long setNo = (Long)comBox.getValue();
+            Long setNo = (Long) comBox.getValue();
             if (userAuthTable.AUTHORITY_SET_SETNO_CUSTOM.equals(setNo)) {
                 //「権限」が「カスタム」のデータはこの画面では更新しない
                 continue;
@@ -525,8 +534,7 @@ public class WinUserAuthAddEdit extends Window {
     private void deleteButtonClick(ClickEvent event) {
         //編集中データ破棄確認
         String message = ViewMessages.getMessage("IUI-000120");
-        DialogConfirm dialog =
-            new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message, Buttons.OKCancel);
+        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message, Buttons.OKCancel);
         //※予期しないエラーのダイアログがPCCのメイン画面側に表示されることに対する処理
         setCustomErrorHandler(dialog.okButton);
         dialog.setCallback(new DialogConfirm.Callback() {
@@ -561,4 +569,5 @@ public class WinUserAuthAddEdit extends Window {
         setCustomErrorHandler(event.getButton());
         WinUserAuthAddEdit.this.close();
     }
+
 }

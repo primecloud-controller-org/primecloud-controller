@@ -24,9 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.InstanceStatus;
 import jp.primecloud.auto.component.mysql.MySQLConstants;
@@ -49,6 +46,9 @@ import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 
 import com.vaadin.data.Container;
 import com.vaadin.ui.Button;
@@ -74,15 +74,9 @@ public class ServerTable extends Table {
     final MyCloudTabs sender;
 
     //項目名
-    String[] CAPNAME = {
-            ViewProperties.getCaption("field.no"),
-            ViewProperties.getCaption("field.serverName"),
-            ViewProperties.getCaption("field.fqdn"),
-            ViewProperties.getCaption("field.ipAddress"),
-            ViewProperties.getCaption("field.serverOsStatus"),
-            ViewProperties.getCaption("field.serverServices")
-//            ViewProperties.getCaption("field.serverOperation")
-            };
+    String[] CAPNAME = { ViewProperties.getCaption("field.no"), ViewProperties.getCaption("field.serverName"),
+            ViewProperties.getCaption("field.fqdn"), ViewProperties.getCaption("field.ipAddress"),
+            ViewProperties.getCaption("field.serverOsStatus"), ViewProperties.getCaption("field.serverServices") };
 
     private Map<Long, List<Button>> map = new HashMap<Long, List<Button>>();
 
@@ -99,7 +93,7 @@ public class ServerTable extends Table {
         setVisibleColumns(new Object[] {});
 
         setWidth("100%");
-        if ( this.isEnabled() ) {
+        if (this.isEnabled()) {
             setHeight("100%");
         }
 
@@ -140,7 +134,7 @@ public class ServerTable extends Table {
         addGeneratedColumn("fqdn", new ColumnGenerator() {
             public Component generateCell(Table source, Object itemId, Object columnId) {
                 InstanceDto p = (InstanceDto) itemId;
-                Label nlbl = new Label( p.getInstance().getFqdn());
+                Label nlbl = new Label(p.getInstance().getFqdn());
                 return nlbl;
             }
         });
@@ -167,8 +161,8 @@ public class ServerTable extends Table {
                 String a = p.getInstance().getStatus().substring(0, 1).toUpperCase()
                         + p.getInstance().getStatus().substring(1).toLowerCase();
                 Icons icon = Icons.fromName(a);
-                Label slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(ServerTable.this, icon) + "\"><div>" + a + "</div>",
-                        Label.CONTENT_XHTML);
+                Label slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(ServerTable.this, icon) + "\"><div>" + a
+                        + "</div>", Label.CONTENT_XHTML);
                 slbl.setHeight(COLUMN_HEIGHT);
                 return slbl;
             }
@@ -223,67 +217,12 @@ public class ServerTable extends Table {
 
         });
 
-//        addGeneratedColumn("operation", new ColumnGenerator() {
-//            public Component generateCell(Table source, Object itemId, Object columnId) {
-//
-//                List<Button> list = new ArrayList<Button>();
-//
-//                CssLayout blayout = new CssLayout();
-//
-//                blayout.setWidth("100%");
-//                blayout.setHeight(COLUMN_HEIGHT);
-//                blayout.setMargin(false);
-//
-//                InstanceDto p = (InstanceDto) itemId;
-//
-//                Button playButton = new Button(ViewProperties.getCaption("button.startServer"));
-//                playButton.setDescription(ViewProperties.getCaption("description.startServer"));
-//                playButton.addStyleName("borderless");
-//                playButton.setIcon(Icons.PLAY.resource());
-//                playButton.setEnabled(false);
-//                playButton.addListener(Button.ClickEvent.class, ServerTable.this, "playButtonClick");
-//                blayout.addComponent(playButton);
-//                list.add(playButton);
-//
-//                Button stopButton = new Button(ViewProperties.getCaption("button.stopServer"));
-//                stopButton.setDescription(ViewProperties.getCaption("description.stopServer"));
-//                stopButton.addStyleName("borderless");
-//                stopButton.setIcon(Icons.STOP.resource());
-//                stopButton.setEnabled(false);
-//                stopButton.addListener(Button.ClickEvent.class, ServerTable.this, "stopButtonClick");
-//                blayout.addComponent(stopButton);
-//                list.add(stopButton);
-//
-//                Button editButton = new Button(ViewProperties.getCaption("button.editServer"));
-//                editButton.setDescription(ViewProperties.getCaption("description.editServer"));
-//                editButton.addStyleName("borderless");
-//                editButton.setIcon(Icons.EDIT.resource());
-//                editButton.setEnabled(false);
-//                editButton.addListener(Button.ClickEvent.class, ServerTable.this, "editButtonClick");
-//                blayout.addComponent(editButton);
-//                list.add(editButton);
-//
-//                Button delButton = new Button(ViewProperties.getCaption("button.deleteServer"));
-//                delButton.setDescription(ViewProperties.getCaption("description.deleteServer"));
-//                delButton.addStyleName("borderless");
-//                delButton.setIcon(Icons.DELETE.resource());
-//                delButton.setEnabled(false);
-//                delButton.addListener(Button.ClickEvent.class, ServerTable.this, "delButtonClick");
-//                blayout.addComponent(delButton);
-//                list.add(delButton);
-//
-//                map.put(p.getInstance().getInstanceNo(), list);
-//
-//                return blayout;
-//            }
-//
-//        });
-
         //テーブルに項目名を設定
         setColumnHeaders(CAPNAME);
 
         //テーブルのカラムに対してStyleNameを設定
         setCellStyleGenerator(new Table.CellStyleGenerator() {
+            @Override
             public String getStyle(Object itemId, Object propertyId) {
 
                 if (propertyId == null) {
@@ -294,11 +233,8 @@ public class ServerTable extends Table {
             }
         });
 
-//        setColumnExpandRatio("name", 100);
         setColumnExpandRatio("fqdn", 100);
         addListener(Table.ValueChangeEvent.class, sender, "tableRowSelected");
-
-//        alwaysRecalculateColumnWidths = true;
     }
 
     public void startMonitoringButtonClick(Button.ClickEvent event) {
@@ -319,7 +255,8 @@ public class ServerTable extends Table {
 
                 //オペレーションログ
                 AutoApplication apl = (AutoApplication) getApplication();
-                apl.doOpLog("SERVER", "Start Monitoring Server", dto.getInstance().getInstanceNo(), null, null, dto.getInstance().getInstanceName());
+                apl.doOpLog("SERVER", "Start Monitoring Server", dto.getInstance().getInstanceNo(), null, null, dto
+                        .getInstance().getInstanceName());
 
                 //監視有効化処理
                 instanceService.enableZabbixMonitoring(dto.getInstance().getInstanceNo());
@@ -358,7 +295,8 @@ public class ServerTable extends Table {
 
                 //オペレーションログ
                 AutoApplication apl = (AutoApplication) getApplication();
-                apl.doOpLog("SERVER", "Stop Monitoring Server", dto.getInstance().getInstanceNo(), null, null, dto.getInstance().getInstanceName());
+                apl.doOpLog("SERVER", "Stop Monitoring Server", dto.getInstance().getInstanceNo(), null, null, dto
+                        .getInstance().getInstanceName());
 
                 //監視無効化処理
                 instanceService.disableZabbixMonitoring(dto.getInstance().getInstanceNo());
@@ -396,11 +334,11 @@ public class ServerTable extends Table {
             subnetErrFlg = processService.checkSubnet(platform.getPlatform().getPlatformType(), vpc, subnetId);
             if (subnetErrFlg == true) {
                 //EC2+VPCの場合、サブネットを設定しないと起動不可
-            DialogConfirm dialog = new DialogConfirm(
-                    ViewProperties.getCaption("dialog.error"), ViewMessages.getMessage("IUI-000111"));
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
-        }
+                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
+                        ViewMessages.getMessage("IUI-000111"));
+                getApplication().getMainWindow().addWindow(dialog);
+                return;
+            }
         }
         if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatform().getPlatformType())) {
             // サブネットチェック
@@ -408,25 +346,24 @@ public class ServerTable extends Table {
             subnetErrFlg = processService.checkSubnet(platform.getPlatform().getPlatformType(), vpc, subnetId);
             if (subnetErrFlg == true) {
                 // サブネットを設定しないと起動不可
-                DialogConfirm dialog = new DialogConfirm(
-                        ViewProperties.getCaption("dialog.error"), ViewMessages.getMessage("IUI-000111"));
+                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
+                        ViewMessages.getMessage("IUI-000111"));
                 getApplication().getMainWindow().addWindow(dialog);
                 return;
             }
             // インスタンス起動チェック（個別起動）
             boolean startupErrFlg;
-            startupErrFlg = processService.checkStartup(platform.getPlatform().getPlatformType(),
-                    dto.getAzureInstance().getInstanceName(),
-                    dto.getAzureInstance().getInstanceNo());
+            startupErrFlg = processService.checkStartup(platform.getPlatform().getPlatformType(), dto
+                    .getAzureInstance().getInstanceName(), dto.getAzureInstance().getInstanceNo());
             if (startupErrFlg == true) {
-                        // インスタンス作成中のものがあった場合は、起動不可
+                // インスタンス作成中のものがあった場合は、起動不可
                 // 同一インスタンスNoは、除外する
-                        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                                ViewMessages.getMessage("IUI-000133"));
-                        getApplication().getMainWindow().addWindow(dialog);
-                        return;
-                    }
-                }
+                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
+                        ViewMessages.getMessage("IUI-000133"));
+                getApplication().getMainWindow().addWindow(dialog);
+                return;
+            }
+        }
 
         HorizontalLayout optionLayout = new HorizontalLayout();
         final CheckBox checkBox = new CheckBox(ViewMessages.getMessage("IUI-000035"), false);
@@ -437,8 +374,10 @@ public class ServerTable extends Table {
         }
 
         String actionName = event.getButton().getDescription();
-        String message = ViewMessages.getMessage("IUI-000013", new Object[]{dto.getInstance().getInstanceName(), actionName});
-        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message, Buttons.OKCancel, optionLayout);
+        String message = ViewMessages.getMessage("IUI-000013", new Object[] { dto.getInstance().getInstanceName(),
+                actionName });
+        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message,
+                Buttons.OKCancel, optionLayout);
         dialog.setCallback(new DialogConfirm.Callback() {
             @Override
             public void onDialogResult(Result result) {
@@ -454,7 +393,8 @@ public class ServerTable extends Table {
 
                 //オペレーションログ
                 AutoApplication apl = (AutoApplication) getApplication();
-                apl.doOpLog("SERVER", "Start Server", dto.getInstance().getInstanceNo(), null, null, String.valueOf(startService));
+                apl.doOpLog("SERVER", "Start Server", dto.getInstance().getInstanceNo(), null, null,
+                        String.valueOf(startService));
 
                 processService.startInstances(farmNo, list, startService);
                 sender.refreshTable();
@@ -515,7 +455,6 @@ public class ServerTable extends Table {
     }
 
     public void editButtonClick(Button.ClickEvent event) {
-
         final InstanceDto dto = (InstanceDto) this.getValue();
         final int index = this.getCurrentPageFirstItemIndex();
 
@@ -574,7 +513,8 @@ public class ServerTable extends Table {
             Long key = entry.getKey();
             if (key.equals(instance.getInstanceNo())) {
                 for (Button button : entry.getValue()) {
-                    if ("".equals(instance.getStatus()) || InstanceStatus.STOPPED.toString().equals(instance.getStatus())) {
+                    if ("".equals(instance.getStatus())
+                            || InstanceStatus.STOPPED.toString().equals(instance.getStatus())) {
                         if (("STOP".equals(button.getCaption()))) {
                             button.setEnabled(false);
                         } else if (("START".equals(button.getCaption()))) {

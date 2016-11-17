@@ -24,12 +24,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.vaadin.henrik.refresher.Refresher;
-
 import jp.primecloud.auto.common.status.ComponentInstanceStatus;
 import jp.primecloud.auto.common.status.ComponentStatus;
 import jp.primecloud.auto.common.status.InstanceStatus;
@@ -61,9 +55,16 @@ import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
 
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.vaadin.henrik.refresher.Refresher;
+
 import com.vaadin.data.Property;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.HorizontalLayout;
@@ -71,11 +72,10 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.SplitPanel;
 import com.vaadin.ui.TabSheet;
+import com.vaadin.ui.TabSheet.SelectedTabChangeEvent;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.TabSheet.SelectedTabChangeEvent;
 import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.themes.Reindeer;
 
@@ -86,7 +86,7 @@ import com.vaadin.ui.themes.Reindeer;
  * </p>
  *
  */
-@SuppressWarnings({"serial", "unchecked"})
+@SuppressWarnings({ "serial", "unchecked" })
 public class MyCloudTabs extends Panel {
 
     protected Log log = LogFactory.getLog(MyCloudTabs.class);
@@ -211,7 +211,6 @@ public class MyCloudTabs extends Panel {
 
         tabDesc.addTab(pnServer, ViewProperties.getCaption("tab.server"), Icons.SERVERTAB.resource());
 
-
         //ロードバランサー用タブ
         pnLoadBalancer.setSizeFull();
         pnLoadBalancer.addStyleName(Reindeer.PANEL_LIGHT);
@@ -249,10 +248,9 @@ public class MyCloudTabs extends Panel {
         splLBalancer.addComponent(loadBalancerDesc);
 
         if (this.enableLoadBalancer) {
-            tabDesc.addTab(pnLoadBalancer, ViewProperties.getCaption("tab.loadbalancer"), Icons.LOADBALANCER_TAB.resource());
+            tabDesc.addTab(pnLoadBalancer, ViewProperties.getCaption("tab.loadbalancer"),
+                    Icons.LOADBALANCER_TAB.resource());
         }
-
-
 
         //タブ用リスナー
         tabDesc.addListener(TabSheet.SelectedTabChangeEvent.class, this, "selectedTabChange");
@@ -270,20 +268,19 @@ public class MyCloudTabs extends Panel {
         });
         layout.addComponent(timer);
         layout.setExpandRatio(tabDesc, 100);
-
     }
 
     private class ServiceButtonsTop extends CssLayout implements Button.ClickListener {
+
         Button btnPlay, btnStop;
 
         ServiceButtonsTop() {
-
             //テーブル下ボタンの配置
             setWidth("100%");
             setMargin(false);
             addStyleName("service-buttons");
             addStyleName("service-table-label");
-            Label lservice = new Label(ViewProperties.getCaption("label.service"),Label.CONTENT_XHTML);
+            Label lservice = new Label(ViewProperties.getCaption("label.service"), Label.CONTENT_XHTML);
             lservice.setWidth("200px");
             addComponent(lservice);
 
@@ -302,21 +299,18 @@ public class MyCloudTabs extends Panel {
             addComponent(btnPlay);
 
             hide();
-
-
         }
 
-        void hide(){
+        void hide() {
             btnStop.setEnabled(true);
             btnPlay.setEnabled(true);
             //オペレート権限がなければ非活性
             UserAuthDto auth = ViewContext.getAuthority();
-            if (!auth.isServiceOperate()){
+            if (!auth.isServiceOperate()) {
                 btnStop.setEnabled(false);
                 btnPlay.setEnabled(false);
             }
         }
-
 
         public void buttonClick(ClickEvent event) {
             final ComponentDto dto = (ComponentDto) serviceTable.getValue();
@@ -332,8 +326,8 @@ public class MyCloudTabs extends Panel {
                         if (componentDto.getStatus().equals(ComponentStatus.STARTING.toString())
                                 || componentDto.getStatus().equals(ComponentStatus.STOPPING.toString())
                                 || componentDto.getStatus().equals(ComponentStatus.CONFIGURING.toString())) {
-                            String message = ViewMessages.getMessage("IUI-000046", new Object[] { StringUtils
-                                    .capitalize(componentDto.getStatus().toLowerCase()) });
+                            String message = ViewMessages.getMessage("IUI-000046",
+                                    new Object[] { StringUtils.capitalize(componentDto.getStatus().toLowerCase()) });
                             DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"),
                                     message);
                             getApplication().getMainWindow().addWindow(dialog);
@@ -360,7 +354,7 @@ public class MyCloudTabs extends Panel {
                         }
 
                         //オペレーションログ
-                        AutoApplication apl = (AutoApplication)getApplication();
+                        AutoApplication apl = (AutoApplication) getApplication();
                         apl.doOpLog("SERVICE", "All Service Start", null, null, null, null);
 
                         processService.startComponents(farmNo, componentNos);
@@ -403,7 +397,7 @@ public class MyCloudTabs extends Panel {
                         boolean stopInstance = (Boolean) checkBox.getValue();
 
                         //オペレーションログ
-                        AutoApplication apl = (AutoApplication)getApplication();
+                        AutoApplication apl = (AutoApplication) getApplication();
                         apl.doOpLog("SERVICE", "All Service Stop", null, null, null, String.valueOf(stopInstance));
 
                         processService.stopComponents(farmNo, componentNos, stopInstance);
@@ -424,11 +418,15 @@ public class MyCloudTabs extends Panel {
                 getApplication().getMainWindow().addWindow(dialog);
             }
         }
+
     }
 
     private class ServiceButtonsBottom extends CssLayout {
+
         Button btnNew;
+
         Button btnEdit;
+
         Button btnDelete;
 
         ServiceButtonsBottom() {
@@ -479,7 +477,7 @@ public class MyCloudTabs extends Panel {
             //ボタンの無効化
             hide();
 
-            Label spacer = new Label(" ",Label.CONTENT_XHTML);
+            Label spacer = new Label(" ", Label.CONTENT_XHTML);
             spacer.setWidth("30px");
             spacer.addStyleName("left");
             addComponent(btnNew);
@@ -511,7 +509,7 @@ public class MyCloudTabs extends Panel {
             getWindow().addWindow(winServiceAdd);
         }
 
-        void hide(){
+        void hide() {
             //ボタンの無効化
             btnNew.setEnabled(true);
             btnEdit.setEnabled(false);
@@ -519,13 +517,12 @@ public class MyCloudTabs extends Panel {
 
             //作成権限がなければ非活性
             UserAuthDto auth = ViewContext.getAuthority();
-            if (!auth.isServiceMake()){
+            if (!auth.isServiceMake()) {
                 btnNew.setEnabled(false);
             }
-
         }
 
-        void refresh(ComponentDto dto){
+        void refresh(ComponentDto dto) {
             if (dto != null) {
                 btnNew.setEnabled(true);
                 //ステータスによってボタンの有効無効を切り替える
@@ -539,7 +536,8 @@ public class MyCloudTabs extends Panel {
                 } else if ("WARNING".equals(status)) {
                     boolean processing = false;
                     for (ComponentInstanceDto componentInstance : dto.getComponentInstances()) {
-                        ComponentInstanceStatus s = ComponentInstanceStatus.fromStatus(componentInstance.getComponentInstance().getStatus());
+                        ComponentInstanceStatus s = ComponentInstanceStatus.fromStatus(componentInstance
+                                .getComponentInstance().getStatus());
                         if (s != ComponentInstanceStatus.RUNNING && s != ComponentInstanceStatus.WARNING
                                 && s != ComponentInstanceStatus.STOPPED) {
                             processing = true;
@@ -555,23 +553,24 @@ public class MyCloudTabs extends Panel {
 
                 //権限に応じて操作可能なボタンを制御する
                 UserAuthDto auth = ViewContext.getAuthority();
-                if (!auth.isServiceMake()){
+                if (!auth.isServiceMake()) {
                     btnNew.setEnabled(false);
                     btnEdit.setEnabled(false);
                 }
-                if (!auth.isServiceDelete()){
+                if (!auth.isServiceDelete()) {
                     btnDelete.setEnabled(false);
                 }
-
 
             } else {
                 //ボタンの無効化・非表示
                 hide();
             }
         }
+
     }
 
     private class ServerButtonsTop extends CssLayout implements Button.ClickListener {
+
         Button btnPlay, btnStop;
 
         ServerButtonsTop() {
@@ -580,7 +579,7 @@ public class MyCloudTabs extends Panel {
             setMargin(true);
             addStyleName("server-buttons");
             addStyleName("server-table-label");
-            Label lserver = new Label(ViewProperties.getCaption("label.server"),Label.CONTENT_XHTML);
+            Label lserver = new Label(ViewProperties.getCaption("label.server"), Label.CONTENT_XHTML);
             lserver.setWidth("200px");
             addComponent(lserver);
 
@@ -599,15 +598,14 @@ public class MyCloudTabs extends Panel {
             addComponent(btnPlay);
 
             hide();
-
         }
 
-        void hide(){
+        void hide() {
             btnStop.setEnabled(true);
             btnPlay.setEnabled(true);
             //オペレート権限がなければ非活性
             UserAuthDto auth = ViewContext.getAuthority();
-            if (!auth.isServerOperate()){
+            if (!auth.isServerOperate()) {
                 btnStop.setEnabled(false);
                 btnPlay.setEnabled(false);
             }
@@ -628,7 +626,7 @@ public class MyCloudTabs extends Panel {
 
                 String message = ViewMessages.getMessage("IUI-000011");
                 DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message,
-                        Buttons.OKCancelConfirm , optionLayout);
+                        Buttons.OKCancelConfirm, optionLayout);
                 dialog.setCallback(new DialogConfirm.Callback() {
                     @Override
                     public void onDialogResult(Result result) {
@@ -644,7 +642,7 @@ public class MyCloudTabs extends Panel {
                         boolean startService = (Boolean) checkBox.getValue();
 
                         //オペレーションログ
-                        AutoApplication apl = (AutoApplication)getApplication();
+                        AutoApplication apl = (AutoApplication) getApplication();
                         apl.doOpLog("SERVER", "All Server Start", null, null, null, String.valueOf(startService));
 
                         processService.startInstances(farmNo, instanceNos, startService);
@@ -665,7 +663,8 @@ public class MyCloudTabs extends Panel {
                 getApplication().getMainWindow().addWindow(dialog);
             } else if (event.getButton() == btnStop) {
                 String message = ViewMessages.getMessage("IUI-000012");
-                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message, Buttons.OKCancelConfirm);
+                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message,
+                        Buttons.OKCancelConfirm);
                 dialog.setCallback(new DialogConfirm.Callback() {
                     @Override
                     public void onDialogResult(Result result) {
@@ -680,7 +679,7 @@ public class MyCloudTabs extends Panel {
                         }
 
                         //オペレーションログ
-                        AutoApplication apl = (AutoApplication)getApplication();
+                        AutoApplication apl = (AutoApplication) getApplication();
                         apl.doOpLog("SERVER", "All Server Stop", null, null, null, null);
 
                         processService.stopInstances(farmNo, instanceNos);
@@ -705,12 +704,19 @@ public class MyCloudTabs extends Panel {
     }
 
     private class ServerButtonsButtom extends CssLayout {
+
         Button btnNew;
+
         Button btnEdit;
+
         Button btnDelete;
+
         Button btnStartMonitoring;
+
         Button btnStopMonitoring;
+
         Button btnStart;
+
         Button btnStop;
 
         ServerButtonsButtom() {
@@ -811,7 +817,7 @@ public class MyCloudTabs extends Panel {
             //ボタンの初期化
             hide();
 
-            Label spacer = new Label(" ",Label.CONTENT_XHTML);
+            Label spacer = new Label(" ", Label.CONTENT_XHTML);
             spacer.setWidth("30px");
             spacer.addStyleName("left");
             addComponent(btnNew);
@@ -854,7 +860,7 @@ public class MyCloudTabs extends Panel {
             getWindow().addWindow(winServerAdd);
         }
 
-        void hide(){
+        void hide() {
             //ボタンの初期化
             btnNew.setEnabled(true);
             btnEdit.setEnabled(false);
@@ -865,18 +871,16 @@ public class MyCloudTabs extends Panel {
             btnStop.setEnabled(false);
             //作成権限がなければ非活性
             UserAuthDto auth = ViewContext.getAuthority();
-            if (!auth.isServerMake()){
+            if (!auth.isServerMake()) {
                 btnNew.setEnabled(false);
             }
 
             ////ReloadボタンをStartボタンに
             btnStart.setCaption(ViewProperties.getCaption("button.startServer"));
             btnStart.setDescription(ViewProperties.getCaption("description.startServer"));
-
         }
 
-        void refresh(InstanceDto instanceDto){
-
+        void refresh(InstanceDto instanceDto) {
             if (instanceDto != null && instanceDto.getInstance() != null) {
                 btnNew.setEnabled(true);
                 //ステータスによってボタンの有効無効を切り替える
@@ -897,7 +901,7 @@ public class MyCloudTabs extends Panel {
                         ZabbixInstanceStatus zStatus = ZabbixInstanceStatus.fromStatus(zabbixInstance.getStatus());
                         if (ZabbixInstanceStatus.MONITORING.equals(zStatus)) {
                             monitoring = true;
-                        } else if (ZabbixInstanceStatus.UN_MONITORING.equals(zStatus)){
+                        } else if (ZabbixInstanceStatus.UN_MONITORING.equals(zStatus)) {
                             unMonitoring = true;
                         }
                     }
@@ -928,14 +932,14 @@ public class MyCloudTabs extends Panel {
 
                 UserAuthDto auth = ViewContext.getAuthority();
                 //権限に応じて操作可能なボタンを制御する
-                if (!auth.isServerMake()){
+                if (!auth.isServerMake()) {
                     btnNew.setEnabled(false);
                     btnEdit.setEnabled(false);
                 }
-                if (!auth.isServerDelete()){
+                if (!auth.isServerDelete()) {
                     btnDelete.setEnabled(false);
                 }
-                if (!auth.isServerOperate()){
+                if (!auth.isServerOperate()) {
                     btnStartMonitoring.setEnabled(false);
                     btnStopMonitoring.setEnabled(false);
                     btnStart.setEnabled(false);
@@ -947,10 +951,10 @@ public class MyCloudTabs extends Panel {
                 hide();
             }
         }
+
     }
 
     public void tableRowSelected(Table.ValueChangeEvent event) {
-
         synchronized (getApplication()) {
             //選択行のボタンを有効にする
             Property p = event.getProperty();
@@ -962,16 +966,18 @@ public class MyCloudTabs extends Panel {
                 if (dto != null) {
                     table.setButtonStatus(dto);
                     // サービス情報の更新(選択されているTabだけ更新する)
-                    if ( serviceDesc.tabDesc.getSelectedTab() == serviceDesc.serviceDescBasic ){
+                    if (serviceDesc.tabDesc.getSelectedTab() == serviceDesc.serviceDescBasic) {
                         //基本情報の更新
                         serviceDesc.serviceDescBasic.left.setItem(dto);
-                        serviceDesc.serviceDescBasic.right.refresh(new InstanceDtoContainer(MyCloudTabs.this
-                                .getInstances(dto.getComponentInstances())), true);
-                    }else if ( serviceDesc.tabDesc.getSelectedTab() == serviceDesc.serviceDescDetail ){
+                        serviceDesc.serviceDescBasic.right.refresh(
+                                new InstanceDtoContainer(MyCloudTabs.this.getInstances(dto.getComponentInstances())),
+                                true);
+                    } else if (serviceDesc.tabDesc.getSelectedTab() == serviceDesc.serviceDescDetail) {
                         //詳細情報の更新
                         serviceDesc.serviceDescDetail.left.setItem(dto);
                         Collection<InstanceDto> instanceDtos = (Collection<InstanceDto>) serverTable.getItemIds();
-                        serviceDesc.serviceDescDetail.right.setContainerDataSource(new ComponentParameterContainer(dto,instanceDtos));
+                        serviceDesc.serviceDescDetail.right.setContainerDataSource(new ComponentParameterContainer(dto,
+                                instanceDtos));
                         serviceDesc.serviceDescDetail.right.setHeaders();
                     }
                 }
@@ -984,12 +990,12 @@ public class MyCloudTabs extends Panel {
                 if (dto != null) {
                     table.setButtonStatus(dto.getInstance());
                     // サーバ情報の更新(選択されているTabだけ更新する)
-                    if ( serverDesc.tabDesc.getSelectedTab() == serverDesc.serverDescBasic ){
+                    if (serverDesc.tabDesc.getSelectedTab() == serverDesc.serverDescBasic) {
                         //基本情報の更新
                         serverDesc.serverDescBasic.left.setItem(dto);
-                        serverDesc.serverDescBasic.right.refresh(
-                                new ComponentDtoContainer(MyCloudTabs.this.getComponents(dto.getComponentInstances())));
-                    }else if ( serverDesc.tabDesc.getSelectedTab() == serverDesc.serverDescDetail ){
+                        serverDesc.serverDescBasic.right.refresh(new ComponentDtoContainer(MyCloudTabs.this
+                                .getComponents(dto.getComponentInstances())));
+                    } else if (serverDesc.tabDesc.getSelectedTab() == serverDesc.serverDescDetail) {
                         //詳細情報の更新
                         serverDesc.serverDescDetail.left.setServerName(instance);
                         serverDesc.serverDescDetail.right.setContainerDataSource(new InstanceParameterContainer(dto));
@@ -1005,18 +1011,13 @@ public class MyCloudTabs extends Panel {
                     //基本情報の更新
                     loadBalancerDesc.loadBalancerDescBasic.basicInfo.setItem(dto);
                     // ロードバランサー サービス テーブル情報更新
-                    loadBalancerDesc.loadBalancerDescBasic.attachServiceTable.refresh(dto,true);
-
-//                } else if (loadBalancerDesc.tabDesc.getSelectedTab() == loadBalancerDesc.loadBalancerDescDetail) {
-//                    //詳細情報の更新
-
+                    loadBalancerDesc.loadBalancerDescBasic.attachServiceTable.refresh(dto, true);
                 } else if (loadBalancerDesc.tabDesc.getSelectedTab() == loadBalancerDesc.loadBalancerDescServer) {
                     // 割り当てサービス 詳細情報更新
                     loadBalancerDesc.loadBalancerDescServer.loadBalancerInfo.setItem(dto);
                     // ロードバランサー サーバ テーブル情報更新
-                    loadBalancerDesc.loadBalancerDescServer.attachServiceServerTable.refresh(dto,true);
+                    loadBalancerDesc.loadBalancerDescServer.attachServiceServerTable.refresh(dto, true);
                 }
-
             }
         }
     }
@@ -1049,7 +1050,6 @@ public class MyCloudTabs extends Panel {
         return result;
     }
 
-
     public void hide() {
         //初期表示タブの表示を権限により制御する
         if (tabDesc.getSelectedTab() == pnService) {
@@ -1058,7 +1058,7 @@ public class MyCloudTabs extends Panel {
         } else if (tabDesc.getSelectedTab() == pnServer) {
             serverButtonsTop.hide();
             serverButtonsBottom.hide();
-        } else if (tabDesc.getSelectedTab() == pnLoadBalancer){
+        } else if (tabDesc.getSelectedTab() == pnLoadBalancer) {
             loadBalancerTableOpe.hide();
         }
     }
@@ -1109,8 +1109,10 @@ public class MyCloudTabs extends Panel {
         for (ComponentDto dto : componentDtos) {
             // サービスViewのサービス情報のサービスステータスが、Warninngの際、リフレッシュする対応
             for (ComponentInstanceDto componentInstance : dto.getComponentInstances()) {
-                ComponentInstanceStatus componentInstanceStatus = ComponentInstanceStatus.fromStatus(componentInstance.getComponentInstance().getStatus());
-                if (componentInstanceStatus == ComponentInstanceStatus.STARTING || componentInstanceStatus == ComponentInstanceStatus.STOPPING
+                ComponentInstanceStatus componentInstanceStatus = ComponentInstanceStatus.fromStatus(componentInstance
+                        .getComponentInstance().getStatus());
+                if (componentInstanceStatus == ComponentInstanceStatus.STARTING
+                        || componentInstanceStatus == ComponentInstanceStatus.STOPPING
                         || componentInstanceStatus == ComponentInstanceStatus.CONFIGURING) {
                     return true;
                 }
@@ -1167,12 +1169,12 @@ public class MyCloudTabs extends Panel {
             if (dto != null) {
                 table.setButtonStatus(instance);
                 // サーバ情報の更新(選択されているTabだけ更新する)
-                if ( serverDesc.tabDesc.getSelectedTab() == serverDesc.serverDescBasic ){
+                if (serverDesc.tabDesc.getSelectedTab() == serverDesc.serverDescBasic) {
                     //基本情報の更新
                     serverDesc.serverDescBasic.left.setItem(dto);
-                    serverDesc.serverDescBasic.right.refresh(
-                            new ComponentDtoContainer(MyCloudTabs.this.getComponents(dto.getComponentInstances())));
-                }else if ( serverDesc.tabDesc.getSelectedTab() == serverDesc.serverDescDetail ){
+                    serverDesc.serverDescBasic.right.refresh(new ComponentDtoContainer(MyCloudTabs.this
+                            .getComponents(dto.getComponentInstances())));
+                } else if (serverDesc.tabDesc.getSelectedTab() == serverDesc.serverDescDetail) {
                     //詳細情報の更新
                     serverDesc.serverDescDetail.left.setServerName(instance);
                     serverDesc.serverDescDetail.right.setContainerDataSource(new InstanceParameterContainer(dto));
@@ -1193,13 +1195,13 @@ public class MyCloudTabs extends Panel {
             if (dto != null) {
                 table.setButtonStatus(dto);
                 // サービス情報の更新(選択されているTabだけ更新する)
-                if ( serviceDesc.tabDesc.getSelectedTab() == serviceDesc.serviceDescBasic ){
+                if (serviceDesc.tabDesc.getSelectedTab() == serviceDesc.serviceDescBasic) {
                     //基本情報の更新
                     serviceDesc.serviceDescBasic.left.setItem(dto);
                     serviceDesc.serviceDescBasic.right.refresh(new InstanceDtoContainer(MyCloudTabs.this
                             .getInstances(dto.getComponentInstances())));
 
-                }else if ( serviceDesc.tabDesc.getSelectedTab() == serviceDesc.serviceDescDetail ){
+                } else if (serviceDesc.tabDesc.getSelectedTab() == serviceDesc.serviceDescDetail) {
                     //詳細情報の更新
                     serviceDesc.serviceDescDetail.left.setItem(dto);
                     Collection<InstanceDto> instanceDtos = (Collection<InstanceDto>) serverTable.getItemIds();
@@ -1219,31 +1221,29 @@ public class MyCloudTabs extends Panel {
             LoadBalancerDto dto = (LoadBalancerDto) table.getValue();
             table.sender.loadBalancerTableOpe.setButtonStatus(dto);
             // ロードバランサー情報の更新(選択されているTabだけ更新する)
-            if ( loadBalancerDesc.tabDesc.getSelectedTab() == loadBalancerDesc.loadBalancerDescBasic ){
+            if (loadBalancerDesc.tabDesc.getSelectedTab() == loadBalancerDesc.loadBalancerDescBasic) {
                 //基本情報の更新
                 loadBalancerDesc.loadBalancerDescBasic.basicInfo.setItem(dto);
                 // ロードバランサー サービステーブル情報更新
-                loadBalancerDesc.loadBalancerDescBasic.attachServiceTable.refresh(dto,false);
-
-//            }else if ( loadBalancerDesc.tabDesc.getSelectedTab() == loadBalancerDesc.loadBalancerDescDetail ){
-//                //詳細情報の更新
-
-            }else if (loadBalancerDesc.tabDesc.getSelectedTab() == loadBalancerDesc.loadBalancerDescServer ){
+                loadBalancerDesc.loadBalancerDescBasic.attachServiceTable.refresh(dto, false);
+            } else if (loadBalancerDesc.tabDesc.getSelectedTab() == loadBalancerDesc.loadBalancerDescServer) {
                 // 割り当てサービス 詳細情報更新
                 loadBalancerDesc.loadBalancerDescServer.loadBalancerInfo.setItem(dto);
                 // ロードバランサー サーバ テーブル情報更新
-                loadBalancerDesc.loadBalancerDescServer.attachServiceServerTable.refresh(dto,false);
+                loadBalancerDesc.loadBalancerDescServer.attachServiceServerTable.refresh(dto, false);
             }
         }
     }
+
     public void selectedTabChange(SelectedTabChangeEvent event) {
         //タブ切り替え時にリフレッシュする(選択されていないTabは画面が更新されていないため)
         if (tabDesc.getSelectedTab() == pnService) {
             refreshDesc(serviceTable);
         } else if (tabDesc.getSelectedTab() == pnServer) {
             refreshDesc(serverTable);
-        } else if (tabDesc.getSelectedTab() == pnLoadBalancer){
+        } else if (tabDesc.getSelectedTab() == pnLoadBalancer) {
             refreshDesc(loadBalancerTable);
         }
     }
+
 }

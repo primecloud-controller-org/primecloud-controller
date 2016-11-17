@@ -114,8 +114,9 @@ import com.vmware.vim25.mo.ComputeResource;
  * </p>
  *
  */
-@SuppressWarnings({"serial", "unchecked"})
+@SuppressWarnings({ "serial", "unchecked" })
 public class WinServerEdit extends Window {
+
     final String COLUMN_HEIGHT = "30px";
 
     final String TAB_HEIGHT = "420px";
@@ -192,7 +193,6 @@ public class WinServerEdit extends Window {
 
         //詳細設定Tabの追加
         String platformType = platformDto.getPlatform().getPlatformType();
-        // TODO CLOUD BRANCHING
         if (PCCConstant.PLATFORM_TYPE_AWS.equals(platformType)) {
             awsDetailTab = new AWSDetailTab();
             tab.addTab(awsDetailTab, ViewProperties.getCaption("tab.detail"), Icons.DETAIL.resource());
@@ -298,9 +298,6 @@ public class WinServerEdit extends Window {
             openStackDetailTab.showData();
         }
 
-        //        tab.addTab(new UserTab(), "ユーザ設定", new ThemeResource("icons/user.png"));
-        //        layout.addComponent(tab);
-
         // 下部のバー
         HorizontalLayout okbar = new HorizontalLayout();
         okbar.setSpacing(true);
@@ -334,6 +331,7 @@ public class WinServerEdit extends Window {
     }
 
     private class BasicTab extends VerticalLayout {
+
         Form form = new Form();
 
         private TextField serverNameField;
@@ -397,7 +395,6 @@ public class WinServerEdit extends Window {
 
             //LB以外の場合
             if (!isLoadBalancer) {
-
                 // 利用可能サービス
                 Panel panel = new Panel();
                 serviceTable = new AvailableServiceTable();
@@ -444,7 +441,6 @@ public class WinServerEdit extends Window {
                 }
             }
             addComponent(form);
-
         }
 
         private void showData() {
@@ -514,8 +510,8 @@ public class WinServerEdit extends Window {
 
             //テーブルのカラムに対してStyleNameを設定
             setCellStyleGenerator(new Table.CellStyleGenerator() {
+                @Override
                 public String getStyle(Object itemId, Object propertyId) {
-
                     if (propertyId == null) {
                         return "";
                     }
@@ -524,8 +520,8 @@ public class WinServerEdit extends Window {
                     Long componentTypeNo = (Long) itemId;
                     List<ComponentType> componentTypes = image.getComponentTypes();
                     for (ComponentType componentType : componentTypes) {
-                        if (componentType.getComponentTypeNo().equals(componentTypeNo) &&
-                            BooleanUtils.isNotTrue(componentType.getSelectable())) {
+                        if (componentType.getComponentTypeNo().equals(componentTypeNo)
+                                && BooleanUtils.isNotTrue(componentType.getSelectable())) {
                             //無効コンポーネントタイプの場合は、セルの表示をDisableに変更する
                             ret += " v-disabled";
                             break;
@@ -559,6 +555,7 @@ public class WinServerEdit extends Window {
                 addItem(new Object[] { slbl, description }, componentType.getComponentTypeNo());
             }
         }
+
     }
 
     private class AWSDetailTab extends VerticalLayout {
@@ -676,7 +673,6 @@ public class WinServerEdit extends Window {
             HorizontalLayout layout = new HorizontalLayout();
             layout.setSpacing(true);
             layout.setMargin(false);
-            //            Label labelElasticIp = new Label(ViewProperties.getCaption("label.elasticIp"));
 
             Button addElasticIp = new Button(ViewProperties.getCaption("button.addElasticIp"));
             addElasticIp.setDescription(ViewProperties.getCaption("description.addElasticIp"));
@@ -700,7 +696,6 @@ public class WinServerEdit extends Window {
                 }
             });
 
-            //            layout.addComponent(labelElasticIp);
             layout.addComponent(addElasticIp);
             layout.addComponent(deleteElasticIp);
             form.getLayout().addComponent(layout);
@@ -714,7 +709,8 @@ public class WinServerEdit extends Window {
                 form.setEnabled(false);
             } else {
                 //Image image = Config.getImage(instance.getInstance().getImageNo());
-                if (image.getImageAws().getEbsImage() && StringUtils.isNotEmpty(instance.getAwsInstance().getInstanceId())) {
+                if (image.getImageAws().getEbsImage()
+                        && StringUtils.isNotEmpty(instance.getAwsInstance().getInstanceId())) {
                     // EBSイメージで既に作成済みの場合、いくつかの項目を変更不可とする
                     //sizeSelect.setEnabled(false);
                     keySelect.setEnabled(false);
@@ -727,13 +723,6 @@ public class WinServerEdit extends Window {
                     zoneSelect.setEnabled(false);
                 }
             }
-
-//            if (platformAws.getVpc()) {
-//                elasticIpSelect.setEnabled(false);
-//                addElasticIp.setEnabled(false);
-//                deleteElasticIp.setEnabled(false);
-//                labelElasticIp.setEnabled(false);
-//            }
         }
 
         private void initData() {
@@ -753,21 +742,23 @@ public class WinServerEdit extends Window {
 
             //セキュリティグループ
             List<String> securityGroups = new ArrayList<String>();
-            List<SecurityGroup> groups = awsDescribeService.getSecurityGroups(ViewContext.getUserNo(), platform.getPlatformNo());
+            List<SecurityGroup> groups = awsDescribeService.getSecurityGroups(ViewContext.getUserNo(),
+                    platform.getPlatformNo());
             for (SecurityGroup group : groups) {
                 securityGroups.add(group.getGroupName());
             }
             this.securityGroups = securityGroups;
 
             //インスタンスタイプ
-            List<String>  instanceTypes = new ArrayList<String>();
+            List<String> instanceTypes = new ArrayList<String>();
             for (String instanceType : image.getImageAws().getInstanceTypes().split(",")) {
                 instanceTypes.add(instanceType.trim());
             }
             this.instanceTypes = instanceTypes;
 
             //ゾーン
-            List<AvailabilityZone> zones = awsDescribeService.getAvailabilityZones(ViewContext.getUserNo(), platform.getPlatformNo());
+            List<AvailabilityZone> zones = awsDescribeService.getAvailabilityZones(ViewContext.getUserNo(),
+                    platform.getPlatformNo());
             if (platformAws.getEuca() == false && platformAws.getVpc() == false) {
                 //EC2 VPCではない場合、空行を先頭に追加してゾーンを無指定にできるようにする
                 zones.add(0, new AvailabilityZone());
@@ -782,7 +773,8 @@ public class WinServerEdit extends Window {
 
             //ElasticIp
             List<AwsAddress> elasticIps = new ArrayList<AwsAddress>();
-            List<AwsAddress> addresses = awsDescribeService.getAddresses(ViewContext.getUserNo(), platform.getPlatformNo());
+            List<AwsAddress> addresses = awsDescribeService.getAddresses(ViewContext.getUserNo(),
+                    platform.getPlatformNo());
             for (AwsAddress address : addresses) {
                 elasticIps.add(address);
             }
@@ -793,7 +785,8 @@ public class WinServerEdit extends Window {
             // ElasticIPを取得する
             AwsProcessClientFactory awsProcessClientFactory = BeanContext.getBean(AwsProcessClientFactory.class);
             AwsAddressProcess awsAddressProcess = BeanContext.getBean(AwsAddressProcess.class);
-            AwsProcessClient awsProcessClient = awsProcessClientFactory.createAwsProcessClient(ViewContext.getUserNo(), instance.getInstance().getPlatformNo());
+            AwsProcessClient awsProcessClient = awsProcessClientFactory.createAwsProcessClient(ViewContext.getUserNo(),
+                    instance.getInstance().getPlatformNo());
             AwsAddress awsAddress = awsAddressProcess.createAddress(awsProcessClient);
 
             //ElasticIPをリセット
@@ -848,9 +841,11 @@ public class WinServerEdit extends Window {
                 public void onDialogResult(Result result) {
                     if (result == Result.OK) {
                         // ElasticIPを削除する
-                        AwsProcessClientFactory awsProcessClientFactory = BeanContext.getBean(AwsProcessClientFactory.class);
+                        AwsProcessClientFactory awsProcessClientFactory = BeanContext
+                                .getBean(AwsProcessClientFactory.class);
                         AwsAddressProcess awsAddressProcess = BeanContext.getBean(AwsAddressProcess.class);
-                        AwsProcessClient awsProcessClient = awsProcessClientFactory.createAwsProcessClient(address.getUserNo(), address.getPlatformNo());
+                        AwsProcessClient awsProcessClient = awsProcessClientFactory.createAwsProcessClient(
+                                address.getUserNo(), address.getPlatformNo());
                         awsAddressProcess.deleteAddress(awsProcessClient, address.getAddressNo());
 
                         //ElasticIPをリセット
@@ -867,7 +862,8 @@ public class WinServerEdit extends Window {
         private void resetElasticIps() {
             // Addressの情報を取り直す
             AwsDescribeService awsDescribeService = BeanContext.getBean(AwsDescribeService.class);
-            List<AwsAddress> addresses = awsDescribeService.getAddresses(ViewContext.getUserNo(), instance.getInstance().getPlatformNo());
+            List<AwsAddress> addresses = awsDescribeService.getAddresses(ViewContext.getUserNo(), instance
+                    .getInstance().getPlatformNo());
 
             elasticIps = addresses;
             elasticIpSelect.setContainerDataSource(createElasticIpContainer());
@@ -1014,6 +1010,7 @@ public class WinServerEdit extends Window {
             elasticIpSelect.setRequired(true);
             elasticIpSelect.setRequiredError(message);
         }
+
     }
 
     private class VMWareDetailTab extends VerticalLayout {
@@ -1021,8 +1018,6 @@ public class WinServerEdit extends Window {
         Form form = new Form();
 
         ComboBox keySelect;
-
-        //        ComboBox grpSelect;
 
         ComboBox sizeSelect;
 
@@ -1064,7 +1059,6 @@ public class WinServerEdit extends Window {
             if (status != InstanceStatus.STOPPED) {
                 form.setEnabled(false);
             }
-
         }
 
         private void initData() {
@@ -1073,7 +1067,8 @@ public class WinServerEdit extends Window {
             // VMware情報を取得
             // TODO: ロジックを必ずリファクタリングすること
             VmwareDescribeService vmwareDescribeService = BeanContext.getBean(VmwareDescribeService.class);
-            List<VmwareKeyPair> vmwareKeyPairs = vmwareDescribeService.getKeyPairs(ViewContext.getUserNo(), platform.getPlatformNo());
+            List<VmwareKeyPair> vmwareKeyPairs = vmwareDescribeService.getKeyPairs(ViewContext.getUserNo(),
+                    platform.getPlatformNo());
             List<String> keyPairs = new ArrayList<String>();
             for (VmwareKeyPair vmwareKeyPair : vmwareKeyPairs) {
                 keyPairs.add(vmwareKeyPair.getKeyName());
@@ -1081,7 +1076,8 @@ public class WinServerEdit extends Window {
             this.keyPairs = keyPairs;
             this.vmwareKeyPairs = vmwareKeyPairs;
 
-            List<ComputeResource> computeResources = vmwareDescribeService.getComputeResources(platform.getPlatformNo());
+            List<ComputeResource> computeResources = vmwareDescribeService
+                    .getComputeResources(platform.getPlatformNo());
             List<String> clusters = new ArrayList<String>();
             for (ComputeResource computeResource : computeResources) {
                 clusters.add(computeResource.getName());
@@ -1127,6 +1123,7 @@ public class WinServerEdit extends Window {
             clusterSelect.setRequired(true);
             clusterSelect.setRequiredError(message);
         }
+
     }
 
     private class VmwareEditIpTab extends VerticalLayout {
@@ -1239,6 +1236,7 @@ public class WinServerEdit extends Window {
             defaultGatewayField.setRequiredError(message);
             defaultGatewayField.addValidator(defaultGatewayFieldValidator);
         }
+
     }
 
     private class NiftyDetailTab extends VerticalLayout {
@@ -1289,7 +1287,8 @@ public class WinServerEdit extends Window {
             // Nifty情報を取得
             // TODO: ロジックを必ずリファクタリングすること
             NiftyDescribeService niftyDescribeService = BeanContext.getBean(NiftyDescribeService.class);
-            List<NiftyKeyPair> niftyKeyPairs = niftyDescribeService.getKeyPairs(ViewContext.getUserNo(), platform.getPlatformNo());
+            List<NiftyKeyPair> niftyKeyPairs = niftyDescribeService.getKeyPairs(ViewContext.getUserNo(),
+                    platform.getPlatformNo());
             List<String> keyPairs = new ArrayList<String>();
             for (NiftyKeyPair niftyKeyPair : niftyKeyPairs) {
                 keyPairs.add(niftyKeyPair.getKeyName());
@@ -1322,9 +1321,11 @@ public class WinServerEdit extends Window {
             keySelect.setRequired(true);
             keySelect.setRequiredError(message);
         }
+
     }
 
     private class CloudStackDetailTab extends VerticalLayout {
+
         Form form = new Form();
 
         ComboBox networkSelect;
@@ -1434,7 +1435,6 @@ public class WinServerEdit extends Window {
                 }
             });
 
-            //            layout.addComponent(labelElasticIp);
             layout.addComponent(addElasticIp);
             layout.addComponent(deleteElasticIp);
             form.getLayout().addComponent(layout);
@@ -1457,7 +1457,6 @@ public class WinServerEdit extends Window {
                 addElasticIp.setEnabled(false);
                 deleteElasticIp.setEnabled(false);
             }
-
         }
 
         private void initData() {
@@ -1482,7 +1481,8 @@ public class WinServerEdit extends Window {
 
             List<String> securityGroups = new ArrayList<String>();
             if (StringUtils.isEmpty(instance.getCloudstackInstance().getNetworkid())) {
-                List<SecurityGroupDto> groups = describeService.getSecurityGroups(ViewContext.getUserNo(), platform.getPlatformNo(), null);
+                List<SecurityGroupDto> groups = describeService.getSecurityGroups(ViewContext.getUserNo(),
+                        platform.getPlatformNo(), null);
                 for (SecurityGroupDto group : groups) {
                     securityGroups.add(group.getGroupName());
                 }
@@ -1495,11 +1495,13 @@ public class WinServerEdit extends Window {
             }
             this.instanceTypes = instanceTypes;
 
-            List<ZoneDto> zones = describeService.getAvailabilityZones(ViewContext.getUserNo(), platform.getPlatformNo());
+            List<ZoneDto> zones = describeService.getAvailabilityZones(ViewContext.getUserNo(),
+                    platform.getPlatformNo());
             this.zones = zones;
 
             List<AddressDto> elasticIps = new ArrayList<AddressDto>();
-            List<AddressDto> addresses = describeService.getAddresses(ViewContext.getUserNo(), platform.getPlatformNo());
+            List<AddressDto> addresses = describeService
+                    .getAddresses(ViewContext.getUserNo(), platform.getPlatformNo());
             for (AddressDto address : addresses) {
                 elasticIps.add(address);
             }
@@ -1509,7 +1511,8 @@ public class WinServerEdit extends Window {
         private void addButtonClick() {
             // ElasticIPを取得する
             IaasDescribeService describeService = BeanContext.getBean(IaasDescribeService.class);
-            Long addressNo = describeService.createAddress(ViewContext.getUserNo(), instance.getInstance().getPlatformNo());
+            Long addressNo = describeService.createAddress(ViewContext.getUserNo(), instance.getInstance()
+                    .getPlatformNo());
 
             //ElasticIPをリセット
             resetElasticIps();
@@ -1564,7 +1567,8 @@ public class WinServerEdit extends Window {
                     if (result == Result.OK) {
                         // ElasticIPを削除する
                         IaasDescribeService describeService = BeanContext.getBean(IaasDescribeService.class);
-                        describeService.deleteAddress(address.getUserNo(), address.getPlatformNo(), address.getAddressNo());
+                        describeService.deleteAddress(address.getUserNo(), address.getPlatformNo(),
+                                address.getAddressNo());
 
                         //ElasticIPをリセット
                         resetElasticIps();
@@ -1580,7 +1584,8 @@ public class WinServerEdit extends Window {
         private void resetElasticIps() {
             // Addressの情報を取り直す
             IaasDescribeService describeService = BeanContext.getBean(IaasDescribeService.class);
-            List<AddressDto> addresses = describeService.getAddresses(ViewContext.getUserNo(), instance.getInstance().getPlatformNo());
+            List<AddressDto> addresses = describeService.getAddresses(ViewContext.getUserNo(), instance.getInstance()
+                    .getPlatformNo());
 
             elasticIps = addresses;
             elasticIpSelect.setContainerDataSource(createElasticIpContainer());
@@ -1673,19 +1678,29 @@ public class WinServerEdit extends Window {
             elasticIpSelect.setRequired(true);
             elasticIpSelect.setRequiredError(message);
         }
+
     }
 
     private class VcloudDetailTab extends VerticalLayout {
+
         final String CID_STORAGE_TYPE = "StorageType";
+
         final String CID_KEY_PAIR = "KeyPair";
+
         final String WIDTH_COMBOBOX = "220px";
+
         final String KEY_PAIR_WIDTH_COMBOBOX = "150px";
 
         Form form = new Form();
+
         ComboBox storageTypeSelect;
+
         ComboBox sizeSelect;
+
         ComboBox keySelect;
+
         DataDiskTable dataDiskTable;
+
         DataDiskTableButtons dataDiskTableButtons;
 
         List<String> instanceTypes;
@@ -1758,11 +1773,13 @@ public class WinServerEdit extends Window {
             // VCloud情報を取得
             IaasDescribeService describeService = BeanContext.getBean(IaasDescribeService.class);
             //StorageType
-            List<StorageTypeDto> storageTypes = describeService.getStorageTypes(ViewContext.getUserNo(), platform.getPlatformNo());
+            List<StorageTypeDto> storageTypes = describeService.getStorageTypes(ViewContext.getUserNo(),
+                    platform.getPlatformNo());
             this.storageTypes = storageTypes;
 
             //KeyPair
-            List<KeyPairDto> vcloudKeyPairs = describeService.getKeyPairs(ViewContext.getUserNo(), platform.getPlatformNo());
+            List<KeyPairDto> vcloudKeyPairs = describeService.getKeyPairs(ViewContext.getUserNo(),
+                    platform.getPlatformNo());
             this.vcloudKeyPairs = vcloudKeyPairs;
 
             //InstanceType
@@ -1861,9 +1878,13 @@ public class WinServerEdit extends Window {
         }
 
         private class DataDiskTable extends Table {
+
             final String PID_UNIT_NO = "UnitNo";
+
             final String PID_DISK_SIZE = "DiskSize";
+
             final int WIDTH_UNIT_NO = 194;
+
             final int WIDTH_DISK_SIZE = 194;
 
             DataDiskTable() {
@@ -1886,8 +1907,7 @@ public class WinServerEdit extends Window {
                 addContainerProperty(PID_DISK_SIZE, Integer.class, null);
 
                 //ヘッダー設定
-                setColumnHeaders(new String[] {
-                        ViewProperties.getCaption("field.unitNo"),
+                setColumnHeaders(new String[] { ViewProperties.getCaption("field.unitNo"),
                         ViewProperties.getCaption("field.diskSize") });
 
                 //ヘッダーサイズ設定
@@ -1953,11 +1973,15 @@ public class WinServerEdit extends Window {
                     }
                 }
             }
+
         }
 
         private class DataDiskTableButtons extends HorizontalLayout {
+
             Button btnAdd;
+
             Button btnEdit;
+
             Button btnDelete;
 
             DataDiskTableButtons() {
@@ -2009,7 +2033,8 @@ public class WinServerEdit extends Window {
             }
 
             void addButtonClick(ClickEvent event) {
-                WinServerDataDiskConfig winServerDataDiskConfig = new WinServerDataDiskConfig(getApplication(), instanceNo, null);
+                WinServerDataDiskConfig winServerDataDiskConfig = new WinServerDataDiskConfig(getApplication(),
+                        instanceNo, null);
                 winServerDataDiskConfig.addListener(new Window.CloseListener() {
                     @Override
                     public void windowClose(CloseEvent e) {
@@ -2022,7 +2047,8 @@ public class WinServerEdit extends Window {
 
             void editButtonClick(ClickEvent event) {
                 DataDiskDto dataDiskDto = (DataDiskDto) dataDiskTable.getValue();
-                WinServerDataDiskConfig winServerDataDiskConfig = new WinServerDataDiskConfig(getApplication(), instanceNo, dataDiskDto);
+                WinServerDataDiskConfig winServerDataDiskConfig = new WinServerDataDiskConfig(getApplication(),
+                        instanceNo, dataDiskDto);
                 winServerDataDiskConfig.addListener(new Window.CloseListener() {
                     @Override
                     public void windowClose(CloseEvent e) {
@@ -2035,7 +2061,8 @@ public class WinServerEdit extends Window {
 
             void deleteButtonClick(ClickEvent event) {
                 String message = ViewMessages.getMessage("IUI-000124");
-                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message, Buttons.OKCancel);
+                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message,
+                        Buttons.OKCancel);
                 dialog.setCallback(new DialogConfirm.Callback() {
                     @Override
                     public void onDialogResult(Result result) {
@@ -2055,7 +2082,9 @@ public class WinServerEdit extends Window {
                 });
                 getApplication().getMainWindow().addWindow(dialog);
             }
+
         }
+
     }
 
     private class VcloudNetworkTab extends VerticalLayout {
@@ -2063,6 +2092,7 @@ public class WinServerEdit extends Window {
         Form form = new Form();
 
         NetworkTable networkTable;
+
         NetworkTableButtons networkTableButtons;
 
         Map<String, NetworkDto> networkMap;
@@ -2096,7 +2126,8 @@ public class WinServerEdit extends Window {
             IaasDescribeService describeService = BeanContext.getBean(IaasDescribeService.class);
 
             //Network
-            List<NetworkDto> networkDtos = describeService.getNetworks(ViewContext.getUserNo(), platform.getPlatformNo());
+            List<NetworkDto> networkDtos = describeService.getNetworks(ViewContext.getUserNo(),
+                    platform.getPlatformNo());
             Map<String, NetworkDto> networkMap = new HashMap<String, NetworkDto>();
             for (NetworkDto networkDto : networkDtos) {
                 networkMap.put(networkDto.getNetworkName(), networkDto);
@@ -2126,13 +2157,21 @@ public class WinServerEdit extends Window {
         }
 
         private class NetworkTable extends Table {
+
             final String PID_NETWORK_NAME = "NetworkName";
+
             final String PID_IP_MODE = "IpMode";
+
             final String PID_IP_ADDRESS = "IpAddress";
+
             final String PID_PRIMARY = "Primary";
+
             final int WIDTH_NETWORK_NAME = 180;
+
             final int WIDTH_IP_MOD = 114;
+
             final int WIDTH_IP_ADDRESS = 97;
+
             final int WIDTH_PRIMARY = 67;
 
             NetworkTable() {
@@ -2156,10 +2195,8 @@ public class WinServerEdit extends Window {
                 addContainerProperty(PID_PRIMARY, Label.class, null);
 
                 //ヘッダー設定
-                setColumnHeaders(new String[] {
-                        ViewProperties.getCaption("field.networkName"),
-                        ViewProperties.getCaption("field.ipMode"),
-                        ViewProperties.getCaption("field.ipAddress"),
+                setColumnHeaders(new String[] { ViewProperties.getCaption("field.networkName"),
+                        ViewProperties.getCaption("field.ipMode"), ViewProperties.getCaption("field.ipAddress"),
                         ViewProperties.getCaption("field.primary") });
 
                 //ヘッダーサイズ設定
@@ -2192,7 +2229,8 @@ public class WinServerEdit extends Window {
                         } else {
                             networkTableButtons.btnEdit.setEnabled(true);
                             //PCCネットワークまたはプライマリの場合は削除不可
-                            networkTableButtons.btnDelete.setEnabled((!selectDto.isRequired() && !selectDto.isPrimary()));
+                            networkTableButtons.btnDelete
+                                    .setEnabled((!selectDto.isRequired() && !selectDto.isPrimary()));
                         }
                     }
                 });
@@ -2217,9 +2255,11 @@ public class WinServerEdit extends Window {
                     }
                     Label slbl = new Label("");
                     if (BooleanUtils.isTrue(instanceNetwork.isPrimary())) {
-                        slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(apl, Icons.SELECTMINI) + "\">", Label.CONTENT_XHTML);
+                        slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(apl, Icons.SELECTMINI) + "\">",
+                                Label.CONTENT_XHTML);
                     }
-                    addItem(new Object[] { network.getNetworkName(),  ipModeName, instanceNetwork.getIpAddress(), slbl}, instanceNetwork);
+                    addItem(new Object[] { network.getNetworkName(), ipModeName, instanceNetwork.getIpAddress(), slbl },
+                            instanceNetwork);
                 }
             }
 
@@ -2232,16 +2272,21 @@ public class WinServerEdit extends Window {
 
                 //Network
                 networkMap = new HashMap<String, NetworkDto>();
-                List<NetworkDto> networkDtos = describeService.getNetworks(ViewContext.getUserNo(), instanceDto.getInstance().getPlatformNo());
+                List<NetworkDto> networkDtos = describeService.getNetworks(ViewContext.getUserNo(), instanceDto
+                        .getInstance().getPlatformNo());
                 for (NetworkDto networkDto : networkDtos) {
                     networkMap.put(networkDto.getNetworkName(), networkDto);
                 }
             }
+
         }
 
         private class NetworkTableButtons extends HorizontalLayout {
+
             Button btnAdd;
+
             Button btnEdit;
+
             Button btnDelete;
 
             NetworkTableButtons() {
@@ -2293,8 +2338,8 @@ public class WinServerEdit extends Window {
             }
 
             void addButtonClick(ClickEvent event) {
-                WinServerNetworkConfig winServerDataDiskConfig =
-                    new WinServerNetworkConfig(getApplication(), instanceNo, instance.getInstance().getPlatformNo(), null, instanceNetworks);
+                WinServerNetworkConfig winServerDataDiskConfig = new WinServerNetworkConfig(getApplication(),
+                        instanceNo, instance.getInstance().getPlatformNo(), null, instanceNetworks);
                 winServerDataDiskConfig.addListener(new Window.CloseListener() {
                     @Override
                     public void windowClose(CloseEvent e) {
@@ -2308,8 +2353,8 @@ public class WinServerEdit extends Window {
 
             void editButtonClick(ClickEvent event) {
                 InstanceNetworkDto instanceNetwork = (InstanceNetworkDto) networkTable.getValue();
-                WinServerNetworkConfig winServerDataDiskConfig =
-                    new WinServerNetworkConfig(getApplication(), instanceNo, instance.getInstance().getPlatformNo(), instanceNetwork, instanceNetworks);
+                WinServerNetworkConfig winServerDataDiskConfig = new WinServerNetworkConfig(getApplication(),
+                        instanceNo, instance.getInstance().getPlatformNo(), instanceNetwork, instanceNetworks);
                 winServerDataDiskConfig.addListener(new Window.CloseListener() {
                     @Override
                     public void windowClose(CloseEvent e) {
@@ -2323,7 +2368,8 @@ public class WinServerEdit extends Window {
 
             void deleteButtonClick(ClickEvent event) {
                 String message = ViewMessages.getMessage("IUI-000127");
-                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message, Buttons.OKCancel);
+                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message,
+                        Buttons.OKCancel);
                 dialog.setCallback(new DialogConfirm.Callback() {
                     @Override
                     public void onDialogResult(Result result) {
@@ -2347,10 +2393,13 @@ public class WinServerEdit extends Window {
                 });
                 getApplication().getMainWindow().addWindow(dialog);
             }
+
         }
+
     }
 
     private class AzureDetailTab extends VerticalLayout {
+
         Form form = new Form();
 
         ComboBox sizeSelect;
@@ -2421,12 +2470,8 @@ public class WinServerEdit extends Window {
 
             form.getLayout().addComponent(sizeSelect);
             form.getLayout().addComponent(availabilitySetSelect);
-            //            form.getLayout().addComponent(locationField);
-            //            form.getLayout().addComponent(affinityField);
-            //            form.getLayout().addComponent(cloudServiceField);
             form.getLayout().addComponent(subnetSelect);
             form.getLayout().addComponent(spacer);
-            //            form.getLayout().addComponent(storageAccountField);
 
             HorizontalLayout layout = new HorizontalLayout();
             layout.setSpacing(true);
@@ -2442,14 +2487,7 @@ public class WinServerEdit extends Window {
                 form.setEnabled(false);
             } else {
                 // 停止時は、いくつかの項目を変更不可とする
-                // if (StringUtils.isNotEmpty(instance.getAzureInstance().getInstanceId())) {
-                // 既に作成済みの場合、いくつかの項目を変更不可とする
-                // 変更可 sizeSelect.setEnabled(false);
                 locationField.setEnabled(false);
-                //                    affinityField.setEnabled(false);
-                //                    cloudServiceField.setEnabled(false);
-                //                    storageAccountField.setEnabled(false);
-                // }
                 // サーバが作成済みのとき、変更不可
                 if (StringUtils.isNotEmpty(instance.getAzureInstance().getInstanceName())) {
                     subnetSelect.setEnabled(false);
@@ -2458,7 +2496,6 @@ public class WinServerEdit extends Window {
                     availabilitySetSelect.setEnabled(false);
                 }
             }
-
         }
 
         private void initData() {
@@ -2483,8 +2520,8 @@ public class WinServerEdit extends Window {
             this.availabilitySets = availabilitySets;
 
             //サブネット
-            List<SubnetDto> subnets = describeService.getAzureSubnets(ViewContext.getUserNo(), platform.getPlatformNo(),
-                    platformAzure.getNetworkName());
+            List<SubnetDto> subnets = describeService.getAzureSubnets(ViewContext.getUserNo(),
+                    platform.getPlatformNo(), platformAzure.getNetworkName());
             this.subnets = subnets;
         }
 
@@ -2502,16 +2539,6 @@ public class WinServerEdit extends Window {
                     break;
                 }
             }
-
-            //            locationField.setValue(instance.getAwsInstance().getPrivateIpAddress());
-
-            //            affinityField.setValue(instance.getAwsInstance().getPrivateIpAddress());
-
-            //マッピングされたボリュームが存在する場合は変更不可
-            //            if (instance.getAzureVolumes() != null && instance.getAzureVolumes().size() > 0) {
-            //                zoneSelect.setEnabled(false);
-            //            }
-
         }
 
         private IndexedContainer createSubnetContainer() {
@@ -2553,9 +2580,11 @@ public class WinServerEdit extends Window {
             storageAccountField.setRequired(true);
             storageAccountField.setRequiredError(message);
         }
+
     }
 
     private class OpenStackDetailTab extends VerticalLayout {
+
         Form form = new Form();
 
         ComboBox sizeSelect;
@@ -2610,7 +2639,6 @@ public class WinServerEdit extends Window {
             form.getLayout().addComponent(zoneSelect);
             form.getLayout().addComponent(grpSelect);
             form.getLayout().addComponent(keySelect);
-            //            form.getLayout().addComponent(subnetField);
             form.getLayout().addComponent(spacer);
 
             HorizontalLayout layout = new HorizontalLayout();
@@ -2632,7 +2660,6 @@ public class WinServerEdit extends Window {
                     form.setEnabled(false);
                 }
             }
-
         }
 
         private void initData() {
@@ -2649,7 +2676,8 @@ public class WinServerEdit extends Window {
             this.instanceTypes = instanceTypes;
 
             // Availablility Zone
-            List<ZoneDto> zones = describeService.getAvailabilityZones(ViewContext.getUserNo(), platform.getPlatformNo());
+            List<ZoneDto> zones = describeService.getAvailabilityZones(ViewContext.getUserNo(),
+                    platform.getPlatformNo());
             this.zones = zones;
 
             //セキュリティグループ
@@ -2691,7 +2719,6 @@ public class WinServerEdit extends Window {
 
             keySelect.setContainerDataSource(new IndexedContainer(keyPairs));
             keySelect.select(instance.getOpenstackInstance().getKeyName());
-
         }
 
         private IndexedContainer createZoneContainer() {
@@ -2712,8 +2739,8 @@ public class WinServerEdit extends Window {
             message = ViewMessages.getMessage("IUI-000027");
             sizeSelect.setRequired(true);
             sizeSelect.setRequiredError(message);
-
         }
+
     }
 
     private void initData() {
@@ -2780,7 +2807,6 @@ public class WinServerEdit extends Window {
             getApplication().getMainWindow().addWindow(dialog);
             return;
         }
-        // TODO CLOUD BRANCHING
         if (PCCConstant.PLATFORM_TYPE_AWS.equals(platformDto.getPlatform().getPlatformType())) {
             PlatformAws platformAws = platformDto.getPlatformAws();
             // 入力値を取得
@@ -2827,7 +2853,8 @@ public class WinServerEdit extends Window {
             //サブネットのIPアドレスの有効チェック
             if (platformAws.getEuca() == false && platformAws.getVpc() && StringUtils.isNotEmpty(privateIp)) {
                 String[] cidr = subnet.getCidrBlock().split("/");
-                jp.primecloud.auto.common.component.Subnet subnet1 = new jp.primecloud.auto.common.component.Subnet(cidr[0], Integer.parseInt(cidr[1]));
+                jp.primecloud.auto.common.component.Subnet subnet1 = new jp.primecloud.auto.common.component.Subnet(
+                        cidr[0], Integer.parseInt(cidr[1]));
                 String subnetIp = cidr[0];
                 //AWS(VPC)では先頭3つまでのIPが予約済みIP
                 for (int i = 0; i < 3; i++) {
@@ -2836,7 +2863,8 @@ public class WinServerEdit extends Window {
                 }
                 if (subnet1.isScorp(privateIp) == false) {
                     //有効なサブネットではない
-                    String message = ViewMessages.getMessage("IUI-000109", subnet1.getAvailableMinIp(), subnet1.getAvailableMaxIp());
+                    String message = ViewMessages.getMessage("IUI-000109", subnet1.getAvailableMinIp(),
+                            subnet1.getAvailableMaxIp());
                     DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
                     getApplication().getMainWindow().addWindow(dialog);
                     return;
@@ -2853,7 +2881,6 @@ public class WinServerEdit extends Window {
                     return;
                 }
             }
-
         } else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platformDto.getPlatform().getPlatformType())) {
             // 入力値を取得
             keyName = (String) vmwareDetailTab.keySelect.getValue();
@@ -2998,7 +3025,6 @@ public class WinServerEdit extends Window {
         // サーバを更新
         InstanceService instanceService = BeanContext.getBean(InstanceService.class);
 
-        // TODO CLOUD BRANCHING
         if (PCCConstant.PLATFORM_TYPE_AWS.equals(platformDto.getPlatform().getPlatformType())) {
             // AWSサーバを更新
             try {
@@ -3076,7 +3102,8 @@ public class WinServerEdit extends Window {
         } else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platformDto.getPlatform().getPlatformType())) {
             //Azureサーバを更新
             try {
-                instanceService.updateAzureInstance(instanceNo, instance.getInstance().getInstanceName(), comment, serverSize, availabilitySet, subnetId);
+                instanceService.updateAzureInstance(instanceNo, instance.getInstance().getInstanceName(), comment,
+                        serverSize, availabilitySet, subnetId);
             } catch (AutoApplicationException e) {
                 String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
                 DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
@@ -3104,4 +3131,5 @@ public class WinServerEdit extends Window {
         // 画面を閉じる
         close();
     }
+
 }

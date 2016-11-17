@@ -21,11 +21,6 @@ package jp.primecloud.auto.ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.ComponentInstanceStatus;
 import jp.primecloud.auto.common.status.InstanceStatus;
@@ -46,6 +41,11 @@ import jp.primecloud.auto.ui.util.CommonUtils;
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.vaadin.data.Container;
 import com.vaadin.terminal.ExternalResource;
@@ -86,7 +86,7 @@ public class ServerDescBasic extends Panel {
         setHeight("100%");
         addStyleName(Reindeer.PANEL_LIGHT);
 
-        VerticalLayout panel = (VerticalLayout)getContent();
+        VerticalLayout panel = (VerticalLayout) getContent();
         panel.setWidth("100%");
         panel.setHeight("100%");
         panel.setMargin(true);
@@ -99,7 +99,6 @@ public class ServerDescBasic extends Panel {
         hlPanels.setMargin(true);
         hlPanels.setSpacing(true);
         hlPanels.addStyleName("server-desc-basic");
-//        setContent(hlPanels);
 
         left.setWidth("100%");
         right.setHeight("100%");
@@ -131,12 +130,9 @@ public class ServerDescBasic extends Panel {
 
         final String COLUMN_HEIGHT = "28px";
 
-        String[] COLNAME = {
-                ViewProperties.getCaption("field.serviceName"),
-                ViewProperties.getCaption("field.managementUrl"),
-                ViewProperties.getCaption("field.serviceStatus"),
+        String[] COLNAME = { ViewProperties.getCaption("field.serviceName"),
+                ViewProperties.getCaption("field.managementUrl"), ViewProperties.getCaption("field.serviceStatus"),
                 ViewProperties.getCaption("field.serviceDetail") };
-
 
         public AttachService(String caption, Container dataSource) {
             super(caption, dataSource);
@@ -156,7 +152,6 @@ public class ServerDescBasic extends Panel {
                     Label slbl = new Label(name, Label.CONTENT_PREFORMATTED);
                     slbl.setHeight(COLUMN_HEIGHT);
                     return slbl;
-
                 }
             });
 
@@ -183,7 +178,7 @@ public class ServerDescBasic extends Panel {
                     Icons icon = Icons.fromName(type);
 
                     //MySQLならMasterとSlaveでアイコンを変える
-                    if(MySQLConstants.COMPONENT_TYPE_NAME.equals(type)){
+                    if (MySQLConstants.COMPONENT_TYPE_NAME.equals(type)) {
                         // Master
                         Long masterInstanceNo = null;
                         for (InstanceConfig config : dto.getInstanceConfigs()) {
@@ -194,13 +189,13 @@ public class ServerDescBasic extends Panel {
                                 }
                             }
                         }
-                        if(masterInstanceNo != null){
-                            if(masterInstanceNo.equals(dto.getInstance().getInstanceNo())){
+                        if (masterInstanceNo != null) {
+                            if (masterInstanceNo.equals(dto.getInstance().getInstanceNo())) {
                                 icon = Icons.MYSQL_MASTER;
-                            }else{
+                            } else {
                                 icon = Icons.MYSQL_SLAVE;
                             }
-                        }else{
+                        } else {
                             icon = Icons.MYSQL_SLAVE;
                         }
                     }
@@ -210,13 +205,12 @@ public class ServerDescBasic extends Panel {
                     slbl.setHeight(COLUMN_HEIGHT);
                     slbl.setEnabled(false);
 
-                    if(status.equals(ComponentInstanceStatus.RUNNING.toString())){
+                    if (status.equals(ComponentInstanceStatus.RUNNING.toString())) {
                         slbl.setDescription(url);
                         slbl.setEnabled(true);
                     }
 
                     return slbl;
-
                 }
             });
 
@@ -241,7 +235,6 @@ public class ServerDescBasic extends Panel {
                             + "\"><div>" + a + "</div>", Label.CONTENT_XHTML);
                     slbl.setHeight(COLUMN_HEIGHT);
                     return slbl;
-
                 }
             });
 
@@ -256,7 +249,7 @@ public class ServerDescBasic extends Panel {
                     AutoApplication ap = (AutoApplication) getApplication();
                     InstanceDto dto = (InstanceDto) ap.myCloud.myCloudTabs.serverTable.getValue();
 
-                    if(MySQLConstants.COMPONENT_TYPE_NAME.equals(type)){
+                    if (MySQLConstants.COMPONENT_TYPE_NAME.equals(type)) {
                         // Master
                         Long masterInstanceNo = null;
                         for (InstanceConfig config : dto.getInstanceConfigs()) {
@@ -267,17 +260,17 @@ public class ServerDescBasic extends Panel {
                                 }
                             }
                         }
-                        if(masterInstanceNo != null){
-                            if(masterInstanceNo.equals(dto.getInstance().getInstanceNo())){
+                        if (masterInstanceNo != null) {
+                            if (masterInstanceNo.equals(dto.getInstance().getInstanceNo())) {
                                 name = name + " " + ViewProperties.getComponentTypeName(type + ".master");
-                            }else{
+                            } else {
                                 name = name + " " + ViewProperties.getComponentTypeName(type + ".slave");
                             }
-                        }else{
+                        } else {
                             name = name + " " + ViewProperties.getComponentTypeName(type + ".slave");
                         }
                     }
-                    Label slbl = new Label (name);
+                    Label slbl = new Label(name);
 
                     return slbl;
                 }
@@ -287,8 +280,8 @@ public class ServerDescBasic extends Panel {
 
             //テーブルのカラムに対してStyleNameを設定
             setCellStyleGenerator(new Table.CellStyleGenerator() {
+                @Override
                 public String getStyle(Object itemId, Object propertyId) {
-
                     if (propertyId == null) {
                         return "";
                     } else {
@@ -296,7 +289,6 @@ public class ServerDescBasic extends Panel {
                     }
                 }
             });
-
         }
 
         @Override
@@ -314,45 +306,48 @@ public class ServerDescBasic extends Panel {
         public void refresh(ComponentDtoContainer dataSource) {
             setContainerDataSource(dataSource);
             setVisibleColumns(ComponentDtoContainer.SERVER_DESC);
-            if (dataSource != null && dataSource.size() > 0  ){
+            if (dataSource != null && dataSource.size() > 0) {
                 setColumnHeaders(COLNAME);
             }
         }
-
 
     }
 
     //左側基本情報の初期化
     class BasicInfo extends Panel {
 
-
         protected Log log = LogFactory.getLog(BasicInfo.class);
 
         final String COLUMN_HEIGHT = "30px";
+
         final String COLUMN_HEIGHT_DOUBLE = "60px";
 
-        Label hostName ;
+        Label hostName;
 
-        Label fqdn ;
+        Label fqdn;
 
-        Label comment ;
+        Label comment;
 
-        Label ipAddress ;
+        Label ipAddress;
 
-        Label platform ;
+        Label platform;
 
-        Label status ;
+        Label status;
 
         Label monitoringStatus;
 
         CssLayout layoutOsType;
-        Label ostype ;
+
+        Label ostype;
+
         Button getPassword;
 
         GridLayout layout;
 
         Boolean useZabbix = BooleanUtils.toBooleanObject(Config.getProperty("zabbix.useZabbix"));
+
         Boolean changeMonitoring = BooleanUtils.toBooleanObject(Config.getProperty("zabbix.changeMonitoring"));
+
         Boolean showPublicIp = BooleanUtils.toBooleanObject(Config.getProperty("ui.showPublicIp"));
 
         BasicInfo() {
@@ -373,11 +368,11 @@ public class ServerDescBasic extends Panel {
             setHeight("100%");
             setStyleName("server-desc-basic-panel");
 
-            VerticalLayout vlay = (VerticalLayout )getContent();
+            VerticalLayout vlay = (VerticalLayout) getContent();
             vlay.setStyleName("server-desc-basic-panel");
             vlay.setMargin(true);
 
-            layout = new GridLayout(2,capName.size());
+            layout = new GridLayout(2, capName.size());
 
             layout.setWidth("100%");
             layout.setStyleName("server-desc-basic-info");
@@ -386,12 +381,12 @@ public class ServerDescBasic extends Panel {
             vlay.addComponent(layout);
 
             //項目名設定
-            for (int i=0; i < capName.size() ; i++){
+            for (int i = 0; i < capName.size(); i++) {
                 Label lbl1 = new Label(capName.get(i), Label.CONTENT_XHTML);
                 Label lbl2 = new Label("");
                 lbl1.setHeight(COLUMN_HEIGHT);
-                layout.addComponent(lbl1,0,i);
-                layout.addComponent(lbl2,1,i);
+                layout.addComponent(lbl1, 0, i);
+                layout.addComponent(lbl2, 1, i);
             }
 
             //EC2 Windows用パスワード取得ボタン
@@ -400,20 +395,19 @@ public class ServerDescBasic extends Panel {
             getPassword.setIcon(Icons.LOGIN.resource());
             getPassword.addStyleName("getpassword");
             getPassword.addListener(new ClickListener() {
-
                 @Override
                 public void buttonClick(ClickEvent event) {
                     AutoApplication ap = (AutoApplication) getApplication();
                     InstanceDto dto = (InstanceDto) ap.myCloud.myCloudTabs.serverTable.getValue();
                     Long instanceNo = (Long) getPassword.getData();
-                    WinPassword winPassword = new WinPassword(dto,instanceNo);
+                    WinPassword winPassword = new WinPassword(dto, instanceNo);
                     getWindow().addWindow(winPassword);
                 }
             });
         }
 
         public void setItem(InstanceDto instanceDto) {
-            int line=0;
+            int line = 0;
 
             if (instanceDto != null) {
                 Instance instance = instanceDto.getInstance();
@@ -421,8 +415,8 @@ public class ServerDescBasic extends Panel {
 
                 //FQDN
                 fqdn = new Label(instance.getFqdn(), Label.CONTENT_TEXT);
-                layout.removeComponent( 1, line );
-                layout.addComponent(fqdn , 1, line++ );
+                layout.removeComponent(1, line);
+                layout.addComponent(fqdn, 1, line++);
 
                 //IPアドレス
                 if (BooleanUtils.isTrue(showPublicIp)) {
@@ -432,8 +426,8 @@ public class ServerDescBasic extends Panel {
                     //ui.showPublicIp = falseの場合はPrivateIpを表示
                     ipAddress = new Label(instance.getPrivateIp(), Label.CONTENT_TEXT);
                 }
-                layout.removeComponent( 1, line );
-                layout.addComponent(ipAddress , 1, line++ );
+                layout.removeComponent(1, line);
+                layout.addComponent(ipAddress, 1, line++);
 
                 //プラットフォームの表示
                 PlatformDto platformDto = instanceDto.getPlatform();
@@ -444,8 +438,8 @@ public class ServerDescBasic extends Panel {
                 String description = platformDto.getPlatform().getPlatformNameDisp();
                 platform = new Label("<img src=\"" + VaadinUtils.getIconPath(ServerDescBasic.this, icon) + "\"><div>"
                         + description + "</div>", Label.CONTENT_XHTML);
-                layout.removeComponent( 1, line );
-                layout.addComponent(platform , 1, line++ );
+                layout.removeComponent(1, line);
+                layout.addComponent(platform, 1, line++);
 
                 //OS名の表示
                 ImageDto imageDto = instanceDto.getImage();
@@ -462,13 +456,13 @@ public class ServerDescBasic extends Panel {
                 layoutOsType.addComponent(ostype);
 
                 // Azure時はボタンを表示させない
-                if ( !PCCConstant.PLATFORM_TYPE_AZURE.equals(platformDto.getPlatform().getPlatformType()) ) {
+                if (!PCCConstant.PLATFORM_TYPE_AZURE.equals(platformDto.getPlatform().getPlatformType())) {
                     //OSがWindowsの場合パスワード取得ボタンを表示
                     if (imageDto.getImage().getOs().startsWith(PCCConstant.OS_NAME_WIN)) {
                         //ただしEUCALYPTUSは除外
-                        if (platformDto.getPlatformAws() == null || platformDto.getPlatformAws().getEuca() == false){
+                        if (platformDto.getPlatformAws() == null || platformDto.getPlatformAws().getEuca() == false) {
                             InstanceStatus instanceStatus = InstanceStatus.fromStatus(instance.getStatus());
-                            if(instanceStatus == InstanceStatus.RUNNING){
+                            if (instanceStatus == InstanceStatus.RUNNING) {
                                 getPassword.setEnabled(true);
                                 getPassword.setData(instance.getInstanceNo());
                             } else {
@@ -480,8 +474,8 @@ public class ServerDescBasic extends Panel {
                     }
                 }
 
-                layout.removeComponent( 1, line );
-                layout.addComponent(layoutOsType , 1, line++ );
+                layout.removeComponent(1, line);
+                layout.addComponent(layoutOsType, 1, line++);
 
                 //ステータスの表示
                 String stat = parseStatus(instance.getStatus());
@@ -489,8 +483,8 @@ public class ServerDescBasic extends Panel {
 
                 status = new Label("<img src=\"" + VaadinUtils.getIconPath(ServerDescBasic.this, icon2) + "\"><div>"
                         + stat + "</div>", Label.CONTENT_XHTML);
-                layout.removeComponent( 1, line );
-                layout.addComponent(status , 1, line++ );
+                layout.removeComponent(1, line);
+                layout.addComponent(status, 1, line++);
 
                 //監視ステータスの表示
                 //Zabbix使用フラグ、監視設定変更フラグがtrueの場合のみ表示
@@ -499,31 +493,31 @@ public class ServerDescBasic extends Panel {
                     if (zabbixInstance != null) {
                         mStat = ZabbixInstanceStatus.fromStatus(zabbixInstance.getStatus()).toString();
                     }
-                    monitoringStatus = new Label("<img src=\"" + VaadinUtils.getIconPath(ServerDescBasic.this, Icons.fromName(parseStatus(mStat))) + "\"><div>"
-                            + mStat + "</div>", Label.CONTENT_XHTML);
-                    layout.removeComponent( 1, line );
-                    layout.addComponent(monitoringStatus , 1, line++ );
+                    monitoringStatus = new Label("<img src=\""
+                            + VaadinUtils.getIconPath(ServerDescBasic.this, Icons.fromName(parseStatus(mStat)))
+                            + "\"><div>" + mStat + "</div>", Label.CONTENT_XHTML);
+                    layout.removeComponent(1, line);
+                    layout.addComponent(monitoringStatus, 1, line++);
                 }
 
                 //コメント
                 comment = new Label(instance.getComment(), Label.CONTENT_XHTML);
-                layout.removeComponent( 1, line);
-                layout.addComponent(comment , 1, line++ );
-
+                layout.removeComponent(1, line);
+                layout.addComponent(comment, 1, line++);
 
             } else {
                 fqdn = new Label("", Label.CONTENT_TEXT);
-                layout.removeComponent( 1, line );
-                layout.addComponent(fqdn , 1, line++ );
+                layout.removeComponent(1, line);
+                layout.addComponent(fqdn, 1, line++);
 
                 ipAddress = new Label("", Label.CONTENT_TEXT);
-                layout.removeComponent( 1, line );
-                layout.addComponent(ipAddress , 1, line++ );
+                layout.removeComponent(1, line);
+                layout.addComponent(ipAddress, 1, line++);
 
                 //プラットフォームの表示
                 platform = new Label("", Label.CONTENT_XHTML);
-                layout.removeComponent( 1, line );
-                layout.addComponent(platform , 1, line++ );
+                layout.removeComponent(1, line);
+                layout.addComponent(platform, 1, line++);
 
                 //OS名の表示
                 layoutOsType = new CssLayout();
@@ -531,33 +525,33 @@ public class ServerDescBasic extends Panel {
                 layoutOsType.setSizeFull();
                 layoutOsType.setMargin(false);
                 layoutOsType.addComponent(ostype);
-                layout.removeComponent( 1, line );
-                layout.addComponent(layoutOsType , 1, line++ );
+                layout.removeComponent(1, line);
+                layout.addComponent(layoutOsType, 1, line++);
 
                 //ステータスの表示
                 status = new Label("", Label.CONTENT_XHTML);
-                layout.removeComponent( 1, line );
-                layout.addComponent(status , 1, line++ );
+                layout.removeComponent(1, line);
+                layout.addComponent(status, 1, line++);
 
                 //監視ステータスの表示
                 //Zabbix使用フラグ、監視設定変更フラグがtrueの場合のみ表示
                 if (BooleanUtils.isTrue(useZabbix) && BooleanUtils.isTrue(changeMonitoring)) {
                     monitoringStatus = new Label("", Label.CONTENT_XHTML);
-                    layout.removeComponent( 1, line );
-                    layout.addComponent(monitoringStatus , 1, line++ );
+                    layout.removeComponent(1, line);
+                    layout.addComponent(monitoringStatus, 1, line++);
                 }
 
                 //コメント
                 comment = new Label("", Label.CONTENT_XHTML);
-                layout.removeComponent( 1, line );
-                layout.addComponent(comment , 1, line++ );
+                layout.removeComponent(1, line);
+                layout.addComponent(comment, 1, line++);
             }
         }
 
         private String parseStatus(String status) {
             StringBuffer sb = new StringBuffer();
             String[] array = status.split("_");
-            for (String str: array) {
+            for (String str : array) {
                 sb.append(str.substring(0, 1).toUpperCase()).append(str.substring(1).toLowerCase());
             }
             return sb.toString();

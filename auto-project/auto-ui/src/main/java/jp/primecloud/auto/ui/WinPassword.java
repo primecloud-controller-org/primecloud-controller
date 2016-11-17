@@ -70,7 +70,6 @@ public class WinPassword extends Window {
         //プラットフォーム
         PlatformDto platformDto = instanceDto.getPlatform();
         String keyName = "";
-        // TODO CLOUD BRANCHING
         if (PCCConstant.PLATFORM_TYPE_AWS.equals(platformDto.getPlatform().getPlatformType())) {
             keyName = instanceDto.getAwsInstance().getKeyName();
         } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platformDto.getPlatform().getPlatformType())) {
@@ -100,7 +99,6 @@ public class WinPassword extends Window {
 
         passwordButton = new Button(ViewProperties.getCaption("button.getPassword"));
         passwordButton.addListener(new ClickListener() {
-
             @Override
             public void buttonClick(ClickEvent event) {
                 getPassword(instanceNo);
@@ -111,7 +109,6 @@ public class WinPassword extends Window {
 
         closeButton = new Button(ViewProperties.getCaption("button.close"));
         closeButton.addListener(new ClickListener() {
-
             @Override
             public void buttonClick(ClickEvent event) {
                 close();
@@ -130,16 +127,9 @@ public class WinPassword extends Window {
         String message = ViewMessages.getMessage("IUI-000097");
         privateKeyField.setRequired(true);
         privateKeyField.setRequiredError(message);
-
-    //   message = ViewMessages.getMessage("IUI-000098");
-    //   privateKeyField.addValidator(new RegexpValidator(
-    //            "(?s:^-----BEGIN\\sRSA\\sPRIVATE\\sKEY-----\\n.+\\n-----END\\sRSA\\sPRIVATE\\sKEY-----$)", true,
-    //           message));
-
     }
 
     private void getPassword(Long instanceNo) {
-
         try {
             privateKeyField.validate();
         } catch (InvalidValueException e) {
@@ -160,7 +150,6 @@ public class WinPassword extends Window {
         }
 
         passwordField.setValue(password);
-
     }
 
 }

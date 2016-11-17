@@ -1,3 +1,21 @@
+/*
+ * Copyright 2014 by SCSK Corporation.
+ * 
+ * This file is part of PrimeCloud Controller(TM).
+ * 
+ * PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
+ */
 package jp.primecloud.auto.ui;
 
 import java.util.Collections;
@@ -47,6 +65,7 @@ import com.vaadin.ui.Window;
  */
 @SuppressWarnings("serial")
 public class WinLoadBalancerAdd extends Window {
+
     final String COLUMN_HEIGHT = "30px";
 
     Application apl;
@@ -127,6 +146,7 @@ public class WinLoadBalancerAdd extends Window {
     }
 
     private class BasicForm extends Form {
+
         BasicForm() {
             // LB名
             loadBalancerNameField = new TextField(ViewProperties.getCaption("field.loadBalancerName"));
@@ -149,9 +169,11 @@ public class WinLoadBalancerAdd extends Window {
             serviceTable = new SelectServiceTable();
             getLayout().addComponent(serviceTable);
         }
+
     }
 
     private class SelectCloudTable extends Table {
+
         SelectCloudTable() {
             //テーブル基本設定
             setCaption(ViewProperties.getCaption("table.selectCloud"));
@@ -165,7 +187,6 @@ public class WinLoadBalancerAdd extends Window {
             setMultiSelect(false);
             setNullSelectionAllowed(false);
             setImmediate(true);
-            //            addStyleName("win-server-add-cloud");
             addStyleName("loadbalancer-add-table");
 
             //カラム設定
@@ -175,6 +196,7 @@ public class WinLoadBalancerAdd extends Window {
 
             //テーブルのカラムに対してStyleNameを設定
             setCellStyleGenerator(new Table.CellStyleGenerator() {
+                @Override
                 public String getStyle(Object itemId, Object propertyId) {
                     if (propertyId == null) {
                         return "";
@@ -195,6 +217,7 @@ public class WinLoadBalancerAdd extends Window {
                 }
             });
         }
+
     }
 
     private class SelectTypeTable extends Table {
@@ -202,7 +225,6 @@ public class WinLoadBalancerAdd extends Window {
         SelectTypeTable() {
             //テーブル基本設定
             setCaption(ViewProperties.getCaption("table.loadBalancerType"));
-            //            setWidth("100%");
             setWidth("340px");
             setPageLength(2);
             setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
@@ -222,6 +244,7 @@ public class WinLoadBalancerAdd extends Window {
 
             //テーブルのカラムに対してStyleNameを設定
             setCellStyleGenerator(new Table.CellStyleGenerator() {
+                @Override
                 public String getStyle(Object itemId, Object propertyId) {
                     if (propertyId == null) {
                         return "";
@@ -231,6 +254,7 @@ public class WinLoadBalancerAdd extends Window {
                 }
             });
         }
+
     }
 
     //サービス選択テーブル
@@ -239,7 +263,6 @@ public class WinLoadBalancerAdd extends Window {
         SelectServiceTable() {
             //テーブル基本設定
             setCaption(ViewProperties.getCaption("table.loadBalancerService"));
-            //            setWidth("340px");
             setWidth("98%");
             setPageLength(4);
             setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
@@ -253,8 +276,6 @@ public class WinLoadBalancerAdd extends Window {
             addStyleName("loadbalancer-select-service");
 
             //カラム設定
-            //            addContainerProperty("No", Integer.class, null);
-            //            addContainerProperty("Name", String.class, null);
             addContainerProperty("Name", Label.class, new Label());
             addContainerProperty("Detail", Label.class, new Label());
             setColumnExpandRatio("Detail", 100);
@@ -270,6 +291,7 @@ public class WinLoadBalancerAdd extends Window {
                 }
             });
         }
+
     }
 
     private void initData() {
@@ -284,8 +306,10 @@ public class WinLoadBalancerAdd extends Window {
         Collections.sort(platforms, new Comparator<LoadBalancerPlatformDto>() {
             @Override
             public int compare(LoadBalancerPlatformDto o1, LoadBalancerPlatformDto o2) {
-                int order1 = (o1.getPlatform().getViewOrder() != null) ? o1.getPlatform().getViewOrder() : Integer.MAX_VALUE;
-                int order2 = (o2.getPlatform().getViewOrder() != null) ? o2.getPlatform().getViewOrder() : Integer.MAX_VALUE;
+                int order1 = (o1.getPlatform().getViewOrder() != null) ? o1.getPlatform().getViewOrder()
+                        : Integer.MAX_VALUE;
+                int order2 = (o2.getPlatform().getViewOrder() != null) ? o2.getPlatform().getViewOrder()
+                        : Integer.MAX_VALUE;
                 return order1 - order2;
             }
         });
@@ -399,7 +423,6 @@ public class WinLoadBalancerAdd extends Window {
             ComponentDto componentDto = componentDtos.get(i);
 
             // サービス名
-            //          String name = componentDto.getComponent().getComponentName();
             String name;
             if (StringUtils.isEmpty(componentDto.getComponent().getComment())) {
                 name = componentDto.getComponent().getComponentName();
@@ -416,8 +439,6 @@ public class WinLoadBalancerAdd extends Window {
             Label typeLabel = new Label("<img src=\"" + VaadinUtils.getIconPath(apl, typeIcon) + "\"><div>" + typeName
                     + "</div>", Label.CONTENT_XHTML);
             typeLabel.setHeight(COLUMN_HEIGHT);
-
-//            serviceTable.addItem(new Object[] { (i + 1), name, typeLabel }, componentDto.getComponent().getComponentNo());
 
             serviceTable.addItem(new Object[] { nameLabel, typeLabel }, componentDto.getComponent().getComponentNo());
         }
@@ -445,9 +466,9 @@ public class WinLoadBalancerAdd extends Window {
             commentField.validate();
         } catch (InvalidValueException e) {
             String errMes = e.getMessage();
-            if (null == errMes){
+            if (null == errMes) {
                 //メッセージが取得できない場合は複合エラー 先頭を表示する
-                InvalidValueException[] exceptions =  e.getCauses();
+                InvalidValueException[] exceptions = e.getCauses();
                 errMes = exceptions[0].getMessage();
             }
 
@@ -456,26 +477,26 @@ public class WinLoadBalancerAdd extends Window {
             return;
         }
         if (platformNo == null) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), ViewMessages
-                    .getMessage("IUI-000023"));
+            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
+                    ViewMessages.getMessage("IUI-000023"));
             getApplication().getMainWindow().addWindow(dialog);
             return;
         }
         if (type == null || type.length() == 0) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), ViewMessages
-                    .getMessage("IUI-000054"));
+            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
+                    ViewMessages.getMessage("IUI-000054"));
             getApplication().getMainWindow().addWindow(dialog);
             return;
         }
         if (componentNo == null) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), ViewMessages
-                    .getMessage("IUI-000065"));
+            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
+                    ViewMessages.getMessage("IUI-000065"));
             getApplication().getMainWindow().addWindow(dialog);
             return;
         }
         if (loadBalancerName.startsWith("lb-")) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), ViewMessages
-                    .getMessage("IUI-000084", loadBalancerName));
+            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
+                    ViewMessages.getMessage("IUI-000084", loadBalancerName));
             getApplication().getMainWindow().addWindow(dialog);
             return;
         }
@@ -485,7 +506,6 @@ public class WinLoadBalancerAdd extends Window {
         Long loadBalancerNo = null;
         LoadBalancerService loadBalancerService = BeanContext.getBean(LoadBalancerService.class);
 
-        // TODO CLOUD BRANCHING
         if (PCCConstant.LOAD_BALANCER_ELB.equals(type)) {
             // AWSロードバランサを作成
             try {
@@ -522,7 +542,7 @@ public class WinLoadBalancerAdd extends Window {
         }
 
         //オペレーションログ
-        AutoApplication aapl =  (AutoApplication)apl;
+        AutoApplication aapl = (AutoApplication) apl;
         aapl.doOpLog("LOAD_BALANCER", "Make Load_Balancer", null, null, loadBalancerNo, null);
 
         // 画面を閉じる

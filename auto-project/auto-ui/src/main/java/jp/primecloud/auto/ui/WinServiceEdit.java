@@ -24,9 +24,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.common.status.ComponentInstanceStatus;
 import jp.primecloud.auto.common.status.ComponentStatus;
 import jp.primecloud.auto.config.Config;
@@ -55,6 +52,10 @@ import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+
 import com.vaadin.Application;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -82,7 +83,7 @@ import com.vaadin.ui.Window;
  * </p>
  *
  */
-@SuppressWarnings({"serial", "unchecked"})
+@SuppressWarnings({ "serial", "unchecked" })
 public class WinServiceEdit extends Window {
 
     final String TAB_HEIGHT = "352px";
@@ -117,7 +118,6 @@ public class WinServiceEdit extends Window {
         setWidth("600px");
 
         VerticalLayout layout = (VerticalLayout) getContent();
-        //        layout.setWidth("100%");
         layout.setMargin(false, true, false, true);
         layout.setSpacing(true);
 
@@ -176,6 +176,7 @@ public class WinServiceEdit extends Window {
     }
 
     private class BasicTab extends VerticalLayout {
+
         Form form = new Form();
 
         TextField serviceNameField;
@@ -326,7 +327,6 @@ public class WinServiceEdit extends Window {
             // ディスクが１つでも存在する場合、ディスクサイズを変更できないようにする
             int countDisk = 0;
             for (InstanceDto dto : instances) {
-                //TODO CLOUD BRANCHING
                 if (dto.getAwsVolumes() != null) {
                     for (AwsVolume awsVolume : dto.getAwsVolumes()) {
                         if (componentNo.equals(awsVolume.getComponentNo())) {
@@ -391,9 +391,11 @@ public class WinServiceEdit extends Window {
             // サーバ選択
             serverSelect.showData();
         }
+
     }
 
     public class ServerSelect extends TwinColSelect {
+
         public ServerSelect() {
             setCaption(ViewProperties.getCaption("field.selectServer"));
             setRows(7);
@@ -421,17 +423,15 @@ public class WinServiceEdit extends Window {
                         }
                     }
                     if (componentInstance != null) {
-                        ComponentInstanceStatus componentInstanceStatus = ComponentInstanceStatus.fromStatus(componentInstance.getComponentInstance().getStatus());
+                        ComponentInstanceStatus componentInstanceStatus = ComponentInstanceStatus
+                                .fromStatus(componentInstance.getComponentInstance().getStatus());
                         String status = StringUtils.capitalize(componentInstanceStatus.toString().toLowerCase());
                         //関連付けがないものは未選択状態にする
                         if (BooleanUtils.isNotTrue(componentInstance.getComponentInstance().getAssociate())) {
-                            addItem(instance.getInstance().getInstanceName() + " ("
-                                    + status + ")");
+                            addItem(instance.getInstance().getInstanceName() + " (" + status + ")");
                         } else {
-                            addItem(instance.getInstance().getInstanceName() + " ("
-                                    +status + ")");
-                            select(instance.getInstance().getInstanceName() + " ("
-                                    + status + ")");
+                            addItem(instance.getInstance().getInstanceName() + " (" + status + ")");
+                            select(instance.getInstance().getInstanceName() + " (" + status + ")");
                         }
                     } else {
                         addItem(instance.getInstance().getInstanceName());
@@ -448,20 +448,18 @@ public class WinServiceEdit extends Window {
                 }
 
                 for (InstanceDto instance : instances) {
-                    ComponentInstanceStatus componentInstanceStatus = ComponentInstanceStatus.fromStatus(componentInstance.getComponentInstance().getStatus());
+                    ComponentInstanceStatus componentInstanceStatus = ComponentInstanceStatus
+                            .fromStatus(componentInstance.getComponentInstance().getStatus());
                     String status = StringUtils.capitalize(componentInstanceStatus.toString().toLowerCase());
 
                     if (componentInstance.getComponentInstance().getInstanceNo()
                             .equals(instance.getInstance().getInstanceNo())) {
-                        addItem(instance.getInstance().getInstanceName() + " ("
-                                +status + ")");
-                        select(instance.getInstance().getInstanceName() + " ("
-                                + status + ")");
+                        addItem(instance.getInstance().getInstanceName() + " (" + status + ")");
+                        select(instance.getInstance().getInstanceName() + " (" + status + ")");
                         break;
                     }
                 }
             }
-
         }
 
         public void select(Collection<Object> itemIds) {
@@ -475,6 +473,7 @@ public class WinServiceEdit extends Window {
                 setValue(set);
             }
         }
+
     }
 
     public void valueChangeValidate(ValueChangeEvent event, final ServerSelect serverSelect) {
@@ -488,8 +487,9 @@ public class WinServiceEdit extends Window {
         Collection<Object> moveList = new ArrayList<Object>();
         //ステータスがSTOPPEDではなくかつステータスを含む場合
         for (String notSelectedItem : notSelectedList) {
-            if (!StringUtils.contains(notSelectedItem.toUpperCase(), "(" + ComponentInstanceStatus.STOPPED.toString() + ")")
-                    && StringUtils.contains(notSelectedItem,"(")) {
+            if (!StringUtils.contains(notSelectedItem.toUpperCase(), "(" + ComponentInstanceStatus.STOPPED.toString()
+                    + ")")
+                    && StringUtils.contains(notSelectedItem, "(")) {
                 moveList.add(notSelectedItem);
             }
         }
@@ -521,8 +521,8 @@ public class WinServiceEdit extends Window {
             String instanceName = index == -1 ? notSelectedItem : notSelectedItem.substring(0, index);
             // pcc-apiでも同様の処理が必要の為、サービスに切り出す
             ComponentService componentService = BeanContext.getBean(ComponentService.class);
-            moveList = componentService.checkAttachDisk(ViewContext.getFarmNo(), componentNo,
-                    instanceName, notSelectedItem, moveList);
+            moveList = componentService.checkAttachDisk(ViewContext.getFarmNo(), componentNo, instanceName,
+                    notSelectedItem, moveList);
         }
 
         if (!moveList.isEmpty()) {
@@ -543,9 +543,11 @@ public class WinServiceEdit extends Window {
             getApplication().getMainWindow().addWindow(dialog);
             return;
         }
+
     }
 
     public class DetailTab extends VerticalLayout {
+
         Form form = new Form();
 
         TextField customParam1Feild;
@@ -586,102 +588,44 @@ public class WinServiceEdit extends Window {
         }
 
         private void showData() {
-           // カスタムパラメータ1
-           String customParam1 = null;
-           for (ComponentConfig config : component.getComponentConfigs()) {
-               if (ComponentConstants.CONFIG_NAME_CUSTOM_PARAM_1.equals(config.getConfigName())) {
-                   customParam1 = config.getConfigValue();
-                   break;
-               }
-           }
-           if (customParam1 != null) {
-               customParam1Feild.setValue(customParam1);
-           }
+            // カスタムパラメータ1
+            String customParam1 = null;
+            for (ComponentConfig config : component.getComponentConfigs()) {
+                if (ComponentConstants.CONFIG_NAME_CUSTOM_PARAM_1.equals(config.getConfigName())) {
+                    customParam1 = config.getConfigValue();
+                    break;
+                }
+            }
+            if (customParam1 != null) {
+                customParam1Feild.setValue(customParam1);
+            }
 
-           // カスタムパラメータ2
-           String customParam2 = null;
-           for (ComponentConfig config : component.getComponentConfigs()) {
-               if (ComponentConstants.CONFIG_NAME_CUSTOM_PARAM_2.equals(config.getConfigName())) {
-                   customParam2 = config.getConfigValue();
-                   break;
-               }
-           }
-           if (customParam2 != null) {
-               customParam2Feild.setValue(customParam2);
-           }
+            // カスタムパラメータ2
+            String customParam2 = null;
+            for (ComponentConfig config : component.getComponentConfigs()) {
+                if (ComponentConstants.CONFIG_NAME_CUSTOM_PARAM_2.equals(config.getConfigName())) {
+                    customParam2 = config.getConfigValue();
+                    break;
+                }
+            }
+            if (customParam2 != null) {
+                customParam2Feild.setValue(customParam2);
+            }
 
-           // カスタムパラメータ3
-           String customParam3 = null;
-           for (ComponentConfig config : component.getComponentConfigs()) {
-               if (ComponentConstants.CONFIG_NAME_CUSTOM_PARAM_3.equals(config.getConfigName())) {
-                   customParam3 = config.getConfigValue();
-                   break;
-               }
-           }
-           if (customParam3 != null) {
-               customParam3Feild.setValue(customParam3);
-           }
+            // カスタムパラメータ3
+            String customParam3 = null;
+            for (ComponentConfig config : component.getComponentConfigs()) {
+                if (ComponentConstants.CONFIG_NAME_CUSTOM_PARAM_3.equals(config.getConfigName())) {
+                    customParam3 = config.getConfigValue();
+                    break;
+                }
+            }
+            if (customParam3 != null) {
+                customParam3Feild.setValue(customParam3);
+            }
         }
+
     }
-
-//    private class DetailTab extends VerticalLayout {
-//        MySQLForm mysqlForm;
-//
-//        DetailTab() {
-//            //            setHeight("320px");
-//            setMargin(false, true, false, true);
-//            setSpacing(false);
-//
-//            if ("mysql".equals(componentType.getComponentType().getComponentTypeName())) {
-//                mysqlForm = new MySQLForm();
-//                addComponent(mysqlForm);
-//            }
-//        }
-//
-//        private void showData() {
-//            if (mysqlForm != null) {
-//                mysqlForm.showData();
-//            }
-//        }
-//    }
-
-//    //MySQL用フォーム
-//    private class MySQLForm extends Form {
-//        ListSelect masterSelect;
-//
-//        ComboBox toolBox;
-//
-//        //テストデータ start
-//        final String MASTERSERVER = "db01";
-//
-//        final String ADMINTOOL = "phpMyAdmin";
-//
-//        final List<String> hosts = Arrays.asList(new String[] { "db01", "db02", "apdb01", "apdb02", "apdb03" });
-//
-//        final List<String> tools = Arrays.asList(new String[] { "phpMyAdmin", "none" });
-//
-//        //テストデータ end
-//
-//        MySQLForm() {
-//            // マスターサーバの選択
-//            masterSelect = new ListSelect(ViewProperties.getCaption("field.masterSelect"), hosts);
-//            masterSelect.setWidth("130px");
-//            masterSelect.setRows(5);
-//            masterSelect.setNullSelectionAllowed(false);
-//            masterSelect.select(MASTERSERVER);
-//            getLayout().addComponent(masterSelect);
-//
-//            // 管理ツール
-//            toolBox = new ComboBox(ViewProperties.getCaption("field.toolBox"), tools);
-//            toolBox.setNullSelectionAllowed(false);
-//            toolBox.select(ADMINTOOL);
-//            getLayout().addComponent(toolBox);
-//        }
-//
-//        private void showData() {
-//
-//        }
-//    }
 
     private void initValidation() {
         String message = ViewMessages.getMessage("IUI-000003");
@@ -694,15 +638,18 @@ public class WinServiceEdit extends Window {
 
         message = ViewMessages.getMessage("IUI-000113");
         detailTab.customParam1Feild.addValidator(new StringLengthValidator(message, -1, 200, true));
-        detailTab.customParam1Feild.addValidator(new RegexpValidator("^[0-9a-zA-Z-,._][0-9a-zA-Z-,._ ]*[0-9a-zA-Z-,._]$", true, message));
+        detailTab.customParam1Feild.addValidator(new RegexpValidator(
+                "^[0-9a-zA-Z-,._][0-9a-zA-Z-,._ ]*[0-9a-zA-Z-,._]$", true, message));
 
         message = ViewMessages.getMessage("IUI-000114");
         detailTab.customParam2Feild.addValidator(new StringLengthValidator(message, -1, 200, true));
-        detailTab.customParam2Feild.addValidator(new RegexpValidator("^[0-9a-zA-Z-,._][0-9a-zA-Z-,._ ]*[0-9a-zA-Z-,._]$", true, message));
+        detailTab.customParam2Feild.addValidator(new RegexpValidator(
+                "^[0-9a-zA-Z-,._][0-9a-zA-Z-,._ ]*[0-9a-zA-Z-,._]$", true, message));
 
         message = ViewMessages.getMessage("IUI-000115");
         detailTab.customParam3Feild.addValidator(new StringLengthValidator(message, -1, 200, true));
-        detailTab.customParam3Feild.addValidator(new RegexpValidator("^[0-9a-zA-Z-,._][0-9a-zA-Z-,._ ]*[0-9a-zA-Z-,._]$", true, message));
+        detailTab.customParam3Feild.addValidator(new RegexpValidator(
+                "^[0-9a-zA-Z-,._][0-9a-zA-Z-,._ ]*[0-9a-zA-Z-,._]$", true, message));
     }
 
     private void initData() {
@@ -764,13 +711,14 @@ public class WinServiceEdit extends Window {
         }
 
         //オペレーションログ
-        AutoApplication aapl =  (AutoApplication)apl;
+        AutoApplication aapl = (AutoApplication) apl;
         aapl.doOpLog("SERVICE", "Edit Service", null, componentNo, null, null);
 
-        //  サービスを更新
+        // サービスを更新
         ComponentService componentService = BeanContext.getBean(ComponentService.class);
         try {
-            componentService.updateComponent(componentNo, comment, Integer.valueOf(diskSize), customParam1, customParam2, customParam3);
+            componentService.updateComponent(componentNo, comment, Integer.valueOf(diskSize), customParam1,
+                    customParam2, customParam3);
         } catch (AutoApplicationException e) {
             String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
             DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);

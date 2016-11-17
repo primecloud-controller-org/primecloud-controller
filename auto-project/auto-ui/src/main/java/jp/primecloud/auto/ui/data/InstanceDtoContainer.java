@@ -27,6 +27,7 @@ import jp.primecloud.auto.service.dto.InstanceDto;
 import jp.primecloud.auto.ui.ServerTable;
 import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.ViewContext;
+
 import com.vaadin.data.Container;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
@@ -49,8 +50,7 @@ public class InstanceDtoContainer extends BeanItemContainer<InstanceDto> impleme
     /**
      * Natural property order for Farm bean. Used in tables and forms.
      */
-//    public static final Object[] SERVICE_DESC = new Object[] { "instanceName", "status", "platform" };
-    public static final Object[] SERVICE_DESC = new Object[] { "check", "instanceName", "urlIcon","status", "platform" };
+    public static final Object[] SERVICE_DESC = new Object[] { "check", "instanceName", "urlIcon", "status", "platform" };
 
     /**
      * Natural property order for Farm bean. Used in tables and forms.
@@ -64,13 +64,11 @@ public class InstanceDtoContainer extends BeanItemContainer<InstanceDto> impleme
     public static final String[] COL_HEADERS_ENGLISH = new String[] { "no", "name", "ipaddress", "status" };
 
     public InstanceDtoContainer() {
-
         super(InstanceDto.class);
         refresh();
     }
 
     public InstanceDtoContainer(Collection<InstanceDto> instances) {
-
         super(InstanceDto.class);
 
         for (InstanceDto dto : instances) {
@@ -79,7 +77,6 @@ public class InstanceDtoContainer extends BeanItemContainer<InstanceDto> impleme
     }
 
     public void refresh() {
-
         // ロジックを実行
         removeAllItems();
         Long farmNo = ViewContext.getFarmNo();
@@ -89,11 +86,9 @@ public class InstanceDtoContainer extends BeanItemContainer<InstanceDto> impleme
                 addItem(instanceDto);
             }
         }
-
     }
 
     public void refresh2(ServerTable table) {
-
         // ロジックを実行
         Collection<InstanceDto> collection = this.getItemIds();
         Long farmNo = ViewContext.getFarmNo();
@@ -113,33 +108,40 @@ public class InstanceDtoContainer extends BeanItemContainer<InstanceDto> impleme
                         dto.getItemProperty("image").setValue(newInstance.getImage());
                         dto.getItemProperty("instanceConfigs").setValue(newInstance.getInstanceConfigs());
                         dto.getItemProperty("componentInstances").setValue(newInstance.getComponentInstances());
-                        //TODO CLOUD BRANCHING
+
                         //AWS
                         dto.getItemProperty("awsInstance").setValue(newInstance.getAwsInstance());
                         dto.getItemProperty("awsAddress").setValue(newInstance.getAwsAddress());
                         dto.getItemProperty("awsVolumes").setValue(newInstance.getAwsVolumes());
+
                         //VMWare
                         dto.getItemProperty("vmwareInstance").setValue(newInstance.getVmwareInstance());
                         dto.getItemProperty("vmwareKeyPair").setValue(newInstance.getVmwareKeyPair());
                         dto.getItemProperty("vmwareDisks").setValue(newInstance.getVmwareDisks());
+
                         //Nifty
                         dto.getItemProperty("niftyInstance").setValue(newInstance.getNiftyInstance());
                         dto.getItemProperty("niftyKeyPair").setValue(newInstance.getNiftyKeyPair());
                         dto.getItemProperty("niftyVolumes").setValue(newInstance.getNiftyVolumes());
+
                         //CloudStack
                         dto.getItemProperty("cloudstackInstance").setValue(newInstance.getCloudstackInstance());
                         dto.getItemProperty("cloudstackAddress").setValue(newInstance.getCloudstackAddress());
                         dto.getItemProperty("cloudstackVolumes").setValue(newInstance.getCloudstackVolumes());
+
                         //VCloud
                         dto.getItemProperty("vcloudInstance").setValue(newInstance.getVcloudInstance());
                         dto.getItemProperty("vcloudKeyPair").setValue(newInstance.getVcloudKeyPair());
                         dto.getItemProperty("vcloudDisks").setValue(newInstance.getVcloudDisks());
                         dto.getItemProperty("vcloudInstanceNetworks").setValue(newInstance.getVcloudInstanceNetworks());
-                        dto.getItemProperty("platformVcloudStorageType").setValue(newInstance.getPlatformVcloudStorageType());
+                        dto.getItemProperty("platformVcloudStorageType").setValue(
+                                newInstance.getPlatformVcloudStorageType());
+
                         //Azure
                         dto.getItemProperty("azureInstance").setValue(newInstance.getAzureInstance());
                         dto.getItemProperty("azureCertificate").setValue(newInstance.getAzureCertificate());
                         dto.getItemProperty("azureDisks").setValue(newInstance.getAzureDisks());
+
                         //Openstack
                         dto.getItemProperty("openstackInstance").setValue(newInstance.getOpenstackInstance());
                         dto.getItemProperty("openstackCertificate").setValue(newInstance.getOpenstackCertificate());
@@ -169,7 +171,6 @@ public class InstanceDtoContainer extends BeanItemContainer<InstanceDto> impleme
 
         table.containerItemSetChange(event);
         table.refreshDesc();
-
     }
 
 }

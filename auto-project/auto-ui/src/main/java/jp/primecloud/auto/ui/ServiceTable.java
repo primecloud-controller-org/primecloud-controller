@@ -25,9 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.common.status.ComponentInstanceStatus;
 import jp.primecloud.auto.entity.crud.ComponentType;
 import jp.primecloud.auto.service.ComponentService;
@@ -44,6 +41,9 @@ import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 
 import com.vaadin.data.Container;
 import com.vaadin.ui.Button;
@@ -62,7 +62,7 @@ import com.vaadin.ui.Window.CloseEvent;
  * </p>
  *
  */
-@SuppressWarnings({"serial", "unchecked"})
+@SuppressWarnings({ "serial", "unchecked" })
 public class ServiceTable extends Table {
 
     MyCloudTabs sender;
@@ -70,15 +70,9 @@ public class ServiceTable extends Table {
     final String COLUMN_HEIGHT = "28px";
 
     //項目名
-    String[] CAPNAME = {
-            ViewProperties.getCaption("field.no"),
-            ViewProperties.getCaption("field.serviceName"),
-            ViewProperties.getCaption("field.serverSum"),
-            ViewProperties.getCaption("field.serviceStatus"),
-            ViewProperties.getCaption("field.serviceIpPort"),
-            ViewProperties.getCaption("field.serviceDetail")
-            };
-
+    String[] CAPNAME = { ViewProperties.getCaption("field.no"), ViewProperties.getCaption("field.serviceName"),
+            ViewProperties.getCaption("field.serverSum"), ViewProperties.getCaption("field.serviceStatus"),
+            ViewProperties.getCaption("field.serviceIpPort"), ViewProperties.getCaption("field.serviceDetail") };
 
     private Map<Long, List<Button>> map = new HashMap<Long, List<Button>>();
 
@@ -101,6 +95,7 @@ public class ServiceTable extends Table {
         setStyleName("service-table");
 
         addGeneratedColumn("no", new ColumnGenerator() {
+            @Override
             public Component generateCell(Table source, Object itemId, Object columnId) {
                 ComponentDto p = (ComponentDto) itemId;
                 Label nlbl = new Label(String.valueOf(p.getComponent().getComponentNo()));
@@ -109,6 +104,7 @@ public class ServiceTable extends Table {
         });
 
         addGeneratedColumn("name", new ColumnGenerator() {
+            @Override
             public Component generateCell(Table source, Object itemId, Object columnId) {
                 ComponentDto p = (ComponentDto) itemId;
                 String name;
@@ -121,8 +117,10 @@ public class ServiceTable extends Table {
                 return nlbl;
             }
         });
+
         //サービスの割り当てサーバ数
         addGeneratedColumn("srvs", new ColumnGenerator() {
+            @Override
             public Component generateCell(Table source, Object itemId, Object columnId) {
                 ComponentDto p = (ComponentDto) itemId;
                 int srvs = 0;
@@ -137,13 +135,14 @@ public class ServiceTable extends Table {
         });
 
         addGeneratedColumn("status", new ColumnGenerator() {
+            @Override
             public Component generateCell(Table source, Object itemId, Object columnId) {
                 ComponentDto p = (ComponentDto) itemId;
                 String a = p.getStatus().substring(0, 1).toUpperCase() + p.getStatus().substring(1).toLowerCase();
 
                 Icons icon = Icons.fromName(a);
-                Label slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(ServiceTable.this, icon) + "\"><div>" + a + "</div>",
-                        Label.CONTENT_XHTML);
+                Label slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(ServiceTable.this, icon) + "\"><div>"
+                        + a + "</div>", Label.CONTENT_XHTML);
                 slbl.setHeight(COLUMN_HEIGHT);
 
                 return slbl;
@@ -151,8 +150,8 @@ public class ServiceTable extends Table {
         });
 
         addGeneratedColumn("loadBalancer", new ColumnGenerator() {
+            @Override
             public Component generateCell(Table source, Object itemId, Object columnId) {
-
                 ComponentDto dto = (ComponentDto) itemId;
 
                 MyCloudTabs myCloudTabs = null;
@@ -164,23 +163,23 @@ public class ServiceTable extends Table {
                     }
                     c = c.getParent();
                 }
-                Button btn=null;
-                for (LoadBalancerDto lbDto: (Collection<LoadBalancerDto>) myCloudTabs.loadBalancerTable.getItemIds() ){
-                    if (dto.getComponent().getComponentNo().equals(lbDto.getLoadBalancer().getComponentNo())){
+                Button btn = null;
+                for (LoadBalancerDto lbDto : (Collection<LoadBalancerDto>) myCloudTabs.loadBalancerTable.getItemIds()) {
+                    if (dto.getComponent().getComponentNo().equals(lbDto.getLoadBalancer().getComponentNo())) {
                         btn = getLoadBalancerButton(lbDto);
                         break;
                     }
                 }
-                if ( btn != null){
+                if (btn != null) {
                     return btn;
-                }else{
+                } else {
                     return (new Label(""));
                 }
             }
-
         });
 
         addGeneratedColumn("serviceDetail", new ColumnGenerator() {
+            @Override
             public Component generateCell(Table source, Object itemId, Object columnId) {
                 ComponentDto p = (ComponentDto) itemId;
                 ComponentType componentType = p.getComponentType();
@@ -189,22 +188,20 @@ public class ServiceTable extends Table {
                 String name = componentType.getComponentTypeNameDisp();
                 Icons nameIcon = Icons.fromName(componentType.getComponentTypeName());
 
-                Label slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(ServiceTable.this, nameIcon) + "\"><div>" + name
-                        + "</div>", Label.CONTENT_XHTML);
+                Label slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(ServiceTable.this, nameIcon)
+                        + "\"><div>" + name + "</div>", Label.CONTENT_XHTML);
                 slbl.setHeight(COLUMN_HEIGHT);
                 return slbl;
-
             }
         });
-
 
         //テーブルに項目名を設定
         setColumnHeaders(CAPNAME);
 
         //テーブルのカラムに対してStyleNameを設定
         setCellStyleGenerator(new Table.CellStyleGenerator() {
+            @Override
             public String getStyle(Object itemId, Object propertyId) {
-
                 if (propertyId == null) {
                     return "";
                 } else {
@@ -218,7 +215,7 @@ public class ServiceTable extends Table {
         addListener(Table.ValueChangeEvent.class, sender, "tableRowSelected");
     }
 
-    Button getLoadBalancerButton(LoadBalancerDto lbDto){
+    Button getLoadBalancerButton(LoadBalancerDto lbDto) {
         Button btn = new Button();
         btn.setCaption(lbDto.getLoadBalancer().getLoadBalancerName());
         btn.setIcon(Icons.LOADBALANCER_TAB.resource());
@@ -234,7 +231,7 @@ public class ServiceTable extends Table {
         return btn;
     }
 
-    void loadBalancerButtonClick(ClickEvent event){
+    void loadBalancerButtonClick(ClickEvent event) {
         Button btn = event.getButton();
         LoadBalancerDto dto = (LoadBalancerDto) btn.getData();
 
@@ -258,7 +255,8 @@ public class ServiceTable extends Table {
         final int index = this.getCurrentPageFirstItemIndex();
 
         String actionName = event.getButton().getDescription();
-        String message = ViewMessages.getMessage("IUI-000016", new Object[]{dto.getComponent().getComponentName(), actionName});
+        String message = ViewMessages.getMessage("IUI-000016", new Object[] { dto.getComponent().getComponentName(),
+                actionName });
         DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message, Buttons.OKCancel);
         dialog.setCallback(new DialogConfirm.Callback() {
             @Override
@@ -298,7 +296,8 @@ public class ServiceTable extends Table {
         optionLayout.addComponent(checkBox);
 
         String message = ViewMessages.getMessage("IUI-000017", dto.getComponent().getComponentName());
-        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message, Buttons.OKCancel, optionLayout);
+        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message,
+                Buttons.OKCancel, optionLayout);
         dialog.setCallback(new DialogConfirm.Callback() {
             @Override
             public void onDialogResult(Result result) {
@@ -332,7 +331,7 @@ public class ServiceTable extends Table {
         final ComponentDto dto = (ComponentDto) this.getValue();
         final int index = this.getCurrentPageFirstItemIndex();
 
-        WinServiceEdit winServiceEdit = new WinServiceEdit(getApplication(),dto.getComponent().getComponentNo());
+        WinServiceEdit winServiceEdit = new WinServiceEdit(getApplication(), dto.getComponent().getComponentNo());
         winServiceEdit.addListener(new Window.CloseListener() {
             @Override
             public void windowClose(CloseEvent e) {
@@ -367,7 +366,7 @@ public class ServiceTable extends Table {
                 }
 
                 //オペレーションログ
-                AutoApplication apl = (AutoApplication)getApplication();
+                AutoApplication apl = (AutoApplication) getApplication();
                 apl.doOpLog("SERVICE", "Delete Service", null, dto.getComponent().getComponentNo(), null, null);
 
                 Long componentNo = dto.getComponent().getComponentNo();

@@ -26,6 +26,7 @@ import jp.primecloud.auto.service.ComponentService;
 import jp.primecloud.auto.service.dto.ComponentDto;
 import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.ViewContext;
+
 import com.vaadin.data.util.BeanItemContainer;
 
 /**
@@ -50,19 +51,14 @@ public class ComponentContainer extends BeanItemContainer<Component> implements 
 
     public static final Object[] SERVICE_DESC = new Object[] { "componentName", "serviceDetail", "status" };
 
-    public static final Object[] SERVER_DESC = new Object[] {
-    //        "componentName", "serviceDetail", "status"
-//             "componentName", "serviceDetail" };
-    "componentName", "urlIcon" , "status", "serviceDetail" };
+    public static final Object[] SERVER_DESC = new Object[] { "componentName", "urlIcon", "status", "serviceDetail" };
 
     public ComponentContainer() {
         super(Component.class);
         refresh();
-
     }
 
     public ComponentContainer(Collection<ComponentDto> components) {
-
         super(Component.class);
 
         for (ComponentDto dto : components) {
@@ -71,7 +67,6 @@ public class ComponentContainer extends BeanItemContainer<Component> implements 
     }
 
     public void refresh() {
-
         // ロジックを実行
         ComponentService componentService = BeanContext.getBean(ComponentService.class);
         removeAllItems();

@@ -20,6 +20,7 @@ package jp.primecloud.auto.ui;
 
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
@@ -44,7 +45,7 @@ public class ServerDescDetail extends Panel {
         setHeight("100%");
         addStyleName(Reindeer.PANEL_LIGHT);
 
-        VerticalLayout panel = (VerticalLayout)getContent();
+        VerticalLayout panel = (VerticalLayout) getContent();
         panel.setWidth("100%");
         panel.setHeight("100%");
         panel.setMargin(true);
@@ -57,7 +58,6 @@ public class ServerDescDetail extends Panel {
         hlPanels.setMargin(true);
         hlPanels.setSpacing(true);
         hlPanels.addStyleName("server-desc-detail");
-//        setContent(hlPanels);
 
         left.setWidth("200px");
         right.setWidth("100%");
@@ -96,6 +96,7 @@ public class ServerDescDetail extends Panel {
     }
 
     class DetailParameters extends Table {
+
         DetailParameters() {
 
             addStyleName("server-desc-detail-param");
@@ -115,6 +116,7 @@ public class ServerDescDetail extends Panel {
 
             //テーブルのカラムに対してStyleNameを設定
             setCellStyleGenerator(new Table.CellStyleGenerator() {
+                @Override
                 public String getStyle(Object itemId, Object propertyId) {
                     if (propertyId == null) {
                         return "";
@@ -123,14 +125,11 @@ public class ServerDescDetail extends Panel {
                     }
                 }
             });
-
         }
-        public void setHeaders(){
-            setColumnHeaders(new String[]{
-                    ViewProperties.getCaption("field.categoryName"),
-                    ViewProperties.getCaption("field.parameterName"),
-                    ViewProperties.getCaption("field.parameterValue")}
-            );
+
+        public void setHeaders() {
+            setColumnHeaders(new String[] { ViewProperties.getCaption("field.categoryName"),
+                    ViewProperties.getCaption("field.parameterName"), ViewProperties.getCaption("field.parameterValue") });
         }
 
     }

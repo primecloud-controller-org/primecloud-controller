@@ -1,9 +1,25 @@
+/*
+ * Copyright 2014 by SCSK Corporation.
+ * 
+ * This file is part of PrimeCloud Controller(TM).
+ * 
+ * PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
+ */
 package jp.primecloud.auto.ui;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
 
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.ComponentService;
@@ -18,6 +34,9 @@ import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
+import org.apache.commons.lang.StringUtils;
+
 import com.vaadin.Application;
 import com.vaadin.data.Item;
 import com.vaadin.data.Validator.InvalidValueException;
@@ -45,6 +64,7 @@ import com.vaadin.ui.Window;
  */
 @SuppressWarnings("serial")
 public class WinCloudStackLoadBalancerEdit extends Window {
+
     final String COLUMN_HEIGHT = "30px";
 
     final String TAB_HEIGHT = "360px";
@@ -129,8 +149,8 @@ public class WinCloudStackLoadBalancerEdit extends Window {
     }
 
     private class BasicTab extends VerticalLayout {
-        final String SERVICE_CAPTION_ID = "ServiceName";
 
+        final String SERVICE_CAPTION_ID = "ServiceName";
 
         Form form;
 
@@ -149,7 +169,6 @@ public class WinCloudStackLoadBalancerEdit extends Window {
         TextField privatePortField;
 
         ComboBox algorithmSelect;
-
 
         BasicTab() {
             setHeight(TAB_HEIGHT);
@@ -205,7 +224,6 @@ public class WinCloudStackLoadBalancerEdit extends Window {
             privatePortField = new TextField(ViewProperties.getCaption("field.privateport"));
             privatePortField.setWidth("95%");
             form.getLayout().addComponent(privatePortField);
-
         }
 
         private void initValidation() {
@@ -245,7 +263,6 @@ public class WinCloudStackLoadBalancerEdit extends Window {
             if (comment != null) {
                 privatePortField.setValue(privateport);
             }
-
 
             // プラットフォーム
             //プラットフォームアイコン名の取得
@@ -290,6 +307,7 @@ public class WinCloudStackLoadBalancerEdit extends Window {
                 serviceSelect.setEnabled(false);
             }
         }
+
     }
 
     private void initData() {
@@ -338,7 +356,6 @@ public class WinCloudStackLoadBalancerEdit extends Window {
         String pubricPort = (String) basicTab.pubricPortField.getValue();
         String privatePort = (String) basicTab.privatePortField.getValue();
 
-
         // TODO: 入力チェック
         try {
             basicTab.commentField.validate();
@@ -358,7 +375,7 @@ public class WinCloudStackLoadBalancerEdit extends Window {
             String loadBalancerName = loadBalancerDto.getLoadBalancer().getLoadBalancerName();
             Long componentNo = componentDto.getComponent().getComponentNo();
             loadBalancerService.updateCloudstackLoadBalancer(loadBalancerNo, loadBalancerName, comment, componentNo,
-                                                                                    algorithm, pubricPort, privatePort);
+                    algorithm, pubricPort, privatePort);
         } catch (AutoApplicationException e) {
             String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
             DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);

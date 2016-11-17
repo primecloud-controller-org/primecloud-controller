@@ -1,12 +1,27 @@
+/*
+ * Copyright 2014 by SCSK Corporation.
+ * 
+ * This file is part of PrimeCloud Controller(TM).
+ * 
+ * PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
+ */
 package jp.primecloud.auto.ui;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
 
 import jp.primecloud.auto.common.status.ComponentInstanceStatus;
 import jp.primecloud.auto.common.status.InstanceStatus;
@@ -29,6 +44,10 @@ import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+
 import com.vaadin.Application;
 import com.vaadin.data.Container;
 import com.vaadin.data.Property;
@@ -134,9 +153,6 @@ public class WinServerAttachService extends Window {
         });
         okbar.addComponent(cancelButton);
 
-        //        // 入力チェックの設定
-        //        initValidation();
-
         // 初期データの取得
         initData();
 
@@ -194,6 +210,7 @@ public class WinServerAttachService extends Window {
             });
 
             addGeneratedColumn("componentName", new ColumnGenerator() {
+                @Override
                 public Component generateCell(Table source, Object itemId, Object columnId) {
                     ComponentDto p = (ComponentDto) itemId;
 
@@ -206,11 +223,11 @@ public class WinServerAttachService extends Window {
                     Label slbl = new Label(name, Label.CONTENT_PREFORMATTED);
                     slbl.setHeight(COLUMN_HEIGHT);
                     return slbl;
-
                 }
             });
 
             addGeneratedColumn("status", new ColumnGenerator() {
+                @Override
                 public Component generateCell(Table source, Object itemId, Object columnId) {
                     ComponentDto p = (ComponentDto) itemId;
 
@@ -218,8 +235,8 @@ public class WinServerAttachService extends Window {
                     //String status = "";
                     if (instance != null) {
                         for (ComponentInstanceDto componentInstance : instance.getComponentInstances()) {
-                            if (componentInstance.getComponentInstance().getComponentNo().equals(
-                                    p.getComponent().getComponentNo())) {
+                            if (componentInstance.getComponentInstance().getComponentNo()
+                                    .equals(p.getComponent().getComponentNo())) {
                                 ci = componentInstance;
                                 break;
                             }
@@ -243,6 +260,7 @@ public class WinServerAttachService extends Window {
 
             //テーブルのカラムに対してStyleNameを設定
             setCellStyleGenerator(new Table.CellStyleGenerator() {
+                @Override
                 public String getStyle(Object itemId, Object propertyId) {
                     ComponentDto p = (ComponentDto) itemId;
 
@@ -258,7 +276,7 @@ public class WinServerAttachService extends Window {
                             ret += " v-selected";
                         }
                         //checkboxが無効なら色を変更する
-                        if (!(Boolean)checkList.get(p.getComponent().getComponentNo()).isEnabled()) {
+                        if (!(Boolean) checkList.get(p.getComponent().getComponentNo()).isEnabled()) {
                             ret += " v-disabled";
                         }
                     }
@@ -305,8 +323,8 @@ public class WinServerAttachService extends Window {
                 // 割り当て済みでStoppedでないサービスは無効
                 for (ComponentInstanceDto componentInstance : instance.getComponentInstances()) {
                     for (ComponentDto component : components) {
-                        if (componentInstance.getComponentInstance().getComponentNo().equals(
-                                component.getComponent().getComponentNo())) {
+                        if (componentInstance.getComponentInstance().getComponentNo()
+                                .equals(component.getComponent().getComponentNo())) {
                             ComponentInstanceStatus status = ComponentInstanceStatus.fromStatus(componentInstance
                                     .getComponentInstance().getStatus());
                             if (status != ComponentInstanceStatus.STOPPED) {
@@ -318,7 +336,6 @@ public class WinServerAttachService extends Window {
                 }
 
                 // ディスクがアタッチされているサービスは無効
-                //TODO CLOUD BRANCHING
                 if (instance.getAwsVolumes() != null) {
                     for (AwsVolume awsVolume : instance.getAwsVolumes()) {
                         if (StringUtils.isNotEmpty(awsVolume.getInstanceId())) {

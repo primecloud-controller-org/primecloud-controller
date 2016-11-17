@@ -1,3 +1,21 @@
+/*
+ * Copyright 2014 by SCSK Corporation.
+ * 
+ * This file is part of PrimeCloud Controller(TM).
+ * 
+ * PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
+ */
 package jp.primecloud.auto.ui;
 
 import java.io.Serializable;
@@ -6,8 +24,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
-
-import org.apache.commons.lang.StringUtils;
 
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.LoadBalancerListenerStatus;
@@ -32,6 +48,8 @@ import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
+import org.apache.commons.lang.StringUtils;
 
 import com.amazonaws.services.ec2.model.Subnet;
 import com.vaadin.data.Container;
@@ -60,7 +78,7 @@ import com.vaadin.ui.themes.Reindeer;
  * </p>
  *
  */
-@SuppressWarnings({"serial", "unchecked"})
+@SuppressWarnings({ "serial", "unchecked" })
 public class LoadBalancerDescBasic extends Panel {
 
     BasicInfo basicInfo = new BasicInfo();
@@ -70,9 +88,7 @@ public class LoadBalancerDescBasic extends Panel {
     LoadbalancerServiceOperation loadBalancerOpe = new LoadbalancerServiceOperation();
 
     LoadBalancerDescBasic() {
-
         addStyleName(Reindeer.PANEL_LIGHT);
-
         setHeight("100%");
 
         HorizontalLayout hlLayout = new HorizontalLayout();
@@ -120,26 +136,17 @@ public class LoadBalancerDescBasic extends Panel {
         final String COLUMN_HEIGHT = "30px";
 
         //項目名
-        final String[] CAPTION_FIELD = {
-                "field.loadBalancerName",
-                "field.loadBalancerService",
-                "field.fqdn",
-                "field.loadBalancerHostname",
-                "field.status",
-                "field.platform",
-                "field.loadBalancerType",
-                "field.subnet",
-                "field.comment",
-                };
+        final String[] CAPTION_FIELD = { "field.loadBalancerName", "field.loadBalancerService", "field.fqdn",
+                "field.loadBalancerHostname", "field.status", "field.platform", "field.loadBalancerType",
+                "field.subnet", "field.comment", };
 
-        HashMap<String,Label> displayLabels = new HashMap<String,Label>();
+        HashMap<String, Label> displayLabels = new HashMap<String, Label>();
 
         LoadBalancerDto loadBalancerDto;
 
         GridLayout layout;
 
         BasicInfo() {
-
             setCaption(ViewProperties.getCaption("table.loadBalancerBasicInfo"));
             setHeight("95%");
             setStyleName("loadbalancer-desc-basic-panel");
@@ -156,24 +163,22 @@ public class LoadBalancerDescBasic extends Panel {
             vlay.addComponent(layout);
 
             initDisplayLabels();
-
         }
 
-        private void initDisplayLabels(){
+        private void initDisplayLabels() {
             for (int i = 0; i < CAPTION_FIELD.length; i++) {
                 //項目名
-                Label lbl1 = new Label( ViewProperties.getCaption( CAPTION_FIELD[i] ), Label.CONTENT_XHTML);
+                Label lbl1 = new Label(ViewProperties.getCaption(CAPTION_FIELD[i]), Label.CONTENT_XHTML);
                 lbl1.setHeight(COLUMN_HEIGHT);
                 layout.addComponent(lbl1, 0, i);
                 //表示内容ラベル
-                Label lbl2 = new Label( "",Label.CONTENT_XHTML );
-//                lbl2.setHeight(COLUMN_HEIGHT);
-                displayLabels.put(CAPTION_FIELD[i],lbl2);
+                Label lbl2 = new Label("", Label.CONTENT_XHTML);
+                displayLabels.put(CAPTION_FIELD[i], lbl2);
                 layout.addComponent(lbl2, 1, i);
             }
         }
 
-        private void resetLabels(){
+        private void resetLabels() {
             for (Label lbl : displayLabels.values()) {
                 lbl.setValue("");
             }
@@ -229,14 +234,12 @@ public class LoadBalancerDescBasic extends Panel {
 
                 //ホスト名
                 String hostName = lb.getCanonicalName();
-                //if (dto.getComponentLoadBalancerDto() != null) {
-                //    hostName = dto.getComponentLoadBalancerDto().getIpAddress();
-                //}
                 displayLabels.get("field.loadBalancerHostname").setValue(hostName);
 
                 //ステータス
                 LoadBalancerStatus status = LoadBalancerStatus.fromStatus(lb.getStatus());
-                String statusString = status.name().substring(0, 1).toUpperCase() + status.name().substring(1).toLowerCase();
+                String statusString = status.name().substring(0, 1).toUpperCase()
+                        + status.name().substring(1).toLowerCase();
                 String iconName;
                 //ロードバランサーがRUNNIGだが、リスナ一覧にリスナーが存在しない(+WARNING)
                 if (status == LoadBalancerStatus.RUNNING && dto.getLoadBalancerListeners().size() == 0) {
@@ -244,8 +247,9 @@ public class LoadBalancerDescBasic extends Panel {
                 } else {
                     iconName = statusString;
                 }
-                displayLabels.get("field.status").setValue("<img src=\"" + VaadinUtils.getIconPath(me, Icons.fromName(iconName))
-                                                                                            + "\"><div>" + statusString + "</div>");
+                displayLabels.get("field.status").setValue(
+                        "<img src=\"" + VaadinUtils.getIconPath(me, Icons.fromName(iconName)) + "\"><div>"
+                                + statusString + "</div>");
 
                 //プラットフォーム
                 Platform platform = dto.getPlatform().getPlatform();
@@ -265,17 +269,19 @@ public class LoadBalancerDescBasic extends Panel {
                 }
 
                 //サブネット
-                if (PCCConstant.LOAD_BALANCER_ELB.equals(lb.getType()) && platformAws.getVpc() && StringUtils.isNotEmpty(dto.getAwsLoadBalancer().getSubnetId())) {
+                if (PCCConstant.LOAD_BALANCER_ELB.equals(lb.getType()) && platformAws.getVpc()
+                        && StringUtils.isNotEmpty(dto.getAwsLoadBalancer().getSubnetId())) {
                     List<String> lbSubnets = new ArrayList<String>();
-                    for (String lbSubnet: dto.getAwsLoadBalancer().getSubnetId().split(",")) {
+                    for (String lbSubnet : dto.getAwsLoadBalancer().getSubnetId().split(",")) {
                         lbSubnets.add(lbSubnet.trim());
                     }
                     AwsDescribeService awsDescribeService = BeanContext.getBean(AwsDescribeService.class);
                     List<Subnet> subnets = awsDescribeService.getSubnets(ViewContext.getUserNo(), lb.getPlatformNo());
                     StringBuffer subnetBuffer = new StringBuffer();
-                    for (Subnet subnet: subnets) {
+                    for (Subnet subnet : subnets) {
                         if (lbSubnets.contains(subnet.getSubnetId())) {
-                            subnetBuffer.append(subnetBuffer.length() > 0 ? "<br>" + subnet.getCidrBlock(): subnet.getCidrBlock());
+                            subnetBuffer.append(subnetBuffer.length() > 0 ? "<br>" + subnet.getCidrBlock() : subnet
+                                    .getCidrBlock());
                         }
                     }
                     displayLabels.get("field.subnet").setValue(subnetBuffer.toString());
@@ -295,18 +301,15 @@ public class LoadBalancerDescBasic extends Panel {
         final String COLUMN_HEIGHT = "28px";
 
         //項目名
-        final String[] COLNAME = {
-                null,
-                ViewProperties.getCaption("field.loadBalancerPort"),
+        final String[] COLNAME = { null, ViewProperties.getCaption("field.loadBalancerPort"),
                 ViewProperties.getCaption("field.loadBalancerServicePort"),
                 ViewProperties.getCaption("field.loadBalancerProtocol"),
                 ViewProperties.getCaption("field.loadBalancerServiceStatus"),
-                ViewProperties.getCaption("field.editLoadBalancerListener"),
-                };
+                ViewProperties.getCaption("field.editLoadBalancerListener"), };
 
-        final String[] VISIBLE_COLNAME = { "check", "loadBalancerPort", "servicePort",  "protocol", "status" , "edit" , };
+        final String[] VISIBLE_COLNAME = { "check", "loadBalancerPort", "servicePort", "protocol", "status", "edit", };
 
-        HashMap<Integer,CheckBox> checkList = new HashMap<Integer,CheckBox>();
+        HashMap<Integer, CheckBox> checkList = new HashMap<Integer, CheckBox>();
 
         public AttachServiceTable(String caption, Container dataSource) {
             super(caption, dataSource);
@@ -367,18 +370,18 @@ public class LoadBalancerDescBasic extends Panel {
             addGeneratedColumn("status", new ColumnGenerator() {
                 public Component generateCell(Table source, Object itemId, Object columnId) {
                     LoadBalancerListener p = (LoadBalancerListener) itemId;
-                    String status=p.getStatus();
+                    String status = p.getStatus();
 
                     // TODO: 振り分け状態のリファクタリング
                     //LoadBalancerInstanceに存在しない場合にはStop状態
-                    if ("".equals(status) || status.equalsIgnoreCase("STOPPED")){
-                        status="DISABLE";
-                    }else if (status.equalsIgnoreCase("RUNNING")){
-                        status="ENABLE";
-                    }else if (status.equalsIgnoreCase("STARTING")){
-                        status="CONFIGURING";
-                    }else if (status.equalsIgnoreCase("STOPPING")){
-                        status="CONFIGURING";
+                    if ("".equals(status) || status.equalsIgnoreCase("STOPPED")) {
+                        status = "DISABLE";
+                    } else if (status.equalsIgnoreCase("RUNNING")) {
+                        status = "ENABLE";
+                    } else if (status.equalsIgnoreCase("STARTING")) {
+                        status = "CONFIGURING";
+                    } else if (status.equalsIgnoreCase("STOPPING")) {
+                        status = "CONFIGURING";
                     }
 
                     Icons icon = Icons.fromName(status);
@@ -412,7 +415,8 @@ public class LoadBalancerDescBasic extends Panel {
                         return new Label(p.getLoadBalancerPort().toString());
                     }
 
-                    String url = protocol.toLowerCase() + "://"  + hostName + ":" + p.getLoadBalancerPort().toString()+ "/";
+                    String url = protocol.toLowerCase() + "://" + hostName + ":" + p.getLoadBalancerPort().toString()
+                            + "/";
                     Link link = new Link(p.getLoadBalancerPort().toString(), new ExternalResource(url));
                     link.setTargetName("_blank");
                     link.setIcon(Icons.SHORTCUT.resource());
@@ -439,13 +443,12 @@ public class LoadBalancerDescBasic extends Panel {
                 }
             });
 
-//            setColumnExpandRatio("componentName", 100);
             setColumnExpandRatio("status", 100);
 
             //テーブルのカラムに対してStyleNameを設定
             setCellStyleGenerator(new Table.CellStyleGenerator() {
+                @Override
                 public String getStyle(Object itemId, Object propertyId) {
-
                     LoadBalancerListener p = (LoadBalancerListener) itemId;
 
                     if (propertyId == null) {
@@ -466,8 +469,8 @@ public class LoadBalancerDescBasic extends Panel {
                 public void itemClick(ItemClickEvent event) {
                     LoadBalancerListener p = (LoadBalancerListener) event.getItemId();
                     Integer no = p.getLoadBalancerPort();
-                    if (checkList.containsKey(no)){
-                        checkList.get(no).setValue(!(Boolean)checkList.get(no).getValue());
+                    if (checkList.containsKey(no)) {
+                        checkList.get(no).setValue(!(Boolean) checkList.get(no).getValue());
                     }
                     loadBalancerOpe.refresh();
                 }
@@ -487,9 +490,9 @@ public class LoadBalancerDescBasic extends Panel {
         }
 
         public void refresh(LoadBalancerDto dto, boolean clearCheckBox) {
-            if (dto != null ){
+            if (dto != null) {
                 setContainerDataSource(new LoadBalancerListenerContainer(dto.getLoadBalancerListeners()));
-            }else{
+            } else {
                 setContainerDataSource(null);
             }
             setVisibleColumns(VISIBLE_COLNAME);
@@ -498,7 +501,7 @@ public class LoadBalancerDescBasic extends Panel {
                 checkList.clear();
             }
 
-            if (dto != null && dto.getLoadBalancerListeners()!= null && dto.getLoadBalancerListeners().size() > 0) {
+            if (dto != null && dto.getLoadBalancerListeners() != null && dto.getLoadBalancerListeners().size() > 0) {
                 setColumnHeaders(COLNAME);
             }
 
@@ -518,7 +521,8 @@ public class LoadBalancerDescBasic extends Panel {
             LoadBalancerListener listener = (LoadBalancerListener) event.getButton().getData();
             final LoadBalancerDto dto = basicInfo.loadBalancerDto;
 
-            WinLoadBalancerConfigListener win = new WinLoadBalancerConfigListener(getApplication(), listener.getLoadBalancerNo(), listener.getLoadBalancerPort());
+            WinLoadBalancerConfigListener win = new WinLoadBalancerConfigListener(getApplication(),
+                    listener.getLoadBalancerNo(), listener.getLoadBalancerPort());
             win.addListener(new Window.CloseListener() {
                 @Override
                 public void windowClose(Window.CloseEvent e) {
@@ -562,8 +566,8 @@ public class LoadBalancerDescBasic extends Panel {
             setWidth("100%");
             setSpacing(true);
 
-            btnCheckAll=new Button(ViewProperties.getCaption( "button.checkAll" ));
-            btnCheckAll.setDescription(ViewProperties.getCaption( "description.checkAll" ));
+            btnCheckAll = new Button(ViewProperties.getCaption("button.checkAll"));
+            btnCheckAll.setDescription(ViewProperties.getCaption("description.checkAll"));
             btnCheckAll.addStyleName("borderless");
             btnCheckAll.addStyleName("checkall");
             btnCheckAll.setEnabled(false);
@@ -614,7 +618,6 @@ public class LoadBalancerDescBasic extends Panel {
             setExpandRatio(btnDisable, 10f);
         }
 
-
         void refresh() {
             LoadBalancerDto dto = basicInfo.loadBalancerDto;
 
@@ -636,7 +639,7 @@ public class LoadBalancerDescBasic extends Panel {
 
             UserAuthDto auth = ViewContext.getAuthority();
             //権限に応じて操作可能なボタンを制御する
-            if (!auth.isLbOperate()){
+            if (!auth.isLbOperate()) {
                 btnAdd.setEnabled(false);
                 btnDelete.setEnabled(false);
                 btnEnable.setEnabled(false);
@@ -645,27 +648,24 @@ public class LoadBalancerDescBasic extends Panel {
         }
 
         public void checkAllButtonClick(Button.ClickEvent event) {
-
             //全てCheckされていれば全てOFF それ以外は全てON
             boolean checkAll = true;
-            for ( Integer no : attachServiceTable.checkList.keySet() ){
-                if (!(Boolean)attachServiceTable.checkList.get(no).getValue()){
-                    checkAll=false;
+            for (Integer no : attachServiceTable.checkList.keySet()) {
+                if (!(Boolean) attachServiceTable.checkList.get(no).getValue()) {
+                    checkAll = false;
                     break;
                 }
             }
-            for ( CheckBox chk: attachServiceTable.checkList.values()){
+            for (CheckBox chk : attachServiceTable.checkList.values()) {
                 chk.setValue(!checkAll);
             }
-
-//            right.refresh(right.getContainerDataSource());
         }
 
         public void addButtonClick(Button.ClickEvent event) {
             final LoadBalancerDto dto = basicInfo.loadBalancerDto;
 
-            WinLoadBalancerConfigListener win = new WinLoadBalancerConfigListener(getApplication(),
-                    dto.getLoadBalancer().getLoadBalancerNo(), null);
+            WinLoadBalancerConfigListener win = new WinLoadBalancerConfigListener(getApplication(), dto
+                    .getLoadBalancer().getLoadBalancerNo(), null);
             win.addListener(new Window.CloseListener() {
                 @Override
                 public void windowClose(Window.CloseEvent e) {
@@ -724,7 +724,8 @@ public class LoadBalancerDescBasic extends Panel {
             }
 
             String message = ViewMessages.getMessage("IUI-000080", listener.getLoadBalancerPort());
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message, Buttons.OKCancel);
+            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message,
+                    Buttons.OKCancel);
             dialog.setCallback(new DialogConfirm.Callback() {
                 @Override
                 public void onDialogResult(Result result) {
@@ -733,12 +734,13 @@ public class LoadBalancerDescBasic extends Panel {
                     }
 
                     //オペレーションログ
-                    AutoApplication apl = (AutoApplication)getApplication();
-                    apl.doOpLog("LOAD_BALANCER", "Detach LB_Listener", null, null, listener.getLoadBalancerNo(), String.valueOf(listener.getLoadBalancerPort()));
+                    AutoApplication apl = (AutoApplication) getApplication();
+                    apl.doOpLog("LOAD_BALANCER", "Detach LB_Listener", null, null, listener.getLoadBalancerNo(),
+                            String.valueOf(listener.getLoadBalancerPort()));
 
                     // リスナーの削除
                     LoadBalancerService loadBalancerService = BeanContext.getBean(LoadBalancerService.class);
-                    loadBalancerService.deleteListener(listener.getLoadBalancerNo(),listener.getLoadBalancerPort());
+                    loadBalancerService.deleteListener(listener.getLoadBalancerNo(), listener.getLoadBalancerPort());
 
                     // 表示の更新
                     MyCloudTabs myCloudTabs = ((AutoApplication) getApplication()).myCloud.myCloudTabs;
@@ -796,7 +798,8 @@ public class LoadBalancerDescBasic extends Panel {
                         status2 = "DISABLE";
                     } else if (status == LoadBalancerListenerStatus.RUNNING) {
                         status2 = "ENABLE";
-                    } else if (status == LoadBalancerListenerStatus.STARTING || status == LoadBalancerListenerStatus.STOPPING) {
+                    } else if (status == LoadBalancerListenerStatus.STARTING
+                            || status == LoadBalancerListenerStatus.STOPPING) {
                         status2 = "CONFIGURING";
                     } else {
                         status2 = status.toString();
@@ -823,7 +826,8 @@ public class LoadBalancerDescBasic extends Panel {
                 }
             }
             String message = ViewMessages.getMessage("IUI-000081", sb.toString());
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message, Buttons.OKCancel);
+            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message,
+                    Buttons.OKCancel);
             dialog.setCallback(new DialogConfirm.Callback() {
                 @Override
                 public void onDialogResult(Result result) {
@@ -832,15 +836,14 @@ public class LoadBalancerDescBasic extends Panel {
                     }
 
                     //オペレーションログ
-                    AutoApplication apl = (AutoApplication)getApplication();
-                    apl.doOpLog("LOAD_BALANCER", "Enable LB_Listener", null, null,
-                            dto.getLoadBalancer().getLoadBalancerNo(), String.valueOf(loadBalancerPorts.size()));
-
+                    AutoApplication apl = (AutoApplication) getApplication();
+                    apl.doOpLog("LOAD_BALANCER", "Enable LB_Listener", null, null, dto.getLoadBalancer()
+                            .getLoadBalancerNo(), String.valueOf(loadBalancerPorts.size()));
 
                     // リスナーの有効化
                     ProcessService processService = BeanContext.getBean(ProcessService.class);
-                    processService.startLoadBalancerListeners(dto.getLoadBalancer().getFarmNo(),
-                            dto.getLoadBalancer().getLoadBalancerNo(), loadBalancerPorts);
+                    processService.startLoadBalancerListeners(dto.getLoadBalancer().getFarmNo(), dto.getLoadBalancer()
+                            .getLoadBalancerNo(), loadBalancerPorts);
 
                     // 表示の更新
                     MyCloudTabs myCloudTabs = ((AutoApplication) getApplication()).myCloud.myCloudTabs;
@@ -897,7 +900,8 @@ public class LoadBalancerDescBasic extends Panel {
                         status2 = "DISABLE";
                     } else if (status == LoadBalancerListenerStatus.RUNNING) {
                         status2 = "ENABLE";
-                    } else if (status == LoadBalancerListenerStatus.STARTING || status == LoadBalancerListenerStatus.STOPPING) {
+                    } else if (status == LoadBalancerListenerStatus.STARTING
+                            || status == LoadBalancerListenerStatus.STOPPING) {
                         status2 = "CONFIGURING";
                     } else {
                         status2 = status.toString();
@@ -924,7 +928,8 @@ public class LoadBalancerDescBasic extends Panel {
                 }
             }
             String message = ViewMessages.getMessage("IUI-000082", sb.toString());
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message, Buttons.OKCancel);
+            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message,
+                    Buttons.OKCancel);
             dialog.setCallback(new DialogConfirm.Callback() {
                 @Override
                 public void onDialogResult(Result result) {
@@ -933,15 +938,14 @@ public class LoadBalancerDescBasic extends Panel {
                     }
 
                     //オペレーションログ
-                    AutoApplication apl = (AutoApplication)getApplication();
-                    apl.doOpLog("LOAD_BALANCER", "Disable LB_Listener", null, null,
-                            dto.getLoadBalancer().getLoadBalancerNo(), String.valueOf(loadBalancerPorts.size()));
-
+                    AutoApplication apl = (AutoApplication) getApplication();
+                    apl.doOpLog("LOAD_BALANCER", "Disable LB_Listener", null, null, dto.getLoadBalancer()
+                            .getLoadBalancerNo(), String.valueOf(loadBalancerPorts.size()));
 
                     // リスナーの無効化
                     ProcessService processService = BeanContext.getBean(ProcessService.class);
-                    processService.stopLoadBalancerListeners(dto.getLoadBalancer().getFarmNo(),
-                            dto.getLoadBalancer().getLoadBalancerNo(), loadBalancerPorts);
+                    processService.stopLoadBalancerListeners(dto.getLoadBalancer().getFarmNo(), dto.getLoadBalancer()
+                            .getLoadBalancerNo(), loadBalancerPorts);
 
                     // 表示の更新
                     MyCloudTabs myCloudTabs = ((AutoApplication) getApplication()).myCloud.myCloudTabs;

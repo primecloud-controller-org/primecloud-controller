@@ -1,3 +1,21 @@
+/*
+ * Copyright 2014 by SCSK Corporation.
+ * 
+ * This file is part of PrimeCloud Controller(TM).
+ * 
+ * PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
+ */
 package jp.primecloud.auto.ui;
 
 import java.util.List;
@@ -17,6 +35,7 @@ import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
 import jp.primecloud.auto.ui.validator.IntegerRangeValidator;
+
 import com.vaadin.Application;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
@@ -213,8 +232,6 @@ public class WinLoadBalancerConfigListener extends Window {
             sslKeySelect = new ComboBox(ViewProperties.getCaption("field.loadBalancerSSLKey"));
             sslKeySelect.setWidth(TEXT_WIDTH);
             sublayout.addComponent(sslKeySelect);
-
-
         }
 
         private void initValidation() {
@@ -242,7 +259,6 @@ public class WinLoadBalancerConfigListener extends Window {
             message = ViewMessages.getMessage("IUI-000116");
             sslKeySelect.setRequired(true);
             sslKeySelect.setRequiredError(message);
-
         }
 
         private void showData() {
@@ -277,7 +293,8 @@ public class WinLoadBalancerConfigListener extends Window {
                     loadBalancerPort = "80";
                     servicePort = "80";
                     protocol = "HTTP";
-                } else if ("tomcat".equals(componentType.getComponentTypeName()) || "geronimo".equals(componentType.getComponentTypeName())) {
+                } else if ("tomcat".equals(componentType.getComponentTypeName())
+                        || "geronimo".equals(componentType.getComponentTypeName())) {
                     loadBalancerPort = "8080";
                     servicePort = "8080";
                     protocol = "HTTP";
@@ -325,7 +342,6 @@ public class WinLoadBalancerConfigListener extends Window {
                         }
                     }
                 }
-
             }
         }
 
@@ -340,7 +356,7 @@ public class WinLoadBalancerConfigListener extends Window {
             item = container.addItem("TCP");
             item.getItemProperty(PROTOCOL_CAPTION_ID).setValue("TCP");
 
-            if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancerType)){
+            if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancerType)) {
                 item = container.addItem("HTTPS");
                 item.getItemProperty(PROTOCOL_CAPTION_ID).setValue("HTTPS");
 
@@ -362,7 +378,6 @@ public class WinLoadBalancerConfigListener extends Window {
 
             return container;
         }
-
 
         private void changeCheckEnabled(Property.ValueChangeEvent event) {
             if ("HTTPS".equals(protocolSelect.getValue()) || "SSL".equals(protocolSelect.getValue())) {
@@ -440,14 +455,14 @@ public class WinLoadBalancerConfigListener extends Window {
 
         Integer loadBalancerPort = Integer.valueOf(loadBalancerPortString);
         Integer servicePort = Integer.valueOf(servicePortString);
-        AutoApplication aapl =  (AutoApplication)apl;
-        Long sslKeyNo =  key.getKeyNo();
+        AutoApplication aapl = (AutoApplication) apl;
+        Long sslKeyNo = key.getKeyNo();
 
+        // 追加時
         if (isAddMode()) {
-            // 追加時
-
             //オペレーションログ
-            aapl.doOpLog("LOAD_BALANCER", "Attach LB_Listener", null, null, loadBalancerNo, String.valueOf(loadBalancerPort));
+            aapl.doOpLog("LOAD_BALANCER", "Attach LB_Listener", null, null, loadBalancerNo,
+                    String.valueOf(loadBalancerPort));
 
             // リスナーの追加
             try {
@@ -458,11 +473,12 @@ public class WinLoadBalancerConfigListener extends Window {
                 getApplication().getMainWindow().addWindow(dialog);
                 return;
             }
-        } else {
-            // 編集時
-
+        }
+        // 編集時
+        else {
             //オペレーションログ
-            aapl.doOpLog("LOAD_BALANCER", "Edit LB_Listener", null, null, loadBalancerNo, String.valueOf(loadBalancerPort));
+            aapl.doOpLog("LOAD_BALANCER", "Edit LB_Listener", null, null, loadBalancerNo,
+                    String.valueOf(loadBalancerPort));
 
             // リスナーの更新
             try {

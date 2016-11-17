@@ -1,9 +1,25 @@
+/*
+ * Copyright 2014 by SCSK Corporation.
+ * 
+ * This file is part of PrimeCloud Controller(TM).
+ * 
+ * PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
+ */
 package jp.primecloud.auto.ui;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
 
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.LoadBalancerStatus;
@@ -19,6 +35,9 @@ import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
+import org.apache.commons.lang.StringUtils;
+
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.CssLayout;
@@ -51,7 +70,6 @@ public class LoadBalancerTableOperation extends CssLayout {
         this.myCloudTabs = sender;
 
         addStyleName("loadbalancer-table-operation");
-        //        setHeight("35px");
         setWidth("100%");
         setMargin(true);
 
@@ -122,7 +140,7 @@ public class LoadBalancerTableOperation extends CssLayout {
         //ボタンの初期化
         hide();
 
-        Label spacer = new Label(" ",Label.CONTENT_XHTML);
+        Label spacer = new Label(" ", Label.CONTENT_XHTML);
         spacer.setWidth("30px");
         spacer.addStyleName("left");
         addComponent(btnNew);
@@ -144,24 +162,17 @@ public class LoadBalancerTableOperation extends CssLayout {
 
         //作成権限がなければ非活性
         UserAuthDto auth = ViewContext.getAuthority();
-        if (!auth.isLbMake()){
+        if (!auth.isLbMake()) {
             btnNew.setEnabled(false);
         }
-
-        //        ////ReloadボタンをStartボタンに
-        //        btnStart.setCaption(ViewProperties.getCaption("button.startLoadBalancer"));
-        //        btnStart.setDescription(ViewProperties.getCaption("description.startLoadBalancer"));
-
     }
 
     void refresh(Object loadbalancer) {
-
         if (loadbalancer != null) {
-
             //ステータスによってボタンの有効無効を切り替える
             String status = "";
             // TODO: ロードバランサーステータス取得ロジック
-            //            status = loadbalancer.getStatus();
+            //status = loadbalancer.getStatus();
             if ("STOPPED".equals(status)) {
                 btnEdit.setEnabled(true);
                 btnDelete.setEnabled(true);
@@ -189,14 +200,14 @@ public class LoadBalancerTableOperation extends CssLayout {
 
             UserAuthDto auth = ViewContext.getAuthority();
             //権限に応じて操作可能なボタンを制御する
-            if (!auth.isLbMake()){
+            if (!auth.isLbMake()) {
                 btnNew.setEnabled(false);
                 btnEdit.setEnabled(false);
             }
-            if (!auth.isLbDelete()){
+            if (!auth.isLbDelete()) {
                 btnDelete.setEnabled(false);
             }
-            if (!auth.isLbOperate()){
+            if (!auth.isLbOperate()) {
                 btnStart.setEnabled(false);
                 btnStop.setEnabled(false);
             }
@@ -205,7 +216,6 @@ public class LoadBalancerTableOperation extends CssLayout {
             //ボタンの無効化・非表示
             hide();
         }
-
     }
 
     public void addButtonClick() {
@@ -243,8 +253,8 @@ public class LoadBalancerTableOperation extends CssLayout {
             PlatformDto platform = dto.getPlatform();
             if (platform.getPlatformAws().getVpc() && StringUtils.isEmpty(dto.getAwsLoadBalancer().getSubnetId())) {
                 //ELB+VPCの場合、サブネットを設定しないと起動不可
-                DialogConfirm dialog = new DialogConfirm(
-                        ViewProperties.getCaption("dialog.error"), ViewMessages.getMessage("IUI-000111"));
+                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
+                        ViewMessages.getMessage("IUI-000111"));
                 getApplication().getMainWindow().addWindow(dialog);
                 return;
             }
@@ -265,8 +275,9 @@ public class LoadBalancerTableOperation extends CssLayout {
                 List<Long> list = new ArrayList<Long>();
 
                 //オペレーションログ
-                AutoApplication apl = (AutoApplication)getApplication();
-                apl.doOpLog("LOAD_BALANCER", "Start Load_Balancer", null, null, dto.getLoadBalancer().getLoadBalancerNo(), null);
+                AutoApplication apl = (AutoApplication) getApplication();
+                apl.doOpLog("LOAD_BALANCER", "Start Load_Balancer", null, null, dto.getLoadBalancer()
+                        .getLoadBalancerNo(), null);
 
                 list.add(dto.getLoadBalancer().getLoadBalancerNo());
                 processService.startLoadBalancers(farmNo, list);
@@ -306,8 +317,9 @@ public class LoadBalancerTableOperation extends CssLayout {
                 list.add(dto.getLoadBalancer().getLoadBalancerNo());
 
                 //オペレーションログ
-                AutoApplication apl = (AutoApplication)getApplication();
-                apl.doOpLog("LOAD_BALANCER", "Stop Load_Balancer", null, null, dto.getLoadBalancer().getLoadBalancerNo(), null);
+                AutoApplication apl = (AutoApplication) getApplication();
+                apl.doOpLog("LOAD_BALANCER", "Stop Load_Balancer", null, null, dto.getLoadBalancer()
+                        .getLoadBalancerNo(), null);
 
                 processService.stopLoadBalancers(farmNo, list);
                 myCloudTabs.refreshTable();
@@ -333,8 +345,9 @@ public class LoadBalancerTableOperation extends CssLayout {
         final int index = myCloudTabs.loadBalancerTable.getCurrentPageFirstItemIndex();
 
         Long loadBalancerNo = dto.getLoadBalancer().getLoadBalancerNo();
-        if(PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(dto.getLoadBalancer().getType())){
-            WinCloudStackLoadBalancerEdit winLoadBalancerEdit = new WinCloudStackLoadBalancerEdit(getApplication(), loadBalancerNo);
+        if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(dto.getLoadBalancer().getType())) {
+            WinCloudStackLoadBalancerEdit winLoadBalancerEdit = new WinCloudStackLoadBalancerEdit(getApplication(),
+                    loadBalancerNo);
             winLoadBalancerEdit.addListener(new Window.CloseListener() {
                 @Override
                 public void windowClose(CloseEvent e) {
@@ -343,7 +356,8 @@ public class LoadBalancerTableOperation extends CssLayout {
                     // 選択されていたロードバランサを選択し直す
                     for (Object itemId : myCloudTabs.loadBalancerTable.getItemIds()) {
                         LoadBalancerDto dto2 = (LoadBalancerDto) itemId;
-                        if (dto.getLoadBalancer().getLoadBalancerNo().equals(dto2.getLoadBalancer().getLoadBalancerNo())) {
+                        if (dto.getLoadBalancer().getLoadBalancerNo()
+                                .equals(dto2.getLoadBalancer().getLoadBalancerNo())) {
                             myCloudTabs.loadBalancerTable.select(itemId);
                             myCloudTabs.loadBalancerTable.setCurrentPageFirstItemIndex(index);
                             setButtonStatus(dto2);
@@ -363,7 +377,8 @@ public class LoadBalancerTableOperation extends CssLayout {
                     // 選択されていたロードバランサを選択し直す
                     for (Object itemId : myCloudTabs.loadBalancerTable.getItemIds()) {
                         LoadBalancerDto dto2 = (LoadBalancerDto) itemId;
-                        if (dto.getLoadBalancer().getLoadBalancerNo().equals(dto2.getLoadBalancer().getLoadBalancerNo())) {
+                        if (dto.getLoadBalancer().getLoadBalancerNo()
+                                .equals(dto2.getLoadBalancer().getLoadBalancerNo())) {
                             myCloudTabs.loadBalancerTable.select(itemId);
                             myCloudTabs.loadBalancerTable.setCurrentPageFirstItemIndex(index);
                             setButtonStatus(dto2);
@@ -392,8 +407,9 @@ public class LoadBalancerTableOperation extends CssLayout {
                 }
 
                 //オペレーションログ
-                AutoApplication apl = (AutoApplication)getApplication();
-                apl.doOpLog("LOAD_BALANCER", "Delete Load_Balancer", null, null, dto.getLoadBalancer().getLoadBalancerNo(), null);
+                AutoApplication apl = (AutoApplication) getApplication();
+                apl.doOpLog("LOAD_BALANCER", "Delete Load_Balancer", null, null, dto.getLoadBalancer()
+                        .getLoadBalancerNo(), null);
 
                 Long loadBalancerNo = dto.getLoadBalancer().getLoadBalancerNo();
                 LoadBalancerService loadBalancerService = BeanContext.getBean(LoadBalancerService.class);
@@ -408,51 +424,51 @@ public class LoadBalancerTableOperation extends CssLayout {
 
     public void setButtonStatus(LoadBalancerDto loadBalancerDto) {
         if (loadBalancerDto != null) {
-        LoadBalancerStatus status = LoadBalancerStatus.fromStatus(loadBalancerDto.getLoadBalancer().getStatus());
+            LoadBalancerStatus status = LoadBalancerStatus.fromStatus(loadBalancerDto.getLoadBalancer().getStatus());
 
-        switch (status) {
-            case STOPPED:
-                btnStart.setEnabled(true);
-                btnStop.setEnabled(false);
-                btnEdit.setEnabled(true);
-                btnDelete.setEnabled(true);
-                break;
+            switch (status) {
+                case STOPPED:
+                    btnStart.setEnabled(true);
+                    btnStop.setEnabled(false);
+                    btnEdit.setEnabled(true);
+                    btnDelete.setEnabled(true);
+                    break;
 
-            case RUNNING:
-                btnStart.setEnabled(true);
-                btnStop.setEnabled(true);
-                btnEdit.setEnabled(true);
-                btnDelete.setEnabled(false);
-                break;
+                case RUNNING:
+                    btnStart.setEnabled(true);
+                    btnStop.setEnabled(true);
+                    btnEdit.setEnabled(true);
+                    btnDelete.setEnabled(false);
+                    break;
 
-            case WARNING:
-                btnStart.setEnabled(false);
-                btnStop.setEnabled(true);
-                btnEdit.setEnabled(false);
-                btnDelete.setEnabled(false);
-                break;
+                case WARNING:
+                    btnStart.setEnabled(false);
+                    btnStop.setEnabled(true);
+                    btnEdit.setEnabled(false);
+                    btnDelete.setEnabled(false);
+                    break;
 
-            case STARTING:
-            case CONFIGURING:
-            case STOPPING:
-            default:
-                btnStart.setEnabled(false);
-                btnStop.setEnabled(false);
-                btnEdit.setEnabled(false);
-                btnDelete.setEnabled(false);
-                break;
-        }
+                case STARTING:
+                case CONFIGURING:
+                case STOPPING:
+                default:
+                    btnStart.setEnabled(false);
+                    btnStop.setEnabled(false);
+                    btnEdit.setEnabled(false);
+                    btnDelete.setEnabled(false);
+                    break;
+            }
 
             UserAuthDto auth = ViewContext.getAuthority();
             //権限に応じて操作可能なボタンを制御する
-            if (!auth.isLbMake()){
+            if (!auth.isLbMake()) {
                 btnNew.setEnabled(false);
                 btnEdit.setEnabled(false);
             }
-            if (!auth.isLbDelete()){
+            if (!auth.isLbDelete()) {
                 btnDelete.setEnabled(false);
             }
-            if (!auth.isLbOperate()){
+            if (!auth.isLbOperate()) {
                 btnStart.setEnabled(false);
                 btnStop.setEnabled(false);
             }
@@ -460,4 +476,5 @@ public class LoadBalancerTableOperation extends CssLayout {
             hide();
         }
     }
+
 }

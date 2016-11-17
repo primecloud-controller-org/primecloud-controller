@@ -25,12 +25,13 @@ import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
 
 /**
  * <p>
@@ -92,14 +93,11 @@ public class MyCloud extends VerticalLayout {
         layout.addComponent(myCloudTabs);
 
         layout.setExpandRatio(myCloudTabs, 100);
-
-
     }
 
     public void hide() {
         myCloudTabs.hide();
     }
-
 
     public void refresh() {
         FarmDto dto = null;

@@ -20,6 +20,7 @@ package jp.primecloud.auto.ui;
 
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.event.ShortcutAction.KeyCode;
@@ -77,13 +78,12 @@ public class DialogConfirm extends Window {
         layout.setSpacing(false);
 
         if (message != null && message.length() > 0) {
-
             // メッセージ内に"\n"か"\t"が含まれている場合は"PREFORMATTED"とする
             Label lbl;
-            if (message.indexOf("\n")!= -1 || message.indexOf("\t")!= -1){
-                lbl = new Label( message , Label.CONTENT_PREFORMATTED);
-            }else{
-                lbl = new Label( message , Label.CONTENT_TEXT);
+            if (message.indexOf("\n") != -1 || message.indexOf("\t") != -1) {
+                lbl = new Label(message, Label.CONTENT_PREFORMATTED);
+            } else {
+                lbl = new Label(message, Label.CONTENT_TEXT);
             }
             lbl.addStyleName("dialog-message");
             layout.addComponent(lbl);
@@ -133,9 +133,9 @@ public class DialogConfirm extends Window {
                 confirm.addListener(new ValueChangeListener() {
                     @Override
                     public void valueChange(ValueChangeEvent event) {
-                        if ( confirm.getValue() != null){
+                        if (confirm.getValue() != null) {
                             okButton.setEnabled(true);
-                        }else{
+                        } else {
                             okButton.setEnabled(false);
                         }
                     }

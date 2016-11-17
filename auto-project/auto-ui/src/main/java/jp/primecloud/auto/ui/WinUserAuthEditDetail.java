@@ -18,8 +18,6 @@
  */
 package jp.primecloud.auto.ui;
 
-import org.apache.commons.lang.BooleanUtils;
-
 import jp.primecloud.auto.entity.crud.UserAuth;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.UserManagementService;
@@ -29,6 +27,9 @@ import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
+import org.apache.commons.lang.BooleanUtils;
+
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.IndexedContainer;
@@ -53,38 +54,46 @@ import com.vaadin.ui.Window;
 @SuppressWarnings("serial")
 public class WinUserAuthEditDetail extends Window {
 
-    ///// 内部変数 /////
     //ユーザ番号(編集画面、編集対象ユーザ)
     private Long userNo;
+
     //ファーム番号
     private Long farmNo;
+
     //ユーザ情報(編集対象のユーザ情報)
     private UserAuthDto userAuthDto;
 
-    ///// vaadin component /////
     //マイクラウド コンボボックス
     private ComboBox myCloudSelect;
+
     //サーバ作成 コンボボックス
     private ComboBox serverMakeSelect;
+
     //サーバ削除 コンボボックス
     private ComboBox serverDeleteSelect;
+
     //サーバ操作 コンボボックス
     private ComboBox serverOperateSelect;
+
     //サービス作成 コンボボックス
     private ComboBox serviceMakeSelect;
+
     //サービス削除 コンボボックス
     private ComboBox serviceDeleteSelect;
+
     //サービス操作 コンボボックス
     private ComboBox serviceOperateSelect;
+
     //ロードバランサ作成 コンボボックス
     private ComboBox lbMakeSelect;
+
     //ロードバランサ削除 コンボボックス
     private ComboBox lbDeleteSelect;
+
     //ロードバランサ操作 コンボボックス
     private ComboBox lbOperateSelect;
 
     WinUserAuthEditDetail(Long userNo, Long farmNo) {
-
         this.userNo = userNo;
         this.farmNo = farmNo;
 
@@ -146,8 +155,7 @@ public class WinUserAuthEditDetail extends Window {
 
     private void setCustomErrorHandler(Button button) {
         //※予期しないエラーのダイアログがPCCのメイン画面側に表示されることに対する処理
-        if(button.getErrorHandler() == null ||
-           button.getErrorHandler().getClass() != ComponentsErrorHandler.class) {
+        if (button.getErrorHandler() == null || button.getErrorHandler().getClass() != ComponentsErrorHandler.class) {
             button.setErrorHandler(new ComponentsErrorHandler(this.getParent()));
         }
     }
@@ -155,6 +163,7 @@ public class WinUserAuthEditDetail extends Window {
     private class AuthForm extends Form {
 
         private static final String PID_MYCLOUD_AUTH = "MyCloudAuth";
+
         private static final String PID_AUTH = "Auth";
 
         private AuthForm() {
@@ -360,7 +369,7 @@ public class WinUserAuthEditDetail extends Window {
                 @Override
                 public void valueChange(com.vaadin.data.Property.ValueChangeEvent event) {
                     //※ファーム権限がFALSEの場合は他の権限全てを非活性
-                    Boolean isFarmUse = (Boolean)myCloudSelect.getValue();
+                    Boolean isFarmUse = (Boolean) myCloudSelect.getValue();
 
                     //サーバ権
                     serverMakeSelect.setEnabled(BooleanUtils.isTrue(isFarmUse));
@@ -395,11 +404,13 @@ public class WinUserAuthEditDetail extends Window {
 
             //利用可
             Item itemEnable = authContainer.addItem(true);
-            itemEnable.getItemProperty(PID_MYCLOUD_AUTH).setValue(ViewProperties.getCaption("label.userAuth.available"));
+            itemEnable.getItemProperty(PID_MYCLOUD_AUTH)
+                    .setValue(ViewProperties.getCaption("label.userAuth.available"));
 
             //利用不可
             Item itemDisable = authContainer.addItem(false);
-            itemDisable.getItemProperty(PID_MYCLOUD_AUTH).setValue(ViewProperties.getCaption("label.userAuth.notAvailable"));
+            itemDisable.getItemProperty(PID_MYCLOUD_AUTH).setValue(
+                    ViewProperties.getCaption("label.userAuth.notAvailable"));
 
             return authContainer;
         }
@@ -418,6 +429,7 @@ public class WinUserAuthEditDetail extends Window {
 
             return authContainer;
         }
+
     }
 
     private void initValidation() {
@@ -463,16 +475,16 @@ public class WinUserAuthEditDetail extends Window {
 
     private UserAuthDto getInputData() {
         UserAuthDto authDto = new UserAuthDto(false);
-        authDto.setFarmUse((Boolean)myCloudSelect.getValue());
-        authDto.setServerMake((Boolean)serverMakeSelect.getValue());
-        authDto.setServerDelete((Boolean)serverDeleteSelect.getValue());
-        authDto.setServerOperate((Boolean)serverOperateSelect.getValue());
-        authDto.setServiceMake((Boolean)serviceMakeSelect.getValue());
-        authDto.setServiceDelete((Boolean)serviceDeleteSelect.getValue());
-        authDto.setServiceOperate((Boolean)serviceOperateSelect.getValue());
-        authDto.setLbMake((Boolean)lbMakeSelect.getValue());
-        authDto.setLbDelete((Boolean)lbDeleteSelect.getValue());
-        authDto.setLbOperate((Boolean)lbOperateSelect.getValue());
+        authDto.setFarmUse((Boolean) myCloudSelect.getValue());
+        authDto.setServerMake((Boolean) serverMakeSelect.getValue());
+        authDto.setServerDelete((Boolean) serverDeleteSelect.getValue());
+        authDto.setServerOperate((Boolean) serverOperateSelect.getValue());
+        authDto.setServiceMake((Boolean) serviceMakeSelect.getValue());
+        authDto.setServiceDelete((Boolean) serviceDeleteSelect.getValue());
+        authDto.setServiceOperate((Boolean) serviceOperateSelect.getValue());
+        authDto.setLbMake((Boolean) lbMakeSelect.getValue());
+        authDto.setLbDelete((Boolean) lbDeleteSelect.getValue());
+        authDto.setLbOperate((Boolean) lbOperateSelect.getValue());
         return authDto;
     }
 
@@ -508,4 +520,5 @@ public class WinUserAuthEditDetail extends Window {
         setCustomErrorHandler(event.getButton());
         WinUserAuthEditDetail.this.close();
     }
+
 }

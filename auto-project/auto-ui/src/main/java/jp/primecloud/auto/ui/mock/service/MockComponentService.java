@@ -52,7 +52,7 @@ public class MockComponentService implements ComponentService {
     public List<ComponentDto> getComponents(Long farmNo) {
         List<ComponentDto> result = new ArrayList<ComponentDto>();
         List<Component> components = XmlDataLoader.getData("component.xml", Component.class);
-        LinkedHashMap<Long, List<ComponentInstance>>  componentInstanceMap = getComponentInstanceMap();
+        LinkedHashMap<Long, List<ComponentInstance>> componentInstanceMap = getComponentInstanceMap();
         LinkedHashMap<Long, List<ComponentConfig>> componentConfigMap = getComponentConfigMap();
         LinkedHashMap<Long, List<InstanceConfig>> instanceConfigMap = getInstanceConfigMap();
         LinkedHashMap<Long, Instance> instanceMap = getInstanceMap();
@@ -72,7 +72,7 @@ public class MockComponentService implements ComponentService {
             List<ComponentInstanceDto> componentInstanceDtos = new ArrayList<ComponentInstanceDto>();
             List<ComponentInstance> componentInstances = componentInstanceMap.get(componentNo);
             if (componentInstances != null) {
-                for (ComponentInstance componentInstance: componentInstances) {
+                for (ComponentInstance componentInstance : componentInstances) {
                     statuses.add(ComponentInstanceStatus.fromStatus(componentInstance.getStatus()));
                     ComponentInstanceDto componentInstanceDto = new ComponentInstanceDto();
                     componentInstanceDto.setComponentInstance(componentInstance);
@@ -136,8 +136,8 @@ public class MockComponentService implements ComponentService {
     }
 
     @Override
-    public void updateComponent(Long componentNo, String comment, Integer diskSize,
-            String customParam1, String customParam2, String customParam3) {
+    public void updateComponent(Long componentNo, String comment, Integer diskSize, String customParam1,
+            String customParam2, String customParam3) {
         // TODO 自動生成されたメソッド・スタブ
 
     }
@@ -205,10 +205,10 @@ public class MockComponentService implements ComponentService {
     }
 
     private static LinkedHashMap<Long, List<ComponentInstance>> getComponentInstanceMap() {
-        List<ComponentInstance> componentInstances =
-            XmlDataLoader.getData("componentInstance.xml", ComponentInstance.class);
+        List<ComponentInstance> componentInstances = XmlDataLoader.getData("componentInstance.xml",
+                ComponentInstance.class);
         LinkedHashMap<Long, List<ComponentInstance>> map = new LinkedHashMap<Long, List<ComponentInstance>>();
-        for (ComponentInstance componentInstance: componentInstances) {
+        for (ComponentInstance componentInstance : componentInstances) {
             List<ComponentInstance> list = map.get(componentInstance.getComponentNo());
             if (list == null) {
                 list = new ArrayList<ComponentInstance>();
@@ -222,7 +222,7 @@ public class MockComponentService implements ComponentService {
     private static LinkedHashMap<Long, List<ComponentConfig>> getComponentConfigMap() {
         List<ComponentConfig> componentConfigs = XmlDataLoader.getData("componentConfig.xml", ComponentConfig.class);
         LinkedHashMap<Long, List<ComponentConfig>> map = new LinkedHashMap<Long, List<ComponentConfig>>();
-        for (ComponentConfig componentConfig: componentConfigs) {
+        for (ComponentConfig componentConfig : componentConfigs) {
             List<ComponentConfig> list = map.get(componentConfig.getComponentNo());
             if (list == null) {
                 list = new ArrayList<ComponentConfig>();
@@ -236,7 +236,7 @@ public class MockComponentService implements ComponentService {
     private static LinkedHashMap<Long, List<InstanceConfig>> getInstanceConfigMap() {
         List<InstanceConfig> instanceConfigs = XmlDataLoader.getData("instanceConfig.xml", InstanceConfig.class);
         LinkedHashMap<Long, List<InstanceConfig>> map = new LinkedHashMap<Long, List<InstanceConfig>>();
-        for (InstanceConfig instanceConfig: instanceConfigs) {
+        for (InstanceConfig instanceConfig : instanceConfigs) {
             List<InstanceConfig> list = map.get(instanceConfig.getComponentNo());
             if (list == null) {
                 list = new ArrayList<InstanceConfig>();
@@ -250,7 +250,7 @@ public class MockComponentService implements ComponentService {
     private static LinkedHashMap<Long, Instance> getInstanceMap() {
         List<Instance> instances = XmlDataLoader.getData("instance.xml", Instance.class);
         LinkedHashMap<Long, Instance> map = new LinkedHashMap<Long, Instance>();
-        for (Instance instance: instances) {
+        for (Instance instance : instances) {
             map.put(instance.getInstanceNo(), instance);
         }
         return map;
@@ -259,7 +259,7 @@ public class MockComponentService implements ComponentService {
     private static LinkedHashMap<Long, ComponentType> getComponentTypeMap() {
         List<ComponentType> componentTypes = XmlDataLoader.getData("componentType.xml", ComponentType.class);
         LinkedHashMap<Long, ComponentType> map = new LinkedHashMap<Long, ComponentType>();
-        for (ComponentType componentType: componentTypes) {
+        for (ComponentType componentType : componentTypes) {
             map.put(componentType.getComponentTypeNo(), componentType);
         }
         return map;

@@ -21,10 +21,10 @@ package jp.primecloud.auto.ui.mock.service;
 import java.util.HashMap;
 import java.util.List;
 
+import jp.primecloud.auto.service.ProcessService;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import jp.primecloud.auto.service.ProcessService;
 
 /**
  * <p>

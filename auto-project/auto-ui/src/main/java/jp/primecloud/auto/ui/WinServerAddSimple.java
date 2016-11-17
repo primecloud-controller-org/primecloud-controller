@@ -23,8 +23,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.apache.commons.lang.BooleanUtils;
-
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.entity.crud.ComponentType;
 import jp.primecloud.auto.exception.AutoApplicationException;
@@ -44,6 +42,8 @@ import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
+import org.apache.commons.lang.BooleanUtils;
 
 import com.vaadin.Application;
 import com.vaadin.data.Validator;
@@ -70,7 +70,9 @@ import com.vaadin.ui.Window;
  */
 @SuppressWarnings("serial")
 public class WinServerAddSimple extends Window {
+
     final String COLUMN_HEIGHT = "28px";
+
     final int MAX_ADD_SERVER = 10;
 
     Application apl;
@@ -86,7 +88,6 @@ public class WinServerAddSimple extends Window {
     List<PlatformDto> platforms;
 
     WinServerAddSimple(Application ap, Long componentTypeNo) {
-
         apl = ap;
         this.componentTypeNo = componentTypeNo;
 
@@ -120,20 +121,21 @@ public class WinServerAddSimple extends Window {
                 final List<String> serverNames = getServerNames();
                 DialogConfirm dialog = null;
                 String message = "";
-                if(serverNames == null){
+                if (serverNames == null) {
                     return;
-                } else if(serverNames.size() > 1){
-                    message = ViewMessages.getMessage("IUI-000043",serverNames.get(0),serverNames.get(serverNames.size()-1),serverNames.size());
-                }else{
-                    message = ViewMessages.getMessage("IUI-000042",serverNames.get(0),serverNames.size());
+                } else if (serverNames.size() > 1) {
+                    message = ViewMessages.getMessage("IUI-000043", serverNames.get(0),
+                            serverNames.get(serverNames.size() - 1), serverNames.size());
+                } else {
+                    message = ViewMessages.getMessage("IUI-000042", serverNames.get(0), serverNames.size());
                 }
-                 dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message, Buttons.OKCancel);
-                 dialog.setCallback(new DialogConfirm.Callback() {
+                dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message, Buttons.OKCancel);
+                dialog.setCallback(new DialogConfirm.Callback() {
                     @Override
                     public void onDialogResult(Result result) {
                         if (result != Result.OK) {
                             return;
-                        }else{
+                        } else {
                             addButtonClick(serverNames);
                         }
 
@@ -166,6 +168,7 @@ public class WinServerAddSimple extends Window {
     }
 
     private class ServerAddForm extends Form {
+
         ServerAddForm() {
             //サーバ名 Prefix
             prefixField = new TextField(ViewProperties.getCaption("field.serverNamePrefix"));
@@ -187,9 +190,11 @@ public class WinServerAddSimple extends Window {
 
             getLayout().addComponent(serverNumber);
         }
+
     }
 
     private class SelectCloudTable extends Table {
+
         SelectCloudTable() {
             //テーブル基本設定
             setCaption(ViewProperties.getCaption("table.selectCloud"));
@@ -213,6 +218,7 @@ public class WinServerAddSimple extends Window {
 
             //テーブルのカラムに対してStyleNameを設定
             setCellStyleGenerator(new Table.CellStyleGenerator() {
+                @Override
                 public String getStyle(Object itemId, Object propertyId) {
                     if (propertyId == null) {
                         return "";
@@ -222,10 +228,10 @@ public class WinServerAddSimple extends Window {
                 }
             });
         }
+
     }
 
     private void initValidation() {
-
         String message = ViewMessages.getMessage("IUI-000025");
         prefixField.setRequired(true);
         prefixField.setRequiredError(message);
@@ -237,9 +243,10 @@ public class WinServerAddSimple extends Window {
                 if (value == null || !(value instanceof Integer)) {
                     return false;
                 } else {
-                    return ( (Integer) value >= 1 && (Integer) value <= MAX_ADD_SERVER );
+                    return ((Integer) value >= 1 && (Integer) value <= MAX_ADD_SERVER);
                 }
             }
+
             public void validate(Object value) throws InvalidValueException {
                 String message = ViewMessages.getMessage("IUI-000026");
                 if (!isValid(value)) {
@@ -248,10 +255,7 @@ public class WinServerAddSimple extends Window {
             }
         };
 
-//        message = ViewMessages.getMessage("IUI-000026");
         serverNumber.setRequired(true);
-//        serverNumber.setRequiredError(message);
-//        serverNumber.addValidator(new RegexpValidator("^[1-9]|10$", true, message));
         serverNumber.addValidator(serverNumberValidator);
     }
 
@@ -267,8 +271,10 @@ public class WinServerAddSimple extends Window {
         Collections.sort(platforms, new Comparator<PlatformDto>() {
             @Override
             public int compare(PlatformDto o1, PlatformDto o2) {
-                int order1 = (o1.getPlatform().getViewOrder() != null) ? o1.getPlatform().getViewOrder() : Integer.MAX_VALUE;
-                int order2 = (o2.getPlatform().getViewOrder() != null) ? o2.getPlatform().getViewOrder() : Integer.MAX_VALUE;
+                int order1 = (o1.getPlatform().getViewOrder() != null) ? o1.getPlatform().getViewOrder()
+                        : Integer.MAX_VALUE;
+                int order2 = (o2.getPlatform().getViewOrder() != null) ? o2.getPlatform().getViewOrder()
+                        : Integer.MAX_VALUE;
                 return order1 - order2;
             }
         });
@@ -277,7 +283,7 @@ public class WinServerAddSimple extends Window {
         ComponentType componentType = null;
         ComponentService componentService = BeanContext.getBean(ComponentService.class);
         List<ComponentTypeDto> componentTypeDtos = componentService.getComponentTypes(ViewContext.getFarmNo());
-        for (ComponentTypeDto componentTypeDto: componentTypeDtos) {
+        for (ComponentTypeDto componentTypeDto : componentTypeDtos) {
             if (componentTypeDto.getComponentType().getComponentTypeNo().equals(componentTypeNo)) {
                 componentType = componentTypeDto.getComponentType();
             }
@@ -292,7 +298,6 @@ public class WinServerAddSimple extends Window {
 
         serverNumber.setValue(1);
     }
-
 
     private void showClouds() {
         cloudTable.removeAllItems();
@@ -348,7 +353,7 @@ public class WinServerAddSimple extends Window {
         cloudTable.select(platformNo);
     }
 
-    private List<String> getServerNames(){
+    private List<String> getServerNames() {
         // 入力値を取得
         String prefix = (String) prefixField.getValue();
         String serverNumber = String.valueOf(this.serverNumber.getValue());
@@ -364,14 +369,14 @@ public class WinServerAddSimple extends Window {
             return null;
         }
         if (platformNo == null) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), ViewMessages
-                    .getMessage("IUI-000023"));
+            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
+                    ViewMessages.getMessage("IUI-000023"));
             getApplication().getMainWindow().addWindow(dialog);
             return null;
         }
         if (prefix.startsWith("lb-")) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), ViewMessages
-                    .getMessage("IUI-000083", prefix));
+            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
+                    ViewMessages.getMessage("IUI-000083", prefix));
             getApplication().getMainWindow().addWindow(dialog);
             return null;
         }
@@ -401,10 +406,9 @@ public class WinServerAddSimple extends Window {
             serverNames.add(prefix + (max + i));
         }
         return serverNames;
-
     }
-    private void addButtonClick(List<String> serverNames) {
 
+    private void addButtonClick(List<String> serverNames) {
         // 入力値を取得
         Long platformNo = (Long) cloudTable.getValue();
         Long farmNo = ViewContext.getFarmNo();
@@ -440,13 +444,12 @@ public class WinServerAddSimple extends Window {
 
         for (String serverName : serverNames) {
             // プラットフォーム
-            // TODO CLOUD BRANCHING
-            if (PCCConstant.PLATFORM_TYPE_AWS.equals(platformDto.getPlatform().getPlatformType())){
+            if (PCCConstant.PLATFORM_TYPE_AWS.equals(platformDto.getPlatform().getPlatformType())) {
                 // AWSサーバを作成（ロジックを実行）
                 try {
                     String[] instanceTypes = imageDto.getImageAws().getInstanceTypes().split(",");
-                    instanceService.createIaasInstance(farmNo, serverName, platformNo, comment,
-                            imageDto.getImage().getImageNo(), instanceTypes[0].trim());
+                    instanceService.createIaasInstance(farmNo, serverName, platformNo, comment, imageDto.getImage()
+                            .getImageNo(), instanceTypes[0].trim());
                 } catch (AutoApplicationException e) {
                     String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
                     DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
@@ -457,8 +460,8 @@ public class WinServerAddSimple extends Window {
                 // VMwareサーバを作成（ロジックを実行）
                 try {
                     String[] instanceTypes = imageDto.getImageVmware().getInstanceTypes().split(",");
-                    instanceService.createVmwareInstance(farmNo, serverName, platformNo, comment,
-                            imageDto.getImage().getImageNo(), instanceTypes[0].trim());
+                    instanceService.createVmwareInstance(farmNo, serverName, platformNo, comment, imageDto.getImage()
+                            .getImageNo(), instanceTypes[0].trim());
                 } catch (AutoApplicationException e) {
                     String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
                     DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
@@ -469,8 +472,8 @@ public class WinServerAddSimple extends Window {
                 // Niftyサーバを作成（ロジックを実行）
                 try {
                     String[] instanceTypes = imageDto.getImageNifty().getInstanceTypes().split(",");
-                    instanceService.createNiftyInstance(farmNo, serverName, platformNo, comment,
-                            imageDto.getImage().getImageNo(), instanceTypes[0].trim());
+                    instanceService.createNiftyInstance(farmNo, serverName, platformNo, comment, imageDto.getImage()
+                            .getImageNo(), instanceTypes[0].trim());
                 } catch (AutoApplicationException e) {
                     String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
                     DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
@@ -481,8 +484,8 @@ public class WinServerAddSimple extends Window {
                 // CloudStackサーバを作成（ロジックを実行）
                 try {
                     String[] instanceTypes = imageDto.getImageCloudstack().getInstanceTypes().split(",");
-                    instanceService.createIaasInstance(farmNo, serverName, platformNo, comment,
-                            imageDto.getImage().getImageNo(), instanceTypes[0].trim());
+                    instanceService.createIaasInstance(farmNo, serverName, platformNo, comment, imageDto.getImage()
+                            .getImageNo(), instanceTypes[0].trim());
                 } catch (AutoApplicationException e) {
                     String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
                     DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
@@ -493,8 +496,8 @@ public class WinServerAddSimple extends Window {
                 // VCloudサーバを作成（ロジックを実行）
                 try {
                     String[] instanceTypes = imageDto.getImageVcloud().getInstanceTypes().split(",");
-                    instanceService.createIaasInstance(farmNo, serverName, platformNo, comment,
-                            imageDto.getImage().getImageNo(), instanceTypes[0].trim());
+                    instanceService.createIaasInstance(farmNo, serverName, platformNo, comment, imageDto.getImage()
+                            .getImageNo(), instanceTypes[0].trim());
                 } catch (AutoApplicationException e) {
                     String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
                     DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
@@ -505,8 +508,8 @@ public class WinServerAddSimple extends Window {
                 // Azureサーバを作成（ロジックを実行）
                 try {
                     String[] instanceTypes = imageDto.getImageAzure().getInstanceTypes().split(",");
-                    instanceService.createIaasInstance(farmNo, serverName, platformNo, comment,
-                            imageDto.getImage().getImageNo(), instanceTypes[0].trim());
+                    instanceService.createIaasInstance(farmNo, serverName, platformNo, comment, imageDto.getImage()
+                            .getImageNo(), instanceTypes[0].trim());
                 } catch (AutoApplicationException e) {
                     String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
                     DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
@@ -517,8 +520,8 @@ public class WinServerAddSimple extends Window {
                 // OpenStackサーバを作成（ロジックを実行）暫定実装
                 try {
                     String[] instanceTypes = imageDto.getImageOpenstack().getInstanceTypes().split(",");
-                    instanceService.createIaasInstance(farmNo, serverName, platformNo, comment,
-                            imageDto.getImage().getImageNo(), instanceTypes[0].trim());
+                    instanceService.createIaasInstance(farmNo, serverName, platformNo, comment, imageDto.getImage()
+                            .getImageNo(), instanceTypes[0].trim());
                 } catch (AutoApplicationException e) {
                     String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
                     DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
@@ -529,17 +532,16 @@ public class WinServerAddSimple extends Window {
         }
 
         //オペレーションログ
-        AutoApplication aapl =  (AutoApplication)apl;
+        AutoApplication aapl = (AutoApplication) apl;
         String prefix = (String) prefixField.getValue();
         String serverNumber = String.valueOf(this.serverNumber.getValue());
-        aapl.doOpLog("SIMPLE_SERVER", "Make Server Simple", null, null, null, prefix +":"+ serverNumber);
+        aapl.doOpLog("SIMPLE_SERVER", "Make Server Simple", null, null, null, prefix + ":" + serverNumber);
 
         // 作成したサーバ名をセッションに格納
         ContextUtils.setAttribute("serverNames", serverNames);
 
         // 画面を閉じる
         close();
-
     }
 
 }

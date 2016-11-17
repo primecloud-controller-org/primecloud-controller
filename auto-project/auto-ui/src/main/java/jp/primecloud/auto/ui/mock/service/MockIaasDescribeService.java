@@ -78,9 +78,12 @@ public class MockIaasDescribeService implements IaasDescribeService {
     public List<SubnetDto> getSubnets(Long userNo, Long platformNo, String vpcId) {
         List<SubnetDto> subnets = new ArrayList<SubnetDto>();
 
-        subnets.add(new SubnetDto().withSubnetId("subnet-00000001").withZone("ap-northeast-1a").withCidrBlock("192.168.12.160/27"));
-        subnets.add(new SubnetDto().withSubnetId("subnet-00000002").withZone("ap-northeast-1b").withCidrBlock("192.168.12.128/27"));
-        subnets.add(new SubnetDto().withSubnetId("subnet-00000003").withZone("ap-northeast-1b").withCidrBlock("192.168.12.16/27"));
+        subnets.add(new SubnetDto().withSubnetId("subnet-00000001").withZone("ap-northeast-1a")
+                .withCidrBlock("192.168.12.160/27"));
+        subnets.add(new SubnetDto().withSubnetId("subnet-00000002").withZone("ap-northeast-1b")
+                .withCidrBlock("192.168.12.128/27"));
+        subnets.add(new SubnetDto().withSubnetId("subnet-00000003").withZone("ap-northeast-1b")
+                .withCidrBlock("192.168.12.16/27"));
 
         return subnets;
     }
@@ -88,7 +91,7 @@ public class MockIaasDescribeService implements IaasDescribeService {
     @Override
     public List<AddressDto> getAddresses(Long userNo, Long platformNo) {
         ArrayList<AddressDto> addresses = new ArrayList<AddressDto>();
-        for (AwsAddress address: this.awsAddresses){
+        for (AwsAddress address : this.awsAddresses) {
             addresses.add(new AddressDto(address));
         }
         return addresses;

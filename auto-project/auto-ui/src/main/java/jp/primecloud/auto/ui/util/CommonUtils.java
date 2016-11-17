@@ -18,14 +18,12 @@
  */
 package jp.primecloud.auto.ui.util;
 
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.service.dto.ImageDto;
 import jp.primecloud.auto.service.dto.LoadBalancerPlatformDto;
 import jp.primecloud.auto.service.dto.PlatformDto;
 
-
+import org.apache.commons.lang.StringUtils;
 
 /**
  * <p>
@@ -61,10 +59,9 @@ public class CommonUtils {
 
     }
 
-
     public static Icons getPlatformIcon(String platformType, boolean isEuca) {
         Icons rtIcon = Icons.NONE;
-        // TODO CLOUD BRANCHING
+
         if (PCCConstant.PLATFORM_TYPE_AWS.equals(platformType)) {
             if (isEuca) {
                 rtIcon = Icons.EUCALYPTUS;
@@ -92,26 +89,26 @@ public class CommonUtils {
         Icons rtIcon = Icons.NONE;
         if (imageDto.getImage().getOs().startsWith(PCCConstant.OS_NAME_CENTOS)) {
             rtIcon = Icons.CENTOS;
-        }else if (imageDto.getImage().getOs().startsWith(PCCConstant.OS_NAME_REDHAT)) {
+        } else if (imageDto.getImage().getOs().startsWith(PCCConstant.OS_NAME_REDHAT)) {
             rtIcon = Icons.REDHAT;
-        }else if (imageDto.getImage().getOs().startsWith(PCCConstant.OS_NAME_UBUNTU)) {
+        } else if (imageDto.getImage().getOs().startsWith(PCCConstant.OS_NAME_UBUNTU)) {
             rtIcon = Icons.UBUNTU;
-        }else if (imageDto.getImage().getOs().startsWith(PCCConstant.OS_NAME_WIN)) {
+        } else if (imageDto.getImage().getOs().startsWith(PCCConstant.OS_NAME_WIN)) {
             rtIcon = Icons.WINDOWS;
         }
         return rtIcon;
     }
 
-    public static Icons getImageIcon(ImageDto imageDto){
+    public static Icons getImageIcon(ImageDto imageDto) {
         String iconName = StringUtils.substringBefore(imageDto.getImage().getImageName(), "_");
         Icons rtIcon = Icons.NONE;
         if (PCCConstant.IMAGE_NAME_APPLICATION.equals(iconName)) {
             rtIcon = Icons.PAAS;
         } else if (PCCConstant.IMAGE_NAME_PRJSERVER.equals(iconName)) {
             rtIcon = Icons.PRJSERVER;
-        }else if (PCCConstant.IMAGE_NAME_WINDOWS.equals(iconName)) {
+        } else if (PCCConstant.IMAGE_NAME_WINDOWS.equals(iconName)) {
             rtIcon = Icons.WINDOWS_APP;
-        }else if ("cloudstack".equals(iconName)) {
+        } else if ("cloudstack".equals(iconName)) {
             rtIcon = Icons.CLOUD_STACK;
         } else {
             rtIcon = Icons.fromName(iconName);

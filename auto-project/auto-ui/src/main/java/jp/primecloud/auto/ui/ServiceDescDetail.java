@@ -20,6 +20,7 @@ package jp.primecloud.auto.ui;
 
 import jp.primecloud.auto.service.dto.ComponentDto;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
@@ -68,7 +69,6 @@ public class ServiceDescDetail extends Panel {
         hlPanels.addComponent(right);
 
         hlPanels.setExpandRatio(right, 100);
-
     }
 
     class DetailInfoOpe extends VerticalLayout {
@@ -86,7 +86,6 @@ public class ServiceDescDetail extends Panel {
 
             //名前ラベル追加
             addComponent(serviceName);
-
         }
 
         public void setItem(ComponentDto dto) {
@@ -97,12 +96,12 @@ public class ServiceDescDetail extends Panel {
                 serviceName.setCaption(null);
             }
         }
+
     }
 
     class DetailParameters extends Table {
 
         DetailParameters() {
-
             addStyleName("service-desc-detail-param");
             setCaption(ViewProperties.getCaption("label.serviceDetailParams"));
 
@@ -129,15 +128,11 @@ public class ServiceDescDetail extends Panel {
                     }
                 }
             });
-
         }
 
-        public void setHeaders(){
-            setColumnHeaders(new String[]{
-                    ViewProperties.getCaption("field.categoryName"),
-                    ViewProperties.getCaption("field.parameterName"),
-                    ViewProperties.getCaption("field.parameterValue")}
-            );
+        public void setHeaders() {
+            setColumnHeaders(new String[] { ViewProperties.getCaption("field.categoryName"),
+                    ViewProperties.getCaption("field.parameterName"), ViewProperties.getCaption("field.parameterValue") });
         }
     }
 
@@ -145,4 +140,5 @@ public class ServiceDescDetail extends Panel {
         left.setItem(null);
         right.getContainerDataSource().removeAllItems();
     }
+
 }

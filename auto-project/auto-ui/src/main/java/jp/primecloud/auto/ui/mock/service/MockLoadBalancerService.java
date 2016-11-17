@@ -70,10 +70,10 @@ public class MockLoadBalancerService implements LoadBalancerService {
         List<Platform> platforms = XmlDataLoader.getData("platform.xml", Platform.class);
         LinkedHashMap<Long, PlatformAws> platformAwsMap = getPlatformAwsMap();
         LinkedHashMap<Long, PlatformCloudstack> platformCloudstackMap = getPlatformCloudstackMap();
-        LinkedHashMap<Long, PlatformVmware>  platformVmwareMap = getPlatformVmwareMap();
+        LinkedHashMap<Long, PlatformVmware> platformVmwareMap = getPlatformVmwareMap();
         LinkedHashMap<Long, PlatformNifty> platformNiftyMap = getPlatformNiftyMap();
         LinkedHashMap<Long, PlatformDto> platformDtoMap = new LinkedHashMap<Long, PlatformDto>();
-        for (Platform platform: platforms) {
+        for (Platform platform : platforms) {
             PlatformDto platformDto = new PlatformDto();
             platformDto.setPlatform(platform);
             platformDto.setPlatformAws(platformAwsMap.get(platform.getPlatformNo()));
@@ -89,7 +89,7 @@ public class MockLoadBalancerService implements LoadBalancerService {
         LinkedHashMap<Long, ImageVmware> imageVmwareMap = getImageVmwareMap();
         LinkedHashMap<Long, ImageNifty> imageNiftyMap = getImageNiftyMap();
         LinkedHashMap<Long, ImageDto> imageDtoMap = new LinkedHashMap<Long, ImageDto>();
-        for (Image image: images) {
+        for (Image image : images) {
             ImageDto imageDto = new ImageDto();
             imageDto.setImage(image);
             imageDto.setImageAws(imageAwsMap.get(image.getImageNo()));
@@ -211,7 +211,8 @@ public class MockLoadBalancerService implements LoadBalancerService {
     }
 
     @Override
-    public Long createCloudstackLoadBalancer(Long farmNo, String loadBalancerName, String comment, Long platformNo, Long componentNo) {
+    public Long createCloudstackLoadBalancer(Long farmNo, String loadBalancerName, String comment, Long platformNo,
+            Long componentNo) {
         System.out.println("createAwsLoadBalancer: loadBalancerName=" + loadBalancerName + ", componentNo="
                 + componentNo);
         return null;
@@ -226,18 +227,19 @@ public class MockLoadBalancerService implements LoadBalancerService {
     }
 
     @Override
-    public void updateAwsLoadBalancer(Long loadBalancerNo, String loadBalancerName, String comment,
-            Long componentNo, String subnetId, String securityGroupName, String availabilityZone, boolean internal) {
+    public void updateAwsLoadBalancer(Long loadBalancerNo, String loadBalancerName, String comment, Long componentNo,
+            String subnetId, String securityGroupName, String availabilityZone, boolean internal) {
         System.out.println("updateAwsLoadBalancer: loadBalancerName=" + loadBalancerName + ", componentNo="
                 + componentNo);
     }
 
     @Override
-    public void updateCloudstackLoadBalancer(Long loadBalancerNo, String loadBalancerName, String comment, Long componentNo,
-            String algorithm, String pubricPort, String privatePort) {
+    public void updateCloudstackLoadBalancer(Long loadBalancerNo, String loadBalancerName, String comment,
+            Long componentNo, String algorithm, String pubricPort, String privatePort) {
         System.out.println("updateAwsLoadBalancer: loadBalancerName=" + loadBalancerName + ", componentNo="
                 + componentNo);
     }
+
     @Override
     public void updateUltraMonkeyLoadBalancer(Long loadBalancerNo, String loadBalancerName, String comment,
             Long componentNo) {
@@ -251,7 +253,8 @@ public class MockLoadBalancerService implements LoadBalancerService {
     }
 
     @Override
-    public void createListener(Long loadBalancerNo, Integer loadBalancerPort, Integer servicePort, String protocol, Long sslKeyNo) {
+    public void createListener(Long loadBalancerNo, Integer loadBalancerPort, Integer servicePort, String protocol,
+            Long sslKeyNo) {
         System.out.println("createLoadBalancerListener: loadBalancerNo=" + loadBalancerNo + ", loadBalancerPort="
                 + loadBalancerPort);
     }
@@ -312,7 +315,8 @@ public class MockLoadBalancerService implements LoadBalancerService {
 
             // UltraMonkeyイメージの利用可否チェック
             for (Image image : images) {
-                if (image.getPlatformNo().equals(platform.getPlatformNo()) && PCCConstant.IMAGE_NAME_ULTRAMONKEY.equals(image.getImageName())) {
+                if (image.getPlatformNo().equals(platform.getPlatformNo())
+                        && PCCConstant.IMAGE_NAME_ULTRAMONKEY.equals(image.getImageName())) {
                     types.add(PCCConstant.LOAD_BALANCER_ULTRAMONKEY);
                 }
             }
@@ -346,7 +350,6 @@ public class MockLoadBalancerService implements LoadBalancerService {
 
     }
 
-
     private List<ImageDto> getImages(Platform platform, List<Image> images) {
         // イメージを取得
         List<ImageDto> imageDtos = new ArrayList<ImageDto>();
@@ -356,8 +359,7 @@ public class MockLoadBalancerService implements LoadBalancerService {
         LinkedHashMap<Long, ImageCloudstack> imageCloudstackMap = getImageCloudstackMap();
         for (Image image : images) {
             // プラットフォームが異なる場合はスキップ
-            if (platform.getPlatformNo().equals(image.getPlatformNo()) == false ||
-                image.getSelectable() == false) {
+            if (platform.getPlatformNo().equals(image.getPlatformNo()) == false || image.getSelectable() == false) {
                 continue;
             }
 
@@ -376,7 +378,7 @@ public class MockLoadBalancerService implements LoadBalancerService {
     private LinkedHashMap<Long, PlatformAws> getPlatformAwsMap() {
         List<PlatformAws> platformAwss = XmlDataLoader.getData("platformAws.xml", PlatformAws.class);
         LinkedHashMap<Long, PlatformAws> map = new LinkedHashMap<Long, PlatformAws>();
-        for (PlatformAws platformAws: platformAwss) {
+        for (PlatformAws platformAws : platformAwss) {
             map.put(platformAws.getPlatformNo(), platformAws);
         }
         return map;
@@ -385,7 +387,7 @@ public class MockLoadBalancerService implements LoadBalancerService {
     private LinkedHashMap<Long, PlatformVmware> getPlatformVmwareMap() {
         List<PlatformVmware> platformVmwares = XmlDataLoader.getData("platformVmware.xml", PlatformVmware.class);
         LinkedHashMap<Long, PlatformVmware> map = new LinkedHashMap<Long, PlatformVmware>();
-        for (PlatformVmware platformVmware: platformVmwares) {
+        for (PlatformVmware platformVmware : platformVmwares) {
             map.put(platformVmware.getPlatformNo(), platformVmware);
         }
         return map;
@@ -394,16 +396,17 @@ public class MockLoadBalancerService implements LoadBalancerService {
     private LinkedHashMap<Long, PlatformNifty> getPlatformNiftyMap() {
         List<PlatformNifty> platformNifties = XmlDataLoader.getData("platformNifty.xml", PlatformNifty.class);
         LinkedHashMap<Long, PlatformNifty> map = new LinkedHashMap<Long, PlatformNifty>();
-        for (PlatformNifty platformNifty: platformNifties) {
+        for (PlatformNifty platformNifty : platformNifties) {
             map.put(platformNifty.getPlatformNo(), platformNifty);
         }
         return map;
     }
 
     private LinkedHashMap<Long, PlatformCloudstack> getPlatformCloudstackMap() {
-        List<PlatformCloudstack> platformCloudstacks = XmlDataLoader.getData("platformNifty.xml", PlatformCloudstack.class);
+        List<PlatformCloudstack> platformCloudstacks = XmlDataLoader.getData("platformNifty.xml",
+                PlatformCloudstack.class);
         LinkedHashMap<Long, PlatformCloudstack> map = new LinkedHashMap<Long, PlatformCloudstack>();
-        for (PlatformCloudstack platformCloudstack: platformCloudstacks) {
+        for (PlatformCloudstack platformCloudstack : platformCloudstacks) {
             map.put(platformCloudstack.getPlatformNo(), platformCloudstack);
         }
         return map;
@@ -412,7 +415,7 @@ public class MockLoadBalancerService implements LoadBalancerService {
     private LinkedHashMap<Long, ImageAws> getImageAwsMap() {
         List<ImageAws> imageAwss = XmlDataLoader.getData("imageAws.xml", ImageAws.class);
         LinkedHashMap<Long, ImageAws> map = new LinkedHashMap<Long, ImageAws>();
-        for (ImageAws imageAws: imageAwss) {
+        for (ImageAws imageAws : imageAwss) {
             map.put(imageAws.getImageNo(), imageAws);
         }
         return map;
@@ -421,7 +424,7 @@ public class MockLoadBalancerService implements LoadBalancerService {
     private LinkedHashMap<Long, ImageCloudstack> getImageCloudstackMap() {
         List<ImageCloudstack> imageCloudstacks = XmlDataLoader.getData("imageCloudstack.xml", ImageCloudstack.class);
         LinkedHashMap<Long, ImageCloudstack> map = new LinkedHashMap<Long, ImageCloudstack>();
-        for (ImageCloudstack imageCloudstack: imageCloudstacks) {
+        for (ImageCloudstack imageCloudstack : imageCloudstacks) {
             map.put(imageCloudstack.getImageNo(), imageCloudstack);
         }
         return map;
@@ -430,7 +433,7 @@ public class MockLoadBalancerService implements LoadBalancerService {
     private LinkedHashMap<Long, ImageVmware> getImageVmwareMap() {
         List<ImageVmware> imageVmwares = XmlDataLoader.getData("imageVmware.xml", ImageVmware.class);
         LinkedHashMap<Long, ImageVmware> map = new LinkedHashMap<Long, ImageVmware>();
-        for (ImageVmware imageVmware: imageVmwares) {
+        for (ImageVmware imageVmware : imageVmwares) {
             map.put(imageVmware.getImageNo(), imageVmware);
         }
         return map;
@@ -439,7 +442,7 @@ public class MockLoadBalancerService implements LoadBalancerService {
     private LinkedHashMap<Long, ImageNifty> getImageNiftyMap() {
         List<ImageNifty> imageNifties = XmlDataLoader.getData("imageNifty.xml", ImageNifty.class);
         LinkedHashMap<Long, ImageNifty> map = new LinkedHashMap<Long, ImageNifty>();
-        for (ImageNifty imageNifty: imageNifties) {
+        for (ImageNifty imageNifty : imageNifties) {
             map.put(imageNifty.getImageNo(), imageNifty);
         }
         return map;

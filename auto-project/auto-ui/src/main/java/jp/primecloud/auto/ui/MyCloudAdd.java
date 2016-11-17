@@ -34,12 +34,14 @@ import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
 import com.vaadin.Application;
 import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.validator.RegexpValidator;
 import com.vaadin.data.validator.StringLengthValidator;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Form;
 import com.vaadin.ui.HorizontalLayout;
@@ -49,7 +51,6 @@ import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Button.ClickEvent;
 
 /**
  * <p>
@@ -59,6 +60,7 @@ import com.vaadin.ui.Button.ClickEvent;
  */
 @SuppressWarnings("serial")
 public class MyCloudAdd extends Window {
+
     final String COLUMN_HEIGHT = "30px";
 
     Application apl;
@@ -128,7 +130,9 @@ public class MyCloudAdd extends Window {
     }
 
     private class BasicTab extends Form {
+
         Label ldlTemplate = new Label();
+
         Label ldlDesciption = new Label();
 
         BasicTab() {
@@ -146,7 +150,7 @@ public class MyCloudAdd extends Window {
             getLayout().addComponent(templateTable);
 
             // テンプレート説明欄
-            Panel descTemplate= new Panel();
+            Panel descTemplate = new Panel();
             CssLayout lay = new CssLayout();
             lay.addStyleName("template-desc");
             descTemplate.setHeight("80px");
@@ -159,19 +163,20 @@ public class MyCloudAdd extends Window {
             templateTable.addListener(new Table.ValueChangeListener() {
                 @Override
                 public void valueChange(com.vaadin.data.Property.ValueChangeEvent event) {
-                    TemplateDto template = (TemplateDto)templateTable.getValue();
-                    ldlTemplate.setValue(template.getTemplate().getTemplateNameDisp()+"：");
+                    TemplateDto template = (TemplateDto) templateTable.getValue();
+                    ldlTemplate.setValue(template.getTemplate().getTemplateNameDisp() + "：");
                     ldlDesciption.setValue(template.getTemplate().getTemplateDescriptionDisp());
                 }
 
             });
 
             cloudNameField.focus();
-
         }
+
     }
 
     private class SelectTemplateTable extends Table {
+
         SelectTemplateTable() {
             //テーブル基本設定
             setWidth("100%");
@@ -195,6 +200,7 @@ public class MyCloudAdd extends Window {
 
             //テーブルのカラムに対してStyleNameを設定
             setCellStyleGenerator(new Table.CellStyleGenerator() {
+                @Override
                 public String getStyle(Object itemId, Object propertyId) {
 
                     if (propertyId == null) {
@@ -205,6 +211,7 @@ public class MyCloudAdd extends Window {
                 }
             });
         }
+
     }
 
     private void initValidation() {
@@ -235,7 +242,7 @@ public class MyCloudAdd extends Window {
             // テンプレート名
             String name = template.getTemplate().getTemplateNameDisp();
             Icons nameIcon = Icons.CUSTOM;
-            Label slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(apl ,nameIcon) + "\"><div>" + name
+            Label slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(apl, nameIcon) + "\"><div>" + name
                     + "</div>", Label.CONTENT_XHTML);
             slbl.setHeight(COLUMN_HEIGHT);
 
@@ -247,10 +254,8 @@ public class MyCloudAdd extends Window {
     }
 
     private void addButtonClick(ClickEvent event) {
-
         // 入力値を取得
         String cloudName = (String) cloudNameField.getValue();
-//        String comment = (String) commentField.getValue();
         TemplateDto template = (TemplateDto) templateTable.getValue();
 
         // 入力チェック
@@ -264,14 +269,16 @@ public class MyCloudAdd extends Window {
         }
         if (template == null) {
             // テンプレートが選択されていない場合
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), ViewMessages.getMessage("IUI-000004") );
+            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
+                    ViewMessages.getMessage("IUI-000004"));
             getApplication().getMainWindow().addWindow(dialog);
             return;
         }
 
         //クラウド作成の確認ダイヤログを表示
         String diagMessage = ViewMessages.getMessage("IUI-000040", cloudName);
-        DialogConfirm dialogConfirm = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), diagMessage, Buttons.OKCancel);
+        DialogConfirm dialogConfirm = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), diagMessage,
+                Buttons.OKCancel);
         dialogConfirm.setCallback(new Callback() {
             @Override
             public void onDialogResult(Result result) {
@@ -282,9 +289,8 @@ public class MyCloudAdd extends Window {
                 String comment = (String) commentField.getValue();
                 TemplateDto template = (TemplateDto) templateTable.getValue();
 
-
                 //パワーユーザ兼任の場合は自分の管理下で作成するためUserNoを元に戻す
-                if (ViewContext.getPowerUser()){
+                if (ViewContext.getPowerUser()) {
                     ViewContext.setUserNo(ViewContext.getPowerDefaultMaster());
                 }
                 // ユーザ番号
@@ -303,7 +309,7 @@ public class MyCloudAdd extends Window {
                 }
 
                 //オペレーションログ
-                AutoApplication aapl =  (AutoApplication)apl;
+                AutoApplication aapl = (AutoApplication) apl;
                 aapl.doOpLog("CLOUD", "Make Cloud", farmNo, null);
 
                 // テンプレートを適用
@@ -323,11 +329,9 @@ public class MyCloudAdd extends Window {
 
                 // 画面を閉じる
                 close();
-
             }
         });
         getApplication().getMainWindow().addWindow(dialogConfirm);
-
     }
 
 }

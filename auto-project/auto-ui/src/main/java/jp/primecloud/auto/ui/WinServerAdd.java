@@ -22,8 +22,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.apache.commons.lang.BooleanUtils;
-
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.config.Config;
 import jp.primecloud.auto.entity.crud.ComponentType;
@@ -39,6 +37,8 @@ import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
+import org.apache.commons.lang.BooleanUtils;
 
 import com.vaadin.Application;
 import com.vaadin.data.Property;
@@ -65,8 +65,9 @@ import com.vaadin.ui.Window;
  * </p>
  *
  */
-@SuppressWarnings({"serial", "unchecked"})
+@SuppressWarnings({ "serial", "unchecked" })
 public class WinServerAdd extends Window {
+
     final String COLUMN_HEIGHT = "28px";
 
     Application apl;
@@ -157,6 +158,7 @@ public class WinServerAdd extends Window {
     }
 
     private class BasicForm extends Form {
+
         BasicForm() {
             // サーバ名
             serverNameField = new TextField(ViewProperties.getCaption("field.serverName"));
@@ -224,13 +226,14 @@ public class WinServerAdd extends Window {
                 getLayout().addComponent(hlay);
             }
         }
+
     }
 
     private class SelectCloudTable extends Table {
+
         SelectCloudTable() {
             //テーブル基本設定
             setCaption(ViewProperties.getCaption("table.selectCloud"));
-            //            setWidth("100%");
             setWidth("470px");
             setPageLength(4);
             setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
@@ -250,6 +253,7 @@ public class WinServerAdd extends Window {
 
             //テーブルのカラムに対してStyleNameを設定
             setCellStyleGenerator(new Table.CellStyleGenerator() {
+                @Override
                 public String getStyle(Object itemId, Object propertyId) {
                     if (propertyId == null) {
                         return "";
@@ -270,13 +274,14 @@ public class WinServerAdd extends Window {
                 }
             });
         }
+
     }
 
     private class SelectImageTable extends Table {
+
         SelectImageTable() {
             //テーブル基本設定
             setCaption(ViewProperties.getCaption("table.selectImage"));
-            //            setWidth("100%");
             setWidth("470px");
             setPageLength(3);
             setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
@@ -298,6 +303,7 @@ public class WinServerAdd extends Window {
 
             //テーブルのカラムに対してStyleNameを設定
             setCellStyleGenerator(new Table.CellStyleGenerator() {
+                @Override
                 public String getStyle(Object itemId, Object propertyId) {
                     if (propertyId == null) {
                         return "";
@@ -323,6 +329,7 @@ public class WinServerAdd extends Window {
                 }
             });
         }
+
     }
 
     private class AvailableServiceTable extends Table {
@@ -348,8 +355,8 @@ public class WinServerAdd extends Window {
 
             //テーブルのカラムに対してStyleNameを設定
             setCellStyleGenerator(new Table.CellStyleGenerator() {
+                @Override
                 public String getStyle(Object itemId, Object propertyId) {
-
                     if (propertyId == null) {
                         return "";
                     }
@@ -357,9 +364,9 @@ public class WinServerAdd extends Window {
 
                     Long componentTypeNo = (Long) itemId;
                     List<ComponentType> componentTypes = selectImage.getComponentTypes();
-                    for (ComponentType componentType: componentTypes) {
-                        if (componentType.getComponentTypeNo().equals(componentTypeNo) &&
-                            BooleanUtils.isNotTrue(componentType.getSelectable())) {
+                    for (ComponentType componentType : componentTypes) {
+                        if (componentType.getComponentTypeNo().equals(componentTypeNo)
+                                && BooleanUtils.isNotTrue(componentType.getSelectable())) {
                             //無効コンポーネントタイプの場合は、セルの表示をDisableに変更する
                             ret += " v-disabled";
                             break;
@@ -369,6 +376,7 @@ public class WinServerAdd extends Window {
                 }
             });
         }
+
     }
 
     private void initValidation() {
@@ -394,8 +402,10 @@ public class WinServerAdd extends Window {
         Collections.sort(platforms, new Comparator<PlatformDto>() {
             @Override
             public int compare(PlatformDto o1, PlatformDto o2) {
-                int order1 = (o1.getPlatform().getViewOrder() != null) ? o1.getPlatform().getViewOrder() : Integer.MAX_VALUE;
-                int order2 = (o2.getPlatform().getViewOrder() != null) ? o2.getPlatform().getViewOrder() : Integer.MAX_VALUE;
+                int order1 = (o1.getPlatform().getViewOrder() != null) ? o1.getPlatform().getViewOrder()
+                        : Integer.MAX_VALUE;
+                int order2 = (o2.getPlatform().getViewOrder() != null) ? o2.getPlatform().getViewOrder()
+                        : Integer.MAX_VALUE;
                 return order1 - order2;
             }
         });
@@ -405,8 +415,10 @@ public class WinServerAdd extends Window {
             Collections.sort(platform.getImages(), new Comparator<ImageDto>() {
                 @Override
                 public int compare(ImageDto o1, ImageDto o2) {
-                    int order1 = (o1.getImage().getViewOrder() != null) ? o1.getImage().getViewOrder() : Integer.MAX_VALUE;
-                    int order2 = (o2.getImage().getViewOrder() != null) ? o2.getImage().getViewOrder() : Integer.MAX_VALUE;
+                    int order1 = (o1.getImage().getViewOrder() != null) ? o1.getImage().getViewOrder()
+                            : Integer.MAX_VALUE;
+                    int order2 = (o2.getImage().getViewOrder() != null) ? o2.getImage().getViewOrder()
+                            : Integer.MAX_VALUE;
                     return order1 - order2;
                 }
             });
@@ -493,7 +505,8 @@ public class WinServerAdd extends Window {
             String name = image.getImage().getImageNameDisp();
             Icons nameIcon = CommonUtils.getImageIcon(image);
 
-            Label nlbl = new Label("<img src=\"" + VaadinUtils.getIconPath(apl, nameIcon) + "\"><div>" + name + "</div>", Label.CONTENT_XHTML);
+            Label nlbl = new Label("<img src=\"" + VaadinUtils.getIconPath(apl, nameIcon) + "\"><div>" + name
+                    + "</div>", Label.CONTENT_XHTML);
             nlbl.setHeight(COLUMN_HEIGHT);
 
             // OS名
@@ -582,9 +595,9 @@ public class WinServerAdd extends Window {
             commentField.validate();
         } catch (InvalidValueException e) {
             String errMes = e.getMessage();
-            if (null == errMes){
+            if (null == errMes) {
                 //メッセージが取得できない場合は複合エラー 先頭を表示する
-                InvalidValueException[] exceptions =  e.getCauses();
+                InvalidValueException[] exceptions = e.getCauses();
                 errMes = exceptions[0].getMessage();
             }
 
@@ -593,20 +606,20 @@ public class WinServerAdd extends Window {
             return;
         }
         if (platformNo == null) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), ViewMessages
-                    .getMessage("IUI-000023"));
+            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
+                    ViewMessages.getMessage("IUI-000023"));
             getApplication().getMainWindow().addWindow(dialog);
             return;
         }
         if (imageNo == null) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), ViewMessages
-                    .getMessage("IUI-000024"));
+            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
+                    ViewMessages.getMessage("IUI-000024"));
             getApplication().getMainWindow().addWindow(dialog);
             return;
         }
         if (serverName.startsWith("lb-")) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), ViewMessages
-                    .getMessage("IUI-000083", serverName));
+            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
+                    ViewMessages.getMessage("IUI-000083", serverName));
             getApplication().getMainWindow().addWindow(dialog);
             return;
         }
@@ -631,7 +644,6 @@ public class WinServerAdd extends Window {
         Long farmNo = ViewContext.getFarmNo();
         InstanceService instanceService = BeanContext.getBean(InstanceService.class);
         Long instanceNo = null;
-        // TODO CLOUD BRANCHING
         if (PCCConstant.PLATFORM_TYPE_AWS.equals(platformDto.getPlatform().getPlatformType())) {
             // AWSサーバを作成（ロジックを実行）
             try {
@@ -672,7 +684,8 @@ public class WinServerAdd extends Window {
             // CloudStackサーバを作成（ロジックを実行）
             try {
                 String[] instanceTypes = imageDto.getImageCloudstack().getInstanceTypes().split(",");
-                instanceNo = instanceService.createIaasInstance(farmNo, serverName, platformNo, comment, imageNo, instanceTypes[0].trim());
+                instanceNo = instanceService.createIaasInstance(farmNo, serverName, platformNo, comment, imageNo,
+                        instanceTypes[0].trim());
             } catch (AutoApplicationException e) {
                 String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
                 DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
@@ -683,7 +696,8 @@ public class WinServerAdd extends Window {
             // VCloudサーバを作成（ロジックを実行）
             try {
                 String[] instanceTypes = imageDto.getImageVcloud().getInstanceTypes().split(",");
-                instanceNo = instanceService.createIaasInstance(farmNo, serverName, platformNo, comment, imageNo, instanceTypes[0].trim());
+                instanceNo = instanceService.createIaasInstance(farmNo, serverName, platformNo, comment, imageNo,
+                        instanceTypes[0].trim());
             } catch (AutoApplicationException e) {
                 String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
                 DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
@@ -694,7 +708,8 @@ public class WinServerAdd extends Window {
             // Azureサーバを作成（ロジックを実行）
             try {
                 String[] instanceTypes = imageDto.getImageAzure().getInstanceTypes().split(",");
-                instanceNo = instanceService.createIaasInstance(farmNo, serverName, platformNo, comment, imageNo, instanceTypes[0].trim());
+                instanceNo = instanceService.createIaasInstance(farmNo, serverName, platformNo, comment, imageNo,
+                        instanceTypes[0].trim());
             } catch (AutoApplicationException e) {
                 String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
                 DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
@@ -705,7 +720,8 @@ public class WinServerAdd extends Window {
             // OpenStackサーバを作成（ロジックを実行）暫定実装
             try {
                 String[] instanceTypes = imageDto.getImageOpenstack().getInstanceTypes().split(",");
-                instanceNo = instanceService.createIaasInstance(farmNo, serverName, platformNo, comment, imageNo, instanceTypes[0].trim());
+                instanceNo = instanceService.createIaasInstance(farmNo, serverName, platformNo, comment, imageNo,
+                        instanceTypes[0].trim());
             } catch (AutoApplicationException e) {
                 String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
                 DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
@@ -715,7 +731,7 @@ public class WinServerAdd extends Window {
         }
 
         //オペレーションログ
-        AutoApplication aapl =  (AutoApplication)apl;
+        AutoApplication aapl = (AutoApplication) apl;
         aapl.doOpLog("SERVER", "Make Server", instanceNo, null, null, null);
 
         // サーバにサービスを関連付ける

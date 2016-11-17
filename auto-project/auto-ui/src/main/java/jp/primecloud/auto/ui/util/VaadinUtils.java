@@ -32,7 +32,9 @@ import com.vaadin.ui.Window;
 public class VaadinUtils {
 
     private static final String FILE_SEPARATOR = "/";
+
     private static final String DEFAULT_THEME = "default";
+
     private static final String VAADIN_THEMES_PATH = "./VAADIN/themes/";
 
     private VaadinUtils() {

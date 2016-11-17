@@ -1,11 +1,30 @@
+/*
+ * Copyright 2014 by SCSK Corporation.
+ * 
+ * This file is part of PrimeCloud Controller(TM).
+ * 
+ * PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
+ */
 package jp.primecloud.auto.ui;
 
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TabSheet;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.TabSheet.SelectedTabChangeEvent;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
 /**
@@ -20,8 +39,6 @@ public class LoadBalancerDesc extends Panel {
     TabSheet tabDesc = new TabSheet();
 
     LoadBalancerDescBasic loadBalancerDescBasic = new LoadBalancerDescBasic();
-
-//    LoadBalancerDescDetail loadBalancerDescDetail = new LoadBalancerDescDetail();
 
     LoadBalancerDescServer loadBalancerDescServer = new LoadBalancerDescServer();
 
@@ -42,9 +59,10 @@ public class LoadBalancerDesc extends Panel {
         tabDesc.setWidth("100%");
         tabDesc.setHeight("100%");
 
-        tabDesc.addTab(loadBalancerDescBasic,  ViewProperties.getCaption("tab.loadBalancerDescBasic"), Icons.BASIC.resource());
-//        tabDesc.addTab(loadBalancerDescDetail, ViewProperties.getCaption("tab.loadBalancerDescDetail"), Icons.DETAIL.resource());
-        tabDesc.addTab(loadBalancerDescServer, ViewProperties.getCaption("tab.loadBalancerDescServer"), Icons.DETAIL.resource());
+        tabDesc.addTab(loadBalancerDescBasic, ViewProperties.getCaption("tab.loadBalancerDescBasic"),
+                Icons.BASIC.resource());
+        tabDesc.addTab(loadBalancerDescServer, ViewProperties.getCaption("tab.loadBalancerDescServer"),
+                Icons.DETAIL.resource());
 
         //タブ用リスナー
         tabDesc.addListener(TabSheet.SelectedTabChangeEvent.class, this, "selectedTabChange");
@@ -52,14 +70,13 @@ public class LoadBalancerDesc extends Panel {
     }
 
     public void selectedTabChange(SelectedTabChangeEvent event) {
-        AutoApplication ap = (AutoApplication)getApplication();
+        AutoApplication ap = (AutoApplication) getApplication();
         LoadBalancerTable tbl = (LoadBalancerTable) ap.myCloud.myCloudTabs.loadBalancerTable;
         ap.myCloud.myCloudTabs.refreshDesc(tbl);
     }
 
     public void initializeData() {
         loadBalancerDescBasic.initializeData();
-//        loadBalancerDescDetail.initializeData();
         loadBalancerDescServer.initializeData();
     }
 

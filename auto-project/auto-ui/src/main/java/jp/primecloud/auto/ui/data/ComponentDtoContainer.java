@@ -27,6 +27,7 @@ import jp.primecloud.auto.service.dto.ComponentDto;
 import jp.primecloud.auto.ui.ServiceTable;
 import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.ViewContext;
+
 import com.vaadin.data.Container;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
@@ -38,41 +39,29 @@ import com.vaadin.data.util.BeanItemContainer;
  *
  */
 @SuppressWarnings("serial")
-public class ComponentDtoContainer extends BeanItemContainer<ComponentDto> implements
-		Serializable {
+public class ComponentDtoContainer extends BeanItemContainer<ComponentDto> implements Serializable {
 
-	/**
-	 * Natural property order for Farm bean. Used in tables and forms.
-	 */
-	public static final Object[] NATURAL_COL_ORDER = new Object[] {
-	    "componentNo", "componentName", "status"
-	};
+    /**
+     * Natural property order for Farm bean. Used in tables and forms.
+     */
+    public static final Object[] NATURAL_COL_ORDER = new Object[] { "componentNo", "componentName", "status" };
 
-	/**
-	 * "Human readable" captions for properties in same order as in
-	 * NATURAL_COL_ORDER.
-	 */
-	public static final String[] COL_HEADERS_ENGLISH = new String[] {
-        "no", "name", "status"
-	};
+    /**
+     * "Human readable" captions for properties in same order as in
+     * NATURAL_COL_ORDER.
+     */
+    public static final String[] COL_HEADERS_ENGLISH = new String[] { "no", "name", "status" };
 
-    public static final Object[] SERVICE_DESC = new Object[] {
-        "componentName", "serviceDetail", "status"
-    };
+    public static final Object[] SERVICE_DESC = new Object[] { "componentName", "serviceDetail", "status" };
 
-    public static final Object[] SERVER_DESC = new Object[] {
-        "componentName", "urlIcon" , "status", "serviceDetail"
-    };
+    public static final Object[] SERVER_DESC = new Object[] { "componentName", "urlIcon", "status", "serviceDetail" };
 
-	public ComponentDtoContainer() {
-
-		super(ComponentDto.class);
-		refresh();
-
-	}
+    public ComponentDtoContainer() {
+        super(ComponentDto.class);
+        refresh();
+    }
 
     public ComponentDtoContainer(Collection<ComponentDto> components) {
-
         super(ComponentDto.class);
 
         for (ComponentDto dto : components) {
@@ -81,7 +70,6 @@ public class ComponentDtoContainer extends BeanItemContainer<ComponentDto> imple
     }
 
     public void refresh() {
-
         // ロジックを実行
         removeAllItems();
         Long farmNo = ViewContext.getFarmNo();
@@ -94,20 +82,19 @@ public class ComponentDtoContainer extends BeanItemContainer<ComponentDto> imple
     }
 
     public void refresh2(ServiceTable table) {
-
         // ロジックを実行
         Collection<ComponentDto> collection = this.getItemIds();
         Long farmNo = ViewContext.getFarmNo();
         if (farmNo != null) {
             ComponentService componentService = BeanContext.getBean(ComponentService.class);
-            Object[] o = collection.toArray();  //現在のitem
+            Object[] o = collection.toArray(); //現在のitem
             List<ComponentDto> dtos = componentService.getComponents(farmNo); //取得したデータ
             for (int i = 0; i < o.length; i++) {
                 ComponentDto oldComponent = (ComponentDto) o[i];
                 for (int j = 0; j < dtos.size(); j++) {
                     ComponentDto newComponent = dtos.get(j);
-                    if (oldComponent.getComponent().getComponentNo().equals(
-                            newComponent.getComponent().getComponentNo())) {
+                    if (oldComponent.getComponent().getComponentNo()
+                            .equals(newComponent.getComponent().getComponentNo())) {
                         final BeanItem<ComponentDto> dto = this.getItem(o[i]);
                         dto.getItemProperty("component").setValue(newComponent.getComponent());
                         dto.getItemProperty("componentType").setValue(newComponent.getComponentType());
@@ -139,7 +126,6 @@ public class ComponentDtoContainer extends BeanItemContainer<ComponentDto> imple
 
         table.containerItemSetChange(event);
         table.refreshDesc();
-
     }
 
 }

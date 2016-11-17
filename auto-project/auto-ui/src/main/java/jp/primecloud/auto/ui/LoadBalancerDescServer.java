@@ -1,3 +1,21 @@
+/*
+ * Copyright 2014 by SCSK Corporation.
+ * 
+ * This file is part of PrimeCloud Controller(TM).
+ * 
+ * PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
+ */
 package jp.primecloud.auto.ui;
 
 import java.util.ArrayList;
@@ -5,9 +23,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
 
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.InstanceStatus;
@@ -44,6 +59,9 @@ import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
 import jp.primecloud.auto.util.MessageUtils;
 
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+
 import com.amazonaws.services.ec2.model.Subnet;
 import com.vaadin.data.Container;
 import com.vaadin.event.ItemClickEvent;
@@ -66,22 +84,20 @@ import com.vaadin.ui.themes.Reindeer;
  * </p>
  *
  */
-@SuppressWarnings({"serial", "unchecked"})
+@SuppressWarnings({ "serial", "unchecked" })
 public class LoadBalancerDescServer extends Panel {
 
     LoadBalancerDetailInfo loadBalancerInfo = new LoadBalancerDetailInfo();
 
-    AttachSeriviceServerTable attachServiceServerTable = new AttachSeriviceServerTable("",null);
+    AttachSeriviceServerTable attachServiceServerTable = new AttachSeriviceServerTable("", null);
 
     LoadbalancerServerOperation loadBalancerOpe = new LoadbalancerServerOperation();
 
-    LoadBalancerDescServer(){
-
+    LoadBalancerDescServer() {
         addStyleName(Reindeer.PANEL_LIGHT);
-
         setHeight("100%");
 
-        VerticalLayout panel = (VerticalLayout)getContent();
+        VerticalLayout panel = (VerticalLayout) getContent();
         panel.setWidth("100%");
         panel.setHeight("100%");
         panel.setMargin(true);
@@ -99,7 +115,7 @@ public class LoadBalancerDescServer extends Panel {
 
         vLeftLayout.setWidth("100%");
         vLeftLayout.setHeight("100%");
-        vLeftLayout.setMargin(true,false,false,false);
+        vLeftLayout.setMargin(true, false, false, false);
         vLeftLayout.setSpacing(false);
         vLeftLayout.addComponent(loadBalancerInfo);
         vLeftLayout.setExpandRatio(loadBalancerInfo, 10);
@@ -114,7 +130,6 @@ public class LoadBalancerDescServer extends Panel {
         vRightLayout.addComponent(loadBalancerOpe);
         vRightLayout.setExpandRatio(attachServiceServerTable, 100);
 
-//        vLeftLayout.setWidth("100%");
         vRightLayout.setWidth("100%");
 
         //表同士の間隔をあける
@@ -139,68 +154,29 @@ public class LoadBalancerDescServer extends Panel {
     }
 
     class LoadBalancerDetailInfo extends Panel {
+
         LoadBalancerDto loadBalancerDto;
 
         final String COLUMN_HEIGHT = "30px";
 
         //項目名
-        final String[] CAPTION_FIELD_DEF = {
-                "field.loadBalancerName",
-                "field.loadBalancerService",
-                "field.fqdn",
-                "field.loadBalancerHostname",
-                "field.status",
-                "field.platform",
-                "field.loadBalancerType",
-                "field.subnet",
-                "field.comment",
-                "field.checkProtocol",
-                "field.checkPort",
-                "field.checkPath",
-                "field.checkTimeout",
-                "field.checkInterval",
-                "field.checkDownThreshold",
-                "field.checkRecoverThreshold",
-                "field.as.enabled",
-                "field.as.platformNo",
-                "field.as.imageNo",
-                "field.as.instanceType",
-                "field.as.namingRule",
-                "field.as.idleTimeMax",
-                "field.as.idleTimeMin",
-                "field.as.continueLimit",
-                "field.as.addCount",
-                "field.as.delCount"
-                };
+        final String[] CAPTION_FIELD_DEF = { "field.loadBalancerName", "field.loadBalancerService", "field.fqdn",
+                "field.loadBalancerHostname", "field.status", "field.platform", "field.loadBalancerType",
+                "field.subnet", "field.comment", "field.checkProtocol", "field.checkPort", "field.checkPath",
+                "field.checkTimeout", "field.checkInterval", "field.checkDownThreshold", "field.checkRecoverThreshold",
+                "field.as.enabled", "field.as.platformNo", "field.as.imageNo", "field.as.instanceType",
+                "field.as.namingRule", "field.as.idleTimeMax", "field.as.idleTimeMin", "field.as.continueLimit",
+                "field.as.addCount", "field.as.delCount" };
 
         //項目名
-        final String[] CAPTION_FIELD_CLOUDSTACK = {
-                "field.loadBalancerName",
-                "field.loadBalancerService",
-                "field.fqdn",
-                "field.loadBalancerHostname",
-                "field.status",
-                "field.platform",
-                "field.loadBalancerType",
-                "field.comment",
-                "field.algorithm",
-                "field.publicip",
-                "field.publicport",
-                "field.privateport",
-                "field.as.enabled",
-                "field.as.platformNo",
-                "field.as.imageNo",
-                "field.as.instanceType",
-                "field.as.namingRule",
-                "field.as.idleTimeMax",
-                "field.as.idleTimeMin",
-                "field.as.continueLimit",
-                "field.as.addCount",
-                "field.as.delCount"
-                };
+        final String[] CAPTION_FIELD_CLOUDSTACK = { "field.loadBalancerName", "field.loadBalancerService",
+                "field.fqdn", "field.loadBalancerHostname", "field.status", "field.platform", "field.loadBalancerType",
+                "field.comment", "field.algorithm", "field.publicip", "field.publicport", "field.privateport",
+                "field.as.enabled", "field.as.platformNo", "field.as.imageNo", "field.as.instanceType",
+                "field.as.namingRule", "field.as.idleTimeMax", "field.as.idleTimeMin", "field.as.continueLimit",
+                "field.as.addCount", "field.as.delCount" };
 
-
-        HashMap<String,Label> displayLabels = new HashMap<String,Label>();
+        HashMap<String, Label> displayLabels = new HashMap<String, Label>();
 
         GridLayout layout;
 
@@ -228,34 +204,33 @@ public class LoadBalancerDescServer extends Panel {
             initDisplayLabels(CAPTION_FIELD_DEF);
         }
 
-        private void initDisplayLabels(String[] captionField){
+        private void initDisplayLabels(String[] captionField) {
             for (int i = 0; i < captionField.length; i++) {
-                if (BooleanUtils.toBoolean(Config.getProperty("autoScaling.useAutoScaling")) == false &&
-                        captionField[i].startsWith("field.as")) {
-                        // オートスケールのラベルは設定しない
-                        continue;
+                if (BooleanUtils.toBoolean(Config.getProperty("autoScaling.useAutoScaling")) == false
+                        && captionField[i].startsWith("field.as")) {
+                    // オートスケールのラベルは設定しない
+                    continue;
                 }
 
                 //項目名
-                Label lbl1 = new Label( ViewProperties.getCaption( captionField[i] ), Label.CONTENT_TEXT);
+                Label lbl1 = new Label(ViewProperties.getCaption(captionField[i]), Label.CONTENT_TEXT);
                 lbl1.setHeight(COLUMN_HEIGHT);
                 layout.addComponent(lbl1, 0, i);
 
                 //表示内容ラベル
-                Label lbl2 = new Label( "",Label.CONTENT_XHTML );
-//                lbl2.setHeight(COLUMN_HEIGHT);
-                displayLabels.put(captionField[i],lbl2);
+                Label lbl2 = new Label("", Label.CONTENT_XHTML);
+                displayLabels.put(captionField[i], lbl2);
                 layout.addComponent(lbl2, 1, i);
             }
         }
 
-        private void resetLabels(){
+        private void resetLabels() {
             for (Label lbl : displayLabels.values()) {
                 lbl.setValue("");
             }
         }
 
-        private void reMakeLayout(String[] captionField){
+        private void reMakeLayout(String[] captionField) {
             VerticalLayout vlay = (VerticalLayout) getContent();
             vlay.removeAllComponents();
 
@@ -271,18 +246,17 @@ public class LoadBalancerDescServer extends Panel {
             vlay.addComponent(layout);
 
             initDisplayLabels(captionField);
-
         }
 
-        public void setItem(LoadBalancerDto dto){
+        public void setItem(LoadBalancerDto dto) {
             //前回表示時の値をクリア
             resetLabels();
 
             loadBalancerDto = dto;
 
-            if ( dto != null  ){
+            if (dto != null) {
 
-                if(PCCConstant.LOAD_BALANCER_CLOUDSTACK.equals(dto.getLoadBalancer().getType())){
+                if (PCCConstant.LOAD_BALANCER_CLOUDSTACK.equals(dto.getLoadBalancer().getType())) {
                     reMakeLayout(CAPTION_FIELD_CLOUDSTACK);
                 } else {
                     reMakeLayout(CAPTION_FIELD_DEF);
@@ -305,10 +279,10 @@ public class LoadBalancerDescServer extends Panel {
                 displayLabels.get("field.loadBalancerName").setValue(lb.getLoadBalancerName());
 
                 // 割り当てサービス
-                ComponentDto componentDto=null;
-                for (ComponentDto cDto : (Collection<ComponentDto> )myCloudTabs.serviceTable.getItemIds()){
-                    if (cDto.getComponent().getComponentNo().equals(dto.getLoadBalancer().getComponentNo())){
-                        componentDto=cDto;
+                ComponentDto componentDto = null;
+                for (ComponentDto cDto : (Collection<ComponentDto>) myCloudTabs.serviceTable.getItemIds()) {
+                    if (cDto.getComponent().getComponentNo().equals(dto.getLoadBalancer().getComponentNo())) {
+                        componentDto = cDto;
                         break;
                     }
                 }
@@ -316,11 +290,13 @@ public class LoadBalancerDescServer extends Panel {
                 if (StringUtils.isEmpty(componentDto.getComponent().getComment())) {
                     name = componentDto.getComponent().getComponentName();
                 } else {
-                    name = componentDto.getComponent().getComment() + " [" + componentDto.getComponent().getComponentName() + "]";
+                    name = componentDto.getComponent().getComment() + " ["
+                            + componentDto.getComponent().getComponentName() + "]";
                 }
                 ComponentType componentType = componentDto.getComponentType();
                 Icons nameIcon = Icons.fromName(componentType.getComponentTypeName());
-                displayLabels.get("field.loadBalancerService").setValue("<img src=\"" + VaadinUtils.getIconPath( me , nameIcon) + "\"><div>" + name + "</div>");
+                displayLabels.get("field.loadBalancerService").setValue(
+                        "<img src=\"" + VaadinUtils.getIconPath(me, nameIcon) + "\"><div>" + name + "</div>");
 
                 //FQDN
                 if (lb.getFqdn() != null) {
@@ -329,9 +305,6 @@ public class LoadBalancerDescServer extends Panel {
 
                 //ホスト名
                 String hostName = lb.getCanonicalName();
-                //if (dto.getComponentLoadBalancerDto() != null) {
-                //    hostName = dto.getComponentLoadBalancerDto().getIpAddress();
-                //}
                 if (hostName != null) {
                     displayLabels.get("field.loadBalancerHostname").setValue(hostName);
                 }
@@ -339,7 +312,8 @@ public class LoadBalancerDescServer extends Panel {
                 //ステータス
                 LoadBalancerStatus status = LoadBalancerStatus.fromStatus(lb.getStatus());
                 String a = status.name().substring(0, 1).toUpperCase() + status.name().substring(1).toLowerCase();
-                displayLabels.get("field.status").setValue("<img src=\"" + VaadinUtils.getIconPath(me, Icons.fromName(a)) + "\"><div>" + a + "</div>");
+                displayLabels.get("field.status").setValue(
+                        "<img src=\"" + VaadinUtils.getIconPath(me, Icons.fromName(a)) + "\"><div>" + a + "</div>");
 
                 //プラットフォーム
                 PlatformDto platfromDto = dto.getPlatform();
@@ -347,7 +321,8 @@ public class LoadBalancerDescServer extends Panel {
                 Icons icon = CommonUtils.getPlatformIcon(platfromDto);
 
                 String description = platfromDto.getPlatform().getPlatformNameDisp();
-                displayLabels.get("field.platform").setValue("<img src=\"" + VaadinUtils.getIconPath(me, icon) + "\"><div>" + description + "</div>");
+                displayLabels.get("field.platform").setValue(
+                        "<img src=\"" + VaadinUtils.getIconPath(me, icon) + "\"><div>" + description + "</div>");
 
                 //タイプ
                 if (lb.getType() != null) {
@@ -362,25 +337,27 @@ public class LoadBalancerDescServer extends Panel {
 
                 //サブネット
                 PlatformAws platformAws = platfromDto.getPlatformAws();
-                if (PCCConstant.LOAD_BALANCER_ELB.equals(lb.getType()) && platformAws.getVpc() && StringUtils.isNotEmpty(dto.getAwsLoadBalancer().getSubnetId())) {
+                if (PCCConstant.LOAD_BALANCER_ELB.equals(lb.getType()) && platformAws.getVpc()
+                        && StringUtils.isNotEmpty(dto.getAwsLoadBalancer().getSubnetId())) {
                     List<String> lbSubnets = new ArrayList<String>();
-                    for (String lbSubnet: dto.getAwsLoadBalancer().getSubnetId().split(",")) {
+                    for (String lbSubnet : dto.getAwsLoadBalancer().getSubnetId().split(",")) {
                         lbSubnets.add(lbSubnet.trim());
                     }
                     AwsDescribeService awsDescribeService = BeanContext.getBean(AwsDescribeService.class);
                     List<Subnet> subnets = awsDescribeService.getSubnets(ViewContext.getUserNo(), lb.getPlatformNo());
                     StringBuffer subnetBuffer = new StringBuffer();
-                    for (Subnet subnet: subnets) {
+                    for (Subnet subnet : subnets) {
                         if (lbSubnets.contains(subnet.getSubnetId())) {
-                            subnetBuffer.append(subnetBuffer.length() > 0 ? "<br>" + subnet.getCidrBlock(): subnet.getCidrBlock());
+                            subnetBuffer.append(subnetBuffer.length() > 0 ? "<br>" + subnet.getCidrBlock() : subnet
+                                    .getCidrBlock());
                         }
                     }
                     displayLabels.get("field.subnet").setValue(subnetBuffer.toString());
                 }
 
-                if(PCCConstant.LOAD_BALANCER_CLOUDSTACK.equals(dto.getLoadBalancer().getType())){
+                if (PCCConstant.LOAD_BALANCER_CLOUDSTACK.equals(dto.getLoadBalancer().getType())) {
                     CloudstackLoadBalancer cslb = dto.getCloudstackLoadBalancer();
-                    if(cslb != null){
+                    if (cslb != null) {
                         //アルゴリズム
                         if (cslb.getAlgorithm() != null) {
                             displayLabels.get("field.algorithm").setValue(cslb.getAlgorithm());
@@ -428,12 +405,14 @@ public class LoadBalancerDescServer extends Panel {
 
                         //障害閾値
                         if (hchk.getUnhealthyThreshold() != null) {
-                            displayLabels.get("field.checkDownThreshold").setValue(hchk.getUnhealthyThreshold().toString());
+                            displayLabels.get("field.checkDownThreshold").setValue(
+                                    hchk.getUnhealthyThreshold().toString());
                         }
 
                         //復帰閾値
                         if (hchk.getHealthyThreshold() != null) {
-                            displayLabels.get("field.checkRecoverThreshold").setValue(hchk.getHealthyThreshold().toString());
+                            displayLabels.get("field.checkRecoverThreshold").setValue(
+                                    hchk.getHealthyThreshold().toString());
                         }
                     }
                 }
@@ -448,9 +427,11 @@ public class LoadBalancerDescServer extends Panel {
                     //オートスケーリング有効/無効
                     if (scalingConf.getEnabled() != null) {
                         if (scalingConf.getEnabled()) {
-                            displayLabels.get("field.as.enabled").setValue(ViewProperties.getCaption("field.as.enabled.true"));
-                        }else{
-                            displayLabels.get("field.as.enabled").setValue(ViewProperties.getCaption("field.as.enabled.false"));
+                            displayLabels.get("field.as.enabled").setValue(
+                                    ViewProperties.getCaption("field.as.enabled.true"));
+                        } else {
+                            displayLabels.get("field.as.enabled").setValue(
+                                    ViewProperties.getCaption("field.as.enabled.false"));
                         }
                     }
 
@@ -459,7 +440,9 @@ public class LoadBalancerDescServer extends Panel {
                         PlatformDto asPlatfromType = scalingConfDto.getPlatform();
                         Icons asIcon = CommonUtils.getPlatformIcon(asPlatfromType);
                         String asdDscription = asPlatfromType.getPlatform().getPlatformNameDisp();
-                        displayLabels.get("field.as.platformNo").setValue("<img src=\"" + VaadinUtils.getIconPath(me, asIcon) + "\"><div>" + asdDscription + "</div>");
+                        displayLabels.get("field.as.platformNo").setValue(
+                                "<img src=\"" + VaadinUtils.getIconPath(me, asIcon) + "\"><div>" + asdDscription
+                                        + "</div>");
                     }
 
                     //増減サーバイメージ
@@ -470,9 +453,9 @@ public class LoadBalancerDescServer extends Panel {
                         Icons imageIcon = CommonUtils.getImageIcon(asImage);
                         Icons osIcon = CommonUtils.getOsIcon(asImage);
                         displayLabels.get("field.as.imageNo").setValue(
-                                "<img src=\"" + VaadinUtils.getIconPath(me, imageIcon) + "\"><div>" + imageName + "</div></br>"
-                               +"<img src=\"" + VaadinUtils.getIconPath(me, osIcon) + "\"><div>" + osName + "</div>"
-                                );
+                                "<img src=\"" + VaadinUtils.getIconPath(me, imageIcon) + "\"><div>" + imageName
+                                        + "</div></br>" + "<img src=\"" + VaadinUtils.getIconPath(me, osIcon)
+                                        + "\"><div>" + osName + "</div>");
                     }
 
                     //増減サーバタイプ
@@ -482,7 +465,8 @@ public class LoadBalancerDescServer extends Panel {
 
                     //増減サーバネーミングルール
                     if (scalingConf.getNamingRule() != null) {
-                        displayLabels.get("field.as.namingRule").setValue(scalingConf.getNamingRule().replace("%d", ""));
+                        displayLabels.get("field.as.namingRule")
+                                .setValue(scalingConf.getNamingRule().replace("%d", ""));
                     }
 
                     //増加指標CPU使用率
@@ -512,6 +496,7 @@ public class LoadBalancerDescServer extends Panel {
                 }
             }
         }
+
     }
 
     //右側割り当てサービスサーバ一覧
@@ -520,20 +505,15 @@ public class LoadBalancerDescServer extends Panel {
         final String COLUMN_HEIGHT = "28px";
 
         //項目名
-        final String[] COLNAME = {
-                null,
-                ViewProperties.getCaption("field.serverName"),
-                ViewProperties.getCaption("field.loadBalancerServerStatus") ,
-//                ViewProperties.getCaption("field.platform"),
-                ViewProperties.getCaption("field.serviceStatus")
-            };
+        final String[] COLNAME = { null, ViewProperties.getCaption("field.serverName"),
+                ViewProperties.getCaption("field.loadBalancerServerStatus"),
+                ViewProperties.getCaption("field.serviceStatus") };
 
         final String[] VISIBLE_COLNAME = { "check", "instanceName", "status", "serviceStatus" };
 
         ComponentDto componentDto;
-//        LoadBalancerListenerDto  loadBalancerListenerDto;
 
-        HashMap<Long,CheckBox> checkList = new HashMap<Long,CheckBox>();
+        HashMap<Long, CheckBox> checkList = new HashMap<Long, CheckBox>();
 
         HashMap<Long, String> statusMap = new HashMap<Long, String>();
 
@@ -547,11 +527,11 @@ public class LoadBalancerDescServer extends Panel {
                     Long no = p.getInstance().getInstanceNo();
 
                     CheckBox check;
-                    if ( checkList.containsKey(no)){
+                    if (checkList.containsKey(no)) {
                         check = checkList.get(no);
-                    }else{
+                    } else {
                         check = new CheckBox();
-                        checkList.put(no,check);
+                        checkList.put(no, check);
                     }
 
                     check.setImmediate(true);
@@ -576,12 +556,12 @@ public class LoadBalancerDescServer extends Panel {
                     //プラットフォームアイコン名の取得
                     Icons icon = CommonUtils.getPlatformIcon(platformDto);
 
-                    Label slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(AttachSeriviceServerTable.this, icon) + "\"><div>"
+                    Label slbl = new Label("<img src=\""
+                            + VaadinUtils.getIconPath(AttachSeriviceServerTable.this, icon) + "\"><div>"
                             + p.getInstance().getInstanceName() + "</div>", Label.CONTENT_XHTML);
                     slbl.setHeight(COLUMN_HEIGHT);
 
                     return slbl;
-
                 }
             });
 
@@ -591,8 +571,8 @@ public class LoadBalancerDescServer extends Panel {
                     LoadBalancerDto loadBalancerDto = loadBalancerInfo.loadBalancerDto;
 
                     LoadBalancerInstance lbInstance = null;
-                    for (LoadBalancerInstance lbInstance2 : loadBalancerDto.getLoadBalancerInstances()){
-                        if (lbInstance2.getInstanceNo().equals(instanceDto.getInstance().getInstanceNo())){
+                    for (LoadBalancerInstance lbInstance2 : loadBalancerDto.getLoadBalancerInstances()) {
+                        if (lbInstance2.getInstanceNo().equals(instanceDto.getInstance().getInstanceNo())) {
                             lbInstance = lbInstance2;
                             break;
                         }
@@ -605,7 +585,8 @@ public class LoadBalancerDescServer extends Panel {
                         lbInstanceStatus = LoadBalancerInstanceStatus.fromStatus(lbInstance.getStatus());
                     }
 
-                    LoadBalancerStatus lbStatus = LoadBalancerStatus.fromStatus(loadBalancerDto.getLoadBalancer().getStatus());
+                    LoadBalancerStatus lbStatus = LoadBalancerStatus.fromStatus(loadBalancerDto.getLoadBalancer()
+                            .getStatus());
                     InstanceStatus instanceStatus = InstanceStatus.fromStatus(instanceDto.getInstance().getStatus());
                     boolean lbRunning = (lbStatus == LoadBalancerStatus.RUNNING || lbStatus == LoadBalancerStatus.CONFIGURING);
                     boolean instanceRunning = (instanceStatus == InstanceStatus.RUNNING || instanceStatus == InstanceStatus.CONFIGURING);
@@ -657,16 +638,16 @@ public class LoadBalancerDescServer extends Panel {
                     }
 
                     statusMap.put(instanceDto.getInstance().getInstanceNo(), status);
-                    Icons icon=null;
+                    Icons icon = null;
                     Label slbl;
                     if (notice) {
-                        icon = Icons.fromName(status + "_WITH_ATTENTION" );
-                        slbl= new Label("<img src=\"" + VaadinUtils.getIconPath(AttachSeriviceServerTable.this, icon)
+                        icon = Icons.fromName(status + "_WITH_ATTENTION");
+                        slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(AttachSeriviceServerTable.this, icon)
                                 + "\"><div>" + status + "</div>", Label.CONTENT_XHTML);
                         slbl.setDescription(noticeMessage);
                     } else {
                         icon = Icons.fromName(status);
-                        slbl= new Label("<img src=\"" + VaadinUtils.getIconPath(AttachSeriviceServerTable.this, icon)
+                        slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(AttachSeriviceServerTable.this, icon)
                                 + "\"><div>" + status + "</div>", Label.CONTENT_XHTML);
                     }
                     slbl.setHeight(COLUMN_HEIGHT);
@@ -674,7 +655,6 @@ public class LoadBalancerDescServer extends Panel {
 
                 }
             });
-
 
             addGeneratedColumn("serviceStatus", new ColumnGenerator() {
                 public Component generateCell(Table source, Object itemId, Object columnId) {
@@ -692,53 +672,20 @@ public class LoadBalancerDescServer extends Panel {
                     String a = status.substring(0, 1).toUpperCase() + status.substring(1).toLowerCase();
 
                     Icons icon = Icons.fromName(a);
-                    Label slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(AttachSeriviceServerTable.this, icon)
-                            + "\"><div>" + a + "</div>", Label.CONTENT_XHTML);
+                    Label slbl = new Label(
+                            "<img src=\"" + VaadinUtils.getIconPath(AttachSeriviceServerTable.this, icon) + "\"><div>"
+                                    + a + "</div>", Label.CONTENT_XHTML);
                     slbl.setHeight(COLUMN_HEIGHT);
                     return slbl;
 
                 }
             });
 
-
-//            addGeneratedColumn("platform", new ColumnGenerator() {
-//                public Component generateCell(Table source, Object itemId, Object columnId) {
-//                    InstanceDto p = (InstanceDto) itemId;
-//
-//                    Platform platfromType = Config.getPlatform(p.getInstance().getPlatformNo());
-//                    Platform.Aws aws = platfromType.getAws();
-//                    Platform.Vmware vmware = platfromType.getVmware();
-//                    Platform.Nifty nifty = platfromType.getNifty();
-//
-//                    // アイコン名の取得ロジックのリファクタリング
-//                    Icons icon = Icons.NONE;
-//                    if (aws != null) {
-//                        if (aws.isEuca()) {
-//                            icon = Icons.EUCALYPTUS;
-//                        } else {
-//                            icon = Icons.AWS;
-//                        }
-//                    } else if (vmware != null) {
-//                        icon = Icons.VMWARE;
-//                    } else if (nifty != null) {
-//                        icon = Icons.NIFTY;
-//                    }
-//
-//                    String description = ViewProperties.getPlatformSimpleName(platfromType.getName());
-//
-//                    Label slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(AttachSeriviceServerTable.this, icon)
-//                            + "\"><div>" + description + "</div>", Label.CONTENT_XHTML);
-//                    slbl.setHeight(COLUMN_HEIGHT);
-//
-//                    return slbl;
-//
-//                }
-//            });
-
             setColumnExpandRatio("instanceName", 100);
 
             //テーブルのカラムに対してStyleNameを設定
             setCellStyleGenerator(new Table.CellStyleGenerator() {
+                @Override
                 public String getStyle(Object itemId, Object propertyId) {
                     InstanceDto p = (InstanceDto) itemId;
 
@@ -760,8 +707,8 @@ public class LoadBalancerDescServer extends Panel {
                 public void itemClick(ItemClickEvent event) {
                     InstanceDto p = (InstanceDto) event.getItemId();
                     Long no = p.getInstance().getInstanceNo();
-                    if (checkList.containsKey(no)){
-                        checkList.get(no).setValue(!(Boolean)checkList.get(no).getValue());
+                    if (checkList.containsKey(no)) {
+                        checkList.get(no).setValue(!(Boolean) checkList.get(no).getValue());
                     }
                 }
             });
@@ -780,7 +727,7 @@ public class LoadBalancerDescServer extends Panel {
             refresh(dto, false);
         }
 
-        public void refresh( LoadBalancerDto dto , boolean clearCheckBox) {
+        public void refresh(LoadBalancerDto dto, boolean clearCheckBox) {
             if (clearCheckBox) {
                 checkList.clear();
             }
@@ -798,7 +745,7 @@ public class LoadBalancerDescServer extends Panel {
 
             //ComponentDtoの検索
             componentDto = null;
-            if (dto != null ) {
+            if (dto != null) {
                 Collection<ComponentDto> dtos = (Collection<ComponentDto>) myCloudTabs.serviceTable.getItemIds();
                 for (ComponentDto cDto : dtos) {
                     if (dto.getLoadBalancer().getComponentNo().equals(cDto.getComponent().getComponentNo())) {
@@ -807,18 +754,19 @@ public class LoadBalancerDescServer extends Panel {
                     }
                 }
             }
-            if ( componentDto != null ){
-                setContainerDataSource(new InstanceDtoContainer(myCloudTabs.getInstances(componentDto.getComponentInstances())));
+            if (componentDto != null) {
+                setContainerDataSource(new InstanceDtoContainer(myCloudTabs.getInstances(componentDto
+                        .getComponentInstances())));
                 setVisibleColumns(VISIBLE_COLNAME);
                 setColumnHeaders(COLNAME);
-            }else{
+            } else {
                 setContainerDataSource(null);
                 setVisibleColumns(VISIBLE_COLNAME);
-//                setColumnHeaders(COLNAME);
             }
 
             loadBalancerOpe.refresh();
         }
+
     }
 
     public class LoadbalancerServerOperation extends HorizontalLayout {
@@ -837,14 +785,13 @@ public class LoadBalancerDescServer extends Panel {
             setWidth("100%");
             setSpacing(true);
 
-            btnCheckAll=new Button(ViewProperties.getCaption( "button.checkAll" ));
-            btnCheckAll.setDescription(ViewProperties.getCaption( "description.checkAll" ));
+            btnCheckAll = new Button(ViewProperties.getCaption("button.checkAll"));
+            btnCheckAll.setDescription(ViewProperties.getCaption("description.checkAll"));
             btnCheckAll.addStyleName("borderless");
             btnCheckAll.addStyleName("checkall");
             btnCheckAll.setEnabled(false);
             btnCheckAll.setIcon(Icons.CHECKON.resource());
             btnCheckAll.addListener(Button.ClickEvent.class, this, "checkAllButtonClick");
-
 
             btnEnable = new Button(ViewProperties.getCaption("button.enableLoadBalanceServer"));
             btnEnable.setDescription(ViewProperties.getCaption("description.enableLoadBalanceServer"));
@@ -884,7 +831,7 @@ public class LoadBalancerDescServer extends Panel {
 
             UserAuthDto auth = ViewContext.getAuthority();
             //権限に応じて操作可能なボタンを制御する
-            if (!auth.isLbOperate()){
+            if (!auth.isLbOperate()) {
                 btnEnable.setEnabled(false);
                 btnDisable.setEnabled(false);
             }
@@ -894,13 +841,13 @@ public class LoadBalancerDescServer extends Panel {
 
             //全てCheckされていれば全てOFF それ以外は全てON
             boolean checkAll = true;
-            for ( Long no : attachServiceServerTable.checkList.keySet() ){
-                if (!(Boolean)attachServiceServerTable.checkList.get(no).getValue()){
-                    checkAll=false;
+            for (Long no : attachServiceServerTable.checkList.keySet()) {
+                if (!(Boolean) attachServiceServerTable.checkList.get(no).getValue()) {
+                    checkAll = false;
                     break;
                 }
             }
-            for ( CheckBox chk: attachServiceServerTable.checkList.values()){
+            for (CheckBox chk : attachServiceServerTable.checkList.values()) {
                 chk.setValue(!checkAll);
             }
 
@@ -953,7 +900,7 @@ public class LoadBalancerDescServer extends Panel {
                     }
 
                     //オペレーションログ
-                    AutoApplication apl = (AutoApplication)getApplication();
+                    AutoApplication apl = (AutoApplication) getApplication();
                     apl.doOpLog("LOAD_BALANCER", "Enable Server", null, null,
                             dto.getLoadBalancer().getLoadBalancerNo(), String.valueOf(instanceNos.size()));
 
@@ -978,7 +925,8 @@ public class LoadBalancerDescServer extends Panel {
                     // 選択されていたロードバランサを選択し直す
                     for (Object itemId : myCloudTabs.loadBalancerTable.getItemIds()) {
                         LoadBalancerDto dto2 = (LoadBalancerDto) itemId;
-                        if (dto.getLoadBalancer().getLoadBalancerNo().equals(dto2.getLoadBalancer().getLoadBalancerNo())) {
+                        if (dto.getLoadBalancer().getLoadBalancerNo()
+                                .equals(dto2.getLoadBalancer().getLoadBalancerNo())) {
                             myCloudTabs.loadBalancerTable.select(itemId);
                             myCloudTabs.loadBalancerTable.setCurrentPageFirstItemIndex(index);
                             myCloudTabs.loadBalancerTableOpe.setButtonStatus(dto2);
@@ -1037,9 +985,9 @@ public class LoadBalancerDescServer extends Panel {
                     }
 
                     //オペレーションログ
-                    AutoApplication apl = (AutoApplication)getApplication();
-                    apl.doOpLog("LOAD_BALANCER", "Disable Server", null, null,
-                            dto.getLoadBalancer().getLoadBalancerNo(), String.valueOf(instanceNos.size()));
+                    AutoApplication apl = (AutoApplication) getApplication();
+                    apl.doOpLog("LOAD_BALANCER", "Disable Server", null, null, dto.getLoadBalancer()
+                            .getLoadBalancerNo(), String.valueOf(instanceNos.size()));
 
                     // 振り分けの無効化
                     LoadBalancerService loadBalancerService = BeanContext.getBean(LoadBalancerService.class);
@@ -1062,7 +1010,8 @@ public class LoadBalancerDescServer extends Panel {
                     // 選択されていたロードバランサを選択し直す
                     for (Object itemId : myCloudTabs.loadBalancerTable.getItemIds()) {
                         LoadBalancerDto dto2 = (LoadBalancerDto) itemId;
-                        if (dto.getLoadBalancer().getLoadBalancerNo().equals(dto2.getLoadBalancer().getLoadBalancerNo())) {
+                        if (dto.getLoadBalancer().getLoadBalancerNo()
+                                .equals(dto2.getLoadBalancer().getLoadBalancerNo())) {
                             myCloudTabs.loadBalancerTable.select(itemId);
                             myCloudTabs.loadBalancerTable.setCurrentPageFirstItemIndex(index);
                             myCloudTabs.loadBalancerTableOpe.setButtonStatus(dto2);
@@ -1073,8 +1022,8 @@ public class LoadBalancerDescServer extends Panel {
             });
             getApplication().getMainWindow().addWindow(dialog);
         }
-    }
 
+    }
 
     public void initializeData() {
         attachServiceServerTable.getContainerDataSource().removeAllItems();

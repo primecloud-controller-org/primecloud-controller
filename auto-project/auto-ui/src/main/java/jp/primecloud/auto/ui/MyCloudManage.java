@@ -35,6 +35,7 @@ import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
 import com.vaadin.Application;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.Alignment;
@@ -63,8 +64,8 @@ public class MyCloudManage extends Window {
     List<FarmDto> farms;
 
     MyCloudManage(Application ap) {
-
         apl = ap;
+
         //モーダルウインドウ
         setIcon(Icons.EDITMINI.resource());
 
@@ -77,7 +78,8 @@ public class MyCloudManage extends Window {
 
         // クラウド情報テーブルの上部
         HorizontalLayout tbar = new HorizontalLayout();
-        tbar.setWidth("100%"); tbar.setSpacing(true);
+        tbar.setWidth("100%");
+        tbar.setSpacing(true);
 
         // テーブルのキャプション
         Label tcaption = new Label(ViewProperties.getCaption("table.cloud"));
@@ -107,7 +109,6 @@ public class MyCloudManage extends Window {
         deleteButton.addListener(new Button.ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
-
                 MyCloudManage.this.deleteButtonClick(event);
             }
         });
@@ -117,7 +118,7 @@ public class MyCloudManage extends Window {
         layout.addComponent(tbar);
 
         // スペースを空ける
-        Label spacer1= new Label("");
+        Label spacer1 = new Label("");
         spacer1.setHeight("5px");
         layout.addComponent(spacer1);
 
@@ -126,14 +127,15 @@ public class MyCloudManage extends Window {
         layout.addComponent(cloudTable);
 
         // スペースを空ける
-        Label spacer2= new Label("");
+        Label spacer2 = new Label("");
         spacer2.setHeight("7px");
         layout.addComponent(spacer2);
 
         // 下部のバー
         HorizontalLayout bbar = new HorizontalLayout();
         bbar.setWidth("100%");
-        HorizontalLayout rlay = new HorizontalLayout();  rlay.setSpacing(true);
+        HorizontalLayout rlay = new HorizontalLayout();
+        rlay.setSpacing(true);
 
         // Newボタン
         Button addButton = new Button(ViewProperties.getCaption("button.newCloud"));
@@ -190,12 +192,11 @@ public class MyCloudManage extends Window {
             deleteButton.setEnabled(true);
             editButton.setEnabled(true);
             //ただしマスター権限を持たないパワーユーザは新規作成は不可能
-            if (ViewContext.getPowerUser()
-                    && !ViewContext.getPowerDefaultMaster().equals(ViewContext.getLoginUser())) {
+            if (ViewContext.getPowerUser() && !ViewContext.getPowerDefaultMaster().equals(ViewContext.getLoginUser())) {
                 addButton.setEnabled(false);
             }
 
-        } else if (ViewContext.getUserNo().equals(ViewContext.getLoginUser())){
+        } else if (ViewContext.getUserNo().equals(ViewContext.getLoginUser())) {
             addButton.setEnabled(true);
             deleteButton.setEnabled(true);
             editButton.setEnabled(true);
@@ -210,6 +211,7 @@ public class MyCloudManage extends Window {
     }
 
     private class CloudTable extends Table {
+
         CloudTable() {
             //テーブル基本設定
             setWidth("100%");
@@ -236,7 +238,6 @@ public class MyCloudManage extends Window {
             setCellStyleGenerator(new Table.CellStyleGenerator() {
                 @Override
                 public String getStyle(Object itemId, Object propertyId) {
-
                     if (propertyId == null) {
                         return "";
                     } else {
@@ -245,6 +246,7 @@ public class MyCloudManage extends Window {
                 }
             });
         }
+
     }
 
     private void initData() {
@@ -267,8 +269,8 @@ public class MyCloudManage extends Window {
             // クラウド名
 
             Icons nameIcon = Icons.CLOUD;
-            Label slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(apl,nameIcon) + "\"><div>" + farm.getFarm().getFarmName()
-                    + "</div>", Label.CONTENT_XHTML);
+            Label slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(apl, nameIcon) + "\"><div>"
+                    + farm.getFarm().getFarmName() + "</div>", Label.CONTENT_XHTML);
             slbl.setHeight(COLUMN_HEIGHT);
 
             // コメント
@@ -278,23 +280,23 @@ public class MyCloudManage extends Window {
         }
         // すでにクラウドを開いていたら、その行を選択する
         Long curFarmNo = ViewContext.getFarmNo();
-        if (curFarmNo != null){
+        if (curFarmNo != null) {
             for (int i = 0; i < farms.size(); i++) {
                 FarmDto farm = farms.get(i);
-                if ( farm.getFarm().getFarmNo().longValue() == curFarmNo.longValue()) {
+                if (farm.getFarm().getFarmNo().longValue() == curFarmNo.longValue()) {
                     cloudTable.select(farm);
                     break;
                 }
             }
         }
-
     }
 
     private void deleteButtonClick(ClickEvent event) {
         final FarmDto farm = (FarmDto) cloudTable.getValue();
         if (farm == null) {
             // クラウドが選択されていない場合
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), ViewMessages.getMessage("IUI-000005"));
+            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
+                    ViewMessages.getMessage("IUI-000005"));
             getApplication().getMainWindow().addWindow(dialog);
             return;
         }
@@ -309,7 +311,7 @@ public class MyCloudManage extends Window {
                 }
 
                 //オペレーションログ
-                AutoApplication aapl =  (AutoApplication)apl;
+                AutoApplication aapl = (AutoApplication) apl;
                 aapl.doOpLog("CLOUD", "Delete Cloud", farm.getFarm().getFarmNo(), null);
 
                 // クラウドの削除
@@ -337,7 +339,6 @@ public class MyCloudManage extends Window {
                     ViewContext.setFarmName(null);
                     ViewContext.setAuthority(new UserAuthDto(false));
                 }
-
             }
         });
         getApplication().getMainWindow().addWindow(dialog);
@@ -347,7 +348,8 @@ public class MyCloudManage extends Window {
         FarmDto farm = (FarmDto) cloudTable.getValue();
         if (farm == null) {
             // クラウドが選択されていない場合
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), ViewMessages.getMessage("IUI-000008"));
+            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
+                    ViewMessages.getMessage("IUI-000008"));
             getApplication().getMainWindow().addWindow(dialog);
             return;
         }
@@ -366,34 +368,20 @@ public class MyCloudManage extends Window {
             ViewContext.setUserNo(farm.getFarm().getUserNo());
         }
 
-
         // 画面を閉じる
         close();
     }
 
     private void addButtonClick(ClickEvent event) {
-        MyCloudAdd window = new MyCloudAdd( getWindow().getApplication() );
+        MyCloudAdd window = new MyCloudAdd(getWindow().getApplication());
         window.addListener(new Window.CloseListener() {
             @Override
             public void windowClose(CloseEvent e) {
-                Long farmNo=(Long)ContextUtils.getAttribute("newfarmNo");
-                if (farmNo != null ){
+                Long farmNo = (Long) ContextUtils.getAttribute("newfarmNo");
+                if (farmNo != null) {
                     String farmName = (String) ContextUtils.getAttribute("newfarmName");
                     ContextUtils.removeAttribute("newfarmNo");
                     ContextUtils.removeAttribute("newfarmName");
-
-//                    //表示の更新
-//                    initData();
-//                    showClouds();
-
-//                    // 新規追加したクラウドを選択する
-//                    for (int i = 0; i < farms.size(); i++) {
-//                        FarmDto farm = farms.get(i);
-//                        if (farm.getFarm().getFarmNo().longValue() == farmNo.longValue()) {
-//                            cloudTable.select(farm);
-//                            break;
-//                        }
-//                    }
 
                     // 新規追加したクラウドを選択する
                     ViewContext.setFarmNo(farmNo);
@@ -402,19 +390,18 @@ public class MyCloudManage extends Window {
 
                     // 画面を閉じる
                     close();
-
                 }
             }
         });
         getWindow().getApplication().getMainWindow().addWindow(window);
-
     }
 
     private void editButtonClick(ClickEvent event) {
         final FarmDto farm = (FarmDto) cloudTable.getValue();
         if (farm == null) {
             // クラウドが選択されていない場合
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), ViewMessages.getMessage("IUI-000047"));
+            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
+                    ViewMessages.getMessage("IUI-000047"));
             getApplication().getMainWindow().addWindow(dialog);
             return;
         }
@@ -422,8 +409,8 @@ public class MyCloudManage extends Window {
         myCloudEdit.addListener(new CloseListener() {
             @Override
             public void windowClose(CloseEvent e) {
-                Long farmNo=(Long)ContextUtils.getAttribute("editFarmNo");
-                if (farmNo != null ){
+                Long farmNo = (Long) ContextUtils.getAttribute("editFarmNo");
+                if (farmNo != null) {
                     ContextUtils.removeAttribute("editFarmNo");
 
                     // 表示の更新

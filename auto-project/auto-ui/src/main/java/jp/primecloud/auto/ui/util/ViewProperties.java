@@ -51,8 +51,6 @@ public class ViewProperties {
 
     private static final String VARIANT = LOCALE.getVariant();
 
-//    protected static ResourceBundle bundle = ResourceBundle.getBundle("view");
-
     protected static Properties viewProperties = getProperties();
 
     public static void reload() {
@@ -60,38 +58,11 @@ public class ViewProperties {
     }
 
     public static String get(String key) {
-//        try {
-//            String path = PATH + BASE_NAME + "_" + LANG + "_" + COUNTRY + "_" + VARIANT + EXTENSION;
-//            File file = new File(path);
-//            if (!file.exists()) {
-//                path = PATH + BASE_NAME + "_" + LANG + "_" + COUNTRY + EXTENSION;
-//                file = new File(path);
-//            }
-//            if (!file.exists()) {
-//                path = PATH + BASE_NAME + "_" + LANG + EXTENSION;
-//                file = new File(path);
-//            }
-//            if (!file.exists()) {
-//                path = PATH + BASE_NAME + EXTENSION;
-//                file = new File(path);
-//            }
-//            InputStream input = new FileInputStream(file);
-//
-//            Properties properties = new Properties();
-//            properties.load(input);
-//            input.close();
-            String value = "";
-            if (viewProperties != null) {
-                value = viewProperties.getProperty(key, "");
-            }
-            return value;
-//        } catch (MissingResourceException e) {
-//            return "";
-//        } catch (FileNotFoundException e) {
-//            return "";
-//        } catch (IOException e) {
-//            return "";
-//        }
+        String value = "";
+        if (viewProperties != null) {
+            value = viewProperties.getProperty(key, "");
+        }
+        return value;
     }
 
     private static Properties getProperties() {
@@ -160,4 +131,5 @@ public class ViewProperties {
     public static String getLoadBalancerType(String key) {
         return get("loadBalancer.type." + key);
     }
+
 }

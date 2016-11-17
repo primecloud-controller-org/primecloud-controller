@@ -1,3 +1,21 @@
+/*
+ * Copyright 2014 by SCSK Corporation.
+ * 
+ * This file is part of PrimeCloud Controller(TM).
+ * 
+ * PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
+ */
 package jp.primecloud.auto.ui;
 
 import java.text.SimpleDateFormat;
@@ -5,10 +23,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.vaadin.henrik.refresher.Refresher;
-import org.vaadin.henrik.refresher.Refresher.RefreshListener;
 
 import jp.primecloud.auto.log.EventLogLevel;
 import jp.primecloud.auto.log.dao.crud.EventLogDao;
@@ -24,6 +38,11 @@ import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.vaadin.henrik.refresher.Refresher;
+import org.vaadin.henrik.refresher.Refresher.RefreshListener;
+
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -52,6 +71,7 @@ import com.vaadin.ui.Window;
  */
 @SuppressWarnings("serial")
 public class WinLogView extends Window {
+
     final String COMBOBOX_WIDTH = "155px";
 
     Label userName;
@@ -90,7 +110,6 @@ public class WinLogView extends Window {
     Integer limit = 1000;
 
     WinLogView() {
-
         setCaption(ViewProperties.getCaption("window.winLogView"));
 
         VerticalLayout layout = (VerticalLayout) getContent();
@@ -132,7 +151,6 @@ public class WinLogView extends Window {
                 fromDate.setValue(null);
                 toDate.setValue(null);
                 chkAuto.setValue(false);
-
             }
         });
         layout.addComponent(btnCloudRefresh);
@@ -353,7 +371,6 @@ public class WinLogView extends Window {
         timer = new Refresher();
         timer.setRefreshInterval(15 * 1000); //更新間隔(msec)
         timer.addListener(new RefreshListener() {
-
             @Override
             public void refresh(Refresher source) {
                 if (BooleanUtils.isTrue((Boolean) chkAuto.getValue())) {
@@ -362,7 +379,6 @@ public class WinLogView extends Window {
             }
         });
         layout.addComponent(timer);
-
     }
 
     private IndexedContainer getTimeList() {
@@ -390,7 +406,6 @@ public class WinLogView extends Window {
     }
 
     private Container getServiceList(Container container) {
-
         ComponentService componentService = BeanContext.getBean(ComponentService.class);
 
         if (cmbMyCloud.getValue() != null) {
@@ -408,7 +423,6 @@ public class WinLogView extends Window {
     }
 
     private Container getServerList(Container container) {
-
         InstanceService instanceService = BeanContext.getBean(InstanceService.class);
 
         if (cmbMyCloud.getValue() != null) {
@@ -444,11 +458,9 @@ public class WinLogView extends Window {
     private String transformLogLevel(Integer code) {
         EventLogLevel eventLogLevel = EventLogLevel.fromCode(code);
         return eventLogLevel.name();
-
     }
 
     private void setMyCloudList(Container container) {
-
         List<FarmDto> farms;
 
         // ユーザ番号
@@ -484,7 +496,6 @@ public class WinLogView extends Window {
                 cmbServer.select(null);
 
             }
-
         }
     }
 
@@ -589,4 +600,5 @@ public class WinLogView extends Window {
         fillContainer(c, eventLogs);
         logTable.sort();
     }
+
 }

@@ -1,3 +1,21 @@
+/*
+ * Copyright 2014 by SCSK Corporation.
+ * 
+ * This file is part of PrimeCloud Controller(TM).
+ * 
+ * PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
+ */
 package jp.primecloud.auto.ui;
 
 import java.util.ArrayList;
@@ -14,6 +32,7 @@ import jp.primecloud.auto.ui.util.ConvertUtil;
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
@@ -34,13 +53,9 @@ import com.vaadin.ui.Window;
 @SuppressWarnings("serial")
 public class WinUserManagement extends Window {
 
-    //Application apl;
-
     TopTitle topTitle = new TopTitle();
 
     UserButtonsTop userButtonsTop = new UserButtonsTop();
-
-    //UserButtonsBottom userButtonsBottom  = new UserButtonsBottom();
 
     Table userTable;
 
@@ -48,8 +63,7 @@ public class WinUserManagement extends Window {
 
     List<ManagementUserDto> mUsers;
 
-    WinUserManagement(){
-
+    WinUserManagement() {
         setCaption(ViewProperties.getCaption("window.winUserManagement"));
         setTheme("classy");
 
@@ -89,10 +103,6 @@ public class WinUserManagement extends Window {
 
         layout.addComponent(userTable);
         layout.setExpandRatio(userTable, 1);
-
-        //下部ボタンフィールド
-        //layout.addComponent(userButtonsBottom);
-
     }
 
     private void refresh() {
@@ -110,9 +120,7 @@ public class WinUserManagement extends Window {
         userTable.sort();
     }
 
-
     private void loadData() {
-        // ユーザ番号
         // ユーザ番号
         Long loginUserNo = ViewContext.getLoginUser();
 
@@ -122,18 +130,17 @@ public class WinUserManagement extends Window {
 
         // 管理ユーザー情報を取得
         mUsers = userManagementService.getManagementUsers(loginUserNo);
-
     }
 
     public String[] getHeaders() {
         ArrayList<String> headerList = new ArrayList<String>();
         headerList.add(ViewProperties.getCaption("label.userName"));
         headerList.add(ViewProperties.getCaption("label.userEdit"));
-        for (FarmDto farm :farmlist){
+        for (FarmDto farm : farmlist) {
             headerList.add(farm.getFarm().getFarmName());
         }
 
-        String[] headers=(String[])headerList.toArray(new String[0]);
+        String[] headers = (String[]) headerList.toArray(new String[0]);
 
         return headers;
     }
@@ -141,32 +148,26 @@ public class WinUserManagement extends Window {
     public void setHeaderWidth() {
         userTable.setColumnWidth(ViewProperties.getCaption("label.userName"), 100);
         userTable.setColumnWidth(ViewProperties.getCaption("label.userEdit"), 50);
-        for (FarmDto farm :farmlist){
+        for (FarmDto farm : farmlist) {
             userTable.setColumnWidth(farm.getFarm().getFarmName(), 100);
         }
     }
-
 
     public IndexedContainer getContainer() {
         IndexedContainer container = new IndexedContainer();
         container.addContainerProperty(ViewProperties.getCaption("label.userName"), String.class, null);
         container.addContainerProperty(ViewProperties.getCaption("label.userEdit"), Button.class, null);
-        for (FarmDto farm :farmlist){
+        for (FarmDto farm : farmlist) {
             container.addContainerProperty(farm.getFarm().getFarmName(), String.class, null);
         }
         return container;
     }
 
-
     private void fillContainer(Container container) {
-
-        for (ManagementUserDto userAuth: mUsers) {
-
+        for (ManagementUserDto userAuth : mUsers) {
             User user = userAuth.getUser();
             Map<Long, UserAuth> authMap = userAuth.getAuthMap();
             Item item = container.addItem(user.getUserNo());
-
-
 
             Button editButton = new Button();
             editButton.addStyleName("borderless");
@@ -177,8 +178,6 @@ public class WinUserManagement extends Window {
                 @Override
                 public void buttonClick(ClickEvent event) {
                     editButtonClick(event);
-                    //WinLogView window = new WinLogView();
-                    //getApplication().getMainWindow().addWindow(window);
                 }
             });
             //※予期しないエラーのダイアログがPCCのメイン画面側に表示されることに対する処理
@@ -188,11 +187,10 @@ public class WinUserManagement extends Window {
             item.getItemProperty(ViewProperties.getCaption("label.userEdit")).setValue(editButton);
 
             ConvertUtil cUtil = new ConvertUtil();
-            for (FarmDto farm :farmlist){
+            for (FarmDto farm : farmlist) {
                 String viewString = cUtil.ConvertAuthToName(authMap.get(farm.getFarm().getFarmNo()));
                 item.getItemProperty(farm.getFarm().getFarmName()).setValue(viewString);
             }
-
         }
     }
 
@@ -221,7 +219,6 @@ public class WinUserManagement extends Window {
         this.addWindow(win);
     }
 
-
     private class TopTitle extends CssLayout {
 
         TopTitle() {
@@ -235,11 +232,11 @@ public class WinUserManagement extends Window {
             title.addStyleName("title");
             addComponent(title);
         }
+
     }
 
-
-
     private class UserButtonsTop extends CssLayout implements Button.ClickListener {
+
         Button btnNewUser;
 
         UserButtonsTop() {
@@ -248,7 +245,7 @@ public class WinUserManagement extends Window {
             setMargin(false);
             addStyleName("user-buttons");
             addStyleName("user-table-label");
-            Label luser = new Label(ViewProperties.getCaption("label.user"),Label.CONTENT_XHTML);
+            Label luser = new Label(ViewProperties.getCaption("label.user"), Label.CONTENT_XHTML);
             luser.setWidth("200px");
             addComponent(luser);
 
@@ -261,7 +258,6 @@ public class WinUserManagement extends Window {
             btnNewUser.setErrorHandler(new ComponentsErrorHandler(WinUserManagement.this));
             addComponent(btnNewUser);
         }
-
 
         public void buttonClick(ClickEvent event) {
             WinUserAuthAddEdit win = new WinUserAuthAddEdit(ViewContext.getUserNo(), null);
@@ -276,33 +272,4 @@ public class WinUserManagement extends Window {
 
     }
 
-
-
-//    private class UserButtonsBottom extends CssLayout implements Button.ClickListener {
-//        Button okButton;
-//
-//        UserButtonsBottom() {
-//            //テーブル下ボタンの配置
-//            setWidth("100%");
-//            setMargin(false);
-//            addStyleName("user-buttons");
-//            addStyleName("user-table-label");
-//
-//            // OKボタン
-//            okButton = new Button(ViewProperties.getCaption("button.ok"));
-//            okButton.setDescription(ViewProperties.getCaption("description.editUser.ok"));
-//            okButton.setWidth("100px");
-//            okButton.addListener(this);
-//            okButton.addStyleName("right");
-//            addComponent(okButton);
-//
-//       }
-//
-//
-//        public void buttonClick(ClickEvent event) {
-//            // 画面を閉じる
-//            WinUserManagement.this.close();
-//        }
-//
-//    }
 }

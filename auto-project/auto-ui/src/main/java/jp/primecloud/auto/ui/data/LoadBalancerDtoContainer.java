@@ -27,6 +27,7 @@ import jp.primecloud.auto.service.dto.LoadBalancerDto;
 import jp.primecloud.auto.ui.LoadBalancerTable;
 import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.ViewContext;
+
 import com.vaadin.data.Container;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
@@ -77,8 +78,8 @@ public class LoadBalancerDtoContainer extends BeanItemContainer<LoadBalancerDto>
                 LoadBalancerDto oldDto = (LoadBalancerDto) o[i];
                 for (int j = 0; j < dtos.size(); j++) {
                     LoadBalancerDto newDto = dtos.get(j);
-                    if (oldDto.getLoadBalancer().getLoadBalancerNo().equals(
-                            newDto.getLoadBalancer().getLoadBalancerNo())) {
+                    if (oldDto.getLoadBalancer().getLoadBalancerNo()
+                            .equals(newDto.getLoadBalancer().getLoadBalancerNo())) {
                         final BeanItem<LoadBalancerDto> dto = this.getItem(o[i]);
                         dto.getItemProperty("loadBalancer").setValue(newDto.getLoadBalancer());
                         dto.getItemProperty("platform").setValue(newDto.getPlatform());

@@ -24,8 +24,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.apache.commons.lang.BooleanUtils;
-
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.ComponentService;
 import jp.primecloud.auto.service.InstanceService;
@@ -39,6 +37,8 @@ import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
+import org.apache.commons.lang.BooleanUtils;
 
 import com.vaadin.Application;
 import com.vaadin.data.Property;
@@ -65,8 +65,9 @@ import com.vaadin.ui.Window;
  * </p>
  *
  */
-@SuppressWarnings({"serial", "unchecked"})
+@SuppressWarnings({ "serial", "unchecked" })
 public class WinServiceAdd extends Window {
+
     final String COLUMN_HEIGHT = "30px";
 
     Application apl;
@@ -85,7 +86,7 @@ public class WinServiceAdd extends Window {
 
     List<InstanceDto> instances;
 
-    WinServiceAdd( Application ap ) {
+    WinServiceAdd(Application ap) {
         apl = ap;
 
         //モーダルウインドウ
@@ -145,6 +146,7 @@ public class WinServiceAdd extends Window {
     }
 
     private class BasicForm extends Form {
+
         BasicForm() {
             setStyleName("win-service-add-form");
 
@@ -166,13 +168,14 @@ public class WinServiceAdd extends Window {
             getLayout().addComponent(diskSizeField);
 
             // サーバ選択フォーム
-            AbsoluteLayout  layout = new AbsoluteLayout();
-            layout.setWidth("100%"); layout.setHeight("20px");
+            AbsoluteLayout layout = new AbsoluteLayout();
+            layout.setWidth("100%");
+            layout.setHeight("20px");
             layout.setStyleName("serverselect");
-            Label selectLbl= new Label(ViewProperties.getCaption("label.serverSelectable"));
-            Label selectedLbl= new Label(ViewProperties.getCaption("label.serverSelected"));
-            layout.addComponent(selectLbl,"left:10%");
-            layout.addComponent(selectedLbl,"left:65%");
+            Label selectLbl = new Label(ViewProperties.getCaption("label.serverSelectable"));
+            Label selectedLbl = new Label(ViewProperties.getCaption("label.serverSelected"));
+            layout.addComponent(selectLbl, "left:10%");
+            layout.addComponent(selectedLbl, "left:65%");
             getLayout().addComponent(layout);
 
             serverSelect = new ServerSelect();
@@ -194,7 +197,8 @@ public class WinServiceAdd extends Window {
                     final Long componentTypeNo = (Long) serviceTable.getValue();
                     if (componentTypeNo == null) {
                         // TODO: サービスが選択されていない場合
-                        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), ViewMessages.getMessage("IUI-000030"));
+                        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
+                                ViewMessages.getMessage("IUI-000030"));
                         getApplication().getMainWindow().addWindow(dialog);
                         return;
                     }
@@ -202,7 +206,7 @@ public class WinServiceAdd extends Window {
                     // 選択されているサーバ名を取得
                     final Collection<String> selectedServerNames = (Collection<String>) serverSelect.getValue();
 
-                    WinServerAddSimple winServerAddSimple = new WinServerAddSimple(getApplication(),componentTypeNo);
+                    WinServerAddSimple winServerAddSimple = new WinServerAddSimple(getApplication(), componentTypeNo);
                     winServerAddSimple.addListener(new CloseListener() {
                         @Override
                         public void windowClose(CloseEvent e) {
@@ -239,9 +243,11 @@ public class WinServiceAdd extends Window {
 
             getLayout().addComponent(hlay);
         }
+
     }
 
     private class SelectServiceTable extends Table {
+
         SelectServiceTable() {
             //テーブル基本設定
             setCaption(ViewProperties.getCaption("table.selectService"));
@@ -265,6 +271,7 @@ public class WinServiceAdd extends Window {
 
             //テーブルのカラムに対してStyleNameを設定
             setCellStyleGenerator(new Table.CellStyleGenerator() {
+                @Override
                 public String getStyle(Object itemId, Object propertyId) {
                     if (propertyId == null) {
                         return "";
@@ -285,6 +292,7 @@ public class WinServiceAdd extends Window {
                 }
             });
         }
+
     }
 
     public class ServerSelect extends TwinColSelect {
@@ -297,6 +305,7 @@ public class WinServiceAdd extends Window {
             setImmediate(true);
             setStyleName("serverselect");
         }
+
     }
 
     private void initValidation() {
@@ -327,8 +336,10 @@ public class WinServiceAdd extends Window {
         Collections.sort(componentTypes, new Comparator<ComponentTypeDto>() {
             @Override
             public int compare(ComponentTypeDto o1, ComponentTypeDto o2) {
-                int order1 = (o1.getComponentType().getViewOrder() != null) ? o1.getComponentType().getViewOrder() : Integer.MAX_VALUE;
-                int order2 = (o2.getComponentType().getViewOrder() != null) ? o2.getComponentType().getViewOrder() : Integer.MAX_VALUE;
+                int order1 = (o1.getComponentType().getViewOrder() != null) ? o1.getComponentType().getViewOrder()
+                        : Integer.MAX_VALUE;
+                int order2 = (o2.getComponentType().getViewOrder() != null) ? o2.getComponentType().getViewOrder()
+                        : Integer.MAX_VALUE;
                 return order1 - order2;
             }
         });
@@ -354,15 +365,15 @@ public class WinServiceAdd extends Window {
             String name = componentType.getComponentType().getComponentTypeNameDisp();
             Icons nameIcon = Icons.fromName(componentType.getComponentType().getComponentTypeName());
 
-            Label slbl = new Label("<img src=\"" + VaadinUtils.getIconPath( apl , nameIcon) + "\"><div>" + name
+            Label slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(apl, nameIcon) + "\"><div>" + name
                     + "</div>", Label.CONTENT_XHTML);
             slbl.setHeight(COLUMN_HEIGHT);
 
             // サービス説明
             String description = componentType.getComponentType().getLayerDisp();
 
-            serviceTable.addItem(new Object[] { (i + 1), slbl, description },
-                    componentType.getComponentType().getComponentTypeNo());
+            serviceTable.addItem(new Object[] { (i + 1), slbl, description }, componentType.getComponentType()
+                    .getComponentTypeNo());
         }
 
         Long componentTypeNo = null;
@@ -423,9 +434,9 @@ public class WinServiceAdd extends Window {
             diskSizeField.validate();
         } catch (InvalidValueException e) {
             String errMes = e.getMessage();
-            if (null == errMes){
+            if (null == errMes) {
                 //メッセージが取得できない場合は複合エラー 先頭を表示する
-                InvalidValueException[] exceptions =  e.getCauses();
+                InvalidValueException[] exceptions = e.getCauses();
                 errMes = exceptions[0].getMessage();
             }
 
@@ -434,12 +445,14 @@ public class WinServiceAdd extends Window {
             return;
         }
         if (componentTypeNo == null) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), ViewMessages.getMessage("IUI-000030"));
+            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
+                    ViewMessages.getMessage("IUI-000030"));
             getApplication().getMainWindow().addWindow(dialog);
             return;
         }
         if ("base".equals(serviceName) || serviceName.startsWith("lb-")) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), ViewMessages.getMessage("IUI-000053", serviceName));
+            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
+                    ViewMessages.getMessage("IUI-000053", serviceName));
             getApplication().getMainWindow().addWindow(dialog);
             return;
         }
@@ -447,13 +460,12 @@ public class WinServiceAdd extends Window {
         // クラウド番号
         Long farmNo = ViewContext.getFarmNo();
 
-
         // サービスを作成（ロジックを実行）
         ComponentService componentService = BeanContext.getBean(ComponentService.class);
         Long componentNo;
         try {
-            componentNo = componentService.createComponent(farmNo, serviceName, componentTypeNo, comment, Integer
-                    .valueOf(diskSize));
+            componentNo = componentService.createComponent(farmNo, serviceName, componentTypeNo, comment,
+                    Integer.valueOf(diskSize));
         } catch (AutoApplicationException e) {
             String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
             DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
@@ -462,7 +474,7 @@ public class WinServiceAdd extends Window {
         }
 
         //オペレーションログ
-        AutoApplication aapl =  (AutoApplication)apl;
+        AutoApplication aapl = (AutoApplication) apl;
         aapl.doOpLog("SERVICE", "Make Service", null, componentNo, null, null);
 
         // サービスにサーバを追加（ロジックを実行）

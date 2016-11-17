@@ -24,8 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.ComponentInstanceStatus;
 import jp.primecloud.auto.component.mysql.MySQLConstants;
@@ -48,6 +46,8 @@ import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
+import org.apache.commons.lang.StringUtils;
 
 import com.vaadin.data.Container;
 import com.vaadin.event.ItemClickEvent;
@@ -73,7 +73,7 @@ import com.vaadin.ui.themes.Reindeer;
  * </p>
  *
  */
-@SuppressWarnings({"serial", "unchecked"})
+@SuppressWarnings({ "serial", "unchecked" })
 public class ServiceDescBasic extends Panel {
 
     BasicInfoOpe left = new BasicInfoOpe();
@@ -150,6 +150,7 @@ public class ServiceDescBasic extends Panel {
             setIcon(Icons.SERVERTAB.resource());
 
             addGeneratedColumn("check", new ColumnGenerator() {
+                @Override
                 public Component generateCell(Table source, Object itemId, Object columnId) {
                     InstanceDto p = (InstanceDto) itemId;
                     Long no = p.getInstance().getInstanceNo();
@@ -172,11 +173,11 @@ public class ServiceDescBasic extends Panel {
                         }
                     });
                     return check;
-
                 }
             });
 
             addGeneratedColumn("instanceName", new ColumnGenerator() {
+                @Override
                 public Component generateCell(Table source, Object itemId, Object columnId) {
                     InstanceDto p = (InstanceDto) itemId;
                     Label slbl = new Label(p.getInstance().getInstanceName());
@@ -186,6 +187,7 @@ public class ServiceDescBasic extends Panel {
             });
 
             addGeneratedColumn("urlIcon", new ColumnGenerator() {
+                @Override
                 public Component generateCell(Table source, Object itemId, Object columnId) {
                     InstanceDto dto = (InstanceDto) itemId;
                     // 管理用
@@ -240,11 +242,11 @@ public class ServiceDescBasic extends Panel {
                     }
 
                     return slbl;
-
                 }
             });
 
             addGeneratedColumn("status", new ColumnGenerator() {
+                @Override
                 public Component generateCell(Table source, Object itemId, Object columnId) {
                     InstanceDto p = (InstanceDto) itemId;
 
@@ -275,11 +277,11 @@ public class ServiceDescBasic extends Panel {
                             + "\"><div>" + a + "</div>", Label.CONTENT_XHTML);
                     slbl.setHeight(COLUMN_HEIGHT);
                     return slbl;
-
                 }
             });
 
             addGeneratedColumn("platform", new ColumnGenerator() {
+                @Override
                 public Component generateCell(Table source, Object itemId, Object columnId) {
                     InstanceDto p = (InstanceDto) itemId;
                     PlatformDto platform = p.getPlatform();
@@ -294,14 +296,12 @@ public class ServiceDescBasic extends Panel {
                     slbl.setHeight(COLUMN_HEIGHT);
 
                     return slbl;
-
                 }
             });
 
-            //            setVisible(false);
-
             //テーブルのカラムに対してStyleNameを設定
             setCellStyleGenerator(new Table.CellStyleGenerator() {
+                @Override
                 public String getStyle(Object itemId, Object propertyId) {
 
                     InstanceDto dto = (InstanceDto) itemId;
@@ -329,10 +329,8 @@ public class ServiceDescBasic extends Panel {
                     if (checkList.containsKey(no)) {
                         checkList.get(no).setValue(!(Boolean) checkList.get(no).getValue());
                     }
-//                    refresh(getContainerDataSource());
                 }
             });
-
         }
 
         @Override
@@ -343,17 +341,9 @@ public class ServiceDescBasic extends Panel {
             setCaption(ViewProperties.getCaption("table.serviceServers"));
             setHeight("100%");
             setSortDisabled(true);
-            //            setSelectable(true);
-            //            setMultiSelect(true);
             setImmediate(true);
             setVisible(true);
-
         }
-
-        //        public void setHeaders(){
-        //            //項目名設定
-        //            setColumnHeaders(COLNAME);
-        //        }
 
         public void refresh(Container dataSource) {
             refresh(dataSource, false);
@@ -370,9 +360,11 @@ public class ServiceDescBasic extends Panel {
             }
             serverOpe.refresh();
         }
+
     }
 
     class BasicInfoOpe extends Panel {
+
         Label serviceName;
 
         VerticalLayout vlLoadBalancer;
@@ -388,18 +380,13 @@ public class ServiceDescBasic extends Panel {
         final String COLUMN_HEIGHT = "30px";
 
         //項目名
-        String[] CAPNAME = {
-                    ViewProperties.getCaption("field.serviceName"),
-                    ViewProperties.getCaption("field.service"),
-                    ViewProperties.getCaption("field.status"),
-                    ViewProperties.getCaption("field.comment"),
-                    ViewProperties.getCaption("field.loadBalancer"),
-            };
+        String[] CAPNAME = { ViewProperties.getCaption("field.serviceName"),
+                ViewProperties.getCaption("field.service"), ViewProperties.getCaption("field.status"),
+                ViewProperties.getCaption("field.comment"), ViewProperties.getCaption("field.loadBalancer"), };
 
         GridLayout layout;
 
         BasicInfoOpe() {
-
             setCaption(ViewProperties.getCaption("table.serviceBasicInfo"));
             setHeight("100%");
             setStyleName("service-desc-basic-panel");
@@ -423,7 +410,6 @@ public class ServiceDescBasic extends Panel {
                 layout.addComponent(lbl1, 0, i);
                 layout.addComponent(lbl2, 1, i);
             }
-
         }
 
         public void setItem(ComponentDto dto) {
@@ -444,13 +430,14 @@ public class ServiceDescBasic extends Panel {
                 Icons nameIcon = Icons.fromName(componentType.getComponentTypeName());
                 String name = componentType.getComponentTypeNameDisp();
 
-                serviceDetail = new Label("<img src=\"" + VaadinUtils.getIconPath(ServiceDescBasic.this, nameIcon) + "\"><div>"
-                        + name + "</div>", Label.CONTENT_XHTML);
+                serviceDetail = new Label("<img src=\"" + VaadinUtils.getIconPath(ServiceDescBasic.this, nameIcon)
+                        + "\"><div>" + name + "</div>", Label.CONTENT_XHTML);
                 layout.removeComponent(1, line);
                 layout.addComponent(serviceDetail, 1, line++);
 
                 //ステータス
-                String stat = dto.getStatus().substring(0, 1).toUpperCase() + dto.getStatus().substring(1).toLowerCase();
+                String stat = dto.getStatus().substring(0, 1).toUpperCase()
+                        + dto.getStatus().substring(1).toLowerCase();
                 Icons icon = Icons.fromName(stat);
                 status = new Label("<img src=\"" + VaadinUtils.getIconPath(ServiceDescBasic.this, icon) + "\"><div>"
                         + stat + "</div>", Label.CONTENT_XHTML);
@@ -483,7 +470,6 @@ public class ServiceDescBasic extends Panel {
 
                 layout.removeComponent(1, line);
                 layout.addComponent(vlLoadBalancer, 1, line++);
-
             } else {
                 int line = 0;
                 //サービス名
@@ -510,7 +496,6 @@ public class ServiceDescBasic extends Panel {
                 vlLoadBalancer = new VerticalLayout();
                 layout.removeComponent(1, line);
                 layout.addComponent(vlLoadBalancer, 1, line++);
-
             }
         }
 
@@ -548,6 +533,7 @@ public class ServiceDescBasic extends Panel {
             //ロードバランサーTabに移動
             myCloudTabs.tabDesc.setSelectedTab(myCloudTabs.pnLoadBalancer);
         }
+
     }
 
     public void initializeData() {
@@ -605,11 +591,9 @@ public class ServiceDescBasic extends Panel {
         void refresh() {
             Container container = right.getContainerDataSource();
             if (container != null && container.getItemIds().size() > 0) {
-
                 btnCheckAll.setEnabled(true);
                 btnStart.setEnabled(true);
                 btnStop.setEnabled(true);
-
             } else {
                 btnCheckAll.setEnabled(false);
                 btnStart.setEnabled(false);
@@ -625,7 +609,6 @@ public class ServiceDescBasic extends Panel {
         }
 
         public void checkAllButtonClick(Button.ClickEvent event) {
-
             //全てCheckされていれば全てOFF それ以外は全てON
             boolean checkAll = true;
             for (Long no : right.checkList.keySet()) {
@@ -637,12 +620,9 @@ public class ServiceDescBasic extends Panel {
             for (CheckBox chk : right.checkList.values()) {
                 chk.setValue(!checkAll);
             }
-
-//            right.refresh(right.getContainerDataSource());
         }
 
         public void playButtonClick(Button.ClickEvent event) {
-
             //Running , Warningのサーバが含まれていないかチェック
             final ComponentDto dto = left.component;
             //確認メッセージ
@@ -672,12 +652,14 @@ public class ServiceDescBasic extends Panel {
                         if (instanceNo.equals(componentInstanceDto.getComponentInstance().getInstanceNo())) {
                             String status = componentInstanceDto.getComponentInstance().getStatus();
                             //コンポーネント側からのステータス確認
-                            if (status.equals(ComponentInstanceStatus.CONFIGURING.toString()) ||
-                                    status.equals(ComponentInstanceStatus.STARTING.toString()) ||
-                                    status.equals(ComponentInstanceStatus.STOPPING.toString()) ||
-                                    status.equals(ComponentInstanceStatus.WARNING.toString())){
-                                String message = ViewMessages.getMessage("IUI-000044", new Object[] {StringUtils.capitalize(status.toLowerCase()) });
-                                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message);
+                            if (status.equals(ComponentInstanceStatus.CONFIGURING.toString())
+                                    || status.equals(ComponentInstanceStatus.STARTING.toString())
+                                    || status.equals(ComponentInstanceStatus.STOPPING.toString())
+                                    || status.equals(ComponentInstanceStatus.WARNING.toString())) {
+                                String message = ViewMessages.getMessage("IUI-000044",
+                                        new Object[] { StringUtils.capitalize(status.toLowerCase()) });
+                                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"),
+                                        message);
                                 getApplication().getMainWindow().addWindow(dialog);
                                 return;
                             }
@@ -691,31 +673,34 @@ public class ServiceDescBasic extends Panel {
                                 // サブネットチェック
                                 vpc = platform.getPlatformAws().getVpc();
                                 subnetId = tmpDto.getAwsInstance().getSubnetId();
-                                subnetErrFlg = processService.checkSubnet(platform.getPlatform().getPlatformType(), vpc, subnetId);
+                                subnetErrFlg = processService.checkSubnet(platform.getPlatform().getPlatformType(),
+                                        vpc, subnetId);
                                 if (subnetErrFlg == true) {
                                     //EC2+VPCの場合、サブネットを設定しないと起動不可
-                                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                                        ViewMessages.getMessage("IUI-000112", tmpDto.getInstance().getInstanceName()));
-                                getApplication().getMainWindow().addWindow(dialog);
-                                return;
-                            }
+                                    DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
+                                            ViewMessages.getMessage("IUI-000112", tmpDto.getInstance()
+                                                    .getInstanceName()));
+                                    getApplication().getMainWindow().addWindow(dialog);
+                                    return;
+                                }
                             }
                             if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatform().getPlatformType())) {
                                 // サブネットチェック
                                 subnetId = tmpDto.getAzureInstance().getSubnetId();
-                                subnetErrFlg = processService.checkSubnet(platform.getPlatform().getPlatformType(), vpc, subnetId);
+                                subnetErrFlg = processService.checkSubnet(platform.getPlatform().getPlatformType(),
+                                        vpc, subnetId);
                                 if (subnetErrFlg == true) {
                                     // サブネットを設定しないと起動不可
                                     DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                                            ViewMessages.getMessage("IUI-000112", tmpDto.getInstance().getInstanceName()));
+                                            ViewMessages.getMessage("IUI-000112", tmpDto.getInstance()
+                                                    .getInstanceName()));
                                     getApplication().getMainWindow().addWindow(dialog);
                                     return;
                                 }
                                 // インスタンス起動チェック（同時起動）
                                 HashMap<String, Boolean> flgMap = new HashMap<String, Boolean>();
                                 flgMap = processService.checkStartupAll(platform.getPlatform().getPlatformType(),
-                                        tmpDto.getAzureInstance().getInstanceName(),
-                                        skipServer);
+                                        tmpDto.getAzureInstance().getInstanceName(), skipServer);
                                 skipServer = flgMap.get("skipServer");
                                 boolean startupAllErrFlg;
                                 startupAllErrFlg = flgMap.get("startupAllErrFlg");
@@ -730,22 +715,22 @@ public class ServiceDescBasic extends Panel {
                                 // インスタンス起動チェック（個別起動）
                                 boolean startupErrFlg;
                                 startupErrFlg = processService.checkStartup(platform.getPlatform().getPlatformType(),
-                                        tmpDto.getAzureInstance().getInstanceName(),
-                                        tmpDto.getAzureInstance().getInstanceNo());
+                                        tmpDto.getAzureInstance().getInstanceName(), tmpDto.getAzureInstance()
+                                                .getInstanceNo());
                                 if (startupErrFlg == true) {
-                                            // インスタンス作成中のものがあった場合は、起動不可
+                                    // インスタンス作成中のものがあった場合は、起動不可
                                     // 同一インスタンスNoは、除外する
-                                            DialogConfirm dialog = new DialogConfirm(
-                                                    ViewProperties.getCaption("dialog.error"), ViewMessages.getMessage(
-                                                            "IUI-000134", tmpDto.getInstance().getInstanceName()));
-                                            getApplication().getMainWindow().addWindow(dialog);
-                                            return;
-                                        }
-                                    }
+                                    DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
+                                            ViewMessages.getMessage("IUI-000134", tmpDto.getInstance()
+                                                    .getInstanceName()));
+                                    getApplication().getMainWindow().addWindow(dialog);
+                                    return;
                                 }
                             }
                         }
                     }
+                }
+            }
 
             String message = ViewMessages.getMessage("IUI-000051", new Object[] { instanceNos.size(),
                     dto.getComponent().getComponentName() });
@@ -771,7 +756,6 @@ public class ServiceDescBasic extends Panel {
 
                     //画面のリフレッシュ
                     refresh(right);
-
                 }
             });
 
@@ -779,7 +763,6 @@ public class ServiceDescBasic extends Panel {
         }
 
         public void stopButtonClick(Button.ClickEvent event) {
-
             final List<Long> instanceNos = new ArrayList<Long>();
             final List<InstanceDto> instanceDtos = new ArrayList<InstanceDto>();
 
@@ -790,7 +773,6 @@ public class ServiceDescBasic extends Panel {
                     instanceNos.add(((InstanceDto) itemId).getInstance().getInstanceNo());
                     instanceDtos.add((InstanceDto) itemId);
                 }
-
             }
             final ComponentDto dto = left.component;
 
@@ -806,13 +788,16 @@ public class ServiceDescBasic extends Panel {
                 //サーバステータスのステータスにStarting,Configuring,Stoppingが無いかを確認
                 for (InstanceDto instanceDto : instanceDtos) {
                     for (ComponentInstanceDto componentInstanceDto : dto.getComponentInstances()) {
-                        if (instanceDto.getInstance().getInstanceNo().equals(componentInstanceDto.getComponentInstance().getInstanceNo())) {
+                        if (instanceDto.getInstance().getInstanceNo()
+                                .equals(componentInstanceDto.getComponentInstance().getInstanceNo())) {
                             String status = componentInstanceDto.getComponentInstance().getStatus();
-                            if (status.equals(ComponentInstanceStatus.CONFIGURING.toString()) ||
-                                    status.equals(ComponentInstanceStatus.STARTING.toString()) ||
-                                    status.equals(ComponentInstanceStatus.STOPPING.toString())) {
-                                String message = ViewMessages.getMessage("IUI-000045", new Object[] {StringUtils.capitalize(status.toLowerCase()) });
-                                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message);
+                            if (status.equals(ComponentInstanceStatus.CONFIGURING.toString())
+                                    || status.equals(ComponentInstanceStatus.STARTING.toString())
+                                    || status.equals(ComponentInstanceStatus.STOPPING.toString())) {
+                                String message = ViewMessages.getMessage("IUI-000045",
+                                        new Object[] { StringUtils.capitalize(status.toLowerCase()) });
+                                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"),
+                                        message);
                                 getApplication().getMainWindow().addWindow(dialog);
                                 return;
                             }
@@ -822,10 +807,12 @@ public class ServiceDescBasic extends Panel {
                     //インスタンスに含まれる選択以外のステータスを確認
                     for (ComponentInstanceDto componentInstanceDto2 : instanceDto.getComponentInstances()) {
                         //同じコンポーネントの場合は無視する
-                        if (componentInstanceDto2.getComponentInstance().getComponentNo().equals(dto.getComponent().getComponentNo())) {
+                        if (componentInstanceDto2.getComponentInstance().getComponentNo()
+                                .equals(dto.getComponent().getComponentNo())) {
                             continue;
                         }
-                        if (!componentInstanceDto2.getComponentInstance().getStatus().equals(ComponentInstanceStatus.STOPPED.toString())) {
+                        if (!componentInstanceDto2.getComponentInstance().getStatus()
+                                .equals(ComponentInstanceStatus.STOPPED.toString())) {
                             isCheckbox = false;
                             break;
                         }
@@ -860,18 +847,17 @@ public class ServiceDescBasic extends Panel {
 
                     //オペレーションログ
                     AutoApplication apl = (AutoApplication) getApplication();
-                    apl.doOpLog("SERVICE", "Stop Service", null, dto.getComponent().getComponentNo(), null, String.valueOf(stopInstance));
+                    apl.doOpLog("SERVICE", "Stop Service", null, dto.getComponent().getComponentNo(), null,
+                            String.valueOf(stopInstance));
 
                     //停止処理
                     processService.stopComponents(farmNo, componentNo, instanceNos, stopInstance);
 
                     //画面のリフレッシュ
                     refresh(right);
-
                 }
             });
             getApplication().getMainWindow().addWindow(dialog);
-
         }
 
         public void refresh(Component component) {
@@ -885,6 +871,7 @@ public class ServiceDescBasic extends Panel {
             }
             myCloudTabs.refreshTableOnly();
         }
+
     }
 
 }

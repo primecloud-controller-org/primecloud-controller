@@ -19,6 +19,7 @@
 package jp.primecloud.auto.ui;
 
 import jp.primecloud.auto.config.Config;
+
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.terminal.ExternalResource;
 import com.vaadin.ui.Alignment;
@@ -131,11 +132,10 @@ public class MainMenu extends Panel {
     private void showFirst() {
         // クラウド管理画面を表示する
         showCloudEditWindow();
-
     }
 
     private void showCloudAddWindow() {
-        MyCloudAdd window = new MyCloudAdd( mainWindow.getApplication() );
+        MyCloudAdd window = new MyCloudAdd(mainWindow.getApplication());
         window.addListener(new Window.CloseListener() {
             @Override
             public void windowClose(CloseEvent e) {
@@ -147,13 +147,11 @@ public class MainMenu extends Panel {
 
     private void showCloudEditWindow() {
 
-        MyCloudManage window = new MyCloudManage( mainWindow.getApplication() );
+        MyCloudManage window = new MyCloudManage(mainWindow.getApplication());
         window.addListener(new Window.CloseListener() {
             @Override
             public void windowClose(CloseEvent e) {
                 ((AutoApplication) getApplication()).myCloud.refresh();
-                //                ((AutoApplication) getApplication()).myCloud.myCloudTabs.workerStop();
-                //                ((AutoApplication) getApplication()).myCloud.myCloudTabs.workerStart();
             }
         });
         mainWindow.addWindow(window);

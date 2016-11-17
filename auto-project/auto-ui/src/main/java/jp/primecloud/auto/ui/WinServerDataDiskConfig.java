@@ -24,6 +24,7 @@ import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
 import com.vaadin.Application;
 import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.validator.RegexpValidator;
@@ -62,7 +63,7 @@ public class WinServerDataDiskConfig extends Window {
         this.dataDiskDto = dataDiskDto;
 
         // Window
-        isAddMode = (this.dataDiskDto == null) ? true: false;
+        isAddMode = (this.dataDiskDto == null) ? true : false;
         if (isAddMode) {
             //ディスク追加画面
             setIcon(Icons.ADD.resource());
@@ -128,7 +129,7 @@ public class WinServerDataDiskConfig extends Window {
     }
 
     private void showData() {
-        if (!isAddMode){
+        if (!isAddMode) {
             txtDiskSize.setValue(String.valueOf(dataDiskDto.getDiskSize()));
         }
     }
@@ -186,4 +187,5 @@ public class WinServerDataDiskConfig extends Window {
         // ログイン画面を閉じる
         close();
     }
+
 }

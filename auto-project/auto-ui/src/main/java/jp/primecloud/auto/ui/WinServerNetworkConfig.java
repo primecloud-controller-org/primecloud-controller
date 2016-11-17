@@ -22,9 +22,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.service.IaasDescribeService;
 import jp.primecloud.auto.service.dto.InstanceNetworkDto;
 import jp.primecloud.auto.service.dto.NetworkDto;
@@ -33,6 +30,10 @@ import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+
 import com.vaadin.Application;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
@@ -73,29 +74,40 @@ public class WinServerNetworkConfig extends Window {
     Application ap;
 
     ComboBox networkSelect;
+
     ComboBox ipModeSelect;
+
     TextField ipAddressField;
+
     TextField netmaskField;
+
     TextField gateWayField;
+
     TextField dns1Field;
+
     TextField dns2Field;
+
     OptionGroup primaryOpg;
 
-    static final String CID_NETWORK  = "Network";
-    static final String CID_IP_MODE  = "IpMode";
-    static final String CID_PRIMARY  = "Primary";
+    static final String CID_NETWORK = "Network";
+
+    static final String CID_IP_MODE = "IpMode";
+
+    static final String CID_PRIMARY = "Primary";
+
     static final String COMBOBOX_WIDTH = "180px";
 
     Boolean isAddMode;
+
     Map<String, NetworkDto> networkMap = new LinkedHashMap<String, NetworkDto>();
 
-    WinServerNetworkConfig(Application ap, Long instanceNo, Long platformNo,
-            InstanceNetworkDto instanceNetworkDto, List<InstanceNetworkDto> instanceNetworkDtos) {
+    WinServerNetworkConfig(Application ap, Long instanceNo, Long platformNo, InstanceNetworkDto instanceNetworkDto,
+            List<InstanceNetworkDto> instanceNetworkDtos) {
         this.ap = ap;
         this.instanceNo = instanceNo;
         this.platformNo = platformNo;
         this.instanceNetworkDto = instanceNetworkDto;
-        this.isAddMode = (this.instanceNetworkDto == null) ? true: false;
+        this.isAddMode = (this.instanceNetworkDto == null) ? true : false;
         this.instanceNetworkDtos = instanceNetworkDtos;
 
         // Window
@@ -134,7 +146,6 @@ public class WinServerNetworkConfig extends Window {
             }
         });
 
-
         //IPモード選択
         ipModeSelect = new ComboBox(ViewProperties.getCaption("caption.field.ipMode"));
         ipModeSelect.setWidth(COMBOBOX_WIDTH);
@@ -161,19 +172,19 @@ public class WinServerNetworkConfig extends Window {
         netmaskField.setImmediate(true);
 
         //ゲートウェイ
-        gateWayField= new TextField(ViewProperties.getCaption("field.gateway"));
+        gateWayField = new TextField(ViewProperties.getCaption("field.gateway"));
         gateWayField.setWidth("100%");
         gateWayField.setReadOnly(true);
         gateWayField.setImmediate(true);
 
         //DNS1
-        dns1Field= new TextField(ViewProperties.getCaption("field.dns1"));
+        dns1Field = new TextField(ViewProperties.getCaption("field.dns1"));
         dns1Field.setWidth("100%");
         dns1Field.setReadOnly(true);
         dns1Field.setImmediate(true);
 
         //DNS2
-        dns2Field= new TextField(ViewProperties.getCaption("field.dns2"));
+        dns2Field = new TextField(ViewProperties.getCaption("field.dns2"));
         dns2Field.setWidth("100%");
         dns2Field.setReadOnly(true);
         dns2Field.setImmediate(true);
@@ -181,7 +192,7 @@ public class WinServerNetworkConfig extends Window {
         //Primary
         primaryOpg = new OptionGroup(ViewProperties.getCaption("field.primary"));
         primaryOpg.addItem(CID_PRIMARY);
-        primaryOpg.setItemCaption(CID_PRIMARY,"");
+        primaryOpg.setItemCaption(CID_PRIMARY, "");
         primaryOpg.setNullSelectionAllowed(false);
         primaryOpg.setImmediate(true);
 
@@ -296,7 +307,7 @@ public class WinServerNetworkConfig extends Window {
     private void initData() {
         IaasDescribeService describeService = BeanContext.getBean(IaasDescribeService.class);
         List<NetworkDto> networks = describeService.getNetworks(ViewContext.getUserNo(), platformNo);
-        for (NetworkDto network: networks) {
+        for (NetworkDto network : networks) {
             networkMap.put(network.getNetworkName(), network);
         }
     }
@@ -329,7 +340,7 @@ public class WinServerNetworkConfig extends Window {
         }
 
         //IPアドレス
-        if (!isAddMode){
+        if (!isAddMode) {
             String ipMode = (String) ipModeSelect.getValue();
             if ("MANUAL".equals(ipMode)) {
                 ipAddressField.setReadOnly(false);
@@ -353,7 +364,7 @@ public class WinServerNetworkConfig extends Window {
         IndexedContainer networkContainer = new IndexedContainer();
         networkContainer.addContainerProperty(CID_NETWORK, String.class, null);
 
-        for (NetworkDto network: networkMap.values()) {
+        for (NetworkDto network : networkMap.values()) {
             //新規追加時に必須ネットワーク(PCC)は表示されない
             if (isAddMode && network.isPcc()) {
                 continue;
@@ -455,7 +466,7 @@ public class WinServerNetworkConfig extends Window {
 
         if (BooleanUtils.isTrue(instanceNetworkDto.isPrimary())) {
             //プライマリが設定された場合、対象ネットワーク以外のネットワークを非プライマリにする
-            for (InstanceNetworkDto tempDto: instanceNetworkDtos) {
+            for (InstanceNetworkDto tempDto : instanceNetworkDtos) {
                 if (!instanceNetworkDto.equals(tempDto)) {
                     tempDto.setPrimary(false);
                 }
@@ -465,4 +476,5 @@ public class WinServerNetworkConfig extends Window {
         // ログイン画面を閉じる
         close();
     }
+
 }

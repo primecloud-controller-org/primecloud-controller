@@ -29,6 +29,7 @@ import jp.primecloud.auto.ui.util.ContextUtils;
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
+
 import com.vaadin.Application;
 import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.validator.StringLengthValidator;
@@ -49,6 +50,7 @@ import com.vaadin.ui.Window;
  */
 @SuppressWarnings("serial")
 public class MyCloudEdit extends Window {
+
     final String COLUMN_HEIGHT = "30px";
 
     Application apl;
@@ -115,7 +117,6 @@ public class MyCloudEdit extends Window {
 
         // 入力チェックの設定
         initValidation();
-
     }
 
     private class BasicTab extends Form {
@@ -136,8 +137,8 @@ public class MyCloudEdit extends Window {
             getLayout().addComponent(commentField);
 
             cloudNameField.focus();
-
         }
+
     }
 
     private void initData() {
@@ -169,15 +170,12 @@ public class MyCloudEdit extends Window {
     }
 
     private void editButtonClick(ClickEvent event) {
-
         // 入力値を取得
         String cloudName = (String) cloudNameField.getValue();
 
         // 入力チェック
         try {
-            //  cloudNameField.validate();
             commentField.validate();
-            //  domainNameField.validate();
         } catch (InvalidValueException e) {
             DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), e.getMessage());
             getApplication().getMainWindow().addWindow(dialog);
@@ -197,7 +195,7 @@ public class MyCloudEdit extends Window {
                 String domainName = (String) domainNameField.getValue();
                 String comment = (String) commentField.getValue();
 
-                AutoApplication aapl =  (AutoApplication)apl;
+                AutoApplication aapl = (AutoApplication) apl;
                 aapl.doOpLog("CLOUD", "Edit Cloud", farmNo, null);
 
                 // ロジックを実行
@@ -216,10 +214,9 @@ public class MyCloudEdit extends Window {
 
                 // 画面を閉じる
                 close();
-
             }
         });
         getApplication().getMainWindow().addWindow(dialogConfirm);
-
     }
+
 }
