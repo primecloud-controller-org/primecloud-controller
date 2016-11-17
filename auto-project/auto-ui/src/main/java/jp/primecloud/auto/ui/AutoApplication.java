@@ -20,33 +20,17 @@ package jp.primecloud.auto.ui;
 
 import java.util.List;
 
-import jp.primecloud.auto.common.log.LoggingUtils;
-import jp.primecloud.auto.config.Config;
 import jp.primecloud.auto.log.service.OperationLogService;
 import jp.primecloud.auto.service.FarmService;
 import jp.primecloud.auto.service.dto.FarmDto;
-import jp.primecloud.auto.ui.DialogConfirm.Buttons;
 import jp.primecloud.auto.ui.DialogConfirm.Callback;
 import jp.primecloud.auto.ui.DialogConfirm.Result;
 import jp.primecloud.auto.ui.util.BeanContext;
-import jp.primecloud.auto.ui.util.ContextUtils;
-import jp.primecloud.auto.ui.util.Icons;
-import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
 
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 import com.vaadin.Application;
-import com.vaadin.terminal.ExternalResource;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.CssLayout;
-import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Link;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.CloseEvent;
@@ -61,49 +45,35 @@ import com.vaadin.ui.Window.CloseEvent;
 @SuppressWarnings("serial")
 public class AutoApplication extends Application {
 
-    Window mainWindow;
+    private VerticalLayout main;
 
-    GridLayout grid;
-
-    VerticalLayout main;
-
-    TopBar top;
+    private TopBar top;
 
     MyCloud myCloud;
 
     @Override
     public void init() {
-        //初期レイアウト
-        initMainLayout();
-
-        // ログイン画面
-        initLogin();
-
-        // ログアウト後の画面設定
-        setLogoutURL("../../../");
-    }
-
-    private void initMainLayout() {
+        // 初期レイアウト
         main = new VerticalLayout();
         main.setSizeFull();
 
-        mainWindow = new Window(ViewProperties.getCaption("window.main"));
-        setMainWindow(mainWindow);
-
+        Window mainWindow = new Window(ViewProperties.getCaption("window.main"));
         mainWindow.setContent(main);
         mainWindow.setWidth("960px");
         mainWindow.setHeight("100%");
         setTheme("classy");
+        setMainWindow(mainWindow);
 
-        //画面上部
+        // エラーハンドリング
+        setErrorHandler(new ErrorHandler(this));
+
+        // ログアウト後の画面設定
+        setLogoutURL("../../../");
+
+        // 画面上部
         top = new TopBar();
         main.addComponent(top);
 
-        // エラーハンドリング
-        setErrorHandler(new ErrorHandler(mainWindow));
-    }
-
-    private void initLogin() {
         // ログイン画面
         WinLogin winLogin = new WinLogin();
         winLogin.addListener(new Window.CloseListener() {
@@ -120,16 +90,15 @@ public class AutoApplication extends Application {
     }
 
     private void loginSuccess() {
-        //クラウド表示
+        // myCloud表示
         myCloud = new MyCloud();
         main.addComponent(myCloud);
         main.setExpandRatio(myCloud, 100);
 
         // ログインユーザ名表示
-        top.btnAccount.setCaption(ViewContext.getUsername());
-        top.btnAccount.setVisible(true);
+        top.showUserName(ViewContext.getUsername());
 
-        // クラウドが一件もない場合は、ダイヤログを表示する。
+        // myCloud一件もない場合は、ダイアログを表示する。
         FarmService farmService = BeanContext.getBean(FarmService.class);
         List<FarmDto> farms = farmService.getFarms(ViewContext.getUserNo(), ViewContext.getLoginUser());
         if (farms.size() < 1) {
@@ -138,176 +107,18 @@ public class AutoApplication extends Application {
             dialog.setCallback(new Callback() {
                 @Override
                 public void onDialogResult(Result result) {
-                    // クラウド選択画面を表示
-                    showCloudEditWindow();
+                    // myCloud管理画面を表示
+                    top.showCloudEditWindow();
                 }
             });
 
             getMainWindow().addWindow(dialog);
         } else {
-            // クラウド選択画面を表示
-            showCloudEditWindow();
+            // myCloud管理画面を表示
+            top.showCloudEditWindow();
         }
     }
 
-    private class TopBar extends CssLayout {
-
-        Button btnAccount;
-
-        Button btnLogout;
-
-        Button btnMyCloud;
-
-        Button btnLogView;
-
-        TopBar() {
-            addStyleName("TopBar");
-            setWidth("100%");
-            setHeight("30px");
-            setMargin(false, true, false, false);
-
-            // PrimeCloudラベル
-            Label plbl = new Label("<img src=\"" + VaadinUtils.getIconPath(mainWindow.getApplication(), Icons.PCCLOGO)
-                    + "\">", Label.CONTENT_XHTML);
-            plbl.addStyleName("logo");
-            addComponent(plbl);
-
-            // バージョン番号表示
-            String versionProp = Config.getVersionProperty("version");
-            if (StringUtils.isNotEmpty(versionProp)) {
-                StringBuilder version = new StringBuilder();
-                version.append("ver").append(versionProp);
-                Label versionNo = new Label("<p>" + version.toString() + "</p>", Label.CONTENT_XHTML);
-                versionNo.addStyleName("versionNo");
-                addComponent(versionNo);
-            } else {
-                Label versionNo = new Label("<p></p>", Label.CONTENT_XHTML);
-                versionNo.addStyleName("versionNoNone");
-                addComponent(versionNo);
-            }
-
-            //クラウド管理ボタン
-            btnMyCloud = new Button(ViewProperties.getCaption("button.myCloudManage"));
-            btnMyCloud.setDescription(ViewProperties.getCaption("description.myCloudManage"));
-            btnMyCloud.addStyleName("borderless");
-            btnMyCloud.addStyleName("mycloud");
-            btnMyCloud.setIcon(Icons.CLOUDBIG.resource());
-            btnMyCloud.setVisible(true);
-            btnMyCloud.addListener(new Button.ClickListener() {
-                @Override
-                public void buttonClick(ClickEvent event) {
-                    showCloudEditWindow();
-                }
-            });
-            addComponent(btnMyCloud);
-
-            //監視システム(Zabbix)リンク
-            String url = Config.getProperty("zabbix.display");
-            Link zabbix = new Link(ViewProperties.getCaption("link.zabbix"), new ExternalResource(url));
-            zabbix.setDescription(ViewProperties.getCaption("description.link.zabbix"));
-            zabbix.setIcon(Icons.MNGSYSTEM.resource());
-            zabbix.setTargetName("_blank");
-            zabbix.addStyleName("zabbix");
-            addComponent(zabbix);
-
-            //イベントログ表示ボタン
-            btnLogView = new Button(ViewProperties.getCaption("link.eventlog"));
-            btnLogView.setDescription(ViewProperties.getCaption("description.link.eventlog"));
-            btnLogView.addStyleName("borderless");
-            btnLogView.addStyleName("eventlog");
-            btnLogView.setIcon(Icons.CUSTOM.resource());
-            btnLogView.setVisible(true);
-            btnLogView.addListener(new Button.ClickListener() {
-                @Override
-                public void buttonClick(ClickEvent event) {
-                    WinLogView window = new WinLogView();
-                    getApplication().addWindow(window);
-                    mainWindow.open(new ExternalResource(window.getURL()), "_blank");
-                }
-            });
-            addComponent(btnLogView);
-
-            //課金システムリンク
-            Boolean usePayment = BooleanUtils.toBooleanObject(Config.getProperty("payment.usePayment"));
-            if (BooleanUtils.isTrue(usePayment)) {
-                String url2 = Config.getProperty("payment.display");
-                Link payment = new Link(ViewProperties.getCaption("link.payment"), new ExternalResource(url2));
-                payment.setDescription(ViewProperties.getCaption("description.link.payment"));
-                payment.setIcon(Icons.PAYSYSTEM.resource());
-                payment.setTargetName("_payment");
-                payment.addStyleName("payment");
-                addComponent(payment);
-            }
-
-            //ログアウトボタン
-            btnLogout = new Button(ViewProperties.getCaption("button.logout"));
-            btnLogout.setDescription(ViewProperties.getCaption("description.logout"));
-            btnLogout.addStyleName("borderless");
-            btnLogout.addStyleName("logout");
-            btnLogout.setIcon(Icons.LOGOUT.resource());
-            btnLogout.addListener(new Button.ClickListener() {
-                @Override
-                public void buttonClick(ClickEvent event) {
-                    DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.dialogConfirm"),
-                            ViewMessages.getMessage("IUI-000001"), Buttons.OKCancel);
-                    Callback callback = new Callback() {
-                        @Override
-                        public void onDialogResult(Result result) {
-                            if (result == Result.OK) {
-                                // セッション情報を初期化
-                                LoggingUtils.removeContext();
-                                ContextUtils.invalidateSession();
-                                btnAccount.setVisible(false);
-
-                                // このアプリケーションのインスタンスを破棄する
-                                close();
-                            }
-                        }
-                    };
-                    dialog.setCallback(callback);
-                    mainWindow.addWindow(dialog);
-                }
-            });
-            addComponent(btnLogout);
-
-            //ログインアカウント管理ボタン
-            btnAccount = new Button(ViewProperties.getCaption("button.account"));
-            btnAccount.setDescription(ViewProperties.getCaption("description.account"));
-            btnAccount.addStyleName("borderless");
-            btnAccount.addStyleName("account");
-            btnAccount.setIcon(Icons.USER.resource());
-            btnAccount.setVisible(false);
-            btnAccount.addListener(new Button.ClickListener() {
-                @Override
-                public void buttonClick(ClickEvent event) {
-                    /*
-                    //マスターユーザーにのみ開放する
-                    if (ViewContext.getPowerDefaultMaster().equals(ViewContext.getLoginUser())){
-                        WinUserManagement window = new WinUserManagement();
-                        getApplication().addWindow(window);
-                        mainWindow.open(new ExternalResource( window.getURL()) , "_user" );
-                    }
-                    */
-                }
-            });
-            addComponent(btnAccount);
-        }
-
-    }
-
-    private void showCloudEditWindow() {
-        MyCloudManage window = new MyCloudManage(mainWindow.getApplication());
-        window.addListener(new Window.CloseListener() {
-            @Override
-            public void windowClose(CloseEvent e) {
-                myCloud.hide();
-                myCloud.refresh();
-            }
-        });
-        mainWindow.addWindow(window);
-    }
-
-    //ファーム関連用
     public void doOpLog(String screen, String operation, Long farmNo, String memo) {
         doOpLog(ViewContext.getUserNo(), ViewContext.getUsername(), farmNo, screen, operation, null, null, null, memo);
     }

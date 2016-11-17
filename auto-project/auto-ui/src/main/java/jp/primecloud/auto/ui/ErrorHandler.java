@@ -29,10 +29,10 @@ import jp.primecloud.auto.util.MessageUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.vaadin.Application;
 import com.vaadin.event.ListenerMethod;
 import com.vaadin.terminal.Terminal.ErrorEvent;
 import com.vaadin.terminal.Terminal.ErrorListener;
-import com.vaadin.ui.Window;
 
 /**
  * <p>
@@ -46,15 +46,15 @@ public class ErrorHandler implements ErrorListener {
 
     protected Log log = LogFactory.getLog(ErrorHandler.class);
 
-    Window mainWindow;
+    Application application;
 
     /**
      * TODO: コンストラクタコメントを記述
      *
-     * @param mainWindow
+     * @param application
      */
-    public ErrorHandler(Window mainWindow) {
-        this.mainWindow = mainWindow;
+    public ErrorHandler(Application application) {
+        this.application = application;
     }
 
     /**
@@ -92,7 +92,7 @@ public class ErrorHandler implements ErrorListener {
         String caption = ViewProperties.getCaption("dialog.error");
 
         DialogConfirm dialog = new DialogConfirm(caption, message, Buttons.OK);
-        mainWindow.addWindow(dialog);
+        application.getMainWindow().addWindow(dialog);
     }
 
 }

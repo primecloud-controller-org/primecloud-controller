@@ -33,6 +33,7 @@ import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Form;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
@@ -47,13 +48,12 @@ import com.vaadin.ui.Window;
 @SuppressWarnings("serial")
 public class WinLogin extends Window {
 
-    Form form;
+    private TextField usernameField;
 
-    TextField usernameField;
+    private TextField passwordField;
 
-    TextField passwordField;
-
-    WinLogin() {
+    @Override
+    public void attach() {
         // Window
         setIcon(Icons.LOGIN.resource());
         setCaption(ViewProperties.getCaption("window.login"));
@@ -68,49 +68,39 @@ public class WinLogin extends Window {
         layout.setSpacing(true);
 
         // Form
-        form = new Form();
+        Form form = new Form();
         form.addStyleName("form-login");
+
+        // ユーザ名
         usernameField = new TextField(ViewProperties.getCaption("field.userName"));
         usernameField.setWidth("90%");
+        usernameField.focus(); // フォーカスを設定
+        usernameField.setRequired(true);
+        usernameField.setRequiredError(ViewMessages.getMessage("IUI-000019"));
+        form.getLayout().addComponent(usernameField);
+
+        // パスワード
         passwordField = new TextField(ViewProperties.getCaption("field.password"));
         passwordField.setSecret(true);
         passwordField.setWidth("90%");
-
-        form.getLayout().addComponent(usernameField);
+        passwordField.setRequired(true);
+        passwordField.setRequiredError(ViewMessages.getMessage("IUI-000020"));
         form.getLayout().addComponent(passwordField);
+
         layout.addComponent(form);
 
-        //フォーカスを設定
-        usernameField.focus();
-
-        // Button
-        Button ok = new Button(ViewProperties.getCaption("button.login"));
-        ok.setDescription(ViewProperties.getCaption("description.login"));
-
-        ok.addListener(new Button.ClickListener() {
+        // ログインボタン
+        Button loginButton = new Button(ViewProperties.getCaption("button.login"));
+        loginButton.setDescription(ViewProperties.getCaption("description.login"));
+        loginButton.addListener(new ClickListener() {
             public void buttonClick(ClickEvent event) {
                 loginButtonClick(event);
             }
         });
+        loginButton.setClickShortcut(KeyCode.ENTER);
 
-        // [Enter]でOKボタンクリック
-        ok.setClickShortcut(KeyCode.ENTER);
-
-        layout.addComponent(ok);
-        layout.setComponentAlignment(ok, "right");
-
-        // 入力チェックの設定
-        initValidation();
-    }
-
-    private void initValidation() {
-        String message = ViewMessages.getMessage("IUI-000019");
-        usernameField.setRequired(true);
-        usernameField.setRequiredError(message);
-
-        message = ViewMessages.getMessage("IUI-000020");
-        passwordField.setRequired(true);
-        passwordField.setRequiredError(message);
+        layout.addComponent(loginButton);
+        layout.setComponentAlignment(loginButton, "right");
     }
 
     private void loginButtonClick(ClickEvent event) {
@@ -128,7 +118,7 @@ public class WinLogin extends Window {
             return;
         }
 
-        // ロジックを実行
+        // ログイン処理
         UserService userService = BeanContext.getBean(UserService.class);
         UserDto userDto;
         try {
