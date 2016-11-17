@@ -41,9 +41,8 @@ import jp.primecloud.auto.service.dto.LoadBalancerDto;
 import jp.primecloud.auto.service.dto.LoadBalancerPlatformDto;
 import jp.primecloud.auto.service.dto.PlatformDto;
 import jp.primecloud.auto.ui.util.BeanContext;
-import jp.primecloud.auto.ui.util.CommonUtils;
+import jp.primecloud.auto.ui.util.IconUtils;
 import jp.primecloud.auto.ui.util.Icons;
-import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
@@ -395,11 +394,9 @@ public class WinLoadBalancerEdit extends Window {
             PlatformAws platformAws = platformDto.getPlatformAws();
 
             //プラットフォームアイコン名の取得
-            Icons icon = CommonUtils.getPlatformIcon(platformDto);
-
+            Icons icon = IconUtils.getPlatformIcon(platformDto);
             String description = platform.getPlatformNameDisp();
-            String cloudValue = "<img src=\"" + VaadinUtils.getIconPath(apl, icon) + "\"><div>" + description
-                    + "</div>";
+            String cloudValue = IconUtils.createImageTag(apl, icon, description);
             cloudLabel.setValue(cloudValue);
             cloudLabel.setContentMode(Label.CONTENT_XHTML);
 
@@ -407,9 +404,7 @@ public class WinLoadBalancerEdit extends Window {
             String type = loadBalancerDto.getLoadBalancer().getType();
             Icons typeIcon = Icons.NONE;
             String typeString = ViewProperties.getLoadBalancerType(type);
-
-            String typeValue = "<img src=\"" + VaadinUtils.getIconPath(apl, typeIcon) + "\"><div>" + typeString
-                    + "</div>";
+            String typeValue = IconUtils.createImageTag(apl, typeIcon, typeString);
             typeLabel.setValue(typeValue);
             typeLabel.setContentMode(Label.CONTENT_XHTML);
 
@@ -954,8 +949,7 @@ public class WinLoadBalancerEdit extends Window {
                     nameIcon = Icons.fromName(iconName);
                 }
 
-                Label nlbl = new Label("<img src=\"" + VaadinUtils.getIconPath(apl, nameIcon) + "\"><div>" + name
-                        + "</div>", Label.CONTENT_XHTML);
+                Label nlbl = new Label(IconUtils.createImageTag(apl, nameIcon, name), Label.CONTENT_XHTML);
                 nlbl.setHeight(COLUMN_HEIGHT);
 
                 // OS名
@@ -969,8 +963,7 @@ public class WinLoadBalancerEdit extends Window {
                     osIcon = Icons.WINDOWS;
                 }
 
-                Label slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(apl, osIcon) + "\"><div>" + os
-                        + "</div>", Label.CONTENT_XHTML);
+                Label slbl = new Label(IconUtils.createImageTag(apl, osIcon, os), Label.CONTENT_XHTML);
                 slbl.setHeight(COLUMN_HEIGHT);
 
                 n++;
@@ -1123,12 +1116,9 @@ public class WinLoadBalancerEdit extends Window {
                 }
 
                 //プラットフォームアイコン名の取得
-                Icons icon = CommonUtils.getPlatformIcon(platformDto);
-
+                Icons icon = IconUtils.getPlatformIcon(platformDto);
                 String description = platform.getPlatform().getPlatformNameDisp();
-
-                Label slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(apl, icon) + "\"><div>" + description
-                        + "</div>", Label.CONTENT_XHTML);
+                Label slbl = new Label(IconUtils.createImageTag(apl, icon, description), Label.CONTENT_XHTML);
                 slbl.setHeight(COLUMN_HEIGHT);
 
                 cloudTable.addItem(new Object[] { (i + 1), slbl }, platform.getPlatform().getPlatformNo());

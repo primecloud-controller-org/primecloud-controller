@@ -31,9 +31,9 @@ import jp.primecloud.auto.service.dto.ComponentTypeDto;
 import jp.primecloud.auto.service.dto.InstanceDto;
 import jp.primecloud.auto.service.dto.UserAuthDto;
 import jp.primecloud.auto.ui.util.BeanContext;
+import jp.primecloud.auto.ui.util.IconUtils;
 import jp.primecloud.auto.ui.util.ContextUtils;
 import jp.primecloud.auto.ui.util.Icons;
-import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
@@ -355,9 +355,7 @@ public class WinServiceAdd extends Window {
             // サービス名
             String name = componentType.getComponentType().getComponentTypeNameDisp();
             Icons nameIcon = Icons.fromName(componentType.getComponentType().getComponentTypeName());
-
-            Label slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(apl, nameIcon) + "\"><div>" + name
-                    + "</div>", Label.CONTENT_XHTML);
+            Label slbl = new Label(IconUtils.createImageTag(apl, nameIcon, name), Label.CONTENT_XHTML);
             slbl.setHeight(COLUMN_HEIGHT);
 
             // サービス説明

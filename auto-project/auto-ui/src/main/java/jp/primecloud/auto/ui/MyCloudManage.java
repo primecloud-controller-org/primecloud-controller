@@ -30,8 +30,8 @@ import jp.primecloud.auto.ui.DialogConfirm.Callback;
 import jp.primecloud.auto.ui.DialogConfirm.Result;
 import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.ContextUtils;
+import jp.primecloud.auto.ui.util.IconUtils;
 import jp.primecloud.auto.ui.util.Icons;
-import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
@@ -260,8 +260,8 @@ public class MyCloudManage extends Window {
             // クラウド名
 
             Icons nameIcon = Icons.CLOUD;
-            Label slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(apl, nameIcon) + "\"><div>"
-                    + farm.getFarm().getFarmName() + "</div>", Label.CONTENT_XHTML);
+            Label slbl = new Label(IconUtils.createImageTag(apl, nameIcon, farm.getFarm().getFarmName()),
+                    Label.CONTENT_XHTML);
             slbl.setHeight(COLUMN_HEIGHT);
 
             // コメント

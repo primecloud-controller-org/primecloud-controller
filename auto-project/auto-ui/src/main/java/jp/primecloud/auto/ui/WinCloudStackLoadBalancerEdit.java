@@ -28,9 +28,8 @@ import jp.primecloud.auto.service.dto.ComponentDto;
 import jp.primecloud.auto.service.dto.LoadBalancerDto;
 import jp.primecloud.auto.service.dto.LoadBalancerPlatformDto;
 import jp.primecloud.auto.ui.util.BeanContext;
-import jp.primecloud.auto.ui.util.CommonUtils;
+import jp.primecloud.auto.ui.util.IconUtils;
 import jp.primecloud.auto.ui.util.Icons;
-import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
@@ -266,11 +265,9 @@ public class WinCloudStackLoadBalancerEdit extends Window {
 
             // プラットフォーム
             //プラットフォームアイコン名の取得
-            Icons icon = CommonUtils.getPlatformIcon(platformDto);
-
+            Icons icon = IconUtils.getPlatformIcon(platformDto);
             String description = platformDto.getPlatform().getPlatformNameDisp();
-            String cloudValue = "<img src=\"" + VaadinUtils.getIconPath(apl, icon) + "\"><div>" + description
-                    + "</div>";
+            String cloudValue = IconUtils.createImageTag(apl, icon, description);
             cloudLabel.setValue(cloudValue);
             cloudLabel.setContentMode(Label.CONTENT_XHTML);
 
@@ -278,9 +275,7 @@ public class WinCloudStackLoadBalancerEdit extends Window {
             String type = loadBalancerDto.getLoadBalancer().getType();
             Icons typeIcon = Icons.NONE;
             String typeString = ViewProperties.getLoadBalancerType(type);
-
-            String typeValue = "<img src=\"" + VaadinUtils.getIconPath(apl, typeIcon) + "\"><div>" + typeString
-                    + "</div>";
+            String typeValue = IconUtils.createImageTag(apl, typeIcon, typeString);
             typeLabel.setValue(typeValue);
             typeLabel.setContentMode(Label.CONTENT_XHTML);
 

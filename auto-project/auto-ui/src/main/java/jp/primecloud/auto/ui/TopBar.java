@@ -24,8 +24,8 @@ import jp.primecloud.auto.ui.DialogConfirm.Buttons;
 import jp.primecloud.auto.ui.DialogConfirm.Callback;
 import jp.primecloud.auto.ui.DialogConfirm.Result;
 import jp.primecloud.auto.ui.util.ContextUtils;
+import jp.primecloud.auto.ui.util.IconUtils;
 import jp.primecloud.auto.ui.util.Icons;
-import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
 
@@ -54,8 +54,7 @@ public class TopBar extends CssLayout {
         setMargin(false, true, false, false);
 
         // PrimeCloudラベル
-        Label plbl = new Label("<img src=\"" + VaadinUtils.getIconPath(getApplication(), Icons.PCCLOGO) + "\">",
-                Label.CONTENT_XHTML);
+        Label plbl = new Label(IconUtils.createImageTag(getApplication(), Icons.PCCLOGO), Label.CONTENT_XHTML);
         plbl.addStyleName("logo");
         addComponent(plbl);
 

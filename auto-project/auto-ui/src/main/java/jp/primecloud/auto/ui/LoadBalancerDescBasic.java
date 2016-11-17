@@ -42,9 +42,8 @@ import jp.primecloud.auto.service.dto.UserAuthDto;
 import jp.primecloud.auto.ui.DialogConfirm.Buttons;
 import jp.primecloud.auto.ui.DialogConfirm.Result;
 import jp.primecloud.auto.ui.util.BeanContext;
-import jp.primecloud.auto.ui.util.CommonUtils;
+import jp.primecloud.auto.ui.util.IconUtils;
 import jp.primecloud.auto.ui.util.Icons;
-import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
@@ -224,8 +223,7 @@ public class LoadBalancerDescBasic extends Panel {
                 }
                 ComponentType componentType = componentDto.getComponentType();
                 Icons nameIcon = Icons.fromName(componentType.getComponentTypeName());
-                displayLabels.get("field.loadBalancerService").setValue(
-                        "<img src=\"" + VaadinUtils.getIconPath(me, nameIcon) + "\"><div>" + name + "</div>");
+                displayLabels.get("field.loadBalancerService").setValue(IconUtils.createImageTag(me, nameIcon, name));
 
                 //FQDN
                 if (lb.getFqdn() != null) {
@@ -248,19 +246,17 @@ public class LoadBalancerDescBasic extends Panel {
                     iconName = statusString;
                 }
                 displayLabels.get("field.status").setValue(
-                        "<img src=\"" + VaadinUtils.getIconPath(me, Icons.fromName(iconName)) + "\"><div>"
-                                + statusString + "</div>");
+                        IconUtils.createImageTag(me, Icons.fromName(iconName), statusString));
 
                 //プラットフォーム
                 Platform platform = dto.getPlatform().getPlatform();
                 PlatformAws platformAws = dto.getPlatform().getPlatformAws();
 
                 //プラットフォームアイコン名の取得
-                Icons icon = CommonUtils.getPlatformIcon(dto.getPlatform());
+                Icons icon = IconUtils.getPlatformIcon(dto.getPlatform());
 
                 String description = platform.getPlatformNameDisp();
-                displayLabels.get("field.platform").setValue(
-                        "<img src=\"" + VaadinUtils.getIconPath(me, icon) + "\"><div>" + description + "</div>");
+                displayLabels.get("field.platform").setValue(IconUtils.createImageTag(me, icon, description));
 
                 //タイプ
                 if (lb.getType() != null) {
@@ -386,8 +382,8 @@ public class LoadBalancerDescBasic extends Panel {
 
                     Icons icon = Icons.fromName(status);
                     String a = status.substring(0, 1).toUpperCase() + status.substring(1).toLowerCase();
-                    Label slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(LoadBalancerDescBasic.this, icon)
-                            + "\"><div>" + a + "</div>", Label.CONTENT_XHTML);
+                    Label slbl = new Label(IconUtils.createImageTag(LoadBalancerDescBasic.this, icon, a),
+                            Label.CONTENT_XHTML);
                     slbl.setHeight(COLUMN_HEIGHT);
                     return slbl;
                 }

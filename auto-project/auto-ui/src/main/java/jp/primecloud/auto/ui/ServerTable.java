@@ -40,9 +40,8 @@ import jp.primecloud.auto.ui.DialogConfirm.Buttons;
 import jp.primecloud.auto.ui.DialogConfirm.Result;
 import jp.primecloud.auto.ui.data.InstanceDtoContainer;
 import jp.primecloud.auto.ui.util.BeanContext;
-import jp.primecloud.auto.ui.util.CommonUtils;
+import jp.primecloud.auto.ui.util.IconUtils;
 import jp.primecloud.auto.ui.util.Icons;
-import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
@@ -122,10 +121,9 @@ public class ServerTable extends Table {
 
                 PlatformDto platformDto = p.getPlatform();
                 //プラットフォームアイコン名の取得
-                Icons icon = CommonUtils.getPlatformIcon(platformDto);
-
-                Label nlbl = new Label("<img src=\"" + VaadinUtils.getIconPath(ServerTable.this, icon) + "\"><div>"
-                        + p.getInstance().getInstanceName() + "</div>", Label.CONTENT_XHTML);
+                Icons icon = IconUtils.getPlatformIcon(platformDto);
+                Label nlbl = new Label(IconUtils.createImageTag(ServerTable.this, icon, p.getInstance()
+                        .getInstanceName()), Label.CONTENT_XHTML);
                 nlbl.setHeight(COLUMN_HEIGHT);
                 return nlbl;
             }
@@ -161,8 +159,7 @@ public class ServerTable extends Table {
                 String a = p.getInstance().getStatus().substring(0, 1).toUpperCase()
                         + p.getInstance().getStatus().substring(1).toLowerCase();
                 Icons icon = Icons.fromName(a);
-                Label slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(ServerTable.this, icon) + "\"><div>" + a
-                        + "</div>", Label.CONTENT_XHTML);
+                Label slbl = new Label(IconUtils.createImageTag(ServerTable.this, icon, a), Label.CONTENT_XHTML);
                 slbl.setHeight(COLUMN_HEIGHT);
                 return slbl;
             }
@@ -204,9 +201,8 @@ public class ServerTable extends Table {
                     }
 
                     context = context + "<img style=\"width: 5px;\" src=\" "
-                            + VaadinUtils.getIconPath(ServerTable.this, Icons.fromName("SPACER")) + "\" >"
-                            + "<img src=\"" + VaadinUtils.getIconPath(ServerTable.this, nameIcon) + "\" + "
-                            + " title=\"" + name + "\">";
+                            + IconUtils.getIconPath(ServerTable.this, Icons.SPACER) + "\" >" + "<img src=\""
+                            + IconUtils.getIconPath(ServerTable.this, nameIcon) + "\" + " + " title=\"" + name + "\">";
                 }
                 context = context + "</div>";
 

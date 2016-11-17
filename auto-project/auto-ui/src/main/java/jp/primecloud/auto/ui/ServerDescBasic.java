@@ -37,9 +37,8 @@ import jp.primecloud.auto.service.dto.ImageDto;
 import jp.primecloud.auto.service.dto.InstanceDto;
 import jp.primecloud.auto.service.dto.PlatformDto;
 import jp.primecloud.auto.ui.data.ComponentDtoContainer;
-import jp.primecloud.auto.ui.util.CommonUtils;
+import jp.primecloud.auto.ui.util.IconUtils;
 import jp.primecloud.auto.ui.util.Icons;
-import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewProperties;
 
 import org.apache.commons.lang.BooleanUtils;
@@ -231,8 +230,7 @@ public class ServerDescBasic extends Panel {
 
                     String a = status.substring(0, 1).toUpperCase() + status.substring(1).toLowerCase();
                     Icons icon = Icons.fromName(a);
-                    Label slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(ServerDescBasic.this, icon)
-                            + "\"><div>" + a + "</div>", Label.CONTENT_XHTML);
+                    Label slbl = new Label(IconUtils.createImageTag(ServerDescBasic.this, icon, a), Label.CONTENT_XHTML);
                     slbl.setHeight(COLUMN_HEIGHT);
                     return slbl;
                 }
@@ -424,11 +422,11 @@ public class ServerDescBasic extends Panel {
                 PlatformDto platformDto = instanceDto.getPlatform();
 
                 //プラットフォームアイコン名の取得
-                Icons icon = CommonUtils.getPlatformIcon(platformDto);
+                Icons icon = IconUtils.getPlatformIcon(platformDto);
 
                 String description = platformDto.getPlatform().getPlatformNameDisp();
-                platform = new Label("<img src=\"" + VaadinUtils.getIconPath(ServerDescBasic.this, icon) + "\"><div>"
-                        + description + "</div>", Label.CONTENT_XHTML);
+                platform = new Label(IconUtils.createImageTag(ServerDescBasic.this, icon, description),
+                        Label.CONTENT_XHTML);
                 layout.removeComponent(1, line);
                 layout.addComponent(platform, 1, line++);
 
@@ -437,11 +435,10 @@ public class ServerDescBasic extends Panel {
                 String os = imageDto.getImage().getOsDisp();
 
                 // OSアイコン名の取得
-                Icons osIcon = CommonUtils.getOsIcon(imageDto);
+                Icons osIcon = IconUtils.getOsIcon(imageDto);
 
                 layoutOsType = new CssLayout();
-                ostype = new Label("<img src=\"" + VaadinUtils.getIconPath(ServerDescBasic.this, osIcon) + "\"><div>"
-                        + os + "</div>", Label.CONTENT_XHTML);
+                ostype = new Label(IconUtils.createImageTag(ServerDescBasic.this, osIcon, os), Label.CONTENT_XHTML);
                 layoutOsType.setSizeFull();
                 layoutOsType.setMargin(false);
                 layoutOsType.addComponent(ostype);
@@ -472,8 +469,7 @@ public class ServerDescBasic extends Panel {
                 String stat = parseStatus(instance.getStatus());
                 Icons icon2 = Icons.fromName(stat);
 
-                status = new Label("<img src=\"" + VaadinUtils.getIconPath(ServerDescBasic.this, icon2) + "\"><div>"
-                        + stat + "</div>", Label.CONTENT_XHTML);
+                status = new Label(IconUtils.createImageTag(ServerDescBasic.this, icon2, stat), Label.CONTENT_XHTML);
                 layout.removeComponent(1, line);
                 layout.addComponent(status, 1, line++);
 
@@ -484,9 +480,8 @@ public class ServerDescBasic extends Panel {
                     if (zabbixInstance != null) {
                         mStat = ZabbixInstanceStatus.fromStatus(zabbixInstance.getStatus()).toString();
                     }
-                    monitoringStatus = new Label("<img src=\""
-                            + VaadinUtils.getIconPath(ServerDescBasic.this, Icons.fromName(parseStatus(mStat)))
-                            + "\"><div>" + mStat + "</div>", Label.CONTENT_XHTML);
+                    monitoringStatus = new Label(IconUtils.createImageTag(ServerDescBasic.this,
+                            Icons.fromName(parseStatus(mStat)), mStat), Label.CONTENT_XHTML);
                     layout.removeComponent(1, line);
                     layout.addComponent(monitoringStatus, 1, line++);
                 }

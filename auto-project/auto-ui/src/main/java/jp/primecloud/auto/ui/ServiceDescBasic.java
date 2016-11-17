@@ -40,9 +40,8 @@ import jp.primecloud.auto.ui.DialogConfirm.Buttons;
 import jp.primecloud.auto.ui.DialogConfirm.Result;
 import jp.primecloud.auto.ui.data.InstanceDtoContainer;
 import jp.primecloud.auto.ui.util.BeanContext;
-import jp.primecloud.auto.ui.util.CommonUtils;
+import jp.primecloud.auto.ui.util.IconUtils;
 import jp.primecloud.auto.ui.util.Icons;
-import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
@@ -271,10 +270,9 @@ public class ServiceDescBasic extends Panel {
                     }
 
                     String a = status.substring(0, 1).toUpperCase() + status.substring(1).toLowerCase();
-
                     Icons icon = Icons.fromName(a);
-                    Label slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(ServiceDescBasic.this, icon)
-                            + "\"><div>" + a + "</div>", Label.CONTENT_XHTML);
+                    Label slbl = new Label(IconUtils.createImageTag(ServiceDescBasic.this, icon, a),
+                            Label.CONTENT_XHTML);
                     slbl.setHeight(COLUMN_HEIGHT);
                     return slbl;
                 }
@@ -287,12 +285,10 @@ public class ServiceDescBasic extends Panel {
                     PlatformDto platform = p.getPlatform();
 
                     //プラットフォームアイコン名の取得
-                    Icons icon = CommonUtils.getPlatformIcon(platform);
-
+                    Icons icon = IconUtils.getPlatformIcon(platform);
                     String description = platform.getPlatform().getPlatformSimplenameDisp();
-
-                    Label slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(ServiceDescBasic.this, icon)
-                            + "\"><div>" + description + "</div>", Label.CONTENT_XHTML);
+                    Label slbl = new Label(IconUtils.createImageTag(ServiceDescBasic.this, icon, description),
+                            Label.CONTENT_XHTML);
                     slbl.setHeight(COLUMN_HEIGHT);
 
                     return slbl;
@@ -429,9 +425,8 @@ public class ServiceDescBasic extends Panel {
                 //サービス詳細
                 Icons nameIcon = Icons.fromName(componentType.getComponentTypeName());
                 String name = componentType.getComponentTypeNameDisp();
-
-                serviceDetail = new Label("<img src=\"" + VaadinUtils.getIconPath(ServiceDescBasic.this, nameIcon)
-                        + "\"><div>" + name + "</div>", Label.CONTENT_XHTML);
+                serviceDetail = new Label(IconUtils.createImageTag(ServiceDescBasic.this, nameIcon, name),
+                        Label.CONTENT_XHTML);
                 layout.removeComponent(1, line);
                 layout.addComponent(serviceDetail, 1, line++);
 
@@ -439,8 +434,7 @@ public class ServiceDescBasic extends Panel {
                 String stat = dto.getStatus().substring(0, 1).toUpperCase()
                         + dto.getStatus().substring(1).toLowerCase();
                 Icons icon = Icons.fromName(stat);
-                status = new Label("<img src=\"" + VaadinUtils.getIconPath(ServiceDescBasic.this, icon) + "\"><div>"
-                        + stat + "</div>", Label.CONTENT_XHTML);
+                status = new Label(IconUtils.createImageTag(ServiceDescBasic.this, icon, stat), Label.CONTENT_XHTML);
                 layout.removeComponent(1, line);
                 layout.addComponent(status, 1, line++);
 

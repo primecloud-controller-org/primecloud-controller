@@ -29,8 +29,8 @@ import jp.primecloud.auto.ui.DialogConfirm.Callback;
 import jp.primecloud.auto.ui.DialogConfirm.Result;
 import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.ContextUtils;
+import jp.primecloud.auto.ui.util.IconUtils;
 import jp.primecloud.auto.ui.util.Icons;
-import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
@@ -232,8 +232,7 @@ public class MyCloudAdd extends Window {
             // テンプレート名
             String name = template.getTemplate().getTemplateNameDisp();
             Icons nameIcon = Icons.CUSTOM;
-            Label slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(apl, nameIcon) + "\"><div>" + name
-                    + "</div>", Label.CONTENT_XHTML);
+            Label slbl = new Label(IconUtils.createImageTag(apl, nameIcon, name), Label.CONTENT_XHTML);
             slbl.setHeight(COLUMN_HEIGHT);
 
             templateTable.addItem(new Object[] { (i + 1), slbl }, template);

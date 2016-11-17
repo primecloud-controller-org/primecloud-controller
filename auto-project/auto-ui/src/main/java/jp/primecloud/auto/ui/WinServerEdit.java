@@ -63,10 +63,9 @@ import jp.primecloud.auto.ui.DialogConfirm.Buttons;
 import jp.primecloud.auto.ui.DialogConfirm.Callback;
 import jp.primecloud.auto.ui.DialogConfirm.Result;
 import jp.primecloud.auto.ui.util.BeanContext;
-import jp.primecloud.auto.ui.util.CommonUtils;
 import jp.primecloud.auto.ui.util.ContextUtils;
+import jp.primecloud.auto.ui.util.IconUtils;
 import jp.primecloud.auto.ui.util.Icons;
-import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
@@ -459,18 +458,18 @@ public class WinServerEdit extends Window {
 
             String cloudName = platformDto.getPlatform().getPlatformNameDisp();
             //プラットフォームアイコン名の取得
-            Icons cloudIcon = CommonUtils.getPlatformIcon(platformDto);
+            Icons cloudIcon = IconUtils.getPlatformIcon(platformDto);
             cloudLabel.setCaption(cloudName);
             cloudLabel.setIcon(cloudIcon.resource());
 
             if (image != null) {
                 String imageName = image.getImage().getImageNameDisp();
-                Icons imageIcon = CommonUtils.getImageIcon(image);
+                Icons imageIcon = IconUtils.getImageIcon(image);
                 imageLabel.setCaption(imageName);
                 imageLabel.setIcon(imageIcon.resource());
 
                 String osName = image.getImage().getOsDisp();
-                Icons osIcon = CommonUtils.getOsIcon(image);
+                Icons osIcon = IconUtils.getOsIcon(image);
                 osLabel.setCaption(osName);
                 osLabel.setIcon(osIcon.resource());
             }
@@ -544,9 +543,7 @@ public class WinServerEdit extends Window {
                 // サービス名
                 String name = componentType.getComponentTypeNameDisp();
                 Icons nameIcon = Icons.fromName(componentType.getComponentTypeName());
-
-                Label slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(apl, nameIcon) + "\"><div>" + name
-                        + "</div>", Label.CONTENT_XHTML);
+                Label slbl = new Label(IconUtils.createImageTag(apl, nameIcon, name), Label.CONTENT_XHTML);
                 slbl.setHeight("26px");
 
                 // サービス説明
@@ -2235,8 +2232,7 @@ public class WinServerEdit extends Window {
                     }
                     Label slbl = new Label("");
                     if (BooleanUtils.isTrue(instanceNetwork.isPrimary())) {
-                        slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(apl, Icons.SELECTMINI) + "\">",
-                                Label.CONTENT_XHTML);
+                        slbl = new Label(IconUtils.createImageTag(apl, Icons.SELECTMINI), Label.CONTENT_XHTML);
                     }
                     addItem(new Object[] { network.getNetworkName(), ipModeName, instanceNetwork.getIpAddress(), slbl },
                             instanceNetwork);

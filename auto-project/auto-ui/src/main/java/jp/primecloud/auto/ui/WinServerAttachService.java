@@ -40,8 +40,8 @@ import jp.primecloud.auto.service.dto.InstanceDto;
 import jp.primecloud.auto.ui.data.ComponentDtoContainer;
 import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.ContextUtils;
+import jp.primecloud.auto.ui.util.IconUtils;
 import jp.primecloud.auto.ui.util.Icons;
-import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewProperties;
 
@@ -251,8 +251,7 @@ public class WinServerAttachService extends Window {
                     }
 
                     Icons icon = Icons.fromName(status);
-                    Label slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(apl, icon) + "\"><div>" + status
-                            + "</div>", Label.CONTENT_XHTML);
+                    Label slbl = new Label(IconUtils.createImageTag(apl, icon, status), Label.CONTENT_XHTML);
                     slbl.setHeight(COLUMN_HEIGHT);
                     return slbl;
                 }

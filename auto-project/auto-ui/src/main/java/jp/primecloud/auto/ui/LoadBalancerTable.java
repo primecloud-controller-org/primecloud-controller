@@ -25,9 +25,8 @@ import jp.primecloud.auto.service.dto.ComponentDto;
 import jp.primecloud.auto.service.dto.LoadBalancerDto;
 import jp.primecloud.auto.service.dto.PlatformDto;
 import jp.primecloud.auto.ui.data.LoadBalancerDtoContainer;
-import jp.primecloud.auto.ui.util.CommonUtils;
+import jp.primecloud.auto.ui.util.IconUtils;
 import jp.primecloud.auto.ui.util.Icons;
-import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewProperties;
 
 import org.apache.commons.lang.StringUtils;
@@ -116,8 +115,8 @@ public class LoadBalancerTable extends Table {
                     icon = Icons.fromName(statusString);
                 }
 
-                Label slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(LoadBalancerTable.this, icon)
-                        + "\"><div>" + statusString + "</div>", Label.CONTENT_XHTML);
+                Label slbl = new Label(IconUtils.createImageTag(LoadBalancerTable.this, icon, statusString),
+                        Label.CONTENT_XHTML);
                 slbl.setHeight(COLUMN_HEIGHT);
                 return slbl;
             }
@@ -142,11 +141,11 @@ public class LoadBalancerTable extends Table {
                 PlatformDto platformDto = p.getPlatform();
 
                 //プラットフォームアイコン名の取得
-                Icons icon = CommonUtils.getPlatformIcon(platformDto);
+                Icons icon = IconUtils.getPlatformIcon(platformDto);
 
                 String type = ViewProperties.getLoadBalancerType(p.getLoadBalancer().getType());
-                Label slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(LoadBalancerTable.this, icon)
-                        + "\"><div>" + type + "</div>", Label.CONTENT_XHTML);
+                Label slbl = new Label(IconUtils.createImageTag(LoadBalancerTable.this, icon, type),
+                        Label.CONTENT_XHTML);
 
                 return slbl;
             }

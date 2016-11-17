@@ -25,13 +25,26 @@ import jp.primecloud.auto.service.dto.PlatformDto;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.vaadin.Application;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.Window;
+
 /**
  * <p>
- * 画面表示共通処理用汎用クラス
+ * TODO: クラスコメント
  * </p>
- *
+ * 
  */
-public class CommonUtils {
+public class IconUtils {
+
+    private static final String FILE_SEPARATOR = "/";
+
+    private static final String DEFAULT_THEME = "default";
+
+    private static final String VAADIN_THEMES_PATH = "./VAADIN/themes/";
+
+    private IconUtils() {
+    }
 
     public static Icons getPlatformIcon(PlatformDto platformDto) {
         String platformType = platformDto.getPlatform().getPlatformType();
@@ -114,6 +127,50 @@ public class CommonUtils {
             rtIcon = Icons.fromName(iconName);
         }
         return rtIcon;
+    }
+
+    private static Application getApplication(Component component) {
+        Application application = null;
+        while (component != null) {
+            if (component instanceof Window) {
+                application = ((Window) component).getApplication();
+                break;
+            }
+            component = component.getParent();
+        }
+        return application;
+    }
+
+    public static String getIconPath(Application application, Icons icon) {
+        if (application != null) {
+            String theme = application.getTheme();
+            if (theme == null) {
+                theme = DEFAULT_THEME;
+            }
+            return VAADIN_THEMES_PATH + theme + FILE_SEPARATOR + icon.path();
+        } else {
+            return VAADIN_THEMES_PATH + DEFAULT_THEME + FILE_SEPARATOR + icon.path();
+        }
+    }
+
+    public static String getIconPath(Component component, Icons icon) {
+        return getIconPath(getApplication(component), icon);
+    }
+
+    public static String createImageTag(Component component, Icons icon, String text) {
+        return createImageTag(getApplication(component), icon, text);
+    }
+
+    public static String createImageTag(Application application, Icons icon) {
+        return createImageTag(application, icon, null);
+    }
+
+    public static String createImageTag(Application application, Icons icon, String text) {
+        String tag = "<img src=\"" + getIconPath(application, icon) + "\">";
+        if (StringUtils.isNotEmpty(text)) {
+            tag = tag += "<div>" + text + "</div>";
+        }
+        return tag;
     }
 
 }

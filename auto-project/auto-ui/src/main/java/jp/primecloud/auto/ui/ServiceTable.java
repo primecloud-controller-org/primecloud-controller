@@ -36,8 +36,8 @@ import jp.primecloud.auto.ui.DialogConfirm.Buttons;
 import jp.primecloud.auto.ui.DialogConfirm.Result;
 import jp.primecloud.auto.ui.data.ComponentDtoContainer;
 import jp.primecloud.auto.ui.util.BeanContext;
+import jp.primecloud.auto.ui.util.IconUtils;
 import jp.primecloud.auto.ui.util.Icons;
-import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
@@ -139,10 +139,8 @@ public class ServiceTable extends Table {
             public Component generateCell(Table source, Object itemId, Object columnId) {
                 ComponentDto p = (ComponentDto) itemId;
                 String a = p.getStatus().substring(0, 1).toUpperCase() + p.getStatus().substring(1).toLowerCase();
-
                 Icons icon = Icons.fromName(a);
-                Label slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(ServiceTable.this, icon) + "\"><div>"
-                        + a + "</div>", Label.CONTENT_XHTML);
+                Label slbl = new Label(IconUtils.createImageTag(ServiceTable.this, icon, a), Label.CONTENT_XHTML);
                 slbl.setHeight(COLUMN_HEIGHT);
 
                 return slbl;
@@ -187,9 +185,7 @@ public class ServiceTable extends Table {
                 // サービス名
                 String name = componentType.getComponentTypeNameDisp();
                 Icons nameIcon = Icons.fromName(componentType.getComponentTypeName());
-
-                Label slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(ServiceTable.this, nameIcon)
-                        + "\"><div>" + name + "</div>", Label.CONTENT_XHTML);
+                Label slbl = new Label(IconUtils.createImageTag(ServiceTable.this, nameIcon, name), Label.CONTENT_XHTML);
                 slbl.setHeight(COLUMN_HEIGHT);
                 return slbl;
             }

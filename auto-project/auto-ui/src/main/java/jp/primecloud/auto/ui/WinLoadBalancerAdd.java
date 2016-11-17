@@ -30,9 +30,8 @@ import jp.primecloud.auto.service.LoadBalancerService;
 import jp.primecloud.auto.service.dto.ComponentDto;
 import jp.primecloud.auto.service.dto.LoadBalancerPlatformDto;
 import jp.primecloud.auto.ui.util.BeanContext;
-import jp.primecloud.auto.ui.util.CommonUtils;
+import jp.primecloud.auto.ui.util.IconUtils;
 import jp.primecloud.auto.ui.util.Icons;
-import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
@@ -325,12 +324,9 @@ public class WinLoadBalancerAdd extends Window {
             }
 
             //プラットフォームアイコン名の取得
-            Icons icon = CommonUtils.getPlatformIcon(platformDto);
-
+            Icons icon = IconUtils.getPlatformIcon(platformDto);
             String description = platformDto.getPlatform().getPlatformNameDisp();
-
-            Label slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(apl, icon) + "\"><div>" + description
-                    + "</div>", Label.CONTENT_XHTML);
+            Label slbl = new Label(IconUtils.createImageTag(apl, icon, description), Label.CONTENT_XHTML);
             slbl.setHeight(COLUMN_HEIGHT);
 
             cloudTable.addItem(new Object[] { (i + 1), slbl }, platformDto.getPlatform().getPlatformNo());
@@ -371,9 +367,7 @@ public class WinLoadBalancerAdd extends Window {
             // ロードバランサ種別名
             Icons typeIcon = Icons.NONE;
             String typeString = ViewProperties.getLoadBalancerType(type);
-
-            Label nlbl = new Label("<img src=\"" + VaadinUtils.getIconPath(apl, typeIcon) + "\"><div>" + typeString
-                    + "</div>", Label.CONTENT_XHTML);
+            Label nlbl = new Label(IconUtils.createImageTag(apl, typeIcon, typeString), Label.CONTENT_XHTML);
             nlbl.setHeight(COLUMN_HEIGHT);
 
             n++;
@@ -410,8 +404,7 @@ public class WinLoadBalancerAdd extends Window {
             ComponentType componentType = componentDto.getComponentType();
             String typeName = componentType.getComponentTypeNameDisp();
             Icons typeIcon = Icons.fromName(componentType.getComponentTypeName());
-            Label typeLabel = new Label("<img src=\"" + VaadinUtils.getIconPath(apl, typeIcon) + "\"><div>" + typeName
-                    + "</div>", Label.CONTENT_XHTML);
+            Label typeLabel = new Label(IconUtils.createImageTag(apl, typeIcon, typeName), Label.CONTENT_XHTML);
             typeLabel.setHeight(COLUMN_HEIGHT);
 
             serviceTable.addItem(new Object[] { nameLabel, typeLabel }, componentDto.getComponent().getComponentNo());

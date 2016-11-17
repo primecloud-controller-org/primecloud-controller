@@ -35,10 +35,9 @@ import jp.primecloud.auto.service.dto.PlatformDto;
 import jp.primecloud.auto.ui.DialogConfirm.Buttons;
 import jp.primecloud.auto.ui.DialogConfirm.Result;
 import jp.primecloud.auto.ui.util.BeanContext;
-import jp.primecloud.auto.ui.util.CommonUtils;
 import jp.primecloud.auto.ui.util.ContextUtils;
+import jp.primecloud.auto.ui.util.IconUtils;
 import jp.primecloud.auto.ui.util.Icons;
-import jp.primecloud.auto.ui.util.VaadinUtils;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
@@ -324,12 +323,9 @@ public class WinServerAddSimple extends Window {
             }
 
             //プラットフォームアイコン名の取得
-            Icons icon = CommonUtils.getPlatformIcon(platform);
-
+            Icons icon = IconUtils.getPlatformIcon(platform);
             String description = platform.getPlatform().getPlatformNameDisp();
-
-            Label slbl = new Label("<img src=\"" + VaadinUtils.getIconPath(apl, icon) + "\"><div>" + description
-                    + "</div>", Label.CONTENT_XHTML);
+            Label slbl = new Label(IconUtils.createImageTag(apl, icon, description), Label.CONTENT_XHTML);
             slbl.setHeight(COLUMN_HEIGHT);
 
             cloudTable.addItem(new Object[] { (i + 1), slbl }, platform.getPlatform().getPlatformNo());
