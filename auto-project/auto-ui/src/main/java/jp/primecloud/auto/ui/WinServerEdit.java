@@ -1915,17 +1915,7 @@ public class WinServerEdit extends Window {
                 setColumnWidth(PID_DISK_SIZE, WIDTH_DISK_SIZE);
 
                 //テーブルのカラムに対してStyleNameを設定
-                setCellStyleGenerator(new Table.CellStyleGenerator() {
-                    @Override
-                    public String getStyle(Object itemId, Object propertyId) {
-
-                        if (propertyId == null) {
-                            return "";
-                        }
-                        String ret = propertyId.toString().toLowerCase();
-                        return ret;
-                    }
-                });
+                setCellStyleGenerator(new StandardCellStyleGenerator());
 
                 // 行が選択されたときのイベント
                 addListener(new Property.ValueChangeListener() {
@@ -2206,17 +2196,7 @@ public class WinServerEdit extends Window {
                 setColumnWidth(PID_PRIMARY, WIDTH_PRIMARY);
 
                 //テーブルのカラムに対してStyleNameを設定
-                setCellStyleGenerator(new Table.CellStyleGenerator() {
-                    @Override
-                    public String getStyle(Object itemId, Object propertyId) {
-
-                        if (propertyId == null) {
-                            return "";
-                        }
-                        String ret = propertyId.toString().toLowerCase();
-                        return ret;
-                    }
-                });
+                setCellStyleGenerator(new StandardCellStyleGenerator());
 
                 // 行が選択されたときのイベント
                 addListener(new Property.ValueChangeListener() {

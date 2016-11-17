@@ -853,16 +853,7 @@ public class WinLoadBalancerEdit extends Window {
                 setColumnExpandRatio("Cloud", 100);
 
                 //テーブルのカラムに対してStyleNameを設定
-                setCellStyleGenerator(new Table.CellStyleGenerator() {
-                    @Override
-                    public String getStyle(Object itemId, Object propertyId) {
-                        if (propertyId == null) {
-                            return "";
-                        } else {
-                            return propertyId.toString().toLowerCase();
-                        }
-                    }
-                });
+                setCellStyleGenerator(new StandardCellStyleGenerator());
 
                 // 行が選択されたときのイベント
                 addListener(new Property.ValueChangeListener() {
@@ -902,15 +893,7 @@ public class WinLoadBalancerEdit extends Window {
                 setColumnExpandRatio("Image", 100);
 
                 //テーブルのカラムに対してStyleNameを設定
-                setCellStyleGenerator(new Table.CellStyleGenerator() {
-                    public String getStyle(Object itemId, Object propertyId) {
-                        if (propertyId == null) {
-                            return "";
-                        } else {
-                            return propertyId.toString().toLowerCase();
-                        }
-                    }
-                });
+                setCellStyleGenerator(new StandardCellStyleGenerator());
 
                 // 行が選択されたときのイベント
                 addListener(new Property.ValueChangeListener() {

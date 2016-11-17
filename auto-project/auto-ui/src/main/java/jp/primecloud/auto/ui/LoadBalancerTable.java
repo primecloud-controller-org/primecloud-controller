@@ -180,16 +180,7 @@ public class LoadBalancerTable extends Table {
         setColumnHeaders(CAPNAME);
 
         //テーブルのカラムに対してStyleNameを設定
-        setCellStyleGenerator(new Table.CellStyleGenerator() {
-            public String getStyle(Object itemId, Object propertyId) {
-
-                if (propertyId == null) {
-                    return "";
-                } else {
-                    return propertyId.toString().toLowerCase();
-                }
-            }
-        });
+        setCellStyleGenerator(new StandardCellStyleGenerator());
 
         setColumnExpandRatio("hostName", 100);
         addListener(Table.ValueChangeEvent.class, sender, "tableRowSelected");

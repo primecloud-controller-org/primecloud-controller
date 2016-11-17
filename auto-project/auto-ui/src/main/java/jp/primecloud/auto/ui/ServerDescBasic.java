@@ -279,16 +279,7 @@ public class ServerDescBasic extends Panel {
             setColumnExpandRatio("serviceDetail", 100);
 
             //テーブルのカラムに対してStyleNameを設定
-            setCellStyleGenerator(new Table.CellStyleGenerator() {
-                @Override
-                public String getStyle(Object itemId, Object propertyId) {
-                    if (propertyId == null) {
-                        return "";
-                    } else {
-                        return propertyId.toString().toLowerCase();
-                    }
-                }
-            });
+            setCellStyleGenerator(new StandardCellStyleGenerator());
         }
 
         @Override

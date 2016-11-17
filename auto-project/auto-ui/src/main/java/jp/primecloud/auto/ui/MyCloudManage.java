@@ -235,16 +235,7 @@ public class MyCloudManage extends Window {
             setColumnExpandRatio("Description", 60);
 
             //テーブルのカラムに対してStyleNameを設定
-            setCellStyleGenerator(new Table.CellStyleGenerator() {
-                @Override
-                public String getStyle(Object itemId, Object propertyId) {
-                    if (propertyId == null) {
-                        return "";
-                    } else {
-                        return propertyId.toString().toLowerCase();
-                    }
-                }
-            });
+            setCellStyleGenerator(new StandardCellStyleGenerator());
         }
 
     }

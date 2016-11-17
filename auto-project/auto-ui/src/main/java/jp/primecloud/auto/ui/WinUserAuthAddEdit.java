@@ -272,16 +272,7 @@ public class WinUserAuthAddEdit extends Window {
             setColumnHeaders((isAddUser) ? HEADER_NAMES_ADD : HEADER_NAMES_EDIT);
 
             //テーブルのカラムに対してStyleNameを設定
-            setCellStyleGenerator(new Table.CellStyleGenerator() {
-                @Override
-                public String getStyle(Object itemId, Object propertyId) {
-                    if (propertyId == null) {
-                        return "";
-                    } else {
-                        return propertyId.toString().toLowerCase();
-                    }
-                }
-            });
+            setCellStyleGenerator(new StandardCellStyleGenerator());
         }
 
         private void showUserAuths() {

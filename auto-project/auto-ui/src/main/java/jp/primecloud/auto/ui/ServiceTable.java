@@ -199,16 +199,7 @@ public class ServiceTable extends Table {
         setColumnHeaders(CAPNAME);
 
         //テーブルのカラムに対してStyleNameを設定
-        setCellStyleGenerator(new Table.CellStyleGenerator() {
-            @Override
-            public String getStyle(Object itemId, Object propertyId) {
-                if (propertyId == null) {
-                    return "";
-                } else {
-                    return propertyId.toString().toLowerCase();
-                }
-            }
-        });
+        setCellStyleGenerator(new StandardCellStyleGenerator());
 
         setColumnExpandRatio("serviceDetail", 100);
 
