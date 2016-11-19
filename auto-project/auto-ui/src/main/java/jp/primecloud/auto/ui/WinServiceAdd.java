@@ -29,10 +29,9 @@ import jp.primecloud.auto.service.ComponentService;
 import jp.primecloud.auto.service.InstanceService;
 import jp.primecloud.auto.service.dto.ComponentTypeDto;
 import jp.primecloud.auto.service.dto.InstanceDto;
-import jp.primecloud.auto.service.dto.UserAuthDto;
 import jp.primecloud.auto.ui.util.BeanContext;
-import jp.primecloud.auto.ui.util.IconUtils;
 import jp.primecloud.auto.ui.util.ContextUtils;
+import jp.primecloud.auto.ui.util.IconUtils;
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
@@ -40,7 +39,6 @@ import jp.primecloud.auto.ui.util.ViewProperties;
 
 import org.apache.commons.lang.BooleanUtils;
 
-import com.vaadin.Application;
 import com.vaadin.data.Property;
 import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.validator.RegexpValidator;
@@ -50,6 +48,7 @@ import com.vaadin.ui.AbsoluteLayout;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Form;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -65,31 +64,20 @@ import com.vaadin.ui.Window;
  * </p>
  *
  */
-@SuppressWarnings({ "serial", "unchecked" })
+@SuppressWarnings("serial")
 public class WinServiceAdd extends Window {
 
-    final String COLUMN_HEIGHT = "30px";
+    private final String COLUMN_HEIGHT = "30px";
 
-    Application apl;
+    private BasicForm basicForm;
 
-    TextField serviceNameField;
+    private List<ComponentTypeDto> componentTypes;
 
-    TextField commentField;
+    private List<InstanceDto> instances;
 
-    Table serviceTable;
-
-    TextField diskSizeField;
-
-    TwinColSelect serverSelect;
-
-    List<ComponentTypeDto> componentTypes;
-
-    List<InstanceDto> instances;
-
-    WinServiceAdd(Application ap) {
-        apl = ap;
-
-        //モーダルウインドウ
+    @Override
+    public void attach() {
+        // モーダルウインドウ
         setIcon(Icons.ADD.resource());
         setCaption(ViewProperties.getCaption("window.winServiceAdd"));
         setModal(true);
@@ -101,67 +89,80 @@ public class WinServiceAdd extends Window {
         layout.setSpacing(false);
 
         // フォーム
-        layout.addComponent(new BasicForm());
+        basicForm = new BasicForm();
+        layout.addComponent(basicForm);
 
         // 下部のバー
-        HorizontalLayout okbar = new HorizontalLayout();
-        okbar.setSpacing(true);
-        okbar.setMargin(false, false, true, false);
-        layout.addComponent(okbar);
-        layout.setComponentAlignment(okbar, Alignment.BOTTOM_RIGHT);
+        HorizontalLayout bottomLayout = new HorizontalLayout();
+        bottomLayout.setSpacing(true);
+        bottomLayout.setMargin(false, false, true, false);
+        layout.addComponent(bottomLayout);
+        layout.setComponentAlignment(bottomLayout, Alignment.BOTTOM_RIGHT);
 
-        // Add
+        // Addボタン
         Button addButton = new Button(ViewProperties.getCaption("button.add"));
         addButton.setDescription(ViewProperties.getCaption("description.addService"));
         addButton.addListener(new Button.ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
-                WinServiceAdd.this.addButtonClick(event);
+                addButtonClick(event);
             }
         });
-        okbar.addComponent(addButton);
-        // [Enter]でaddButtonクリック
-        addButton.setClickShortcut(KeyCode.ENTER);
+        addButton.setClickShortcut(KeyCode.ENTER); // [Enter]でaddButtonクリック
         addButton.focus();
+        bottomLayout.addComponent(addButton);
 
-        // Cancel
+        // Cancelボタン
         Button cancelButton = new Button(ViewProperties.getCaption("button.cancel"));
         cancelButton.setDescription(ViewProperties.getCaption("description.cancel"));
         cancelButton.addListener(new Button.ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
-                WinServiceAdd.this.close();
+                close();
             }
         });
-        okbar.addComponent(cancelButton);
+        bottomLayout.addComponent(cancelButton);
 
-        // 入力チェックの設定
-        initValidation();
-
-        // 初期データの取得
-        initData();
-
-        // サービス情報を表示
-        showServices();
+        // サービス種類情報を表示
+        loadData();
+        basicForm.serviceTable.show(componentTypes);
+        basicForm.serviceTable.selectFirst();
     }
 
     private class BasicForm extends Form {
 
-        BasicForm() {
+        private TextField serviceNameField;
+
+        private TextField commentField;
+
+        private SelectServiceTable serviceTable;
+
+        private TextField diskSizeField;
+
+        private ServerSelect serverSelect;
+
+        @Override
+        public void attach() {
             setStyleName("win-service-add-form");
 
             // サービス名
             serviceNameField = new TextField(ViewProperties.getCaption("field.serviceName"));
             getLayout().addComponent(serviceNameField);
 
-            //コメント欄
+            // コメント
             commentField = new TextField(ViewProperties.getCaption("field.comment"));
             commentField.setWidth("90%");
             getLayout().addComponent(commentField);
 
-            // サービス選択テーブル
+            // サービス種類情報テーブル
             serviceTable = new SelectServiceTable();
             getLayout().addComponent(serviceTable);
+            serviceTable.addListener(new Property.ValueChangeListener() {
+                @Override
+                public void valueChange(Property.ValueChangeEvent event) {
+                    serviceTableSelect(event);
+                }
+            });
 
             // ディスクサイズ
             diskSizeField = new TextField(ViewProperties.getCaption("field.diskSize"));
@@ -186,70 +187,63 @@ public class WinServiceAdd extends Window {
             Button addServerButton = new Button(ViewProperties.getCaption("button.addServerQuick"));
             addServerButton.setDescription(ViewProperties.getCaption("description.addServerQuick"));
             addServerButton.setIcon(Icons.ADD.resource());
-            //サーバ作成権限のチェック(無い場合は非活性)
-            UserAuthDto auth = ViewContext.getAuthority();
-            addServerButton.setEnabled(auth.isServerMake());
+            // サーバ作成権限がない場合は無効
+            if (!ViewContext.getAuthority().isServerMake()) {
+                addServerButton.setEnabled(false);
+            }
 
-            addServerButton.addListener(new Button.ClickListener() {
+            addServerButton.addListener(new ClickListener() {
                 @Override
                 public void buttonClick(ClickEvent event) {
-                    // 選択されているサービスを取得
-                    final Long componentTypeNo = (Long) serviceTable.getValue();
-                    if (componentTypeNo == null) {
-                        // TODO: サービスが選択されていない場合
-                        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                                ViewMessages.getMessage("IUI-000030"));
-                        getApplication().getMainWindow().addWindow(dialog);
-                        return;
-                    }
-
-                    // 選択されているサーバ名を取得
-                    final Collection<String> selectedServerNames = (Collection<String>) serverSelect.getValue();
-
-                    WinServerAddSimple winServerAddSimple = new WinServerAddSimple(getApplication(), componentTypeNo);
-                    winServerAddSimple.addListener(new CloseListener() {
-                        @Override
-                        public void windowClose(CloseEvent e) {
-                            // 作成したサーバ名を取得
-                            List<String> addedServerNames = (List<String>) ContextUtils.getAttribute("serverNames");
-
-                            if (addedServerNames != null) {
-                                ContextUtils.removeAttribute("serverNames");
-
-                                // 表示データを初期化
-                                initData();
-
-                                // サービス情報を表示
-                                showServices();
-
-                                // 元のサービス種類を選択する
-                                serviceTable.select(componentTypeNo);
-
-                                // 元のサーバ名と作成したサーバ名を選択する
-                                List<String> serverNames = new ArrayList<String>(selectedServerNames);
-                                serverNames.addAll(addedServerNames);
-                                serverSelect.setValue(serverNames);
-                            }
-                        }
-                    });
-                    getWindow().getApplication().getMainWindow().addWindow(winServerAddSimple);
+                    addServerButton(event);
                 }
             });
-            HorizontalLayout hlay = new HorizontalLayout();
-            Label txt = new Label(ViewProperties.getCaption("label.addServerQuick"));
-            hlay.addComponent(addServerButton);
-            hlay.addComponent(txt);
-            hlay.setComponentAlignment(txt, Alignment.MIDDLE_LEFT);
 
-            getLayout().addComponent(hlay);
+            HorizontalLayout layout2 = new HorizontalLayout();
+            Label label = new Label(ViewProperties.getCaption("label.addServerQuick"));
+            layout2.addComponent(addServerButton);
+            layout2.addComponent(label);
+            layout2.setComponentAlignment(label, Alignment.MIDDLE_LEFT);
+            getLayout().addComponent(layout2);
+
+            initValidation();
+        }
+
+        private void initValidation() {
+            String message = ViewMessages.getMessage("IUI-000031");
+            serviceNameField.setRequired(true);
+            serviceNameField.setRequiredError(message);
+            serviceNameField.addValidator(new StringLengthValidator(message, -1, 15, false));
+            serviceNameField.addValidator(new RegexpValidator("^[0-9a-z]|[0-9a-z][0-9a-z-]*[0-9a-z]$", true, message));
+
+            message = ViewMessages.getMessage("IUI-000003");
+            commentField.addValidator(new StringLengthValidator(message, -1, 100, true));
+
+            message = ViewMessages.getMessage("IUI-000032");
+            diskSizeField.setRequired(true);
+            diskSizeField.setRequiredError(message);
+            diskSizeField.addValidator(new RegexpValidator("^[1-9]|[1-9][0-9]{1,2}|1000$", true, message));
+        }
+
+        private void serviceTableSelect(Property.ValueChangeEvent event) {
+            // 選択がない場合はサーバ選択をクリア
+            if (serviceTable.getValue() == null) {
+                serverSelect.removeAllItems();
+                return;
+            }
+
+            // 選択されたサービス種類で利用可能なサーバ情報を選択画面に表示
+            ComponentTypeDto componentType = findComponentType(serviceTable.getValue());
+            serverSelect.show(instances, componentType.getInstanceNos());
         }
 
     }
 
     private class SelectServiceTable extends Table {
 
-        SelectServiceTable() {
-            //テーブル基本設定
+        @Override
+        public void attach() {
+            // テーブル基本設定
             setCaption(ViewProperties.getCaption("table.selectService"));
             setWidth("440px");
             setPageLength(4);
@@ -263,32 +257,55 @@ public class WinServiceAdd extends Window {
             setImmediate(true);
             addStyleName("win-service-add-service");
 
-            //カラム設定
+            // カラム設定
             addContainerProperty("No", Integer.class, null);
             addContainerProperty("Service", Label.class, new Label());
             addContainerProperty("Description", String.class, null);
             setColumnExpandRatio("Description", 100);
-
-            //テーブルのカラムに対してStyleNameを設定
             setCellStyleGenerator(new StandardCellStyleGenerator());
+        }
 
-            // 行が選択されたときのイベント
-            addListener(new Property.ValueChangeListener() {
-                @Override
-                public void valueChange(Property.ValueChangeEvent event) {
-                    Long componentTypeNo = (Long) getValue();
+        public void show(List<ComponentTypeDto> componentTypes) {
+            removeAllItems();
 
-                    // サーバ選択を表示
-                    showSelectServers(componentTypeNo);
-                }
-            });
+            if (componentTypes == null) {
+                return;
+            }
+
+            for (int i = 0; i < componentTypes.size(); i++) {
+                ComponentTypeDto componentType = componentTypes.get(i);
+
+                // サービス名
+                String name = componentType.getComponentType().getComponentTypeNameDisp();
+                Icons nameIcon = Icons.fromName(componentType.getComponentType().getComponentTypeName());
+                Label slbl = new Label(IconUtils.createImageTag(getApplication(), nameIcon, name), Label.CONTENT_XHTML);
+                slbl.setHeight(COLUMN_HEIGHT);
+
+                // サービス説明
+                String description = componentType.getComponentType().getLayerDisp();
+
+                addItem(new Object[] { (i + 1), slbl, description }, componentType.getComponentType()
+                        .getComponentTypeNo());
+            }
+        }
+
+        @Override
+        public Long getValue() {
+            return (Long) super.getValue();
+        }
+
+        public void selectFirst() {
+            if (size() > 0) {
+                select(firstItemId());
+            }
         }
 
     }
 
     public class ServerSelect extends TwinColSelect {
 
-        public ServerSelect() {
+        @Override
+        public void attach() {
             setCaption(ViewProperties.getCaption("field.selectServer"));
             setRows(7);
             setNullSelectionAllowed(true);
@@ -297,31 +314,42 @@ public class WinServiceAdd extends Window {
             setStyleName("serverselect");
         }
 
+        public void show(List<InstanceDto> instances, List<Long> instanceNos) {
+            removeAllItems();
+
+            if (instances == null || instanceNos == null) {
+                return;
+            }
+
+            for (Long instanceNo : instanceNos) {
+                for (InstanceDto instance : instances) {
+                    if (instanceNo.equals(instance.getInstance().getInstanceNo())) {
+                        addItem(instance.getInstance().getInstanceName());
+                        break;
+                    }
+                }
+            }
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public Collection<String> getValue() {
+            return (Collection<String>) super.getValue();
+        }
+
     }
 
-    private void initValidation() {
-        String message = ViewMessages.getMessage("IUI-000031");
-        serviceNameField.setRequired(true);
-        serviceNameField.setRequiredError(message);
-        serviceNameField.addValidator(new StringLengthValidator(message, -1, 15, false));
-        serviceNameField.addValidator(new RegexpValidator("^[0-9a-z]|[0-9a-z][0-9a-z-]*[0-9a-z]$", true, message));
-
-        message = ViewMessages.getMessage("IUI-000003");
-        commentField.addValidator(new StringLengthValidator(message, -1, 100, true));
-
-        message = ViewMessages.getMessage("IUI-000032");
-        diskSizeField.setRequired(true);
-        diskSizeField.setRequiredError(message);
-        diskSizeField.addValidator(new RegexpValidator("^[1-9]|[1-9][0-9]{1,2}|1000$", true, message));
-    }
-
-    private void initData() {
-        // クラウド番号
-        Long farmNo = ViewContext.getFarmNo();
-
+    private void loadData() {
         // サービス種類情報を取得
         ComponentService componentService = BeanContext.getBean(ComponentService.class);
-        componentTypes = componentService.getComponentTypes(farmNo);
+        componentTypes = componentService.getComponentTypes(ViewContext.getFarmNo());
+
+        // 有効でないサービス種類情報を除外
+        for (int i = componentTypes.size() - 1; i >= 0; i--) {
+            if (BooleanUtils.isNotTrue(componentTypes.get(i).getComponentType().getSelectable())) {
+                componentTypes.remove(i);
+            }
+        }
 
         // サービス種類情報をソート
         Collections.sort(componentTypes, new Comparator<ComponentTypeDto>() {
@@ -337,90 +365,76 @@ public class WinServiceAdd extends Window {
 
         // 全インスタンスを取得
         InstanceService instanceService = BeanContext.getBean(InstanceService.class);
-        instances = instanceService.getInstances(farmNo);
+        instances = instanceService.getInstances(ViewContext.getFarmNo());
     }
 
-    private void showServices() {
-        serviceTable.removeAllItems();
-
-        // 取得したサービス種類情報をテーブルに追加
-        for (int i = 0; i < componentTypes.size(); i++) {
-            ComponentTypeDto componentType = componentTypes.get(i);
-
-            if (BooleanUtils.isNotTrue(componentType.getComponentType().getSelectable())) {
-                //使用不可コンポーネントタイプの場合、非表示
-                continue;
+    private ComponentTypeDto findComponentType(Long componentTypeNo) {
+        for (ComponentTypeDto componentType : componentTypes) {
+            if (componentTypeNo.equals(componentType.getComponentType().getComponentTypeNo())) {
+                return componentType;
             }
-
-            // サービス名
-            String name = componentType.getComponentType().getComponentTypeNameDisp();
-            Icons nameIcon = Icons.fromName(componentType.getComponentType().getComponentTypeName());
-            Label slbl = new Label(IconUtils.createImageTag(apl, nameIcon, name), Label.CONTENT_XHTML);
-            slbl.setHeight(COLUMN_HEIGHT);
-
-            // サービス説明
-            String description = componentType.getComponentType().getLayerDisp();
-
-            serviceTable.addItem(new Object[] { (i + 1), slbl, description }, componentType.getComponentType()
-                    .getComponentTypeNo());
         }
-
-        Long componentTypeNo = null;
-        if (serviceTable.getItemIds().size() > 0) {
-            componentTypeNo = (Long) serviceTable.getItemIds().toArray()[0];
-        }
-
-        // 先頭のサービス種類を選択する
-        serviceTable.select(componentTypeNo);
+        return null;
     }
 
-    private void showSelectServers(Long componentTypeNo) {
-        serverSelect.removeAllItems();
+    private void addServerButton(ClickEvent event) {
+        // 選択されているサービス種類を取得
+        final Long componentTypeNo = basicForm.serviceTable.getValue();
         if (componentTypeNo == null) {
+            // サービス種類が選択されていない場合
+            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
+                    ViewMessages.getMessage("IUI-000030"));
+            getApplication().getMainWindow().addWindow(dialog);
             return;
         }
 
-        // 選択されたサービス種類を取得
-        ComponentTypeDto componentType = null;
-        for (ComponentTypeDto tmpComponentType : componentTypes) {
-            if (tmpComponentType.getComponentType().getComponentTypeNo().equals(componentTypeNo)) {
-                componentType = tmpComponentType;
-                break;
-            }
-        }
+        ComponentTypeDto componentType = findComponentType(componentTypeNo);
 
-        // 選択されたサービス種類で利用可能なサーバ情報を選択画面に表示
-        for (Long instanceNo : componentType.getInstanceNos()) {
-            for (InstanceDto instance : instances) {
-                if (instanceNo.equals(instance.getInstance().getInstanceNo())) {
-                    serverSelect.addItem(instance.getInstance().getInstanceName());
-                    break;
+        WinServerAddSimple winServerAddSimple = new WinServerAddSimple(componentType);
+        winServerAddSimple.addListener(new CloseListener() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public void windowClose(CloseEvent e) {
+                // 作成したサーバ名を取得
+                List<String> addedServerNames = (List<String>) ContextUtils.getAttribute("serverNames");
+
+                if (addedServerNames != null) {
+                    ContextUtils.removeAttribute("serverNames");
+
+                    // 選択されているサーバ名を取得
+                    Collection<String> selectedServerNames = basicForm.serverSelect.getValue();
+
+                    // サービス種類情報を再表示
+                    loadData();
+                    basicForm.serviceTable.show(componentTypes);
+
+                    // 元のサービス種類を選択する
+                    basicForm.serviceTable.select(componentTypeNo);
+
+                    // 元のサーバ名と作成したサーバ名を選択する
+                    List<String> serverNames = new ArrayList<String>(selectedServerNames);
+                    serverNames.addAll(addedServerNames);
+                    basicForm.serverSelect.setValue(serverNames);
                 }
             }
-        }
+        });
+
+        getWindow().getApplication().getMainWindow().addWindow(winServerAddSimple);
     }
 
     private void addButtonClick(ClickEvent event) {
         // 入力値を取得
-        String serviceName = (String) serviceNameField.getValue();
-        String comment = (String) commentField.getValue();
-        String diskSize = (String) diskSizeField.getValue();
-        Long componentTypeNo = (Long) serviceTable.getValue();
-        Collection<String> serverNames = (Collection<String>) serverSelect.getValue();
+        String serviceName = (String) basicForm.serviceNameField.getValue();
+        String comment = (String) basicForm.commentField.getValue();
+        String diskSize = (String) basicForm.diskSizeField.getValue();
+        Long componentTypeNo = basicForm.serviceTable.getValue();
+        Collection<String> serverNames = basicForm.serverSelect.getValue();
 
-        // 選択されたサーバのinstanceNoのリスト
-        List<Long> instanceNos = new ArrayList<Long>();
-        for (InstanceDto instance : instances) {
-            if (serverNames.contains(instance.getInstance().getInstanceName())) {
-                instanceNos.add(instance.getInstance().getInstanceNo());
-            }
-        }
-
-        // TODO: 入力チェック
+        // 入力チェック
         try {
-            serviceNameField.validate();
-            commentField.validate();
-            diskSizeField.validate();
+            basicForm.serviceNameField.validate();
+            basicForm.commentField.validate();
+            basicForm.diskSizeField.validate();
         } catch (InvalidValueException e) {
             String errMes = e.getMessage();
             if (null == errMes) {
@@ -446,15 +460,12 @@ public class WinServiceAdd extends Window {
             return;
         }
 
-        // クラウド番号
-        Long farmNo = ViewContext.getFarmNo();
-
-        // サービスを作成（ロジックを実行）
+        // サービスを作成
         ComponentService componentService = BeanContext.getBean(ComponentService.class);
         Long componentNo;
         try {
-            componentNo = componentService.createComponent(farmNo, serviceName, componentTypeNo, comment,
-                    Integer.valueOf(diskSize));
+            componentNo = componentService.createComponent(ViewContext.getFarmNo(), serviceName, componentTypeNo,
+                    comment, Integer.valueOf(diskSize));
         } catch (AutoApplicationException e) {
             String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
             DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
@@ -462,14 +473,23 @@ public class WinServiceAdd extends Window {
             return;
         }
 
-        //オペレーションログ
-        AutoApplication aapl = (AutoApplication) apl;
+        // オペレーションログ
+        AutoApplication aapl = (AutoApplication) getApplication();
         aapl.doOpLog("SERVICE", "Make Service", null, componentNo, null, null);
 
-        // サービスにサーバを追加（ロジックを実行）
+        // 選択されたサーバのinstanceNoのリスト
+        List<Long> instanceNos = new ArrayList<Long>();
+        for (InstanceDto instance : instances) {
+            if (serverNames.contains(instance.getInstance().getInstanceName())) {
+                instanceNos.add(instance.getInstance().getInstanceNo());
+            }
+        }
+
+        // サービスにサーバを追加
         try {
             componentService.associateInstances(componentNo, instanceNos);
         } catch (AutoApplicationException e) {
+            // エラーの場合、作成したサービスを削除する
             componentService.deleteComponent(componentNo);
 
             String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());

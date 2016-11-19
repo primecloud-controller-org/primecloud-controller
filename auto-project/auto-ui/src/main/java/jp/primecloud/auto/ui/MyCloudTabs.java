@@ -488,7 +488,7 @@ public class MyCloudTabs extends Panel {
 
         public void addButtonClick(ClickEvent event) {
             final ComponentDto dto = (ComponentDto) serviceTable.getValue();
-            WinServiceAdd winServiceAdd = new WinServiceAdd(getApplication());
+            WinServiceAdd winServiceAdd = new WinServiceAdd();
             winServiceAdd.addListener(new Window.CloseListener() {
                 @Override
                 public void windowClose(CloseEvent e) {

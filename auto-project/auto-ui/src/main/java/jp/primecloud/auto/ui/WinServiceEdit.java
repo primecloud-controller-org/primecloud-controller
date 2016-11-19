@@ -252,13 +252,10 @@ public class WinServiceEdit extends Window {
             addServerButton.addListener(new Button.ClickListener() {
                 @Override
                 public void buttonClick(ClickEvent event) {
-                    // 表示しているサービスのcomponentTypeNoを取得
-                    final Long componentTypeNo = componentType.getComponentType().getComponentTypeNo();
-
                     // 選択されているサーバ名を取得
                     final Collection<String> selectedServerNames = (Collection<String>) serverSelect.getValue();
 
-                    WinServerAddSimple winServerAddSimple = new WinServerAddSimple(getApplication(), componentTypeNo);
+                    WinServerAddSimple winServerAddSimple = new WinServerAddSimple(componentType);
                     winServerAddSimple.addListener(new CloseListener() {
                         @Override
                         public void windowClose(CloseEvent e) {
