@@ -197,7 +197,11 @@ public class MyCloudManage extends Window {
         }
 
         // myCloud情報を表示
-        showClouds();
+        loadData();
+        cloudTable.show(farms);
+
+        // すでにmyCloudを開いていたら、その行を選択する
+        cloudTable.select(ViewContext.getFarmNo());
     }
 
     private class CloudTable extends Table {
@@ -231,6 +235,11 @@ public class MyCloudManage extends Window {
 
         public void show(List<FarmDto> farms) {
             removeAllItems();
+
+            if (farms == null) {
+                return;
+            }
+
             for (int i = 0; i < farms.size(); i++) {
                 FarmDto farm = farms.get(i);
 
@@ -243,52 +252,43 @@ public class MyCloudManage extends Window {
                 // コメント
                 String comment = farm.getFarm().getComment();
 
-                addItem(new Object[] { (i + 1), slbl, comment }, farm);
+                addItem(new Object[] { (i + 1), slbl, comment }, farm.getFarm().getFarmNo());
             }
         }
 
         @Override
-        public FarmDto getValue() {
-            return (FarmDto) super.getValue();
-        }
-
-        public void select(Long farmNo) {
-            if (farmNo == null) {
-                return;
-            }
-
-            for (Object itemId : getItemIds()) {
-                FarmDto farm = (FarmDto) itemId;
-                if (farm.getFarm().getFarmNo().longValue() == farmNo.longValue()) {
-                    select(itemId);
-                    break;
-                }
-            }
+        public Long getValue() {
+            return (Long) super.getValue();
         }
 
     }
 
-    private void showClouds() {
+    private void loadData() {
         // myCloud情報を取得
         FarmService farmService = BeanContext.getBean(FarmService.class);
         farms = farmService.getFarms(ViewContext.getUserNo(), ViewContext.getLoginUser());
+    }
 
-        // 取得したmyCloud情報をテーブルに追加
-        cloudTable.show(farms);
-
-        // すでにmyCloudを開いていたら、その行を選択する
-        cloudTable.select(ViewContext.getFarmNo());
+    private FarmDto findFarm(Long farmNo) {
+        for (FarmDto farm : farms) {
+            if (farmNo.equals(farm.getFarm().getFarmNo())) {
+                return farm;
+            }
+        }
+        return null;
     }
 
     private void deleteButtonClick(ClickEvent event) {
-        final FarmDto farm = cloudTable.getValue();
-        if (farm == null) {
+        final Long farmNo = cloudTable.getValue();
+        if (farmNo == null) {
             // myCloudが選択されていない場合
             DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
                     ViewMessages.getMessage("IUI-000005"));
             getApplication().getMainWindow().addWindow(dialog);
             return;
         }
+
+        final FarmDto farm = findFarm(farmNo);
 
         String message = ViewMessages.getMessage("IUI-000006", farm.getFarm().getFarmName());
         DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message, Buttons.OKCancel);
@@ -301,12 +301,12 @@ public class MyCloudManage extends Window {
 
                 // オペレーションログ
                 AutoApplication aapl = (AutoApplication) getApplication();
-                aapl.doOpLog("CLOUD", "Delete Cloud", farm.getFarm().getFarmNo(), null);
+                aapl.doOpLog("CLOUD", "Delete Cloud", farmNo, null);
 
                 // myCloudの削除
                 FarmService farmService = BeanContext.getBean(FarmService.class);
                 try {
-                    farmService.deleteFarm(farm.getFarm().getFarmNo());
+                    farmService.deleteFarm(farmNo);
                 } catch (AutoApplicationException e) {
                     String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
                     DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
@@ -315,7 +315,7 @@ public class MyCloudManage extends Window {
                 }
 
                 // 削除したmyCloud情報をテーブルから除去
-                cloudTable.removeItem(cloudTable.removeItem(farm));
+                cloudTable.removeItem(farmNo);
 
                 // 削除完了メッセージの表示
                 String message = ViewMessages.getMessage("IUI-000007", farm.getFarm().getFarmName());
@@ -323,7 +323,7 @@ public class MyCloudManage extends Window {
                 getApplication().getMainWindow().addWindow(dialog);
 
                 // 表示中のmyCloudを削除した場合、表示を解除
-                if (farm.getFarm().getFarmNo().equals(ViewContext.getFarmNo())) {
+                if (farmNo.equals(ViewContext.getFarmNo())) {
                     ViewContext.setFarmNo(null);
                     ViewContext.setFarmName(null);
                     ViewContext.setAuthority(new UserAuthDto(false));
@@ -335,8 +335,8 @@ public class MyCloudManage extends Window {
     }
 
     private void switchButtonClick(ClickEvent event) {
-        FarmDto farm = cloudTable.getValue();
-        if (farm == null) {
+        Long farmNo = cloudTable.getValue();
+        if (farmNo == null) {
             // myCloudが選択されていない場合
             DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
                     ViewMessages.getMessage("IUI-000008"));
@@ -344,12 +344,14 @@ public class MyCloudManage extends Window {
             return;
         }
 
+        FarmDto farm = findFarm(farmNo);
+
         // 権限検索ロジックを実行
         UserService userService = BeanContext.getBean(UserService.class);
-        UserAuthDto userAuthDto = userService.getUserAuth(ViewContext.getLoginUser(), farm.getFarm().getFarmNo());
+        UserAuthDto userAuthDto = userService.getUserAuth(ViewContext.getLoginUser(), farmNo);
 
         // 選択したmyCloudをセッションに格納
-        ViewContext.setFarmNo(farm.getFarm().getFarmNo());
+        ViewContext.setFarmNo(farmNo);
         ViewContext.setFarmName(farm.getFarm().getFarmName());
         ViewContext.setAuthority(userAuthDto);
 
@@ -389,8 +391,8 @@ public class MyCloudManage extends Window {
     }
 
     private void editButtonClick(ClickEvent event) {
-        FarmDto farm = cloudTable.getValue();
-        if (farm == null) {
+        Long farmNo = cloudTable.getValue();
+        if (farmNo == null) {
             // myCloudが選択されていない場合
             DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
                     ViewMessages.getMessage("IUI-000047"));
@@ -399,7 +401,7 @@ public class MyCloudManage extends Window {
         }
 
         // myCloud編集画面
-        MyCloudEdit myCloudEdit = new MyCloudEdit(farm.getFarm().getFarmNo());
+        MyCloudEdit myCloudEdit = new MyCloudEdit(farmNo);
         myCloudEdit.addListener(new CloseListener() {
             @Override
             public void windowClose(CloseEvent e) {
@@ -408,7 +410,9 @@ public class MyCloudManage extends Window {
                     ContextUtils.removeAttribute("editFarmNo");
 
                     // 表示の更新
-                    showClouds();
+                    loadData();
+                    cloudTable.show(farms);
+                    cloudTable.select(farmNo);
                 }
             }
         });

@@ -411,8 +411,8 @@ public class WinServerEdit extends Window {
                 btnService.addListener(new Button.ClickListener() {
                     @Override
                     public void buttonClick(ClickEvent event) {
-                        WinServerAttachService winServerAttachService = new WinServerAttachService(getApplication(),
-                                instance, image, componentNos);
+                        WinServerAttachService winServerAttachService = new WinServerAttachService(instance, image,
+                                componentNos);
                         winServerAttachService.addListener(new Window.CloseListener() {
                             @Override
                             public void windowClose(Window.CloseEvent e) {

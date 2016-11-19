@@ -19,9 +19,10 @@
 package jp.primecloud.auto.ui;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import jp.primecloud.auto.common.status.ComponentInstanceStatus;
 import jp.primecloud.auto.common.status.InstanceStatus;
@@ -37,7 +38,6 @@ import jp.primecloud.auto.service.dto.ComponentDto;
 import jp.primecloud.auto.service.dto.ComponentInstanceDto;
 import jp.primecloud.auto.service.dto.ImageDto;
 import jp.primecloud.auto.service.dto.InstanceDto;
-import jp.primecloud.auto.ui.data.ComponentDtoContainer;
 import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.ContextUtils;
 import jp.primecloud.auto.ui.util.IconUtils;
@@ -48,8 +48,7 @@ import jp.primecloud.auto.ui.util.ViewProperties;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
-import com.vaadin.Application;
-import com.vaadin.data.Container;
+import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
@@ -58,7 +57,6 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.Component;
 import com.vaadin.ui.Form;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -76,25 +74,25 @@ import com.vaadin.ui.Window;
 @SuppressWarnings("serial")
 public class WinServerAttachService extends Window {
 
-    AutoApplication apl;
+    private InstanceDto instance;
 
-    AttachService attachService;
+    private ImageDto image;
 
-    InstanceDto instance;
+    private List<Long> selectedComponentNos;
 
-    ImageDto image;
+    private AttachService attachService;
 
-    List<ComponentDto> components;
+    private List<ComponentDto> components;
 
-    List<Long> componentNos;
-
-    WinServerAttachService(Application ap, InstanceDto instance, ImageDto image, List<Long> componentNos) {
-        this.apl = (AutoApplication) ap;
+    public WinServerAttachService(InstanceDto instance, ImageDto image, List<Long> selectedComponentNos) {
         this.instance = instance;
         this.image = image;
-        this.componentNos = componentNos;
+        this.selectedComponentNos = selectedComponentNos;
+    }
 
-        //モーダルウインドウ
+    @Override
+    public void attach() {
+        // モーダルウインドウ
         setIcon(Icons.ADD.resource());
         setCaption(ViewProperties.getCaption("window.winServerAttachService"));
         setModal(true);
@@ -104,10 +102,10 @@ public class WinServerAttachService extends Window {
         layout.setMargin(true, true, false, true);
         layout.setSpacing(false);
 
-        //Form
+        // Form
         Form form = new Form();
 
-        //サーバ名
+        // サーバ名
         TextField serverNameField = new TextField(ViewProperties.getCaption("field.serverName"));
         if (instance != null) {
             serverNameField.setValue(instance.getInstance().getInstanceName());
@@ -117,16 +115,16 @@ public class WinServerAttachService extends Window {
         serverNameField.setReadOnly(true);
         form.getLayout().addComponent(serverNameField);
 
-        attachService = new AttachService("", null);
+        attachService = new AttachService(instance, image, selectedComponentNos);
         form.getLayout().addComponent(attachService);
         layout.addComponent(form);
 
         // 下部のバー
-        HorizontalLayout okbar = new HorizontalLayout();
-        okbar.setSpacing(true);
-        okbar.setMargin(false, false, true, false);
-        layout.addComponent(okbar);
-        layout.setComponentAlignment(okbar, Alignment.BOTTOM_RIGHT);
+        HorizontalLayout bottomLayout = new HorizontalLayout();
+        bottomLayout.setSpacing(true);
+        bottomLayout.setMargin(false, false, true, false);
+        layout.addComponent(bottomLayout);
+        layout.setComponentAlignment(bottomLayout, Alignment.BOTTOM_RIGHT);
 
         // OKボタン
         Button okButton = new Button(ViewProperties.getCaption("button.ok"));
@@ -137,10 +135,9 @@ public class WinServerAttachService extends Window {
                 addButtonClick(event);
             }
         });
-        // [Enter]でokButtonクリック
-        okButton.setClickShortcut(KeyCode.ENTER);
+        okButton.setClickShortcut(KeyCode.ENTER); // [Enter]でokButtonクリック
         okButton.focus();
-        okbar.addComponent(okButton);
+        bottomLayout.addComponent(okButton);
 
         // Cancelボタン
         Button cancelButton = new Button(ViewProperties.getCaption("button.cancel"));
@@ -151,170 +148,188 @@ public class WinServerAttachService extends Window {
                 close();
             }
         });
-        okbar.addComponent(cancelButton);
+        bottomLayout.addComponent(cancelButton);
 
-        // 初期データの取得
-        initData();
-
-        // データの表示
-        showData();
+        // サービス情報を表示
+        loadData();
+        attachService.show(components);
     }
 
-    class AttachService extends Table {
-        final String COLUMN_HEIGHT = "32px";
+    private class AttachService extends Table {
 
-        String[] COLNAME = { "", ViewProperties.getCaption("field.serviceName"),
-                ViewProperties.getCaption("field.serviceStatus"), };
+        private final String COLUMN_HEIGHT = "32px";
 
-        String[] VISIBLE_COLNAME = { "check", "componentName", "status" };
+        private InstanceDto instance;
 
-        HashMap<Long, CheckBox> checkList = new HashMap<Long, CheckBox>();
+        private ImageDto image;
 
-        public AttachService(String caption, Container dataSource) {
-            super(caption, dataSource);
+        private List<Long> selectedComponentNos;
 
-            addGeneratedColumn("check", new ColumnGenerator() {
-                public Component generateCell(Table source, Object itemId, Object columnId) {
-                    ComponentDto p = (ComponentDto) itemId;
-                    CheckBox check = new CheckBox();
-                    check.setImmediate(true);
-                    check.setValue(false);
-                    check.setEnabled(false);
+        private List<ComponentDto> components;
 
-                    // 選択済みならチェック
-                    if (componentNos != null) {
-                        if (componentNos.contains(p.getComponent().getComponentNo())) {
-                            check.setValue(true);
-                        }
-                    }
+        public AttachService(InstanceDto instance, ImageDto image, List<Long> selectedComponentNos) {
+            this.instance = instance;
+            this.image = image;
+            this.selectedComponentNos = (selectedComponentNos == null) ? new ArrayList<Long>() : selectedComponentNos;
+        }
 
-                    checkList.put(p.getComponent().getComponentNo(), check);
+        @Override
+        public void attach() {
+            // テーブル基本設定
+            setColumnHeaderMode(Table.COLUMN_HEADER_MODE_EXPLICIT);
+            addStyleName("win-server-attach-service");
+            setCaption(ViewProperties.getCaption("table.serverAttachServices"));
+            setSortDisabled(true);
+            setMultiSelect(false);
+            setImmediate(false);
+            setVisible(true);
+            setWidth("100%");
+            setPageLength(5);
 
-                    check.addListener(new Property.ValueChangeListener() {
-                        @Override
-                        public void valueChange(Property.ValueChangeEvent event) {
-                            // チェックボックスの有効／無効を制御
-                            changeCheckEnabled();
+            // カラム設定
+            addContainerProperty("check", CheckBox.class, new CheckBox());
+            addContainerProperty("componentName", Label.class, new Label());
+            addContainerProperty("status", Label.class, new Label());
+            setColumnExpandRatio("componentName", 100);
+            String[] headers = { "", ViewProperties.getCaption("field.serviceName"),
+                    ViewProperties.getCaption("field.serviceStatus") };
+            setColumnHeaders(headers);
 
-                            //テーブル再描画
-                            requestRepaint();
-                        }
-                    });
-
-                    // チェックボックスの有効／無効を制御
-                    // （本来はすべての行についてaddGeneratedColumnが終わった後に１度だけするべき）
-                    changeCheckEnabled();
-
-                    return check;
-                }
-            });
-
-            addGeneratedColumn("componentName", new ColumnGenerator() {
-                @Override
-                public Component generateCell(Table source, Object itemId, Object columnId) {
-                    ComponentDto p = (ComponentDto) itemId;
-
-                    String name;
-                    if (StringUtils.isEmpty(p.getComponent().getComment())) {
-                        name = p.getComponent().getComponentName();
-                    } else {
-                        name = p.getComponent().getComment() + "\n[" + p.getComponent().getComponentName() + "]";
-                    }
-                    Label slbl = new Label(name, Label.CONTENT_PREFORMATTED);
-                    slbl.setHeight(COLUMN_HEIGHT);
-                    return slbl;
-                }
-            });
-
-            addGeneratedColumn("status", new ColumnGenerator() {
-                @Override
-                public Component generateCell(Table source, Object itemId, Object columnId) {
-                    ComponentDto p = (ComponentDto) itemId;
-
-                    ComponentInstanceDto ci = null;
-                    //String status = "";
-                    if (instance != null) {
-                        for (ComponentInstanceDto componentInstance : instance.getComponentInstances()) {
-                            if (componentInstance.getComponentInstance().getComponentNo()
-                                    .equals(p.getComponent().getComponentNo())) {
-                                ci = componentInstance;
-                                break;
-                            }
-                        }
-                    }
-                    String status = null;
-                    if (ci != null) {
-                        status = StringUtils.capitalize(StringUtils.lowerCase(ci.getComponentInstance().getStatus()));
-                    }
-                    if (StringUtils.isEmpty(status)) {
-                        status = "Stopped";
-                    }
-
-                    Icons icon = Icons.fromName(status);
-                    Label slbl = new Label(IconUtils.createImageTag(apl, icon, status), Label.CONTENT_XHTML);
-                    slbl.setHeight(COLUMN_HEIGHT);
-                    return slbl;
-                }
-            });
-
-            //テーブルのカラムに対してStyleNameを設定
-            setCellStyleGenerator(new Table.CellStyleGenerator() {
+            // テーブルのカラムに対してStyleNameを設定
+            setCellStyleGenerator(new StandardCellStyleGenerator() {
                 @Override
                 public String getStyle(Object itemId, Object propertyId) {
-                    ComponentDto p = (ComponentDto) itemId;
+                    String style = super.getStyle(itemId, propertyId);
 
-                    if (propertyId == null) {
-                        return "";
+                    CheckBox checkBox = getCheckBox(getItem(itemId));
+
+                    // チェックボックスが選択されていれば行の色を変える
+                    if (checkBox.booleanValue()) {
+                        style += " v-selected";
+                    }
+                    // チェックボックスが無効なら色を変更する
+                    if (!checkBox.isEnabled()) {
+                        style += " v-disabled";
                     }
 
-                    String ret = propertyId.toString().toLowerCase();
-
-                    if (checkList.containsKey(p.getComponent().getComponentNo())) {
-                        //checkboxが選択されていれば行の色を変える
-                        if ((Boolean) checkList.get(p.getComponent().getComponentNo()).getValue()) {
-                            ret += " v-selected";
-                        }
-                        //checkboxが無効なら色を変更する
-                        if (!(Boolean) checkList.get(p.getComponent().getComponentNo()).isEnabled()) {
-                            ret += " v-disabled";
-                        }
-                    }
-                    return ret;
+                    return style;
                 }
             });
 
+            // 行が選択された場合、行のチェックボックスの値を変える
             addListener(new ItemClickListener() {
                 @Override
                 public void itemClick(ItemClickEvent event) {
-                    ComponentDto p = (ComponentDto) event.getItemId();
-                    CheckBox chk = checkList.get(p.getComponent().getComponentNo());
-                    if (chk.isEnabled()) {
-                        chk.setValue(!chk.booleanValue());
+                    CheckBox checkBox = getCheckBox(event.getItem());
+                    if (checkBox.isEnabled()) {
+                        checkBox.setValue(!checkBox.booleanValue());
                     }
                 }
             });
-
-            setColumnExpandRatio("componentName", 100);
         }
 
-        public void changeCheckEnabled() {
-            // チェックボックスの有効／無効を制御する
-            Map<Long, Boolean> checkMap = new HashMap<Long, Boolean>();
+        public void show(List<ComponentDto> components) {
+            this.components = components;
 
-            Map<Long, ComponentDto> componentMap = new HashMap<Long, ComponentDto>();
-            for (ComponentDto component : components) {
-                checkMap.put(component.getComponent().getComponentNo(), true);
-                componentMap.put(component.getComponent().getComponentNo(), component);
+            removeAllItems();
+
+            if (components == null) {
+                return;
             }
+
+            for (ComponentDto component : components) {
+                // チェックボックス
+                CheckBox checkBox = new CheckBox();
+                checkBox.setImmediate(true);
+                checkBox.setEnabled(false);
+                if (selectedComponentNos.contains(component.getComponent().getComponentNo())) {
+                    checkBox.setValue(true);
+                } else {
+                    checkBox.setValue(false);
+                }
+
+                checkBox.addListener(new Property.ValueChangeListener() {
+                    @Override
+                    public void valueChange(Property.ValueChangeEvent event) {
+                        // チェックボックスの有効／無効を制御
+                        changeCheckEnabled();
+
+                        // テーブル再描画
+                        requestRepaint();
+                    }
+                });
+
+                // サービス名
+                String serviceName = component.getComponent().getComponentName();
+                if (StringUtils.isNotEmpty(component.getComponent().getComment())) {
+                    serviceName = component.getComponent().getComment() + "\n[" + serviceName + "]";
+                }
+                Label serviceNameLabel = new Label(serviceName, Label.CONTENT_PREFORMATTED);
+                serviceNameLabel.setHeight(COLUMN_HEIGHT);
+
+                // ステータス
+                String status = null;
+                if (instance != null) {
+                    for (ComponentInstanceDto componentInstance : instance.getComponentInstances()) {
+                        if (componentInstance.getComponentInstance().getComponentNo()
+                                .equals(component.getComponent().getComponentNo())) {
+                            status = componentInstance.getComponentInstance().getStatus();
+                            break;
+                        }
+                    }
+                }
+                if (StringUtils.isEmpty(status)) {
+                    status = "Stopped";
+                } else {
+                    status = StringUtils.capitalize(StringUtils.lowerCase(status));
+                }
+
+                Icons statusIcon = Icons.fromName(status);
+                Label statusLabel = new Label(IconUtils.createImageTag(getApplication(), statusIcon, status),
+                        Label.CONTENT_XHTML);
+                statusLabel.setHeight(COLUMN_HEIGHT);
+
+                addItem(new Object[] { checkBox, serviceNameLabel, statusLabel }, component.getComponent()
+                        .getComponentNo());
+            }
+
+            changeCheckEnabled();
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public Collection<Long> getItemIds() {
+            return (Collection<Long>) super.getItemIds();
+        }
+
+        public List<Long> getSelectedValues() {
+            List<Long> componentNos = new ArrayList<Long>();
+            for (Long componentNo : getItemIds()) {
+                CheckBox checkBox = getCheckBox(getItem(componentNo));
+                if (checkBox.booleanValue()) {
+                    componentNos.add(componentNo);
+                }
+            }
+
+            return componentNos;
+        }
+
+        private CheckBox getCheckBox(Item item) {
+            return (CheckBox) item.getItemProperty("check").getValue();
+        }
+
+        private void changeCheckEnabled() {
+            // チェックボックスの有効／無効を制御する
+            Set<Long> disableComponentNos = new HashSet<Long>();
 
             // 利用可能でないサービスは無効
             List<Long> componentTypeNos = new ArrayList<Long>();
             for (ComponentType componentType : image.getComponentTypes()) {
-                componentTypeNos.add(Long.valueOf(componentType.getComponentTypeNo()));
+                componentTypeNos.add(componentType.getComponentTypeNo());
             }
             for (ComponentDto component : components) {
                 if (!componentTypeNos.contains(component.getComponent().getComponentTypeNo())) {
-                    checkMap.put(component.getComponent().getComponentNo(), false);
+                    disableComponentNos.add(component.getComponent().getComponentNo());
                 }
             }
 
@@ -327,7 +342,7 @@ public class WinServerAttachService extends Window {
                             ComponentInstanceStatus status = ComponentInstanceStatus.fromStatus(componentInstance
                                     .getComponentInstance().getStatus());
                             if (status != ComponentInstanceStatus.STOPPED) {
-                                checkMap.put(component.getComponent().getComponentNo(), false);
+                                disableComponentNos.add(component.getComponent().getComponentNo());
                             }
                             break;
                         }
@@ -338,21 +353,21 @@ public class WinServerAttachService extends Window {
                 if (instance.getAwsVolumes() != null) {
                     for (AwsVolume awsVolume : instance.getAwsVolumes()) {
                         if (StringUtils.isNotEmpty(awsVolume.getInstanceId())) {
-                            checkMap.put(awsVolume.getComponentNo(), false);
+                            disableComponentNos.add(awsVolume.getComponentNo());
                         }
                     }
                 }
                 if (instance.getCloudstackVolumes() != null) {
                     for (CloudstackVolume cloudstackVolume : instance.getCloudstackVolumes()) {
                         if (StringUtils.isNotEmpty(cloudstackVolume.getInstanceId())) {
-                            checkMap.put(cloudstackVolume.getComponentNo(), false);
+                            disableComponentNos.add(cloudstackVolume.getComponentNo());
                         }
                     }
                 }
                 if (instance.getVmwareDisks() != null) {
                     for (VmwareDisk vmwareDisk : instance.getVmwareDisks()) {
                         if (BooleanUtils.isTrue(vmwareDisk.getAttached())) {
-                            checkMap.put(vmwareDisk.getComponentNo(), false);
+                            disableComponentNos.add(vmwareDisk.getComponentNo());
                         }
                     }
                 }
@@ -360,7 +375,7 @@ public class WinServerAttachService extends Window {
                     for (VcloudDisk vcloudDisk : instance.getVcloudDisks()) {
                         if (BooleanUtils.isTrue(vcloudDisk.getAttached())) {
                             if (InstanceStatus.fromStatus(instance.getInstance().getStatus()) != InstanceStatus.STOPPED) {
-                                checkMap.put(vcloudDisk.getComponentNo(), false);
+                                disableComponentNos.add(vcloudDisk.getComponentNo());
                             }
                         }
                     }
@@ -369,7 +384,7 @@ public class WinServerAttachService extends Window {
                     for (AzureDisk azureDisk : instance.getAzureDisks()) {
                         if (StringUtils.isNotEmpty(azureDisk.getInstanceName())) {
                             if (InstanceStatus.fromStatus(instance.getInstance().getStatus()) != InstanceStatus.STOPPED) {
-                                checkMap.put(azureDisk.getComponentNo(), false);
+                                disableComponentNos.add(azureDisk.getComponentNo());
                             }
                         }
                     }
@@ -378,7 +393,7 @@ public class WinServerAttachService extends Window {
                     for (OpenstackVolume openstackVolume : instance.getOpenstackVolumes()) {
                         if (StringUtils.isNotEmpty(openstackVolume.getInstanceId())) {
                             if (InstanceStatus.fromStatus(instance.getInstance().getStatus()) != InstanceStatus.STOPPED) {
-                                checkMap.put(openstackVolume.getComponentNo(), false);
+                                disableComponentNos.add(openstackVolume.getComponentNo());
                             }
                         }
                     }
@@ -386,69 +401,43 @@ public class WinServerAttachService extends Window {
             }
 
             // 同一レイヤのサービス種類が選択されているサービスは無効
-            for (Map.Entry<Long, CheckBox> entry : attachService.checkList.entrySet()) {
-                if (entry.getValue().booleanValue()) {
-                    ComponentType componentType = componentMap.get(entry.getKey()).getComponentType();
-                    for (ComponentDto component : components) {
-                        if (entry.getKey().equals(component.getComponent().getComponentNo())) {
+            for (ComponentDto component : components) {
+                CheckBox checkBox = getCheckBox(getItem(component.getComponent().getComponentNo()));
+                if (checkBox.booleanValue()) {
+                    for (ComponentDto component2 : components) {
+                        if (component.getComponent().getComponentNo()
+                                .equals(component2.getComponent().getComponentNo())) {
                             continue;
                         }
-                        ComponentType componentType2 = component.getComponentType();
-                        if (componentType.getLayer().equals(componentType2.getLayer())) {
-                            checkMap.put(component.getComponent().getComponentNo(), false);
+
+                        if (component.getComponentType().getLayer().equals(component2.getComponentType().getLayer())) {
+                            disableComponentNos.add(component2.getComponent().getComponentNo());
                         }
                     }
                 }
             }
 
             // 有効／無効を反映
-            for (Map.Entry<Long, CheckBox> entry : attachService.checkList.entrySet()) {
-                entry.getValue().setEnabled(checkMap.get(entry.getKey()));
+            for (Long componentNo : getItemIds()) {
+                CheckBox checkBox = getCheckBox(getItem(componentNo));
+                if (disableComponentNos.contains(componentNo)) {
+                    checkBox.setEnabled(false);
+                } else {
+                    checkBox.setEnabled(true);
+                }
             }
         }
-
-        @Override
-        public void setContainerDataSource(Container newDataSource) {
-            super.setContainerDataSource(newDataSource);
-            setColumnHeaderMode(Table.COLUMN_HEADER_MODE_EXPLICIT);
-            addStyleName("win-server-attach-service");
-            setCaption(ViewProperties.getCaption("table.serverAttachServices"));
-            setSortDisabled(true);
-            setMultiSelect(false);
-            setImmediate(false);
-            setVisible(true);
-            setWidth("100%");
-            setPageLength(5);
-        }
-
-        public void refresh(ComponentDtoContainer dataSource) {
-            setContainerDataSource(dataSource);
-            setVisibleColumns(VISIBLE_COLNAME);
-            setColumnHeaders(COLNAME);
-        }
-
     }
 
-    private void initData() {
+    private void loadData() {
         // 全てのサービス情報を取得
-        Long farmNo = ViewContext.getFarmNo();
         ComponentService componentService = BeanContext.getBean(ComponentService.class);
-        components = componentService.getComponents(farmNo);
-    }
-
-    private void showData() {
-        // テーブルにサービス情報を表示
-        attachService.refresh(new ComponentDtoContainer(components));
+        components = componentService.getComponents(ViewContext.getFarmNo());
     }
 
     private void addButtonClick(ClickEvent event) {
         // 選択したサービスの番号を取得
-        List<Long> componentNos = new ArrayList<Long>();
-        for (Map.Entry<Long, CheckBox> entry : attachService.checkList.entrySet()) {
-            if (entry.getValue().booleanValue()) {
-                componentNos.add(entry.getKey());
-            }
-        }
+        List<Long> componentNos = attachService.getSelectedValues();
 
         // 選択したサービス追加したサービスの番号をセッションに格納
         ContextUtils.setAttribute("componentNos", componentNos);

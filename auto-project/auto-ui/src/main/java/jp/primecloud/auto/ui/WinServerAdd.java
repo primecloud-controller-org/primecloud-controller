@@ -39,7 +39,6 @@ import jp.primecloud.auto.ui.util.ViewProperties;
 
 import org.apache.commons.lang.BooleanUtils;
 
-import com.vaadin.Application;
 import com.vaadin.data.Property;
 import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.validator.RegexpValidator;
@@ -67,37 +66,14 @@ import com.vaadin.ui.Window;
 @SuppressWarnings({ "serial", "unchecked" })
 public class WinServerAdd extends Window {
 
-    final String COLUMN_HEIGHT = "28px";
+    private final String COLUMN_HEIGHT = "28px";
 
-    Application apl;
+    private BasicForm basicForm;
 
-    TextField serverNameField;
+    private List<PlatformDto> platforms;
 
-    TextField commentField;
-
-    Table cloudTable;
-
-    Table imageTable;
-
-    Table serviceTable;
-
-    List<PlatformDto> platforms;
-
-    ImageDto selectImage;
-
-    List<Long> componentNos;
-
-    boolean enableService = true;
-
-    boolean attachService = false;
-
-    WinServerAdd(Application ap) {
-        apl = ap;
-
-        // サービスを有効にするかどうか
-        String enableService = Config.getProperty("ui.enableService");
-        this.enableService = (enableService == null) || (BooleanUtils.toBoolean(enableService));
-
+    @Override
+    public void attach() {
         //モーダルウインドウ
         setIcon(Icons.ADD.resource());
         setCaption(ViewProperties.getCaption("window.winServerAdd"));
@@ -110,30 +86,28 @@ public class WinServerAdd extends Window {
         layout.setSpacing(false);
 
         // フォーム
-        layout.addComponent(new BasicForm());
+        basicForm = new BasicForm();
+        layout.addComponent(basicForm);
 
         // 下部のバー
-        HorizontalLayout okbar = new HorizontalLayout();
-        okbar.setSpacing(true);
-        okbar.setMargin(false, false, true, false);
-        layout.addComponent(okbar);
-        layout.setComponentAlignment(okbar, Alignment.BOTTOM_RIGHT);
+        HorizontalLayout bottomLayout = new HorizontalLayout();
+        bottomLayout.setSpacing(true);
+        bottomLayout.setMargin(false, false, true, false);
+        layout.addComponent(bottomLayout);
+        layout.setComponentAlignment(bottomLayout, Alignment.BOTTOM_RIGHT);
 
         // Addボタン
         Button addButton = new Button(ViewProperties.getCaption("button.add"));
         addButton.setDescription(ViewProperties.getCaption("description.addServer"));
-
         addButton.addListener(new Button.ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
                 addButtonClick(event);
             }
         });
-
-        // [Enter]でaddButtonクリック
-        addButton.setClickShortcut(KeyCode.ENTER);
+        addButton.setClickShortcut(KeyCode.ENTER); // [Enter]でaddButtonクリック
         addButton.focus();
-        okbar.addComponent(addButton);
+        bottomLayout.addComponent(addButton);
 
         // Cancelボタン
         Button cancelButton = new Button(ViewProperties.getCaption("button.cancel"));
@@ -144,94 +118,187 @@ public class WinServerAdd extends Window {
                 close();
             }
         });
-        okbar.addComponent(cancelButton);
+        bottomLayout.addComponent(cancelButton);
 
-        // 入力チェックの設定
-        initValidation();
-
-        // 初期データの取得
-        initData();
-
-        // クラウドテーブルの表示
-        showClouds();
+        // プラットフォーム情報の表示
+        loadData();
+        basicForm.cloudTable.show(platforms);
+        basicForm.cloudTable.selectFirst();
     }
 
     private class BasicForm extends Form {
 
-        BasicForm() {
+        private TextField serverNameField;
+
+        private TextField commentField;
+
+        private SelectCloudTable cloudTable;
+
+        private SelectImageTable imageTable;
+
+        private AvailableServiceTable serviceTable;
+
+        private Button attachButton;
+
+        private List<Long> selectedComponentNos;
+
+        @Override
+        public void attach() {
             // サーバ名
             serverNameField = new TextField(ViewProperties.getCaption("field.serverName"));
             getLayout().addComponent(serverNameField);
 
-            // コメント欄
+            // コメント
             commentField = new TextField(ViewProperties.getCaption("field.comment"));
             commentField.setWidth("95%");
             getLayout().addComponent(commentField);
 
-            // クラウド選択
+            // プラットフォーム情報テーブル
             cloudTable = new SelectCloudTable();
             getLayout().addComponent(cloudTable);
-
-            // イメージ選択
-            imageTable = new SelectImageTable();
-            getLayout().addComponent(imageTable);
-
-            // イメージごとの可能サービス表示
-            Panel panel = new Panel();
-            panel.setSizeFull();
-            panel.setWidth("470px");
-            CssLayout lay = new CssLayout();
-            panel.setContent(lay);
-            lay.setSizeFull();
-            lay.addStyleName("win-server-add-panel");
-            serviceTable = new AvailableServiceTable();
-            panel.addComponent(serviceTable);
-            if (enableService) {
-                getLayout().addComponent(panel);
-            }
-
-            //サービス選択ボタン
-            Button btnService = new Button(ViewProperties.getCaption("button.serverAttachService"));
-            btnService.setDescription(ViewProperties.getCaption("description.serverAttachService"));
-            btnService.setIcon(Icons.SERVICETAB.resource());
-            btnService.addListener(new Button.ClickListener() {
+            cloudTable.addListener(new Property.ValueChangeListener() {
                 @Override
-                public void buttonClick(ClickEvent event) {
-                    WinServerAttachService winServerAttachService = new WinServerAttachService(getApplication(), null,
-                            selectImage, componentNos);
-                    winServerAttachService.addListener(new Window.CloseListener() {
-                        @Override
-                        public void windowClose(Window.CloseEvent e) {
-                            List<Long> componentNos = (List<Long>) ContextUtils.getAttribute("componentNos");
-                            if (componentNos != null) {
-                                ContextUtils.removeAttribute("componentNos");
-                                WinServerAdd.this.componentNos = componentNos;
-                                attachService = true;
-                            }
-                        }
-                    });
-                    getWindow().getApplication().getMainWindow().addWindow(winServerAttachService);
+                public void valueChange(Property.ValueChangeEvent event) {
+                    cloudTableSelect(event);
                 }
             });
 
-            HorizontalLayout hlay = new HorizontalLayout();
-            hlay.setSpacing(true);
-            Label txt = new Label(ViewProperties.getCaption("label.serverAttachService"));
-            hlay.addComponent(btnService);
-            hlay.addComponent(txt);
-            hlay.setComponentAlignment(txt, Alignment.MIDDLE_LEFT);
+            // サーバ種別情報テーブル
+            imageTable = new SelectImageTable();
+            getLayout().addComponent(imageTable);
+            imageTable.addListener(new Property.ValueChangeListener() {
+                @Override
+                public void valueChange(Property.ValueChangeEvent event) {
+                    imageTableSelect(event);
+                }
+            });
+
+            // サービスを有効にするかどうか
+            String enableServiceConf = Config.getProperty("ui.enableService");
+            boolean enableService = (enableServiceConf == null) || (BooleanUtils.toBoolean(enableServiceConf));
 
             if (enableService) {
-                getLayout().addComponent(hlay);
+                // サービス情報テーブル
+                serviceTable = new AvailableServiceTable();
+                Panel panel = new Panel();
+                panel.setSizeFull();
+                panel.setWidth("470px");
+                CssLayout lay = new CssLayout();
+                panel.setContent(lay);
+                lay.setSizeFull();
+                lay.addStyleName("win-server-add-panel");
+                panel.addComponent(serviceTable);
+                getLayout().addComponent(panel);
+
+                // サービス選択ボタン
+                attachButton = new Button(ViewProperties.getCaption("button.serverAttachService"));
+                attachButton.setDescription(ViewProperties.getCaption("description.serverAttachService"));
+                attachButton.setIcon(Icons.SERVICETAB.resource());
+                attachButton.addListener(new Button.ClickListener() {
+                    @Override
+                    public void buttonClick(ClickEvent event) {
+                        attachButtonClick(event);
+                    }
+                });
+
+                HorizontalLayout attachLayout = new HorizontalLayout();
+                attachLayout.setSpacing(true);
+                Label attachLabel = new Label(ViewProperties.getCaption("label.serverAttachService"));
+                attachLayout.addComponent(attachButton);
+                attachLayout.addComponent(attachLabel);
+                attachLayout.setComponentAlignment(attachLabel, Alignment.MIDDLE_LEFT);
+                getLayout().addComponent(attachLayout);
             }
+
+            initValidation();
+        }
+
+        private void initValidation() {
+            String message = ViewMessages.getMessage("IUI-000022");
+            serverNameField.setRequired(true);
+            serverNameField.setRequiredError(message);
+            serverNameField.addValidator(new StringLengthValidator(message, -1, 15, false));
+            serverNameField.addValidator(new RegexpValidator("^[a-z]|[a-z][0-9a-z-]*[0-9a-z]$", true, message));
+
+            message = ViewMessages.getMessage("IUI-000003");
+            commentField.addValidator(new StringLengthValidator(message, -1, 100, true));
+        }
+
+        private void cloudTableSelect(Property.ValueChangeEvent event) {
+            // 選択がない場合はサーバ種別情報をクリア
+            if (cloudTable.getValue() == null) {
+                imageTable.removeAllItems();
+                return;
+            }
+
+            // サーバ種別情報を表示
+            PlatformDto platform = findPlatform(cloudTable.getValue());
+            imageTable.show(platform.getImages());
+            imageTable.selectFirst();
+        }
+
+        private void imageTableSelect(Property.ValueChangeEvent event) {
+            // 選択したサービスをクリア
+            selectedComponentNos = null;
+
+            if (serviceTable == null) {
+                return;
+            }
+
+            // 選択がない場合はサービス情報をクリア
+            if (cloudTable.getValue() == null || imageTable.getValue() == null) {
+                serviceTable.removeAllItems();
+                serviceTable.setCaption("");
+                attachButton.setEnabled(false);
+                return;
+            }
+
+            // サービス情報を表示
+            ImageDto image = findImage(cloudTable.getValue(), imageTable.getValue());
+            serviceTable.show(image.getComponentTypes());
+
+            // サービス情報テーブルのキャプションを変更
+            String caption = "「" + image.getImage().getImageNameDisp() + "」で利用できるサービス";
+            serviceTable.setCaption(caption);
+
+            // サービス選択ボタンを状態を変更
+            if (image.getComponentTypes().size() > 0) {
+                attachButton.setEnabled(true);
+            } else {
+                attachButton.setEnabled(false);
+            }
+        }
+
+        private void attachButtonClick(ClickEvent event) {
+            if (cloudTable.getValue() == null || imageTable.getValue() == null) {
+                return;
+            }
+
+            ImageDto image = findImage(cloudTable.getValue(), imageTable.getValue());
+
+            WinServerAttachService winServerAttachService = new WinServerAttachService(null, image,
+                    selectedComponentNos);
+            winServerAttachService.addListener(new Window.CloseListener() {
+                @Override
+                public void windowClose(Window.CloseEvent e) {
+                    List<Long> componentNos = (List<Long>) ContextUtils.getAttribute("componentNos");
+                    if (componentNos != null) {
+                        ContextUtils.removeAttribute("componentNos");
+                        selectedComponentNos = componentNos;
+                    }
+                }
+            });
+
+            getWindow().getApplication().getMainWindow().addWindow(winServerAttachService);
         }
 
     }
 
     private class SelectCloudTable extends Table {
 
-        SelectCloudTable() {
-            //テーブル基本設定
+        @Override
+        public void attach() {
+            // テーブル基本設定
             setCaption(ViewProperties.getCaption("table.selectCloud"));
             setWidth("470px");
             setPageLength(4);
@@ -245,32 +312,52 @@ public class WinServerAdd extends Window {
             setImmediate(true);
             addStyleName("win-server-add-cloud");
 
-            //カラム設定
+            // カラム設定
             addContainerProperty("No", Integer.class, null);
             addContainerProperty("Cloud", Label.class, new Label());
             setColumnExpandRatio("Cloud", 100);
-
-            //テーブルのカラムに対してStyleNameを設定
             setCellStyleGenerator(new StandardCellStyleGenerator());
+        }
 
-            // 行が選択されたときのイベント
-            addListener(new Property.ValueChangeListener() {
-                @Override
-                public void valueChange(Property.ValueChangeEvent event) {
-                    Long platformNo = (Long) getValue();
+        public void show(List<PlatformDto> platforms) {
+            removeAllItems();
 
-                    // サーバ種別を表示
-                    showImages(platformNo);
-                }
-            });
+            if (platforms == null) {
+                return;
+            }
+
+            for (int i = 0; i < platforms.size(); i++) {
+                PlatformDto platform = platforms.get(i);
+
+                // プラットフォーム名
+                Icons icon = IconUtils.getPlatformIcon(platform);
+                String description = platform.getPlatform().getPlatformNameDisp();
+                Label slbl = new Label(IconUtils.createImageTag(getApplication(), icon, description),
+                        Label.CONTENT_XHTML);
+                slbl.setHeight(COLUMN_HEIGHT);
+
+                addItem(new Object[] { (i + 1), slbl }, platform.getPlatform().getPlatformNo());
+            }
+        }
+
+        @Override
+        public Long getValue() {
+            return (Long) super.getValue();
+        }
+
+        public void selectFirst() {
+            if (size() > 0) {
+                select(firstItemId());
+            }
         }
 
     }
 
     private class SelectImageTable extends Table {
 
-        SelectImageTable() {
-            //テーブル基本設定
+        @Override
+        public void attach() {
+            // テーブル基本設定
             setCaption(ViewProperties.getCaption("table.selectImage"));
             setWidth("470px");
             setPageLength(3);
@@ -282,40 +369,60 @@ public class WinServerAdd extends Window {
             setMultiSelect(false);
             setNullSelectionAllowed(false);
             setImmediate(true);
-
             addStyleName("win-server-add-os");
 
-            //カラム設定
+            // カラム設定
             addContainerProperty("No", Integer.class, null);
             addContainerProperty("Image", Label.class, new Label());
             addContainerProperty("Detail", Label.class, new Label());
             setColumnExpandRatio("Image", 100);
-
-            //テーブルのカラムに対してStyleNameを設定
             setCellStyleGenerator(new StandardCellStyleGenerator());
+        }
 
-            // 行が選択されたときのイベント
-            addListener(new Property.ValueChangeListener() {
-                @Override
-                public void valueChange(Property.ValueChangeEvent event) {
-                    Long platformNo = (Long) cloudTable.getValue();
-                    Long imageNo = (Long) imageTable.getValue();
+        public void show(List<ImageDto> images) {
+            removeAllItems();
 
-                    // 利用可能サービスを表示
-                    showServices(platformNo, imageNo);
+            if (images == null) {
+                return;
+            }
 
-                    // 選択したサービスをクリア
-                    componentNos = null;
-                    attachService = false;
-                }
-            });
+            for (int i = 0; i < images.size(); i++) {
+                ImageDto image = images.get(i);
+
+                // サーバ種別名
+                String name = image.getImage().getImageNameDisp();
+                Icons nameIcon = IconUtils.getImageIcon(image);
+                Label nlbl = new Label(IconUtils.createImageTag(getApplication(), nameIcon, name), Label.CONTENT_XHTML);
+                nlbl.setHeight(COLUMN_HEIGHT);
+
+                // OS名
+                String os = image.getImage().getOsDisp();
+                Icons osIcon = IconUtils.getOsIcon(image);
+                Label slbl = new Label(IconUtils.createImageTag(getApplication(), osIcon, os), Label.CONTENT_XHTML);
+                slbl.setHeight(COLUMN_HEIGHT);
+
+                addItem(new Object[] { (i + 1), nlbl, slbl }, image.getImage().getImageNo());
+            }
+        }
+
+        @Override
+        public Long getValue() {
+            return (Long) super.getValue();
+        }
+
+        public void selectFirst() {
+            if (size() > 0) {
+                select(firstItemId());
+            }
         }
 
     }
 
     private class AvailableServiceTable extends Table {
-        AvailableServiceTable() {
-            //テーブル基本設定
+
+        @Override
+        public void attach() {
+            // テーブル基本設定
             setCaption(ViewProperties.getCaption("table.availableService"));
             setWidth("100%");
             setHeight("100px");
@@ -333,53 +440,50 @@ public class WinServerAdd extends Window {
             addContainerProperty("Service", Label.class, new Label());
             addContainerProperty("Description", String.class, null);
             setColumnExpandRatio("Service", 100);
+            setCellStyleGenerator(new StandardCellStyleGenerator());
+        }
 
-            //テーブルのカラムに対してStyleNameを設定
-            setCellStyleGenerator(new Table.CellStyleGenerator() {
-                @Override
-                public String getStyle(Object itemId, Object propertyId) {
-                    if (propertyId == null) {
-                        return "";
-                    }
-                    String ret = propertyId.toString().toLowerCase();
+        public void show(List<ComponentType> componentTypes) {
+            removeAllItems();
 
-                    Long componentTypeNo = (Long) itemId;
-                    List<ComponentType> componentTypes = selectImage.getComponentTypes();
-                    for (ComponentType componentType : componentTypes) {
-                        if (componentType.getComponentTypeNo().equals(componentTypeNo)
-                                && BooleanUtils.isNotTrue(componentType.getSelectable())) {
-                            //無効コンポーネントタイプの場合は、セルの表示をDisableに変更する
-                            ret += " v-disabled";
-                            break;
-                        }
-                    }
-                    return ret;
-                }
-            });
+            if (componentTypes == null) {
+                return;
+            }
+
+            for (ComponentType componentType : componentTypes) {
+                // サービス名
+                String name = componentType.getComponentTypeNameDisp();
+                Icons nameIcon = Icons.fromName(componentType.getComponentTypeName());
+                Label slbl = new Label(IconUtils.createImageTag(getApplication(), nameIcon, name), Label.CONTENT_XHTML);
+                slbl.setHeight("26px");
+
+                // サービス説明
+                String description = componentType.getLayerDisp();
+
+                addItem(new Object[] { slbl, description }, componentType.getComponentTypeNo());
+            }
+        }
+
+        @Override
+        public Long getValue() {
+            return (Long) super.getValue();
         }
 
     }
 
-    private void initValidation() {
-        String message = ViewMessages.getMessage("IUI-000022");
-        serverNameField.setRequired(true);
-        serverNameField.setRequiredError(message);
-        serverNameField.addValidator(new StringLengthValidator(message, -1, 15, false));
-        serverNameField.addValidator(new RegexpValidator("^[a-z]|[a-z][0-9a-z-]*[0-9a-z]$", true, message));
-
-        message = ViewMessages.getMessage("IUI-000003");
-        commentField.addValidator(new StringLengthValidator(message, -1, 100, true));
-    }
-
-    private void initData() {
-        // ユーザ番号
-        Long userNo = ViewContext.getUserNo();
-
-        // クラウド情報を取得
+    private void loadData() {
+        // プラットフォーム情報を取得
         InstanceService instanceService = BeanContext.getBean(InstanceService.class);
-        platforms = instanceService.getPlatforms(userNo);
+        platforms = instanceService.getPlatforms(ViewContext.getUserNo());
 
-        // クラウド情報をソート
+        // 有効でないプラットフォーム情報を除外
+        for (int i = platforms.size() - 1; i >= 0; i--) {
+            if (BooleanUtils.isNotTrue(platforms.get(i).getPlatform().getSelectable())) {
+                platforms.remove(i);
+            }
+        }
+
+        // プラットフォーム情報をソート
         Collections.sort(platforms, new Comparator<PlatformDto>() {
             @Override
             public int compare(PlatformDto o1, PlatformDto o2) {
@@ -391,9 +495,18 @@ public class WinServerAdd extends Window {
             }
         });
 
-        // サーバ種別情報をソート
         for (PlatformDto platform : platforms) {
-            Collections.sort(platform.getImages(), new Comparator<ImageDto>() {
+            List<ImageDto> images = platform.getImages();
+
+            // 有効でないサーバ種別情報を除外
+            for (int i = images.size() - 1; i >= 0; i--) {
+                if (BooleanUtils.isNotTrue(images.get(i).getImage().getSelectable())) {
+                    images.remove(i);
+                }
+            }
+
+            // サーバ種別情報をソート
+            Collections.sort(images, new Comparator<ImageDto>() {
                 @Override
                 public int compare(ImageDto o1, ImageDto o2) {
                     int order1 = (o1.getImage().getViewOrder() != null) ? o1.getImage().getViewOrder()
@@ -405,10 +518,19 @@ public class WinServerAdd extends Window {
             });
         }
 
-        // 利用可能なサービス情報
         for (PlatformDto platform : platforms) {
             for (ImageDto image : platform.getImages()) {
-                Collections.sort(image.getComponentTypes(), new Comparator<ComponentType>() {
+                List<ComponentType> componentTypes = image.getComponentTypes();
+
+                // 有効でないサービス情報情報を除外
+                for (int i = componentTypes.size() - 1; i >= 0; i--) {
+                    if (BooleanUtils.isNotTrue(componentTypes.get(i).getSelectable())) {
+                        componentTypes.remove(i);
+                    }
+                }
+
+                // 利用可能なサービス情報をソート
+                Collections.sort(componentTypes, new Comparator<ComponentType>() {
                     @Override
                     public int compare(ComponentType o1, ComponentType o2) {
                         int order1 = (o1.getViewOrder() != null) ? o1.getViewOrder() : Integer.MAX_VALUE;
@@ -420,155 +542,40 @@ public class WinServerAdd extends Window {
         }
     }
 
-    private void showClouds() {
-        cloudTable.removeAllItems();
-
-        // クラウド情報をテーブルに追加
-        for (int i = 0; i < platforms.size(); i++) {
-            PlatformDto platformDto = platforms.get(i);
-
-            if (BooleanUtils.isNotTrue(platformDto.getPlatform().getSelectable())) {
-                //使用不可プラットフォームの場合、非表示
-                continue;
-            }
-
-            //プラットフォームアイコン名の取得
-            Icons icon = IconUtils.getPlatformIcon(platformDto);
-            String description = platformDto.getPlatform().getPlatformNameDisp();
-            Label slbl = new Label(IconUtils.createImageTag(apl, icon, description), Label.CONTENT_XHTML);
-            slbl.setHeight(COLUMN_HEIGHT);
-
-            cloudTable.addItem(new Object[] { (i + 1), slbl }, platformDto.getPlatform().getPlatformNo());
-        }
-
-        Long platformNo = null;
-        if (cloudTable.getItemIds().size() > 0) {
-            platformNo = (Long) cloudTable.getItemIds().toArray()[0];
-        }
-
-        // 先頭のクラウド情報を選択する
-        cloudTable.select(platformNo);
-    }
-
-    private void showImages(Long platformNo) {
-        imageTable.removeAllItems();
-        serviceTable.removeAllItems();
-        if (platformNo == null) {
-            return;
-        }
-
-        // 選択されたクラウドで利用可能なサーバ種別情報を取得
-        List<ImageDto> images = null;
+    private PlatformDto findPlatform(Long platformNo) {
         for (PlatformDto platform : platforms) {
             if (platformNo.equals(platform.getPlatform().getPlatformNo())) {
-                images = platform.getImages();
-                break;
+                return platform;
             }
         }
-
-        // サーバ種別情報がない場合
-        if (images == null) {
-            return;
-        }
-
-        // サーバ種別情報をテーブルに追加
-        int n = 0;
-        for (ImageDto image : images) {
-            // 選択可能でないサーバ種別の場合はスキップ
-            if (BooleanUtils.isNotTrue(image.getImage().getSelectable())) {
-                continue;
-            }
-
-            // サーバ種別名
-            String name = image.getImage().getImageNameDisp();
-            Icons nameIcon = IconUtils.getImageIcon(image);
-            Label nlbl = new Label(IconUtils.createImageTag(apl, nameIcon, name), Label.CONTENT_XHTML);
-            nlbl.setHeight(COLUMN_HEIGHT);
-
-            // OS名
-            String os = image.getImage().getOsDisp();
-            Icons osIcon = IconUtils.getOsIcon(image);
-            Label slbl = new Label(IconUtils.createImageTag(apl, osIcon, os), Label.CONTENT_XHTML);
-            slbl.setHeight(COLUMN_HEIGHT);
-
-            n++;
-            imageTable.addItem(new Object[] { n, nlbl, slbl }, image.getImage().getImageNo());
-        }
-
-        Long imageNo = null;
-        if (imageTable.getItemIds().size() > 0) {
-            imageNo = (Long) imageTable.getItemIds().toArray()[0];
-        }
-
-        // 先頭のサーバ種別を選択する
-        imageTable.select(imageNo);
+        return null;
     }
 
-    private void showServices(Long platformNo, Long imageNo) {
-        serviceTable.removeAllItems();
-        if (platformNo == null || imageNo == null) {
-            return;
-        }
-
-        // 利用可能なサービス情報を取得
-        List<ComponentType> componentTypes = null;
-        for (PlatformDto platform : platforms) {
-            if (platformNo.equals(platform.getPlatform().getPlatformNo())) {
-                List<ImageDto> images = platform.getImages();
-                for (ImageDto image : images) {
-                    if (imageNo.equals(image.getImage().getImageNo())) {
-                        this.selectImage = image;
-
-                        componentTypes = image.getComponentTypes();
-                        //表のキャプションを変更
-                        String caption = image.getImage().getImageNameDisp();
-                        caption = "「" + caption + "」で利用できるサービス";
-                        serviceTable.setCaption(caption);
-
-                        break;
-                    }
-                }
-                break;
+    private ImageDto findImage(Long platformNo, Long imageNo) {
+        PlatformDto platform = findPlatform(platformNo);
+        for (ImageDto image : platform.getImages()) {
+            if (imageNo.equals(image.getImage().getImageNo())) {
+                return image;
             }
         }
-
-        // サービス情報がない場合
-        if (componentTypes == null) {
-            return;
-        }
-
-        // サービス情報をテーブルに追加
-        for (int i = 0; i < componentTypes.size(); i++) {
-            ComponentType componentType = componentTypes.get(i);
-
-            // サービス名
-            String name = componentType.getComponentTypeNameDisp();
-            Icons nameIcon = Icons.fromName(componentType.getComponentTypeName());
-            Label slbl = new Label(IconUtils.createImageTag(apl, nameIcon, name), Label.CONTENT_XHTML);
-            slbl.setHeight("26px");
-
-            // サービス説明
-            String description = componentType.getLayerDisp();
-
-            serviceTable.addItem(new Object[] { slbl, description }, componentType.getComponentTypeNo());
-        }
+        return null;
     }
 
     private void addButtonClick(ClickEvent event) {
         // 入力値を取得
-        String serverName = (String) serverNameField.getValue();
-        String comment = (String) commentField.getValue();
-        Long platformNo = (Long) cloudTable.getValue();
-        Long imageNo = (Long) imageTable.getValue();
+        String serverName = (String) basicForm.serverNameField.getValue();
+        String comment = (String) basicForm.commentField.getValue();
+        Long platformNo = basicForm.cloudTable.getValue();
+        Long imageNo = basicForm.imageTable.getValue();
 
-        // TODO: 入力チェック
+        // 入力チェック
         try {
-            serverNameField.validate();
-            commentField.validate();
+            basicForm.serverNameField.validate();
+            basicForm.commentField.validate();
         } catch (InvalidValueException e) {
             String errMes = e.getMessage();
             if (null == errMes) {
-                //メッセージが取得できない場合は複合エラー 先頭を表示する
+                // メッセージが取得できない場合は複合エラー 先頭を表示する
                 InvalidValueException[] exceptions = e.getCauses();
                 errMes = exceptions[0].getMessage();
             }
@@ -597,118 +604,70 @@ public class WinServerAdd extends Window {
         }
 
         // 選択されたイメージを取得
-        PlatformDto platformDto = null;
-        ImageDto imageDto = null;
-        for (PlatformDto platform : platforms) {
-            if (platform.getPlatform().getPlatformNo().equals(platformNo)) {
-                platformDto = platform;
-                for (ImageDto tmpImage : platform.getImages()) {
-                    if (tmpImage.getImage().getImageNo().equals(imageNo)) {
-                        imageDto = tmpImage;
-                        break;
-                    }
-                }
-                break;
-            }
-        }
+        PlatformDto platform = findPlatform(platformNo);
+        ImageDto image = findImage(platformNo, imageNo);
 
-        // クラウド番号
-        Long farmNo = ViewContext.getFarmNo();
+        // サーバを作成
         InstanceService instanceService = BeanContext.getBean(InstanceService.class);
+        Long farmNo = ViewContext.getFarmNo();
         Long instanceNo = null;
-        if (PCCConstant.PLATFORM_TYPE_AWS.equals(platformDto.getPlatform().getPlatformType())) {
-            // AWSサーバを作成（ロジックを実行）
-            try {
-                String[] instanceTypes = imageDto.getImageAws().getInstanceTypes().split(",");
+        try {
+            // AWSサーバを作成
+            if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatform().getPlatformType())) {
+                String[] instanceTypes = image.getImageAws().getInstanceTypes().split(",");
                 instanceNo = instanceService.createIaasInstance(farmNo, serverName, platformNo, comment, imageNo,
                         instanceTypes[0].trim());
-            } catch (AutoApplicationException e) {
-                String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-                getApplication().getMainWindow().addWindow(dialog);
-                return;
             }
-        } else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platformDto.getPlatform().getPlatformType())) {
-            // VMwareサーバを作成（ロジックを実行）
-            try {
-                String[] instanceTypes = imageDto.getImageVmware().getInstanceTypes().split(",");
+            // VMwareサーバを作成
+            else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatform().getPlatformType())) {
+                String[] instanceTypes = image.getImageVmware().getInstanceTypes().split(",");
                 instanceNo = instanceService.createVmwareInstance(farmNo, serverName, platformNo, comment, imageNo,
                         instanceTypes[0].trim());
-            } catch (AutoApplicationException e) {
-                String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-                getApplication().getMainWindow().addWindow(dialog);
-                return;
             }
-        } else if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platformDto.getPlatform().getPlatformType())) {
-            // Niftyサーバを作成（ロジックを実行）
-            try {
-                String[] instanceTypes = imageDto.getImageNifty().getInstanceTypes().split(",");
+            // Niftyサーバを作成
+            else if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platform.getPlatform().getPlatformType())) {
+                String[] instanceTypes = image.getImageNifty().getInstanceTypes().split(",");
                 instanceNo = instanceService.createNiftyInstance(farmNo, serverName, platformNo, comment, imageNo,
                         instanceTypes[0].trim());
-            } catch (AutoApplicationException e) {
-                String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-                getApplication().getMainWindow().addWindow(dialog);
-                return;
             }
-        } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platformDto.getPlatform().getPlatformType())) {
-            // CloudStackサーバを作成（ロジックを実行）
-            try {
-                String[] instanceTypes = imageDto.getImageCloudstack().getInstanceTypes().split(",");
+            // CloudStackサーバを作成
+            else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatform().getPlatformType())) {
+                String[] instanceTypes = image.getImageCloudstack().getInstanceTypes().split(",");
                 instanceNo = instanceService.createIaasInstance(farmNo, serverName, platformNo, comment, imageNo,
                         instanceTypes[0].trim());
-            } catch (AutoApplicationException e) {
-                String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-                getApplication().getMainWindow().addWindow(dialog);
-                return;
             }
-        } else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platformDto.getPlatform().getPlatformType())) {
-            // VCloudサーバを作成（ロジックを実行）
-            try {
-                String[] instanceTypes = imageDto.getImageVcloud().getInstanceTypes().split(",");
+            // vCloudサーバを作成
+            else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatform().getPlatformType())) {
+                String[] instanceTypes = image.getImageVcloud().getInstanceTypes().split(",");
                 instanceNo = instanceService.createIaasInstance(farmNo, serverName, platformNo, comment, imageNo,
                         instanceTypes[0].trim());
-            } catch (AutoApplicationException e) {
-                String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-                getApplication().getMainWindow().addWindow(dialog);
-                return;
             }
-        } else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platformDto.getPlatform().getPlatformType())) {
-            // Azureサーバを作成（ロジックを実行）
-            try {
-                String[] instanceTypes = imageDto.getImageAzure().getInstanceTypes().split(",");
+            // Azureサーバを作成
+            else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatform().getPlatformType())) {
+                String[] instanceTypes = image.getImageAzure().getInstanceTypes().split(",");
                 instanceNo = instanceService.createIaasInstance(farmNo, serverName, platformNo, comment, imageNo,
                         instanceTypes[0].trim());
-            } catch (AutoApplicationException e) {
-                String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-                getApplication().getMainWindow().addWindow(dialog);
-                return;
             }
-        } else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platformDto.getPlatform().getPlatformType())) {
-            // OpenStackサーバを作成（ロジックを実行）暫定実装
-            try {
-                String[] instanceTypes = imageDto.getImageOpenstack().getInstanceTypes().split(",");
+            // OpenStackサーバを作成
+            else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatform().getPlatformType())) {
+                String[] instanceTypes = image.getImageOpenstack().getInstanceTypes().split(",");
                 instanceNo = instanceService.createIaasInstance(farmNo, serverName, platformNo, comment, imageNo,
                         instanceTypes[0].trim());
-            } catch (AutoApplicationException e) {
-                String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-                getApplication().getMainWindow().addWindow(dialog);
-                return;
             }
+        } catch (AutoApplicationException e) {
+            String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
+            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
+            getApplication().getMainWindow().addWindow(dialog);
+            return;
         }
 
-        //オペレーションログ
-        AutoApplication aapl = (AutoApplication) apl;
+        // オペレーションログ
+        AutoApplication aapl = (AutoApplication) getApplication();
         aapl.doOpLog("SERVER", "Make Server", instanceNo, null, null, null);
 
         // サーバにサービスを関連付ける
-        if (componentNos != null && attachService) {
-            instanceService.associateComponents(instanceNo, componentNos);
+        if (basicForm.selectedComponentNos != null && basicForm.selectedComponentNos.size() > 0) {
+            instanceService.associateComponents(instanceNo, basicForm.selectedComponentNos);
         }
 
         // 画面を閉じる

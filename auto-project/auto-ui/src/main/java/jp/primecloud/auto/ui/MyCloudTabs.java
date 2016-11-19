@@ -839,7 +839,7 @@ public class MyCloudTabs extends Panel {
         public void addButtonClick(ClickEvent event) {
             final InstanceDto dto = (InstanceDto) serverTable.getValue();
 
-            WinServerAdd winServerAdd = new WinServerAdd(getApplication());
+            WinServerAdd winServerAdd = new WinServerAdd();
             winServerAdd.addListener(new Window.CloseListener() {
                 @Override
                 public void windowClose(CloseEvent e) {

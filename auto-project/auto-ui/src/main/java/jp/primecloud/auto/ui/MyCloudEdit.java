@@ -110,7 +110,8 @@ public class MyCloudEdit extends Window {
         bottomLayout.addComponent(cancelButton);
 
         // myCloud情報を表示
-        showCloud();
+        loadData();
+        basicTab.show(farm);
     }
 
     private class BasicTab extends Form {
@@ -161,20 +162,10 @@ public class MyCloudEdit extends Window {
 
     }
 
-    private void showCloud() {
-        try {
-            // myCloud情報を取得
-            FarmService farmService = BeanContext.getBean(FarmService.class);
-            farm = farmService.getFarm(farmNo);
-        } catch (AutoApplicationException e) {
-            String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
-        }
-
-        // myCloud情報を表示
-        basicTab.show(farm);
+    private void loadData() {
+        // myCloud情報を取得
+        FarmService farmService = BeanContext.getBean(FarmService.class);
+        farm = farmService.getFarm(farmNo);
     }
 
     private void editButtonClick(ClickEvent event) {

@@ -115,7 +115,9 @@ public class MyCloudAdd extends Window {
         bottomLayout.addComponent(cancelButton);
 
         // テンプレート情報を表示
-        showTemplates();
+        loadData();
+        basicTab.templateTable.show(templates);
+        basicTab.templateTable.selectFirst();
     }
 
     private class BasicTab extends Form {
@@ -158,7 +160,11 @@ public class MyCloudAdd extends Window {
             templateTable.addListener(new ValueChangeListener() {
                 @Override
                 public void valueChange(Property.ValueChangeEvent event) {
-                    TemplateDto template = templateTable.getValue();
+                    if (templateTable.getValue() == null) {
+                        return;
+                    }
+
+                    TemplateDto template = findTemplate(templateTable.getValue());
                     nameLabel.setValue(template.getTemplate().getTemplateNameDisp() + "：");
                     descriptionLabel.setValue(template.getTemplate().getTemplateDescriptionDisp());
                 }
@@ -211,6 +217,11 @@ public class MyCloudAdd extends Window {
 
         public void show(List<TemplateDto> templates) {
             removeAllItems();
+
+            if (templates == null) {
+                return;
+            }
+
             for (int i = 0; i < templates.size(); i++) {
                 TemplateDto template = templates.get(i);
 
@@ -220,13 +231,13 @@ public class MyCloudAdd extends Window {
                 Label slbl = new Label(IconUtils.createImageTag(getApplication(), nameIcon, name), Label.CONTENT_XHTML);
                 slbl.setHeight(COLUMN_HEIGHT);
 
-                addItem(new Object[] { (i + 1), slbl }, template);
+                addItem(new Object[] { (i + 1), slbl }, template.getTemplate().getTemplateNo());
             }
         }
 
         @Override
-        public TemplateDto getValue() {
-            return (TemplateDto) super.getValue();
+        public Long getValue() {
+            return (Long) super.getValue();
         }
 
         public void selectFirst() {
@@ -237,23 +248,26 @@ public class MyCloudAdd extends Window {
 
     }
 
-    private void showTemplates() {
+    private void loadData() {
         // テンプレート情報を取得
         TemplateService templateService = BeanContext.getBean(TemplateService.class);
         templates = templateService.getTemplates(ViewContext.getUserNo());
+    }
 
-        // 取得したテンプレートをテーブルに追加
-        basicTab.templateTable.show(templates);
-
-        // 先頭のテンプレートを選択する
-        basicTab.templateTable.selectFirst();
+    private TemplateDto findTemplate(Long templateNo) {
+        for (TemplateDto template : templates) {
+            if (templateNo.equals(template.getTemplate().getTemplateNo())) {
+                return template;
+            }
+        }
+        return null;
     }
 
     private void addButtonClick(ClickEvent event) {
         // 入力値を取得
         final String cloudName = (String) basicTab.cloudNameField.getValue();
         final String comment = (String) basicTab.commentField.getValue();
-        final TemplateDto template = basicTab.templateTable.getValue();
+        final Long templateNo = basicTab.templateTable.getValue();
 
         // 入力チェック
         try {
@@ -264,7 +278,7 @@ public class MyCloudAdd extends Window {
             getApplication().getMainWindow().addWindow(dialog);
             return;
         }
-        if (template == null) {
+        if (templateNo == null) {
             // テンプレートが選択されていない場合
             DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
                     ViewMessages.getMessage("IUI-000004"));
@@ -308,7 +322,7 @@ public class MyCloudAdd extends Window {
                 // テンプレートを適用
                 TemplateService templateService = BeanContext.getBean(TemplateService.class);
                 try {
-                    templateService.applyTemplate(farmNo, template.getTemplate().getTemplateNo());
+                    templateService.applyTemplate(farmNo, templateNo);
                 } catch (AutoApplicationException e) {
                     String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
                     DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
