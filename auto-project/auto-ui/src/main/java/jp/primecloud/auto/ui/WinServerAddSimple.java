@@ -27,7 +27,6 @@ import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.entity.crud.ComponentType;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.InstanceService;
-import jp.primecloud.auto.service.dto.ComponentTypeDto;
 import jp.primecloud.auto.service.dto.ImageDto;
 import jp.primecloud.auto.service.dto.InstanceDto;
 import jp.primecloud.auto.service.dto.PlatformDto;
@@ -72,13 +71,13 @@ public class WinServerAddSimple extends Window {
 
     private final int MAX_ADD_SERVER = 10;
 
-    private ComponentTypeDto componentType;
+    private ComponentType componentType;
 
     private ServerAddForm serverAddForm;
 
     private List<PlatformDto> platforms;
 
-    public WinServerAddSimple(ComponentTypeDto componentType) {
+    public WinServerAddSimple(ComponentType componentType) {
         this.componentType = componentType;
     }
 
@@ -96,7 +95,7 @@ public class WinServerAddSimple extends Window {
         layout.setSpacing(false);
 
         // フォーム
-        serverAddForm = new ServerAddForm(componentType);
+        serverAddForm = new ServerAddForm();
         layout.addComponent(serverAddForm);
 
         // 下部のバー
@@ -130,13 +129,10 @@ public class WinServerAddSimple extends Window {
 
         // プラットフォーム情報の表示
         loadData();
-        serverAddForm.cloudTable.show(platforms);
-        serverAddForm.cloudTable.selectFirst();
+        serverAddForm.show(platforms, componentType);
     }
 
     private class ServerAddForm extends Form {
-
-        private ComponentTypeDto componentType;
 
         private TextField prefixField;
 
@@ -144,23 +140,14 @@ public class WinServerAddSimple extends Window {
 
         private ComboBox serverNumber;
 
-        public ServerAddForm(ComponentTypeDto componentType) {
-            this.componentType = componentType;
-        }
-
         @Override
         public void attach() {
             // サーバ名(Prefix)
             prefixField = new TextField(ViewProperties.getCaption("field.serverNamePrefix"));
-            String prefix = componentType.getComponentType().getLayer();
-            if (prefix.indexOf('_') != -1) {
-                prefix = prefix.substring(0, prefix.indexOf('_'));
-            }
-            prefixField.setValue(prefix);
             getLayout().addComponent(prefixField);
 
             // プラットフォーム
-            cloudTable = new SelectCloudTable(componentType);
+            cloudTable = new SelectCloudTable();
             getLayout().addComponent(cloudTable);
 
             // サーバ台数
@@ -207,15 +194,22 @@ public class WinServerAddSimple extends Window {
             serverNumber.addValidator(serverNumberValidator);
         }
 
+        public void show(List<PlatformDto> platforms, ComponentType componentType) {
+            // サーバ名(Prefix)
+            String prefix = componentType.getLayer();
+            if (prefix.indexOf('_') != -1) {
+                prefix = prefix.substring(0, prefix.indexOf('_'));
+            }
+            prefixField.setValue(prefix);
+
+            // プラットフォーム
+            cloudTable.show(platforms, componentType);
+            cloudTable.selectFirst();
+        }
+
     }
 
     private class SelectCloudTable extends Table {
-
-        private ComponentTypeDto componentType;
-
-        public SelectCloudTable(ComponentTypeDto componentType) {
-            this.componentType = componentType;
-        }
 
         @Override
         public void attach() {
@@ -240,22 +234,22 @@ public class WinServerAddSimple extends Window {
             setCellStyleGenerator(new StandardCellStyleGenerator());
         }
 
-        public void show(List<PlatformDto> platforms) {
+        public void show(List<PlatformDto> platforms, ComponentType componentType) {
             removeAllItems();
 
             if (platforms == null) {
                 return;
             }
 
-            Long componentTypeNo = componentType.getComponentType().getComponentTypeNo();
+            Long componentTypeNo = componentType.getComponentTypeNo();
 
             int index = 1;
             for (PlatformDto platform : platforms) {
                 // サービス種別を利用可能かチェック
                 boolean available = false;
-                for (ImageDto image : platform.getImages()) {
-                    for (ComponentType componentType : image.getComponentTypes()) {
-                        if (componentTypeNo.equals(componentType.getComponentTypeNo())) {
+                for (ImageDto tmpImage : platform.getImages()) {
+                    for (ComponentType tmpComponentType : tmpImage.getComponentTypes()) {
+                        if (componentTypeNo.equals(tmpComponentType.getComponentTypeNo())) {
                             available = true;
                             break;
                         }
@@ -438,7 +432,7 @@ public class WinServerAddSimple extends Window {
     private void addOkClick(Long platformNo, List<String> serverNames) {
         // 選択されたプラットフォームの中で、サービス種類を利用可能なイメージを取得
         ImageDto image = null;
-        Long componentTypeNo = componentType.getComponentType().getComponentTypeNo();
+        Long componentTypeNo = componentType.getComponentTypeNo();
         PlatformDto platform = findPlatform(platformNo);
         for (ImageDto tmpImage : platform.getImages()) {
             for (ComponentType tmpComponentType : tmpImage.getComponentTypes()) {

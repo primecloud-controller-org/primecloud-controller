@@ -314,14 +314,14 @@ public class WinServiceAdd extends Window {
             setStyleName("serverselect");
         }
 
-        public void show(List<InstanceDto> instances, List<Long> instanceNos) {
+        public void show(List<InstanceDto> instances, List<Long> availableInstanceNos) {
             removeAllItems();
 
-            if (instances == null || instanceNos == null) {
+            if (instances == null || availableInstanceNos == null) {
                 return;
             }
 
-            for (Long instanceNo : instanceNos) {
+            for (Long instanceNo : availableInstanceNos) {
                 for (InstanceDto instance : instances) {
                     if (instanceNo.equals(instance.getInstance().getInstanceNo())) {
                         addItem(instance.getInstance().getInstanceName());
@@ -390,7 +390,7 @@ public class WinServiceAdd extends Window {
 
         ComponentTypeDto componentType = findComponentType(componentTypeNo);
 
-        WinServerAddSimple winServerAddSimple = new WinServerAddSimple(componentType);
+        WinServerAddSimple winServerAddSimple = new WinServerAddSimple(componentType.getComponentType());
         winServerAddSimple.addListener(new CloseListener() {
             @Override
             @SuppressWarnings("unchecked")

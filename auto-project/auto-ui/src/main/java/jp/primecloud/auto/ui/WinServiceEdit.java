@@ -26,6 +26,7 @@ import java.util.Set;
 
 import jp.primecloud.auto.common.status.ComponentInstanceStatus;
 import jp.primecloud.auto.common.status.ComponentStatus;
+import jp.primecloud.auto.common.status.InstanceStatus;
 import jp.primecloud.auto.config.Config;
 import jp.primecloud.auto.entity.crud.AwsVolume;
 import jp.primecloud.auto.entity.crud.AzureDisk;
@@ -43,7 +44,6 @@ import jp.primecloud.auto.service.dto.ComponentDto;
 import jp.primecloud.auto.service.dto.ComponentInstanceDto;
 import jp.primecloud.auto.service.dto.ComponentTypeDto;
 import jp.primecloud.auto.service.dto.InstanceDto;
-import jp.primecloud.auto.service.dto.UserAuthDto;
 import jp.primecloud.auto.ui.DialogConfirm.Buttons;
 import jp.primecloud.auto.ui.DialogConfirm.Result;
 import jp.primecloud.auto.ui.util.BeanContext;
@@ -56,7 +56,6 @@ import jp.primecloud.auto.ui.util.ViewProperties;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
-import com.vaadin.Application;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.Validator.InvalidValueException;
@@ -83,35 +82,30 @@ import com.vaadin.ui.Window;
  * </p>
  *
  */
-@SuppressWarnings({ "serial", "unchecked" })
+@SuppressWarnings("serial")
 public class WinServiceEdit extends Window {
 
-    final String TAB_HEIGHT = "352px";
+    private final String TAB_HEIGHT = "352px";
 
-    Application apl;
+    private Long componentNo;
 
-    Long componentNo;
+    private BasicTab basicTab;
 
-    TabSheet tab = new TabSheet();
+    private DetailTab detailTab;
 
-    BasicTab basicTab;
+    private ComponentDto component;
 
-    DetailTab detailTab;
+    private List<Long> availableInstanceNos;
 
-    ComponentDto component;
+    private List<InstanceDto> instances;
 
-    ComponentTypeDto componentType;
-
-    List<InstanceDto> instances;
-
-    WinServiceEdit(Application ap, Long componentNo) {
-        apl = ap;
+    public WinServiceEdit(Long componentNo) {
         this.componentNo = componentNo;
+    }
 
-        // 初期データの取得
-        initData();
-
-        //モーダルウインドウ
+    @Override
+    public void attach() {
+        // モーダルウインドウ
         setIcon(Icons.EDITMINI.resource());
         setCaption(ViewProperties.getCaption("window.winServiceEdit"));
         setModal(true);
@@ -122,23 +116,26 @@ public class WinServiceEdit extends Window {
         layout.setSpacing(true);
 
         // タブ設定
+        TabSheet tab = new TabSheet();
         layout.addComponent(tab);
 
+        // 基本設定タブ
         basicTab = new BasicTab();
         tab.addTab(basicTab, ViewProperties.getCaption("tab.basic"), Icons.BASIC.resource());
 
-        detailTab = new DetailTab();
-        Boolean useCustomPara = BooleanUtils.toBooleanObject(Config.getProperty("userCustomize.useCustomParam"));
-        if (BooleanUtils.isTrue(useCustomPara)) {
+        // 詳細設定タブ
+        Boolean useCustomParam = BooleanUtils.toBooleanObject(Config.getProperty("userCustomize.useCustomParam"));
+        if (BooleanUtils.isTrue(useCustomParam)) {
+            detailTab = new DetailTab();
             tab.addTab(detailTab, ViewProperties.getCaption("tab.detail"), Icons.BASIC.resource());
         }
 
         // 下部のバー
-        HorizontalLayout okbar = new HorizontalLayout();
-        okbar.setSpacing(true);
-        okbar.setMargin(false, false, true, false);
-        layout.addComponent(okbar);
-        layout.setComponentAlignment(okbar, Alignment.BOTTOM_RIGHT);
+        HorizontalLayout bottomLayout = new HorizontalLayout();
+        bottomLayout.setSpacing(true);
+        bottomLayout.setMargin(false, false, true, false);
+        layout.addComponent(bottomLayout);
+        layout.setComponentAlignment(bottomLayout, Alignment.BOTTOM_RIGHT);
 
         // OKボタン
         Button okButton = new Button(ViewProperties.getCaption("button.ok"));
@@ -149,9 +146,8 @@ public class WinServiceEdit extends Window {
                 okButtonClick(event);
             }
         });
-        okbar.addComponent(okButton);
-        // [Enter]でokButtonクリック
-        okButton.setClickShortcut(KeyCode.ENTER);
+        bottomLayout.addComponent(okButton);
+        okButton.setClickShortcut(KeyCode.ENTER); // [Enter]でokButtonクリック
         okButton.focus();
 
         // Cancelボタン
@@ -163,50 +159,49 @@ public class WinServiceEdit extends Window {
                 close();
             }
         });
-        okbar.addComponent(cancelButton);
+        bottomLayout.addComponent(cancelButton);
 
-        // 入力チェックの設定
-        initValidation();
-
-        // 基本設定のデータ表示
-        basicTab.showData();
-
-        // 詳細設定のデータ表示
-        detailTab.showData();
+        // サービス情報の表示
+        loadData();
+        basicTab.show(component, instances, availableInstanceNos);
+        if (detailTab != null) {
+            detailTab.show(component);
+        }
     }
 
     private class BasicTab extends VerticalLayout {
 
-        Form form = new Form();
+        private TextField serviceNameField;
 
-        TextField serviceNameField;
+        private Label serviceLabel;
 
-        Label serviceLabel;
+        private TextField commentField;
 
-        TextField commentField;
+        private TextField diskSizeField;
 
-        TextField diskSizeField;
+        private ServerSelect serverSelect;
 
-        ServerSelect serverSelect;
-
-        BasicTab() {
+        @Override
+        public void attach() {
             setHeight(TAB_HEIGHT);
             setMargin(false, true, false, true);
             setSpacing(false);
 
+            Form form = new Form();
+
             // サービス名
             serviceNameField = new TextField(ViewProperties.getCaption("field.serviceName"));
+            serviceNameField.setReadOnly(true);
             form.getLayout().addComponent(serviceNameField);
             form.addStyleName("win-service-edit-form");
 
             // サービス
-            CssLayout layout = new CssLayout();
-            layout.setWidth("100%");
-            layout.setCaption(ViewProperties.getCaption("field.service"));
             serviceLabel = new Label("");
-
-            layout.addComponent(serviceLabel);
-            form.getLayout().addComponent(layout);
+            CssLayout serviceLayout = new CssLayout();
+            serviceLayout.setWidth("100%");
+            serviceLayout.setCaption(ViewProperties.getCaption("field.service"));
+            serviceLayout.addComponent(serviceLabel);
+            form.getLayout().addComponent(serviceLayout);
 
             // コメント
             commentField = new TextField(ViewProperties.getCaption("field.comment"));
@@ -218,89 +213,73 @@ public class WinServiceEdit extends Window {
             form.getLayout().addComponent(diskSizeField);
 
             // サーバ選択
-            AbsoluteLayout hlay = new AbsoluteLayout();
-            hlay.setWidth("100%");
-            hlay.setHeight("20px");
-            hlay.setStyleName("serverselect");
+            AbsoluteLayout layout = new AbsoluteLayout();
+            layout.setWidth("100%");
+            layout.setHeight("20px");
+            layout.setStyleName("serverselect");
             Label selectLbl = new Label(ViewProperties.getCaption("label.serverSelectable"));
             Label selectedLbl = new Label(ViewProperties.getCaption("label.serverSelected"));
-            hlay.addComponent(selectLbl, "left:10%");
-            hlay.addComponent(selectedLbl, "left:65%");
-
-            form.getLayout().addComponent(hlay);
+            layout.addComponent(selectLbl, "left:10%");
+            layout.addComponent(selectedLbl, "left:65%");
+            form.getLayout().addComponent(layout);
 
             serverSelect = new ServerSelect();
             serverSelect.setWidth("100%");
-            //Runningのものを外せないようにするチェック
             serverSelect.addListener(new ValueChangeListener() {
                 @Override
                 public void valueChange(ValueChangeEvent event) {
-                    valueChangeValidate(event, serverSelect);
+                    valueChangeValidate();
                 }
             });
-
             form.getLayout().addComponent(serverSelect);
 
             // 新規サーバ追加ボタン
             Button addServerButton = new Button(ViewProperties.getCaption("button.addServerQuick"));
             addServerButton.setDescription(ViewProperties.getCaption("description.addServerQuick"));
             addServerButton.setIcon(Icons.ADD.resource());
-            //サーバ作成権限のチェック(無い場合は非活性)
-            UserAuthDto auth = ViewContext.getAuthority();
-            addServerButton.setEnabled(auth.isServerMake());
+            // サーバ作成権限がない場合は無効
+            if (!ViewContext.getAuthority().isServerMake()) {
+                addServerButton.setEnabled(false);
+            }
 
             addServerButton.addListener(new Button.ClickListener() {
                 @Override
                 public void buttonClick(ClickEvent event) {
-                    // 選択されているサーバ名を取得
-                    final Collection<String> selectedServerNames = (Collection<String>) serverSelect.getValue();
-
-                    WinServerAddSimple winServerAddSimple = new WinServerAddSimple(componentType);
-                    winServerAddSimple.addListener(new CloseListener() {
-                        @Override
-                        public void windowClose(CloseEvent e) {
-                            // 作成したサーバ名を取得
-                            List<String> addedServerNames = (List<String>) ContextUtils.getAttribute("serverNames");
-
-                            if (addedServerNames != null) {
-                                ContextUtils.removeAttribute("serverNames");
-
-                                // 表示データを初期化
-                                initData();
-
-                                // サーバ情報を表示
-                                serverSelect.showData();
-
-                                // 元のサーバ名と作成したサーバ名を選択する
-                                List<String> serverNames = new ArrayList<String>(selectedServerNames);
-                                serverNames.addAll(addedServerNames);
-                                serverSelect.setValue(serverNames);
-                            }
-                        }
-                    });
-                    getWindow().getApplication().getMainWindow().addWindow(winServerAddSimple);
+                    addButtonClick(event);
                 }
             });
-            HorizontalLayout addlay = new HorizontalLayout();
-            Label txt = new Label(ViewProperties.getCaption("label.addServerQuick"));
-            addlay.addComponent(addServerButton);
-            addlay.addComponent(txt);
-            addlay.setComponentAlignment(txt, Alignment.MIDDLE_LEFT);
 
-            form.getLayout().addComponent(addlay);
+            HorizontalLayout layout2 = new HorizontalLayout();
+            Label label = new Label(ViewProperties.getCaption("label.addServerQuick"));
+            layout2.addComponent(addServerButton);
+            layout2.addComponent(label);
+            layout2.setComponentAlignment(label, Alignment.MIDDLE_LEFT);
+            form.getLayout().addComponent(layout2);
 
             form.setReadOnly(true);
             addComponent(form);
+
+            initValidation();
         }
 
-        private void showData() {
+        private void initValidation() {
+            String message = ViewMessages.getMessage("IUI-000003");
+            commentField.addValidator(new StringLengthValidator(message, -1, 100, true));
+
+            message = ViewMessages.getMessage("IUI-000032");
+            diskSizeField.setRequired(true);
+            diskSizeField.setRequiredError(message);
+            diskSizeField.addValidator(new RegexpValidator("^[1-9]|[1-9][0-9]{1,2}|1000$", true, message));
+        }
+
+        private void show(ComponentDto component, List<InstanceDto> instances, List<Long> availableInstanceNos) {
             // サービス名
             serviceNameField.setReadOnly(false);
             serviceNameField.setValue(component.getComponent().getComponentName());
             serviceNameField.setReadOnly(true);
 
             // サービス
-            String name = componentType.getComponentType().getComponentTypeNameDisp();
+            String name = component.getComponentType().getComponentTypeNameDisp();
             serviceLabel.setCaption(name);
 
             // コメント
@@ -312,7 +291,7 @@ public class WinServiceEdit extends Window {
             // ディスクサイズ
             String diskSize = null;
             for (ComponentConfig config : component.getComponentConfigs()) {
-                if ("diskSize".equals(config.getConfigName())) {
+                if (ComponentConstants.CONFIG_NAME_DISK_SIZE.equals(config.getConfigName())) {
                     diskSize = config.getConfigValue();
                     break;
                 }
@@ -321,59 +300,59 @@ public class WinServiceEdit extends Window {
                 diskSizeField.setValue(diskSize);
             }
 
-            // ディスクが１つでも存在する場合、ディスクサイズを変更できないようにする
+            // ディスクが1つでも存在する場合、ディスクサイズを変更できないようにする
             int countDisk = 0;
-            for (InstanceDto dto : instances) {
-                if (dto.getAwsVolumes() != null) {
-                    for (AwsVolume awsVolume : dto.getAwsVolumes()) {
+            for (InstanceDto instance : instances) {
+                if (instance.getAwsVolumes() != null) {
+                    for (AwsVolume awsVolume : instance.getAwsVolumes()) {
                         if (componentNo.equals(awsVolume.getComponentNo())) {
                             countDisk++;
                             break;
                         }
                     }
                 }
-                if (dto.getCloudstackVolumes() != null) {
-                    for (CloudstackVolume csVolume : dto.getCloudstackVolumes()) {
+                if (instance.getCloudstackVolumes() != null) {
+                    for (CloudstackVolume csVolume : instance.getCloudstackVolumes()) {
                         if (componentNo.equals(csVolume.getComponentNo())) {
                             countDisk++;
                             break;
                         }
                     }
                 }
-                if (dto.getVmwareDisks() != null) {
-                    for (VmwareDisk vmwareDisk : dto.getVmwareDisks()) {
+                if (instance.getVmwareDisks() != null) {
+                    for (VmwareDisk vmwareDisk : instance.getVmwareDisks()) {
                         if (componentNo.equals(vmwareDisk.getComponentNo())) {
                             countDisk++;
                             break;
                         }
                     }
                 }
-                if (dto.getVcloudDisks() != null) {
-                    for (VcloudDisk vcloudDisk : dto.getVcloudDisks()) {
+                if (instance.getVcloudDisks() != null) {
+                    for (VcloudDisk vcloudDisk : instance.getVcloudDisks()) {
                         if (componentNo.equals(vcloudDisk.getComponentNo())) {
                             countDisk++;
                             break;
                         }
                     }
                 }
-                if (dto.getAzureDisks() != null) {
-                    for (AzureDisk azureDisk : dto.getAzureDisks()) {
+                if (instance.getAzureDisks() != null) {
+                    for (AzureDisk azureDisk : instance.getAzureDisks()) {
                         if (componentNo.equals(azureDisk.getComponentNo())) {
                             countDisk++;
                             break;
                         }
                     }
                 }
-                if (dto.getNiftyVolumes() != null) {
-                    for (NiftyVolume niftyVolume : dto.getNiftyVolumes()) {
+                if (instance.getNiftyVolumes() != null) {
+                    for (NiftyVolume niftyVolume : instance.getNiftyVolumes()) {
                         if (componentNo.equals(niftyVolume.getComponentNo())) {
                             countDisk++;
                             break;
                         }
                     }
                 }
-                if (dto.getOpenstackVolumes() != null) {
-                    for (OpenstackVolume openstackVolume : dto.getOpenstackVolumes()) {
+                if (instance.getOpenstackVolumes() != null) {
+                    for (OpenstackVolume openstackVolume : instance.getOpenstackVolumes()) {
                         if (componentNo.equals(openstackVolume.getComponentNo())) {
                             countDisk++;
                             break;
@@ -385,15 +364,15 @@ public class WinServiceEdit extends Window {
                 diskSizeField.setReadOnly(true);
             }
 
-            // サーバ選択
-            serverSelect.showData();
+            // 利用可能なサーバ情報を選択画面に表示
+            serverSelect.show(component, instances, availableInstanceNos);
         }
-
     }
 
     public class ServerSelect extends TwinColSelect {
 
-        public ServerSelect() {
+        @Override
+        public void attach() {
             setCaption(ViewProperties.getCaption("field.selectServer"));
             setRows(7);
             setNullSelectionAllowed(true);
@@ -402,15 +381,20 @@ public class WinServiceEdit extends Window {
             setStyleName("serverselect");
         }
 
-        private void showData() {
+        private void show(ComponentDto component, List<InstanceDto> instances, List<Long> availableInstanceNos) {
             removeAllItems();
 
+            if (instances == null || availableInstanceNos == null) {
+                return;
+            }
+
             // 利用可能なサーバ情報を選択画面に表示
-            for (Long instanceNo : componentType.getInstanceNos()) {
+            for (Long instanceNo : availableInstanceNos) {
                 for (InstanceDto instance : instances) {
                     if (!instanceNo.equals(instance.getInstance().getInstanceNo())) {
                         continue;
                     }
+
                     ComponentInstanceDto componentInstance = null;
                     for (ComponentInstanceDto componentInstanceDto : component.getComponentInstances()) {
                         if (componentInstanceDto.getComponentInstance().getInstanceNo()
@@ -419,21 +403,23 @@ public class WinServiceEdit extends Window {
                             break;
                         }
                     }
+
                     if (componentInstance != null) {
                         ComponentInstanceStatus componentInstanceStatus = ComponentInstanceStatus
                                 .fromStatus(componentInstance.getComponentInstance().getStatus());
                         String status = StringUtils.capitalize(componentInstanceStatus.toString().toLowerCase());
-                        //関連付けがないものは未選択状態にする
+                        String value = instance.getInstance().getInstanceName() + " (" + status + ")";
+
+                        // 関連付けがないものは未選択状態にする
                         if (BooleanUtils.isNotTrue(componentInstance.getComponentInstance().getAssociate())) {
-                            addItem(instance.getInstance().getInstanceName() + " (" + status + ")");
+                            addItem(value);
                         } else {
-                            addItem(instance.getInstance().getInstanceName() + " (" + status + ")");
-                            select(instance.getInstance().getInstanceName() + " (" + status + ")");
+                            addItem(value);
+                            select(value);
                         }
                     } else {
                         addItem(instance.getInstance().getInstanceName());
                     }
-
                 }
             }
 
@@ -445,56 +431,67 @@ public class WinServiceEdit extends Window {
                 }
 
                 for (InstanceDto instance : instances) {
-                    ComponentInstanceStatus componentInstanceStatus = ComponentInstanceStatus
-                            .fromStatus(componentInstance.getComponentInstance().getStatus());
-                    String status = StringUtils.capitalize(componentInstanceStatus.toString().toLowerCase());
-
                     if (componentInstance.getComponentInstance().getInstanceNo()
                             .equals(instance.getInstance().getInstanceNo())) {
-                        addItem(instance.getInstance().getInstanceName() + " (" + status + ")");
-                        select(instance.getInstance().getInstanceName() + " (" + status + ")");
+                        ComponentInstanceStatus componentInstanceStatus = ComponentInstanceStatus
+                                .fromStatus(componentInstance.getComponentInstance().getStatus());
+                        String status = StringUtils.capitalize(componentInstanceStatus.toString().toLowerCase());
+                        String value = instance.getInstance().getInstanceName() + " (" + status + ")";
+
+                        addItem(value);
+                        select(value);
                         break;
                     }
                 }
             }
         }
 
-        public void select(Collection<Object> itemIds) {
-            if (isMultiSelect()) {
-                Set<Object> set = new HashSet<Object>((Set<?>) getValue());
-                for (Object itemId : itemIds) {
-                    if (!isSelected(itemId) && itemId != null && items.containsId(itemId)) {
-                        set.add(itemId);
-                    }
-                }
-                setValue(set);
+        private void select(Collection<String> itemIds) {
+            for (String itemId : itemIds) {
+                super.select(itemId);
             }
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public Collection<String> getItemIds() {
+            return (Collection<String>) super.getItemIds();
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public Collection<String> getValue() {
+            return (Collection<String>) super.getValue();
         }
 
     }
 
-    public void valueChangeValidate(ValueChangeEvent event, final ServerSelect serverSelect) {
-        Set<String> selectedItemsProperty = (Set<String>) event.getProperty().getValue();
-        final Collection<String> notSelectedList = new ArrayList<String>();
-        for (Object item : serverSelect.getItemIds()) {
-            notSelectedList.add(item.toString());
-        }
-        notSelectedList.removeAll(selectedItemsProperty);
+    /**
+     * 選択を解除できないサーバが解除された場合のエラー表示
+     */
+    private void valueChangeValidate() {
+        // 選択されていないサーバ
+        Set<String> notSelectedServerNames = new HashSet<String>(basicTab.serverSelect.getItemIds());
+        notSelectedServerNames.removeAll(basicTab.serverSelect.getValue());
 
-        Collection<Object> moveList = new ArrayList<Object>();
-        //ステータスがSTOPPEDではなくかつステータスを含む場合
-        for (String notSelectedItem : notSelectedList) {
-            if (!StringUtils.contains(notSelectedItem.toUpperCase(), "(" + ComponentInstanceStatus.STOPPED.toString()
-                    + ")")
-                    && StringUtils.contains(notSelectedItem, "(")) {
-                moveList.add(notSelectedItem);
+        // 選択されていないサーバの中に、Stoppedではないステータスのものが含まれているかチェックする
+        List<String> notStoppedServerNames = new ArrayList<String>();
+        for (String serverName : notSelectedServerNames) {
+            if (StringUtils.contains(serverName.toUpperCase(), "(" + ComponentInstanceStatus.STOPPED.toString() + ")")) {
+                continue;
             }
-        }
-        //選択しているものを移動しなおす
-        serverSelect.select(moveList);
 
-        //移動しなおすものがあればエラーを表示する
-        if (!moveList.isEmpty()) {
+            if (!StringUtils.contains(serverName, "(")) {
+                continue;
+            }
+
+            notStoppedServerNames.add(serverName);
+        }
+
+        // Stoppedではないステータスのサーバの選択を解除した場合、選択しなおしてエラーを表示する
+        if (!notStoppedServerNames.isEmpty()) {
+            basicTab.serverSelect.select(notStoppedServerNames);
+
             String message = ViewMessages.getMessage("IUI-000039");
             DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message, Buttons.OK);
             dialog.setCallback(new DialogConfirm.Callback() {
@@ -510,21 +507,96 @@ public class WinServiceEdit extends Window {
         }
 
         // 選択されていないものの中にディスクがアタッチされたままのものがあるかどうかチェック
-        notSelectedList.removeAll(moveList);
-        moveList = new ArrayList<Object>();
+        List<String> diskAttachedServerNames = new ArrayList<String>();
+        for (String serverName : notSelectedServerNames) {
+            int index = serverName.indexOf(" ");
+            String instanceName = index == -1 ? serverName : serverName.substring(0, index);
 
-        for (String notSelectedItem : notSelectedList) {
-            int index = notSelectedItem.indexOf(" ");
-            String instanceName = index == -1 ? notSelectedItem : notSelectedItem.substring(0, index);
-            // pcc-apiでも同様の処理が必要の為、サービスに切り出す
-            ComponentService componentService = BeanContext.getBean(ComponentService.class);
-            moveList = componentService.checkAttachDisk(ViewContext.getFarmNo(), componentNo, instanceName,
-                    notSelectedItem, moveList);
+            for (InstanceDto instance : instances) {
+                if (!StringUtils.equals(instanceName, instance.getInstance().getInstanceName())) {
+                    continue;
+                }
+
+                if (instance.getAwsVolumes() != null) {
+                    for (AwsVolume awsVolume : instance.getAwsVolumes()) {
+                        if (componentNo.equals(awsVolume.getComponentNo())) {
+                            if (StringUtils.isNotEmpty(awsVolume.getInstanceId())) {
+                                diskAttachedServerNames.add(serverName);
+                            }
+                            break;
+                        }
+                    }
+                }
+                if (instance.getVmwareDisks() != null) {
+                    for (VmwareDisk vmwareDisk : instance.getVmwareDisks()) {
+                        if (componentNo.equals(vmwareDisk.getComponentNo())) {
+                            if (BooleanUtils.isTrue(vmwareDisk.getAttached())) {
+                                diskAttachedServerNames.add(serverName);
+                            }
+                            break;
+                        }
+                    }
+                }
+                if (instance.getCloudstackVolumes() != null) {
+                    for (CloudstackVolume cloudstackVolume : instance.getCloudstackVolumes()) {
+                        if (componentNo.equals(cloudstackVolume.getComponentNo())) {
+                            if (StringUtils.isNotEmpty(cloudstackVolume.getInstanceId())) {
+                                diskAttachedServerNames.add(serverName);
+                            }
+                            break;
+                        }
+                    }
+                }
+                if (instance.getVcloudDisks() != null) {
+                    for (VcloudDisk vcloudDisk : instance.getVcloudDisks()) {
+                        if (componentNo.equals(vcloudDisk.getComponentNo())) {
+                            if (BooleanUtils.isTrue(vcloudDisk.getAttached())) {
+                                if (InstanceStatus.fromStatus(instance.getInstance().getStatus()) != InstanceStatus.STOPPED) {
+                                    diskAttachedServerNames.add(serverName);
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+                if (instance.getAzureDisks() != null) {
+                    for (AzureDisk azureDisk : instance.getAzureDisks()) {
+                        if (componentNo.equals(azureDisk.getComponentNo())) {
+                            if (StringUtils.isNotEmpty(azureDisk.getInstanceName())) {
+                                if (InstanceStatus.fromStatus(instance.getInstance().getStatus()) != InstanceStatus.STOPPED) {
+                                    diskAttachedServerNames.add(serverName);
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+                if (instance.getNiftyVolumes() != null) {
+                    for (NiftyVolume niftyVolume : instance.getNiftyVolumes()) {
+                        if (componentNo.equals(niftyVolume.getComponentNo())) {
+                            if (StringUtils.isNotEmpty(niftyVolume.getInstanceId())) {
+                                diskAttachedServerNames.add(serverName);
+                            }
+                            break;
+                        }
+                    }
+                }
+                if (instance.getOpenstackVolumes() != null) {
+                    for (OpenstackVolume openstackVolume : instance.getOpenstackVolumes()) {
+                        if (componentNo.equals(openstackVolume.getComponentNo())) {
+                            if (StringUtils.isNotEmpty(openstackVolume.getInstanceId())) {
+                                diskAttachedServerNames.add(serverName);
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
         }
 
-        if (!moveList.isEmpty()) {
-            // ディスクがアタッチされたままのものを選択しなおす
-            serverSelect.select(moveList);
+        // ディスクがアタッチされたままのサーバの選択を解除した場合、選択しなおしてエラーを表示する
+        if (!diskAttachedServerNames.isEmpty()) {
+            basicTab.serverSelect.select(diskAttachedServerNames);
 
             // エラー表示
             String message = ViewMessages.getMessage("IUI-000096");
@@ -540,118 +612,98 @@ public class WinServiceEdit extends Window {
             getApplication().getMainWindow().addWindow(dialog);
             return;
         }
-
     }
 
     public class DetailTab extends VerticalLayout {
 
-        Form form = new Form();
+        private Form form = new Form();
 
-        TextField customParam1Feild;
+        private TextField customParam1Field;
 
-        TextField customParam2Feild;
+        private TextField customParam2Field;
 
-        TextField customParam3Feild;
+        private TextField customParam3Field;
 
-        DetailTab() {
+        @Override
+        public void attach() {
             setHeight(TAB_HEIGHT);
             setMargin(false, true, false, true);
             setSpacing(false);
 
             // カスタムパラメータ1
-            customParam1Feild = new TextField(ViewProperties.getCaption("field.customParam1"));
-            form.getLayout().addComponent(customParam1Feild);
-            customParam1Feild.setWidth("90%");
+            customParam1Field = new TextField(ViewProperties.getCaption("field.customParam1"));
+            customParam1Field.setWidth("90%");
+            form.getLayout().addComponent(customParam1Field);
 
             // カスタムパラメータ2
-            customParam2Feild = new TextField(ViewProperties.getCaption("field.customParam2"));
-            form.getLayout().addComponent(customParam2Feild);
-            customParam2Feild.setWidth("90%");
+            customParam2Field = new TextField(ViewProperties.getCaption("field.customParam2"));
+            customParam2Field.setWidth("90%");
+            form.getLayout().addComponent(customParam2Field);
 
             // カスタムパラメータ3
-            customParam3Feild = new TextField(ViewProperties.getCaption("field.customParam3"));
-            form.getLayout().addComponent(customParam3Feild);
-            customParam3Feild.setWidth("90%");
-
-            //活性or非活性
-            ComponentStatus status = ComponentStatus.fromStatus(component.getStatus());
-            if (ComponentStatus.STOPPED != status) {
-                //サービスステータスがStopped以外の場合は、カスタムパラメータ1～3は変更不可とする。
-                form.setEnabled(false);
-            }
+            customParam3Field = new TextField(ViewProperties.getCaption("field.customParam3"));
+            customParam3Field.setWidth("90%");
+            form.getLayout().addComponent(customParam3Field);
 
             form.setReadOnly(true);
             addComponent(form);
+
+            initValidation();
         }
 
-        private void showData() {
+        private void initValidation() {
+            String message = ViewMessages.getMessage("IUI-000113");
+            customParam1Field.addValidator(new StringLengthValidator(message, -1, 200, true));
+            customParam1Field.addValidator(new RegexpValidator("^[0-9a-zA-Z-,._ ]*$", true, message));
+
+            message = ViewMessages.getMessage("IUI-000114");
+            customParam2Field.addValidator(new StringLengthValidator(message, -1, 200, true));
+            customParam2Field.addValidator(new RegexpValidator("^[0-9a-zA-Z-,._ ]*$", true, message));
+
+            message = ViewMessages.getMessage("IUI-000115");
+            customParam3Field.addValidator(new StringLengthValidator(message, -1, 200, true));
+            customParam3Field.addValidator(new RegexpValidator("^[0-9a-zA-Z-,._ ]*$", true, message));
+        }
+
+        private void show(ComponentDto component) {
             // カスタムパラメータ1
-            String customParam1 = null;
-            for (ComponentConfig config : component.getComponentConfigs()) {
-                if (ComponentConstants.CONFIG_NAME_CUSTOM_PARAM_1.equals(config.getConfigName())) {
-                    customParam1 = config.getConfigValue();
-                    break;
-                }
-            }
-            if (customParam1 != null) {
-                customParam1Feild.setValue(customParam1);
+            ComponentConfig config1 = findComponentConfig(component, ComponentConstants.CONFIG_NAME_CUSTOM_PARAM_1);
+            if (config1 != null) {
+                customParam1Field.setValue(config1.getConfigValue());
             }
 
             // カスタムパラメータ2
-            String customParam2 = null;
-            for (ComponentConfig config : component.getComponentConfigs()) {
-                if (ComponentConstants.CONFIG_NAME_CUSTOM_PARAM_2.equals(config.getConfigName())) {
-                    customParam2 = config.getConfigValue();
-                    break;
-                }
-            }
-            if (customParam2 != null) {
-                customParam2Feild.setValue(customParam2);
+            ComponentConfig config2 = findComponentConfig(component, ComponentConstants.CONFIG_NAME_CUSTOM_PARAM_2);
+            if (config2 != null) {
+                customParam2Field.setValue(config2.getConfigValue());
             }
 
             // カスタムパラメータ3
-            String customParam3 = null;
+            ComponentConfig config3 = findComponentConfig(component, ComponentConstants.CONFIG_NAME_CUSTOM_PARAM_3);
+            if (config3 != null) {
+                customParam3Field.setValue(config3.getConfigValue());
+            }
+
+            // サービスが停止していない場合、変更できないようにする
+            ComponentStatus componentStatus = ComponentStatus.fromStatus(component.getStatus());
+            if (ComponentStatus.STOPPED != componentStatus) {
+                form.setEnabled(false);
+            }
+        }
+
+        private ComponentConfig findComponentConfig(ComponentDto component, String configName) {
             for (ComponentConfig config : component.getComponentConfigs()) {
-                if (ComponentConstants.CONFIG_NAME_CUSTOM_PARAM_3.equals(config.getConfigName())) {
-                    customParam3 = config.getConfigValue();
-                    break;
+                if (configName.equals(config.getConfigName())) {
+                    return config;
                 }
             }
-            if (customParam3 != null) {
-                customParam3Feild.setValue(customParam3);
-            }
+            return null;
         }
 
     }
 
-    private void initValidation() {
-        String message = ViewMessages.getMessage("IUI-000003");
-        basicTab.commentField.addValidator(new StringLengthValidator(message, -1, 100, true));
-
-        message = ViewMessages.getMessage("IUI-000032");
-        basicTab.diskSizeField.setRequired(true);
-        basicTab.diskSizeField.setRequiredError(message);
-        basicTab.diskSizeField.addValidator(new RegexpValidator("^[1-9]|[1-9][0-9]{1,2}|1000$", true, message));
-
-        message = ViewMessages.getMessage("IUI-000113");
-        detailTab.customParam1Feild.addValidator(new StringLengthValidator(message, -1, 200, true));
-        detailTab.customParam1Feild.addValidator(new RegexpValidator(
-                "^[0-9a-zA-Z-,._][0-9a-zA-Z-,._ ]*[0-9a-zA-Z-,._]$", true, message));
-
-        message = ViewMessages.getMessage("IUI-000114");
-        detailTab.customParam2Feild.addValidator(new StringLengthValidator(message, -1, 200, true));
-        detailTab.customParam2Feild.addValidator(new RegexpValidator(
-                "^[0-9a-zA-Z-,._][0-9a-zA-Z-,._ ]*[0-9a-zA-Z-,._]$", true, message));
-
-        message = ViewMessages.getMessage("IUI-000115");
-        detailTab.customParam3Feild.addValidator(new StringLengthValidator(message, -1, 200, true));
-        detailTab.customParam3Feild.addValidator(new RegexpValidator(
-                "^[0-9a-zA-Z-,._][0-9a-zA-Z-,._ ]*[0-9a-zA-Z-,._]$", true, message));
-    }
-
-    private void initData() {
+    private void loadData() {
         // サービス情報を取得
-        // TODO: ロジックを必ずリファクタリングすること！
         ComponentService componentService = BeanContext.getBean(ComponentService.class);
         List<ComponentDto> components = componentService.getComponents(ViewContext.getFarmNo());
         for (ComponentDto component : components) {
@@ -662,22 +714,90 @@ public class WinServiceEdit extends Window {
         }
 
         // 利用可能なサーバを取得
-        componentType = componentService.getComponentType(component.getComponent().getComponentNo());
+        ComponentTypeDto componentType = componentService.getComponentType(component.getComponent().getComponentNo());
+        availableInstanceNos = componentType.getInstanceNos();
 
         // サーバ情報を取得
         InstanceService instanceService = BeanContext.getBean(InstanceService.class);
         instances = instanceService.getInstances(ViewContext.getFarmNo());
     }
 
+    private void addButtonClick(ClickEvent event) {
+        WinServerAddSimple winServerAddSimple = new WinServerAddSimple(component.getComponentType());
+        winServerAddSimple.addListener(new CloseListener() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public void windowClose(CloseEvent e) {
+                // 作成したサーバ名を取得
+                List<String> addedServerNames = (List<String>) ContextUtils.getAttribute("serverNames");
+
+                if (addedServerNames != null) {
+                    ContextUtils.removeAttribute("serverNames");
+
+                    // 選択されているサーバ名を取得
+                    Collection<String> selectedServerNames = basicTab.serverSelect.getValue();
+
+                    // サーバ選択情報を再表示
+                    loadData();
+                    basicTab.serverSelect.show(component, instances, availableInstanceNos);
+
+                    // 元のサーバ名と作成したサーバ名を選択する
+                    List<String> serverNames = new ArrayList<String>(selectedServerNames);
+                    serverNames.addAll(addedServerNames);
+                    basicTab.serverSelect.setValue(serverNames);
+                }
+            }
+        });
+
+        getWindow().getApplication().getMainWindow().addWindow(winServerAddSimple);
+    }
+
     private void okButtonClick(ClickEvent event) {
         // 入力値を取得
         String comment = (String) basicTab.commentField.getValue();
         String diskSize = (String) basicTab.diskSizeField.getValue();
-        Collection<String> serverNames = (Collection<String>) basicTab.serverSelect.getValue();
+        Collection<String> serverNames = basicTab.serverSelect.getValue();
 
-        String customParam1 = (String) detailTab.customParam1Feild.getValue();
-        String customParam2 = (String) detailTab.customParam2Feild.getValue();
-        String customParam3 = (String) detailTab.customParam3Feild.getValue();
+        String customParam1 = null;
+        String customParam2 = null;
+        String customParam3 = null;
+        if (detailTab != null) {
+            customParam1 = (String) detailTab.customParam1Field.getValue();
+            customParam2 = (String) detailTab.customParam2Field.getValue();
+            customParam3 = (String) detailTab.customParam3Field.getValue();
+        }
+
+        // 入力チェック
+        try {
+            basicTab.commentField.validate();
+            basicTab.diskSizeField.validate();
+
+            if (detailTab != null) {
+                detailTab.customParam1Field.validate();
+                detailTab.customParam2Field.validate();
+                detailTab.customParam3Field.validate();
+            }
+        } catch (InvalidValueException e) {
+            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), e.getMessage());
+            getApplication().getMainWindow().addWindow(dialog);
+            return;
+        }
+
+        // オペレーションログ
+        AutoApplication aapl = (AutoApplication) getApplication();
+        aapl.doOpLog("SERVICE", "Edit Service", null, componentNo, null, null);
+
+        // サービスを更新
+        ComponentService componentService = BeanContext.getBean(ComponentService.class);
+        try {
+            componentService.updateComponent(componentNo, comment, Integer.valueOf(diskSize), customParam1,
+                    customParam2, customParam3);
+        } catch (AutoApplicationException e) {
+            String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
+            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
+            getApplication().getMainWindow().addWindow(dialog);
+            return;
+        }
 
         // 選択されたサーバのinstanceNoのリスト
         List<Long> instanceNos = new ArrayList<Long>();
@@ -691,36 +811,6 @@ public class WinServiceEdit extends Window {
                     instanceNos.add(instance.getInstance().getInstanceNo());
                 }
             }
-        }
-
-        // TODO: 入力チェック
-        try {
-            basicTab.commentField.validate();
-            basicTab.diskSizeField.validate();
-
-            detailTab.customParam1Feild.validate();
-            detailTab.customParam2Feild.validate();
-            detailTab.customParam3Feild.validate();
-        } catch (InvalidValueException e) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), e.getMessage());
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
-        }
-
-        //オペレーションログ
-        AutoApplication aapl = (AutoApplication) apl;
-        aapl.doOpLog("SERVICE", "Edit Service", null, componentNo, null, null);
-
-        // サービスを更新
-        ComponentService componentService = BeanContext.getBean(ComponentService.class);
-        try {
-            componentService.updateComponent(componentNo, comment, Integer.valueOf(diskSize), customParam1,
-                    customParam2, customParam3);
-        } catch (AutoApplicationException e) {
-            String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
         }
 
         // サービスにサーバを適用

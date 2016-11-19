@@ -318,7 +318,7 @@ public class ServiceTable extends Table {
         final ComponentDto dto = (ComponentDto) this.getValue();
         final int index = this.getCurrentPageFirstItemIndex();
 
-        WinServiceEdit winServiceEdit = new WinServiceEdit(getApplication(), dto.getComponent().getComponentNo());
+        WinServiceEdit winServiceEdit = new WinServiceEdit(dto.getComponent().getComponentNo());
         winServiceEdit.addListener(new Window.CloseListener() {
             @Override
             public void windowClose(CloseEvent e) {
