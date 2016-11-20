@@ -222,7 +222,7 @@ public class LoadBalancerTableOperation extends CssLayout {
         // ロードバランサ追加処理
         final LoadBalancerDto dto = (LoadBalancerDto) myCloudTabs.loadBalancerTable.getValue();
 
-        WinLoadBalancerAdd winLoadBalancerAdd = new WinLoadBalancerAdd(getApplication());
+        WinLoadBalancerAdd winLoadBalancerAdd = new WinLoadBalancerAdd();
         winLoadBalancerAdd.addListener(new Window.CloseListener() {
             @Override
             public void windowClose(CloseEvent e) {

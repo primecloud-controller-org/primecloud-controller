@@ -39,7 +39,6 @@ import jp.primecloud.auto.ui.util.ViewProperties;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
-import com.vaadin.Application;
 import com.vaadin.data.Property;
 import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.validator.RegexpValidator;
@@ -65,28 +64,17 @@ import com.vaadin.ui.Window;
 @SuppressWarnings("serial")
 public class WinLoadBalancerAdd extends Window {
 
-    final String COLUMN_HEIGHT = "30px";
+    private final String COLUMN_HEIGHT = "30px";
 
-    Application apl;
+    private BasicForm basicForm;
 
-    TextField loadBalancerNameField;
+    private List<LoadBalancerPlatformDto> platforms;
 
-    TextField commentField;
+    private List<ComponentDto> components;
 
-    SelectCloudTable cloudTable;
-
-    SelectTypeTable typeTable;
-
-    SelectServiceTable serviceTable;
-
-    List<LoadBalancerPlatformDto> platforms;
-
-    List<ComponentDto> componentDtos;
-
-    WinLoadBalancerAdd(Application ap) {
-        apl = ap;
-
-        //モーダルウインドウ
+    @Override
+    public void attach() {
+        // モーダルウインドウ
         setIcon(Icons.ADD.resource());
         setCaption(ViewProperties.getCaption("window.winLoadBalancerAdd"));
         setModal(true);
@@ -98,32 +86,31 @@ public class WinLoadBalancerAdd extends Window {
         layout.setSpacing(false);
 
         // フォーム
-        layout.addComponent(new BasicForm());
+        basicForm = new BasicForm();
+        layout.addComponent(basicForm);
 
         // 下部のバー
-        HorizontalLayout okbar = new HorizontalLayout();
-        okbar.setSpacing(true);
-        okbar.setMargin(false, false, true, false);
-        layout.addComponent(okbar);
-        layout.setComponentAlignment(okbar, Alignment.BOTTOM_RIGHT);
+        HorizontalLayout buttomLayout = new HorizontalLayout();
+        buttomLayout.setSpacing(true);
+        buttomLayout.setMargin(false, false, true, false);
+        layout.addComponent(buttomLayout);
+        layout.setComponentAlignment(buttomLayout, Alignment.BOTTOM_RIGHT);
 
         // AddButtonボタン
         Button addButton = new Button();
         addButton.setCaption(ViewProperties.getCaption("button.add"));
         addButton.setDescription(ViewProperties.getCaption("description.addLoadBalancer"));
-
         addButton.addListener(new Button.ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
                 addButtonClick(event);
             }
         });
-        // [Enter]でaddButtonクリック
-        addButton.setClickShortcut(KeyCode.ENTER);
+        addButton.setClickShortcut(KeyCode.ENTER); // [Enter]でaddButtonクリック
         addButton.focus();
-        okbar.addComponent(addButton);
+        buttomLayout.addComponent(addButton);
 
-        // Cancel
+        // Cancelボタン
         Button cancelButton = new Button(ViewProperties.getCaption("button.cancel"));
         cancelButton.setDescription(ViewProperties.getCaption("description.cancel"));
         cancelButton.addListener(new Button.ClickListener() {
@@ -132,21 +119,30 @@ public class WinLoadBalancerAdd extends Window {
                 close();
             }
         });
-        okbar.addComponent(cancelButton);
+        buttomLayout.addComponent(cancelButton);
 
-        // 入力チェックの設定
-        initValidation();
-
-        // 初期データの取得
-        initData();
-
-        // データの表示
-        showData();
+        // プラットフォーム情報の表示
+        loadData();
+        basicForm.cloudTable.show(platforms);
+        basicForm.cloudTable.selectFirst();
+        basicForm.serviceTable.show(components);
+        basicForm.serviceTable.selectFirst();
     }
 
     private class BasicForm extends Form {
 
-        BasicForm() {
+        private TextField loadBalancerNameField;
+
+        private TextField commentField;
+
+        private SelectCloudTable cloudTable;
+
+        private SelectTypeTable typeTable;
+
+        private SelectServiceTable serviceTable;
+
+        @Override
+        public void attach() {
             // LB名
             loadBalancerNameField = new TextField(ViewProperties.getCaption("field.loadBalancerName"));
             getLayout().addComponent(loadBalancerNameField);
@@ -159,6 +155,12 @@ public class WinLoadBalancerAdd extends Window {
             // クラウド選択
             cloudTable = new SelectCloudTable();
             getLayout().addComponent(cloudTable);
+            cloudTable.addListener(new Property.ValueChangeListener() {
+                @Override
+                public void valueChange(Property.ValueChangeEvent event) {
+                    cloudTableSelect(event);
+                }
+            });
 
             // LB種別選択
             typeTable = new SelectTypeTable();
@@ -167,14 +169,42 @@ public class WinLoadBalancerAdd extends Window {
             // 割り当てサービス選択
             serviceTable = new SelectServiceTable();
             getLayout().addComponent(serviceTable);
+
+            initValidation();
+        }
+
+        private void initValidation() {
+            String message = ViewMessages.getMessage("IUI-000055");
+            loadBalancerNameField.setRequired(true);
+            loadBalancerNameField.setRequiredError(message);
+            loadBalancerNameField.addValidator(new StringLengthValidator(message, 1, 15, false));
+            loadBalancerNameField.addValidator(new RegexpValidator("^[0-9a-z]|[0-9a-z][0-9a-z-]*[0-9a-z]$", true,
+                    message));
+
+            message = ViewMessages.getMessage("IUI-000003");
+            commentField.addValidator(new StringLengthValidator(message, -1, 100, true));
+        }
+
+        private void cloudTableSelect(Property.ValueChangeEvent event) {
+            // 選択がない場合はロードバランサ種別情報をクリア
+            if (cloudTable.getValue() == null) {
+                typeTable.removeAllItems();
+                return;
+            }
+
+            // ロードバランサ種別情報を表示
+            LoadBalancerPlatformDto platform = findPlatform(cloudTable.getValue());
+            typeTable.show(platform.getTypes());
+            typeTable.selectFirst();
         }
 
     }
 
     private class SelectCloudTable extends Table {
 
-        SelectCloudTable() {
-            //テーブル基本設定
+        @Override
+        public void attach() {
+            // テーブル基本設定
             setCaption(ViewProperties.getCaption("table.selectCloud"));
             setWidth("340px");
             setPageLength(3);
@@ -188,32 +218,52 @@ public class WinLoadBalancerAdd extends Window {
             setImmediate(true);
             addStyleName("loadbalancer-add-table");
 
-            //カラム設定
+            // カラム設定
             addContainerProperty("No", Integer.class, null);
             addContainerProperty("Cloud", Label.class, new Label());
             setColumnExpandRatio("Cloud", 100);
-
-            //テーブルのカラムに対してStyleNameを設定
             setCellStyleGenerator(new StandardCellStyleGenerator());
+        }
 
-            // 行が選択されたときのイベント
-            addListener(new Property.ValueChangeListener() {
-                @Override
-                public void valueChange(Property.ValueChangeEvent event) {
-                    Long platformNo = (Long) getValue();
+        public void show(List<LoadBalancerPlatformDto> platforms) {
+            removeAllItems();
 
-                    // ロードバランサーTypeを表示する
-                    showTypes(platformNo);
-                }
-            });
+            if (platforms == null) {
+                return;
+            }
+
+            for (int i = 0; i < platforms.size(); i++) {
+                LoadBalancerPlatformDto platformDto = platforms.get(i);
+
+                // プラットフォーム名
+                Icons icon = IconUtils.getPlatformIcon(platformDto);
+                String description = platformDto.getPlatform().getPlatformNameDisp();
+                Label slbl = new Label(IconUtils.createImageTag(getApplication(), icon, description),
+                        Label.CONTENT_XHTML);
+                slbl.setHeight(COLUMN_HEIGHT);
+
+                addItem(new Object[] { (i + 1), slbl }, platformDto.getPlatform().getPlatformNo());
+            }
+        }
+
+        @Override
+        public Long getValue() {
+            return (Long) super.getValue();
+        }
+
+        public void selectFirst() {
+            if (size() > 0) {
+                select(firstItemId());
+            }
         }
 
     }
 
     private class SelectTypeTable extends Table {
 
-        SelectTypeTable() {
-            //テーブル基本設定
+        @Override
+        public void attach() {
+            // テーブル基本設定
             setCaption(ViewProperties.getCaption("table.loadBalancerType"));
             setWidth("340px");
             setPageLength(2);
@@ -227,22 +277,52 @@ public class WinLoadBalancerAdd extends Window {
             setImmediate(true);
             addStyleName("loadbalancer-add-table");
 
-            //カラム設定
+            // カラム設定
             addContainerProperty("No", Integer.class, null);
             addContainerProperty("Detail", Label.class, new Label());
             setColumnExpandRatio("Detail", 100);
-
-            //テーブルのカラムに対してStyleNameを設定
             setCellStyleGenerator(new StandardCellStyleGenerator());
+        }
+
+        public void show(List<String> types) {
+            removeAllItems();
+
+            if (types == null) {
+                return;
+            }
+
+            for (int i = 0; i < types.size(); i++) {
+                String type = types.get(i);
+
+                // ロードバランサ種別
+                Icons typeIcon = Icons.NONE;
+                String typeString = ViewProperties.getLoadBalancerType(type);
+                Label nlbl = new Label(IconUtils.createImageTag(getApplication(), typeIcon, typeString),
+                        Label.CONTENT_XHTML);
+                nlbl.setHeight(COLUMN_HEIGHT);
+
+                addItem(new Object[] { (i + 1), nlbl }, type);
+            }
+        }
+
+        @Override
+        public String getValue() {
+            return (String) super.getValue();
+        }
+
+        public void selectFirst() {
+            if (size() > 0) {
+                select(firstItemId());
+            }
         }
 
     }
 
-    //サービス選択テーブル
     private class SelectServiceTable extends Table {
 
-        SelectServiceTable() {
-            //テーブル基本設定
+        @Override
+        public void attach() {
+            // テーブル基本設定
             setCaption(ViewProperties.getCaption("table.loadBalancerService"));
             setWidth("98%");
             setPageLength(4);
@@ -256,26 +336,68 @@ public class WinLoadBalancerAdd extends Window {
             setImmediate(true);
             addStyleName("loadbalancer-select-service");
 
-            //カラム設定
+            // カラム設定
             addContainerProperty("Name", Label.class, new Label());
             addContainerProperty("Detail", Label.class, new Label());
             setColumnExpandRatio("Detail", 100);
-
-            //テーブルのカラムに対してStyleNameを設定
             setCellStyleGenerator(new StandardCellStyleGenerator());
+        }
+
+        public void show(List<ComponentDto> components) {
+            removeAllItems();
+
+            if (components == null) {
+                return;
+            }
+
+            for (int i = 0; i < components.size(); i++) {
+                ComponentDto componentDto = components.get(i);
+
+                // サービス名
+                String serviceName = componentDto.getComponent().getComponentName();
+                if (StringUtils.isNotEmpty(componentDto.getComponent().getComment())) {
+                    serviceName = componentDto.getComponent().getComment() + "\n[" + serviceName + "]";
+                }
+                Label nameLabel = new Label(serviceName, Label.CONTENT_PREFORMATTED);
+
+                // サービス種類
+                ComponentType componentType = componentDto.getComponentType();
+                String typeName = componentType.getComponentTypeNameDisp();
+                Icons typeIcon = Icons.fromName(componentType.getComponentTypeName());
+                Label typeLabel = new Label(IconUtils.createImageTag(getApplication(), typeIcon, typeName),
+                        Label.CONTENT_XHTML);
+                typeLabel.setHeight(COLUMN_HEIGHT);
+
+                addItem(new Object[] { nameLabel, typeLabel }, componentDto.getComponent().getComponentNo());
+            }
+        }
+
+        @Override
+        public Long getValue() {
+            return (Long) super.getValue();
+        }
+
+        public void selectFirst() {
+            if (size() > 0) {
+                select(firstItemId());
+            }
         }
 
     }
 
-    private void initData() {
-        Long userNo = ViewContext.getUserNo();
-        Long farmNo = ViewContext.getFarmNo();
-
-        // クラウド情報を取得
+    private void loadData() {
+        // プラットフォーム情報を取得
         LoadBalancerService loadBalancerService = BeanContext.getBean(LoadBalancerService.class);
-        platforms = loadBalancerService.getPlatforms(userNo);
+        platforms = loadBalancerService.getPlatforms(ViewContext.getUserNo());
 
-        // クラウド情報をソート
+        // 有効でないプラットフォーム情報を除外
+        for (int i = platforms.size() - 1; i >= 0; i--) {
+            if (BooleanUtils.isNotTrue(platforms.get(i).getPlatform().getSelectable())) {
+                platforms.remove(i);
+            }
+        }
+
+        // プラットフォーム情報をソート
         Collections.sort(platforms, new Comparator<LoadBalancerPlatformDto>() {
             @Override
             public int compare(LoadBalancerPlatformDto o1, LoadBalancerPlatformDto o2) {
@@ -289,152 +411,34 @@ public class WinLoadBalancerAdd extends Window {
 
         // サービス情報を取得
         ComponentService componentService = BeanContext.getBean(ComponentService.class);
-        componentDtos = componentService.getComponents(farmNo);
+        components = componentService.getComponents(ViewContext.getFarmNo());
     }
 
-    private void initValidation() {
-        String message = ViewMessages.getMessage("IUI-000055");
-        loadBalancerNameField.setRequired(true);
-        loadBalancerNameField.setRequiredError(message);
-        loadBalancerNameField.addValidator(new StringLengthValidator(message, 1, 15, false));
-        loadBalancerNameField.addValidator(new RegexpValidator("^[0-9a-z]|[0-9a-z][0-9a-z-]*[0-9a-z]$", true, message));
-
-        message = ViewMessages.getMessage("IUI-000003");
-        commentField.addValidator(new StringLengthValidator(message, -1, 100, true));
-    }
-
-    private void showData() {
-        // クラウドテーブルを表示
-        showClouds();
-
-        // 割り当てサービステーブルを表示
-        showServices();
-    }
-
-    private void showClouds() {
-        cloudTable.removeAllItems();
-
-        // クラウド情報をテーブルに追加
-        for (int i = 0; i < platforms.size(); i++) {
-            LoadBalancerPlatformDto platformDto = platforms.get(i);
-
-            if (BooleanUtils.isNotTrue(platformDto.getPlatform().getSelectable())) {
-                //使用不可プラットフォームの場合、非表示
-                continue;
-            }
-
-            //プラットフォームアイコン名の取得
-            Icons icon = IconUtils.getPlatformIcon(platformDto);
-            String description = platformDto.getPlatform().getPlatformNameDisp();
-            Label slbl = new Label(IconUtils.createImageTag(apl, icon, description), Label.CONTENT_XHTML);
-            slbl.setHeight(COLUMN_HEIGHT);
-
-            cloudTable.addItem(new Object[] { (i + 1), slbl }, platformDto.getPlatform().getPlatformNo());
-        }
-
-        Long platformNo = null;
-        if (cloudTable.getItemIds().size() > 0) {
-            platformNo = (Long) cloudTable.getItemIds().toArray()[0];
-        }
-
-        // 先頭のクラウド情報を選択する
-        cloudTable.select(platformNo);
-    }
-
-    private void showTypes(Long platformNo) {
-        typeTable.removeAllItems();
-        if (platformNo == null) {
-            return;
-        }
-
-        // 選択されたクラウドで利用可能なロードバランサ種別情報を取得
-        List<String> types = null;
+    private LoadBalancerPlatformDto findPlatform(Long platformNo) {
         for (LoadBalancerPlatformDto platform : platforms) {
             if (platformNo.equals(platform.getPlatform().getPlatformNo())) {
-                types = platform.getTypes();
-                break;
+                return platform;
             }
         }
-
-        // ロードバランサ種別情報がない場合
-        if (types == null) {
-            return;
-        }
-
-        // ロードバランサ種別情報をテーブルに追加
-        int n = 0;
-        for (String type : types) {
-            // ロードバランサ種別名
-            Icons typeIcon = Icons.NONE;
-            String typeString = ViewProperties.getLoadBalancerType(type);
-            Label nlbl = new Label(IconUtils.createImageTag(apl, typeIcon, typeString), Label.CONTENT_XHTML);
-            nlbl.setHeight(COLUMN_HEIGHT);
-
-            n++;
-            typeTable.addItem(new Object[] { n, nlbl }, type);
-        }
-
-        String type = null;
-        if (types.size() > 0) {
-            type = types.get(0);
-        }
-
-        // 先頭のロードバランサ種別を選択する
-        typeTable.select(type);
-    }
-
-    private void showServices() {
-        serviceTable.removeAllItems();
-
-        // 割り当てサービス情報をテーブルに追加
-        for (int i = 0; i < componentDtos.size(); i++) {
-            ComponentDto componentDto = componentDtos.get(i);
-
-            // サービス名
-            String name;
-            if (StringUtils.isEmpty(componentDto.getComponent().getComment())) {
-                name = componentDto.getComponent().getComponentName();
-            } else {
-                name = componentDto.getComponent().getComment() + "\n["
-                        + componentDto.getComponent().getComponentName() + "]";
-            }
-            Label nameLabel = new Label(name, Label.CONTENT_PREFORMATTED);
-
-            // サービス種類
-            ComponentType componentType = componentDto.getComponentType();
-            String typeName = componentType.getComponentTypeNameDisp();
-            Icons typeIcon = Icons.fromName(componentType.getComponentTypeName());
-            Label typeLabel = new Label(IconUtils.createImageTag(apl, typeIcon, typeName), Label.CONTENT_XHTML);
-            typeLabel.setHeight(COLUMN_HEIGHT);
-
-            serviceTable.addItem(new Object[] { nameLabel, typeLabel }, componentDto.getComponent().getComponentNo());
-        }
-
-        Long componentNo = null;
-        if (componentDtos.size() > 0) {
-            componentNo = componentDtos.get(0).getComponent().getComponentNo();
-        }
-
-        // 先頭のサービス情報を選択する
-        serviceTable.select(componentNo);
+        return null;
     }
 
     private void addButtonClick(ClickEvent event) {
         // 入力値を取得
-        String loadBalancerName = (String) loadBalancerNameField.getValue();
-        String comment = (String) commentField.getValue();
-        Long platformNo = (Long) cloudTable.getValue();
-        String type = (String) typeTable.getValue();
-        Long componentNo = (Long) serviceTable.getValue();
+        String loadBalancerName = (String) basicForm.loadBalancerNameField.getValue();
+        String comment = (String) basicForm.commentField.getValue();
+        Long platformNo = basicForm.cloudTable.getValue();
+        String type = basicForm.typeTable.getValue();
+        Long componentNo = basicForm.serviceTable.getValue();
 
-        // TODO: 入力チェック
+        // 入力チェック
         try {
-            loadBalancerNameField.validate();
-            commentField.validate();
+            basicForm.loadBalancerNameField.validate();
+            basicForm.commentField.validate();
         } catch (InvalidValueException e) {
             String errMes = e.getMessage();
             if (null == errMes) {
-                //メッセージが取得できない場合は複合エラー 先頭を表示する
+                // メッセージが取得できない場合は複合エラー 先頭を表示する
                 InvalidValueException[] exceptions = e.getCauses();
                 errMes = exceptions[0].getMessage();
             }
@@ -468,48 +472,35 @@ public class WinLoadBalancerAdd extends Window {
             return;
         }
 
-        // クラウド番号
+        // ロードバランサを作成
+        LoadBalancerService loadBalancerService = BeanContext.getBean(LoadBalancerService.class);
         Long farmNo = ViewContext.getFarmNo();
         Long loadBalancerNo = null;
-        LoadBalancerService loadBalancerService = BeanContext.getBean(LoadBalancerService.class);
-
-        if (PCCConstant.LOAD_BALANCER_ELB.equals(type)) {
+        try {
             // AWSロードバランサを作成
-            try {
+            if (PCCConstant.LOAD_BALANCER_ELB.equals(type)) {
                 loadBalancerNo = loadBalancerService.createAwsLoadBalancer(farmNo, loadBalancerName, comment,
                         platformNo, componentNo, false);
-            } catch (AutoApplicationException e) {
-                String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-                getApplication().getMainWindow().addWindow(dialog);
-                return;
             }
-        } else if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(type)) {
             // UltraMonkeyロードバランサを作成
-            try {
+            else if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(type)) {
                 loadBalancerNo = loadBalancerService.createUltraMonkeyLoadBalancer(farmNo, loadBalancerName, comment,
                         platformNo, componentNo);
-            } catch (AutoApplicationException e) {
-                String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-                getApplication().getMainWindow().addWindow(dialog);
-                return;
             }
-        } else if (PCCConstant.LOAD_BALANCER_CLOUDSTACK.equals(type)) {
-            // cloudstackロードバランサを作成
-            try {
+            // CloudStackロードバランサを作成
+            else if (PCCConstant.LOAD_BALANCER_CLOUDSTACK.equals(type)) {
                 loadBalancerNo = loadBalancerService.createCloudstackLoadBalancer(farmNo, loadBalancerName, comment,
                         platformNo, componentNo);
-            } catch (AutoApplicationException e) {
-                String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-                getApplication().getMainWindow().addWindow(dialog);
-                return;
             }
+        } catch (AutoApplicationException e) {
+            String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
+            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
+            getApplication().getMainWindow().addWindow(dialog);
+            return;
         }
 
-        //オペレーションログ
-        AutoApplication aapl = (AutoApplication) apl;
+        // オペレーションログ
+        AutoApplication aapl = (AutoApplication) getApplication();
         aapl.doOpLog("LOAD_BALANCER", "Make Load_Balancer", null, null, loadBalancerNo, null);
 
         // 画面を閉じる

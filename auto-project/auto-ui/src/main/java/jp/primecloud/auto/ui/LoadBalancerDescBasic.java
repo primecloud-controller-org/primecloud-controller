@@ -517,8 +517,8 @@ public class LoadBalancerDescBasic extends Panel {
             LoadBalancerListener listener = (LoadBalancerListener) event.getButton().getData();
             final LoadBalancerDto dto = basicInfo.loadBalancerDto;
 
-            WinLoadBalancerConfigListener win = new WinLoadBalancerConfigListener(getApplication(),
-                    listener.getLoadBalancerNo(), listener.getLoadBalancerPort());
+            WinLoadBalancerConfigListener win = new WinLoadBalancerConfigListener(listener.getLoadBalancerNo(),
+                    listener.getLoadBalancerPort());
             win.addListener(new Window.CloseListener() {
                 @Override
                 public void windowClose(Window.CloseEvent e) {
@@ -660,8 +660,8 @@ public class LoadBalancerDescBasic extends Panel {
         public void addButtonClick(Button.ClickEvent event) {
             final LoadBalancerDto dto = basicInfo.loadBalancerDto;
 
-            WinLoadBalancerConfigListener win = new WinLoadBalancerConfigListener(getApplication(), dto
-                    .getLoadBalancer().getLoadBalancerNo(), null);
+            WinLoadBalancerConfigListener win = new WinLoadBalancerConfigListener(dto.getLoadBalancer()
+                    .getLoadBalancerNo(), null);
             win.addListener(new Window.CloseListener() {
                 @Override
                 public void windowClose(Window.CloseEvent e) {

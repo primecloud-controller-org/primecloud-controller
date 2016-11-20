@@ -36,11 +36,9 @@ import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
 import jp.primecloud.auto.ui.validator.IntegerRangeValidator;
 
-import com.vaadin.Application;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Validator.InvalidValueException;
-import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.Alignment;
@@ -65,34 +63,30 @@ import com.vaadin.ui.Window;
 @SuppressWarnings("serial")
 public class WinLoadBalancerConfigListener extends Window {
 
-    final String TEXT_WIDTH = "120px";
+    private final String TEXT_WIDTH = "120px";
 
-    final String PROTOCOL_CAPTION_ID = "ProtocolName";
+    private final String SSLKEY_CAPTION_ID = "SSLKeyName";
 
-    final String SSLKEY_CAPTION_ID = "SSLKeyName";
+    private Long loadBalancerNo;
 
-    Application apl;
+    private Integer loadBalancerPort;
 
-    Long loadBalancerNo;
+    private BasicForm basicForm;
 
-    Integer loadBalancerPort;
+    private LoadBalancerDto loadBalancer;
 
-    String loadBalancerType;
+    private ComponentDto component;
 
-    BasicForm basicForm;
+    private List<SslKeyDto> sslKeys;
 
-    LoadBalancerDto loadBalancerDto;
-
-    ComponentDto componentDto;
-
-    List<SslKeyDto> keyList;
-
-    WinLoadBalancerConfigListener(Application ap, Long loadBalancerNo, Integer loadBalancerPort) {
-        apl = ap;
+    public WinLoadBalancerConfigListener(Long loadBalancerNo, Integer loadBalancerPort) {
         this.loadBalancerNo = loadBalancerNo;
         this.loadBalancerPort = loadBalancerPort;
+    }
 
-        //モーダルウインドウ
+    @Override
+    public void attach() {
+        // モーダルウインドウ
         setModal(true);
         setWidth("480px");
         //setHeight("500px");
@@ -113,11 +107,11 @@ public class WinLoadBalancerConfigListener extends Window {
         layout.addComponent(basicForm);
 
         // 下部のバー
-        HorizontalLayout okbar = new HorizontalLayout();
-        okbar.setSpacing(true);
-        okbar.setMargin(false, true, true, false);
-        layout.addComponent(okbar);
-        layout.setComponentAlignment(okbar, Alignment.BOTTOM_RIGHT);
+        HorizontalLayout bottomLayout = new HorizontalLayout();
+        bottomLayout.setSpacing(true);
+        bottomLayout.setMargin(false, true, true, false);
+        layout.addComponent(bottomLayout);
+        layout.setComponentAlignment(bottomLayout, Alignment.BOTTOM_RIGHT);
 
         // Addボタン
         Button addButton = new Button();
@@ -128,17 +122,15 @@ public class WinLoadBalancerConfigListener extends Window {
             addButton.setCaption(ViewProperties.getCaption("button.ok"));
             addButton.setDescription(ViewProperties.getCaption("description.editLoadBalancerListener"));
         }
-
         addButton.addListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent event) {
                 addButtonClick(event);
             }
         });
-        okbar.addComponent(addButton);
-        // [Enter]でaddButtonクリック
-        addButton.setClickShortcut(KeyCode.ENTER);
+        addButton.setClickShortcut(KeyCode.ENTER); // [Enter]でaddButtonクリック
         addButton.focus();
+        bottomLayout.addComponent(addButton);
 
         // Cancelボタン
         Button cancelButton = new Button(ViewProperties.getCaption("button.cancel"));
@@ -149,48 +141,44 @@ public class WinLoadBalancerConfigListener extends Window {
                 close();
             }
         });
-        okbar.addComponent(cancelButton);
+        bottomLayout.addComponent(cancelButton);
 
-        // 初期データの取得
-        initData();
-
-        // 入力チェックの設定
-        initValidation();
-
-        // データの表示
-        showData();
+        // ロードバランサ情報の表示
+        loadData();
+        basicForm.show(loadBalancer, loadBalancerPort, component, sslKeys);
     }
 
     private class BasicForm extends Form {
 
-        Form mainForm;
+        private Form subForm;
 
-        Form subForm;
+        private TextField nameField;
 
-        TextField nameField;
+        private TextField serviceField;
 
-        TextField serviceField;
+        private TextField loadBalancerPortField;
 
-        TextField loadBalancerPortField;
+        private TextField servicePortField;
 
-        TextField servicePortField;
+        private ComboBox protocolSelect;
 
-        ComboBox protocolSelect;
+        private ComboBox sslKeySelect;
 
-        ComboBox sslKeySelect;
-
-        BasicForm() {
+        @Override
+        public void attach() {
             // メインフォーム
-            mainForm = new Form();
+            Form mainForm = new Form();
             Layout mainLayout = mainForm.getLayout();
             addComponent(mainForm);
 
             // ロードバランサ名
             nameField = new TextField(ViewProperties.getCaption("field.loadBalancerName"));
+            nameField.setReadOnly(true);
             mainLayout.addComponent(nameField);
 
             // サービス名
             serviceField = new TextField(ViewProperties.getCaption("field.loadBalancerService"));
+            serviceField.setReadOnly(true);
             mainLayout.addComponent(serviceField);
 
             // ロードバランサ設定パネル
@@ -224,22 +212,24 @@ public class WinLoadBalancerConfigListener extends Window {
             protocolSelect.addListener(new Property.ValueChangeListener() {
                 @Override
                 public void valueChange(Property.ValueChangeEvent event) {
-                    changeCheckEnabled(event);
+                    protocolValueChange(event);
                 }
             });
 
             // SSLキー
             sslKeySelect = new ComboBox(ViewProperties.getCaption("field.loadBalancerSSLKey"));
             sslKeySelect.setWidth(TEXT_WIDTH);
+            sslKeySelect.addContainerProperty(SSLKEY_CAPTION_ID, String.class, null);
+            sslKeySelect.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
+            sslKeySelect.setItemCaptionPropertyId(SSLKEY_CAPTION_ID);
             sublayout.addComponent(sslKeySelect);
+
+            initValidation();
         }
 
         private void initValidation() {
-            // 入力チェック
-            String message;
-
             // ロードバランサポート
-            message = ViewMessages.getMessage("IUI-000066");
+            String message = ViewMessages.getMessage("IUI-000066");
             loadBalancerPortField.setRequired(true);
             loadBalancerPortField.setRequiredError(message);
             loadBalancerPortField.addValidator(new IntegerRangeValidator(1, 65535, message));
@@ -261,58 +251,75 @@ public class WinLoadBalancerConfigListener extends Window {
             sslKeySelect.setRequiredError(message);
         }
 
-        private void showData() {
+        public void show(LoadBalancerDto loadBalancer, Integer loadBalancerPort, ComponentDto component,
+                List<SslKeyDto> sslKeys) {
             // ロードバランサ名
-            nameField.setValue(loadBalancerDto.getLoadBalancer().getLoadBalancerName());
+            nameField.setReadOnly(false);
+            nameField.setValue(loadBalancer.getLoadBalancer().getLoadBalancerName());
             nameField.setReadOnly(true);
 
             // サービス名
-            serviceField.setValue(componentDto.getComponent().getComponentName());
+            serviceField.setReadOnly(false);
+            serviceField.setValue(component.getComponent().getComponentName());
             serviceField.setReadOnly(true);
 
             // プロトコル
-            IndexedContainer protocols = getProtocolList();
-            protocolSelect.setContainerDataSource(protocols);
-            protocolSelect.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
-            protocolSelect.setItemCaptionPropertyId(PROTOCOL_CAPTION_ID);
+            protocolSelect.addItem("HTTP");
+            protocolSelect.addItem("TCP");
+            if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancer.getLoadBalancer().getType())) {
+                protocolSelect.addItem("HTTPS");
+                protocolSelect.addItem("SSL");
+            }
 
             // SSLキー
-            IndexedContainer keys = getKeyList();
-            sslKeySelect.setContainerDataSource(keys);
-            sslKeySelect.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
-            sslKeySelect.setItemCaptionPropertyId(SSLKEY_CAPTION_ID);
+            for (SslKeyDto sslKey : sslKeys) {
+                Item item = sslKeySelect.addItem(sslKey.getKeyNo());
+                item.getItemProperty(SSLKEY_CAPTION_ID).setValue(sslKey.getKeyName());
+            }
 
             // 追加時
-            if (isAddMode()) {
+            if (loadBalancerPort == null) {
                 // 振り分けサービスに応じたデフォルト値を設定する
-                String loadBalancerPort = "";
-                String servicePort = "";
-                String protocol = "";
-                ComponentType componentType = componentDto.getComponentType();
+                // TODO: デフォルト値を外部化する
+                Integer servicePort = null;
+                String protocol = null;
+
+                ComponentType componentType = component.getComponentType();
                 if ("apache".equals(componentType.getComponentTypeName())) {
-                    loadBalancerPort = "80";
-                    servicePort = "80";
+                    loadBalancerPort = 80;
+                    servicePort = 80;
                     protocol = "HTTP";
                 } else if ("tomcat".equals(componentType.getComponentTypeName())
                         || "geronimo".equals(componentType.getComponentTypeName())) {
-                    loadBalancerPort = "8080";
-                    servicePort = "8080";
+                    loadBalancerPort = 8080;
+                    servicePort = 8080;
                     protocol = "HTTP";
                 } else if ("mysql".equals(componentType.getComponentTypeName())) {
-                    loadBalancerPort = "3306";
-                    servicePort = "3306";
+                    loadBalancerPort = 3306;
+                    servicePort = 3306;
                     protocol = "TCP";
                 }
 
-                loadBalancerPortField.setValue(loadBalancerPort);
-                servicePortField.setValue(servicePort);
-                protocolSelect.select(protocol);
+                // ロードバランサポート
+                if (loadBalancerPort != null) {
+                    loadBalancerPortField.setValue(loadBalancerPort.toString());
+                }
+
+                // サービスポート
+                if (servicePort != null) {
+                    servicePortField.setValue(servicePort.toString());
+                }
+
+                // プロトコル
+                if (protocol != null) {
+                    protocolSelect.select(protocol);
+                }
             }
             // 編集時
             else {
                 // リスナーを取得
                 LoadBalancerListener listener = null;
-                for (LoadBalancerListener tmpListener : loadBalancerDto.getLoadBalancerListeners()) {
+                for (LoadBalancerListener tmpListener : loadBalancer.getLoadBalancerListeners()) {
                     if (loadBalancerPort.equals(tmpListener.getLoadBalancerPort())) {
                         listener = tmpListener;
                         break;
@@ -336,53 +343,14 @@ public class WinLoadBalancerConfigListener extends Window {
 
                 // SSLKey
                 if (listener.getSslKeyNo() != null) {
-                    for (SslKeyDto key : keyList) {
-                        if (listener.getSslKeyNo().equals(key.getKeyNo())) {
-                            sslKeySelect.select(key);
-                        }
-                    }
+                    sslKeySelect.select(listener.getSslKeyNo());
                 }
             }
         }
 
-        private IndexedContainer getProtocolList() {
-            // TODO: ロードバランサの種別によって対応プロトコルを設定
-            IndexedContainer container = new IndexedContainer();
-            container.addContainerProperty(PROTOCOL_CAPTION_ID, String.class, null);
-
-            Item item = container.addItem("HTTP");
-            item.getItemProperty(PROTOCOL_CAPTION_ID).setValue("HTTP");
-
-            item = container.addItem("TCP");
-            item.getItemProperty(PROTOCOL_CAPTION_ID).setValue("TCP");
-
-            if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancerType)) {
-                item = container.addItem("HTTPS");
-                item.getItemProperty(PROTOCOL_CAPTION_ID).setValue("HTTPS");
-
-                item = container.addItem("SSL");
-                item.getItemProperty(PROTOCOL_CAPTION_ID).setValue("SSL");
-            }
-
-            return container;
-        }
-
-        private IndexedContainer getKeyList() {
-            IndexedContainer container = new IndexedContainer();
-            container.addContainerProperty(SSLKEY_CAPTION_ID, String.class, null);
-
-            for (SslKeyDto key : keyList) {
-                Item item = container.addItem(key);
-                item.getItemProperty(SSLKEY_CAPTION_ID).setValue(key.getKeyName());
-            }
-
-            return container;
-        }
-
-        private void changeCheckEnabled(Property.ValueChangeEvent event) {
+        private void protocolValueChange(Property.ValueChangeEvent event) {
             if ("HTTPS".equals(protocolSelect.getValue()) || "SSL".equals(protocolSelect.getValue())) {
                 sslKeySelect.setEnabled(true);
-
             } else {
                 sslKeySelect.setEnabled(false);
             }
@@ -394,38 +362,30 @@ public class WinLoadBalancerConfigListener extends Window {
         return (loadBalancerPort == null);
     }
 
-    private void initData() {
-        // 初期データの取得
+    private void loadData() {
+        // ロードバランサ情報の取得
         LoadBalancerService loadBalancerService = BeanContext.getBean(LoadBalancerService.class);
-        List<LoadBalancerDto> loadBalancerDtos = loadBalancerService.getLoadBalancers(ViewContext.getFarmNo());
-        for (LoadBalancerDto loadBalancerDto : loadBalancerDtos) {
-            if (loadBalancerNo.equals(loadBalancerDto.getLoadBalancer().getLoadBalancerNo())) {
-                this.loadBalancerDto = loadBalancerDto;
+        List<LoadBalancerDto> loadBalancers = loadBalancerService.getLoadBalancers(ViewContext.getFarmNo());
+        for (LoadBalancerDto loadBalancer : loadBalancers) {
+            if (loadBalancerNo.equals(loadBalancer.getLoadBalancer().getLoadBalancerNo())) {
+                this.loadBalancer = loadBalancer;
                 break;
             }
         }
 
-        this.loadBalancerType = loadBalancerDto.getLoadBalancer().getType();
-        this.keyList = loadBalancerService.getSSLKey(loadBalancerNo);
+        // SSLキー情報の取得
+        this.sslKeys = loadBalancerService.getSSLKey(loadBalancerNo);
 
-        Long componentNo = loadBalancerDto.getLoadBalancer().getComponentNo();
-
+        // サービス情報の取得
+        Long componentNo = loadBalancer.getLoadBalancer().getComponentNo();
         ComponentService componentService = BeanContext.getBean(ComponentService.class);
-        List<ComponentDto> componentDtos = componentService.getComponents(ViewContext.getFarmNo());
-        for (ComponentDto componentDto : componentDtos) {
-            if (componentNo.equals(componentDto.getComponent().getComponentNo())) {
-                this.componentDto = componentDto;
+        List<ComponentDto> components = componentService.getComponents(ViewContext.getFarmNo());
+        for (ComponentDto component : components) {
+            if (componentNo.equals(component.getComponent().getComponentNo())) {
+                this.component = component;
                 break;
             }
         }
-    }
-
-    private void initValidation() {
-        basicForm.initValidation();
-    }
-
-    private void showData() {
-        basicForm.showData();
     }
 
     private void addButtonClick(Button.ClickEvent event) {
@@ -433,17 +393,15 @@ public class WinLoadBalancerConfigListener extends Window {
         String loadBalancerPortString = (String) basicForm.loadBalancerPortField.getValue();
         String servicePortString = (String) basicForm.servicePortField.getValue();
         String protocol = (String) basicForm.protocolSelect.getValue();
-        SslKeyDto key = (SslKeyDto) basicForm.sslKeySelect.getValue();
+        Long sslKeyNo = (Long) basicForm.sslKeySelect.getValue();
 
-        // TODO: 入力チェック
+        // 入力チェック
         try {
             basicForm.loadBalancerPortField.validate();
             basicForm.servicePortField.validate();
             basicForm.protocolSelect.validate();
             if (basicForm.sslKeySelect.isEnabled()) {
                 basicForm.sslKeySelect.validate();
-            } else {
-                key = new SslKeyDto();
             }
         } catch (InvalidValueException e) {
             DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), e.getMessage());
@@ -452,17 +410,14 @@ public class WinLoadBalancerConfigListener extends Window {
         }
 
         LoadBalancerService loadBalancerService = BeanContext.getBean(LoadBalancerService.class);
-
         Integer loadBalancerPort = Integer.valueOf(loadBalancerPortString);
         Integer servicePort = Integer.valueOf(servicePortString);
-        AutoApplication aapl = (AutoApplication) apl;
-        Long sslKeyNo = key.getKeyNo();
 
         // 追加時
         if (isAddMode()) {
-            //オペレーションログ
-            aapl.doOpLog("LOAD_BALANCER", "Attach LB_Listener", null, null, loadBalancerNo,
-                    String.valueOf(loadBalancerPort));
+            // オペレーションログ
+            AutoApplication aapl = (AutoApplication) getApplication();
+            aapl.doOpLog("LOAD_BALANCER", "Attach LB_Listener", null, null, loadBalancerNo, loadBalancerPortString);
 
             // リスナーの追加
             try {
@@ -476,9 +431,9 @@ public class WinLoadBalancerConfigListener extends Window {
         }
         // 編集時
         else {
-            //オペレーションログ
-            aapl.doOpLog("LOAD_BALANCER", "Edit LB_Listener", null, null, loadBalancerNo,
-                    String.valueOf(loadBalancerPort));
+            // オペレーションログ
+            AutoApplication aapl = (AutoApplication) getApplication();
+            aapl.doOpLog("LOAD_BALANCER", "Edit LB_Listener", null, null, loadBalancerNo, loadBalancerPortString);
 
             // リスナーの更新
             try {
