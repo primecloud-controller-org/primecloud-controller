@@ -1538,10 +1538,18 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         }
 
         // プロトコルのチェック
-        List<String> protocols = Arrays.asList("TCP", "HTTP", "HTTPS", "SSL");
-        if (!protocols.contains(protocol)) {
-            // 使用できないプロトコルの場合
-            throw new AutoApplicationException("ESERVICE-000612");
+        if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancer.getType())) {
+            List<String> protocols = Arrays.asList("HTTP", "TCP", "HTTPS", "SSL");
+            if (!protocols.contains(protocol)) {
+                // 使用できないプロトコルの場合
+                throw new AutoApplicationException("ESERVICE-000632");
+            }
+        } else {
+            List<String> protocols = Arrays.asList("HTTP", "TCP");
+            if (!protocols.contains(protocol)) {
+                // 使用できないプロトコルの場合
+                throw new AutoApplicationException("ESERVICE-000612");
+            }
         }
 
         // リスナー情報の作成
@@ -1630,10 +1638,18 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         }
 
         // プロトコルのチェック
-        List<String> protocols = Arrays.asList("TCP", "HTTP", "HTTPS");
-        if (!protocols.contains(protocol)) {
-            // 使用できないプロトコルの場合
-            throw new AutoApplicationException("ESERVICE-000612");
+        if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancer.getType())) {
+            List<String> protocols = Arrays.asList("HTTP", "TCP", "HTTPS", "SSL");
+            if (!protocols.contains(protocol)) {
+                // 使用できないプロトコルの場合
+                throw new AutoApplicationException("ESERVICE-000632");
+            }
+        } else {
+            List<String> protocols = Arrays.asList("HTTP", "TCP");
+            if (!protocols.contains(protocol)) {
+                // 使用できないプロトコルの場合
+                throw new AutoApplicationException("ESERVICE-000612");
+            }
         }
 
         // リスナー情報の変更
