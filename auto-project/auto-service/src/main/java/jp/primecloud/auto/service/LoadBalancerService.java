@@ -67,10 +67,6 @@ public interface LoadBalancerService {
     public void configureHealthCheck(Long loadBalancerNo, String checkProtocol, Integer checkPort, String checkPath,
             Integer checkTimeout, Integer checkInterval, Integer healthyThreshold, Integer unhealthyThreshold);
 
-    public void updateAutoScalingConf(Long farmNo, Long loadBalancerNo, Long platformNo, Long imageNo,
-            String instanceType, Integer enabled, String namingRule, Long idleTimeMax, Long idleTimeMin,
-            Long continueLimit, Long addCount, Long delCount);
-
     public void enableInstances(Long loadBalancerNo, List<Long> instanceNos);
 
     public void disableInstances(Long loadBalancerNo, List<Long> instanceNos);

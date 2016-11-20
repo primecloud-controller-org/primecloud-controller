@@ -54,26 +54,6 @@ public class LoadBalancerDto implements Serializable {
 
     private List<LoadBalancerInstance> loadBalancerInstances;
 
-    private AutoScalingConfDto autoScalingConf;
-
-    /**
-     * AutoScalingConfを取得します。
-     *
-     * @return AutoScalingConf
-     */
-    public AutoScalingConfDto getAutoScalingConf() {
-        return autoScalingConf;
-    }
-
-    /**
-     * AutoScalingConfを設定します。
-     *
-     * @param AutoScalingConf autoScalingConf
-     */
-    public void setAutoScalingConf(AutoScalingConfDto autoScalingConf) {
-        this.autoScalingConf = autoScalingConf;
-    }
-
     /**
      * loadBalancerを取得します。
      *

@@ -48,9 +48,6 @@ public class LoadBalancerResponse {
     @JsonProperty("Instances")
     private List<LoadBalancerInstanceResponse> instances = new ArrayList<LoadBalancerInstanceResponse>();
 
-    @JsonProperty("AutoScaling")
-    private AutoScalingConfResponse autoScaling;
-
     @JsonProperty("AWS")
     private AwsLoadBalancerResponse aws;
 
@@ -168,14 +165,6 @@ public class LoadBalancerResponse {
 
     public void setInstances(List<LoadBalancerInstanceResponse> instances) {
         this.instances = instances;
-    }
-
-    public AutoScalingConfResponse getAutoScaling() {
-        return autoScaling;
-    }
-
-    public void setAutoScaling(AutoScalingConfResponse autoScaling) {
-        this.autoScaling = autoScaling;
     }
 
     public AwsLoadBalancerResponse getAws() {

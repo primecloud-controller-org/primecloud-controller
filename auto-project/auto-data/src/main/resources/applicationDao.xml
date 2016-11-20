@@ -12,10 +12,6 @@
 		<property name="sqlMapClient" ref="sqlMapClient" />
 	</bean>
 
-	<bean id="autoScalingConfDao" class="jp.primecloud.auto.dao.crud.impl.AutoScalingConfDaoImpl">
-		<property name="sqlMapClient" ref="sqlMapClient" />
-	</bean>
-
 	<bean id="awsAddressDao" class="jp.primecloud.auto.dao.crud.impl.AwsAddressDaoImpl">
 		<property name="sqlMapClient" ref="sqlMapClient" />
 	</bean>

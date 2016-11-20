@@ -8,7 +8,6 @@
 
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseApiCertificate.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseAuthoritySet.ibatis.xml" />
-	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseAutoScalingConf.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseAwsAddress.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseAwsCertificate.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseAwsInstance.ibatis.xml" />
@@ -92,7 +91,6 @@
 
 	<sqlMap resource="jp/primecloud/auto/entity/crud/ApiCertificate.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/AuthoritySet.ibatis.xml" />
-	<sqlMap resource="jp/primecloud/auto/entity/crud/AutoScalingConf.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/AwsAddress.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/AwsCertificate.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/AwsInstance.ibatis.xml" />

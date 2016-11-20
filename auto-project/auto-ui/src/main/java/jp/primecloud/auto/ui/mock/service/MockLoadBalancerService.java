@@ -23,7 +23,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import jp.primecloud.auto.common.constant.PCCConstant;
-import jp.primecloud.auto.entity.crud.AutoScalingConf;
 import jp.primecloud.auto.entity.crud.AwsLoadBalancer;
 import jp.primecloud.auto.entity.crud.CloudstackLoadBalancer;
 import jp.primecloud.auto.entity.crud.Image;
@@ -42,7 +41,6 @@ import jp.primecloud.auto.entity.crud.PlatformNifty;
 import jp.primecloud.auto.entity.crud.PlatformVmware;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.LoadBalancerService;
-import jp.primecloud.auto.service.dto.AutoScalingConfDto;
 import jp.primecloud.auto.service.dto.ImageDto;
 import jp.primecloud.auto.service.dto.LoadBalancerDto;
 import jp.primecloud.auto.service.dto.LoadBalancerPlatformDto;
@@ -169,28 +167,10 @@ public class MockLoadBalancerService implements LoadBalancerService {
             lbInstance2.setStatus("STOPPED");
             lbInstances.add(lbInstance2);
 
-            //AutoScalingConf
-            AutoScalingConfDto autoScalingConfDto = new AutoScalingConfDto();
-            AutoScalingConf autoScalingConf = new AutoScalingConf();
-            autoScalingConf.setLoadBalancerNo(loadBalancer.getLoadBalancerNo());
-            autoScalingConf.setPlatformNo(1L);
-            autoScalingConf.setImageNo(100L);
-            autoScalingConf.setIdleTimeMax(0L);
-            autoScalingConf.setIdleTimeMin(0L);
-            autoScalingConf.setContinueLimit(0L);
-            autoScalingConf.setAddCount(0L);
-            autoScalingConf.setDelCount(0L);
-            autoScalingConf.setEnabled(false);
-
-            autoScalingConfDto.setAutoScalingConf(autoScalingConf);
-            autoScalingConfDto.setPlatform(platformDtoMap.get(autoScalingConf.getPlatformNo()));
-            autoScalingConfDto.setImage(imageDtoMap.get(autoScalingConf.getImageNo()));
-
             // DTO
             LoadBalancerDto dto = new LoadBalancerDto();
             dto.setLoadBalancer(loadBalancer);
             dto.setPlatform(platformDtoMap.get(loadBalancer.getPlatformNo()));
-            dto.setAutoScalingConf(autoScalingConfDto);
             dto.setAwsLoadBalancer(awsLoadBalancer);
             dto.setCloudstackLoadBalancer(cloudstackLoadBalancer);
             dto.setLoadBalancerListeners(listeners);
@@ -340,14 +320,6 @@ public class MockLoadBalancerService implements LoadBalancerService {
         }
 
         return dtos;
-    }
-
-    @Override
-    public void updateAutoScalingConf(Long farmNo, Long loadBalancerNo, Long platformNo, Long imageNo,
-            String instanceType, Integer enabled, String namingRule, Long idleTimeMax, Long idleTimeMin,
-            Long continueLimit, Long addCount, Long delCount) {
-        // TODO 自動生成されたメソッド・スタブ
-
     }
 
     private List<ImageDto> getImages(Platform platform, List<Image> images) {

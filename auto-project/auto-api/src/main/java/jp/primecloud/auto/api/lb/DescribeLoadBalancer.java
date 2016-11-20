@@ -30,7 +30,6 @@ import javax.ws.rs.core.MediaType;
 
 import jp.primecloud.auto.api.ApiSupport;
 import jp.primecloud.auto.api.ApiValidate;
-import jp.primecloud.auto.api.response.lb.AutoScalingConfResponse;
 import jp.primecloud.auto.api.response.lb.AwsLoadBalancerResponse;
 import jp.primecloud.auto.api.response.lb.DescribeLoadBalancerResponse;
 import jp.primecloud.auto.api.response.lb.LoadBalancerHealthCheckResponse;
@@ -39,7 +38,6 @@ import jp.primecloud.auto.api.response.lb.LoadBalancerListenerResponse;
 import jp.primecloud.auto.api.response.lb.LoadBalancerResponse;
 import jp.primecloud.auto.common.status.ComponentInstanceStatus;
 import jp.primecloud.auto.common.status.LoadBalancerInstanceStatus;
-import jp.primecloud.auto.entity.crud.AutoScalingConf;
 import jp.primecloud.auto.entity.crud.AwsLoadBalancer;
 import jp.primecloud.auto.entity.crud.ComponentInstance;
 import jp.primecloud.auto.entity.crud.LoadBalancer;
@@ -133,13 +131,6 @@ public class DescribeLoadBalancer extends ApiSupport {
             }
             //ロードバランサインスタンス情報設定
             loadBalancerResponse.getInstances().add(loadBalancerInstanceResponse);
-        }
-
-        //オートスケーリング取得
-        AutoScalingConf autoScalingConf = autoScalingConfDao.read(Long.parseLong(loadBalancerNo));
-        if (autoScalingConf != null) {
-            //オートスケーリング情報設定
-            loadBalancerResponse.setAutoScaling(new AutoScalingConfResponse(autoScalingConf));
         }
 
         // AWS

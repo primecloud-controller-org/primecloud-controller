@@ -24,22 +24,16 @@ import java.util.List;
 
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.LoadBalancerStatus;
-import jp.primecloud.auto.config.Config;
-import jp.primecloud.auto.entity.crud.AutoScalingConf;
 import jp.primecloud.auto.entity.crud.LoadBalancerHealthCheck;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.PlatformAws;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.AwsDescribeService;
 import jp.primecloud.auto.service.ComponentService;
-import jp.primecloud.auto.service.InstanceService;
 import jp.primecloud.auto.service.LoadBalancerService;
-import jp.primecloud.auto.service.dto.AutoScalingConfDto;
 import jp.primecloud.auto.service.dto.ComponentDto;
-import jp.primecloud.auto.service.dto.ImageDto;
 import jp.primecloud.auto.service.dto.LoadBalancerDto;
 import jp.primecloud.auto.service.dto.LoadBalancerPlatformDto;
-import jp.primecloud.auto.service.dto.PlatformDto;
 import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.IconUtils;
 import jp.primecloud.auto.ui.util.Icons;
@@ -48,7 +42,6 @@ import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
 import jp.primecloud.auto.ui.validator.IntegerRangeValidator;
 
-import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
 import com.amazonaws.services.ec2.model.SecurityGroup;
@@ -58,7 +51,6 @@ import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.util.IndexedContainer;
-import com.vaadin.data.validator.RegexpValidator;
 import com.vaadin.data.validator.StringLengthValidator;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.AbsoluteLayout;
@@ -74,7 +66,6 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TabSheet;
-import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.TwinColSelect;
 import com.vaadin.ui.VerticalLayout;
@@ -103,15 +94,11 @@ public class WinLoadBalancerEdit extends Window {
 
     HealthCheckTab healthCheckTab;
 
-    AutoScalingTab autoScalingTab;
-
     LoadBalancerDto loadBalancerDto;
 
     LoadBalancerPlatformDto platformDto;
 
     List<ComponentDto> componentDtos;
-
-    List<PlatformDto> platforms;
 
     List<Subnet> subnets;
 
@@ -147,11 +134,6 @@ public class WinLoadBalancerEdit extends Window {
         healthCheckTab = new HealthCheckTab();
         tab.addTab(healthCheckTab, ViewProperties.getCaption("tab.helthCheck"), Icons.DETAIL.resource());
 
-        // オートスケーリングタブ
-        autoScalingTab = new AutoScalingTab();
-        if (BooleanUtils.toBoolean(Config.getProperty("autoScaling.useAutoScaling"))) {
-            tab.addTab(autoScalingTab, ViewProperties.getCaption("tab.autoScaling"), Icons.DETAIL.resource());
-        }
         // 下部のバー
         HorizontalLayout okbar = new HorizontalLayout();
         okbar.setSpacing(true);
@@ -727,519 +709,6 @@ public class WinLoadBalancerEdit extends Window {
 
     }
 
-    private class AutoScalingTab extends VerticalLayout {
-
-        final String CHECKENABLED_CAPTION_ID = "EnableName";
-
-        Form mainForm;
-
-        ComboBox checkEnabledSelect;
-
-        SelectCloudTable cloudTable;
-
-        SelectImageTable imageTable;
-
-        ComboBox sizeSelect;
-
-        TextField namingRuleField;
-
-        TextField idleTimeMaxField;
-
-        TextField idleTimeMinField;
-
-        TextField continueLimitField;
-
-        TextField addCountField;
-
-        TextField delCountField;
-
-        List<String> instanceTypes = new ArrayList<String>();
-
-        final String COMBOBOX_WIDTH = "100px";
-
-        AutoScalingTab() {
-            setHeight(TAB_HEIGHT);
-            setMargin(false, true, true, true);
-            setSpacing(false);
-
-            // メインフォーム
-            mainForm = new Form();
-            Layout mainLayout = mainForm.getLayout();
-            addComponent(mainForm);
-
-            // 有効無効
-            checkEnabledSelect = new ComboBox(ViewProperties.getCaption("field.as.enabled"));
-            checkEnabledSelect.setWidth(COMBOBOX_WIDTH);
-            checkEnabledSelect.setImmediate(true);
-            checkEnabledSelect.setNullSelectionAllowed(false);
-            mainLayout.addComponent(checkEnabledSelect);
-            checkEnabledSelect.addListener(new Property.ValueChangeListener() {
-                @Override
-                public void valueChange(Property.ValueChangeEvent event) {
-                    changeCheckEnabled(event);
-                }
-            });
-
-            // クラウド選択
-            cloudTable = new SelectCloudTable();
-            mainLayout.addComponent(cloudTable);
-
-            // イメージ選択
-            imageTable = new SelectImageTable();
-            mainLayout.addComponent(imageTable);
-
-            // サーバーサイズ
-            sizeSelect = new ComboBox(ViewProperties.getCaption("field.as.instanceType"));
-            sizeSelect.setWidth(COMBOBOX_WIDTH);
-            sizeSelect.setNullSelectionAllowed(false);
-            mainLayout.addComponent(sizeSelect);
-
-            // ネーミングルール
-            namingRuleField = new TextField(ViewProperties.getCaption("field.as.namingRule"));
-            namingRuleField.setImmediate(true);
-            mainLayout.addComponent(namingRuleField);
-
-            // 増加指標CPU使用率
-            idleTimeMaxField = new TextField(ViewProperties.getCaption("field.as.idleTimeMax"));
-            idleTimeMaxField.setImmediate(true);
-            mainLayout.addComponent(idleTimeMaxField);
-
-            // 削減指標CPU使用率
-            idleTimeMinField = new TextField(ViewProperties.getCaption("field.as.idleTimeMin"));
-            idleTimeMinField.setImmediate(true);
-            mainLayout.addComponent(idleTimeMinField);
-
-            // 監視時間(継続)
-            continueLimitField = new TextField(ViewProperties.getCaption("field.as.continueLimit"));
-            continueLimitField.setImmediate(true);
-            mainLayout.addComponent(continueLimitField);
-
-            // 増加サーバー数
-            addCountField = new TextField(ViewProperties.getCaption("field.as.addCount"));
-            addCountField.setImmediate(true);
-            mainLayout.addComponent(addCountField);
-
-            // 削減サーバー数
-            delCountField = new TextField(ViewProperties.getCaption("field.as.delCount"));
-            delCountField.setImmediate(true);
-            mainLayout.addComponent(delCountField);
-        }
-
-        private class SelectCloudTable extends Table {
-
-            SelectCloudTable() {
-                //テーブル基本設定
-                setCaption(ViewProperties.getCaption("field.as.platformNo"));
-                setWidth("420px");
-                setPageLength(2);
-                setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
-                setSortDisabled(true);
-                setColumnReorderingAllowed(false);
-                setColumnCollapsingAllowed(false);
-                setSelectable(true);
-                setMultiSelect(false);
-                setNullSelectionAllowed(false);
-                setImmediate(true);
-                addStyleName("win-server-add-cloud");
-
-                //カラム設定
-                addContainerProperty("No", Integer.class, null);
-                addContainerProperty("Cloud", Label.class, new Label());
-                setColumnExpandRatio("Cloud", 100);
-
-                //テーブルのカラムに対してStyleNameを設定
-                setCellStyleGenerator(new StandardCellStyleGenerator());
-
-                // 行が選択されたときのイベント
-                addListener(new Property.ValueChangeListener() {
-                    @Override
-                    public void valueChange(Property.ValueChangeEvent event) {
-                        Long platformNo = (Long) cloudTable.getValue();
-
-                        // サーバ種別を表示
-                        showImages(platformNo);
-                    }
-                });
-            }
-
-        }
-
-        private class SelectImageTable extends Table {
-
-            SelectImageTable() {
-                //テーブル基本設定
-                setCaption(ViewProperties.getCaption("field.as.imageNo"));
-                setWidth("420px");
-                setPageLength(2);
-                setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
-                setSortDisabled(true);
-                setColumnReorderingAllowed(false);
-                setColumnCollapsingAllowed(false);
-                setSelectable(true);
-                setMultiSelect(false);
-                setNullSelectionAllowed(false);
-                setImmediate(true);
-                addStyleName("win-server-add-os");
-
-                //カラム設定
-                addContainerProperty("No", Integer.class, null);
-                addContainerProperty("Image", Label.class, new Label());
-                addContainerProperty("Detail", Label.class, new Label());
-                setColumnExpandRatio("Image", 100);
-
-                //テーブルのカラムに対してStyleNameを設定
-                setCellStyleGenerator(new StandardCellStyleGenerator());
-
-                // 行が選択されたときのイベント
-                addListener(new Property.ValueChangeListener() {
-                    @Override
-                    public void valueChange(Property.ValueChangeEvent event) {
-                        Long platformNo = (Long) cloudTable.getValue();
-                        Long imageNo = (Long) imageTable.getValue();
-
-                        showTypes(platformNo, imageNo);
-
-                    }
-                });
-            }
-
-        }
-
-        private void showImages(Long platformNo) {
-            imageTable.removeAllItems();
-            if (platformNo == null) {
-                return;
-            }
-
-            // 選択されたクラウドで利用可能なサーバ種別情報を取得
-            List<ImageDto> images = null;
-            for (PlatformDto platform : platforms) {
-                if (platformNo.equals(platform.getPlatform().getPlatformNo())) {
-                    images = platform.getImages();
-                    break;
-                }
-            }
-
-            // サーバ種別情報がない場合
-            if (images == null) {
-                return;
-            }
-
-            // サーバ種別情報をテーブルに追加
-            int n = 0;
-            for (ImageDto image : images) {
-                // 選択可能でないサーバ種別の場合はスキップ
-                if (BooleanUtils.isNotTrue(image.getImage().getSelectable())) {
-                    continue;
-                }
-
-                // サーバ種別名
-                String name = image.getImage().getImageNameDisp();
-                String iconName = StringUtils.substringBefore(image.getImage().getImageName(), "_");
-                Icons nameIcon;
-                if (PCCConstant.IMAGE_NAME_APPLICATION.equals(iconName)) {
-                    nameIcon = Icons.PAAS;
-                } else if (PCCConstant.IMAGE_NAME_PRJSERVER.equals(iconName)) {
-                    nameIcon = Icons.PRJSERVER;
-                } else if (PCCConstant.IMAGE_NAME_WINDOWS.equals(iconName)) {
-                    nameIcon = Icons.WINDOWS_APP;
-                } else if ("cloudstack".equals(iconName)) {
-                    nameIcon = Icons.CLOUD_STACK;
-                } else {
-                    nameIcon = Icons.fromName(iconName);
-                }
-
-                Label nlbl = new Label(IconUtils.createImageTag(apl, nameIcon, name), Label.CONTENT_XHTML);
-                nlbl.setHeight(COLUMN_HEIGHT);
-
-                // OS名
-                String os = image.getImage().getOsDisp();
-                Icons osIcon = Icons.NONE;
-                if (image.getImage().getOs().startsWith(PCCConstant.OS_NAME_CENTOS)) {
-                    osIcon = Icons.CENTOS;
-                } else if (image.getImage().getOs().startsWith(PCCConstant.OS_NAME_REDHAT)) {
-                    osIcon = Icons.REDHAT;
-                } else if (image.getImage().getOs().startsWith(PCCConstant.OS_NAME_WIN)) {
-                    osIcon = Icons.WINDOWS;
-                }
-
-                Label slbl = new Label(IconUtils.createImageTag(apl, osIcon, os), Label.CONTENT_XHTML);
-                slbl.setHeight(COLUMN_HEIGHT);
-
-                n++;
-                imageTable.addItem(new Object[] { n, nlbl, slbl }, image.getImage().getImageNo());
-            }
-
-            Long imageNo = null;
-            if (imageTable.getItemIds().size() > 0) {
-                imageNo = (Long) imageTable.getItemIds().toArray()[0];
-            }
-
-            // 先頭のサーバ種別を選択する
-            imageTable.select(imageNo);
-        }
-
-        private void showTypes(Long platformNo, Long imageNo) {
-            sizeSelect.removeAllItems();
-            if (platformNo == null || imageNo == null) {
-                return;
-            }
-            // プラットフォーム選定
-            PlatformDto platform = null;
-            for (PlatformDto tmpPlatform : platforms) {
-                if (platformNo.equals(tmpPlatform.getPlatform().getPlatformNo())) {
-                    platform = tmpPlatform;
-                }
-            }
-
-            // イメージ選定
-            ImageDto image = null;
-            for (ImageDto tmpImage : platform.getImages()) {
-                if (tmpImage.getImage().getImageNo().equals(imageNo)) {
-                    image = tmpImage;
-                    break;
-                }
-            }
-            if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatform().getPlatformType())) {
-                instanceTypes = new ArrayList<String>();
-                for (String instanceType : image.getImageAws().getInstanceTypes().split(",")) {
-                    instanceTypes.add(instanceType);
-                }
-            } else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatform().getPlatformType())) {
-                instanceTypes = new ArrayList<String>();
-                for (String instanceType : image.getImageVmware().getInstanceTypes().split(",")) {
-                    instanceTypes.add(instanceType);
-                }
-            } else if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platform.getPlatform().getPlatformType())) {
-                instanceTypes = new ArrayList<String>();
-                for (String instanceType : image.getImageNifty().getInstanceTypes().split(",")) {
-                    instanceTypes.add(instanceType);
-                }
-            } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatform().getPlatformType())) {
-                instanceTypes = new ArrayList<String>();
-                for (String instanceType : image.getImageCloudstack().getInstanceTypes().split(",")) {
-                    instanceTypes.add(instanceType);
-                }
-            } else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatform().getPlatformType())) {
-                instanceTypes = new ArrayList<String>();
-                for (String instanceType : image.getImageVcloud().getInstanceTypes().split(",")) {
-                    instanceTypes.add(instanceType);
-                }
-            } else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatform().getPlatformType())) {
-                instanceTypes = new ArrayList<String>();
-                for (String instanceType : image.getImageOpenstack().getInstanceTypes().split(",")) {
-                    instanceTypes.add(instanceType);
-                }
-            }
-
-            sizeSelect.setContainerDataSource(new IndexedContainer(instanceTypes));
-        }
-
-        private void initValidation() {
-            // 入力チェック
-            String message;
-
-            // ネーミングルール
-            message = ViewMessages.getMessage("IUI-000101", 10);
-            namingRuleField.setRequired(true);
-            namingRuleField.setRequiredError(message);
-            namingRuleField.addValidator(new StringLengthValidator(message, 1, 10, false));
-            namingRuleField.addValidator(new RegexpValidator("^[a-z]|[a-z][0-9a-z-]*[0-9a-z]$", true, message));
-
-            // 増加指標CPU使用率
-            message = ViewMessages.getMessage("IUI-000102", 0, 100);
-            idleTimeMaxField.setRequired(true);
-            idleTimeMaxField.setRequiredError(message);
-            idleTimeMaxField.addValidator(new IntegerRangeValidator(0, 100, message));
-
-            // 削減指標CPU使用率
-            message = ViewMessages.getMessage("IUI-000103", 0, 100);
-            idleTimeMinField.setRequired(true);
-            idleTimeMinField.setRequiredError(message);
-            idleTimeMinField.addValidator(new IntegerRangeValidator(0, 100, message));
-
-            // 監視時間(継続)
-            message = ViewMessages.getMessage("IUI-000104", 1, 1000000);
-            continueLimitField.setRequired(true);
-            continueLimitField.setRequiredError(message);
-            continueLimitField.addValidator(new IntegerRangeValidator(1, 1000000, message));
-
-            // 増加サーバー数(台)
-            message = ViewMessages.getMessage("IUI-000105", 1, 10);
-            addCountField.setRequired(true);
-            addCountField.setRequiredError(message);
-            addCountField.addValidator(new IntegerRangeValidator(1, 10, message));
-
-            // 削減サーバー数(台)
-            message = ViewMessages.getMessage("IUI-000106", 1, 10);
-            delCountField.setRequired(true);
-            delCountField.setRequiredError(message);
-            delCountField.addValidator(new IntegerRangeValidator(1, 10, message));
-
-            // サーバータイプ
-            message = ViewMessages.getMessage("IUI-000107");
-            sizeSelect.setRequired(true);
-            sizeSelect.setRequiredError(message);
-        }
-
-        private void showClouds() {
-            cloudTable.removeAllItems();
-
-            // クラウド情報をテーブルに追加
-            for (int i = 0; i < platforms.size(); i++) {
-                PlatformDto platform = platforms.get(i);
-
-                if (BooleanUtils.isNotTrue(platform.getPlatform().getSelectable())) {
-                    //使用不可プラットフォームの場合、非表示
-                    continue;
-                }
-
-                String lbType = loadBalancerDto.getLoadBalancer().getType();
-                Platform lbPlatform = platformDto.getPlatform();
-                boolean isVpcElb = platformDto.getPlatformAws() != null ? platformDto.getPlatformAws().getVpc() : false;
-                if (PCCConstant.LOAD_BALANCER_ELB.equals(lbType) && isVpcElb) {
-                    //ELB+VPCの場合→同じプラットフォーム以外選択不可
-                    if (lbPlatform.getPlatformNo().equals(platform.getPlatform().getPlatformNo()) == false) {
-                        continue;
-                    }
-                } else if (PCCConstant.LOAD_BALANCER_ELB.equals(lbType) && isVpcElb == false) {
-                    //ELBの場合→AWS以外選択不可
-                    if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatform().getPlatformType()) == false) {
-                        continue;
-                    }
-                } else {
-                    //ELB以外の場合→EC2+VPCのプラットフォームは選択不可
-                    if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatform().getPlatformType())
-                            && platform.getPlatformAws().getVpc()) {
-                        continue;
-                    }
-                }
-
-                //プラットフォームアイコン名の取得
-                Icons icon = IconUtils.getPlatformIcon(platformDto);
-                String description = platform.getPlatform().getPlatformNameDisp();
-                Label slbl = new Label(IconUtils.createImageTag(apl, icon, description), Label.CONTENT_XHTML);
-                slbl.setHeight(COLUMN_HEIGHT);
-
-                cloudTable.addItem(new Object[] { (i + 1), slbl }, platform.getPlatform().getPlatformNo());
-            }
-
-            Long platformNo = null;
-            if (cloudTable.getItemIds().size() > 0) {
-                platformNo = (Long) cloudTable.getItemIds().toArray()[0];
-            }
-
-            // 先頭のクラウド情報を選択する
-            cloudTable.select(platformNo);
-        }
-
-        private void showData() {
-            // 有効無効コンボ
-            IndexedContainer enableds = getEnabledList();
-            checkEnabledSelect.setContainerDataSource(enableds);
-            checkEnabledSelect.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
-            checkEnabledSelect.setItemCaptionPropertyId(CHECKENABLED_CAPTION_ID);
-
-            //クラウド情報を表示
-            showClouds();
-
-            AutoScalingConfDto autoScalingConfDto = loadBalancerDto.getAutoScalingConf();
-            if (autoScalingConfDto != null) {
-                AutoScalingConf autoScalingConf = autoScalingConfDto.getAutoScalingConf();
-                // オートスケーリング有効/無効
-                if (autoScalingConf.getEnabled()) {
-                    checkEnabledSelect.select("有効");
-                } else {
-                    checkEnabledSelect.select("無効");
-                }
-
-                // 調整プラットフォーム
-                if (autoScalingConf.getPlatformNo() != null) {
-                    cloudTable.select(autoScalingConf.getPlatformNo());
-                }
-
-                // 増減サーバイメージ
-                if (autoScalingConf.getImageNo() != null) {
-                    imageTable.setValue(autoScalingConf.getImageNo());
-                }
-
-                // 増減サーバタイプ
-                if (autoScalingConf.getInstanceType() != null) {
-                    sizeSelect.select(autoScalingConf.getInstanceType());
-                }
-
-                // 増減サーバネーミングルール
-                if (autoScalingConf.getNamingRule() != null) {
-                    String rule = autoScalingConf.getNamingRule().replace("%d", "");
-                    namingRuleField.setValue(rule);
-                }
-
-                // 増加指標CPU使用率(%)
-                if (autoScalingConf.getIdleTimeMax() != null) {
-                    idleTimeMaxField.setValue(autoScalingConf.getIdleTimeMax().toString());
-                }
-
-                // 削減指標CPU使用率(%)
-                if (autoScalingConf.getIdleTimeMin() != null) {
-                    idleTimeMinField.setValue(autoScalingConf.getIdleTimeMin().toString());
-                }
-
-                // 監視継続時間(分)
-                if (autoScalingConf.getContinueLimit() != null) {
-                    continueLimitField.setValue(autoScalingConf.getContinueLimit().toString());
-                }
-
-                // 増加サーバー数(台)
-                if (autoScalingConf.getAddCount() != null) {
-                    addCountField.setValue(autoScalingConf.getAddCount().toString());
-                }
-
-                // 削減サーバー数(台)
-                if (autoScalingConf.getDelCount() != null) {
-                    delCountField.setValue(autoScalingConf.getDelCount().toString());
-                }
-            }
-        }
-
-        private IndexedContainer getEnabledList() {
-            IndexedContainer container = new IndexedContainer();
-            container.addContainerProperty(CHECKENABLED_CAPTION_ID, String.class, null);
-
-            Item item = container.addItem("有効");
-            item.getItemProperty(CHECKENABLED_CAPTION_ID).setValue("有効");
-
-            item = container.addItem("無効");
-            item.getItemProperty(CHECKENABLED_CAPTION_ID).setValue("無効");
-
-            return container;
-        }
-
-        private void changeCheckEnabled(Property.ValueChangeEvent event) {
-            if ("有効".equals(checkEnabledSelect.getValue())) {
-                cloudTable.setEnabled(true);
-                imageTable.setEnabled(true);
-                sizeSelect.setEnabled(true);
-                namingRuleField.setEnabled(true);
-                idleTimeMaxField.setEnabled(true);
-                idleTimeMinField.setEnabled(true);
-                continueLimitField.setEnabled(true);
-                addCountField.setEnabled(true);
-                delCountField.setEnabled(true);
-            } else {
-                cloudTable.setEnabled(false);
-                imageTable.setEnabled(false);
-                sizeSelect.setEnabled(false);
-                namingRuleField.setEnabled(false);
-                idleTimeMaxField.setEnabled(false);
-                idleTimeMinField.setEnabled(false);
-                continueLimitField.setEnabled(false);
-                addCountField.setEnabled(false);
-                delCountField.setEnabled(false);
-            }
-        }
-
-    }
-
     private void initData() {
         Long userNo = ViewContext.getUserNo();
         Long farmNo = ViewContext.getFarmNo();
@@ -1296,26 +765,19 @@ public class WinLoadBalancerEdit extends Window {
                 this.securityGroups.add(group.getGroupName());
             }
         }
-
-        //プラットフォーム情報(AutoScaling用)を取得
-        InstanceService instanceService = BeanContext.getBean(InstanceService.class);
-        this.platforms = instanceService.getPlatforms(userNo);
     }
 
     private void initValidation() {
         basicTab.initValidation();
         healthCheckTab.initValidation();
-        autoScalingTab.initValidation();
     }
 
     private void showData() {
         basicTab.showData();
         healthCheckTab.showData();
-        autoScalingTab.showData();
     }
 
     private void okButtonClick(ClickEvent event) {
-        Long farmNo = ViewContext.getFarmNo();
         String type = loadBalancerDto.getLoadBalancer().getType();
         PlatformAws platformAws = platformDto.getPlatformAws();
 
@@ -1342,23 +804,6 @@ public class WinLoadBalancerEdit extends Window {
         String unhealthyThresholdString = (String) healthCheckTab.unhealthyThresholdField.getValue();
         String healthyThresholdString = (String) healthCheckTab.healthyThresholdField.getValue();
 
-        Long platformNo = (Long) autoScalingTab.cloudTable.getValue();
-        Long imageNo = (Long) autoScalingTab.imageTable.getValue();
-        String instanceType = (String) autoScalingTab.sizeSelect.getValue();
-        String checkEnabledValue = (String) autoScalingTab.checkEnabledSelect.getValue();
-        if ("有効".equals(checkEnabledValue)) {
-            checkEnabledValue = "1";
-        } else {
-            checkEnabledValue = "0";
-        }
-
-        String namingRuleString = (String) autoScalingTab.namingRuleField.getValue();
-        String idleTimeMaxString = (String) autoScalingTab.idleTimeMaxField.getValue();
-        String idleTimeMinString = (String) autoScalingTab.idleTimeMinField.getValue();
-        String continueLimitString = (String) autoScalingTab.continueLimitField.getValue();
-        String addCountString = (String) autoScalingTab.addCountField.getValue();
-        String delCountString = (String) autoScalingTab.delCountField.getValue();
-
         // TODO: 入力チェック
         try {
             basicTab.commentField.validate();
@@ -1377,27 +822,8 @@ public class WinLoadBalancerEdit extends Window {
             healthCheckTab.unhealthyThresholdField.validate();
             healthCheckTab.healthyThresholdField.validate();
 
-            if ("1".equals(checkEnabledValue)
-                    && BooleanUtils.toBoolean(Config.getProperty("autoScaling.useAutoScaling"))) {
-                autoScalingTab.namingRuleField.validate();
-                autoScalingTab.idleTimeMaxField.validate();
-                autoScalingTab.idleTimeMinField.validate();
-                autoScalingTab.continueLimitField.validate();
-                autoScalingTab.addCountField.validate();
-                autoScalingTab.delCountField.validate();
-                autoScalingTab.sizeSelect.validate();
-            }
-
         } catch (InvalidValueException e) {
             DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), e.getMessage());
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
-        }
-
-        //特殊入力チェック
-        if (namingRuleString.startsWith("lb-")) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                    ViewMessages.getMessage("IUI-000083", namingRuleString));
             getApplication().getMainWindow().addWindow(dialog);
             return;
         }
@@ -1474,27 +900,6 @@ public class WinLoadBalancerEdit extends Window {
             DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
             getApplication().getMainWindow().addWindow(dialog);
             return;
-        }
-
-        // オートスケーリング設定の変更
-        if (BooleanUtils.toBoolean(Config.getProperty("autoScaling.useAutoScaling"))) {
-            Integer enabledValue = Integer.valueOf(checkEnabledValue);
-            Long idleTimeMaxValue = Long.valueOf(idleTimeMaxString);
-            Long idleTimeMinValue = Long.valueOf(idleTimeMinString);
-            Long continueLimitValue = Long.valueOf(continueLimitString);
-            Long addCountValue = Long.valueOf(addCountString);
-            Long delCountValue = Long.valueOf(delCountString);
-            namingRuleString = namingRuleString + "%d";
-            try {
-                loadBalancerService.updateAutoScalingConf(farmNo, loadBalancerNo, platformNo, imageNo, instanceType,
-                        enabledValue, namingRuleString, idleTimeMaxValue, idleTimeMinValue, continueLimitValue,
-                        addCountValue, delCountValue);
-            } catch (AutoApplicationException e) {
-                String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-                getApplication().getMainWindow().addWindow(dialog);
-                return;
-            }
         }
 
         // 画面を閉じる

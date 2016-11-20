@@ -23,7 +23,6 @@ import org.apache.commons.logging.LogFactory;
 
 import jp.primecloud.auto.dao.crud.ApiCertificateDao;
 import jp.primecloud.auto.dao.crud.AuthoritySetDao;
-import jp.primecloud.auto.dao.crud.AutoScalingConfDao;
 import jp.primecloud.auto.dao.crud.AwsAddressDao;
 import jp.primecloud.auto.dao.crud.AwsCertificateDao;
 import jp.primecloud.auto.dao.crud.AwsInstanceDao;
@@ -116,8 +115,6 @@ public abstract class BaseServiceSupport {
     protected ApiCertificateDao apiCertificateDao;
 
     protected AuthoritySetDao authoritySetDao;
-
-    protected AutoScalingConfDao autoScalingConfDao;
 
     protected AwsAddressDao awsAddressDao;
 
@@ -291,15 +288,6 @@ public abstract class BaseServiceSupport {
      */
     public void setAuthoritySetDao(AuthoritySetDao authoritySetDao) {
         this.authoritySetDao = authoritySetDao;
-    }
-
-    /**
-     * autoScalingConfDaoを設定します。
-     *
-     * @param autoScalingConfDao autoScalingConfDao
-     */
-    public void setAutoScalingConfDao(AutoScalingConfDao autoScalingConfDao) {
-        this.autoScalingConfDao = autoScalingConfDao;
     }
 
     /**

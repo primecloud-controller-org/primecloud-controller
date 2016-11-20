@@ -34,7 +34,6 @@ import jp.primecloud.auto.common.status.LoadBalancerInstanceStatus;
 import jp.primecloud.auto.common.status.LoadBalancerListenerStatus;
 import jp.primecloud.auto.common.status.LoadBalancerStatus;
 import jp.primecloud.auto.config.Config;
-import jp.primecloud.auto.entity.crud.AutoScalingConf;
 import jp.primecloud.auto.entity.crud.AwsCertificate;
 import jp.primecloud.auto.entity.crud.AwsInstance;
 import jp.primecloud.auto.entity.crud.AwsLoadBalancer;
@@ -77,7 +76,6 @@ import jp.primecloud.auto.service.ComponentService;
 import jp.primecloud.auto.service.InstanceService;
 import jp.primecloud.auto.service.LoadBalancerService;
 import jp.primecloud.auto.service.ServiceSupport;
-import jp.primecloud.auto.service.dto.AutoScalingConfDto;
 import jp.primecloud.auto.service.dto.ComponentLoadBalancerDto;
 import jp.primecloud.auto.service.dto.ImageDto;
 import jp.primecloud.auto.service.dto.LoadBalancerDto;
@@ -230,23 +228,6 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
             imageAzureMap.put(imageAzure.getImageNo(), imageAzure);
         }
 
-        // イメージ情報を取得
-        List<Image> images = imageDao.readAll();
-
-        // ImageDto作成
-        Map<Long, ImageDto> imageDtoMap = new LinkedHashMap<Long, ImageDto>();
-        for (Image image : images) {
-            ImageDto imageDto = new ImageDto();
-            imageDto.setImage(image);
-            imageDto.setImageAws(imageAwsMap.get(image.getImageNo()));
-            imageDto.setImageVmware(imageVmwareMap.get(image.getImageNo()));
-            imageDto.setImageCloudstack(imageCloudstackMap.get(image.getImageNo()));
-            imageDto.setImageNifty(imageNiftyMap.get(image.getImageNo()));
-            imageDto.setImageVcloud(imageVcloudMap.get(image.getImageNo()));
-            imageDto.setImageAzure(imageAzureMap.get(image.getImageNo()));
-            imageDtoMap.put(image.getImageNo(), imageDto);
-        }
-
         // AWSロードバランサ情報を取得
         List<AwsLoadBalancer> awsLoadBalancers = awsLoadBalancerDao.readInLoadBalancerNos(loadBalancerNos);
         Map<Long, AwsLoadBalancer> awsLoadBalancerMap = new LinkedHashMap<Long, AwsLoadBalancer>();
@@ -290,13 +271,6 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
             healthCheckMap.put(healthCheck.getLoadBalancerNo(), healthCheck);
         }
 
-        // オートスケーリング情報を取得
-        List<AutoScalingConf> autoScalingConfs = autoScalingConfDao.readInLoadBalancerNos(loadBalancerNos);
-        Map<Long, AutoScalingConf> autoScalingConfMap = new LinkedHashMap<Long, AutoScalingConf>();
-        for (AutoScalingConf autoScalingConf : autoScalingConfs) {
-            autoScalingConfMap.put(autoScalingConf.getLoadBalancerNo(), autoScalingConf);
-        }
-
         // 振り分けインスタンス情報を取得
         List<LoadBalancerInstance> allLbInstances = loadBalancerInstanceDao.readInLoadBalancerNos(loadBalancerNos);
         Map<Long, List<LoadBalancerInstance>> lbInstancesMap = new LinkedHashMap<Long, List<LoadBalancerInstance>>();
@@ -335,15 +309,6 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
             }
 
             LoadBalancerHealthCheck healthCheck = healthCheckMap.get(loadBalancerNo);
-
-            AutoScalingConfDto autoScalingConfDto = null;
-            if (BooleanUtils.toBoolean(Config.getProperty("autoScaling.useAutoScaling"))) {
-                autoScalingConfDto = new AutoScalingConfDto();
-                AutoScalingConf autoScalingConf = autoScalingConfMap.get(loadBalancerNo);
-                autoScalingConfDto.setAutoScalingConf(autoScalingConf);
-                autoScalingConfDto.setPlatform(platformDtoMap.get(autoScalingConf.getPlatformNo()));
-                autoScalingConfDto.setImage(imageDtoMap.get(autoScalingConf.getImageNo()));
-            }
 
             List<LoadBalancerInstance> lbInstances = lbInstancesMap.get(loadBalancerNo);
             if (lbInstances == null) {
@@ -430,7 +395,6 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
             dto.setLoadBalancerListeners(listeners);
             dto.setLoadBalancerHealthCheck(healthCheck);
             dto.setLoadBalancerInstances(lbInstances);
-            dto.setAutoScalingConf(autoScalingConfDto);
             dtos.add(dto);
         }
 
@@ -593,9 +557,6 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         // 標準のヘルスチェック情報を作成
         createDefaultHealthCheck(loadBalancer);
 
-        // 標準のオートスケーリング情報を作成
-        createDefaultAutoScalingConf(loadBalancer);
-
         // 振り分け対象のインスタンスを登録
         registerInstances(loadBalancer);
 
@@ -699,9 +660,6 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         cloudstackLoadBalancer.setPrivateport("80");
 
         cloudstackLoadBalancerDao.create(cloudstackLoadBalancer);
-
-        // 標準のオートスケーリング情報を作成
-        createDefaultAutoScalingConf(loadBalancer);
 
         // 振り分け対象のインスタンスを登録
         registerInstances(loadBalancer);
@@ -870,9 +828,6 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         // 標準のヘルスチェック情報を作成
         createDefaultHealthCheck(loadBalancer);
 
-        // 標準のオートスケーリング情報を作成
-        createDefaultAutoScalingConf(loadBalancer);
-
         // 振り分け対象のインスタンスを登録
         registerInstances(loadBalancer);
 
@@ -917,31 +872,6 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
 
         configureHealthCheck(loadBalancer.getLoadBalancerNo(), checkProtocol, checkPort, checkPath, checkTimeout,
                 checkInterval, healthyThreshold, unhealthyThreshold);
-    }
-
-    protected void createDefaultAutoScalingConf(LoadBalancer loadBalancer) {
-        // オートスケーリング情報の登録/更新
-        AutoScalingConf autoScalingConf = autoScalingConfDao.read(loadBalancer.getLoadBalancerNo());
-        boolean exist = (autoScalingConf != null);
-        if (!exist) {
-            autoScalingConf = new AutoScalingConf();
-            autoScalingConf.setLoadBalancerNo(loadBalancer.getLoadBalancerNo());
-            autoScalingConf.setFarmNo(loadBalancer.getFarmNo());
-        }
-
-        autoScalingConf.setPlatformNo(0L);
-        autoScalingConf.setImageNo(0L);
-        //autoScalingConf.setInstanceType(null);
-        //autoScalingConf.setNamingRule(null;)
-        autoScalingConf.setIdleTimeMax(0L);
-        autoScalingConf.setIdleTimeMin(0L);
-        autoScalingConf.setContinueLimit(0L);
-        autoScalingConf.setAddCount(0L);
-        autoScalingConf.setDelCount(0L);
-        autoScalingConf.setEnabled(false);
-
-        autoScalingConfDao.create(autoScalingConf);
-
     }
 
     protected void registerInstances(LoadBalancer loadBalancer) {
@@ -1402,9 +1332,6 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         // ヘルスチェック情報の削除処理
         loadBalancerHealthCheckDao.deleteByLoadBalancerNo(loadBalancerNo);
 
-        // オートスケーリング情報の削除処理
-        autoScalingConfDao.deleteByLoadBalancerNo(loadBalancerNo);
-
         // リスナー情報の削除処理
         List<LoadBalancerListener> listeners = loadBalancerListenerDao.readByLoadBalancerNo(loadBalancerNo);
         for (LoadBalancerListener listener : listeners) {
@@ -1825,53 +1752,6 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
             loadBalancerHealthCheckDao.create(healthCheck);
         } else {
             loadBalancerHealthCheckDao.update(healthCheck);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void updateAutoScalingConf(Long farmNo, Long loadBalancerNo, Long platformNo, Long imageNo,
-            String instanceType, Integer enabled, String namingRule, Long idleTimeMax, Long idleTimeMin,
-            Long continueLimit, Long addCount, Long delCount) {
-
-        // 引数チェックは画面入力チェックで行える為省略
-
-        // ロードバランサの存在チェック
-        LoadBalancer loadBalancer = loadBalancerDao.read(loadBalancerNo);
-        if (loadBalancer == null) {
-            // ロードバランサが存在しない場合
-            throw new AutoApplicationException("ESERVICE-000603", loadBalancerNo);
-        }
-
-        // オートスケーリング情報の更新
-        AutoScalingConf autoScalingConf = autoScalingConfDao.read(loadBalancerNo);
-        boolean exist = (autoScalingConf != null);
-        if (!exist) {
-            autoScalingConf = new AutoScalingConf();
-            autoScalingConf.setLoadBalancerNo(loadBalancerNo);
-            autoScalingConf.setFarmNo(farmNo);
-        }
-        autoScalingConf.setPlatformNo(platformNo);
-        autoScalingConf.setImageNo(imageNo);
-        autoScalingConf.setInstanceType(instanceType);
-        autoScalingConf.setNamingRule(namingRule);
-        autoScalingConf.setIdleTimeMax(idleTimeMax);
-        autoScalingConf.setIdleTimeMin(idleTimeMin);
-        autoScalingConf.setContinueLimit(continueLimit);
-        autoScalingConf.setAddCount(addCount);
-        autoScalingConf.setDelCount(delCount);
-        if (enabled == 1) {
-            autoScalingConf.setEnabled(true);
-        } else {
-            autoScalingConf.setEnabled(false);
-        }
-
-        if (!exist) {
-            autoScalingConfDao.create(autoScalingConf);
-        } else {
-            autoScalingConfDao.update(autoScalingConf);
         }
     }
 

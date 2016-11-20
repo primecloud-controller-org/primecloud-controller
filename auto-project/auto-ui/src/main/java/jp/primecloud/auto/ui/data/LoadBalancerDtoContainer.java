@@ -88,7 +88,6 @@ public class LoadBalancerDtoContainer extends BeanItemContainer<LoadBalancerDto>
                         dto.getItemProperty("loadBalancerListeners").setValue(newDto.getLoadBalancerListeners());
                         dto.getItemProperty("loadBalancerHealthCheck").setValue(newDto.getLoadBalancerHealthCheck());
                         dto.getItemProperty("loadBalancerInstances").setValue(newDto.getLoadBalancerInstances());
-                        dto.getItemProperty("autoScalingConf").setValue(newDto.getAutoScalingConf());
                         dtos.remove(newDto);
                         break;
                     } else {

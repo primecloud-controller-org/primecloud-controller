@@ -28,8 +28,6 @@ import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.InstanceStatus;
 import jp.primecloud.auto.common.status.LoadBalancerInstanceStatus;
 import jp.primecloud.auto.common.status.LoadBalancerStatus;
-import jp.primecloud.auto.config.Config;
-import jp.primecloud.auto.entity.crud.AutoScalingConf;
 import jp.primecloud.auto.entity.crud.CloudstackLoadBalancer;
 import jp.primecloud.auto.entity.crud.ComponentType;
 import jp.primecloud.auto.entity.crud.LoadBalancer;
@@ -39,10 +37,8 @@ import jp.primecloud.auto.entity.crud.PlatformAws;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.AwsDescribeService;
 import jp.primecloud.auto.service.LoadBalancerService;
-import jp.primecloud.auto.service.dto.AutoScalingConfDto;
 import jp.primecloud.auto.service.dto.ComponentDto;
 import jp.primecloud.auto.service.dto.ComponentInstanceDto;
-import jp.primecloud.auto.service.dto.ImageDto;
 import jp.primecloud.auto.service.dto.InstanceDto;
 import jp.primecloud.auto.service.dto.LoadBalancerDto;
 import jp.primecloud.auto.service.dto.PlatformDto;
@@ -162,18 +158,12 @@ public class LoadBalancerDescServer extends Panel {
         final String[] CAPTION_FIELD_DEF = { "field.loadBalancerName", "field.loadBalancerService", "field.fqdn",
                 "field.loadBalancerHostname", "field.status", "field.platform", "field.loadBalancerType",
                 "field.subnet", "field.comment", "field.checkProtocol", "field.checkPort", "field.checkPath",
-                "field.checkTimeout", "field.checkInterval", "field.checkDownThreshold", "field.checkRecoverThreshold",
-                "field.as.enabled", "field.as.platformNo", "field.as.imageNo", "field.as.instanceType",
-                "field.as.namingRule", "field.as.idleTimeMax", "field.as.idleTimeMin", "field.as.continueLimit",
-                "field.as.addCount", "field.as.delCount" };
+                "field.checkTimeout", "field.checkInterval", "field.checkDownThreshold", "field.checkRecoverThreshold", };
 
         //項目名
         final String[] CAPTION_FIELD_CLOUDSTACK = { "field.loadBalancerName", "field.loadBalancerService",
                 "field.fqdn", "field.loadBalancerHostname", "field.status", "field.platform", "field.loadBalancerType",
-                "field.comment", "field.algorithm", "field.publicip", "field.publicport", "field.privateport",
-                "field.as.enabled", "field.as.platformNo", "field.as.imageNo", "field.as.instanceType",
-                "field.as.namingRule", "field.as.idleTimeMax", "field.as.idleTimeMin", "field.as.continueLimit",
-                "field.as.addCount", "field.as.delCount" };
+                "field.comment", "field.algorithm", "field.publicip", "field.publicport", "field.privateport", };
 
         HashMap<String, Label> displayLabels = new HashMap<String, Label>();
 
@@ -205,12 +195,6 @@ public class LoadBalancerDescServer extends Panel {
 
         private void initDisplayLabels(String[] captionField) {
             for (int i = 0; i < captionField.length; i++) {
-                if (BooleanUtils.toBoolean(Config.getProperty("autoScaling.useAutoScaling")) == false
-                        && captionField[i].startsWith("field.as")) {
-                    // オートスケールのラベルは設定しない
-                    continue;
-                }
-
                 //項目名
                 Label lbl1 = new Label(ViewProperties.getCaption(captionField[i]), Label.CONTENT_TEXT);
                 lbl1.setHeight(COLUMN_HEIGHT);
@@ -409,82 +393,6 @@ public class LoadBalancerDescServer extends Panel {
                             displayLabels.get("field.checkRecoverThreshold").setValue(
                                     hchk.getHealthyThreshold().toString());
                         }
-                    }
-                }
-
-                /*************************
-                 * オートスケーリング情報
-                 *************************/
-
-                AutoScalingConfDto scalingConfDto = dto.getAutoScalingConf();
-                if (scalingConfDto != null) {
-                    AutoScalingConf scalingConf = scalingConfDto.getAutoScalingConf();
-                    //オートスケーリング有効/無効
-                    if (scalingConf.getEnabled() != null) {
-                        if (scalingConf.getEnabled()) {
-                            displayLabels.get("field.as.enabled").setValue(
-                                    ViewProperties.getCaption("field.as.enabled.true"));
-                        } else {
-                            displayLabels.get("field.as.enabled").setValue(
-                                    ViewProperties.getCaption("field.as.enabled.false"));
-                        }
-                    }
-
-                    //調整プラットフォーム
-                    if (scalingConf.getPlatformNo() != null && scalingConf.getPlatformNo() != 0) {
-                        PlatformDto asPlatfromType = scalingConfDto.getPlatform();
-                        Icons asIcon = IconUtils.getPlatformIcon(asPlatfromType);
-                        String asdDscription = asPlatfromType.getPlatform().getPlatformNameDisp();
-                        displayLabels.get("field.as.platformNo").setValue(
-                                IconUtils.createImageTag(me, asIcon, asdDscription));
-                    }
-
-                    //増減サーバイメージ
-                    if (scalingConf.getImageNo() != null && scalingConf.getPlatformNo() != 0) {
-                        ImageDto asImage = scalingConfDto.getImage();
-                        String imageName = asImage.getImage().getImageNameDisp();
-                        String osName = asImage.getImage().getOsDisp();
-                        Icons imageIcon = IconUtils.getImageIcon(asImage);
-                        Icons osIcon = IconUtils.getOsIcon(asImage);
-                        displayLabels.get("field.as.imageNo").setValue(
-                                IconUtils.createImageTag(me, imageIcon, imageName) + "</br>"
-                                        + IconUtils.createImageTag(me, osIcon, osName));
-                    }
-
-                    //増減サーバタイプ
-                    if (scalingConf.getInstanceType() != null) {
-                        displayLabels.get("field.as.instanceType").setValue(scalingConf.getInstanceType());
-                    }
-
-                    //増減サーバネーミングルール
-                    if (scalingConf.getNamingRule() != null) {
-                        displayLabels.get("field.as.namingRule")
-                                .setValue(scalingConf.getNamingRule().replace("%d", ""));
-                    }
-
-                    //増加指標CPU使用率
-                    if (scalingConf.getIdleTimeMax() != null) {
-                        displayLabels.get("field.as.idleTimeMax").setValue(scalingConf.getIdleTimeMax());
-                    }
-
-                    //削減指標CPU使用率
-                    if (scalingConf.getIdleTimeMin() != null) {
-                        displayLabels.get("field.as.idleTimeMin").setValue(scalingConf.getIdleTimeMin());
-                    }
-
-                    //監視時間(継続)
-                    if (scalingConf.getContinueLimit() != null) {
-                        displayLabels.get("field.as.continueLimit").setValue(scalingConf.getContinueLimit());
-                    }
-
-                    //増加サーバー数
-                    if (scalingConf.getAddCount() != null) {
-                        displayLabels.get("field.as.addCount").setValue(scalingConf.getAddCount());
-                    }
-
-                    //削減サーバー数
-                    if (scalingConf.getDelCount() != null) {
-                        displayLabels.get("field.as.delCount").setValue(scalingConf.getDelCount());
                     }
                 }
             }
