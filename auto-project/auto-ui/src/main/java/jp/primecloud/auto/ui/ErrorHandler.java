@@ -18,11 +18,13 @@
  */
 package jp.primecloud.auto.ui;
 
+import jp.primecloud.auto.common.log.LoggingUtils;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.exception.MultiCauseException;
 import jp.primecloud.auto.ui.DialogConfirm.Buttons;
 import jp.primecloud.auto.ui.DialogConfirm.Result;
+import jp.primecloud.auto.ui.util.ContextUtils;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
 import jp.primecloud.auto.util.MessageUtils;
@@ -96,6 +98,10 @@ public class ErrorHandler implements ErrorListener {
         dialog.setCallback(new DialogConfirm.Callback() {
             @Override
             public void onDialogResult(Result result) {
+                // セッション情報を初期化
+                LoggingUtils.removeContext();
+                ContextUtils.invalidateSession();
+
                 application.close();
             }
         });

@@ -25,8 +25,6 @@ import java.util.List;
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.LoadBalancerStatus;
 import jp.primecloud.auto.entity.crud.LoadBalancerHealthCheck;
-import jp.primecloud.auto.entity.crud.Platform;
-import jp.primecloud.auto.entity.crud.PlatformAws;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.AwsDescribeService;
 import jp.primecloud.auto.service.ComponentService;
@@ -42,15 +40,14 @@ import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
 import jp.primecloud.auto.ui.validator.IntegerRangeValidator;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
 import com.amazonaws.services.ec2.model.SecurityGroup;
 import com.amazonaws.services.ec2.model.Subnet;
-import com.vaadin.Application;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Validator.InvalidValueException;
-import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.data.validator.StringLengthValidator;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.AbsoluteLayout;
@@ -59,8 +56,8 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.Form;
-import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
@@ -77,41 +74,39 @@ import com.vaadin.ui.Window;
  * </p>
  *
  */
-@SuppressWarnings({ "serial", "unchecked" })
+@SuppressWarnings("serial")
 public class WinLoadBalancerEdit extends Window {
 
-    final String COLUMN_HEIGHT = "30px";
+    private final String TAB_HEIGHT = "480px";
 
-    final String TAB_HEIGHT = "480px";
+    private Long loadBalancerNo;
 
-    Application apl;
+    private Long loadBalancerInstanceNo;
 
-    Long loadBalancerNo;
+    private BasicTab basicTab;
 
-    Long instanceNo;
+    private HealthCheckTab healthCheckTab;
 
-    BasicTab basicTab;
+    private LoadBalancerDto loadBalancer;
 
-    HealthCheckTab healthCheckTab;
+    private LoadBalancerPlatformDto platform;
 
-    LoadBalancerDto loadBalancerDto;
+    private List<ComponentDto> components;
 
-    LoadBalancerPlatformDto platformDto;
+    private List<Subnet> subnets;
 
-    List<ComponentDto> componentDtos;
+    private List<String> securityGroups;
 
-    List<Subnet> subnets;
-
-    List<String> securityGroups = new ArrayList<String>();
-
-    WinLoadBalancerEdit(Application ap, Long loadBalancerNo) {
-        apl = ap;
+    public WinLoadBalancerEdit(Long loadBalancerNo) {
         this.loadBalancerNo = loadBalancerNo;
+    }
 
+    @Override
+    public void attach() {
         // 初期データの取得
-        initData();
+        loadData();
 
-        //モーダルウインドウ
+        // モーダルウインドウ
         setIcon(Icons.EDITMINI.resource());
         setCaption(ViewProperties.getCaption("window.winLoadBalancerEdit"));
         setModal(true);
@@ -127,394 +122,370 @@ public class WinLoadBalancerEdit extends Window {
         layout.addComponent(tab);
 
         // 基本情報タブ
-        basicTab = new BasicTab();
+        Boolean awsVpc = null;
+        if (platform.getPlatformAws() != null) {
+            awsVpc = platform.getPlatformAws().getVpc();
+        }
+        basicTab = new BasicTab(loadBalancer.getLoadBalancer().getType(), awsVpc);
         tab.addTab(basicTab, ViewProperties.getCaption("tab.basic"), Icons.BASIC.resource());
 
         // ヘルスチェックタブ
-        healthCheckTab = new HealthCheckTab();
+        healthCheckTab = new HealthCheckTab(loadBalancer.getLoadBalancer().getType());
         tab.addTab(healthCheckTab, ViewProperties.getCaption("tab.helthCheck"), Icons.DETAIL.resource());
 
         // 下部のバー
-        HorizontalLayout okbar = new HorizontalLayout();
-        okbar.setSpacing(true);
-        okbar.setMargin(false, false, true, false);
-        layout.addComponent(okbar);
-        layout.setComponentAlignment(okbar, Alignment.BOTTOM_RIGHT);
+        HorizontalLayout bottomLayout = new HorizontalLayout();
+        bottomLayout.setSpacing(true);
+        bottomLayout.setMargin(false, false, true, false);
+        layout.addComponent(bottomLayout);
+        layout.setComponentAlignment(bottomLayout, Alignment.BOTTOM_RIGHT);
 
-        // okButtonボタン
+        // OKボタン
         Button okButton = new Button();
         okButton.setCaption(ViewProperties.getCaption("button.ok"));
         okButton.setDescription(ViewProperties.getCaption("description.editLoadBalancer"));
-
         okButton.addListener(new Button.ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
                 okButtonClick(event);
             }
         });
-        okbar.addComponent(okButton);
-        // [Enter]でeditButtonクリック
-        okButton.setClickShortcut(KeyCode.ENTER);
+        okButton.setClickShortcut(KeyCode.ENTER); // [Enter]でeditButtonクリック
         okButton.focus();
+        bottomLayout.addComponent(okButton);
 
-        // Cancel
+        // Cancelボタン
         Button cancelButton = new Button(ViewProperties.getCaption("button.cancel"));
         cancelButton.setDescription(ViewProperties.getCaption("description.cancel"));
         cancelButton.addListener(new Button.ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
-                WinLoadBalancerEdit.this.close();
+                close();
             }
         });
-        okbar.addComponent(cancelButton);
-
-        // 入力チェックの設定
-        initValidation();
+        bottomLayout.addComponent(cancelButton);
 
         // データの表示
-        showData();
+        basicTab.show(loadBalancer, platform, components, securityGroups, subnets);
+        healthCheckTab.show(loadBalancer);
     }
 
     private class BasicTab extends VerticalLayout {
 
-        final String INTERNAL_CAPTION_ID = "EnableInternalName";
+        private final String INTERNAL_CAPTION_ID = "EnableInternalName";
 
-        final String SERVICE_CAPTION_ID = "ServiceName";
+        private final String SERVICE_CAPTION_ID = "ServiceName";
 
-        final String SUBNET_CAPTION_ID = "subnet";
+        private final String SUBNET_CAPTION_ID = "subnet";
 
-        Form form;
+        private String loadBalancerType;
 
-        TextField loadBalancerNameField;
+        private Boolean awsVpc;
 
-        TextField commentField;
+        private TextField loadBalancerNameField;
 
-        Label cloudLabel;
+        private TextField commentField;
 
-        Label typeLabel;
+        private Label cloudLabel;
 
-        ComboBox serviceSelect;
+        private Label typeLabel;
 
-        TwinColSelect subnetSelect;
+        private ComboBox serviceSelect;
 
-        ComboBox grpSelect;
+        private Button editServerButton;
 
-        ComboBox internalSelect;
+        private ComboBox internalSelect;
 
-        BasicTab() {
+        private ComboBox securityGroupSelect;
+
+        private TwinColSelect subnetSelect;
+
+        private List<Component> stoppedOnlyComponents = new ArrayList<Component>();
+
+        public BasicTab(String loadBalancerType, Boolean awsVpc) {
+            this.loadBalancerType = loadBalancerType;
+            this.awsVpc = awsVpc;
+        }
+
+        @Override
+        public void attach() {
             setHeight(TAB_HEIGHT);
             setMargin(false, true, false, true);
             setSpacing(false);
 
             // フォーム
-            form = new Form();
+            Form form = new Form();
             form.setSizeFull();
             addComponent(form);
 
-            // LB名
+            // ロードバランサ名
             loadBalancerNameField = new TextField(ViewProperties.getCaption("field.loadBalancerName"));
+            form.getLayout().addComponent(loadBalancerNameField);
 
-            // コメント欄
+            // コメント
             commentField = new TextField(ViewProperties.getCaption("field.comment"));
             commentField.setWidth("95%");
+            form.getLayout().addComponent(commentField);
 
             // プラットフォーム
             cloudLabel = new Label();
             cloudLabel.setCaption(ViewProperties.getCaption("field.cloud"));
             cloudLabel.addStyleName("icon-label");
+            form.getLayout().addComponent(cloudLabel);
 
             // ロードバランサ種別
             typeLabel = new Label();
             typeLabel.setCaption(ViewProperties.getCaption("field.loadBalancerType"));
             typeLabel.addStyleName("icon-label");
-
-            // UltraMonkeyサーバ編集ボタン
-            Button editServerButton = new Button(ViewProperties.getCaption("button.UltraMonkeyEdit"));
-            editServerButton.setDescription(ViewProperties.getCaption("description.UltraMonkeyEdit"));
-            editServerButton.setIcon(Icons.EDITMINI.resource());
-
-            editServerButton.addListener(new Button.ClickListener() {
-                @Override
-                public void buttonClick(ClickEvent event) {
-                    WinServerEdit winServerEdit = new WinServerEdit(getApplication(), instanceNo);
-                    winServerEdit.addListener(new CloseListener() {
-                        @Override
-                        public void windowClose(CloseEvent e) {
-
-                        }
-                    });
-                    getWindow().getApplication().getMainWindow().addWindow(winServerEdit);
-                }
-            });
-            HorizontalLayout editlay = new HorizontalLayout();
-            Label txt = new Label(ViewProperties.getCaption("field.UltraMonkeyEdit"));
-            editlay.addComponent(editServerButton);
-            editlay.addComponent(txt);
-            editlay.setComponentAlignment(txt, Alignment.MIDDLE_LEFT);
+            form.getLayout().addComponent(typeLabel);
 
             // 割り当てサービス
             serviceSelect = new ComboBox();
             serviceSelect.setCaption(ViewProperties.getCaption("field.loadBalancerService"));
             serviceSelect.setNullSelectionAllowed(false);
+            serviceSelect.addContainerProperty(SERVICE_CAPTION_ID, String.class, null);
             serviceSelect.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
             serviceSelect.setItemCaptionPropertyId(SERVICE_CAPTION_ID);
-
-            //サブネット
-            //サブネット選択(上部のラベル)
-            AbsoluteLayout aboveLayout = new AbsoluteLayout();
-            aboveLayout.setWidth("100%");
-            aboveLayout.setHeight("20px");
-            Label selectLbl = new Label(ViewProperties.getCaption("field.selectSubnet"));
-            Label selectedLbl = new Label(ViewProperties.getCaption("field.selectedSubnet"));
-            aboveLayout.addComponent(selectLbl, "left:7%");
-            aboveLayout.addComponent(selectedLbl, "left:60%");
-
-            //サブネット選択(選択コンポーネント本体)
-            subnetSelect = new TwinColSelect(ViewProperties.getCaption("field.subnetZone"));
-            subnetSelect.setRows(7);
-            subnetSelect.setNullSelectionAllowed(true);
-            subnetSelect.setMultiSelect(true);
-            subnetSelect.setImmediate(true);
-            subnetSelect.setWidth("100%");
-            subnetSelect.setItemCaptionPropertyId(SUBNET_CAPTION_ID);
-            subnetSelect.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
-            subnetSelect.getWidthUnits();
-
-            //サブネット選択(下部のラベル)
-            AbsoluteLayout belowLayout = new AbsoluteLayout();
-            belowLayout.setWidth("100%");
-            belowLayout.setHeight("20px");
-            Label descriptionLbl = new Label(ViewProperties.getCaption("field.selectSubnetDescription"));
-            belowLayout.addComponent(descriptionLbl);
-
-            //クロスゾーン負荷分散キャプション
-            AbsoluteLayout belowLayout2 = new AbsoluteLayout();
-            belowLayout2.setWidth("100%");
-            belowLayout2.setHeight("20px");
-            Label descriptionLbl2 = new Label(ViewProperties.getCaption("field.crosszone"));
-            belowLayout2.addComponent(descriptionLbl2);
-
-            //セキュリティグループ
-            grpSelect = new ComboBox();
-            grpSelect.setImmediate(true);
-            grpSelect.setCaption(ViewProperties.getCaption("field.securityGroup"));
-            grpSelect.setNullSelectionAllowed(false);
-
-            //内部ロードバランサ
-            internalSelect = new ComboBox();
-            internalSelect.setImmediate(true);
-            internalSelect.setCaption(ViewProperties.getCaption("field.internallb"));
-            internalSelect.setNullSelectionAllowed(false);
-
-            //表示or非表示
-            form.getLayout().addComponent(loadBalancerNameField);
-            form.getLayout().addComponent(commentField);
-            //ultramonkeyの場合の未表示
-            if (instanceNo != null) {
-                form.getLayout().addComponent(editlay);
-            }
-            form.getLayout().addComponent(cloudLabel);
-            form.getLayout().addComponent(typeLabel);
             form.getLayout().addComponent(serviceSelect);
 
-            PlatformAws platformAws = platformDto.getPlatformAws();
-            if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancerDto.getLoadBalancer().getType())
-                    && platformAws.getVpc()) {
-                form.getLayout().addComponent(internalSelect);
-                form.getLayout().addComponent(grpSelect);
-                form.getLayout().addComponent(aboveLayout);
-                form.getLayout().addComponent(subnetSelect);
-                form.getLayout().addComponent(belowLayout);
-                form.getLayout().addComponent(belowLayout2);
+            // UltraMonkeyロードバランサの場合
+            if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(loadBalancerType)) {
+                // サーバ編集ボタン
+                editServerButton = new Button(ViewProperties.getCaption("button.UltraMonkeyEdit"));
+                editServerButton.setDescription(ViewProperties.getCaption("description.UltraMonkeyEdit"));
+                editServerButton.setIcon(Icons.EDITMINI.resource());
+                editServerButton.addListener(new Button.ClickListener() {
+                    @Override
+                    public void buttonClick(ClickEvent event) {
+                        WinServerEdit winServerEdit = new WinServerEdit(getApplication(), loadBalancerInstanceNo);
+                        winServerEdit.addListener(new CloseListener() {
+                            @Override
+                            public void windowClose(CloseEvent e) {
+
+                            }
+                        });
+                        getWindow().getApplication().getMainWindow().addWindow(winServerEdit);
+                    }
+                });
+                stoppedOnlyComponents.add(editServerButton);
+
+                HorizontalLayout layout = new HorizontalLayout();
+                Label txt = new Label(ViewProperties.getCaption("field.UltraMonkeyEdit"));
+                layout.addComponent(editServerButton);
+                layout.addComponent(txt);
+                layout.setComponentAlignment(txt, Alignment.MIDDLE_LEFT);
+                form.getLayout().addComponent(layout);
+            }
+            // AWSロードバランサの場合
+            else if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancerType)) {
+                if (BooleanUtils.isTrue(awsVpc)) {
+                    // 内部ロードバランサ
+                    internalSelect = new ComboBox();
+                    internalSelect.setImmediate(true);
+                    internalSelect.setCaption(ViewProperties.getCaption("field.internallb"));
+                    internalSelect.setNullSelectionAllowed(false);
+                    internalSelect.addContainerProperty(INTERNAL_CAPTION_ID, String.class, null);
+                    internalSelect.setItemCaptionPropertyId(INTERNAL_CAPTION_ID);
+                    internalSelect.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
+                    form.getLayout().addComponent(internalSelect);
+                    stoppedOnlyComponents.add(internalSelect);
+
+                    // セキュリティグループ
+                    securityGroupSelect = new ComboBox();
+                    securityGroupSelect.setImmediate(true);
+                    securityGroupSelect.setCaption(ViewProperties.getCaption("field.securityGroup"));
+                    securityGroupSelect.setNullSelectionAllowed(false);
+                    form.getLayout().addComponent(securityGroupSelect);
+                    stoppedOnlyComponents.add(securityGroupSelect);
+
+                    // サブネットのラベル
+                    AbsoluteLayout subnetLayout = new AbsoluteLayout();
+                    subnetLayout.setWidth("100%");
+                    subnetLayout.setHeight("20px");
+                    Label selectLbl = new Label(ViewProperties.getCaption("field.selectSubnet"));
+                    Label selectedLbl = new Label(ViewProperties.getCaption("field.selectedSubnet"));
+                    subnetLayout.addComponent(selectLbl, "left:7%");
+                    subnetLayout.addComponent(selectedLbl, "left:60%");
+                    form.getLayout().addComponent(subnetLayout);
+                    stoppedOnlyComponents.add(subnetLayout);
+
+                    // サブネット
+                    subnetSelect = new TwinColSelect(ViewProperties.getCaption("field.subnetZone"));
+                    subnetSelect.setRows(7);
+                    subnetSelect.setNullSelectionAllowed(true);
+                    subnetSelect.setMultiSelect(true);
+                    subnetSelect.setImmediate(true);
+                    subnetSelect.setWidth("100%");
+                    subnetSelect.addContainerProperty(SUBNET_CAPTION_ID, String.class, null);
+                    subnetSelect.setItemCaptionPropertyId(SUBNET_CAPTION_ID);
+                    subnetSelect.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
+                    subnetSelect.getWidthUnits();
+                    form.getLayout().addComponent(subnetSelect);
+                    stoppedOnlyComponents.add(subnetSelect);
+
+                    // サブネットのラベル2
+                    AbsoluteLayout subnetLayout2 = new AbsoluteLayout();
+                    subnetLayout2.setWidth("100%");
+                    subnetLayout2.setHeight("20px");
+                    Label descriptionLbl = new Label(ViewProperties.getCaption("field.selectSubnetDescription"));
+                    subnetLayout2.addComponent(descriptionLbl);
+                    form.getLayout().addComponent(subnetLayout2);
+                    stoppedOnlyComponents.add(subnetLayout2);
+
+                    // サブネットのラベル3
+                    AbsoluteLayout subnetLayout3 = new AbsoluteLayout();
+                    subnetLayout3.setWidth("100%");
+                    subnetLayout3.setHeight("20px");
+                    Label descriptionLbl2 = new Label(ViewProperties.getCaption("field.crosszone"));
+                    subnetLayout3.addComponent(descriptionLbl2);
+                    form.getLayout().addComponent(subnetLayout3);
+                    stoppedOnlyComponents.add(subnetLayout3);
+                }
             }
 
-            //活性or非活性
-            LoadBalancerStatus status = LoadBalancerStatus.fromStatus(loadBalancerDto.getLoadBalancer().getStatus());
-            if (LoadBalancerStatus.STOPPED != status) {
-                //ロードバランサのステータスがSTOPPED以外の場合
-                internalSelect.setEnabled(false);
-                aboveLayout.setEnabled(false);
-                subnetSelect.setEnabled(false);
-                belowLayout.setEnabled(false);
-                belowLayout2.setEnabled(false);
-                grpSelect.setEnabled(false);
-                editServerButton.setEnabled(false);
-            }
+            initValidation();
         }
 
         private void initValidation() {
             String message = ViewMessages.getMessage("IUI-000003");
             commentField.addValidator(new StringLengthValidator(message, -1, 100, true));
 
-            PlatformAws platformAws = platformDto.getPlatformAws();
-            if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancerDto.getLoadBalancer().getType())
-                    && platformAws.getVpc()) {
-                message = ViewMessages.getMessage("IUI-000108");
-                subnetSelect.setRequired(true);
-                subnetSelect.setRequiredError(message);
+            if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancerType)) {
+                if (BooleanUtils.isTrue(awsVpc)) {
+                    message = ViewMessages.getMessage("IUI-000029");
+                    securityGroupSelect.setRequired(true);
+                    securityGroupSelect.setRequiredError(message);
 
-                message = ViewMessages.getMessage("IUI-000029");
-                grpSelect.setRequired(true);
-                grpSelect.setRequiredError(message);
+                    message = ViewMessages.getMessage("IUI-000108");
+                    subnetSelect.setRequired(true);
+                    subnetSelect.setRequiredError(message);
+                }
             }
         }
 
-        private void showData() {
+        public void show(LoadBalancerDto loadBalancer, LoadBalancerPlatformDto platform, List<ComponentDto> components,
+                List<String> securityGroups, List<Subnet> subnets) {
             // ロードバランサー名
             loadBalancerNameField.setReadOnly(false);
-            loadBalancerNameField.setValue(loadBalancerDto.getLoadBalancer().getLoadBalancerName());
+            loadBalancerNameField.setValue(loadBalancer.getLoadBalancer().getLoadBalancerName());
             loadBalancerNameField.setReadOnly(true);
 
-            // コメントの設定
-            String comment = loadBalancerDto.getLoadBalancer().getComment();
+            // コメント
+            String comment = loadBalancer.getLoadBalancer().getComment();
             if (comment != null) {
                 commentField.setValue(comment);
             }
 
-            // プラットフォーム
-            Platform platform = platformDto.getPlatform();
-            PlatformAws platformAws = platformDto.getPlatformAws();
-
-            //プラットフォームアイコン名の取得
-            Icons icon = IconUtils.getPlatformIcon(platformDto);
-            String description = platform.getPlatformNameDisp();
-            String cloudValue = IconUtils.createImageTag(apl, icon, description);
+            // プラットフォーム名
+            Icons platformIcon = IconUtils.getPlatformIcon(platform);
+            String description = platform.getPlatform().getPlatformNameDisp();
+            String cloudValue = IconUtils.createImageTag(getApplication(), platformIcon, description);
             cloudLabel.setValue(cloudValue);
             cloudLabel.setContentMode(Label.CONTENT_XHTML);
 
             // ロードバランサ種別
-            String type = loadBalancerDto.getLoadBalancer().getType();
             Icons typeIcon = Icons.NONE;
-            String typeString = ViewProperties.getLoadBalancerType(type);
-            String typeValue = IconUtils.createImageTag(apl, typeIcon, typeString);
+            String typeString = ViewProperties.getLoadBalancerType(loadBalancer.getLoadBalancer().getType());
+            String typeValue = IconUtils.createImageTag(getApplication(), typeIcon, typeString);
             typeLabel.setValue(typeValue);
             typeLabel.setContentMode(Label.CONTENT_XHTML);
 
-            // 割り当てサービス選択
-            IndexedContainer serviceContainer = new IndexedContainer();
-            serviceContainer.addContainerProperty(SERVICE_CAPTION_ID, String.class, null);
-            for (ComponentDto componentDto : componentDtos) {
-                Item item = serviceContainer.addItem(componentDto);
-                item.getItemProperty(SERVICE_CAPTION_ID).setValue(componentDto.getComponent().getComponentName());
+            // 割り当てサービス
+            for (ComponentDto component : components) {
+                Item item = serviceSelect.addItem(component.getComponent().getComponentNo());
+                item.getItemProperty(SERVICE_CAPTION_ID).setValue(component.getComponent().getComponentName());
             }
-            serviceSelect.setContainerDataSource(serviceContainer);
-
-            // 既に割り当てられているサービスを選択する
-            Long componentNo = loadBalancerDto.getLoadBalancer().getComponentNo();
-            for (ComponentDto componentDto : componentDtos) {
-                if (componentNo.equals(componentDto.getComponent().getComponentNo())) {
-                    serviceSelect.select(componentDto);
-                    break;
-                }
-            }
+            serviceSelect.select(loadBalancer.getLoadBalancer().getComponentNo());
 
             // リスナーが存在する場合 は選択不可にする
-            if (loadBalancerDto.getLoadBalancerListeners().size() > 0) {
+            if (loadBalancer.getLoadBalancerListeners().size() > 0) {
                 serviceSelect.setEnabled(false);
             }
 
-            // 有効無効コンボ
-            if (PCCConstant.LOAD_BALANCER_ELB.equals(type) && platformAws.getVpc()) {
-                internalSelect.setContainerDataSource(getEnabledList());
-                internalSelect.select("無効");
-                if (loadBalancerDto.getAwsLoadBalancer().getInternal()) {
-                    internalSelect.select("有効");
-                }
-            }
+            // AWSロードバランサの場合
+            if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancer.getLoadBalancer().getType())) {
+                // VPCの場合
+                if (BooleanUtils.isTrue(platform.getPlatformAws().getVpc())) {
+                    // 内部ロードバランサ
+                    Item disableItem = internalSelect.addItem(false);
+                    disableItem.getItemProperty(INTERNAL_CAPTION_ID).setValue("無効");
+                    Item enableItem = internalSelect.addItem(true);
+                    enableItem.getItemProperty(INTERNAL_CAPTION_ID).setValue("有効");
+                    internalSelect.select(BooleanUtils.isTrue(loadBalancer.getAwsLoadBalancer().getInternal()));
 
-            // サブネット
-            if (PCCConstant.LOAD_BALANCER_ELB.equals(type) && platformAws.getVpc()) {
-                //ELB + VPCの場合
-                subnetSelect.setContainerDataSource(createSubnetContainer());
-                if (StringUtils.isNotEmpty(loadBalancerDto.getAwsLoadBalancer().getSubnetId())) {
-                    List<String> lbSubnets = new ArrayList<String>();
-                    for (String lbSubnet : loadBalancerDto.getAwsLoadBalancer().getSubnetId().split(",")) {
-                        lbSubnets.add(lbSubnet.trim());
+                    // セキュリティグループ
+                    for (String securityGroup : securityGroups) {
+                        securityGroupSelect.addItem(securityGroup);
                     }
+
+                    if (loadBalancer.getAwsLoadBalancer().getSecurityGroups() != null) {
+                        securityGroupSelect.setValue(loadBalancer.getAwsLoadBalancer().getSecurityGroups());
+                    }
+
+                    // サブネット
                     for (Subnet subnet : subnets) {
-                        if (lbSubnets.contains(subnet.getSubnetId())) {
-                            subnetSelect.select(subnet);
+                        Item item = subnetSelect.addItem(subnet.getSubnetId());
+                        String subnetDisp = subnet.getCidrBlock() + " [" + subnet.getAvailabilityZone() + "]";
+                        item.getItemProperty(SUBNET_CAPTION_ID).setValue(subnetDisp);
+                    }
+
+                    if (loadBalancer.getAwsLoadBalancer().getSubnetId() != null) {
+                        for (String subnetId : loadBalancer.getAwsLoadBalancer().getSubnetId().split(",")) {
+                            subnetId = subnetId.trim();
+
+                            for (Subnet subnet : subnets) {
+                                if (StringUtils.equals(subnet.getSubnetId(), subnetId)) {
+                                    subnetSelect.select(subnetId);
+                                }
+                            }
                         }
                     }
-                } else {
-                    subnetSelect.select("");
                 }
             }
 
-            //セキュリティグループ
-            if (PCCConstant.LOAD_BALANCER_ELB.equals(type) && platformAws.getVpc()) {
-                //ELB + VPCの場合
-                grpSelect.setContainerDataSource(new IndexedContainer(securityGroups));
-                grpSelect.select(loadBalancerDto.getAwsLoadBalancer().getSecurityGroups());
+            // ロードバランサが停止していない場合、変更できない項目を無効化する
+            LoadBalancerStatus status = LoadBalancerStatus.fromStatus(loadBalancer.getLoadBalancer().getStatus());
+            if (LoadBalancerStatus.STOPPED != status) {
+                for (Component stoppedOnlyComponent : stoppedOnlyComponents) {
+                    stoppedOnlyComponent.setEnabled(false);
+                }
             }
-        }
-
-        private IndexedContainer getEnabledList() {
-            IndexedContainer container = new IndexedContainer();
-            container.addContainerProperty(INTERNAL_CAPTION_ID, String.class, null);
-
-            Item item = container.addItem("有効");
-            item.getItemProperty(INTERNAL_CAPTION_ID).setValue("有効");
-
-            item = container.addItem("無効");
-            item.getItemProperty(INTERNAL_CAPTION_ID).setValue("無効");
-
-            return container;
-        }
-
-        private IndexedContainer createSubnetContainer() {
-            IndexedContainer subnetContainer = new IndexedContainer();
-            subnetContainer.addContainerProperty(SUBNET_CAPTION_ID, String.class, null);
-            subnetContainer.addContainerProperty("cidrBlock", String.class, null);
-            subnetContainer.addContainerProperty("subnetId", String.class, null);
-            subnetContainer.addContainerProperty("zoneid", String.class, null);
-
-            for (Subnet subnet : subnets) {
-                Item item = subnetContainer.addItem(subnet);
-                String subnetDisp = subnet.getCidrBlock() + "[" + subnet.getAvailabilityZone() + "]";
-                item.getItemProperty(SUBNET_CAPTION_ID).setValue(subnetDisp);
-                item.getItemProperty("cidrBlock").setValue(subnet.getCidrBlock());
-                item.getItemProperty("subnetId").setValue(subnet.getSubnetId());
-                item.getItemProperty("zoneid").setValue(subnet.getAvailabilityZone());
-            }
-
-            return subnetContainer;
         }
 
     }
 
     private class HealthCheckTab extends VerticalLayout {
 
-        final String TEXT_WIDTH = "120px";
+        private final String TEXT_WIDTH = "120px";
 
-        final String CHECKPROTOCOL_CAPTION_ID = "ProtocolName";
+        private String loadBalancerType;
 
-        Form mainForm;
+        private ComboBox checkProtocolSelect;
 
-        Form subForm;
+        private TextField checkPortField;
 
-        ComboBox checkProtocolSelect;
+        private TextField checkPathField;
 
-        TextField checkPortField;
+        private TextField checkTimeoutField;
 
-        TextField checkPathField;
+        private TextField checkIntervalField;
 
-        TextField checkTimeoutField;
+        private TextField unhealthyThresholdField;
 
-        TextField checkIntervalField;
+        private TextField healthyThresholdField;
 
-        TextField unhealthyThresholdField;
+        public HealthCheckTab(String loadBalancerType) {
+            this.loadBalancerType = loadBalancerType;
+        }
 
-        TextField healthyThresholdField;
-
-        HealthCheckTab() {
+        @Override
+        public void attach() {
             setHeight(TAB_HEIGHT);
             setMargin(false, true, true, true);
             setSpacing(false);
 
             // メインフォーム
-            mainForm = new Form();
-            Layout mainLayout = mainForm.getLayout();
+            Form mainForm = new Form();
             addComponent(mainForm);
 
             // 監視プロトコル
@@ -522,61 +493,66 @@ public class WinLoadBalancerEdit extends Window {
             checkProtocolSelect.setWidth(TEXT_WIDTH);
             checkProtocolSelect.setImmediate(true);
             checkProtocolSelect.setNullSelectionAllowed(false);
-            mainLayout.addComponent(checkProtocolSelect);
             checkProtocolSelect.addListener(new Property.ValueChangeListener() {
                 @Override
                 public void valueChange(Property.ValueChangeEvent event) {
-                    changeCheckProtocol(event);
+                    checkProtocolValueChange(event);
                 }
             });
+            mainForm.getLayout().addComponent(checkProtocolSelect);
 
             // 監視ポート
             checkPortField = new TextField(ViewProperties.getCaption("field.checkPort"));
             checkPortField.setWidth(TEXT_WIDTH);
-            mainLayout.addComponent(checkPortField);
+            mainForm.getLayout().addComponent(checkPortField);
 
             // 監視Path
             checkPathField = new TextField(ViewProperties.getCaption("field.checkPath"));
             checkPathField.setImmediate(true);
-            mainLayout.addComponent(checkPathField);
+            mainForm.getLayout().addComponent(checkPathField);
 
             // ヘルスチェック詳細設定パネル
             Panel panel = new Panel(ViewProperties.getCaption("field.healthCheckDetail"));
             ((Layout) panel.getContent()).setMargin(false, false, false, true);
             ((Layout) panel.getContent()).setHeight("200px");
             ((Layout) panel.getContent()).setWidth("315px");
-            mainLayout.addComponent(panel);
+            mainForm.getLayout().addComponent(panel);
 
             // サブフォーム
-            subForm = new Form();
+            Form subForm = new Form();
             subForm.setStyleName("panel-healthcheck-setting");
-            FormLayout sublayout = (FormLayout) this.subForm.getLayout();
-            sublayout.setMargin(false, false, false, false);
+            subForm.getLayout().setMargin(false, false, false, false);
             panel.addComponent(subForm);
 
             // タイムアウト時間
             checkTimeoutField = new TextField(ViewProperties.getCaption("field.checkTimeout"));
             checkTimeoutField.setWidth(TEXT_WIDTH);
-            sublayout.addComponent(checkTimeoutField);
+            subForm.getLayout().addComponent(checkTimeoutField);
 
             // ヘルスチェック間隔
             checkIntervalField = new TextField(ViewProperties.getCaption("field.checkInterval"));
             checkIntervalField.setWidth(TEXT_WIDTH);
-            sublayout.addComponent(checkIntervalField);
+            subForm.getLayout().addComponent(checkIntervalField);
 
             // 障害閾値
             unhealthyThresholdField = new TextField(ViewProperties.getCaption("field.checkDownThreshold"));
             unhealthyThresholdField.setWidth(TEXT_WIDTH);
-            sublayout.addComponent(unhealthyThresholdField);
+            subForm.getLayout().addComponent(unhealthyThresholdField);
 
             // 復帰閾値
             healthyThresholdField = new TextField(ViewProperties.getCaption("field.checkRecoverThreshold"));
             healthyThresholdField.setWidth(TEXT_WIDTH);
-            sublayout.addComponent(healthyThresholdField);
+            subForm.getLayout().addComponent(healthyThresholdField);
+
+            // UltraMonkeyロードバランサの場合、復帰閾値は設定できない
+            if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(loadBalancerType)) {
+                healthyThresholdField.setEnabled(false);
+            }
+
+            initValidation();
         }
 
         private void initValidation() {
-            // 入力チェック
             String message;
 
             // 監視プロトコル
@@ -615,7 +591,7 @@ public class WinLoadBalancerEdit extends Window {
             unhealthyThresholdField.addValidator(new IntegerRangeValidator(2, 10, message));
 
             // 復帰閾値
-            if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancerDto.getLoadBalancer().getType())) {
+            if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancerType)) {
                 message = ViewMessages.getMessage("IUI-000075", 2, 10);
                 healthyThresholdField.setRequired(true);
                 healthyThresholdField.setRequiredError(message);
@@ -623,14 +599,12 @@ public class WinLoadBalancerEdit extends Window {
             }
         }
 
-        private void showData() {
+        public void show(LoadBalancerDto loadBalancer) {
             // 監視プロトコル
-            IndexedContainer protocols = getCheckProtocolList();
-            checkProtocolSelect.setContainerDataSource(protocols);
-            checkProtocolSelect.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
-            checkProtocolSelect.setItemCaptionPropertyId(CHECKPROTOCOL_CAPTION_ID);
+            checkProtocolSelect.addItem("TCP");
+            checkProtocolSelect.addItem("HTTP");
 
-            LoadBalancerHealthCheck healthCheck = loadBalancerDto.getLoadBalancerHealthCheck();
+            LoadBalancerHealthCheck healthCheck = loadBalancer.getLoadBalancerHealthCheck();
             if (healthCheck != null) {
                 // 監視プロトコル
                 if (healthCheck.getCheckProtocol() != null) {
@@ -666,9 +640,7 @@ public class WinLoadBalancerEdit extends Window {
                 if (healthCheck.getHealthyThreshold() != null) {
                     healthyThresholdField.setValue(healthCheck.getHealthyThreshold().toString());
                 }
-                if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(loadBalancerDto.getLoadBalancer().getType())) {
-                    healthyThresholdField.setEnabled(false);
-                }
+
             } else {
                 // デフォルト表示
                 checkProtocolSelect.select("HTTP");
@@ -678,27 +650,10 @@ public class WinLoadBalancerEdit extends Window {
                 checkIntervalField.setValue("30");
                 unhealthyThresholdField.setValue("2");
                 healthyThresholdField.setValue("10");
-                if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(loadBalancerDto.getLoadBalancer().getType())) {
-                    healthyThresholdField.setEnabled(false);
-                }
             }
         }
 
-        private IndexedContainer getCheckProtocolList() {
-            // TODO: ロードバランサの種別によって対応プロトコルを設定
-            IndexedContainer container = new IndexedContainer();
-            container.addContainerProperty(CHECKPROTOCOL_CAPTION_ID, String.class, null);
-
-            Item item = container.addItem("TCP");
-            item.getItemProperty(CHECKPROTOCOL_CAPTION_ID).setValue("TCP");
-
-            item = container.addItem("HTTP");
-            item.getItemProperty(CHECKPROTOCOL_CAPTION_ID).setValue("HTTP");
-
-            return container;
-        }
-
-        private void changeCheckProtocol(Property.ValueChangeEvent event) {
+        private void checkProtocolValueChange(Property.ValueChangeEvent event) {
             if ("HTTP".equals(checkProtocolSelect.getValue())) {
                 checkPathField.setEnabled(true);
             } else {
@@ -709,111 +664,88 @@ public class WinLoadBalancerEdit extends Window {
 
     }
 
-    private void initData() {
+    private void loadData() {
         Long userNo = ViewContext.getUserNo();
         Long farmNo = ViewContext.getFarmNo();
 
         // ロードバランサ情報を取得
         LoadBalancerService loadBalancerService = BeanContext.getBean(LoadBalancerService.class);
-        List<LoadBalancerDto> loadBalancerDtos = loadBalancerService.getLoadBalancers(farmNo);
-        for (LoadBalancerDto loadBalancerDto : loadBalancerDtos) {
-            if (loadBalancerNo.equals(loadBalancerDto.getLoadBalancer().getLoadBalancerNo())) {
-                this.loadBalancerDto = loadBalancerDto;
+        List<LoadBalancerDto> loadBalancers = loadBalancerService.getLoadBalancers(farmNo);
+        for (LoadBalancerDto loadBalancer : loadBalancers) {
+            if (loadBalancerNo.equals(loadBalancer.getLoadBalancer().getLoadBalancerNo())) {
+                this.loadBalancer = loadBalancer;
                 break;
             }
         }
 
-        //ロードバランサ種別を設定
-        String type = loadBalancerDto.getLoadBalancer().getType();
-
-        // プラットフォーム情報を取得
-        Long platformNo = loadBalancerDto.getLoadBalancer().getPlatformNo();
-        List<LoadBalancerPlatformDto> platformDtos = loadBalancerService.getPlatforms(userNo);
-        for (LoadBalancerPlatformDto platformDto : platformDtos) {
-            if (platformNo.equals(platformDto.getPlatform().getPlatformNo())) {
-                this.platformDto = platformDto;
+        // ロードバランサのプラットフォーム情報を取得
+        Long platformNo = loadBalancer.getLoadBalancer().getPlatformNo();
+        List<LoadBalancerPlatformDto> platforms = loadBalancerService.getPlatforms(userNo);
+        for (LoadBalancerPlatformDto platform : platforms) {
+            if (platformNo.equals(platform.getPlatform().getPlatformNo())) {
+                this.platform = platform;
                 break;
             }
         }
 
         // コンポーネント情報を取得
         ComponentService componentService = BeanContext.getBean(ComponentService.class);
-        componentDtos = componentService.getComponents(farmNo);
+        components = componentService.getComponents(farmNo);
 
-        //ultramonkeyはインスタンスを特定
-        if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(type)) {
-            this.instanceNo = loadBalancerService.getLoadBalancerInstance(loadBalancerNo);
+        // UltraMonkeyロードバランサの場合
+        if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(loadBalancer.getLoadBalancer().getType())) {
+            // インスタンスを特定する
+            this.loadBalancerInstanceNo = loadBalancerService.getLoadBalancerInstance(loadBalancerNo);
         }
+        // AWSロードバランサの場合
+        if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancer.getLoadBalancer().getType())) {
+            // VPCの場合
+            if (BooleanUtils.isTrue(platform.getPlatformAws().getVpc())) {
+                AwsDescribeService awsDescribeService = BeanContext.getBean(AwsDescribeService.class);
 
-        AwsDescribeService awsDescribeService = BeanContext.getBean(AwsDescribeService.class);
+                // サブネットを取得
+                this.subnets = new ArrayList<Subnet>();
+                List<Subnet> subnets = awsDescribeService.getSubnets(userNo, platformNo);
+                for (Subnet subnet : subnets) {
+                    this.subnets.add(subnet);
+                }
 
-        //サブネットを取得
-        PlatformAws platformAws = platformDto.getPlatformAws();
-        this.subnets = new ArrayList<Subnet>();
-        if (PCCConstant.LOAD_BALANCER_ELB.equals(type) && platformAws.getVpc()) {
-            List<Subnet> subnets = awsDescribeService.getSubnets(userNo, platformNo);
-            for (Subnet subnet : subnets) {
-                this.subnets.add(subnet);
+                // セキュリティグループを取得
+                this.securityGroups = new ArrayList<String>();
+                List<SecurityGroup> groups = awsDescribeService.getSecurityGroups(userNo, platformNo);
+                for (SecurityGroup group : groups) {
+                    this.securityGroups.add(group.getGroupName());
+                }
             }
         }
+    }
 
-        //セキュリティグループを取得
-        this.securityGroups = new ArrayList<String>();
-        if (PCCConstant.LOAD_BALANCER_ELB.equals(type) && platformAws.getVpc()) {
-            List<SecurityGroup> groups = awsDescribeService.getSecurityGroups(userNo, platformNo);
-            for (SecurityGroup group : groups) {
-                this.securityGroups.add(group.getGroupName());
+    private Subnet findSubnet(String subnetId) {
+        for (Subnet subnet : subnets) {
+            if (StringUtils.equals(subnet.getSubnetId(), subnetId)) {
+                return subnet;
             }
         }
+        return null;
     }
 
-    private void initValidation() {
-        basicTab.initValidation();
-        healthCheckTab.initValidation();
-    }
-
-    private void showData() {
-        basicTab.showData();
-        healthCheckTab.showData();
-    }
-
+    @SuppressWarnings("unchecked")
     private void okButtonClick(ClickEvent event) {
-        String type = loadBalancerDto.getLoadBalancer().getType();
-        PlatformAws platformAws = platformDto.getPlatformAws();
-
-        // 入力値を取得
-        String comment = (String) basicTab.commentField.getValue();
-        ComponentDto componentDto = (ComponentDto) basicTab.serviceSelect.getValue();
-        String subnetId = null;
-        String zone = null;
-        Collection<Subnet> subnets = null;
-        String securityGroup = null;
-        boolean isInternalLb = false;
-        if (PCCConstant.LOAD_BALANCER_ELB.equals(type) && platformAws.getVpc()) {
-            subnets = (Collection<Subnet>) basicTab.subnetSelect.getValue();
-            securityGroup = (String) basicTab.grpSelect.getValue();
-            if ("有効".equals((String) basicTab.internalSelect.getValue())) {
-                isInternalLb = true;
-            }
-        }
-        String checkProtocol = (String) healthCheckTab.checkProtocolSelect.getValue();
-        String checkPortString = (String) healthCheckTab.checkPortField.getValue();
-        String checkPath = (String) healthCheckTab.checkPathField.getValue();
-        String checkTimeoutString = (String) healthCheckTab.checkTimeoutField.getValue();
-        String checkIntervalString = (String) healthCheckTab.checkIntervalField.getValue();
-        String unhealthyThresholdString = (String) healthCheckTab.unhealthyThresholdField.getValue();
-        String healthyThresholdString = (String) healthCheckTab.healthyThresholdField.getValue();
-
-        // TODO: 入力チェック
+        // 入力チェック
         try {
+            // 基本設定
             basicTab.commentField.validate();
-            if (PCCConstant.LOAD_BALANCER_ELB.equals(type) && platformAws.getVpc()) {
-                basicTab.subnetSelect.validate();
-                basicTab.grpSelect.validate();
+            if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancer.getLoadBalancer().getType())) {
+                if (BooleanUtils.isTrue(platform.getPlatformAws().getVpc())) {
+                    basicTab.subnetSelect.validate();
+                    basicTab.securityGroupSelect.validate();
+                }
             }
 
+            // ヘルスチェック設定
             healthCheckTab.checkProtocolSelect.validate();
             healthCheckTab.checkPortField.validate();
+            String checkProtocol = (String) healthCheckTab.checkProtocolSelect.getValue();
             if ("HTTP".equals(checkProtocol)) {
                 healthCheckTab.checkPathField.validate();
             }
@@ -828,70 +760,84 @@ public class WinLoadBalancerEdit extends Window {
             return;
         }
 
-        //サブネットのチェック
-        if (PCCConstant.LOAD_BALANCER_ELB.equals(type) && platformAws.getVpc()) {
-            if (subnets != null) {
-                StringBuffer subnetBuffer = new StringBuffer();
-                StringBuffer zoneBuffer = new StringBuffer();
+        // サブネットのチェック
+        if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancer.getLoadBalancer().getType())) {
+            if (BooleanUtils.isTrue(platform.getPlatformAws().getVpc())) {
+                // 同じゾーンのサブネットを複数選択できない
+                Collection<String> selectedSubnetIds = (Collection<String>) basicTab.subnetSelect.getValue();
                 List<String> zones = new ArrayList<String>();
-                for (Subnet subnet : subnets) {
+                for (String subnetId : selectedSubnetIds) {
+                    Subnet subnet = findSubnet(subnetId);
                     if (zones.contains(subnet.getAvailabilityZone())) {
-                        //同じゾーンのサブネットを複数選択している場合
+                        // 同じゾーンのサブネットを複数選択している場合
                         DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
                                 ViewMessages.getMessage("IUI-000110"));
                         getApplication().getMainWindow().addWindow(dialog);
                         return;
                     }
                     zones.add(subnet.getAvailabilityZone());
-                    subnetBuffer.append(subnetBuffer.length() > 0 ? "," + subnet.getSubnetId() : subnet.getSubnetId());
-                    zoneBuffer.append(zoneBuffer.length() > 0 ? "," + subnet.getAvailabilityZone() : subnet
-                            .getAvailabilityZone());
                 }
-                subnetId = subnetBuffer.toString();
-                zone = zoneBuffer.toString();
             }
         }
 
-        //オペレーションログ
-        AutoApplication aapl = (AutoApplication) apl;
+        // オペレーションログ
+        AutoApplication aapl = (AutoApplication) getApplication();
         aapl.doOpLog("LOAD_BALANCER", "Edit Load_Balancer", null, null, loadBalancerNo, null);
 
         LoadBalancerService loadBalancerService = BeanContext.getBean(LoadBalancerService.class);
-        // TODO CLOUD BRANCHING
-        if (PCCConstant.LOAD_BALANCER_ELB.equals(type)) {
+
+        // ロードバランサを変更
+        try {
+            String comment = (String) basicTab.commentField.getValue();
+            Long componentNo = (Long) basicTab.serviceSelect.getValue();
+
             // AWSロードバランサを変更
-            try {
-                String loadBalancerName = loadBalancerDto.getLoadBalancer().getLoadBalancerName();
-                Long componentNo = componentDto.getComponent().getComponentNo();
+            if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancer.getLoadBalancer().getType())) {
+                String subnetId = null;
+                String zone = null;
+                String securityGroup = null;
+                boolean internal = false;
+
+                if (BooleanUtils.isTrue(platform.getPlatformAws().getVpc())) {
+                    securityGroup = (String) basicTab.securityGroupSelect.getValue();
+                    internal = (Boolean) basicTab.internalSelect.getValue();
+
+                    Collection<String> selectedSubnetIds = (Collection<String>) basicTab.subnetSelect.getValue();
+                    for (String selectedSubnetId : selectedSubnetIds) {
+                        subnetId = (subnetId == null) ? selectedSubnetId : (subnetId + "," + selectedSubnetId);
+
+                        Subnet subnet = findSubnet(selectedSubnetId);
+                        zone = (zone == null) ? subnet.getAvailabilityZone() : (zone + "," + subnet
+                                .getAvailabilityZone());
+                    }
+                }
+
+                String loadBalancerName = loadBalancer.getLoadBalancer().getLoadBalancerName();
                 loadBalancerService.updateAwsLoadBalancer(loadBalancerNo, loadBalancerName, comment, componentNo,
-                        subnetId, securityGroup, zone, isInternalLb);
-            } catch (AutoApplicationException e) {
-                String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-                getApplication().getMainWindow().addWindow(dialog);
-                return;
+                        subnetId, securityGroup, zone, internal);
             }
-        } else if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(type)) {
-            // Ultramonkeyロードバランサを変更
-            try {
-                String loadBalancerName = loadBalancerDto.getLoadBalancer().getLoadBalancerName();
-                Long componentNo = componentDto.getComponent().getComponentNo();
+            // UltraMonkeyロードバランサを変更
+            else if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(loadBalancer.getLoadBalancer().getType())) {
+                String loadBalancerName = loadBalancer.getLoadBalancer().getLoadBalancerName();
                 loadBalancerService.updateUltraMonkeyLoadBalancer(loadBalancerNo, loadBalancerName, comment,
                         componentNo);
-            } catch (AutoApplicationException e) {
-                String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-                getApplication().getMainWindow().addWindow(dialog);
-                return;
             }
+        } catch (AutoApplicationException e) {
+            String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
+            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
+            getApplication().getMainWindow().addWindow(dialog);
+            return;
         }
 
         // ヘルスチェック設定の変更
-        Integer checkPort = Integer.valueOf(checkPortString);
-        Integer checkTimeout = Integer.valueOf(checkTimeoutString);
-        Integer checkInterval = Integer.valueOf(checkIntervalString);
-        Integer healthyThreshold = Integer.valueOf(healthyThresholdString);
-        Integer unhealthyThreshold = Integer.valueOf(unhealthyThresholdString);
+        String checkProtocol = (String) healthCheckTab.checkProtocolSelect.getValue();
+        Integer checkPort = Integer.valueOf((String) healthCheckTab.checkPortField.getValue());
+        String checkPath = (String) healthCheckTab.checkPathField.getValue();
+        Integer checkTimeout = Integer.valueOf((String) healthCheckTab.checkTimeoutField.getValue());
+        Integer checkInterval = Integer.valueOf((String) healthCheckTab.checkIntervalField.getValue());
+        Integer healthyThreshold = Integer.valueOf((String) healthCheckTab.unhealthyThresholdField.getValue());
+        Integer unhealthyThreshold = Integer.valueOf((String) healthCheckTab.healthyThresholdField.getValue());
+
         try {
             loadBalancerService.configureHealthCheck(loadBalancerNo, checkProtocol, checkPort, checkPath, checkTimeout,
                     checkInterval, healthyThreshold, unhealthyThreshold);

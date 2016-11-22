@@ -368,7 +368,7 @@ public class LoadBalancerTableOperation extends CssLayout {
             });
             getWindow().addWindow(winLoadBalancerEdit);
         } else {
-            WinLoadBalancerEdit winLoadBalancerEdit = new WinLoadBalancerEdit(getApplication(), loadBalancerNo);
+            WinLoadBalancerEdit winLoadBalancerEdit = new WinLoadBalancerEdit(loadBalancerNo);
             winLoadBalancerEdit.addListener(new Window.CloseListener() {
                 @Override
                 public void windowClose(CloseEvent e) {
