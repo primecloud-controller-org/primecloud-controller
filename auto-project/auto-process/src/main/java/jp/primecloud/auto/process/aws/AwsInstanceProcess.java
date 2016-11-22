@@ -230,6 +230,9 @@ public class AwsInstanceProcess extends ServiceSupport {
                     }
                 }
             }
+
+            // PrivateIpAddress
+            request.withPrivateIpAddress(awsInstance.getPrivateIpAddress());
         }
 
         // BlockDeviceMapping
