@@ -8,5 +8,6 @@ create table PLATFORM_AWS (
     REGION varchar(50),
     AVAILABILITY_ZONE varchar(300),
     VPC_ID varchar(30),
+    SUBNET_ID varchar(300),
     constraint PLATFORM_AWS_PK primary key (PLATFORM_NO)
 );
