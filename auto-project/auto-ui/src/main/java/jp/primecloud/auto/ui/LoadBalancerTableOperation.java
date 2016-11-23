@@ -346,8 +346,7 @@ public class LoadBalancerTableOperation extends CssLayout {
 
         Long loadBalancerNo = dto.getLoadBalancer().getLoadBalancerNo();
         if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(dto.getLoadBalancer().getType())) {
-            WinCloudStackLoadBalancerEdit winLoadBalancerEdit = new WinCloudStackLoadBalancerEdit(getApplication(),
-                    loadBalancerNo);
+            WinCloudStackLoadBalancerEdit winLoadBalancerEdit = new WinCloudStackLoadBalancerEdit(loadBalancerNo);
             winLoadBalancerEdit.addListener(new Window.CloseListener() {
                 @Override
                 public void windowClose(CloseEvent e) {

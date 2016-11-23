@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.ui;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import jp.primecloud.auto.exception.AutoApplicationException;
@@ -36,10 +35,8 @@ import jp.primecloud.auto.ui.util.ViewProperties;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.vaadin.Application;
 import com.vaadin.data.Item;
 import com.vaadin.data.Validator.InvalidValueException;
-import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.data.validator.StringLengthValidator;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.AbstractSelect;
@@ -64,27 +61,25 @@ import com.vaadin.ui.Window;
 @SuppressWarnings("serial")
 public class WinCloudStackLoadBalancerEdit extends Window {
 
-    final String COLUMN_HEIGHT = "30px";
+    private final String TAB_HEIGHT = "360px";
 
-    final String TAB_HEIGHT = "360px";
+    private Long loadBalancerNo;
 
-    Application apl;
+    private BasicTab basicTab;
 
-    Long loadBalancerNo;
+    private LoadBalancerDto loadBalancer;
 
-    BasicTab basicTab;
+    private LoadBalancerPlatformDto platform;
 
-    LoadBalancerDto loadBalancerDto;
+    private List<ComponentDto> components;
 
-    LoadBalancerPlatformDto platformDto;
-
-    List<ComponentDto> componentDtos;
-
-    WinCloudStackLoadBalancerEdit(Application ap, Long loadBalancerNo) {
-        apl = ap;
+    public WinCloudStackLoadBalancerEdit(Long loadBalancerNo) {
         this.loadBalancerNo = loadBalancerNo;
+    }
 
-        //モーダルウインドウ
+    @Override
+    public void attach() {
+        // モーダルウインドウ
         setIcon(Icons.EDITMINI.resource());
         setCaption(ViewProperties.getCaption("window.winLoadBalancerEdit"));
         setModal(true);
@@ -104,29 +99,27 @@ public class WinCloudStackLoadBalancerEdit extends Window {
         tab.addTab(basicTab, ViewProperties.getCaption("tab.basic"), Icons.BASIC.resource());
 
         // 下部のバー
-        HorizontalLayout okbar = new HorizontalLayout();
-        okbar.setSpacing(true);
-        okbar.setMargin(false, false, true, false);
-        layout.addComponent(okbar);
-        layout.setComponentAlignment(okbar, Alignment.BOTTOM_RIGHT);
+        HorizontalLayout bottomLayout = new HorizontalLayout();
+        bottomLayout.setSpacing(true);
+        bottomLayout.setMargin(false, false, true, false);
+        layout.addComponent(bottomLayout);
+        layout.setComponentAlignment(bottomLayout, Alignment.BOTTOM_RIGHT);
 
-        // editButtonボタン
+        // editボタン
         Button editButton = new Button();
         editButton.setCaption(ViewProperties.getCaption("button.editLoadBalancerService"));
         editButton.setDescription(ViewProperties.getCaption("description.editLoadBalancer"));
-
         editButton.addListener(new Button.ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
                 editButtonClick(event);
             }
         });
-        okbar.addComponent(editButton);
-        // [Enter]でeditButtonクリック
-        editButton.setClickShortcut(KeyCode.ENTER);
+        bottomLayout.addComponent(editButton);
+        editButton.setClickShortcut(KeyCode.ENTER); // [Enter]でeditButtonクリック
         editButton.focus();
 
-        // Cancel
+        // Cancelボタン
         Button cancelButton = new Button(ViewProperties.getCaption("button.cancel"));
         cancelButton.setDescription(ViewProperties.getCaption("description.cancel"));
         cancelButton.addListener(new Button.ClickListener() {
@@ -135,55 +128,51 @@ public class WinCloudStackLoadBalancerEdit extends Window {
                 WinCloudStackLoadBalancerEdit.this.close();
             }
         });
-        okbar.addComponent(cancelButton);
+        bottomLayout.addComponent(cancelButton);
 
         // 初期データの取得
-        initData();
-
-        // 入力チェックの設定
-        initValidation();
+        loadData();
 
         // データの表示
-        showData();
+        basicTab.show(loadBalancer, platform, components);
     }
 
     private class BasicTab extends VerticalLayout {
 
-        final String SERVICE_CAPTION_ID = "ServiceName";
+        private final String SERVICE_CAPTION_ID = "ServiceName";
 
-        Form form;
+        private TextField loadBalancerNameField;
 
-        TextField loadBalancerNameField;
+        private TextField commentField;
 
-        TextField commentField;
+        private Label cloudLabel;
 
-        Label cloudLabel;
+        private Label typeLabel;
 
-        Label typeLabel;
+        private ComboBox serviceSelect;
 
-        ComboBox serviceSelect;
+        private ComboBox algorithmSelect;
 
-        TextField pubricPortField;
+        private TextField publicPortField;
 
-        TextField privatePortField;
+        private TextField privatePortField;
 
-        ComboBox algorithmSelect;
-
-        BasicTab() {
+        @Override
+        public void attach() {
             setHeight(TAB_HEIGHT);
             setMargin(false, true, false, true);
             setSpacing(false);
 
             // フォーム
-            form = new Form();
+            Form form = new Form();
             form.setSizeFull();
             addComponent(form);
 
-            // LB名
+            // ロードバランサ名
             loadBalancerNameField = new TextField(ViewProperties.getCaption("field.loadBalancerName"));
             form.getLayout().addComponent(loadBalancerNameField);
 
-            // コメント欄
+            // コメント
             commentField = new TextField(ViewProperties.getCaption("field.comment"));
             commentField.setWidth("95%");
             form.getLayout().addComponent(commentField);
@@ -204,25 +193,28 @@ public class WinCloudStackLoadBalancerEdit extends Window {
             serviceSelect = new ComboBox();
             serviceSelect.setCaption(ViewProperties.getCaption("field.loadBalancerService"));
             serviceSelect.setNullSelectionAllowed(false);
+            serviceSelect.addContainerProperty(SERVICE_CAPTION_ID, String.class, null);
             serviceSelect.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
             serviceSelect.setItemCaptionPropertyId(SERVICE_CAPTION_ID);
             form.getLayout().addComponent(serviceSelect);
 
-            // アルゴリズム欄
+            // アルゴリズム
             algorithmSelect = new ComboBox();
             algorithmSelect.setCaption(ViewProperties.getCaption("field.algorithm"));
             algorithmSelect.setNullSelectionAllowed(false);
             form.getLayout().addComponent(algorithmSelect);
 
-            // パブリックポート欄
-            pubricPortField = new TextField(ViewProperties.getCaption("field.publicport"));
-            pubricPortField.setWidth("95%");
-            form.getLayout().addComponent(pubricPortField);
+            // パブリックポート
+            publicPortField = new TextField(ViewProperties.getCaption("field.publicport"));
+            publicPortField.setWidth("95%");
+            form.getLayout().addComponent(publicPortField);
 
-            // プライベートポート欄
+            // プライベートポート
             privatePortField = new TextField(ViewProperties.getCaption("field.privateport"));
             privatePortField.setWidth("95%");
             form.getLayout().addComponent(privatePortField);
+
+            initValidation();
         }
 
         private void initValidation() {
@@ -230,132 +222,99 @@ public class WinCloudStackLoadBalancerEdit extends Window {
             commentField.addValidator(new StringLengthValidator(message, -1, 100, true));
         }
 
-        private void showData() {
+        public void show(LoadBalancerDto loadBalancer, LoadBalancerPlatformDto platform, List<ComponentDto> components) {
             // ロードバランサー名
             loadBalancerNameField.setReadOnly(false);
-            loadBalancerNameField.setValue(loadBalancerDto.getLoadBalancer().getLoadBalancerName());
+            loadBalancerNameField.setValue(loadBalancer.getLoadBalancer().getLoadBalancerName());
             loadBalancerNameField.setReadOnly(true);
 
             // コメントの設定
-            String comment = loadBalancerDto.getLoadBalancer().getComment();
+            String comment = loadBalancer.getLoadBalancer().getComment();
             if (comment != null) {
                 commentField.setValue(comment);
             }
 
             // アルゴリズムの設定
-            List<String> algorithms = new ArrayList<String>();
-            algorithms.add("roundrobin");
-            algorithms.add("leastconn");
-            algorithmSelect.setContainerDataSource(new IndexedContainer(algorithms));
-            if (!StringUtils.isEmpty(loadBalancerDto.getCloudstackLoadBalancer().getAlgorithm())) {
-                algorithmSelect.select(loadBalancerDto.getCloudstackLoadBalancer().getAlgorithm());
+            algorithmSelect.addItem("roundrobin");
+            algorithmSelect.addItem("leastconn");
+            if (StringUtils.isNotEmpty(loadBalancer.getCloudstackLoadBalancer().getAlgorithm())) {
+                algorithmSelect.select(loadBalancer.getCloudstackLoadBalancer().getAlgorithm());
             }
 
             // パブリックポートの設定
-            String publicport = loadBalancerDto.getCloudstackLoadBalancer().getPublicport();
+            String publicport = loadBalancer.getCloudstackLoadBalancer().getPublicport();
             if (publicport != null) {
-                pubricPortField.setValue(publicport);
+                publicPortField.setValue(publicport);
             }
 
             // プライベートポートの設定
-            String privateport = loadBalancerDto.getCloudstackLoadBalancer().getPrivateport();
+            String privateport = loadBalancer.getCloudstackLoadBalancer().getPrivateport();
             if (comment != null) {
                 privatePortField.setValue(privateport);
             }
 
             // プラットフォーム
-            //プラットフォームアイコン名の取得
-            Icons icon = IconUtils.getPlatformIcon(platformDto);
-            String description = platformDto.getPlatform().getPlatformNameDisp();
-            String cloudValue = IconUtils.createImageTag(apl, icon, description);
+            Icons icon = IconUtils.getPlatformIcon(platform);
+            String description = platform.getPlatform().getPlatformNameDisp();
+            String cloudValue = IconUtils.createImageTag(getApplication(), icon, description);
             cloudLabel.setValue(cloudValue);
             cloudLabel.setContentMode(Label.CONTENT_XHTML);
 
             // ロードバランサ種別
-            String type = loadBalancerDto.getLoadBalancer().getType();
+            String type = loadBalancer.getLoadBalancer().getType();
             Icons typeIcon = Icons.NONE;
             String typeString = ViewProperties.getLoadBalancerType(type);
-            String typeValue = IconUtils.createImageTag(apl, typeIcon, typeString);
+            String typeValue = IconUtils.createImageTag(getApplication(), typeIcon, typeString);
             typeLabel.setValue(typeValue);
             typeLabel.setContentMode(Label.CONTENT_XHTML);
 
             // 割り当てサービス選択
-            IndexedContainer serviceContainer = new IndexedContainer();
-            serviceContainer.addContainerProperty(SERVICE_CAPTION_ID, String.class, null);
-            for (ComponentDto componentDto : componentDtos) {
-                Item item = serviceContainer.addItem(componentDto);
-                item.getItemProperty(SERVICE_CAPTION_ID).setValue(componentDto.getComponent().getComponentName());
+            for (ComponentDto component : components) {
+                Item item = serviceSelect.addItem(component.getComponent().getComponentNo());
+                item.getItemProperty(SERVICE_CAPTION_ID).setValue(component.getComponent().getComponentName());
             }
-            serviceSelect.setContainerDataSource(serviceContainer);
-
-            // 既に割り当てられているサービスを選択する
-            Long componentNo = loadBalancerDto.getLoadBalancer().getComponentNo();
-            for (ComponentDto componentDto : componentDtos) {
-                if (componentNo.equals(componentDto.getComponent().getComponentNo())) {
-                    serviceSelect.select(componentDto);
-                    break;
-                }
-            }
+            serviceSelect.select(loadBalancer.getLoadBalancer().getComponentNo());
 
             // リスナーが存在する場合は選択不可にする
-            if (!loadBalancerDto.getLoadBalancerListeners().isEmpty()) {
+            if (!loadBalancer.getLoadBalancerListeners().isEmpty()) {
                 serviceSelect.setEnabled(false);
             }
         }
 
     }
 
-    private void initData() {
-        Long userNo = ViewContext.getUserNo();
-        Long farmNo = ViewContext.getFarmNo();
-
+    private void loadData() {
         // ロードバランサ情報を取得
         LoadBalancerService loadBalancerService = BeanContext.getBean(LoadBalancerService.class);
-        List<LoadBalancerDto> loadBalancerDtos = loadBalancerService.getLoadBalancers(farmNo);
-        for (LoadBalancerDto loadBalancerDto : loadBalancerDtos) {
-            if (loadBalancerNo.equals(loadBalancerDto.getLoadBalancer().getLoadBalancerNo())) {
-                this.loadBalancerDto = loadBalancerDto;
+        List<LoadBalancerDto> loadBalancers = loadBalancerService.getLoadBalancers(ViewContext.getFarmNo());
+        for (LoadBalancerDto loadBalancer : loadBalancers) {
+            if (loadBalancerNo.equals(loadBalancer.getLoadBalancer().getLoadBalancerNo())) {
+                this.loadBalancer = loadBalancer;
                 break;
             }
         }
 
         // プラットフォーム情報を取得
-        Long platformNo = loadBalancerDto.getLoadBalancer().getPlatformNo();
-        List<LoadBalancerPlatformDto> platformDtos = loadBalancerService.getPlatforms(userNo);
-        for (LoadBalancerPlatformDto platformDto : platformDtos) {
-            if (platformNo.equals(platformDto.getPlatform().getPlatformNo())) {
-                this.platformDto = platformDto;
+        Long platformNo = loadBalancer.getLoadBalancer().getPlatformNo();
+        List<LoadBalancerPlatformDto> platforms = loadBalancerService.getPlatforms(ViewContext.getUserNo());
+        for (LoadBalancerPlatformDto platform : platforms) {
+            if (platformNo.equals(platform.getPlatform().getPlatformNo())) {
+                this.platform = platform;
                 break;
             }
         }
 
         // コンポーネント情報を取得
         ComponentService componentService = BeanContext.getBean(ComponentService.class);
-        componentDtos = componentService.getComponents(farmNo);
-    }
-
-    private void initValidation() {
-        basicTab.initValidation();
-    }
-
-    private void showData() {
-        basicTab.showData();
+        components = componentService.getComponents(ViewContext.getFarmNo());
     }
 
     private void editButtonClick(ClickEvent event) {
-        // 入力値を取得
-        String comment = (String) basicTab.commentField.getValue();
-        ComponentDto componentDto = (ComponentDto) basicTab.serviceSelect.getValue();
-
-        String algorithm = (String) basicTab.algorithmSelect.getValue();
-        String pubricPort = (String) basicTab.pubricPortField.getValue();
-        String privatePort = (String) basicTab.privatePortField.getValue();
-
-        // TODO: 入力チェック
+        // 入力チェック
         try {
             basicTab.commentField.validate();
             basicTab.algorithmSelect.validate();
-            basicTab.pubricPortField.validate();
+            basicTab.publicPortField.validate();
             basicTab.privatePortField.validate();
 
         } catch (InvalidValueException e) {
@@ -366,17 +325,25 @@ public class WinCloudStackLoadBalancerEdit extends Window {
 
         LoadBalancerService loadBalancerService = BeanContext.getBean(LoadBalancerService.class);
 
+        // ロードバランサを変更
         try {
-            String loadBalancerName = loadBalancerDto.getLoadBalancer().getLoadBalancerName();
-            Long componentNo = componentDto.getComponent().getComponentNo();
+            // 入力値を取得
+            String comment = (String) basicTab.commentField.getValue();
+            Long componentNo = (Long) basicTab.serviceSelect.getValue();
+            String algorithm = (String) basicTab.algorithmSelect.getValue();
+            String publicPort = (String) basicTab.publicPortField.getValue();
+            String privatePort = (String) basicTab.privatePortField.getValue();
+
+            String loadBalancerName = loadBalancer.getLoadBalancer().getLoadBalancerName();
             loadBalancerService.updateCloudstackLoadBalancer(loadBalancerNo, loadBalancerName, comment, componentNo,
-                    algorithm, pubricPort, privatePort);
+                    algorithm, publicPort, privatePort);
         } catch (AutoApplicationException e) {
             String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
             DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
             getApplication().getMainWindow().addWindow(dialog);
             return;
         }
+
         // 画面を閉じる
         close();
     }
