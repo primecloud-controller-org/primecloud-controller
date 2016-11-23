@@ -232,7 +232,9 @@ public class AwsInstanceProcess extends ServiceSupport {
             }
 
             // PrivateIpAddress
-            request.withPrivateIpAddress(awsInstance.getPrivateIpAddress());
+            if (StringUtils.isNotEmpty(awsInstance.getPrivateIpAddress())) {
+                request.withPrivateIpAddress(awsInstance.getPrivateIpAddress());
+            }
         }
 
         // BlockDeviceMapping
