@@ -15,6 +15,7 @@
 		<result property="region" column="REGION" nullValue="" />
 		<result property="availabilityZone" column="AVAILABILITY_ZONE" nullValue="" />
 		<result property="vpcId" column="VPC_ID" nullValue="" />
+		<result property="subnetId" column="SUBNET_ID" nullValue="" />
 	</resultMap>
 
 	<sql id="selectSql">
@@ -28,7 +29,8 @@
 			t1.VPC as VPC,
 			t1.REGION as REGION,
 			t1.AVAILABILITY_ZONE as AVAILABILITY_ZONE,
-			t1.VPC_ID as VPC_ID
+			t1.VPC_ID as VPC_ID,
+			t1.SUBNET_ID as SUBNET_ID
 		from
 			PLATFORM_AWS t1
 		]]>
@@ -76,7 +78,8 @@
 			VPC,
 			REGION,
 			AVAILABILITY_ZONE,
-			VPC_ID
+			VPC_ID,
+			SUBNET_ID
 		) values (
 			#platformNo#,
 			#host#,
@@ -86,7 +89,8 @@
 			#vpc#,
 			#region#,
 			#availabilityZone#,
-			#vpcId#
+			#vpcId#,
+			#subnetId#
 		)
 		]]>
 	</insert>
@@ -101,7 +105,8 @@
 			VPC = #vpc#,
 			REGION = #region#,
 			AVAILABILITY_ZONE = #availabilityZone#,
-			VPC_ID = #vpcId#
+			VPC_ID = #vpcId#,
+			SUBNET_ID = #subnetId#
 		where
 			PLATFORM_NO = #platformNo#
 		]]>

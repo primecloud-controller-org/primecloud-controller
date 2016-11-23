@@ -42,6 +42,7 @@ import jp.primecloud.auto.service.ServiceSupport;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 import org.bouncycastle.openssl.PEMReader;
 
 import com.amazonaws.services.ec2.model.AvailabilityZone;
@@ -147,6 +148,22 @@ public class AwsDescribeServiceImpl extends ServiceSupport implements AwsDescrib
         request.withFilters(new Filter().withName("vpc-id").withValues(platformAws.getVpcId()));
         DescribeSubnetsResult result = awsProcessClient.getEc2Client().describeSubnets(request);
         List<Subnet> subnets = result.getSubnets();
+
+        // プラットフォームにサブネットが指定されている場合、そのサブネットのみに制限する
+        if (StringUtils.isNotEmpty(awsProcessClient.getPlatformAws().getSubnetId())) {
+            List<String> subnetIds = new ArrayList<String>();
+            for (String subnetId : StringUtils.split(awsProcessClient.getPlatformAws().getSubnetId(), ",")) {
+                subnetIds.add(subnetId.trim());
+            }
+
+            List<Subnet> subnets2 = new ArrayList<Subnet>();
+            for (Subnet subnet : subnets) {
+                if (subnetIds.contains(subnet.getSubnetId())) {
+                    subnets2.add(subnet);
+                }
+            }
+            subnets = subnets2;
+        }
 
         // ソート
         Collections.sort(subnets, Comparators.COMPARATOR_SUBNET);

@@ -58,6 +58,9 @@ public abstract class BasePlatformAws implements Serializable {
     /** VPC_ID [VARCHAR(30,0)] */
     private String vpcId;
 
+    /** SUBNET_ID [VARCHAR(300,0)] */
+    private String subnetId;
+
     /**
      * platformNoを取得します。
      *
@@ -220,6 +223,24 @@ public abstract class BasePlatformAws implements Serializable {
         this.vpcId = vpcId;
     }
 
+    /**
+     * subnetIdを取得します。
+     *
+     * @return subnetId
+     */
+    public String getSubnetId() {
+        return subnetId;
+    }
+
+    /**
+     * subnetIdを設定します。
+     *
+     * @param subnetId subnetId
+     */
+    public void setSubnetId(String subnetId) {
+        this.subnetId = subnetId;
+    }
+
 
     /**
      * {@inheritDoc}
@@ -238,6 +259,7 @@ public abstract class BasePlatformAws implements Serializable {
         result = prime * result + ((region == null) ? 0 : region.hashCode());
         result = prime * result + ((availabilityZone == null) ? 0 : availabilityZone.hashCode());
         result = prime * result + ((vpcId == null) ? 0 : vpcId.hashCode());
+        result = prime * result + ((subnetId == null) ? 0 : subnetId.hashCode());
 
         return result;
     }
@@ -297,6 +319,11 @@ public abstract class BasePlatformAws implements Serializable {
         } else if (!vpcId.equals(other.vpcId)) {
             return false;
         }
+        if (subnetId == null) {
+            if (other.subnetId != null) { return false; }
+        } else if (!subnetId.equals(other.subnetId)) {
+            return false;
+        }
 
         return true;
     }
@@ -316,7 +343,8 @@ public abstract class BasePlatformAws implements Serializable {
         sb.append("vpc=").append(vpc).append(", ");
         sb.append("region=").append(region).append(", ");
         sb.append("availabilityZone=").append(availabilityZone).append(", ");
-        sb.append("vpcId=").append(vpcId);
+        sb.append("vpcId=").append(vpcId).append(", ");
+        sb.append("subnetId=").append(subnetId);
         sb.append("]");
         return sb.toString();
     }
