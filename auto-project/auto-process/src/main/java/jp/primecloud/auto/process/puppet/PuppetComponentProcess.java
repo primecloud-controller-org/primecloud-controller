@@ -730,6 +730,11 @@ public class PuppetComponentProcess extends ServiceSupport {
             if (BooleanUtils.isNotTrue(componentInstance.getEnabled())) {
                 continue;
             }
+
+            if (!context.getRunningInstanceNos().contains(componentInstance.getInstanceNo())) {
+                continue;
+            }
+
             instanceNos.add(componentInstance.getInstanceNo());
         }
         List<Instance> instances = instanceDao.readInInstanceNos(instanceNos);
