@@ -63,7 +63,7 @@ public class ZabbixLoadBalancerProcess extends ServiceSupport {
 
         // ログ出力
         if (log.isInfoEnabled()) {
-            log.info(MessageUtils.getMessage("IPROCESS-200232", loadBalancerNo));
+            log.info(MessageUtils.getMessage("IPROCESS-200232", loadBalancerNo, loadBalancer.getLoadBalancerName()));
         }
 
         ZabbixProcessClient zabbixProcessClient = zabbixProcessClientFactory.createZabbixProcessClient();
@@ -109,7 +109,7 @@ public class ZabbixLoadBalancerProcess extends ServiceSupport {
 
         // ログ出力
         if (log.isInfoEnabled()) {
-            log.info(MessageUtils.getMessage("IPROCESS-200233", loadBalancerNo));
+            log.info(MessageUtils.getMessage("IPROCESS-200233", loadBalancerNo, loadBalancer.getLoadBalancerName()));
         }
     }
 
@@ -124,7 +124,7 @@ public class ZabbixLoadBalancerProcess extends ServiceSupport {
 
         // ログ出力
         if (log.isInfoEnabled()) {
-            log.info(MessageUtils.getMessage("IPROCESS-200234", loadBalancerNo));
+            log.info(MessageUtils.getMessage("IPROCESS-200234", loadBalancerNo, loadBalancer.getLoadBalancerName()));
         }
 
         ZabbixProcessClient zabbixProcessClient = zabbixProcessClientFactory.createZabbixProcessClient();
@@ -156,7 +156,7 @@ public class ZabbixLoadBalancerProcess extends ServiceSupport {
 
         // ログ出力
         if (log.isInfoEnabled()) {
-            log.info(MessageUtils.getMessage("IPROCESS-200235", loadBalancerNo));
+            log.info(MessageUtils.getMessage("IPROCESS-200235", loadBalancerNo, loadBalancer.getLoadBalancerName()));
         }
     }
 
