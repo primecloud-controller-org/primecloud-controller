@@ -69,6 +69,7 @@ import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
+import jp.primecloud.auto.util.IpAddressUtils;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -2828,19 +2829,14 @@ public class WinServerEdit extends Window {
 
             //サブネットのIPアドレスの有効チェック
             if (platformAws.getEuca() == false && platformAws.getVpc() && StringUtils.isNotEmpty(privateIp)) {
-                String[] cidr = subnet.getCidrBlock().split("/");
-                jp.primecloud.auto.common.component.Subnet subnet1 = new jp.primecloud.auto.common.component.Subnet(
-                        cidr[0], Integer.parseInt(cidr[1]));
-                String subnetIp = cidr[0];
-                //AWS(VPC)では先頭3つまでのIPが予約済みIP
-                for (int i = 0; i < 3; i++) {
-                    subnetIp = jp.primecloud.auto.common.component.Subnet.getNextAddress(subnetIp);
-                    subnet1.addReservedIp(subnetIp);
-                }
-                if (subnet1.isScorp(privateIp) == false) {
-                    //有効なサブネットではない
-                    String message = ViewMessages.getMessage("IUI-000109", subnet1.getAvailableMinIp(),
-                            subnet1.getAvailableMaxIp());
+                long privateIpAddress = IpAddressUtils.parse(privateIp);
+                long networkAddress = IpAddressUtils.getNetworkAddress(subnet.getCidrBlock());
+                long broadcastAddress = IpAddressUtils.getBroadcastAddress(subnet.getCidrBlock());
+
+                // AWSのサブネットの最初の4つと最後の1つのIPアドレスは予約されているため使用できない
+                if (privateIpAddress < networkAddress + 4 || broadcastAddress - 1 < privateIpAddress) {
+                    String message = ViewMessages.getMessage("IUI-000109", IpAddressUtils.format(networkAddress + 4),
+                            IpAddressUtils.format(broadcastAddress - 1));
                     DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
                     getApplication().getMainWindow().addWindow(dialog);
                     return;

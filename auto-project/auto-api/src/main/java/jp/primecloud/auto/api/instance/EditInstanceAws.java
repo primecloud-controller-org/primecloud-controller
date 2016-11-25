@@ -38,6 +38,7 @@ import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.PlatformAws;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.AutoApplicationException;
+import jp.primecloud.auto.util.IpAddressUtils;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -252,17 +253,17 @@ public class EditInstanceAws extends ApiSupport {
         return null;
     }
 
-    private boolean checkPrivateIp(String cidrBlock, String privateIpAddress) {
-        String[] splitCidr = cidrBlock.split("/");
-        jp.primecloud.auto.common.component.Subnet subnet = new jp.primecloud.auto.common.component.Subnet(
-                splitCidr[0].trim(), Integer.parseInt(splitCidr[1].trim()));
-        String subnetIp = splitCidr[0].trim();
-        //AWS(VPC)では先頭3つまでのIPが予約済みIP
-        for (int i = 0; i < 3; i++) {
-            subnetIp = jp.primecloud.auto.common.component.Subnet.getNextAddress(subnetIp);
-            subnet.addReservedIp(subnetIp);
+    private boolean checkPrivateIp(String cidrBlock, String privateIp) {
+        long privateIpAddress = IpAddressUtils.parse(privateIp);
+        long networkAddress = IpAddressUtils.getNetworkAddress(cidrBlock);
+        long broadcastAddress = IpAddressUtils.getBroadcastAddress(cidrBlock);
+
+        // AWSのサブネットの最初の4つと最後の1つのIPアドレスは予約されているため使用できない
+        if (privateIpAddress < networkAddress + 4 || broadcastAddress - 1 < privateIpAddress) {
+            return false;
         }
-        return subnet.isScorp(privateIpAddress);
+
+        return true;
     }
 
 }
