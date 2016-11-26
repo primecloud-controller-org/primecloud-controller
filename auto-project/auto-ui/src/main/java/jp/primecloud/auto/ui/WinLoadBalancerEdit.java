@@ -257,7 +257,7 @@ public class WinLoadBalancerEdit extends Window {
                 editServerButton.addListener(new Button.ClickListener() {
                     @Override
                     public void buttonClick(ClickEvent event) {
-                        WinServerEdit winServerEdit = new WinServerEdit(getApplication(), loadBalancerInstanceNo);
+                        WinServerEdit winServerEdit = new WinServerEdit(loadBalancerInstanceNo);
                         winServerEdit.addListener(new CloseListener() {
                             @Override
                             public void windowClose(CloseEvent e) {

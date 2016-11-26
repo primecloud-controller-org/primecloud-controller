@@ -45,9 +45,26 @@ public class MockIaasDescribeService extends IaasDescribeServiceImpl implements 
     public List<ZoneDto> getAvailabilityZones(Long userNo, Long platformNo) {
         List<ZoneDto> zones = new ArrayList<ZoneDto>();
 
-        zones.add(new ZoneDto().withZoneName("ap-northeast-1a"));
-        zones.add(new ZoneDto().withZoneName("ap-northeast-1b"));
-        zones.add(new ZoneDto().withZoneName("ap-northeast-1c"));
+        {
+            ZoneDto zone = new ZoneDto();
+            zone.setZoneId("zone-a");
+            zone.setZoneName("ap-northeast-1a");
+            zones.add(zone);
+        }
+
+        {
+            ZoneDto zone = new ZoneDto();
+            zone.setZoneId("zone-b");
+            zone.setZoneName("ap-northeast-1b");
+            zones.add(zone);
+        }
+
+        {
+            ZoneDto zone = new ZoneDto();
+            zone.setZoneId("zone-c");
+            zone.setZoneName("ap-northeast-1c");
+            zones.add(zone);
+        }
 
         return zones;
     }

@@ -444,7 +444,7 @@ public class ServerTable extends Table {
         final InstanceDto dto = (InstanceDto) this.getValue();
         final int index = this.getCurrentPageFirstItemIndex();
 
-        WinServerEdit winServerEdit = new WinServerEdit(getApplication(), dto.getInstance().getInstanceNo());
+        WinServerEdit winServerEdit = new WinServerEdit(dto.getInstance().getInstanceNo());
         winServerEdit.addListener(new Window.CloseListener() {
             @Override
             public void windowClose(CloseEvent e) {
