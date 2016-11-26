@@ -15,13 +15,12 @@
 	<context-param>
 		<description>Vaadin production mode</description>
 		<param-name>productionMode</param-name>
-		<param-value>false</param-value>
+		<param-value>true</param-value>
 	</context-param>
 
 	<context-param>
-		<description>Mock mode for development. If true, xml resources used. Otherwise, database used.</description>
-		<param-name>mockMode</param-name>
-		<param-value>true</param-value>
+		<param-name>configPath</param-name>
+		<param-value>WEB-INF/config.properties</param-value>
 	</context-param>
 
 	<listener>
@@ -29,8 +28,9 @@
 	</listener>
 
 	<listener>
-		<listener-class>jp.primecloud.auto.ui.mock.MockBeanContext</listener-class>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
+
 
 	<servlet>
 		<servlet-name>AutoApplication</servlet-name>

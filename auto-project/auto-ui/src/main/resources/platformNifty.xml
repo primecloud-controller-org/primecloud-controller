@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE ROOT SYSTEM "platformNifty.dtd">
-<ROOT>
-    <row>
-      <field name="PLATFORM_NO">5</field>
-      <field name="WSDL">classpath:/NiftyCloud.wsdl</field>
-    </row>
-</ROOT>

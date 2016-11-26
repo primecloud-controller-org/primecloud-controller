@@ -6,6 +6,12 @@
 	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
 	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
 
-	<bean class="jp.primecloud.auto.ui.util.BeanContext"/>
+	<!-- DIで提供されるBeanの管理コンポーネント -->
+	<bean class="jp.primecloud.auto.ui.util.BeanContext" />
+
+	<!-- Property -->
+	<bean id="placeholderProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="WEB-INF/config.properties" />
+	</bean>
 
 </beans>

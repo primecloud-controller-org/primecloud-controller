@@ -11,8 +11,9 @@
 		<context:include-filter type="regex" expression=".*Service" />
 		<context:include-filter type="regex" expression=".*ServiceImpl" />
 		<context:exclude-filter type="regex" expression=".*AwsDescribeServiceImpl"/>
+		<context:exclude-filter type="regex" expression=".*IaasDescribeServiceImpl"/>
+		<context:exclude-filter type="regex" expression=".*ProcessServiceImpl"/>
+		<context:exclude-filter type="regex" expression=".*VmwareDescribeServiceImpl"/>
 	</context:component-scan>
-
-	<bean class="jp.primecloud.auto.ui.mock.service.MockAwsDescribeService" />
 
 </beans>

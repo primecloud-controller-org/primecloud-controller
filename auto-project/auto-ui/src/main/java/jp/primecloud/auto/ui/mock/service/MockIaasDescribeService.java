@@ -20,17 +20,18 @@ package jp.primecloud.auto.ui.mock.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
-import jp.primecloud.auto.entity.crud.AwsAddress;
+import jp.primecloud.auto.common.constant.PCCConstant;
+import jp.primecloud.auto.entity.crud.CloudstackAddress;
+import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.service.IaasDescribeService;
-import jp.primecloud.auto.service.dto.AddressDto;
 import jp.primecloud.auto.service.dto.KeyPairDto;
 import jp.primecloud.auto.service.dto.NetworkDto;
 import jp.primecloud.auto.service.dto.SecurityGroupDto;
-import jp.primecloud.auto.service.dto.StorageTypeDto;
 import jp.primecloud.auto.service.dto.SubnetDto;
 import jp.primecloud.auto.service.dto.ZoneDto;
-import jp.primecloud.auto.ui.mock.XmlDataLoader;
+import jp.primecloud.auto.service.impl.IaasDescribeServiceImpl;
 
 /**
  * <p>
@@ -38,9 +39,7 @@ import jp.primecloud.auto.ui.mock.XmlDataLoader;
  * </p>
  *
  */
-public class MockIaasDescribeService implements IaasDescribeService {
-
-    List<AwsAddress> awsAddresses = XmlDataLoader.getData("awsAddress.xml", AwsAddress.class);
+public class MockIaasDescribeService extends IaasDescribeServiceImpl implements IaasDescribeService {
 
     @Override
     public List<ZoneDto> getAvailabilityZones(Long userNo, Long platformNo) {
@@ -48,12 +47,18 @@ public class MockIaasDescribeService implements IaasDescribeService {
 
         zones.add(new ZoneDto().withZoneName("ap-northeast-1a"));
         zones.add(new ZoneDto().withZoneName("ap-northeast-1b"));
+        zones.add(new ZoneDto().withZoneName("ap-northeast-1c"));
 
         return zones;
     }
 
     @Override
     public List<KeyPairDto> getKeyPairs(Long userNo, Long platformNo) {
+        Platform platform = platformDao.read(platformNo);
+        if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
+            return super.getKeyPairs(userNo, platformNo);
+        }
+
         List<KeyPairDto> infos = new ArrayList<KeyPairDto>();
 
         infos.add(new KeyPairDto().withKeyName("key01"));
@@ -68,8 +73,8 @@ public class MockIaasDescribeService implements IaasDescribeService {
         List<SecurityGroupDto> groups = new ArrayList<SecurityGroupDto>();
 
         groups.add(new SecurityGroupDto().withGroupName("default"));
-        groups.add(new SecurityGroupDto().withGroupName("test01"));
-        groups.add(new SecurityGroupDto().withGroupName("test02"));
+        groups.add(new SecurityGroupDto().withGroupName("group01"));
+        groups.add(new SecurityGroupDto().withGroupName("group02"));
 
         return groups;
     }
@@ -78,64 +83,124 @@ public class MockIaasDescribeService implements IaasDescribeService {
     public List<SubnetDto> getSubnets(Long userNo, Long platformNo, String vpcId) {
         List<SubnetDto> subnets = new ArrayList<SubnetDto>();
 
-        subnets.add(new SubnetDto().withSubnetId("subnet-00000001").withZone("ap-northeast-1a")
-                .withCidrBlock("192.168.12.160/27"));
-        subnets.add(new SubnetDto().withSubnetId("subnet-00000002").withZone("ap-northeast-1b")
-                .withCidrBlock("192.168.12.128/27"));
-        subnets.add(new SubnetDto().withSubnetId("subnet-00000003").withZone("ap-northeast-1b")
-                .withCidrBlock("192.168.12.16/27"));
+        {
+            SubnetDto subnet = new SubnetDto();
+            subnet.withSubnetId("subnet-a");
+            subnet.withCidrBlock("192.168.1.0/26");
+            subnet.withZone("ap-northeast-1a");
+            subnets.add(subnet);
+        }
+
+        {
+            SubnetDto subnet = new SubnetDto();
+            subnet.withSubnetId("subnet-b");
+            subnet.withCidrBlock("192.168.1.64/26");
+            subnet.withZone("ap-northeast-1b");
+            subnets.add(subnet);
+        }
+
+        {
+            SubnetDto subnet = new SubnetDto();
+            subnet.withSubnetId("subnet-c");
+            subnet.withCidrBlock("192.168.1.128/26");
+            subnet.withZone("ap-northeast-1c");
+            subnets.add(subnet);
+        }
 
         return subnets;
     }
 
     @Override
-    public List<AddressDto> getAddresses(Long userNo, Long platformNo) {
-        ArrayList<AddressDto> addresses = new ArrayList<AddressDto>();
-        for (AwsAddress address : this.awsAddresses) {
-            addresses.add(new AddressDto(address));
-        }
-        return addresses;
-    }
-
-    @Override
-    public Long createAddress(Long userNo, Long platformNo) {
-        System.out.println("createAddress: userNo=" + userNo + " platformNo" + platformNo);
-        return awsAddresses.get(0).getAddressNo();
-    }
-
-    @Override
-    public void deleteAddress(Long addressNo, Long long2, Long long3) {
-        System.out.println("deleteAddress: addressNo=" + addressNo);
-
-    }
-
-    @Override
-    public String getPassword(Long instanceNo, String privateKey) {
-        System.out.println("getPassword: instanceNo=" + instanceNo + " privateKey" + privateKey);
-        return "password";
-    }
-
-    @Override
-    public List<StorageTypeDto> getStorageTypes(Long userNo, Long platformNo) {
-        // TODO 自動生成されたメソッド・スタブ
-        return null;
-    }
-
-    @Override
     public List<NetworkDto> getNetworks(Long userNo, Long platformNo) {
-        // TODO 自動生成されたメソッド・スタブ
-        return null;
-    }
+        List<NetworkDto> networks = new ArrayList<NetworkDto>();
 
-    @Override
-    public String hasIpAddresse(Long platformNo, Long instanceNo, String ipAddress) {
-        // TODO 自動生成されたメソッド・スタブ
-        return null;
+        {
+            NetworkDto network = new NetworkDto();
+            network.setNetworkName("network1");
+            network.setNetmask("255.255.255.0");
+            network.setGateWay("192.168.1.1");
+            network.setDns1("192.168.1.2");
+            network.setDns2("192.168.1.3");
+            network.setRangeFrom("192.168.1.11");
+            network.setRangeTo("192.168.1.200");
+            network.setIsPcc(true);
+            networks.add(network);
+        }
+
+        {
+            NetworkDto network = new NetworkDto();
+            network.setNetworkName("network2");
+            network.setNetmask("255.255.255.0");
+            network.setGateWay("192.168.2.1");
+            network.setDns1("192.168.2.2");
+            network.setDns2("192.168.2.3");
+            network.setRangeFrom("192.168.2.11");
+            network.setRangeTo("192.168.2.200");
+            network.setIsPcc(false);
+            networks.add(network);
+        }
+
+        {
+            NetworkDto network = new NetworkDto();
+            network.setNetworkName("network3");
+            network.setNetmask("255.255.255.0");
+            network.setGateWay("192.168.3.1");
+            network.setDns1("192.168.3.2");
+            network.setDns2("192.168.3.3");
+            network.setRangeFrom("192.168.3.11");
+            network.setRangeTo("192.168.3.200");
+            network.setIsPcc(false);
+            networks.add(network);
+        }
+
+        return networks;
     }
 
     @Override
     public List<SubnetDto> getAzureSubnets(Long userNo, Long platformNo, String networkName) {
-        // TODO 自動生成されたメソッド・スタブ
-        return null;
+        List<SubnetDto> subnets = new ArrayList<SubnetDto>();
+
+        {
+            SubnetDto subnet = new SubnetDto();
+            subnet.withSubnetId("subnet-a");
+            subnet.withCidrBlock("192.168.1.0/26");
+            subnets.add(subnet);
+        }
+
+        {
+            SubnetDto subnet = new SubnetDto();
+            subnet.withSubnetId("subnet-b");
+            subnet.withCidrBlock("192.168.1.64/26");
+            subnets.add(subnet);
+        }
+
+        {
+            SubnetDto subnet = new SubnetDto();
+            subnet.withSubnetId("subnet-c");
+            subnet.withCidrBlock("192.168.1.128/26");
+            subnets.add(subnet);
+        }
+
+        return subnets;
     }
+
+    @Override
+    public Long createAddress(Long userNo, Long platformNo) {
+        Random random = new Random(System.currentTimeMillis());
+        String ipaddress = "100.64." + random.nextInt(256) + "." + random.nextInt(256);
+
+        CloudstackAddress address = new CloudstackAddress();
+        address.setAccount(userNo);
+        address.setPlatformNo(platformNo);
+        address.setIpaddress(ipaddress);
+        cloudstackAddressDao.create(address);
+
+        return address.getAddressNo();
+    }
+
+    @Override
+    public void deleteAddress(Long userNo, Long platformNo, Long addressNo) {
+        cloudstackAddressDao.deleteByAddressNo(addressNo);
+    }
+
 }

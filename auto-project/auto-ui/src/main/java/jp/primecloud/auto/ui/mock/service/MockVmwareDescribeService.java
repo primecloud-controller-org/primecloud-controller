@@ -21,8 +21,7 @@ package jp.primecloud.auto.ui.mock.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import jp.primecloud.auto.entity.crud.VmwareKeyPair;
-import jp.primecloud.auto.service.VmwareDescribeService;
+import jp.primecloud.auto.service.impl.VmwareDescribeServiceImpl;
 
 import com.vmware.vim25.mo.ComputeResource;
 
@@ -32,26 +31,7 @@ import com.vmware.vim25.mo.ComputeResource;
  * </p>
  *
  */
-public class MockVmwareDescribeService implements VmwareDescribeService {
-
-    @Override
-    public List<VmwareKeyPair> getKeyPairs(Long userNo, Long platformNo) {
-        List<VmwareKeyPair> vmwareKeyPairs = new ArrayList<VmwareKeyPair>();
-
-        VmwareKeyPair vmwareKeyPair = new VmwareKeyPair();
-        vmwareKeyPair.setKeyNo(1L);
-        vmwareKeyPair.setPlatformNo(4L);
-        vmwareKeyPair.setKeyName("key01");
-        vmwareKeyPairs.add(vmwareKeyPair);
-
-        vmwareKeyPair = new VmwareKeyPair();
-        vmwareKeyPair.setKeyNo(2L);
-        vmwareKeyPair.setPlatformNo(4L);
-        vmwareKeyPair.setKeyName("key02");
-        vmwareKeyPairs.add(vmwareKeyPair);
-
-        return vmwareKeyPairs;
-    }
+public class MockVmwareDescribeService extends VmwareDescribeServiceImpl {
 
     @Override
     public List<ComputeResource> getComputeResources(Long platformNo) {

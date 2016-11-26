@@ -1,8 +1,129 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans"
 	xsi:schemaLocation="
-	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd"
+	default-autowire="autodetect">
 
-	<bean id="zabbixProcessClientFactory" class="jp.primecloud.auto.ui.mock.process.MockZabbixProcessClientFactory" />
+	<!-- IaasGateway -->
+	<bean id="iaasGatewayFactory" class="jp.primecloud.auto.iaasgw.IaasGatewayFactory">
+		<property name="describeInterval" value="${aws.describeInterval}" />
+		<property name="sync" value="${aws.synchronized}" />
+	</bean>
+	<bean id="iaasGatewayProcess" class="jp.primecloud.auto.process.iaasgw.IaasGatewayProcess" />
+
+	<!-- ProcessLogger -->
+	<bean id="processLogger" class="jp.primecloud.auto.process.ProcessLogger"/>
+
+	<bean id="dnsStrategy" class="jp.primecloud.auto.common.component.DnsStrategy">
+		<property name="dnsServer" value="${dns.server}" />
+		<property name="timeToLive" value="${dns.timeToLive}" />
+	</bean>
+	<bean id="dnsProcessClient" class="jp.primecloud.auto.process.DnsProcessClient">
+		<property name="reverseEnabled" value="${dns.reverseEnabled}" />
+	</bean>
+
+	<!-- AwsProcess -->
+	<bean id="awsProcess" class="jp.primecloud.auto.process.aws.AwsProcess" />
+	<bean id="awsCommonProcess" class="jp.primecloud.auto.process.aws.AwsCommonProcess" />
+	<bean id="awsInstanceProcess" class="jp.primecloud.auto.process.aws.AwsInstanceProcess" />
+	<bean id="awsVolumeProcess" class="jp.primecloud.auto.process.aws.AwsVolumeProcess" />
+	<!--<bean id="awsAddressProcess" class="jp.primecloud.auto.process.aws.AwsAddressProcess" />-->
+	<bean id="awsDnsProcess" class="jp.primecloud.auto.process.aws.AwsDnsProcess" />
+	<bean id="awsLoadBalancerProcess" class="jp.primecloud.auto.process.aws.AwsLoadBalancerProcess" />
+	<bean id="awsProcessClientFactory" class="jp.primecloud.auto.process.aws.AwsProcessClientFactory">
+		<property name="describeInterval" value="${aws.describeInterval}" />
+		<property name="logging" value="${aws.logging}" />
+		<property name="sync" value="${aws.synchronized}" />
+	</bean>
+
+	<!-- VmwareProcess -->
+	<bean id="vmwareProcess" class="jp.primecloud.auto.process.vmware.VmwareProcess" />
+	<bean id="vmwareMachineProcess" class="jp.primecloud.auto.process.vmware.VmwareMachineProcess" />
+	<bean id="vmwareNetworkProcess" class="jp.primecloud.auto.process.vmware.VmwareNetworkProcess" />
+	<bean id="vmwareDiskProcess" class="jp.primecloud.auto.process.vmware.VmwareDiskProcess" />
+	<bean id="vmwareInitProcess" class="jp.primecloud.auto.process.vmware.VmwareInitProcess" />
+	<bean id="vmwareDnsProcess" class="jp.primecloud.auto.process.vmware.VmwareDnsProcess" />
+	<bean id="vmwareCustomizeProcess" class="jp.primecloud.auto.process.vmware.VmwareCustomizeProcess" />
+	<bean id="vmwareProcessClientFactory" class="jp.primecloud.auto.process.vmware.VmwareProcessClientFactory" />
+
+
+	<!-- NiftyProcess -->
+	<bean id="niftyProcess" class="jp.primecloud.auto.process.nifty.NiftyProcess" />
+	<bean id="niftyInstanceProcess" class="jp.primecloud.auto.process.nifty.NiftyInstanceProcess">
+		<property name="imageDir" value="${nifty.imageDir}" />
+		<property name="initTimeout" value="${nifty.initTimeout}" />
+	</bean>
+	<bean id="niftyDnsProcess" class="jp.primecloud.auto.process.nifty.NiftyDnsProcess" />
+	<bean id="niftyProcessClientFactory" class="jp.primecloud.auto.nifty.process.NiftyProcessClientFactory">
+		<property name="describeInterval" value="${aws.describeInterval}" />
+		<property name="apiTimeout" value="${nifty.apiTimeout}" />
+	</bean>
+	<bean id="niftyVolumeProcess" class="jp.primecloud.auto.process.nifty.NiftyVolumeProcess" />
+
+
+	<!-- CloudstackProcess -->
+	<bean id="cloudstackDnsProcess" class="jp.primecloud.auto.process.cloudstack.CloudstackDnsProcess" />
+
+
+	<!-- VcloudProcess -->
+	<bean id="vcloudDnsProcess" class="jp.primecloud.auto.process.vcloud.VcloudDnsProcess" />
+
+
+	<!-- AzureProcess -->
+	<bean id="azureDnsProcess" class="jp.primecloud.auto.process.azure.AzureDnsProcess" />
+
+
+	<!-- OpenstackProcess -->
+	<bean id="openstackDnsProcess" class="jp.primecloud.auto.process.openstack.OpenstackDnsProcess" />
+
+
+	<!-- PuppetProcess -->
+	<bean id="puppetNodeProcess" class="jp.primecloud.auto.process.puppet.PuppetNodeProcess">
+		<property name="manifestDir" value="${puppet.outputDir}" />
+	</bean>
+	<bean id="puppetNodesProcess" class="jp.primecloud.auto.process.puppet.PuppetNodesProcess">
+		<property name="manifestDir" value="${puppet.outputDir}" />
+	</bean>
+	<bean id="puppetComponentProcess" class="jp.primecloud.auto.process.puppet.PuppetComponentProcess">
+		<property name="manifestDir" value="${puppet.outputDir}" />
+	</bean>
+	<bean id="ultraMonkeyPuppetComponentProcess" class="jp.primecloud.auto.component.ultramonkey.process.UltraMonkeyPuppetComponentProcess"
+		parent="puppetComponentProcess" />
+	<bean id="apachePuppetComponentProcess" class="jp.primecloud.auto.component.apache.process.ApachePuppetComponentProcess"
+		parent="puppetComponentProcess" />
+	<bean id="tomcatPuppetComponentProcess" class="jp.primecloud.auto.component.tomcat.process.TomcatPuppetComponentProcess"
+		parent="puppetComponentProcess" />
+	<bean id="geronimoPuppetComponentProcess" class="jp.primecloud.auto.component.geronimo.process.GeronimoPuppetComponentProcess"
+		parent="puppetComponentProcess" />
+	<bean id="mysqlPuppetComponentProcess" class="jp.primecloud.auto.component.mysql.process.MySQLPuppetComponentProcess"
+		parent="puppetComponentProcess" />
+	<bean id="prjserverPuppetComponentProcess" class="jp.primecloud.auto.component.prjserver.process.PrjserverPuppetComponentProcess"
+		parent="puppetComponentProcess" />
+	<bean id="windowsComponentProcess" class="jp.primecloud.auto.component.windows.process.WindowsComponentProcess"
+		parent="puppetComponentProcess" />
+
+
+	<!-- ZabbixProcess -->
+	<bean id="zabbixHostProcess" class="jp.primecloud.auto.process.zabbix.ZabbixHostProcess" />
+	<bean id="zabbixLoadBalancerProcess" class="jp.primecloud.auto.process.zabbix.ZabbixLoadBalancerProcess" />
+	<bean id="zabbixProcessClientFactory" class="jp.primecloud.auto.process.zabbix.ZabbixProcessClientFactory">
+		<property name="url" value="${zabbix.url}" />
+		<property name="username" value="${zabbix.username}" />
+		<property name="password" value="${zabbix.password}" />
+	</bean>
+
+
+	<!-- LoadBalancerProcess -->
+	<bean id="loadBalancerProcess" class="jp.primecloud.auto.process.lb.LoadBalancerProcess" />
+	<bean id="componentLoadBalancerProcess" class="jp.primecloud.auto.process.lb.ComponentLoadBalancerProcess" />
+	<bean id="iaasGatewayLoadBalancerProcess" class="jp.primecloud.auto.process.lb.IaasGatewayLoadBalancerProcess" />
+	<bean id="puppetLoadBalancerProcess" class="jp.primecloud.auto.process.lb.PuppetLoadBalancerProcess">
+		<property name="manifestDir" value="${puppet.outputDir}" />
+	</bean>
+
+	<!-- ProcessHook -->
+	<bean id="processHook" class="jp.primecloud.auto.process.hook.ProcessScriptHook">
+		<property name="scriptDir" value="${hook.scriptDir}" />
+	</bean>
 
 </beans>
