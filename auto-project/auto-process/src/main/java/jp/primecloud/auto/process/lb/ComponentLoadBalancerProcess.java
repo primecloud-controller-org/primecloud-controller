@@ -459,16 +459,18 @@ public class ComponentLoadBalancerProcess extends ServiceSupport {
             return;
         }
 
-        DnsProcessClient dnsProcessClient = dnsProcessClientFactory.createDnsProcessClient();
-
         String fqdn = loadBalancer.getFqdn();
         String canonicalName = instance.getFqdn();
 
-        // CNAMEの追加
-        dnsProcessClient.addCanonicalName(fqdn, canonicalName);
+        if (!StringUtils.equals(fqdn, canonicalName)) {
+            DnsProcessClient dnsProcessClient = dnsProcessClientFactory.createDnsProcessClient();
 
-        // イベントログ出力
-        processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "DnsRegistCanonical", new Object[] { fqdn, canonicalName });
+            // CNAMEの追加
+            dnsProcessClient.addCanonicalName(fqdn, canonicalName);
+
+            // イベントログ出力
+            processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "DnsRegistCanonical", new Object[] { fqdn, canonicalName });
+        }
 
         // データベース更新
         loadBalancer = loadBalancerDao.read(loadBalancerNo);
@@ -485,20 +487,22 @@ public class ComponentLoadBalancerProcess extends ServiceSupport {
             return;
         }
 
-        DnsProcessClient dnsProcessClient = dnsProcessClientFactory.createDnsProcessClient();
-
         String fqdn = loadBalancer.getFqdn();
         String canonicalName = loadBalancer.getCanonicalName();
 
-        try {
-            // CNAMEの削除
-            dnsProcessClient.deleteCanonicalName(fqdn);
+        if (!StringUtils.equals(fqdn, canonicalName)) {
+            try {
+                DnsProcessClient dnsProcessClient = dnsProcessClientFactory.createDnsProcessClient();
 
-            // イベントログ出力
-            processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "DnsUnregistCanonical", new Object[] { fqdn, canonicalName });
+                // CNAMEの削除
+                dnsProcessClient.deleteCanonicalName(fqdn);
 
-        } catch (RuntimeException e) {
-            log.warn(e.getMessage());
+                // イベントログ出力
+                processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "DnsUnregistCanonical", new Object[] { fqdn, canonicalName });
+
+            } catch (RuntimeException e) {
+                log.warn(e.getMessage());
+            }
         }
 
         // データベース更新
