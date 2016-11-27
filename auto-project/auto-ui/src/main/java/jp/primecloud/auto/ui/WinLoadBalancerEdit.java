@@ -835,8 +835,8 @@ public class WinLoadBalancerEdit extends Window {
         String checkPath = (String) healthCheckTab.checkPathField.getValue();
         Integer checkTimeout = Integer.valueOf((String) healthCheckTab.checkTimeoutField.getValue());
         Integer checkInterval = Integer.valueOf((String) healthCheckTab.checkIntervalField.getValue());
-        Integer healthyThreshold = Integer.valueOf((String) healthCheckTab.unhealthyThresholdField.getValue());
-        Integer unhealthyThreshold = Integer.valueOf((String) healthCheckTab.healthyThresholdField.getValue());
+        Integer healthyThreshold = Integer.valueOf((String) healthCheckTab.healthyThresholdField.getValue());
+        Integer unhealthyThreshold = Integer.valueOf((String) healthCheckTab.unhealthyThresholdField.getValue());
 
         try {
             loadBalancerService.configureHealthCheck(loadBalancerNo, checkProtocol, checkPort, checkPath, checkTimeout,
