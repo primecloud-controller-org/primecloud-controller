@@ -18,6 +18,7 @@
  */
 package jp.primecloud.auto.process.zabbix;
 
+import jp.primecloud.auto.config.Config;
 import jp.primecloud.auto.zabbix.ZabbixClient;
 import jp.primecloud.auto.zabbix.ZabbixClientFactory;
 
@@ -29,46 +30,17 @@ import jp.primecloud.auto.zabbix.ZabbixClientFactory;
  */
 public class ZabbixProcessClientFactory {
 
-    private String url;
-
-    private String username;
-
-    private String password;
-
     public ZabbixProcessClient createZabbixProcessClient() {
+        String url = Config.getProperty("zabbix.url");
+        String username = Config.getProperty("zabbix.username");
+        String password = Config.getProperty("zabbix.password");
+
         ZabbixClientFactory factory = new ZabbixClientFactory();
         factory.setUrl(url);
         ZabbixClient zabbixClient = factory.createClient(username, password);
 
         ZabbixProcessClient client = new ZabbixProcessClient(zabbixClient);
         return client;
-    }
-
-    /**
-     * urlを設定します。
-     *
-     * @param url url
-     */
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    /**
-     * usernameを設定します。
-     *
-     * @param username username
-     */
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    /**
-     * passwordを設定します。
-     *
-     * @param password password
-     */
-    public void setPassword(String password) {
-        this.password = password;
     }
 
 }

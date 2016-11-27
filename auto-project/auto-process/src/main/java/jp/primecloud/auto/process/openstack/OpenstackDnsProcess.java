@@ -21,6 +21,7 @@ package jp.primecloud.auto.process.openstack;
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.OpenstackInstance;
 import jp.primecloud.auto.process.DnsProcessClient;
+import jp.primecloud.auto.process.DnsProcessClientFactory;
 import jp.primecloud.auto.process.ProcessLogger;
 import jp.primecloud.auto.service.ServiceSupport;
 
@@ -34,7 +35,7 @@ import org.apache.commons.lang.StringUtils;
  */
 public class OpenstackDnsProcess extends ServiceSupport {
 
-    protected DnsProcessClient dnsProcessClient;
+    protected DnsProcessClientFactory dnsProcessClientFactory;
 
     protected ProcessLogger processLogger;
 
@@ -76,6 +77,8 @@ public class OpenstackDnsProcess extends ServiceSupport {
             return;
         }
 
+        DnsProcessClient dnsProcessClient = dnsProcessClientFactory.createDnsProcessClient();
+
         // IPアドレスを正引きにより取得する（正引きの追加はインスタンス内で行う）
         String fqdn = instance.getFqdn();
         String publicIp = dnsProcessClient.resolveHost(fqdn); // VPNインタフェースのIPアドレス
@@ -98,6 +101,8 @@ public class OpenstackDnsProcess extends ServiceSupport {
             return;
         }
 
+        DnsProcessClient dnsProcessClient = dnsProcessClientFactory.createDnsProcessClient();
+
         String fqdn = instance.getFqdn();
         String publicIp = instance.getPublicIp();
 
@@ -113,8 +118,8 @@ public class OpenstackDnsProcess extends ServiceSupport {
         instanceDao.update(instance);
     }
 
-    public void setDnsProcessClient(DnsProcessClient dnsProcessClient) {
-        this.dnsProcessClient = dnsProcessClient;
+    public void setDnsProcessClientFactory(DnsProcessClientFactory dnsProcessClientFactory) {
+        this.dnsProcessClientFactory = dnsProcessClientFactory;
     }
 
     public void setProcessLogger(ProcessLogger processLogger) {

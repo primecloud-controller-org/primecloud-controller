@@ -22,6 +22,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import jp.primecloud.auto.config.Config;
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.CommandUtils;
@@ -36,8 +37,6 @@ import org.apache.commons.lang.builder.ToStringStyle;
  * </p>
  */
 public class ProcessScriptHook extends ServiceSupport implements ProcessHook {
-
-    protected File scriptDir;
 
     protected String scriptExt;
 
@@ -56,6 +55,7 @@ public class ProcessScriptHook extends ServiceSupport implements ProcessHook {
      */
     @Override
     public void execute(String hookName, Object... args) {
+        String scriptDir = Config.getProperty("hook.scriptDir");
         File scriptFile = new File(scriptDir, hookName + scriptExt);
 
         // スクリプトファイルが存在しなければ何もしない
@@ -88,10 +88,6 @@ public class ProcessScriptHook extends ServiceSupport implements ProcessHook {
             // XXX: フック処理におけるエラーはPCCの範囲外であるため、エラーが発生しても例外をスローしない
             log.error(e.getMessage(), e);
         }
-    }
-
-    public void setScriptDir(File scriptDir) {
-        this.scriptDir = scriptDir;
     }
 
     public void setScriptExt(String scriptExt) {

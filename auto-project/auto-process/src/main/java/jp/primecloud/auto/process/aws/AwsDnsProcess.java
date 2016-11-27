@@ -24,6 +24,7 @@ import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.PlatformAws;
 import jp.primecloud.auto.process.DnsProcessClient;
+import jp.primecloud.auto.process.DnsProcessClientFactory;
 import jp.primecloud.auto.process.ProcessLogger;
 import jp.primecloud.auto.service.ServiceSupport;
 
@@ -38,7 +39,7 @@ import org.apache.commons.lang.StringUtils;
  */
 public class AwsDnsProcess extends ServiceSupport {
 
-    protected DnsProcessClient dnsProcessClient;
+    protected DnsProcessClientFactory dnsProcessClientFactory;
 
     protected ProcessLogger processLogger;
 
@@ -138,6 +139,8 @@ public class AwsDnsProcess extends ServiceSupport {
             return;
         }
 
+        DnsProcessClient dnsProcessClient = dnsProcessClientFactory.createDnsProcessClient();
+
         // PrivateIpAddressをIPアドレスとする
         String fqdn = instance.getFqdn();
         String publicIp = awsInstance.getPrivateIpAddress();
@@ -164,6 +167,8 @@ public class AwsDnsProcess extends ServiceSupport {
             return;
         }
 
+        DnsProcessClient dnsProcessClient = dnsProcessClientFactory.createDnsProcessClient();
+
         String fqdn = instance.getFqdn();
         String publicIp = awsInstance.getIpAddress();
         String privateIp = awsInstance.getPrivateIpAddress();
@@ -185,6 +190,8 @@ public class AwsDnsProcess extends ServiceSupport {
         if (StringUtils.equals(instance.getPublicIp(), awsInstance.getDnsName())) {
             return;
         }
+
+        DnsProcessClient dnsProcessClient = dnsProcessClientFactory.createDnsProcessClient();
 
         // DnsName, PrivateDnsNameをそのままIPアドレスとして使用する
         String fqdn = instance.getFqdn();
@@ -212,6 +219,8 @@ public class AwsDnsProcess extends ServiceSupport {
             return;
         }
 
+        DnsProcessClient dnsProcessClient = dnsProcessClientFactory.createDnsProcessClient();
+
         // IPアドレスを正引きにより取得する（正引きの追加はインスタンス内で行う）
         String fqdn = instance.getFqdn();
         String publicIp = dnsProcessClient.resolveHost(fqdn); // VPNインタフェースのIPアドレス
@@ -233,6 +242,8 @@ public class AwsDnsProcess extends ServiceSupport {
         if (StringUtils.isEmpty(instance.getPublicIp())) {
             return;
         }
+
+        DnsProcessClient dnsProcessClient = dnsProcessClientFactory.createDnsProcessClient();
 
         String fqdn = instance.getFqdn();
         String publicIp = instance.getPublicIp();
@@ -257,6 +268,8 @@ public class AwsDnsProcess extends ServiceSupport {
             return;
         }
 
+        DnsProcessClient dnsProcessClient = dnsProcessClientFactory.createDnsProcessClient();
+
         String fqdn = instance.getFqdn();
 
         // CNAMEの削除
@@ -268,8 +281,8 @@ public class AwsDnsProcess extends ServiceSupport {
         instanceDao.update(instance);
     }
 
-    public void setDnsProcessClient(DnsProcessClient dnsProcessClient) {
-        this.dnsProcessClient = dnsProcessClient;
+    public void setDnsProcessClientFactory(DnsProcessClientFactory dnsProcessClientFactory) {
+        this.dnsProcessClientFactory = dnsProcessClientFactory;
     }
 
     public void setProcessLogger(ProcessLogger processLogger) {

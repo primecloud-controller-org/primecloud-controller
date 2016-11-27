@@ -22,6 +22,7 @@ import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.VcloudInstance;
 import jp.primecloud.auto.process.DnsProcessClient;
+import jp.primecloud.auto.process.DnsProcessClientFactory;
 import jp.primecloud.auto.process.ProcessLogger;
 import jp.primecloud.auto.service.ServiceSupport;
 
@@ -35,7 +36,7 @@ import org.apache.commons.lang.StringUtils;
  */
 public class VcloudDnsProcess extends ServiceSupport {
 
-    protected DnsProcessClient dnsProcessClient;
+    protected DnsProcessClientFactory dnsProcessClientFactory;
 
     protected ProcessLogger processLogger;
 
@@ -88,6 +89,8 @@ public class VcloudDnsProcess extends ServiceSupport {
             return;
         }
 
+        DnsProcessClient dnsProcessClient = dnsProcessClientFactory.createDnsProcessClient();
+
         String fqdn = instance.getFqdn();
         String publicIp = vcloudInstance.getIpAddress();
         String privateIp = vcloudInstance.getPrivateIpAddress();
@@ -116,6 +119,8 @@ public class VcloudDnsProcess extends ServiceSupport {
             return;
         }
 
+        DnsProcessClient dnsProcessClient = dnsProcessClientFactory.createDnsProcessClient();
+
         // IPアドレスを正引きにより取得する（正引きの追加はインスタンス側(OpenVPNの実行)で行う）
         String fqdn = instance.getFqdn();
         String publicIp = dnsProcessClient.resolveHost(fqdn); // VPNインタフェースのIPアドレス
@@ -138,6 +143,8 @@ public class VcloudDnsProcess extends ServiceSupport {
             return;
         }
 
+        DnsProcessClient dnsProcessClient = dnsProcessClientFactory.createDnsProcessClient();
+
         String fqdn = instance.getFqdn();
         String publicIp = instance.getPublicIp();
 
@@ -153,8 +160,8 @@ public class VcloudDnsProcess extends ServiceSupport {
         instanceDao.update(instance);
     }
 
-    public void setDnsProcessClient(DnsProcessClient dnsProcessClient) {
-        this.dnsProcessClient = dnsProcessClient;
+    public void setDnsProcessClientFactory(DnsProcessClientFactory dnsProcessClientFactory) {
+        this.dnsProcessClientFactory = dnsProcessClientFactory;
     }
 
     public void setProcessLogger(ProcessLogger processLogger) {

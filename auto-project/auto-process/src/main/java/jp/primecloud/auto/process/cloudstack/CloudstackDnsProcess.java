@@ -21,6 +21,7 @@ package jp.primecloud.auto.process.cloudstack;
 import jp.primecloud.auto.entity.crud.CloudstackInstance;
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.process.DnsProcessClient;
+import jp.primecloud.auto.process.DnsProcessClientFactory;
 import jp.primecloud.auto.process.ProcessLogger;
 import jp.primecloud.auto.service.ServiceSupport;
 
@@ -34,7 +35,7 @@ import org.apache.commons.lang.StringUtils;
  */
 public class CloudstackDnsProcess extends ServiceSupport {
 
-    protected DnsProcessClient dnsProcessClient;
+    protected DnsProcessClientFactory dnsProcessClientFactory;
 
     protected ProcessLogger processLogger;
 
@@ -76,6 +77,8 @@ public class CloudstackDnsProcess extends ServiceSupport {
             return;
         }
 
+        DnsProcessClient dnsProcessClient = dnsProcessClientFactory.createDnsProcessClient();
+
         String fqdn = instance.getFqdn();
         String publicIp = dnsProcessClient.resolveHost(fqdn);
         String privateIp = csInstance.getIpaddress();
@@ -97,6 +100,8 @@ public class CloudstackDnsProcess extends ServiceSupport {
             return;
         }
 
+        DnsProcessClient dnsProcessClient = dnsProcessClientFactory.createDnsProcessClient();
+
         String fqdn = instance.getFqdn();
         String publicIp = instance.getPublicIp();
 
@@ -112,8 +117,8 @@ public class CloudstackDnsProcess extends ServiceSupport {
         instanceDao.update(instance);
     }
 
-    public void setDnsProcessClient(DnsProcessClient dnsProcessClient) {
-        this.dnsProcessClient = dnsProcessClient;
+    public void setDnsProcessClientFactory(DnsProcessClientFactory dnsProcessClientFactory) {
+        this.dnsProcessClientFactory = dnsProcessClientFactory;
     }
 
     public void setProcessLogger(ProcessLogger processLogger) {

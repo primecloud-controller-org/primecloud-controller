@@ -47,6 +47,7 @@ import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang.math.NumberUtils;
 
 import com.jcraft.jsch.Session;
 
@@ -57,10 +58,6 @@ import com.jcraft.jsch.Session;
  *
  */
 public class NiftyInstanceProcess extends ServiceSupport {
-
-    protected File imageDir;
-
-    protected Long initTimeout;
 
     protected ProcessLogger processLogger;
 
@@ -300,6 +297,7 @@ public class NiftyInstanceProcess extends ServiceSupport {
         try {
             // 初期化スクリプトを転送
             Image image = imageDao.read(instance.getImageNo());
+            String imageDir = Config.getProperty("nifty.imageDir");
             File imageFile = new File(imageDir, image.getImageName() + ".tar");
             FileInputStream input = null;
             try {
@@ -317,10 +315,8 @@ public class NiftyInstanceProcess extends ServiceSupport {
             // 初期化スクリプトを実行
             String command = "mkdir -p /tmp/image/ && tar xvf /tmp/image.tar -C /tmp/image/ && /tmp/image/init.sh \""
                     + userData + "\"";
-            long timeout = 60 * 30 * 1000L;
-            if (initTimeout != null) {
-                timeout = initTimeout;
-            }
+            String initTimeout = Config.getProperty("nifty.initTimeout");
+            long timeout = NumberUtils.toLong(initTimeout, 60 * 30 * 1000L);
             JSchResult result = JSchUtils.executeCommand(session, command, "UTF-8", timeout, true);
 
             if (result.getExitStatus() != 0) {
@@ -447,24 +443,6 @@ public class NiftyInstanceProcess extends ServiceSupport {
         map.put("vpnzippass", Config.getProperty("vpn.zippass"));
 
         return map;
-    }
-
-    /**
-     * imageDirを設定します。
-     *
-     * @param imageDir imageDir
-     */
-    public void setImageDir(File imageDir) {
-        this.imageDir = imageDir;
-    }
-
-    /**
-     * initTimeoutを設定します。
-     *
-     * @param initTimeout initTimeout
-     */
-    public void setInitTimeout(Long initTimeout) {
-        this.initTimeout = initTimeout;
     }
 
     /**

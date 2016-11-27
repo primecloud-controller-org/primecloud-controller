@@ -22,6 +22,7 @@ import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.VmwareInstance;
 import jp.primecloud.auto.process.DnsProcessClient;
+import jp.primecloud.auto.process.DnsProcessClientFactory;
 import jp.primecloud.auto.process.ProcessLogger;
 import jp.primecloud.auto.service.ServiceSupport;
 
@@ -35,7 +36,7 @@ import org.apache.commons.lang.StringUtils;
  */
 public class VmwareDnsProcess extends ServiceSupport {
 
-    protected DnsProcessClient dnsProcessClient;
+    protected DnsProcessClientFactory dnsProcessClientFactory;
 
     protected ProcessLogger processLogger;
 
@@ -93,6 +94,8 @@ public class VmwareDnsProcess extends ServiceSupport {
             return;
         }
 
+        DnsProcessClient dnsProcessClient = dnsProcessClientFactory.createDnsProcessClient();
+
         String fqdn = instance.getFqdn();
         String publicIp = vmwareInstance.getIpAddress();
         String privateIp = vmwareInstance.getPrivateIpAddress();
@@ -116,6 +119,8 @@ public class VmwareDnsProcess extends ServiceSupport {
         if (!StringUtils.isEmpty(instance.getPublicIp())) {
             return;
         }
+
+        DnsProcessClient dnsProcessClient = dnsProcessClientFactory.createDnsProcessClient();
 
         VmwareInstance vmwareInstance = vmwareInstanceDao.read(instanceNo);
 
@@ -141,6 +146,8 @@ public class VmwareDnsProcess extends ServiceSupport {
             return;
         }
 
+        DnsProcessClient dnsProcessClient = dnsProcessClientFactory.createDnsProcessClient();
+
         String fqdn = instance.getFqdn();
         String publicIp = instance.getPublicIp();
 
@@ -164,6 +171,8 @@ public class VmwareDnsProcess extends ServiceSupport {
             return;
         }
 
+        DnsProcessClient dnsProcessClient = dnsProcessClientFactory.createDnsProcessClient();
+
         String fqdn = instance.getFqdn();
         String publicIp = instance.getPublicIp();
 
@@ -179,8 +188,8 @@ public class VmwareDnsProcess extends ServiceSupport {
         instanceDao.update(instance);
     }
 
-    public void setDnsProcessClient(DnsProcessClient dnsProcessClient) {
-        this.dnsProcessClient = dnsProcessClient;
+    public void setDnsProcessClientFactory(DnsProcessClientFactory dnsProcessClientFactory) {
+        this.dnsProcessClientFactory = dnsProcessClientFactory;
     }
 
     /**

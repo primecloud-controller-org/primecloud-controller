@@ -47,6 +47,7 @@ import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
 import jp.primecloud.auto.process.DnsProcessClient;
+import jp.primecloud.auto.process.DnsProcessClientFactory;
 import jp.primecloud.auto.process.InstanceProcess;
 import jp.primecloud.auto.process.ProcessLogger;
 import jp.primecloud.auto.process.zabbix.ZabbixHostProcess;
@@ -65,7 +66,7 @@ public class ComponentLoadBalancerProcess extends ServiceSupport {
 
     protected ExecutorService executorService;
 
-    protected DnsProcessClient dnsProcessClient;
+    protected DnsProcessClientFactory dnsProcessClientFactory;
 
     protected ZabbixHostProcess zabbixHostProcess;
 
@@ -458,6 +459,8 @@ public class ComponentLoadBalancerProcess extends ServiceSupport {
             return;
         }
 
+        DnsProcessClient dnsProcessClient = dnsProcessClientFactory.createDnsProcessClient();
+
         String fqdn = loadBalancer.getFqdn();
         String canonicalName = instance.getFqdn();
 
@@ -481,6 +484,8 @@ public class ComponentLoadBalancerProcess extends ServiceSupport {
         if (StringUtils.isEmpty(loadBalancer.getCanonicalName())) {
             return;
         }
+
+        DnsProcessClient dnsProcessClient = dnsProcessClientFactory.createDnsProcessClient();
 
         String fqdn = loadBalancer.getFqdn();
         String canonicalName = loadBalancer.getCanonicalName();
@@ -529,8 +534,8 @@ public class ComponentLoadBalancerProcess extends ServiceSupport {
         this.executorService = executorService;
     }
 
-    public void setDnsProcessClient(DnsProcessClient dnsProcessClient) {
-        this.dnsProcessClient = dnsProcessClient;
+    public void setDnsProcessClientFactory(DnsProcessClientFactory dnsProcessClientFactory) {
+        this.dnsProcessClientFactory = dnsProcessClientFactory;
     }
 
     /**

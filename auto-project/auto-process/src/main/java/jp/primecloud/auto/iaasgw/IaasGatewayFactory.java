@@ -27,12 +27,6 @@ import jp.primecloud.auto.log.EventLogger;
 
 public class IaasGatewayFactory {
 
-    @Deprecated
-    protected Integer describeInterval;
-
-    @Deprecated
-    protected boolean sync = false;
-
     protected AwsCertificateDao awsCertificateDao;
 
     protected PlatformDao platformDao;
@@ -63,26 +57,6 @@ public class IaasGatewayFactory {
      */
     public void setEventLogger(EventLogger eventLogger) {
         this.eventLogger = eventLogger;
-    }
-
-    /**
-     * describeIntervalを設定します。
-     *
-     * @param describeInterval describeInterval
-     */
-    @Deprecated
-    public void setDescribeInterval(Integer describeInterval) {
-        this.describeInterval = describeInterval;
-    }
-
-    /**
-     * syncを設定します。
-     *
-     * @param sync sync
-     */
-    @Deprecated
-    public void setSync(boolean sync) {
-        this.sync = sync;
     }
 
     /**

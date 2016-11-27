@@ -38,6 +38,7 @@ import jp.primecloud.auto.entity.crud.LoadBalancerListener;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.log.EventLogger;
 import jp.primecloud.auto.process.DnsProcessClient;
+import jp.primecloud.auto.process.DnsProcessClientFactory;
 import jp.primecloud.auto.process.zabbix.ZabbixLoadBalancerProcess;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
@@ -75,7 +76,7 @@ public class AwsLoadBalancerProcess extends ServiceSupport {
 
     protected AwsCommonProcess awsCommonProcess;
 
-    protected DnsProcessClient dnsProcessClient;
+    protected DnsProcessClientFactory dnsProcessClientFactory;
 
     protected ZabbixLoadBalancerProcess zabbixLoadBalancerProcess;
 
@@ -794,6 +795,8 @@ public class AwsLoadBalancerProcess extends ServiceSupport {
         String fqdn = loadBalancer.getFqdn();
         String canonicalName = awsLoadBalancer.getDnsName();
 
+        DnsProcessClient dnsProcessClient = dnsProcessClientFactory.createDnsProcessClient();
+
         // CNAMEの追加
         dnsProcessClient.addCanonicalName(fqdn, canonicalName);
 
@@ -819,6 +822,8 @@ public class AwsLoadBalancerProcess extends ServiceSupport {
         String canonicalName = loadBalancer.getCanonicalName();
 
         try {
+            DnsProcessClient dnsProcessClient = dnsProcessClientFactory.createDnsProcessClient();
+
             // CNAMEの削除
             dnsProcessClient.deleteCanonicalName(fqdn);
 
@@ -840,8 +845,8 @@ public class AwsLoadBalancerProcess extends ServiceSupport {
         this.awsCommonProcess = awsCommonProcess;
     }
 
-    public void setDnsProcessClient(DnsProcessClient dnsProcessClient) {
-        this.dnsProcessClient = dnsProcessClient;
+    public void setDnsProcessClientFactory(DnsProcessClientFactory dnsProcessClientFactory) {
+        this.dnsProcessClientFactory = dnsProcessClientFactory;
     }
 
     public void setZabbixLoadBalancerProcess(ZabbixLoadBalancerProcess zabbixLoadBalancerProcess) {

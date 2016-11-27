@@ -23,8 +23,10 @@ import java.net.UnknownHostException;
 
 import jp.primecloud.auto.common.component.DnsStrategyInterface;
 import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * <p>
@@ -32,7 +34,9 @@ import jp.primecloud.auto.util.MessageUtils;
  * </p>
  *
  */
-public class DnsProcessClient extends ServiceSupport {
+public class DnsProcessClient {
+
+    protected Log log = LogFactory.getLog(getClass());
 
     protected DnsStrategyInterface dnsStrategy;
 

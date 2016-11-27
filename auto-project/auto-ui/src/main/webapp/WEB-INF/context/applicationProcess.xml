@@ -11,13 +11,7 @@
 	<!-- ProcessLogger -->
 	<bean id="processLogger" class="jp.primecloud.auto.process.ProcessLogger"/>
 
-	<bean id="dnsStrategy" class="jp.primecloud.auto.common.component.DnsStrategy">
-		<property name="dnsServer" value="${dns.server}" />
-		<property name="timeToLive" value="${dns.timeToLive}" />
-	</bean>
-	<bean id="dnsProcessClient" class="jp.primecloud.auto.process.DnsProcessClient">
-		<property name="reverseEnabled" value="${dns.reverseEnabled}" />
-	</bean>
+	<bean id="dnsProcessClientFactory" class="jp.primecloud.auto.process.DnsProcessClientFactory" />
 
 	<!-- AwsProcess -->
 	<bean id="awsProcess" class="jp.primecloud.auto.process.aws.AwsProcess" />
@@ -27,12 +21,7 @@
 	<!--<bean id="awsAddressProcess" class="jp.primecloud.auto.process.aws.AwsAddressProcess" />-->
 	<bean id="awsDnsProcess" class="jp.primecloud.auto.process.aws.AwsDnsProcess" />
 	<bean id="awsLoadBalancerProcess" class="jp.primecloud.auto.process.aws.AwsLoadBalancerProcess" />
-	<bean id="awsProcessClientFactory" class="jp.primecloud.auto.process.aws.AwsProcessClientFactory">
-		<property name="describeInterval" value="${aws.describeInterval}" />
-		<property name="logging" value="${aws.logging}" />
-		<property name="sync" value="${aws.synchronized}" />
-		<property name="volumeType" value="${aws.volumeType}" />
-	</bean>
+	<bean id="awsProcessClientFactory" class="jp.primecloud.auto.process.aws.AwsProcessClientFactory" />
 
 	<!-- VmwareProcess -->
 	<bean id="vmwareProcess" class="jp.primecloud.auto.process.vmware.VmwareProcess" />
@@ -47,15 +36,9 @@
 
 	<!-- NiftyProcess -->
 	<bean id="niftyProcess" class="jp.primecloud.auto.process.nifty.NiftyProcess" />
-	<bean id="niftyInstanceProcess" class="jp.primecloud.auto.process.nifty.NiftyInstanceProcess">
-		<property name="imageDir" value="${nifty.imageDir}" />
-		<property name="initTimeout" value="${nifty.initTimeout}" />
-	</bean>
+	<bean id="niftyInstanceProcess" class="jp.primecloud.auto.process.nifty.NiftyInstanceProcess" />
 	<bean id="niftyDnsProcess" class="jp.primecloud.auto.process.nifty.NiftyDnsProcess" />
-	<bean id="niftyProcessClientFactory" class="jp.primecloud.auto.nifty.process.NiftyProcessClientFactory">
-		<property name="describeInterval" value="${aws.describeInterval}" />
-		<property name="apiTimeout" value="${nifty.apiTimeout}" />
-	</bean>
+	<bean id="niftyProcessClientFactory" class="jp.primecloud.auto.nifty.process.NiftyProcessClientFactory" />
 	<bean id="niftyVolumeProcess" class="jp.primecloud.auto.process.nifty.NiftyVolumeProcess" />
 
 
@@ -104,11 +87,7 @@
 	<!-- ZabbixProcess -->
 	<bean id="zabbixHostProcess" class="jp.primecloud.auto.process.zabbix.ZabbixHostProcess" />
 	<bean id="zabbixLoadBalancerProcess" class="jp.primecloud.auto.process.zabbix.ZabbixLoadBalancerProcess" />
-	<bean id="zabbixProcessClientFactory" class="jp.primecloud.auto.process.zabbix.ZabbixProcessClientFactory">
-		<property name="url" value="${zabbix.url}" />
-		<property name="username" value="${zabbix.username}" />
-		<property name="password" value="${zabbix.password}" />
-	</bean>
+	<bean id="zabbixProcessClientFactory" class="jp.primecloud.auto.process.zabbix.ZabbixProcessClientFactory" />
 
 
 	<!-- LoadBalancerProcess -->
@@ -120,8 +99,6 @@
 	</bean>
 
 	<!-- ProcessHook -->
-	<bean id="processHook" class="jp.primecloud.auto.process.hook.ProcessScriptHook">
-		<property name="scriptDir" value="${hook.scriptDir}" />
-	</bean>
+	<bean id="processHook" class="jp.primecloud.auto.process.hook.ProcessScriptHook" />
 
 </beans>

@@ -77,7 +77,7 @@ public class NiftyProcessClient {
 
     protected Long platformNo;
 
-    protected Integer describeInterval;
+    protected int describeInterval;
 
     private final static Object lock = new Object();
 
@@ -89,16 +89,6 @@ public class NiftyProcessClient {
     public NiftyProcessClient(NiftyDiskClient niftyDiskClient, Long platformNo) {
         this.niftyDiskClient = niftyDiskClient;
         this.platformNo = platformNo;
-    }
-
-    public NiftyProcessClient(NiftyServerClient niftyServerClient, Long platformNo, Integer describeInterval) {
-        this(niftyServerClient, platformNo);
-        this.describeInterval = describeInterval;
-    }
-
-    public NiftyProcessClient(NiftyDiskClient niftyDiskClient, Long platformNo, Integer describeInterval) {
-        this(niftyDiskClient, platformNo);
-        this.describeInterval = describeInterval;
     }
 
     public NiftyServerClient getNiftyServerClient() {
@@ -763,4 +753,9 @@ public class NiftyProcessClient {
             }
         }
     }
+
+    public void setDescribeInterval(int describeInterval) {
+        this.describeInterval = describeInterval;
+    }
+
 }

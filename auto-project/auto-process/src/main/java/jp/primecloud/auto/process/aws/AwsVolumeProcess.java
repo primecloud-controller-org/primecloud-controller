@@ -21,6 +21,7 @@ package jp.primecloud.auto.process.aws;
 import java.util.ArrayList;
 import java.util.List;
 
+import jp.primecloud.auto.config.Config;
 import jp.primecloud.auto.entity.crud.AwsInstance;
 import jp.primecloud.auto.entity.crud.AwsVolume;
 import jp.primecloud.auto.entity.crud.Component;
@@ -169,8 +170,10 @@ public class AwsVolumeProcess extends ServiceSupport {
         request.withSize(awsVolume.getSize());
         request.withSnapshotId(awsVolume.getSnapshotId());
         request.withAvailabilityZone(awsVolume.getAvailabilityZone());
-        if (StringUtils.isNotEmpty(awsProcessClient.getVolumeType())) {
-            request.withVolumeType(awsProcessClient.getVolumeType());
+
+        String volumeType = Config.getProperty("aws.volumeType");
+        if (StringUtils.isNotEmpty(volumeType)) {
+            request.withVolumeType(volumeType);
         }
 
         CreateVolumeResult result = awsProcessClient.getEc2Client().createVolume(request);

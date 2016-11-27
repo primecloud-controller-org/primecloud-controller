@@ -47,9 +47,7 @@ public class AwsProcessClient {
 
     protected AmazonElasticLoadBalancing elbClient;
 
-    protected Integer describeInterval;
-
-    protected String volumeType;
+    protected int describeInterval = 15;
 
     /**
      * TODO: コンストラクタコメント
@@ -89,20 +87,12 @@ public class AwsProcessClient {
         return elbClient;
     }
 
-    public Integer getDescribeInterval() {
+    public int getDescribeInterval() {
         return describeInterval;
     }
 
-    public void setDescribeInterval(Integer describeInterval) {
+    public void setDescribeInterval(int describeInterval) {
         this.describeInterval = describeInterval;
-    }
-
-    public String getVolumeType() {
-        return volumeType;
-    }
-
-    public void setVolumeType(String volumeType) {
-        this.volumeType = volumeType;
     }
 
 }

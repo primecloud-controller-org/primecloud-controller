@@ -798,8 +798,9 @@ public class AwsInstanceProcess extends ServiceSupport {
             mapping.getEbs().withEncrypted(null);
 
             // ボリュームタイプを指定する
-            if (StringUtils.isNotEmpty(awsProcessClient.getVolumeType())) {
-                mapping.getEbs().setVolumeType(awsProcessClient.getVolumeType());
+            String volumeType = Config.getProperty("aws.volumeType");
+            if (StringUtils.isNotEmpty(volumeType)) {
+                mapping.getEbs().setVolumeType(volumeType);
             }
         }
 

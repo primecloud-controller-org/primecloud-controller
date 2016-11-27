@@ -23,6 +23,7 @@ import jp.primecloud.auto.aws.amazon.AmazonAwsClientFactory;
 import jp.primecloud.auto.aws.typica.EucaAwsClientFactory;
 import jp.primecloud.auto.aws.wrapper.LoggingAwsClientWrapper;
 import jp.primecloud.auto.aws.wrapper.SynchronizedAwsClientWrapper;
+import jp.primecloud.auto.config.Config;
 import jp.primecloud.auto.dao.crud.AwsCertificateDao;
 import jp.primecloud.auto.dao.crud.PlatformAwsDao;
 import jp.primecloud.auto.dao.crud.PlatformDao;
@@ -34,6 +35,8 @@ import jp.primecloud.auto.entity.crud.Proxy;
 import jp.primecloud.auto.exception.AutoException;
 
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancing;
@@ -45,14 +48,6 @@ import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancing;
  * 
  */
 public class AwsProcessClientFactory {
-
-    protected Integer describeInterval = 15;
-
-    protected boolean logging = false;
-
-    protected boolean sync = true;
-
-    protected String volumeType;
 
     protected PlatformDao platformDao;
 
@@ -120,14 +115,16 @@ public class AwsProcessClientFactory {
                 awsCertificate.getAwsSecretKey());
 
         // ログ出力用Clientでラップ
-        if (logging) {
+        String logging = StringUtils.defaultIfEmpty(Config.getProperty("aws.logging"), "false");
+        if (BooleanUtils.toBoolean(logging)) {
             LoggingAwsClientWrapper loggingAwsClientWrapper = new LoggingAwsClientWrapper();
             ec2Client = loggingAwsClientWrapper.wrap(ec2Client);
             elbClient = loggingAwsClientWrapper.wrap(elbClient);
         }
 
         // 同期実行用Clientでラップ
-        if (sync) {
+        String sync = StringUtils.defaultIfEmpty(Config.getProperty("aws.synchronized"), "true");
+        if (BooleanUtils.toBoolean(sync)) {
             SynchronizedAwsClientWrapper synchronizedAwsClientWrapper = new SynchronizedAwsClientWrapper();
             ec2Client = synchronizedAwsClientWrapper.wrap(ec2Client);
             elbClient = synchronizedAwsClientWrapper.wrap(elbClient);
@@ -136,26 +133,10 @@ public class AwsProcessClientFactory {
         AwsProcessClient client = new AwsProcessClient(awsCertificate.getUserNo(), platform, platformAws, ec2Client,
                 elbClient);
 
-        client.setDescribeInterval(describeInterval);
-        client.setVolumeType(volumeType);
+        String describeInterval = Config.getProperty("aws.describeInterval");
+        client.setDescribeInterval(NumberUtils.toInt(describeInterval, 15));
 
         return client;
-    }
-
-    public void setDescribeInterval(Integer describeInterval) {
-        this.describeInterval = describeInterval;
-    }
-
-    public void setLogging(boolean logging) {
-        this.logging = logging;
-    }
-
-    public void setSync(boolean sync) {
-        this.sync = sync;
-    }
-
-    public void setVolumeType(String volumeType) {
-        this.volumeType = volumeType;
     }
 
     public void setPlatformDao(PlatformDao platformDao) {

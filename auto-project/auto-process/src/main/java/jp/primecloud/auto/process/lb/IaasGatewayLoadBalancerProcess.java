@@ -39,6 +39,7 @@ import jp.primecloud.auto.iaasgw.IaasGatewayFactory;
 import jp.primecloud.auto.iaasgw.IaasGatewayWrapper;
 import jp.primecloud.auto.log.EventLogger;
 import jp.primecloud.auto.process.DnsProcessClient;
+import jp.primecloud.auto.process.DnsProcessClientFactory;
 import jp.primecloud.auto.process.ProcessLogger;
 import jp.primecloud.auto.process.zabbix.ZabbixLoadBalancerProcess;
 import jp.primecloud.auto.service.ServiceSupport;
@@ -52,7 +53,7 @@ import jp.primecloud.auto.util.MessageUtils;
  */
 public class IaasGatewayLoadBalancerProcess extends ServiceSupport {
 
-    protected DnsProcessClient dnsProcessClient;
+    protected DnsProcessClientFactory dnsProcessClientFactory;
 
     protected ZabbixLoadBalancerProcess zabbixLoadBalancerProcess;
 
@@ -246,6 +247,8 @@ public class IaasGatewayLoadBalancerProcess extends ServiceSupport {
             return;
         }
 
+        DnsProcessClient dnsProcessClient = dnsProcessClientFactory.createDnsProcessClient();
+
         String fqdn = loadBalancer.getFqdn();
         String canonicalName = awsLoadBalancer.getDnsName();
 
@@ -270,6 +273,8 @@ public class IaasGatewayLoadBalancerProcess extends ServiceSupport {
             return;
         }
 
+        DnsProcessClient dnsProcessClient = dnsProcessClientFactory.createDnsProcessClient();
+
         String fqdn = loadBalancer.getFqdn();
         String canonicalName = loadBalancer.getCanonicalName();
 
@@ -290,8 +295,8 @@ public class IaasGatewayLoadBalancerProcess extends ServiceSupport {
         loadBalancerDao.update(loadBalancer);
     }
 
-    public void setDnsProcessClient(DnsProcessClient dnsProcessClient) {
-        this.dnsProcessClient = dnsProcessClient;
+    public void setDnsProcessClientFactory(DnsProcessClientFactory dnsProcessClientFactory) {
+        this.dnsProcessClientFactory = dnsProcessClientFactory;
     }
 
     public void setZabbixLoadBalancerProcess(ZabbixLoadBalancerProcess zabbixLoadBalancerProcess) {

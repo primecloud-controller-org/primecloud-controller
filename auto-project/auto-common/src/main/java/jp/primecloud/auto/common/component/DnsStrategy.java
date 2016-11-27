@@ -53,10 +53,7 @@ public class DnsStrategy implements DnsStrategyInterface {
     @Override
     public void addForward(String fqdn, String ipAddress) {
         List<String> commands = createCommands();
-
-        List<String> stdins = createStdinsCommon();
-        stdins.addAll(createAddForward(fqdn, ipAddress));
-        stdins.add("quit");
+        List<String> stdins = createAddForward(fqdn, ipAddress);
 
         CommandResult result = execute(commands, stdins);
 
@@ -93,10 +90,7 @@ public class DnsStrategy implements DnsStrategyInterface {
     @Override
     public void addReverse(String fqdn, String ipAddress) {
         List<String> commands = createCommands();
-
-        List<String> stdins = createStdinsCommon();
-        stdins.addAll(createAddReverse(fqdn, ipAddress));
-        stdins.add("quit");
+        List<String> stdins = createAddReverse(fqdn, ipAddress);
 
         CommandResult result = execute(commands, stdins);
 
@@ -133,10 +127,7 @@ public class DnsStrategy implements DnsStrategyInterface {
     @Override
     public void addCanonicalName(String fqdn, String canonicalName) {
         List<String> commands = createCommands();
-
-        List<String> stdins = createStdinsCommon();
-        stdins.addAll(createAddCanonicalName(fqdn, canonicalName));
-        stdins.add("quit");
+        List<String> stdins = createAddCanonicalName(fqdn, canonicalName);
 
         CommandResult result = execute(commands, stdins);
 
@@ -157,10 +148,7 @@ public class DnsStrategy implements DnsStrategyInterface {
     @Override
     public void deleteForward(String fqdn) {
         List<String> commands = createCommands();
-
-        List<String> stdins = createStdinsCommon();
-        stdins.addAll(createDeleteForward(fqdn));
-        stdins.add("quit");
+        List<String> stdins = createDeleteForward(fqdn);
 
         CommandResult result = execute(commands, stdins);
 
@@ -197,10 +185,7 @@ public class DnsStrategy implements DnsStrategyInterface {
     @Override
     public void deleteReverse(String ipAddress) {
         List<String> commands = createCommands();
-
-        List<String> stdins = createStdinsCommon();
-        stdins.addAll(createDeleteReverse(ipAddress));
-        stdins.add("quit");
+        List<String> stdins = createDeleteReverse(ipAddress);
 
         CommandResult result = execute(commands, stdins);
 
@@ -237,10 +222,7 @@ public class DnsStrategy implements DnsStrategyInterface {
     @Override
     public void deleteCanonicalName(String fqdn) {
         List<String> commands = createCommands();
-
-        List<String> stdins = createStdinsCommon();
-        stdins.addAll(createDeleteCanonicalName(fqdn));
-        stdins.add("quit");
+        List<String> stdins = createDeleteCanonicalName(fqdn);
 
         CommandResult result = execute(commands, stdins);
 
@@ -295,49 +277,55 @@ public class DnsStrategy implements DnsStrategyInterface {
     }
 
     protected List<String> createAddForward(String fqdn, String ipAddress) {
-        List<String> in = new ArrayList<String>();
+        List<String> in = createStdinsCommon();
         in.add("update delete " + fqdn + " IN A");
         in.add("update add " + fqdn + " " + timeToLive + " IN A " + ipAddress);
         in.add("send");
+        in.add("quit");
         return in;
     }
 
     protected List<String> createAddReverse(String fqdn, String ipAddress) {
         String reverseName = createReverseName(ipAddress);
-        List<String> in = new ArrayList<String>();
+        List<String> in = createStdinsCommon();
         in.add("update delete " + reverseName + " IN PTR");
         in.add("update add " + reverseName + " " + timeToLive + " IN PTR " + fqdn);
         in.add("send");
+        in.add("quit");
         return in;
     }
 
     protected List<String> createAddCanonicalName(String fqdn, String canonicalName) {
-        List<String> in = new ArrayList<String>();
+        List<String> in = createStdinsCommon();
         in.add("update delete " + fqdn + " IN CNAME");
         in.add("update add " + fqdn + " " + timeToLive + " IN CNAME " + canonicalName);
         in.add("send");
+        in.add("quit");
         return in;
     }
 
     protected List<String> createDeleteForward(String fqdn) {
-        List<String> in = new ArrayList<String>();
+        List<String> in = createStdinsCommon();
         in.add("update delete " + fqdn + " IN A");
         in.add("send");
+        in.add("quit");
         return in;
     }
 
     protected List<String> createDeleteReverse(String ipAddress) {
         String reverseName = createReverseName(ipAddress);
-        List<String> in = new ArrayList<String>();
+        List<String> in = createStdinsCommon();
         in.add("update delete " + reverseName + " IN PTR");
         in.add("send");
+        in.add("quit");
         return in;
     }
 
     protected List<String> createDeleteCanonicalName(String fqdn) {
-        List<String> in = new ArrayList<String>();
+        List<String> in = createStdinsCommon();
         in.add("update delete " + fqdn + " IN CNAME");
         in.add("send");
+        in.add("quit");
         return in;
     }
 

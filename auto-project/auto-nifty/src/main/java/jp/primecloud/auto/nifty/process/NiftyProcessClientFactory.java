@@ -19,6 +19,7 @@
 package jp.primecloud.auto.nifty.process;
 
 import jp.primecloud.auto.common.constant.PCCConstant;
+import jp.primecloud.auto.config.Config;
 import jp.primecloud.auto.dao.crud.NiftyCertificateDao;
 import jp.primecloud.auto.dao.crud.PlatformDao;
 import jp.primecloud.auto.dao.crud.PlatformNiftyDao;
@@ -28,6 +29,7 @@ import jp.primecloud.auto.entity.crud.PlatformNifty;
 import jp.primecloud.auto.exception.AutoException;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 
 import com.nifty.cloud.sdk.ClientConfiguration;
 import com.nifty.cloud.sdk.auth.BasicCredentials;
@@ -42,10 +44,6 @@ import com.nifty.cloud.sdk.server.NiftyServerClient;
  *
  */
 public class NiftyProcessClientFactory {
-
-    protected Integer describeInterval;
-
-    protected Long apiTimeout;
 
     protected NiftyCertificateDao niftyCertificateDao;
 
@@ -85,34 +83,23 @@ public class NiftyProcessClientFactory {
         if (StringUtils.isNotBlank(endpoint)) {
             config.setConfigEndpoint(endpoint);
         }
+
+        NiftyProcessClient niftyProcessClient = null;
         if (PCCConstant.NIFTYCLIENT_TYPE_SERVER.equals(clientType)) {
             NiftyServerClient niftyServerClient = new NiftyServerClient(credential, config);
-            return new NiftyProcessClient(niftyServerClient, platform.getPlatformNo(), describeInterval);
+            niftyProcessClient = new NiftyProcessClient(niftyServerClient, platform.getPlatformNo());
         } else if (PCCConstant.NIFTYCLIENT_TYPE_DISK.equals(clientType)) {
             NiftyDiskClient niftyDiskClient = new NiftyDiskClient(credential, config);
-            return new NiftyProcessClient(niftyDiskClient, platform.getPlatformNo(), describeInterval);
+            niftyProcessClient = new NiftyProcessClient(niftyDiskClient, platform.getPlatformNo());
+        } else {
+            return null;
         }
 
-        return null;
+        // describeInterval
+        String describeInterval = Config.getProperty("aws.describeInterval");
+        niftyProcessClient.setDescribeInterval(NumberUtils.toInt(describeInterval, 15));
 
-    }
-
-    /**
-     * describeIntervalを設定します。
-     *
-     * @param describeInterval describeInterval
-     */
-    public void setDescribeInterval(Integer describeInterval) {
-        this.describeInterval = describeInterval;
-    }
-
-    /**
-     * apiTimeoutを設定します。
-     *
-     * @param apiTimeout apiTimeout
-     */
-    public void setApiTimeout(Long apiTimeout) {
-        this.apiTimeout = apiTimeout;
+        return niftyProcessClient;
     }
 
     /**
