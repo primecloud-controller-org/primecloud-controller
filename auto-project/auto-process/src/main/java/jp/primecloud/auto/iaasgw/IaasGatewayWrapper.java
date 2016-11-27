@@ -1,3 +1,21 @@
+/*
+ * Copyright 2014 by SCSK Corporation.
+ * 
+ * This file is part of PrimeCloud Controller(TM).
+ * 
+ * PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
+ */
 package jp.primecloud.auto.iaasgw;
 
 import java.io.File;
@@ -12,13 +30,7 @@ import jp.primecloud.auto.util.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-
-//形だけAwsClientを継承しておきます。
 public class IaasGatewayWrapper{
-
-    protected Integer describeInterval;
-
-    protected boolean sync = false;
 
     protected Long platformNo;
 
@@ -28,58 +40,13 @@ public class IaasGatewayWrapper{
 
     protected EventLogger eventLogger;
 
-    /**
-     * describeIntervalを設定します。
-     *
-     * @param describeInterval describeInterval
-     */
-    public void setDescribeInterval(Integer describeInterval) {
-        this.describeInterval = describeInterval;
-    }
-
-    /**
-     * syncを設定します。
-     *
-     * @param sync sync
-     */
-    public void setSync(boolean sync) {
-        this.sync = sync;
-    }
-
-    /**
-     * platformNoを返します。
-     *
-     * @param platformNo platformNo
-     */
-   public Long getPlatformNo(){
-        return this.platformNo;
-    }
-
-    public IaasGatewayWrapper(Long userNo, Long platformNo, Integer describeInterval, EventLogger eventLogger){
-
+    public IaasGatewayWrapper(Long userNo, Long platformNo, EventLogger eventLogger){
         this.platformNo = platformNo;
-
         this.userNo = userNo;
-
         this.eventLogger = eventLogger;
-
-        //プロキシの設定
-        //factory.setAwsConfig(platform.getAws());
-        //if (platform.getProxy() != null) {
-        //    factory.setProxyConfig(platform.getProxy());
-        //}
-
-        // ログ出力用AwsClientでラップする
-        //awsClient = new LoggingAwsClientWrapper(awsClient);
-
-        // 同期的な実行をする場合、同期実行用AwsClientでラップする
-        //if (sync) {
-        //    awsClient = new SynchronizedAwsClientWrapper(awsClient);
-        //}
     }
 
     public String excGateway(String gwMod, List<String> gwParams){
-
         try{
             //パスは環境によって異なります　引数は
             //1 : Python.exeのパス       Ex."/C:/Python27/python"

@@ -22,34 +22,8 @@ import jp.primecloud.auto.iaasgw.IaasGatewayWrapper;
 
 public class IaasGatewayFactory {
 
-    protected Integer describeInterval;
-
-    protected boolean sync = false;
-
-    public IaasGatewayFactory(Integer describeInterval, boolean sync) {
-        this.describeInterval = describeInterval;
-        this.sync = sync;
-    }
-
     public IaasGatewayWrapper createIaasGateway(Long userNo, Long platformNo) {
-        return new IaasGatewayWrapper(userNo, platformNo, describeInterval, null);
+        return new IaasGatewayWrapper(userNo, platformNo, null);
     }
 
-    /**
-     * describeIntervalを設定します。
-     *
-     * @param describeInterval describeInterval
-     */
-    public void setDescribeInterval(Integer describeInterval) {
-        this.describeInterval = describeInterval;
-    }
-
-    /**
-     * syncを設定します。
-     *
-     * @param sync sync
-     */
-    public void setSync(boolean sync) {
-        this.sync = sync;
-    }
 }

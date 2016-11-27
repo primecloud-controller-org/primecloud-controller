@@ -18,12 +18,10 @@
  */
 package jp.primecloud.auto.tool.management.iaasgw;
 
-import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import jp.primecloud.auto.config.Config;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.iaasgw.IaasGatewayWrapper;
@@ -39,9 +37,7 @@ public class IaasGatewayScriptService {
     public IaasGatewayScriptService(Long userNo, Platform platform) throws AutoException {
         try {
             log.info("IaasGatewayScriptService before context.getBean(iaasGatewayFactory)");
-            Integer interval = Integer.parseInt(Config.getProperty("aws.describeInterval"));
-            Boolean sync = BooleanUtils.toBoolean(Config.getProperty("aws.synchronized"));
-            IaasGatewayFactory factory = new IaasGatewayFactory(interval, sync);
+            IaasGatewayFactory factory = new IaasGatewayFactory();
             gateway = factory.createIaasGateway(userNo, platform.getPlatformNo());
             this.platform = platform;
         } catch (Exception e) {

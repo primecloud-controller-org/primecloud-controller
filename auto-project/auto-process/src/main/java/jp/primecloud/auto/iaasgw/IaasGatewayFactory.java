@@ -1,3 +1,21 @@
+/*
+ * Copyright 2014 by SCSK Corporation.
+ * 
+ * This file is part of PrimeCloud Controller(TM).
+ * 
+ * PrimeCloud Controller(TM) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * PrimeCloud Controller(TM) is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with PrimeCloud Controller(TM). If not, see <http://www.gnu.org/licenses/>.
+ */
 package jp.primecloud.auto.iaasgw;
 
 import jp.primecloud.auto.common.constant.PCCConstant;
@@ -7,11 +25,12 @@ import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.log.EventLogger;
 
-
 public class IaasGatewayFactory {
 
+    @Deprecated
     protected Integer describeInterval;
 
+    @Deprecated
     protected boolean sync = false;
 
     protected AwsCertificateDao awsCertificateDao;
@@ -21,14 +40,11 @@ public class IaasGatewayFactory {
     protected EventLogger eventLogger;
 
     public IaasGatewayWrapper createIaasGateway(Long userNo, Long platformNo) {
-
         Platform platform = platformDao.read(platformNo);
         if (platform == null) {
             throw new AutoException("EPROCESS-000004", platformNo);
         }
 
-
-        // TODO CLOUD BRANCHING
         if (!PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())&&
             !PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType()) &&
             !PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType()) &&
@@ -37,14 +53,7 @@ public class IaasGatewayFactory {
             throw new AutoException("EPROCESS-000005", platform.getPlatformNo());
         }
 
-        // AwsCertificateを取得
-        //AwsCertificate awsCertificate = awsCertificateDao.read(userNo, platform.getNo());
-        //if (awsCertificate == null) {
-        //    throw new AutoException("EPROCESS-000006", userNo, platform.getNo());
-        //}
-
-        return new IaasGatewayWrapper(userNo, platform.getPlatformNo(), describeInterval, eventLogger);
-
+        return new IaasGatewayWrapper(userNo, platform.getPlatformNo(), eventLogger);
     }
 
     /**
@@ -61,6 +70,7 @@ public class IaasGatewayFactory {
      *
      * @param describeInterval describeInterval
      */
+    @Deprecated
     public void setDescribeInterval(Integer describeInterval) {
         this.describeInterval = describeInterval;
     }
@@ -70,6 +80,7 @@ public class IaasGatewayFactory {
      *
      * @param sync sync
      */
+    @Deprecated
     public void setSync(boolean sync) {
         this.sync = sync;
     }

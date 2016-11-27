@@ -1040,7 +1040,7 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
                     csVolume.getPlatformNo());
 
             //イベントログ出力
-            Platform platform = platformDao.read(gateway.getPlatformNo());
+            Platform platform = platformDao.read(csVolume.getPlatformNo());
             Instance instance = instanceDao.read(csVolume.getInstanceNo());
             CloudstackInstance csInstance = cloudstackInstanceDao.read(csVolume.getInstanceNo());
             eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), csVolume.getComponentNo(),
@@ -1127,7 +1127,7 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
                     azureDisk.getPlatformNo());
 
             //イベントログ出力
-            Platform platform = platformDao.read(gateway.getPlatformNo());
+            Platform platform = platformDao.read(azureDisk.getPlatformNo());
             Instance instance = instanceDao.read(azureDisk.getInstanceNo());
             AzureInstance azureInstance = azureInstanceDao.read(azureDisk.getInstanceNo());
             eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), azureDisk.getComponentNo(),
@@ -1162,7 +1162,7 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
                     osVolume.getPlatformNo());
 
             //イベントログ出力
-            Platform platform = platformDao.read(gateway.getPlatformNo());
+            Platform platform = platformDao.read(osVolume.getPlatformNo());
             Instance instance = instanceDao.read(osVolume.getInstanceNo());
             OpenstackInstance osInstance = openstackInstanceDao.read(osVolume.getInstanceNo());
             eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), osVolume.getComponentNo(),

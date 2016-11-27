@@ -2785,7 +2785,7 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
                     cloudstackVolume.getPlatformNo());
 
             //イベントログ出力
-            Platform platform = platformDao.read(gateway.getPlatformNo());
+            Platform platform = platformDao.read(cloudstackVolume.getPlatformNo());
             Component component = componentDao.read(cloudstackVolume.getComponentNo());
             eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(),
                     farm.getFarmName(),
@@ -2822,7 +2822,7 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
                     instance.getPlatformNo());
 
             // イベントログ出力
-            Platform platform = platformDao.read(gateway.getPlatformNo());
+            Platform platform = platformDao.read(instance.getPlatformNo());
             eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), null, null, instanceNo,
                     instance.getInstanceName(), "CloudStackInstanceDelete", cloudstackInstance.getInstanceType(),
                     instance.getPlatformNo(),
@@ -3061,7 +3061,7 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
                     azureDisk.getPlatformNo());
 
             //イベントログ出力
-            Platform platform = platformDao.read(gateway.getPlatformNo());
+            Platform platform = platformDao.read(azureDisk.getPlatformNo());
             Component component = componentDao.read(azureDisk.getComponentNo());
             eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), azureDisk.getComponentNo(),
                     component.getComponentName(), instanceNo, instance.getInstanceName(), "AzureDiskDelete",
@@ -3091,7 +3091,7 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
                     instance.getPlatformNo());
 
             // イベントログ出力
-            Platform platform = platformDao.read(gateway.getPlatformNo());
+            Platform platform = platformDao.read(instance.getPlatformNo());
             eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), null, null, instanceNo,
                     instance.getInstanceName(), "AzureInstanceDelete", azureInstance.getInstanceType(),
                     instance.getPlatformNo(),
@@ -3130,7 +3130,7 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
                     openstackVolume.getPlatformNo());
 
             //イベントログ出力
-            Platform platform = platformDao.read(gateway.getPlatformNo());
+            Platform platform = platformDao.read(openstackVolume.getPlatformNo());
             Component component = componentDao.read(openstackVolume.getComponentNo());
             eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(),
                     openstackVolume.getComponentNo(), component.getComponentName(), instanceNo,
@@ -3163,7 +3163,7 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
 
             // イベントログ出力
             // α実装のため、"m1.tiny"で固定
-            Platform platform = platformDao.read(gateway.getPlatformNo());
+            Platform platform = platformDao.read(instance.getPlatformNo());
             eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), null, null, instanceNo,
                     instance.getInstanceName(), "OpenStackInstanceDelete", openstackInstance.getInstanceType(),
                     instance.getPlatformNo(),
