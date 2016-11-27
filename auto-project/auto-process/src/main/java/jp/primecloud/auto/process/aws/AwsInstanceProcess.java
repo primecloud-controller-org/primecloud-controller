@@ -758,19 +758,20 @@ public class AwsInstanceProcess extends ServiceSupport {
         List<BlockDeviceMapping> mappings = new ArrayList<BlockDeviceMapping>();
 
         // イメージのBlockDeviceMappingの設定
-        List<BlockDeviceMapping> imageMappings = createImageBlockDeviceMappings(image);
+        List<BlockDeviceMapping> imageMappings = createImageBlockDeviceMappings(awsProcessClient, image);
         if (imageMappings != null) {
             mappings.addAll(imageMappings);
         }
 
         // 追加のBlockDeviceMappingの設定
-        List<BlockDeviceMapping> additionalMappings = createAdditionalBlockDeviceMappings(image);
+        List<BlockDeviceMapping> additionalMappings = createAdditionalBlockDeviceMappings(awsProcessClient, image);
         if (additionalMappings != null) {
             mappings.addAll(additionalMappings);
         }
 
         // Instance StoreのBlockDeviceMappingの設定
-        List<BlockDeviceMapping> instanceStoreMappings = createInstanceStoreBlockDeviceMappings(image, instanceType);
+        List<BlockDeviceMapping> instanceStoreMappings = createInstanceStoreBlockDeviceMappings(awsProcessClient,
+                image, instanceType);
         if (instanceStoreMappings != null) {
             mappings.addAll(instanceStoreMappings);
         }
@@ -778,7 +779,8 @@ public class AwsInstanceProcess extends ServiceSupport {
         return mappings;
     }
 
-    protected List<BlockDeviceMapping> createImageBlockDeviceMappings(com.amazonaws.services.ec2.model.Image image) {
+    protected List<BlockDeviceMapping> createImageBlockDeviceMappings(AwsProcessClient awsProcessClient,
+            com.amazonaws.services.ec2.model.Image image) {
         List<BlockDeviceMapping> mappings = image.getBlockDeviceMappings();
         if (mappings == null) {
             return null;
@@ -794,17 +796,23 @@ public class AwsInstanceProcess extends ServiceSupport {
 
             // Encryptedは指定できない
             mapping.getEbs().withEncrypted(null);
+
+            // ボリュームタイプを指定する
+            if (StringUtils.isNotEmpty(awsProcessClient.getVolumeType())) {
+                mapping.getEbs().setVolumeType(awsProcessClient.getVolumeType());
+            }
         }
 
         return mappings;
     }
 
     // 拡張用
-    protected List<BlockDeviceMapping> createAdditionalBlockDeviceMappings(com.amazonaws.services.ec2.model.Image image) {
+    protected List<BlockDeviceMapping> createAdditionalBlockDeviceMappings(AwsProcessClient awsProcessClient,
+            com.amazonaws.services.ec2.model.Image image) {
         return null;
     }
 
-    protected List<BlockDeviceMapping> createInstanceStoreBlockDeviceMappings(
+    protected List<BlockDeviceMapping> createInstanceStoreBlockDeviceMappings(AwsProcessClient awsProcessClient,
             com.amazonaws.services.ec2.model.Image image, String instanceType) {
         int count = AwsInstanceTypeDefinition.getInstanceStoreCount(instanceType);
         if (count == 0) {

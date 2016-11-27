@@ -48,6 +48,7 @@
 		<property name="describeInterval" value="${aws.describeInterval}" />
 		<property name="logging" value="${aws.logging}" />
 		<property name="sync" value="${aws.synchronized}" />
+		<property name="volumeType" value="${aws.volumeType}" />
 	</bean>
 
 	<!-- VmwareProcess -->

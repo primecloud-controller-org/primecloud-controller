@@ -43,11 +43,13 @@ public class AwsProcessClient {
 
     protected PlatformAws platformAws;
 
-    protected Integer describeInterval;
-
     protected AmazonEC2 ec2Client;
 
     protected AmazonElasticLoadBalancing elbClient;
+
+    protected Integer describeInterval;
+
+    protected String volumeType;
 
     /**
      * TODO: コンストラクタコメント
@@ -55,16 +57,14 @@ public class AwsProcessClient {
      * @param userNo
      * @param platform
      * @param platformAws
-     * @param describeInterval
      * @param ec2Client
      * @param elbClient
      */
-    public AwsProcessClient(Long userNo, Platform platform, PlatformAws platformAws, Integer describeInterval,
-            AmazonEC2 ec2Client, AmazonElasticLoadBalancing elbClient) {
+    public AwsProcessClient(Long userNo, Platform platform, PlatformAws platformAws, AmazonEC2 ec2Client,
+            AmazonElasticLoadBalancing elbClient) {
         this.userNo = userNo;
         this.platform = platform;
         this.platformAws = platformAws;
-        this.describeInterval = describeInterval;
         this.ec2Client = ec2Client;
         this.elbClient = elbClient;
     }
@@ -81,16 +81,28 @@ public class AwsProcessClient {
         return platformAws;
     }
 
-    public Integer getDescribeInterval() {
-        return describeInterval;
-    }
-
     public AmazonEC2 getEc2Client() {
         return ec2Client;
     }
 
     public AmazonElasticLoadBalancing getElbClient() {
         return elbClient;
+    }
+
+    public Integer getDescribeInterval() {
+        return describeInterval;
+    }
+
+    public void setDescribeInterval(Integer describeInterval) {
+        this.describeInterval = describeInterval;
+    }
+
+    public String getVolumeType() {
+        return volumeType;
+    }
+
+    public void setVolumeType(String volumeType) {
+        this.volumeType = volumeType;
     }
 
 }

@@ -52,6 +52,8 @@ public class AwsProcessClientFactory {
 
     protected boolean sync = true;
 
+    protected String volumeType;
+
     protected PlatformDao platformDao;
 
     protected PlatformAwsDao platformAwsDao;
@@ -131,8 +133,13 @@ public class AwsProcessClientFactory {
             elbClient = synchronizedAwsClientWrapper.wrap(elbClient);
         }
 
-        return new AwsProcessClient(awsCertificate.getUserNo(), platform, platformAws, describeInterval, ec2Client,
+        AwsProcessClient client = new AwsProcessClient(awsCertificate.getUserNo(), platform, platformAws, ec2Client,
                 elbClient);
+
+        client.setDescribeInterval(describeInterval);
+        client.setVolumeType(volumeType);
+
+        return client;
     }
 
     public void setDescribeInterval(Integer describeInterval) {
@@ -145,6 +152,10 @@ public class AwsProcessClientFactory {
 
     public void setSync(boolean sync) {
         this.sync = sync;
+    }
+
+    public void setVolumeType(String volumeType) {
+        this.volumeType = volumeType;
     }
 
     public void setPlatformDao(PlatformDao platformDao) {

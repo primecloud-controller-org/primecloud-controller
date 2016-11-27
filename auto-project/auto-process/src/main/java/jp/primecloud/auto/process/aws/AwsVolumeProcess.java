@@ -169,6 +169,10 @@ public class AwsVolumeProcess extends ServiceSupport {
         request.withSize(awsVolume.getSize());
         request.withSnapshotId(awsVolume.getSnapshotId());
         request.withAvailabilityZone(awsVolume.getAvailabilityZone());
+        if (StringUtils.isNotEmpty(awsProcessClient.getVolumeType())) {
+            request.withVolumeType(awsProcessClient.getVolumeType());
+        }
+
         CreateVolumeResult result = awsProcessClient.getEc2Client().createVolume(request);
         Volume volume = result.getVolume();
 
