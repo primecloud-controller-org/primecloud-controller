@@ -744,12 +744,35 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
             throw new AutoApplicationException("ESERVICE-000607", componentNo);
         }
 
+        // ロードバランサ情報の作成
+        LoadBalancer loadBalancer = new LoadBalancer();
+        loadBalancer.setFarmNo(farmNo);
+        loadBalancer.setLoadBalancerName(loadBalancerName);
+        loadBalancer.setComment(comment);
+        loadBalancer.setFqdn(loadBalancerName + "." + farm.getDomainName());
+        loadBalancer.setPlatformNo(platformNo);
+        loadBalancer.setType(PCCConstant.LOAD_BALANCER_ULTRAMONKEY);
+        loadBalancer.setEnabled(false);
+        loadBalancer.setStatus(LoadBalancerStatus.STOPPED.toString());
+        loadBalancer.setComponentNo(componentNo);
+        loadBalancerDao.create(loadBalancer);
+
+        Long loadBalancerNo = loadBalancer.getLoadBalancerNo();
+
+        // UltraMonkeyコンポーネント情報の作成
+        String lbComponentName = "lb-" + loadBalancerNo;
+        Long lbComponentTypeNo = Long.valueOf(image.getComponentTypeNos());
+        Long lbComponentNo = componentService.createComponent(farmNo, lbComponentName, lbComponentTypeNo, null, null);
+
+        // UltraMonkeyコンポーネント情報のロードバランサフラグを立てる
+        Component lbComponent = componentDao.read(lbComponentNo);
+        lbComponent.setLoadBalancer(true);
+        componentDao.update(lbComponent);
+
         // UltraMonkeyインスタンス情報の作成
-        //String lbInstanceName = "lb-" + loadBalancerNo;
-        String lbInstanceName = loadBalancerName;
+        String lbInstanceName = "lb-" + loadBalancerNo;
         Long lbInstanceNo = null;
         Platform platform = platformDao.read(platformNo);
-        // TODO CLOUD BRANCHING
         if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
             ImageAws imageAws = imageAwsDao.read(image.getImageNo());
             String[] instanceTypes = StringUtils.split(imageAws.getInstanceTypes(), ",");
@@ -786,35 +809,11 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
             lbInstanceNo = instanceService.createIaasInstance(farmNo, lbInstanceName, platformNo, null,
                     image.getImageNo(), instanceTypes[0].trim());
         }
+
         // UltraMonkeyインスタンス情報のロードバランサフラグを立てる
         Instance lbInstance = instanceDao.read(lbInstanceNo);
         lbInstance.setLoadBalancer(true);
         instanceDao.update(lbInstance);
-
-        // ロードバランサ情報の作成
-        LoadBalancer loadBalancer = new LoadBalancer();
-        loadBalancer.setFarmNo(farmNo);
-        loadBalancer.setLoadBalancerName(loadBalancerName);
-        loadBalancer.setComment(comment);
-        loadBalancer.setFqdn(loadBalancerName + "." + farm.getDomainName());
-        loadBalancer.setPlatformNo(platformNo);
-        loadBalancer.setType(PCCConstant.LOAD_BALANCER_ULTRAMONKEY);
-        loadBalancer.setEnabled(false);
-        loadBalancer.setStatus(LoadBalancerStatus.STOPPED.toString());
-        loadBalancer.setComponentNo(componentNo);
-        loadBalancerDao.create(loadBalancer);
-
-        Long loadBalancerNo = loadBalancer.getLoadBalancerNo();
-
-        // UltraMonkeyコンポーネント情報の作成
-        String lbComponentName = "lb-" + loadBalancerNo;
-        Long lbComponentTypeNo = Long.valueOf(image.getComponentTypeNos());
-        Long lbComponentNo = componentService.createComponent(farmNo, lbComponentName, lbComponentTypeNo, null, null);
-
-        // UltraMonkeyコンポーネント情報のロードバランサフラグを立てる
-        Component lbComponent = componentDao.read(lbComponentNo);
-        lbComponent.setLoadBalancer(true);
-        componentDao.update(lbComponent);
 
         // コンポーネントとインスタンスの関連を作成
         componentService.associateInstances(lbComponentNo, Arrays.asList(lbInstanceNo));
