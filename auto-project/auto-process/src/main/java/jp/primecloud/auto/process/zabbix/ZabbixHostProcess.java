@@ -77,7 +77,6 @@ public class ZabbixHostProcess extends ServiceSupport {
         ZabbixProcessClient zabbixProcessClient = zabbixProcessClientFactory.createZabbixProcessClient();
 
         String hostid = zabbixInstance.getHostid();
-        log.info("********hostid:"+hostid);
 
         //ホスト名取得
         String hostname = getHostName(instance.getFqdn());

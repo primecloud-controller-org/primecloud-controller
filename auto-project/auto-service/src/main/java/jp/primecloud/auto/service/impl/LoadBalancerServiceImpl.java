@@ -65,6 +65,7 @@ import jp.primecloud.auto.entity.crud.PlatformNifty;
 import jp.primecloud.auto.entity.crud.PlatformOpenstack;
 import jp.primecloud.auto.entity.crud.PlatformVcloud;
 import jp.primecloud.auto.entity.crud.PlatformVmware;
+import jp.primecloud.auto.entity.crud.ZabbixLoadBalancer;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.log.EventLogLevel;
 import jp.primecloud.auto.log.EventLogger;
@@ -560,6 +561,14 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         // 振り分け対象のインスタンスを登録
         registerInstances(loadBalancer);
 
+        // Zabbix情報の作成
+        Boolean useZabbix = BooleanUtils.toBooleanObject(Config.getProperty("zabbix.useZabbix"));
+        if (BooleanUtils.isTrue(useZabbix)) {
+            ZabbixLoadBalancer zabbixLoadBalancer = new ZabbixLoadBalancer();
+            zabbixLoadBalancer.setLoadBalancerNo(loadBalancerNo);
+            zabbixLoadBalancerDao.create(zabbixLoadBalancer);
+        }
+
         // イベントログ出力
         eventLogger.log(EventLogLevel.INFO, farmNo, farm.getFarmName(), null, null, null, null, "LoadBalancerCreate",
                 null, null,
@@ -663,6 +672,14 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
 
         // 振り分け対象のインスタンスを登録
         registerInstances(loadBalancer);
+
+        // Zabbix情報の作成
+        Boolean useZabbix = BooleanUtils.toBooleanObject(Config.getProperty("zabbix.useZabbix"));
+        if (BooleanUtils.isTrue(useZabbix)) {
+            ZabbixLoadBalancer zabbixLoadBalancer = new ZabbixLoadBalancer();
+            zabbixLoadBalancer.setLoadBalancerNo(loadBalancerNo);
+            zabbixLoadBalancerDao.create(zabbixLoadBalancer);
+        }
 
         // イベントログ出力
         eventLogger.log(EventLogLevel.INFO, farmNo, farm.getFarmName(), null, null, null, null, "LoadBalancerCreate",
@@ -829,6 +846,14 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
 
         // 振り分け対象のインスタンスを登録
         registerInstances(loadBalancer);
+
+        // Zabbix情報の作成
+        Boolean useZabbix = BooleanUtils.toBooleanObject(Config.getProperty("zabbix.useZabbix"));
+        if (BooleanUtils.isTrue(useZabbix)) {
+            ZabbixLoadBalancer zabbixLoadBalancer = new ZabbixLoadBalancer();
+            zabbixLoadBalancer.setLoadBalancerNo(loadBalancerNo);
+            zabbixLoadBalancerDao.create(zabbixLoadBalancer);
+        }
 
         // イベントログ出力
         eventLogger.log(EventLogLevel.INFO, farmNo, farm.getFarmName(), null, null, null, null, "LoadBalancerCreate",
@@ -1346,6 +1371,28 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
             deleteUltraMonkeyLoadBalancer(loadBalancerNo);
         }
 
+        // Zabbix関連の削除処理
+        ZabbixLoadBalancer zabbixLoadBalancer = zabbixLoadBalancerDao.read(loadBalancerNo);
+        if (zabbixLoadBalancer != null) {
+            if (StringUtils.isNotEmpty(zabbixLoadBalancer.getHostid())) {
+                try {
+                    // Zabbixに登録済みの場合、登録を解除する
+                    ZabbixProcessClient client = zabbixProcessClientFactory.createZabbixProcessClient();
+                    client.deleteHost(zabbixLoadBalancer.getHostid());
+
+                    //イベントログ出力
+                    eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), null, null, null, null,
+                            "ZabbixUnregist", null, loadBalancer.getPlatformNo(), new Object[] {
+                                    loadBalancer.getFqdn(), zabbixLoadBalancer.getHostid() });
+
+                } catch (RuntimeException ignore) {
+                    // 登録解除に失敗した場合、警告ログを出してエラーを握りつぶす
+                    log.warn(ignore.getMessage());
+                }
+            }
+            zabbixLoadBalancerDao.delete(zabbixLoadBalancer);
+        }
+
         // ロードバランサの削除処理
         loadBalancerDao.delete(loadBalancer);
 
@@ -1358,29 +1405,8 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
     }
 
     protected void deleteAwsLoadBalancer(Long loadBalancerNo) {
-        LoadBalancer loadBalancer = loadBalancerDao.read(loadBalancerNo);
-        AwsLoadBalancer awsLoadbalancer = awsLoadBalancerDao.read(loadBalancerNo);
-        Farm farm = farmDao.read(loadBalancer.getFarmNo());
-
-        // Zabbix関連の削除処理
-        try {
-            // Zabbixに登録済みの場合、登録を解除する
-            ZabbixProcessClient client = zabbixProcessClientFactory.createZabbixProcessClient();
-            client.deleteHost(awsLoadbalancer.getHostid());
-
-            //イベントログ出力
-            eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), null, null, null, null,
-                    "ZabbixUnregist", null, loadBalancer.getPlatformNo(), new Object[] { loadBalancer.getFqdn(),
-                            awsLoadbalancer.getHostid() });
-
-        } catch (RuntimeException ignore) {
-            // 登録解除に失敗した場合、警告ログを出してエラーを握りつぶす
-            log.warn(ignore.getMessage());
-        }
-
         // AWSロードバランサ情報の削除処理
         awsLoadBalancerDao.deleteByLoadBalancerNo(loadBalancerNo);
-
     }
 
     protected void deleteCloudstackLoadBalancer(Long loadBalancerNo) {

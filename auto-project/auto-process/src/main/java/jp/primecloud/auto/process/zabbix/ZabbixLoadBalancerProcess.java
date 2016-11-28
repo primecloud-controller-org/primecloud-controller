@@ -21,13 +21,12 @@ package jp.primecloud.auto.process.zabbix;
 import java.util.ArrayList;
 import java.util.List;
 
-import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.ZabbixInstanceStatus;
 import jp.primecloud.auto.config.Config;
-import jp.primecloud.auto.entity.crud.AwsLoadBalancer;
 import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.entity.crud.User;
+import jp.primecloud.auto.entity.crud.ZabbixLoadBalancer;
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.log.EventLogger;
 import jp.primecloud.auto.process.ProcessLogger;
@@ -55,12 +54,6 @@ public class ZabbixLoadBalancerProcess extends ServiceSupport {
     public void startHost(Long loadBalancerNo) {
         LoadBalancer loadBalancer = loadBalancerDao.read(loadBalancerNo);
 
-        // AWSプラットフォームのロードバランサでない場合は何もしない
-        String type = loadBalancer.getType();
-        if (!PCCConstant.LOAD_BALANCER_ELB.equals(type)) {
-            return;
-        }
-
         // ログ出力
         if (log.isInfoEnabled()) {
             log.info(MessageUtils.getMessage("IPROCESS-200232", loadBalancerNo, loadBalancer.getLoadBalancerName()));
@@ -68,8 +61,8 @@ public class ZabbixLoadBalancerProcess extends ServiceSupport {
 
         ZabbixProcessClient zabbixProcessClient = zabbixProcessClientFactory.createZabbixProcessClient();
 
-        AwsLoadBalancer awsLoadbalancer = awsLoadBalancerDao.read(loadBalancerNo);
-        String hostid = awsLoadbalancer.getHostid();
+        ZabbixLoadBalancer zabbixLoadBalancer = zabbixLoadBalancerDao.read(loadBalancerNo);
+        String hostid = zabbixLoadBalancer.getHostid();
 
         // Zabbixホスト名
         String hostname = getHostName(loadBalancer.getFqdn());
@@ -89,9 +82,9 @@ public class ZabbixLoadBalancerProcess extends ServiceSupport {
                     loadBalancer.getFqdn(), hostid });
 
             // データベースの更新
-            awsLoadbalancer.setHostid(hostid);
-            awsLoadbalancer.setStatus(ZabbixInstanceStatus.MONITORING.toString());
-            awsLoadBalancerDao.update(awsLoadbalancer);
+            zabbixLoadBalancer.setHostid(hostid);
+            zabbixLoadBalancer.setStatus(ZabbixInstanceStatus.MONITORING.toString());
+            zabbixLoadBalancerDao.update(zabbixLoadBalancer);
         }
         // 監視対象の有効化
         else {
@@ -99,8 +92,8 @@ public class ZabbixLoadBalancerProcess extends ServiceSupport {
                     proxyHostid);
 
             // データベースの更新
-            awsLoadbalancer.setStatus(ZabbixInstanceStatus.MONITORING.toString());
-            awsLoadBalancerDao.update(awsLoadbalancer);
+            zabbixLoadBalancer.setStatus(ZabbixInstanceStatus.MONITORING.toString());
+            zabbixLoadBalancerDao.update(zabbixLoadBalancer);
 
             // イベントログ出力
             processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "ZabbixStart", new Object[] {
@@ -115,12 +108,6 @@ public class ZabbixLoadBalancerProcess extends ServiceSupport {
 
     public void stopHost(Long loadBalancerNo) {
         LoadBalancer loadBalancer = loadBalancerDao.read(loadBalancerNo);
-
-        // AWSプラットフォームのロードバランサでない場合は何もしない
-        String type = loadBalancer.getType();
-        if (!PCCConstant.LOAD_BALANCER_ELB.equals(type)) {
-            return;
-        }
 
         // ログ出力
         if (log.isInfoEnabled()) {
@@ -137,17 +124,17 @@ public class ZabbixLoadBalancerProcess extends ServiceSupport {
             // ZabbixプロキシID取得
             String proxyHostid = getProxyHostid(zabbixProcessClient);
 
-            AwsLoadBalancer awsLoadbalancer = awsLoadBalancerDao.read(loadBalancerNo);
-            zabbixProcessClient.updateHost(awsLoadbalancer.getHostid(), hostname, loadBalancer.getFqdn(), null, false,
-                    false, null, proxyHostid);
+            ZabbixLoadBalancer zabbixLoadBalancer = zabbixLoadBalancerDao.read(loadBalancerNo);
+            zabbixProcessClient.updateHost(zabbixLoadBalancer.getHostid(), hostname, loadBalancer.getFqdn(), null,
+                    false, false, null, proxyHostid);
 
             // イベントログ出力
             processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "ZabbixStop", new Object[] {
-                    loadBalancer.getFqdn(), awsLoadbalancer.getHostid() });
+                    loadBalancer.getFqdn(), zabbixLoadBalancer.getHostid() });
 
             // データベースの更新
-            awsLoadbalancer.setStatus(ZabbixInstanceStatus.UN_MONITORING.toString());
-            awsLoadBalancerDao.update(awsLoadbalancer);
+            zabbixLoadBalancer.setStatus(ZabbixInstanceStatus.UN_MONITORING.toString());
+            zabbixLoadBalancerDao.update(zabbixLoadBalancer);
 
         } catch (AutoException ignore) {
             // 処理に失敗した場合、警告ログを出力する

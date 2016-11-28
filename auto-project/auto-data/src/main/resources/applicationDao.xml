@@ -316,6 +316,10 @@
 		<property name="sqlMapClient" ref="sqlMapClient" />
 	</bean>
 
+	<bean id="zabbixLoadBalancerDao" class="jp.primecloud.auto.dao.crud.impl.ZabbixLoadBalancerDaoImpl">
+		<property name="sqlMapClient" ref="sqlMapClient" />
+	</bean>
+
 	<bean id="pccSystemInfoDao" class="jp.primecloud.auto.dao.crud.impl.PccSystemInfoDaoImpl">
 		<property name="sqlMapClient" ref="sqlMapClient" />
 	</bean>

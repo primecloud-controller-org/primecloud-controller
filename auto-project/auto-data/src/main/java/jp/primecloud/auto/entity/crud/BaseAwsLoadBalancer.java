@@ -49,12 +49,6 @@ public abstract class BaseAwsLoadBalancer implements Serializable {
     /** AVAILABILITY_ZONE [VARCHAR(100,0)] */
     private String availabilityZone;
 
-    /** HOSTID [VARCHAR(20,0)] */
-    private String hostid;
-
-    /** STATUS [VARCHAR(20,0)] */
-    private String status;
-
     /** INTERNAL [BIT(0,0)] */
     private Boolean internal;
 
@@ -167,42 +161,6 @@ public abstract class BaseAwsLoadBalancer implements Serializable {
     }
 
     /**
-     * hostidを取得します。
-     *
-     * @return hostid
-     */
-    public String getHostid() {
-        return hostid;
-    }
-
-    /**
-     * hostidを設定します。
-     *
-     * @param hostid hostid
-     */
-    public void setHostid(String hostid) {
-        this.hostid = hostid;
-    }
-
-    /**
-     * statusを取得します。
-     *
-     * @return status
-     */
-    public String getStatus() {
-        return status;
-    }
-
-    /**
-     * statusを設定します。
-     *
-     * @param status status
-     */
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    /**
      * internalを取得します。
      *
      * @return internal
@@ -235,8 +193,6 @@ public abstract class BaseAwsLoadBalancer implements Serializable {
         result = prime * result + ((subnetId == null) ? 0 : subnetId.hashCode());
         result = prime * result + ((securityGroups == null) ? 0 : securityGroups.hashCode());
         result = prime * result + ((availabilityZone == null) ? 0 : availabilityZone.hashCode());
-        result = prime * result + ((hostid == null) ? 0 : hostid.hashCode());
-        result = prime * result + ((status == null) ? 0 : status.hashCode());
         result = prime * result + ((internal == null) ? 0 : internal.hashCode());
 
         return result;
@@ -282,16 +238,6 @@ public abstract class BaseAwsLoadBalancer implements Serializable {
         } else if (!availabilityZone.equals(other.availabilityZone)) {
             return false;
         }
-        if (hostid == null) {
-            if (other.hostid != null) { return false; }
-        } else if (!hostid.equals(other.hostid)) {
-            return false;
-        }
-        if (status == null) {
-            if (other.status != null) { return false; }
-        } else if (!status.equals(other.status)) {
-            return false;
-        }
         if (internal == null) {
             if (other.internal != null) { return false; }
         } else if (!internal.equals(other.internal)) {
@@ -314,8 +260,6 @@ public abstract class BaseAwsLoadBalancer implements Serializable {
         sb.append("subnetId=").append(subnetId).append(", ");
         sb.append("securityGroups=").append(securityGroups).append(", ");
         sb.append("availabilityZone=").append(availabilityZone).append(", ");
-        sb.append("hostid=").append(hostid).append(", ");
-        sb.append("status=").append(status).append(", ");
         sb.append("internal=").append(internal);
         sb.append("]");
         return sb.toString();

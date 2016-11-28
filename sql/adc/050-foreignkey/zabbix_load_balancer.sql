@@ -1,0 +1,1 @@
+alter table ZABBIX_LOAD_BALANCER add constraint ZABBIX_LOAD_BALANCER_FK1 foreign key (LOAD_BALANCER_NO) references LOAD_BALANCER (LOAD_BALANCER_NO);

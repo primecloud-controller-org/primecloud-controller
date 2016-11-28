@@ -35,6 +35,7 @@ import jp.primecloud.auto.process.aws.AwsLoadBalancerProcess;
 import jp.primecloud.auto.process.aws.AwsProcessClient;
 import jp.primecloud.auto.process.aws.AwsProcessClientFactory;
 import jp.primecloud.auto.process.hook.ProcessHook;
+import jp.primecloud.auto.process.zabbix.ZabbixLoadBalancerProcess;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
 
@@ -55,6 +56,8 @@ public class LoadBalancerProcess extends ServiceSupport {
     protected ComponentLoadBalancerProcess componentLoadBalancerProcess;
 
     protected IaasGatewayLoadBalancerProcess iaasGatewayLoadBalancerProcess;
+
+    protected ZabbixLoadBalancerProcess zabbixLoadBalancerProcess;
 
     protected ProcessLogger processLogger;
 
@@ -113,6 +116,11 @@ public class LoadBalancerProcess extends ServiceSupport {
         try {
             // ロードバランサ開始処理
             startLoadBalancer(loadBalancer);
+
+            // Zabbixへの監視登録
+            if (zabbixLoadBalancerDao.countByLoadBalancerNo(loadBalancerNo) > 0) {
+                zabbixLoadBalancerProcess.startHost(loadBalancerNo);
+            }
 
         } catch (RuntimeException e) {
             loadBalancer = loadBalancerDao.read(loadBalancerNo);
@@ -201,6 +209,15 @@ public class LoadBalancerProcess extends ServiceSupport {
         // イベントログ出力
         processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, null, "LoadBalancerStop",
                 new Object[] { loadBalancer.getLoadBalancerName() });
+
+        try {
+            // Zabbixの監視停止
+            if (zabbixLoadBalancerDao.countByLoadBalancerNo(loadBalancerNo) > 0) {
+                zabbixLoadBalancerProcess.stopHost(loadBalancerNo);
+            }
+        } catch (RuntimeException e) {
+            log.warn(e.getMessage());
+        }
 
         try {
             // ロードバランサ終了処理
@@ -397,6 +414,10 @@ public class LoadBalancerProcess extends ServiceSupport {
 
     public void setIaasGatewayLoadBalancerProcess(IaasGatewayLoadBalancerProcess iaasGatewayLoadBalancerProcess) {
         this.iaasGatewayLoadBalancerProcess = iaasGatewayLoadBalancerProcess;
+    }
+
+    public void setZabbixLoadBalancerProcess(ZabbixLoadBalancerProcess zabbixLoadBalancerProcess) {
+        this.zabbixLoadBalancerProcess = zabbixLoadBalancerProcess;
     }
 
     /**

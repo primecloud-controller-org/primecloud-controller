@@ -84,6 +84,7 @@
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseVmwareNetwork.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseZabbixData.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseZabbixInstance.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseZabbixLoadBalancer.ibatis.xml" />
 
 
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BasePccSystemInfo.ibatis.xml" />
@@ -167,6 +168,7 @@
 	<sqlMap resource="jp/primecloud/auto/entity/crud/VmwareNetwork.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/ZabbixData.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/ZabbixInstance.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/ZabbixLoadBalancer.ibatis.xml" />
 
 
 	<sqlMap resource="jp/primecloud/auto/entity/crud/PccSystemInfo.ibatis.xml" />

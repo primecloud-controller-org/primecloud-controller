@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ZabbixLoadBalancer">
+
+	<typeAlias alias="ZabbixLoadBalancer" type="jp.primecloud.auto.entity.crud.ZabbixLoadBalancer" />
+
+	<resultMap id="zabbixLoadBalancerResultMap" class="ZabbixLoadBalancer">
+		<result property="loadBalancerNo" column="LOAD_BALANCER_NO" />
+		<result property="hostid" column="HOSTID" nullValue="" />
+		<result property="status" column="STATUS" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.LOAD_BALANCER_NO as LOAD_BALANCER_NO,
+			t1.HOSTID as HOSTID,
+			t1.STATUS as STATUS
+		from
+			ZABBIX_LOAD_BALANCER t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from ZABBIX_LOAD_BALANCER t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="zabbixLoadBalancerResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="zabbixLoadBalancerResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readInLoadBalancerNos" parameterClass="java.util.Map" resultMap="zabbixLoadBalancerResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.LOAD_BALANCER_NO in
+		]]>
+		<iterate property="loadBalancerNos" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#loadBalancerNos[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="ZabbixLoadBalancer">
+		<![CDATA[
+		insert into ZABBIX_LOAD_BALANCER (
+			LOAD_BALANCER_NO,
+			HOSTID,
+			STATUS
+		) values (
+			#loadBalancerNo#,
+			#hostid#,
+			#status#
+		)
+		]]>
+	</insert>
+
+	<update id="update" parameterClass="ZabbixLoadBalancer">
+		<![CDATA[
+		update ZABBIX_LOAD_BALANCER set
+			HOSTID = #hostid#,
+			STATUS = #status#
+		where
+			LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="ZabbixLoadBalancer">
+		<![CDATA[
+		delete from ZABBIX_LOAD_BALANCER
+		where
+			LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from ZABBIX_LOAD_BALANCER
+		]]>
+	</delete>
+
+	<delete id="deleteByLoadBalancerNo" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from ZABBIX_LOAD_BALANCER
+		where
+			LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByLoadBalancerNo" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			LOAD_BALANCER_NO = #loadBalancerNo#
+		]]>
+	</select>
+
+</sqlMap>

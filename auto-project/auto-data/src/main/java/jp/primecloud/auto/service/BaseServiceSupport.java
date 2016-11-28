@@ -101,6 +101,7 @@ import jp.primecloud.auto.dao.crud.VmwareKeyPairDao;
 import jp.primecloud.auto.dao.crud.VmwareNetworkDao;
 import jp.primecloud.auto.dao.crud.ZabbixDataDao;
 import jp.primecloud.auto.dao.crud.ZabbixInstanceDao;
+import jp.primecloud.auto.dao.crud.ZabbixLoadBalancerDao;
 
 /**
  * <p>
@@ -271,6 +272,8 @@ public abstract class BaseServiceSupport {
     protected ZabbixDataDao zabbixDataDao;
 
     protected ZabbixInstanceDao zabbixInstanceDao;
+
+    protected ZabbixLoadBalancerDao zabbixLoadBalancerDao;
 
     /**
      * apiCertificateDaoを設定します。
@@ -990,6 +993,15 @@ public abstract class BaseServiceSupport {
      */
     public void setZabbixInstanceDao(ZabbixInstanceDao zabbixInstanceDao) {
         this.zabbixInstanceDao = zabbixInstanceDao;
+    }
+
+    /**
+     * zabbixLoadBalancerDaoを設定します。
+     *
+     * @param zabbixLoadBalancerDao zabbixLoadBalancerDao
+     */
+    public void setZabbixLoadBalancerDao(ZabbixLoadBalancerDao zabbixLoadBalancerDao) {
+        this.zabbixLoadBalancerDao = zabbixLoadBalancerDao;
     }
 
 }

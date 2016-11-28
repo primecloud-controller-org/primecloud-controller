@@ -26,7 +26,6 @@ import java.util.Map;
 import jp.primecloud.auto.common.status.InstanceStatus;
 import jp.primecloud.auto.common.status.LoadBalancerInstanceStatus;
 import jp.primecloud.auto.common.status.LoadBalancerListenerStatus;
-import jp.primecloud.auto.config.Config;
 import jp.primecloud.auto.entity.crud.AwsInstance;
 import jp.primecloud.auto.entity.crud.AwsLoadBalancer;
 import jp.primecloud.auto.entity.crud.AwsSslKey;
@@ -39,7 +38,6 @@ import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.log.EventLogger;
 import jp.primecloud.auto.process.DnsProcessClient;
 import jp.primecloud.auto.process.DnsProcessClientFactory;
-import jp.primecloud.auto.process.zabbix.ZabbixLoadBalancerProcess;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
 
@@ -78,8 +76,6 @@ public class AwsLoadBalancerProcess extends ServiceSupport {
 
     protected DnsProcessClientFactory dnsProcessClientFactory;
 
-    protected ZabbixLoadBalancerProcess zabbixLoadBalancerProcess;
-
     protected EventLogger eventLogger;
 
     public void start(AwsProcessClient awsProcessClient, Long loadBalancerNo) {
@@ -95,12 +91,6 @@ public class AwsLoadBalancerProcess extends ServiceSupport {
         // DNSサーバへの追加
         addDns(loadBalancerNo);
 
-        // Zabbixへの監視登録
-        Boolean useZabbix = BooleanUtils.toBooleanObject(Config.getProperty("zabbix.useZabbix"));
-        if (BooleanUtils.isTrue(useZabbix)) {
-            zabbixLoadBalancerProcess.startHost(loadBalancerNo);
-        }
-
         if (log.isInfoEnabled()) {
             log.info(MessageUtils.getMessage("IPROCESS-200102", loadBalancerNo, loadBalancer.getLoadBalancerName()));
         }
@@ -111,12 +101,6 @@ public class AwsLoadBalancerProcess extends ServiceSupport {
 
         if (log.isInfoEnabled()) {
             log.info(MessageUtils.getMessage("IPROCESS-200103", loadBalancerNo, loadBalancer.getLoadBalancerName()));
-        }
-
-        // Zabbixの監視停止
-        Boolean useZabbix = BooleanUtils.toBooleanObject(Config.getProperty("zabbix.useZabbix"));
-        if (BooleanUtils.isTrue(useZabbix)) {
-            zabbixLoadBalancerProcess.stopHost(loadBalancerNo);
         }
 
         // DNSサーバからの削除
@@ -847,10 +831,6 @@ public class AwsLoadBalancerProcess extends ServiceSupport {
 
     public void setDnsProcessClientFactory(DnsProcessClientFactory dnsProcessClientFactory) {
         this.dnsProcessClientFactory = dnsProcessClientFactory;
-    }
-
-    public void setZabbixLoadBalancerProcess(ZabbixLoadBalancerProcess zabbixLoadBalancerProcess) {
-        this.zabbixLoadBalancerProcess = zabbixLoadBalancerProcess;
     }
 
     public void setEventLogger(EventLogger eventLogger) {
