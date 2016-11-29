@@ -83,6 +83,7 @@ import jp.primecloud.auto.dao.crud.PlatformVmwareDao;
 import jp.primecloud.auto.dao.crud.PlatformVmwareInstanceTypeDao;
 import jp.primecloud.auto.dao.crud.ProxyDao;
 import jp.primecloud.auto.dao.crud.PuppetInstanceDao;
+import jp.primecloud.auto.dao.crud.SystemConfigDao;
 import jp.primecloud.auto.dao.crud.TemplateDao;
 import jp.primecloud.auto.dao.crud.TemplateComponentDao;
 import jp.primecloud.auto.dao.crud.TemplateInstanceDao;
@@ -236,6 +237,8 @@ public abstract class BaseServiceSupport {
     protected ProxyDao proxyDao;
 
     protected PuppetInstanceDao puppetInstanceDao;
+
+    protected SystemConfigDao systemConfigDao;
 
     protected TemplateDao templateDao;
 
@@ -831,6 +834,15 @@ public abstract class BaseServiceSupport {
      */
     public void setPuppetInstanceDao(PuppetInstanceDao puppetInstanceDao) {
         this.puppetInstanceDao = puppetInstanceDao;
+    }
+
+    /**
+     * systemConfigDaoを設定します。
+     *
+     * @param systemConfigDao systemConfigDao
+     */
+    public void setSystemConfigDao(SystemConfigDao systemConfigDao) {
+        this.systemConfigDao = systemConfigDao;
     }
 
     /**

@@ -66,6 +66,7 @@
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BasePlatformVmware.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BasePlatformVmwareInstanceType.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BasePuppetInstance.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseSystemConfig.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseTemplate.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseTemplateComponent.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseTemplateInstance.ibatis.xml" />
@@ -150,6 +151,7 @@
 	<sqlMap resource="jp/primecloud/auto/entity/crud/PlatformVmware.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/PlatformVmwareInstanceType.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/PuppetInstance.ibatis.xml" />
+	<sqlMap resource="jp/primecloud/auto/entity/crud/SystemConfig.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/Template.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/TemplateComponent.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/TemplateInstance.ibatis.xml" />

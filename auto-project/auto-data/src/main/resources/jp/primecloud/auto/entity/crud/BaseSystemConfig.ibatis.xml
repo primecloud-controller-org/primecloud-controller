@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="SystemConfig">
+
+	<typeAlias alias="SystemConfig" type="jp.primecloud.auto.entity.crud.SystemConfig" />
+
+	<resultMap id="systemConfigResultMap" class="SystemConfig">
+		<result property="name" column="NAME" nullValue="" />
+		<result property="value" column="VALUE" nullValue="" />
+	</resultMap>
+
+	<sql id="selectSql">
+		<![CDATA[
+		select
+			t1.NAME as NAME,
+			t1.VALUE as VALUE
+		from
+			SYSTEM_CONFIG t1
+		]]>
+	</sql>
+
+	<sql id="countSql">
+		<![CDATA[
+		select count(*) as COUNT from SYSTEM_CONFIG t1
+		]]>
+	</sql>
+
+	<select id="read" parameterClass="java.util.Map" resultMap="systemConfigResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.NAME = #name#
+		]]>
+	</select>
+
+	<select id="readAll" resultMap="systemConfigResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<select id="readInNames" parameterClass="java.util.Map" resultMap="systemConfigResultMap">
+		<include refid="selectSql" />
+		<![CDATA[
+		where
+			t1.NAME in
+		]]>
+		<iterate property="names" open="(" close=")" conjunction=", ">
+			<![CDATA[
+				#names[]#
+			]]>
+		</iterate>
+	</select>
+
+	<insert id="create" parameterClass="SystemConfig">
+		<![CDATA[
+		insert into SYSTEM_CONFIG (
+			NAME,
+			VALUE
+		) values (
+			#name#,
+			#value#
+		)
+		]]>
+	</insert>
+
+	<update id="update" parameterClass="SystemConfig">
+		<![CDATA[
+		update SYSTEM_CONFIG set
+			VALUE = #value#
+		where
+			NAME = #name#
+		]]>
+	</update>
+
+	<delete id="delete" parameterClass="SystemConfig">
+		<![CDATA[
+		delete from SYSTEM_CONFIG
+		where
+			NAME = #name#
+		]]>
+	</delete>
+
+	<delete id="deleteAll">
+		<![CDATA[
+		delete from SYSTEM_CONFIG
+		]]>
+	</delete>
+
+	<delete id="deleteByName" parameterClass="java.util.Map">
+		<![CDATA[
+		delete from SYSTEM_CONFIG
+		where
+			NAME = #name#
+		]]>
+	</delete>
+
+	<select id="countAll" resultClass="java.lang.Long">
+		<include refid="countSql" />
+	</select>
+
+	<select id="countByName" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		<include refid="countSql" />
+		<![CDATA[
+		where
+			NAME = #name#
+		]]>
+	</select>
+
+</sqlMap>

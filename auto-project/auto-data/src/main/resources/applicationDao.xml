@@ -244,6 +244,10 @@
 		<property name="sqlMapClient" ref="sqlMapClient" />
 	</bean>
 
+	<bean id="systemConfigDao" class="jp.primecloud.auto.dao.crud.impl.SystemConfigDaoImpl">
+		<property name="sqlMapClient" ref="sqlMapClient" />
+	</bean>
+
 	<bean id="templateDao" class="jp.primecloud.auto.dao.crud.impl.TemplateDaoImpl">
 		<property name="sqlMapClient" ref="sqlMapClient" />
 	</bean>
