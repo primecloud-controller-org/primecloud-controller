@@ -42,27 +42,6 @@ import com.vaadin.data.util.BeanItemContainer;
 public class InstanceDtoContainer extends BeanItemContainer<InstanceDto> implements Serializable,
         Container.ItemSetChangeNotifier {
 
-    /**
-     * Natural property order for Farm bean. Used in tables and forms.
-     */
-    public static final Object[] NATURAL_COL_ORDER = new Object[] { "instanceNo", "fqdn", "publicIp", "status" };
-
-    /**
-     * Natural property order for Farm bean. Used in tables and forms.
-     */
-    public static final Object[] SERVICE_DESC = new Object[] { "check", "instanceName", "urlIcon", "status", "platform" };
-
-    /**
-     * Natural property order for Farm bean. Used in tables and forms.
-     */
-    public static final Object[] SERVER_DESC = new Object[] { "fqdn", "publicIp", "platformNo", "status" };
-
-    /**
-     * "Human readable" captions for properties in same order as in
-     * NATURAL_COL_ORDER.
-     */
-    public static final String[] COL_HEADERS_ENGLISH = new String[] { "no", "name", "ipaddress", "status" };
-
     public InstanceDtoContainer() {
         super(InstanceDto.class);
         refresh();
@@ -95,75 +74,74 @@ public class InstanceDtoContainer extends BeanItemContainer<InstanceDto> impleme
         if (farmNo != null) {
             InstanceService instanceService = BeanContext.getBean(InstanceService.class);
             Object[] o = collection.toArray(); //現在のitem
-            List<InstanceDto> dtos = instanceService.getInstances(farmNo); //取得したデータ
+            List<InstanceDto> instances = instanceService.getInstances(farmNo); //取得したデータ
             for (int i = 0; i < o.length; i++) {
                 InstanceDto oldInstance = (InstanceDto) o[i];
-                for (int j = 0; j < dtos.size(); j++) {
-                    InstanceDto newInstance = dtos.get(j);
+                for (int j = 0; j < instances.size(); j++) {
+                    InstanceDto newInstance = instances.get(j);
                     if (oldInstance.getInstance().getInstanceNo().equals(newInstance.getInstance().getInstanceNo())) {
-                        final BeanItem<InstanceDto> dto = this.getItem(o[i]);
-                        dto.getItemProperty("instance").setValue(newInstance.getInstance());
-                        dto.getItemProperty("zabbixInstance").setValue(newInstance.getZabbixInstance());
-                        dto.getItemProperty("platform").setValue(newInstance.getPlatform());
-                        dto.getItemProperty("image").setValue(newInstance.getImage());
-                        dto.getItemProperty("instanceConfigs").setValue(newInstance.getInstanceConfigs());
-                        dto.getItemProperty("componentInstances").setValue(newInstance.getComponentInstances());
+                        final BeanItem<InstanceDto> item = this.getItem(o[i]);
+                        item.getItemProperty("instance").setValue(newInstance.getInstance());
+                        item.getItemProperty("zabbixInstance").setValue(newInstance.getZabbixInstance());
+                        item.getItemProperty("platform").setValue(newInstance.getPlatform());
+                        item.getItemProperty("image").setValue(newInstance.getImage());
+                        item.getItemProperty("instanceConfigs").setValue(newInstance.getInstanceConfigs());
+                        item.getItemProperty("componentInstances").setValue(newInstance.getComponentInstances());
 
                         //AWS
-                        dto.getItemProperty("awsInstance").setValue(newInstance.getAwsInstance());
-                        dto.getItemProperty("awsAddress").setValue(newInstance.getAwsAddress());
-                        dto.getItemProperty("awsVolumes").setValue(newInstance.getAwsVolumes());
+                        item.getItemProperty("awsInstance").setValue(newInstance.getAwsInstance());
+                        item.getItemProperty("awsAddress").setValue(newInstance.getAwsAddress());
+                        item.getItemProperty("awsVolumes").setValue(newInstance.getAwsVolumes());
 
                         //VMWare
-                        dto.getItemProperty("vmwareInstance").setValue(newInstance.getVmwareInstance());
-                        dto.getItemProperty("vmwareKeyPair").setValue(newInstance.getVmwareKeyPair());
-                        dto.getItemProperty("vmwareDisks").setValue(newInstance.getVmwareDisks());
+                        item.getItemProperty("vmwareInstance").setValue(newInstance.getVmwareInstance());
+                        item.getItemProperty("vmwareKeyPair").setValue(newInstance.getVmwareKeyPair());
+                        item.getItemProperty("vmwareDisks").setValue(newInstance.getVmwareDisks());
 
                         //Nifty
-                        dto.getItemProperty("niftyInstance").setValue(newInstance.getNiftyInstance());
-                        dto.getItemProperty("niftyKeyPair").setValue(newInstance.getNiftyKeyPair());
-                        dto.getItemProperty("niftyVolumes").setValue(newInstance.getNiftyVolumes());
+                        item.getItemProperty("niftyInstance").setValue(newInstance.getNiftyInstance());
+                        item.getItemProperty("niftyKeyPair").setValue(newInstance.getNiftyKeyPair());
+                        item.getItemProperty("niftyVolumes").setValue(newInstance.getNiftyVolumes());
 
                         //CloudStack
-                        dto.getItemProperty("cloudstackInstance").setValue(newInstance.getCloudstackInstance());
-                        dto.getItemProperty("cloudstackAddress").setValue(newInstance.getCloudstackAddress());
-                        dto.getItemProperty("cloudstackVolumes").setValue(newInstance.getCloudstackVolumes());
+                        item.getItemProperty("cloudstackInstance").setValue(newInstance.getCloudstackInstance());
+                        item.getItemProperty("cloudstackAddress").setValue(newInstance.getCloudstackAddress());
+                        item.getItemProperty("cloudstackVolumes").setValue(newInstance.getCloudstackVolumes());
 
                         //VCloud
-                        dto.getItemProperty("vcloudInstance").setValue(newInstance.getVcloudInstance());
-                        dto.getItemProperty("vcloudKeyPair").setValue(newInstance.getVcloudKeyPair());
-                        dto.getItemProperty("vcloudDisks").setValue(newInstance.getVcloudDisks());
-                        dto.getItemProperty("vcloudInstanceNetworks").setValue(newInstance.getVcloudInstanceNetworks());
-                        dto.getItemProperty("platformVcloudStorageType").setValue(
+                        item.getItemProperty("vcloudInstance").setValue(newInstance.getVcloudInstance());
+                        item.getItemProperty("vcloudKeyPair").setValue(newInstance.getVcloudKeyPair());
+                        item.getItemProperty("vcloudDisks").setValue(newInstance.getVcloudDisks());
+                        item.getItemProperty("vcloudInstanceNetworks").setValue(newInstance.getVcloudInstanceNetworks());
+                        item.getItemProperty("platformVcloudStorageType").setValue(
                                 newInstance.getPlatformVcloudStorageType());
 
                         //Azure
-                        dto.getItemProperty("azureInstance").setValue(newInstance.getAzureInstance());
-                        dto.getItemProperty("azureCertificate").setValue(newInstance.getAzureCertificate());
-                        dto.getItemProperty("azureDisks").setValue(newInstance.getAzureDisks());
+                        item.getItemProperty("azureInstance").setValue(newInstance.getAzureInstance());
+                        item.getItemProperty("azureCertificate").setValue(newInstance.getAzureCertificate());
+                        item.getItemProperty("azureDisks").setValue(newInstance.getAzureDisks());
 
                         //Openstack
-                        dto.getItemProperty("openstackInstance").setValue(newInstance.getOpenstackInstance());
-                        dto.getItemProperty("openstackCertificate").setValue(newInstance.getOpenstackCertificate());
-                        dto.getItemProperty("openstackVolumes").setValue(newInstance.getOpenstackVolumes());
+                        item.getItemProperty("openstackInstance").setValue(newInstance.getOpenstackInstance());
+                        item.getItemProperty("openstackCertificate").setValue(newInstance.getOpenstackCertificate());
+                        item.getItemProperty("openstackVolumes").setValue(newInstance.getOpenstackVolumes());
 
-                        dtos.remove(newInstance);
+                        instances.remove(newInstance);
                         break;
                     } else {
-                        if (dtos.size() == j + 1) {
+                        if (instances.size() == j + 1) {
                             removeItem(oldInstance);
                         }
                     }
                 }
             }
-            for (InstanceDto instance : dtos) {
+            for (InstanceDto instance : instances) {
                 addItem(instance);
             }
         }
 
         final Container.ItemSetChangeEvent event = new Container.ItemSetChangeEvent() {
-            private static final long serialVersionUID = -3002746333251784195L;
-
+            @Override
             public Container getContainer() {
                 return InstanceDtoContainer.this;
             }

@@ -72,7 +72,7 @@ public class ServerDesc extends Panel {
     }
 
     public void selectedTabChange(SelectedTabChangeEvent event) {
-        sender.refreshDesc(sender.serverPanel.serverTable);
+        sender.serverPanel.refreshDesc();
     }
 
     public void initializeData() {

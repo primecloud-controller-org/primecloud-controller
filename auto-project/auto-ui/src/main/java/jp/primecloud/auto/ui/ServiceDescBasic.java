@@ -27,7 +27,6 @@ import java.util.Map;
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.ComponentInstanceStatus;
 import jp.primecloud.auto.component.mysql.MySQLConstants;
-import jp.primecloud.auto.entity.crud.ComponentType;
 import jp.primecloud.auto.entity.crud.InstanceConfig;
 import jp.primecloud.auto.service.ProcessService;
 import jp.primecloud.auto.service.dto.ComponentDto;
@@ -46,15 +45,17 @@ import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
-import com.vaadin.data.Container;
+import com.vaadin.data.Property;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.terminal.ExternalResource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
@@ -72,108 +73,153 @@ import com.vaadin.ui.themes.Reindeer;
  * </p>
  *
  */
-@SuppressWarnings({ "serial", "unchecked" })
+@SuppressWarnings("serial")
 public class ServiceDescBasic extends Panel {
 
     private MainView sender;
 
-    BasicInfoOpe left = new BasicInfoOpe();
+    private BasicInfoOpe left;
 
-    AttachServersOpe right = new AttachServersOpe("", null);
+    private AttachServersOpe right;
 
-    ServiceSvrOperation serverOpe = new ServiceSvrOperation();
+    private ServiceSvrOperation serverOpe;
+
+    private ComponentDto component;
 
     public ServiceDescBasic(MainView sender) {
         this.sender = sender;
+    }
 
+    @Override
+    public void attach() {
         addStyleName(Reindeer.PANEL_LIGHT);
-
         setHeight("100%");
 
-        HorizontalLayout hlPanels = new HorizontalLayout();
-        hlPanels.setWidth("100%");
-        hlPanels.setHeight("100%");
-        hlPanels.setMargin(true);
-        hlPanels.setSpacing(true);
-        hlPanels.addStyleName("service-desc-basic");
-        setContent(hlPanels);
+        HorizontalLayout layout = new HorizontalLayout();
+        layout.setWidth("100%");
+        layout.setHeight("100%");
+        layout.setMargin(true);
+        layout.setSpacing(true);
+        layout.addStyleName("service-desc-basic");
+        setContent(layout);
 
+        // サービス基本情報
+        VerticalLayout leftLayout = new VerticalLayout();
+        leftLayout.setMargin(false);
+        leftLayout.setSpacing(false);
+        leftLayout.setWidth("100%");
+        leftLayout.setHeight("100%");
+
+        left = new BasicInfoOpe();
         left.setWidth("100%");
-        right.setWidth("100%");
+        leftLayout.addComponent(left);
+        leftLayout.setExpandRatio(left, 1.0f);
+        layout.addComponent(leftLayout);
 
-        //表同士の間隔をあける
+        // 表同士の間隔をあける
         Label padding = new Label(" ");
         padding.setWidth("7px");
         padding.setHeight("99%");
         padding.addStyleName("desc-padding");
+        layout.addComponent(padding);
 
         Label padding2 = new Label("");
         padding2.setWidth("1px");
+        layout.addComponent(padding2);
 
-        VerticalLayout layLeft = new VerticalLayout();
-        layLeft.setMargin(false);
-        layLeft.setSpacing(false);
-        layLeft.setWidth("100%");
-        layLeft.setHeight("100%");
-        layLeft.addComponent(left);
-        layLeft.setExpandRatio(left, 1.0f);
+        // 割り当てサーバ
+        VerticalLayout rightLayout = new VerticalLayout();
+        rightLayout.setMargin(false);
+        rightLayout.setSpacing(false);
+        rightLayout.setWidth("100%");
+        rightLayout.setHeight("100%");
 
-        VerticalLayout layRight = new VerticalLayout();
-        layRight.setMargin(false);
-        layRight.setSpacing(false);
-        layRight.setWidth("100%");
-        layRight.setHeight("100%");
-        layRight.addComponent(right);
-        layRight.addComponent(serverOpe);
-        layRight.setExpandRatio(right, 1.0f);
+        right = new AttachServersOpe();
+        right.setWidth("100%");
+        rightLayout.addComponent(right);
+        serverOpe = new ServiceSvrOperation();
+        rightLayout.addComponent(serverOpe);
+        rightLayout.setExpandRatio(right, 1.0f);
+        layout.addComponent(rightLayout);
 
-        hlPanels.addComponent(layLeft);
-        hlPanels.addComponent(padding);
-        hlPanels.addComponent(padding2);
-        hlPanels.addComponent(layRight);
-        hlPanels.setExpandRatio(layLeft, 40);
-        hlPanels.setExpandRatio(layRight, 60);
+        layout.setExpandRatio(leftLayout, 40);
+        layout.setExpandRatio(rightLayout, 60);
     }
 
-    //右側サーバ一覧パネル
-    class AttachServersOpe extends Table {
+    public void initialize() {
+        this.component = null;
+
+        left.initialize();
+        right.getContainerDataSource().removeAllItems();
+        serverOpe.initialize();
+    }
+
+    public void show(ComponentDto component, boolean clearCheckBox) {
+        this.component = component;
+
+        Collection<InstanceDto> instances = sender.getInstances(component.getComponentInstances());
+
+        left.show(component);
+        right.refresh(instances, clearCheckBox);
+        serverOpe.refresh(instances);
+    }
+
+    public ComponentInstanceDto findComponentInstance(Long instanceNo) {
+        for (ComponentInstanceDto componentInstance : component.getComponentInstances()) {
+            if (componentInstance.getComponentInstance().getInstanceNo().equals(instanceNo)) {
+                return componentInstance;
+            }
+        }
+
+        return null;
+    }
+
+    // 割り当てサーバ
+    private class AttachServersOpe extends Table {
 
         private final String COLUMN_HEIGHT = "28px";
+
+        private Object[] COLUMNS = { "check", "instanceName", "urlIcon", "status", "platform" };
 
         //項目名
         private String[] COLNAME = { null, ViewProperties.getCaption("field.serverName"),
                 ViewProperties.getCaption("field.managementUrl"), ViewProperties.getCaption("field.serviceStatus"),
                 ViewProperties.getCaption("field.platform") };
 
-        HashMap<Long, CheckBox> checkList = new HashMap<Long, CheckBox>();
+        private Map<Long, CheckBox> checkBoxes = new HashMap<Long, CheckBox>();
 
-        public AttachServersOpe(String caption, Container dataSource) {
-            super(caption, dataSource);
+        @Override
+        public void attach() {
             setIcon(Icons.SERVERTAB.resource());
+            setColumnHeaderMode(Table.COLUMN_HEADER_MODE_EXPLICIT);
+            addStyleName("service-desc-basic-server");
+            setCaption(ViewProperties.getCaption("table.serviceServers"));
+            setHeight("100%");
+            setSortDisabled(true);
+            setImmediate(true);
+            setVisible(true);
 
             addGeneratedColumn("check", new ColumnGenerator() {
                 @Override
                 public Component generateCell(Table source, Object itemId, Object columnId) {
-                    InstanceDto p = (InstanceDto) itemId;
-                    Long no = p.getInstance().getInstanceNo();
+                    InstanceDto instance = (InstanceDto) itemId;
 
                     CheckBox check;
-                    if (checkList.containsKey(no)) {
-                        check = checkList.get(no);
+                    if (checkBoxes.containsKey(instance.getInstance().getInstanceNo())) {
+                        check = checkBoxes.get(instance.getInstance().getInstanceNo());
                     } else {
                         check = new CheckBox();
-                        checkList.put(no, check);
+                        checkBoxes.put(instance.getInstance().getInstanceNo(), check);
                     }
 
                     check.setImmediate(true);
-
                     check.addListener(new ValueChangeListener() {
                         @Override
-                        public void valueChange(com.vaadin.data.Property.ValueChangeEvent event) {
-
+                        public void valueChange(Property.ValueChangeEvent event) {
                             requestRepaint();
                         }
                     });
+
                     return check;
                 }
             });
@@ -181,39 +227,30 @@ public class ServiceDescBasic extends Panel {
             addGeneratedColumn("instanceName", new ColumnGenerator() {
                 @Override
                 public Component generateCell(Table source, Object itemId, Object columnId) {
-                    InstanceDto p = (InstanceDto) itemId;
-                    Label slbl = new Label(p.getInstance().getInstanceName());
-                    return slbl;
+                    InstanceDto instance = (InstanceDto) itemId;
 
+                    Label label = new Label(instance.getInstance().getInstanceName());
+                    return label;
                 }
             });
 
             addGeneratedColumn("urlIcon", new ColumnGenerator() {
                 @Override
                 public Component generateCell(Table source, Object itemId, Object columnId) {
-                    InstanceDto dto = (InstanceDto) itemId;
-                    // 管理用
-                    ComponentType componentType = left.component.getComponentType();
-                    String type = componentType.getComponentTypeName();
+                    InstanceDto instance = (InstanceDto) itemId;
 
-                    //サービスが起動していれば有効にしてリンクを追加する
-                    String status = "";
-                    String url = "";
+                    ComponentInstanceDto componentInstance = findComponentInstance(instance.getInstance()
+                            .getInstanceNo());
+                    String url = (componentInstance == null) ? "" : componentInstance.getUrl();
+                    String status = (componentInstance == null) ? "" : componentInstance.getComponentInstance()
+                            .getStatus();
 
-                    for (ComponentInstanceDto componentInstance : left.component.getComponentInstances()) {
-                        if (componentInstance.getComponentInstance().getInstanceNo()
-                                .equals(dto.getInstance().getInstanceNo())) {
-                            status = componentInstance.getComponentInstance().getStatus();
-                            url = componentInstance.getUrl();
-                            break;
-                        }
-                    }
-                    Icons icon = Icons.fromName(type);
+                    Icons icon = Icons.fromName(component.getComponentType().getComponentTypeName());
 
-                    //MySQLならMasterとSlaveでアイコンを変える
-                    if (MySQLConstants.COMPONENT_TYPE_NAME.equals(type)) {
+                    // MySQLならMasterとSlaveでアイコンを変える
+                    if (MySQLConstants.COMPONENT_TYPE_NAME.equals(component.getComponentType().getComponentTypeName())) {
                         Long masterInstanceNo = null;
-                        for (InstanceConfig config : dto.getInstanceConfigs()) {
+                        for (InstanceConfig config : instance.getInstanceConfigs()) {
                             if (MySQLConstants.CONFIG_NAME_MASTER_INSTANCE_NO.equals(config.getConfigName())) {
                                 if (StringUtils.isEmpty(config.getConfigValue())) {
                                     masterInstanceNo = config.getInstanceNo();
@@ -222,7 +259,7 @@ public class ServiceDescBasic extends Panel {
                             }
                         }
                         if (masterInstanceNo != null) {
-                            if (masterInstanceNo.equals(dto.getInstance().getInstanceNo())) {
+                            if (masterInstanceNo.equals(instance.getInstance().getInstanceNo())) {
                                 icon = Icons.MYSQL_MASTER;
                             } else {
                                 icon = Icons.MYSQL_SLAVE;
@@ -232,79 +269,70 @@ public class ServiceDescBasic extends Panel {
                         }
                     }
 
-                    Link slbl = new Link(ViewProperties.getCaption("field.managementLink"), new ExternalResource(url));
-                    slbl.setTargetName("_blank");
-                    slbl.setIcon(icon.resource());
-                    slbl.setHeight(COLUMN_HEIGHT);
-                    slbl.setEnabled(false);
+                    Link link = new Link(ViewProperties.getCaption("field.managementLink"), new ExternalResource(url));
+                    link.setTargetName("_blank");
+                    link.setIcon(icon.resource());
+                    link.setHeight(COLUMN_HEIGHT);
+                    link.setEnabled(false);
 
                     if (status.equals(ComponentInstanceStatus.RUNNING.toString())) {
-                        slbl.setDescription(url);
-                        slbl.setEnabled(true);
+                        link.setDescription(url);
+                        link.setEnabled(true);
                     }
 
-                    return slbl;
+                    return link;
                 }
             });
 
             addGeneratedColumn("status", new ColumnGenerator() {
                 @Override
                 public Component generateCell(Table source, Object itemId, Object columnId) {
-                    InstanceDto p = (InstanceDto) itemId;
+                    InstanceDto instance = (InstanceDto) itemId;
 
-                    ComponentDto componentDto = (ComponentDto) sender.servicePanel.serviceTable.getValue();
-                    String status = "";
-                    for (ComponentInstanceDto componentInstance : componentDto.getComponentInstances()) {
-                        if (componentInstance.getComponentInstance().getInstanceNo()
-                                .equals(p.getInstance().getInstanceNo())) {
-                            status = componentInstance.getComponentInstance().getStatus();
-                            break;
-                        }
-                    }
+                    ComponentInstanceDto componentInstance = findComponentInstance(instance.getInstance()
+                            .getInstanceNo());
+                    String status = (componentInstance == null) ? "" : componentInstance.getComponentInstance()
+                            .getStatus();
+                    status = status.substring(0, 1).toUpperCase() + status.substring(1).toLowerCase();
 
-                    String a = status.substring(0, 1).toUpperCase() + status.substring(1).toLowerCase();
-                    Icons icon = Icons.fromName(a);
-                    Label slbl = new Label(IconUtils.createImageTag(ServiceDescBasic.this, icon, a),
+                    Icons icon = Icons.fromName(status);
+                    Label label = new Label(IconUtils.createImageTag(ServiceDescBasic.this, icon, status),
                             Label.CONTENT_XHTML);
-                    slbl.setHeight(COLUMN_HEIGHT);
-                    return slbl;
+                    label.setHeight(COLUMN_HEIGHT);
+
+                    return label;
                 }
             });
 
             addGeneratedColumn("platform", new ColumnGenerator() {
                 @Override
                 public Component generateCell(Table source, Object itemId, Object columnId) {
-                    InstanceDto p = (InstanceDto) itemId;
-                    PlatformDto platform = p.getPlatform();
+                    InstanceDto instance = (InstanceDto) itemId;
 
-                    //プラットフォームアイコン名の取得
-                    Icons icon = IconUtils.getPlatformIcon(platform);
-                    String description = platform.getPlatform().getPlatformSimplenameDisp();
-                    Label slbl = new Label(IconUtils.createImageTag(ServiceDescBasic.this, icon, description),
+                    Icons icon = IconUtils.getPlatformIcon(instance.getPlatform());
+                    String name = instance.getPlatform().getPlatform().getPlatformSimplenameDisp();
+                    Label label = new Label(IconUtils.createImageTag(ServiceDescBasic.this, icon, name),
                             Label.CONTENT_XHTML);
-                    slbl.setHeight(COLUMN_HEIGHT);
+                    label.setHeight(COLUMN_HEIGHT);
 
-                    return slbl;
+                    return label;
                 }
             });
 
-            //テーブルのカラムに対してStyleNameを設定
-            setCellStyleGenerator(new Table.CellStyleGenerator() {
+            setCellStyleGenerator(new StandardCellStyleGenerator() {
                 @Override
                 public String getStyle(Object itemId, Object propertyId) {
+                    InstanceDto instance = (InstanceDto) itemId;
 
-                    InstanceDto dto = (InstanceDto) itemId;
-
-                    if (propertyId == null) {
-                        return "";
-                    } else {
-                        String ret = propertyId.toString().toLowerCase();
-                        Long no = dto.getInstance().getInstanceNo();
-                        if (checkList.containsKey(no) && (Boolean) checkList.get(no).getValue()) {
-                            ret += " v-selected";
+                    String style = super.getStyle(itemId, propertyId);
+                    if (propertyId != null) {
+                        Long instanceNo = instance.getInstance().getInstanceNo();
+                        if (checkBoxes.containsKey(instanceNo) && (Boolean) checkBoxes.get(instanceNo).getValue()) {
+                            style += " v-selected";
                         }
-                        return ret;
                     }
+
+                    return style;
                 }
             });
 
@@ -313,206 +341,179 @@ public class ServiceDescBasic extends Panel {
             addListener(new ItemClickListener() {
                 @Override
                 public void itemClick(ItemClickEvent event) {
-                    InstanceDto dto = (InstanceDto) event.getItemId();
-                    Long no = dto.getInstance().getInstanceNo();
-                    if (checkList.containsKey(no)) {
-                        checkList.get(no).setValue(!(Boolean) checkList.get(no).getValue());
+                    InstanceDto instance = (InstanceDto) event.getItemId();
+                    Long instanceNo = instance.getInstance().getInstanceNo();
+                    if (checkBoxes.containsKey(instanceNo)) {
+                        checkBoxes.get(instanceNo).setValue(!(Boolean) checkBoxes.get(instanceNo).getValue());
                     }
                 }
             });
         }
 
-        @Override
-        public void setContainerDataSource(Container newDataSource) {
-            super.setContainerDataSource(newDataSource);
-            setColumnHeaderMode(Table.COLUMN_HEADER_MODE_EXPLICIT);
-            addStyleName("service-desc-basic-server");
-            setCaption(ViewProperties.getCaption("table.serviceServers"));
-            setHeight("100%");
-            setSortDisabled(true);
-            setImmediate(true);
-            setVisible(true);
-        }
-
-        public void refresh(Container dataSource) {
-            refresh(dataSource, false);
-        }
-
-        public void refresh(Container dataSource, boolean clearCheckBox) {
+        public void refresh(Collection<InstanceDto> instances, boolean clearCheckBox) {
             if (clearCheckBox) {
-                checkList.clear();
+                checkBoxes.clear();
             }
-            setContainerDataSource(dataSource);
-            setVisibleColumns(InstanceDtoContainer.SERVICE_DESC);
-            if (dataSource != null && dataSource.size() > 0) {
+            setContainerDataSource(new InstanceDtoContainer(instances));
+            setVisibleColumns(COLUMNS);
+            if (instances.size() > 0) {
                 setColumnHeaders(COLNAME);
             }
-            serverOpe.refresh();
         }
 
     }
 
-    class BasicInfoOpe extends Panel {
-
-        private Label serviceName;
-
-        private VerticalLayout vlLoadBalancer;
-
-        private Label serviceDetail;
-
-        private Label status;
-
-        private Label comment;
-
-        private ComponentDto component;
+    // サービス基本情報
+    private class BasicInfoOpe extends Panel {
 
         private final String COLUMN_HEIGHT = "30px";
 
-        //項目名
-        private String[] CAPNAME = { ViewProperties.getCaption("field.serviceName"),
-                ViewProperties.getCaption("field.service"), ViewProperties.getCaption("field.status"),
-                ViewProperties.getCaption("field.comment"), ViewProperties.getCaption("field.loadBalancer"), };
+        private GridLayout gridLayout;
 
-        private GridLayout layout;
-
-        BasicInfoOpe() {
+        @Override
+        public void attach() {
             setCaption(ViewProperties.getCaption("table.serviceBasicInfo"));
             setHeight("100%");
             setStyleName("service-desc-basic-panel");
 
-            VerticalLayout vlay = (VerticalLayout) getContent();
-            vlay.setStyleName("service-desc-basic-panel");
-            vlay.setMargin(true);
+            VerticalLayout layout = (VerticalLayout) getContent();
+            layout.setStyleName("service-desc-basic-panel");
+            layout.setMargin(true);
 
-            layout = new GridLayout(2, CAPNAME.length);
-            layout.setWidth("100%");
-            layout.setStyleName("service-desc-basic-info");
-            layout.setColumnExpandRatio(0, 35);
-            layout.setColumnExpandRatio(1, 65);
-            vlay.addComponent(layout);
+            gridLayout = new GridLayout(2, 5);
+            gridLayout.setWidth("100%");
+            gridLayout.setStyleName("service-desc-basic-info");
+            gridLayout.setColumnExpandRatio(0, 35);
+            gridLayout.setColumnExpandRatio(1, 65);
+            layout.addComponent(gridLayout);
 
-            //項目名設定
-            for (int i = 0; i < CAPNAME.length; i++) {
-                Label lbl1 = new Label(CAPNAME[i], Label.CONTENT_XHTML);
-                Label lbl2 = new Label("");
-                lbl1.setHeight(COLUMN_HEIGHT);
-                layout.addComponent(lbl1, 0, i);
-                layout.addComponent(lbl2, 1, i);
-            }
+            Label label;
+            int line = 0;
+
+            // サービス名
+            label = new Label(ViewProperties.getCaption("field.serviceName"), Label.CONTENT_XHTML);
+            label.setHeight(COLUMN_HEIGHT);
+            gridLayout.addComponent(label, 0, line++);
+
+            // サービス
+            label = new Label(ViewProperties.getCaption("field.service"), Label.CONTENT_XHTML);
+            label.setHeight(COLUMN_HEIGHT);
+            gridLayout.addComponent(label, 0, line++);
+
+            // ステータス
+            label = new Label(ViewProperties.getCaption("field.status"), Label.CONTENT_XHTML);
+            label.setHeight(COLUMN_HEIGHT);
+            gridLayout.addComponent(label, 0, line++);
+
+            // コメント
+            label = new Label(ViewProperties.getCaption("field.comment"), Label.CONTENT_XHTML);
+            label.setHeight(COLUMN_HEIGHT);
+            gridLayout.addComponent(label, 0, line++);
+
+            // ロードバランサ
+            label = new Label(ViewProperties.getCaption("field.loadBalancer"), Label.CONTENT_XHTML);
+            label.setHeight(COLUMN_HEIGHT);
+            gridLayout.addComponent(label, 0, line++);
         }
 
-        public void setItem(ComponentDto dto) {
-            component = dto;
+        public void initialize() {
+            Label label;
+            int line = 0;
 
-            if (dto != null) {
-                int line = 0;
+            // サービス名
+            label = new Label("", Label.CONTENT_XHTML);
+            gridLayout.removeComponent(1, line);
+            gridLayout.addComponent(label, 1, line++);
 
-                jp.primecloud.auto.entity.crud.Component component = dto.getComponent();
-                ComponentType componentType = dto.getComponentType();
+            // サービス
+            label = new Label("", Label.CONTENT_XHTML);
+            gridLayout.removeComponent(1, line);
+            gridLayout.addComponent(label, 1, line++);
 
-                //サービス名
-                serviceName = new Label(component.getComponentName(), Label.CONTENT_TEXT);
-                layout.removeComponent(1, line);
-                layout.addComponent(serviceName, 1, line++);
+            // ステータス
+            label = new Label("", Label.CONTENT_XHTML);
+            gridLayout.removeComponent(1, line);
+            gridLayout.addComponent(label, 1, line++);
 
-                //サービス詳細
-                Icons nameIcon = Icons.fromName(componentType.getComponentTypeName());
-                String name = componentType.getComponentTypeNameDisp();
-                serviceDetail = new Label(IconUtils.createImageTag(ServiceDescBasic.this, nameIcon, name),
-                        Label.CONTENT_XHTML);
-                layout.removeComponent(1, line);
-                layout.addComponent(serviceDetail, 1, line++);
+            // コメント
+            label = new Label("", Label.CONTENT_XHTML);
+            gridLayout.removeComponent(1, line);
+            gridLayout.addComponent(label, 1, line++);
 
-                //ステータス
-                String stat = dto.getStatus().substring(0, 1).toUpperCase()
-                        + dto.getStatus().substring(1).toLowerCase();
-                Icons icon = Icons.fromName(stat);
-                status = new Label(IconUtils.createImageTag(ServiceDescBasic.this, icon, stat), Label.CONTENT_XHTML);
-                layout.removeComponent(1, line);
-                layout.addComponent(status, 1, line++);
+            // ロードバランサ
+            VerticalLayout layout = new VerticalLayout();
+            gridLayout.removeComponent(1, line);
+            gridLayout.addComponent(layout, 1, line++);
+        }
 
-                //コメント
-                comment = new Label(component.getComment(), Label.CONTENT_XHTML);
-                layout.removeComponent(1, line);
-                layout.addComponent(comment, 1, line++);
+        @SuppressWarnings("unchecked")
+        public void show(ComponentDto component) {
+            Label label;
+            int line = 0;
 
-                //ロードバランサ
-                vlLoadBalancer = new VerticalLayout();
-                vlLoadBalancer.setSpacing(false);
+            // サービス名
+            label = new Label(component.getComponent().getComponentName(), Label.CONTENT_XHTML);
+            gridLayout.removeComponent(1, line);
+            gridLayout.addComponent(label, 1, line++);
 
-                for (LoadBalancerDto lbDto : (Collection<LoadBalancerDto>) sender.loadBalancerPanel.loadBalancerTable
-                        .getItemIds()) {
-                    if (dto.getComponent().getComponentNo().equals(lbDto.getLoadBalancer().getComponentNo())) {
-                        vlLoadBalancer.addComponent(getLoadBalancerButton(lbDto));
-                    }
+            // サービス
+            Icons nameIcon = Icons.fromName(component.getComponentType().getComponentTypeName());
+            String name = component.getComponentType().getComponentTypeNameDisp();
+            label = new Label(IconUtils.createImageTag(ServiceDescBasic.this, nameIcon, name), Label.CONTENT_XHTML);
+            gridLayout.removeComponent(1, line);
+            gridLayout.addComponent(label, 1, line++);
+
+            // ステータス
+            String stat = component.getStatus().substring(0, 1).toUpperCase()
+                    + component.getStatus().substring(1).toLowerCase();
+            Icons icon = Icons.fromName(stat);
+            label = new Label(IconUtils.createImageTag(ServiceDescBasic.this, icon, stat), Label.CONTENT_XHTML);
+            gridLayout.removeComponent(1, line);
+            gridLayout.addComponent(label, 1, line++);
+
+            // コメント
+            label = new Label(component.getComponent().getComment(), Label.CONTENT_XHTML);
+            gridLayout.removeComponent(1, line);
+            gridLayout.addComponent(label, 1, line++);
+
+            // ロードバランサ
+            VerticalLayout layout = new VerticalLayout();
+            layout.setSpacing(false);
+
+            for (LoadBalancerDto lbDto : (Collection<LoadBalancerDto>) sender.loadBalancerPanel.loadBalancerTable
+                    .getItemIds()) {
+                if (component.getComponent().getComponentNo().equals(lbDto.getLoadBalancer().getComponentNo())) {
+                    layout.addComponent(createLoadBalancerButton(lbDto));
                 }
-
-                layout.removeComponent(1, line);
-                layout.addComponent(vlLoadBalancer, 1, line++);
-            } else {
-                int line = 0;
-                //サービス名
-                serviceName = new Label("", Label.CONTENT_XHTML);
-                layout.removeComponent(1, line);
-                layout.addComponent(serviceName, 1, line++);
-
-                //サービス詳細
-                serviceDetail = new Label("", Label.CONTENT_XHTML);
-                layout.removeComponent(1, line);
-                layout.addComponent(serviceDetail, 1, line++);
-
-                //ステータス
-                status = new Label("", Label.CONTENT_XHTML);
-                layout.removeComponent(1, line);
-                layout.addComponent(status, 1, line++);
-
-                //コメント
-                comment = new Label("", Label.CONTENT_XHTML);
-                layout.removeComponent(1, line);
-                layout.addComponent(comment, 1, line++);
-
-                //ロードバランサ
-                vlLoadBalancer = new VerticalLayout();
-                layout.removeComponent(1, line);
-                layout.addComponent(vlLoadBalancer, 1, line++);
             }
+
+            gridLayout.removeComponent(1, line);
+            gridLayout.addComponent(layout, 1, line++);
         }
 
-        Button getLoadBalancerButton(LoadBalancerDto lbDto) {
+        private Button createLoadBalancerButton(final LoadBalancerDto loadBalancerDto) {
             Button button = new Button();
-            button.setCaption(lbDto.getLoadBalancer().getLoadBalancerName());
+            button.setCaption(loadBalancerDto.getLoadBalancer().getLoadBalancerName());
             button.setIcon(Icons.LOADBALANCER_TAB.resource());
-            button.setData(lbDto);
+            button.setData(loadBalancerDto);
             button.addStyleName("borderless");
             button.addStyleName("loadbalancer-button");
             button.addListener(new Button.ClickListener() {
                 @Override
                 public void buttonClick(ClickEvent event) {
-                    loadBalancerButtonClick(event);
+                    // ロードバランサを選択
+                    sender.loadBalancerPanel.loadBalancerTable.select(loadBalancerDto);
+
+                    // ロードバランサタブに移動
+                    sender.tab.setSelectedTab(sender.loadBalancerPanel);
                 }
             });
             return button;
         }
 
-        void loadBalancerButtonClick(ClickEvent event) {
-            Button button = event.getButton();
-            LoadBalancerDto dto = (LoadBalancerDto) button.getData();
-
-            //該当ロードバランサーを選択
-            sender.loadBalancerPanel.loadBalancerTable.select(dto);
-            //ロードバランサーTabに移動
-            sender.tab.setSelectedTab(sender.loadBalancerPanel);
-        }
-
     }
 
-    public void initializeData() {
-        right.getContainerDataSource().removeAllItems();
-        serverOpe.refresh();
-        left.setItem(null);
-    }
-
-    public class ServiceSvrOperation extends HorizontalLayout {
+    private class ServiceSvrOperation extends HorizontalLayout {
 
         private Button checkAllButton;
 
@@ -520,7 +521,8 @@ public class ServiceDescBasic extends Panel {
 
         private Button stopButton;
 
-        ServiceSvrOperation() {
+        @Override
+        public void attach() {
             addStyleName("operation-buttons");
             setHeight("35px");
             setWidth("100%");
@@ -532,24 +534,38 @@ public class ServiceDescBasic extends Panel {
             checkAllButton.addStyleName("checkall");
             checkAllButton.setEnabled(false);
             checkAllButton.setIcon(Icons.CHECKON.resource());
-            checkAllButton.addListener(Button.ClickEvent.class, this, "checkAllButtonClick");
+            checkAllButton.addListener(new ClickListener() {
+                @Override
+                public void buttonClick(ClickEvent event) {
+                    checkAllButtonClick(event);
+                }
+            });
+            addComponent(checkAllButton);
 
             startButton = new Button(ViewProperties.getCaption("button.startService"));
             startButton.setDescription(ViewProperties.getCaption("description.startService"));
             startButton.setWidth("90px");
             startButton.setIcon(Icons.PLAYMINI.resource());
             startButton.setEnabled(false);
-            startButton.addListener(Button.ClickEvent.class, this, "playButtonClick");
+            startButton.addListener(new ClickListener() {
+                @Override
+                public void buttonClick(ClickEvent event) {
+                    startButtonClick(event);
+                }
+            });
+            addComponent(startButton);
 
             stopButton = new Button(ViewProperties.getCaption("button.stopService"));
             stopButton.setDescription(ViewProperties.getCaption("description.stopService"));
             stopButton.setWidth("90px");
             stopButton.setIcon(Icons.STOPMINI.resource());
             stopButton.setEnabled(false);
-            stopButton.addListener(Button.ClickEvent.class, this, "stopButtonClick");
-
-            addComponent(checkAllButton);
-            addComponent(startButton);
+            stopButton.addListener(new ClickListener() {
+                @Override
+                public void buttonClick(ClickEvent event) {
+                    stopButtonClick(event);
+                }
+            });
             addComponent(stopButton);
 
             setComponentAlignment(checkAllButton, Alignment.MIDDLE_LEFT);
@@ -558,9 +574,14 @@ public class ServiceDescBasic extends Panel {
             setExpandRatio(checkAllButton, 1.0f);
         }
 
-        void refresh() {
-            Container container = right.getContainerDataSource();
-            if (container != null && container.getItemIds().size() > 0) {
+        public void initialize() {
+            checkAllButton.setEnabled(false);
+            startButton.setEnabled(false);
+            stopButton.setEnabled(false);
+        }
+
+        public void refresh(Collection<InstanceDto> instances) {
+            if (instances.size() > 0) {
                 checkAllButton.setEnabled(true);
                 startButton.setEnabled(true);
                 stopButton.setEnabled(true);
@@ -570,141 +591,125 @@ public class ServiceDescBasic extends Panel {
                 stopButton.setEnabled(false);
             }
 
+            // 権限がなければボタンを無効にする
             UserAuthDto auth = ViewContext.getAuthority();
-            //権限に応じて操作可能なボタンを制御する
             if (!auth.isServiceOperate()) {
                 startButton.setEnabled(false);
                 stopButton.setEnabled(false);
             }
         }
 
-        public void checkAllButtonClick(Button.ClickEvent event) {
-            //全てCheckされていれば全てOFF それ以外は全てON
+        private void checkAllButtonClick(Button.ClickEvent event) {
+            // 全てチェックされていれば全てオフ、それ以外は全てオンにする
             boolean checkAll = true;
-            for (Long no : right.checkList.keySet()) {
-                if (!(Boolean) right.checkList.get(no).getValue()) {
+            for (CheckBox checkBox : right.checkBoxes.values()) {
+                if (BooleanUtils.isNotTrue((Boolean) checkBox.getValue())) {
                     checkAll = false;
                     break;
                 }
             }
-            for (CheckBox chk : right.checkList.values()) {
+
+            for (CheckBox chk : right.checkBoxes.values()) {
                 chk.setValue(!checkAll);
             }
         }
 
-        public void playButtonClick(Button.ClickEvent event) {
-            //Running , Warningのサーバが含まれていないかチェック
-            final ComponentDto dto = left.component;
-            //確認メッセージ
-            final List<Long> instanceNos = new ArrayList<Long>();
-            final Map<Long, InstanceDto> instanceMap = new HashMap<Long, InstanceDto>();
+        private void startButtonClick(Button.ClickEvent event) {
+            final List<InstanceDto> selectedInstances = new ArrayList<InstanceDto>();
             for (Object itemId : right.getItemIds()) {
                 InstanceDto instance = (InstanceDto) itemId;
-                Long no = instance.getInstance().getInstanceNo();
-                if (right.checkList.containsKey(no) && (Boolean) right.checkList.get(no).getValue()) {
-                    InstanceDto tmpDto = (InstanceDto) itemId;
-                    instanceNos.add(tmpDto.getInstance().getInstanceNo());
-                    instanceMap.put(tmpDto.getInstance().getInstanceNo(), tmpDto);
+                Long instanceNo = instance.getInstance().getInstanceNo();
+                if (right.checkBoxes.containsKey(instanceNo) && (Boolean) right.checkBoxes.get(instanceNo).getValue()) {
+                    selectedInstances.add(instance);
                 }
             }
 
-            //選択されているサーバがあるかチェック
-            if (instanceNos.isEmpty()) {
+            // サーバが選択されていることを確認
+            if (selectedInstances.isEmpty()) {
                 String message = ViewMessages.getMessage("IUI-000037");
                 DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message);
                 getApplication().getMainWindow().addWindow(dialog);
                 return;
-            } else {
-                //サーバステータスのステータスにStarting,Configuring,Stoppingが無いかを確認
-                boolean skipServer = false;
-                for (Long instanceNo : instanceNos) {
-                    for (ComponentInstanceDto componentInstanceDto : dto.getComponentInstances()) {
-                        if (instanceNo.equals(componentInstanceDto.getComponentInstance().getInstanceNo())) {
-                            String status = componentInstanceDto.getComponentInstance().getStatus();
-                            //コンポーネント側からのステータス確認
-                            if (status.equals(ComponentInstanceStatus.CONFIGURING.toString())
-                                    || status.equals(ComponentInstanceStatus.STARTING.toString())
-                                    || status.equals(ComponentInstanceStatus.STOPPING.toString())
-                                    || status.equals(ComponentInstanceStatus.WARNING.toString())) {
-                                String message = ViewMessages.getMessage("IUI-000044",
-                                        new Object[] { StringUtils.capitalize(status.toLowerCase()) });
-                                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"),
-                                        message);
-                                getApplication().getMainWindow().addWindow(dialog);
-                                return;
-                            }
-                            InstanceDto tmpDto = instanceMap.get(instanceNo);
-                            PlatformDto platform = tmpDto.getPlatform();
-                            ProcessService processService = BeanContext.getBean(ProcessService.class);
-                            boolean vpc = false;
-                            String subnetId = null;
-                            boolean subnetErrFlg;
-                            if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatform().getPlatformType())) {
-                                // サブネットチェック
-                                vpc = platform.getPlatformAws().getVpc();
-                                subnetId = tmpDto.getAwsInstance().getSubnetId();
-                                subnetErrFlg = processService.checkSubnet(platform.getPlatform().getPlatformType(),
-                                        vpc, subnetId);
-                                if (subnetErrFlg == true) {
-                                    //EC2+VPCの場合、サブネットを設定しないと起動不可
-                                    DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                                            ViewMessages.getMessage("IUI-000112", tmpDto.getInstance()
-                                                    .getInstanceName()));
-                                    getApplication().getMainWindow().addWindow(dialog);
-                                    return;
-                                }
-                            }
-                            if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatform().getPlatformType())) {
-                                // サブネットチェック
-                                subnetId = tmpDto.getAzureInstance().getSubnetId();
-                                subnetErrFlg = processService.checkSubnet(platform.getPlatform().getPlatformType(),
-                                        vpc, subnetId);
-                                if (subnetErrFlg == true) {
-                                    // サブネットを設定しないと起動不可
-                                    DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                                            ViewMessages.getMessage("IUI-000112", tmpDto.getInstance()
-                                                    .getInstanceName()));
-                                    getApplication().getMainWindow().addWindow(dialog);
-                                    return;
-                                }
-                                // インスタンス起動チェック（同時起動）
-                                HashMap<String, Boolean> flgMap = new HashMap<String, Boolean>();
-                                flgMap = processService.checkStartupAll(platform.getPlatform().getPlatformType(),
-                                        tmpDto.getAzureInstance().getInstanceName(), skipServer);
-                                skipServer = flgMap.get("skipServer");
-                                boolean startupAllErrFlg;
-                                startupAllErrFlg = flgMap.get("startupAllErrFlg");
-                                if (startupAllErrFlg == true) {
-                                    // インスタンス作成中のものがあった場合は、起動不可
-                                    DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                                            ViewMessages.getMessage("IUI-000134", tmpDto.getInstance()
-                                                    .getInstanceName()));
-                                    getApplication().getMainWindow().addWindow(dialog);
-                                    return;
-                                }
-                                // インスタンス起動チェック（個別起動）
-                                boolean startupErrFlg;
-                                startupErrFlg = processService.checkStartup(platform.getPlatform().getPlatformType(),
-                                        tmpDto.getAzureInstance().getInstanceName(), tmpDto.getAzureInstance()
-                                                .getInstanceNo());
-                                if (startupErrFlg == true) {
-                                    // インスタンス作成中のものがあった場合は、起動不可
-                                    // 同一インスタンスNoは、除外する
-                                    DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                                            ViewMessages.getMessage("IUI-000134", tmpDto.getInstance()
-                                                    .getInstanceName()));
-                                    getApplication().getMainWindow().addWindow(dialog);
-                                    return;
-                                }
-                            }
-                        }
+            }
+
+            // 変更中のサーバが存在しないことを確認
+            for (InstanceDto instance : selectedInstances) {
+                ComponentInstanceDto componentInstance = findComponentInstance(instance.getInstance().getInstanceNo());
+                String status = componentInstance.getComponentInstance().getStatus();
+                if (status.equals(ComponentInstanceStatus.CONFIGURING.toString())
+                        || status.equals(ComponentInstanceStatus.STARTING.toString())
+                        || status.equals(ComponentInstanceStatus.STOPPING.toString())
+                        || status.equals(ComponentInstanceStatus.WARNING.toString())) {
+                    String message = ViewMessages.getMessage("IUI-000044",
+                            new Object[] { StringUtils.capitalize(status.toLowerCase()) });
+                    DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message);
+                    getApplication().getMainWindow().addWindow(dialog);
+                    return;
+                }
+            }
+
+            // サブネットが設定されていることを確認
+            for (InstanceDto instance : selectedInstances) {
+                PlatformDto platform = instance.getPlatform();
+
+                // AWSの場合
+                if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatform().getPlatformType())) {
+                    if (BooleanUtils.isTrue(platform.getPlatformAws().getVpc())
+                            && StringUtils.isEmpty(instance.getAwsInstance().getSubnetId())) {
+                        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
+                                ViewMessages.getMessage("IUI-000112", instance.getInstance().getInstanceName()));
+                        getApplication().getMainWindow().addWindow(dialog);
+                        return;
+                    }
+                }
+                // Azureの場合
+                else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatform().getPlatformType())) {
+                    if (StringUtils.isEmpty(instance.getAzureInstance().getSubnetId())) {
+                        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
+                                ViewMessages.getMessage("IUI-000112", instance.getInstance().getInstanceName()));
+                        getApplication().getMainWindow().addWindow(dialog);
+                        return;
                     }
                 }
             }
 
-            String message = ViewMessages.getMessage("IUI-000051", new Object[] { instanceNos.size(),
-                    dto.getComponent().getComponentName() });
+            boolean skipServer = false;
+            for (InstanceDto instance : selectedInstances) {
+                PlatformDto platform = instance.getPlatform();
+                ProcessService processService = BeanContext.getBean(ProcessService.class);
 
+                if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatform().getPlatformType())) {
+                    // インスタンス起動チェック（同時起動）
+                    Map<String, Boolean> flgMap = new HashMap<String, Boolean>();
+                    flgMap = processService.checkStartupAll(platform.getPlatform().getPlatformType(), instance
+                            .getAzureInstance().getInstanceName(), skipServer);
+                    skipServer = flgMap.get("skipServer");
+                    boolean startupAllErrFlg = flgMap.get("startupAllErrFlg");
+                    if (startupAllErrFlg) {
+                        // インスタンス作成中のものがあった場合は、起動不可
+                        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
+                                ViewMessages.getMessage("IUI-000134", instance.getInstance().getInstanceName()));
+                        getApplication().getMainWindow().addWindow(dialog);
+                        return;
+                    }
+
+                    // インスタンス起動チェック（個別起動）
+                    boolean startupErrFlg = processService.checkStartup(platform.getPlatform().getPlatformType(),
+                            instance.getAzureInstance().getInstanceName(), instance.getAzureInstance().getInstanceNo());
+                    if (startupErrFlg) {
+                        // インスタンス作成中のものがあった場合は、起動不可
+                        // 同一インスタンスNoは、除外する
+                        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
+                                ViewMessages.getMessage("IUI-000134", instance.getInstance().getInstanceName()));
+                        getApplication().getMainWindow().addWindow(dialog);
+                        return;
+                    }
+                }
+            }
+
+            // 確認ダイアログを表示
+            String message = ViewMessages.getMessage("IUI-000051", new Object[] { selectedInstances.size(),
+                    component.getComponent().getComponentName() });
             DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message,
                     Buttons.OKCancel);
             dialog.setCallback(new DialogConfirm.Callback() {
@@ -714,85 +719,85 @@ public class ServiceDescBasic extends Panel {
                         return;
                     }
 
-                    //オペレーションログ
-                    AutoApplication apl = (AutoApplication) getApplication();
-                    apl.doOpLog("SERVICE", "Start Service", null, dto.getComponent().getComponentNo(), null, null);
-
-                    //開始処理
-                    ProcessService processService = BeanContext.getBean(ProcessService.class);
-                    Long farmNo = dto.getComponent().getFarmNo();
-                    Long componentNo = dto.getComponent().getComponentNo();
-                    processService.startComponents(farmNo, componentNo, instanceNos);
-
-                    //画面のリフレッシュ
-                    refresh(right);
+                    start(selectedInstances);
                 }
             });
 
             getApplication().getMainWindow().addWindow(dialog);
         }
 
-        public void stopButtonClick(Button.ClickEvent event) {
-            final List<Long> instanceNos = new ArrayList<Long>();
-            final List<InstanceDto> instanceDtos = new ArrayList<InstanceDto>();
+        private void start(List<InstanceDto> instances) {
+            // オペレーションログ
+            AutoApplication apl = (AutoApplication) getApplication();
+            apl.doOpLog("SERVICE", "Start Service", null, component.getComponent().getComponentNo(), null, null);
 
+            // 開始処理
+            List<Long> instanceNos = new ArrayList<Long>();
+            for (InstanceDto instance : instances) {
+                instanceNos.add(instance.getInstance().getInstanceNo());
+            }
+
+            ProcessService processService = BeanContext.getBean(ProcessService.class);
+            Long farmNo = component.getComponent().getFarmNo();
+            Long componentNo = component.getComponent().getComponentNo();
+            processService.startComponents(farmNo, componentNo, instanceNos);
+
+            // 表示の更新
+            sender.refreshTableOnly();
+        }
+
+        private void stopButtonClick(Button.ClickEvent event) {
+            final List<InstanceDto> selectedInstances = new ArrayList<InstanceDto>();
             for (Object itemId : right.getItemIds()) {
                 InstanceDto instance = (InstanceDto) itemId;
-                Long no = instance.getInstance().getInstanceNo();
-                if (right.checkList.containsKey(no) && (Boolean) right.checkList.get(no).getValue()) {
-                    instanceNos.add(((InstanceDto) itemId).getInstance().getInstanceNo());
-                    instanceDtos.add((InstanceDto) itemId);
+                Long instanceNo = instance.getInstance().getInstanceNo();
+                if (right.checkBoxes.containsKey(instanceNo) && (Boolean) right.checkBoxes.get(instanceNo).getValue()) {
+                    selectedInstances.add(instance);
                 }
             }
-            final ComponentDto dto = left.component;
 
-            boolean isCheckbox = true;
-
-            //選択されているサーバがあるかチェック
-            if (instanceNos.isEmpty()) {
+            // サーバが選択されていることを確認
+            if (selectedInstances.isEmpty()) {
                 String message = ViewMessages.getMessage("IUI-000037");
                 DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message);
                 getApplication().getMainWindow().addWindow(dialog);
                 return;
-            } else {
-                //サーバステータスのステータスにStarting,Configuring,Stoppingが無いかを確認
-                for (InstanceDto instanceDto : instanceDtos) {
-                    for (ComponentInstanceDto componentInstanceDto : dto.getComponentInstances()) {
-                        if (instanceDto.getInstance().getInstanceNo()
-                                .equals(componentInstanceDto.getComponentInstance().getInstanceNo())) {
-                            String status = componentInstanceDto.getComponentInstance().getStatus();
-                            if (status.equals(ComponentInstanceStatus.CONFIGURING.toString())
-                                    || status.equals(ComponentInstanceStatus.STARTING.toString())
-                                    || status.equals(ComponentInstanceStatus.STOPPING.toString())) {
-                                String message = ViewMessages.getMessage("IUI-000045",
-                                        new Object[] { StringUtils.capitalize(status.toLowerCase()) });
-                                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"),
-                                        message);
-                                getApplication().getMainWindow().addWindow(dialog);
-                                return;
-                            }
-                        }
+            }
+
+            // 変更中のサーバが存在しないことを確認
+            for (InstanceDto instance : selectedInstances) {
+                ComponentInstanceDto componentInstance = findComponentInstance(instance.getInstance().getInstanceNo());
+                String status = componentInstance.getComponentInstance().getStatus();
+                if (status.equals(ComponentInstanceStatus.CONFIGURING.toString())
+                        || status.equals(ComponentInstanceStatus.STARTING.toString())
+                        || status.equals(ComponentInstanceStatus.STOPPING.toString())) {
+                    String message = ViewMessages.getMessage("IUI-000045",
+                            new Object[] { StringUtils.capitalize(status.toLowerCase()) });
+                    DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message);
+                    getApplication().getMainWindow().addWindow(dialog);
+                    return;
+                }
+            }
+
+            boolean isCheckbox = true;
+            for (InstanceDto instance : selectedInstances) {
+                // サーバに含まれる他のサービスのステータスを確認
+                for (ComponentInstanceDto componentInstance : instance.getComponentInstances()) {
+                    if (componentInstance.getComponentInstance().getComponentNo()
+                            .equals(component.getComponent().getComponentNo())) {
+                        continue;
                     }
 
-                    //インスタンスに含まれる選択以外のステータスを確認
-                    for (ComponentInstanceDto componentInstanceDto2 : instanceDto.getComponentInstances()) {
-                        //同じコンポーネントの場合は無視する
-                        if (componentInstanceDto2.getComponentInstance().getComponentNo()
-                                .equals(dto.getComponent().getComponentNo())) {
-                            continue;
-                        }
-                        if (!componentInstanceDto2.getComponentInstance().getStatus()
-                                .equals(ComponentInstanceStatus.STOPPED.toString())) {
-                            isCheckbox = false;
-                            break;
-                        }
+                    // 停止していないサービスがある場合
+                    if (!componentInstance.getComponentInstance().getStatus()
+                            .equals(ComponentInstanceStatus.STOPPED.toString())) {
+                        isCheckbox = false;
+                        break;
                     }
                 }
             }
 
-            String message = ViewMessages.getMessage("IUI-000052", new Object[] { instanceNos.size(),
-                    dto.getComponent().getComponentName() });
-
+            // 確認ダイアログの表示オプション
             HorizontalLayout optionLayout = new HorizontalLayout();
             final CheckBox checkBox = new CheckBox(ViewMessages.getMessage("IUI-000033"), false);
             checkBox.setImmediate(true);
@@ -800,7 +805,9 @@ public class ServiceDescBasic extends Panel {
             checkBox.setDescription(ViewProperties.getCaption("description.stopService.withServerStop"));
             optionLayout.addComponent(checkBox);
 
-            //確認メッセージ
+            // 確認ダイアログの表示
+            String message = ViewMessages.getMessage("IUI-000052", new Object[] { selectedInstances.size(),
+                    component.getComponent().getComponentName() });
             DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message,
                     Buttons.OKCancel, optionLayout);
             dialog.setCallback(new DialogConfirm.Callback() {
@@ -810,27 +817,31 @@ public class ServiceDescBasic extends Panel {
                         return;
                     }
 
-                    ProcessService processService = BeanContext.getBean(ProcessService.class);
-                    Long farmNo = dto.getComponent().getFarmNo();
-                    Long componentNo = dto.getComponent().getComponentNo();
                     boolean stopInstance = (Boolean) checkBox.getValue();
-
-                    //オペレーションログ
-                    AutoApplication apl = (AutoApplication) getApplication();
-                    apl.doOpLog("SERVICE", "Stop Service", null, dto.getComponent().getComponentNo(), null,
-                            String.valueOf(stopInstance));
-
-                    //停止処理
-                    processService.stopComponents(farmNo, componentNo, instanceNos, stopInstance);
-
-                    //画面のリフレッシュ
-                    refresh(right);
+                    stop(selectedInstances, stopInstance);
                 }
             });
             getApplication().getMainWindow().addWindow(dialog);
         }
 
-        public void refresh(Component component) {
+        private void stop(List<InstanceDto> instances, boolean stopInstance) {
+            // オペレーションログ
+            AutoApplication apl = (AutoApplication) getApplication();
+            apl.doOpLog("SERVICE", "Stop Service", null, component.getComponent().getComponentNo(), null,
+                    String.valueOf(stopInstance));
+
+            // 停止処理
+            List<Long> instanceNos = new ArrayList<Long>();
+            for (InstanceDto instance : instances) {
+                instanceNos.add(instance.getInstance().getInstanceNo());
+            }
+
+            ProcessService processService = BeanContext.getBean(ProcessService.class);
+            Long farmNo = component.getComponent().getFarmNo();
+            Long componentNo = component.getComponent().getComponentNo();
+            processService.stopComponents(farmNo, componentNo, instanceNos, stopInstance);
+
+            // 表示の更新
             sender.refreshTableOnly();
         }
 

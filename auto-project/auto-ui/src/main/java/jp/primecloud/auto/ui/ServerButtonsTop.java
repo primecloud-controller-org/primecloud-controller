@@ -89,13 +89,14 @@ public class ServerButtonsTop extends CssLayout {
         playButton.addStyleName("right");
         addComponent(playButton);
 
-        hide();
+        initialize();
     }
 
-    void hide() {
+    void initialize() {
         stopButton.setEnabled(true);
         playButton.setEnabled(true);
-        //オペレート権限がなければ非活性
+
+        // 権限がなければボタンを無効にする
         UserAuthDto auth = ViewContext.getAuthority();
         if (!auth.isServerOperate()) {
             stopButton.setEnabled(false);

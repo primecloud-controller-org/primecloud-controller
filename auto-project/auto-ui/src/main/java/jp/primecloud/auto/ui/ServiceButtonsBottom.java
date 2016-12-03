@@ -19,11 +19,17 @@
 package jp.primecloud.auto.ui;
 
 import jp.primecloud.auto.common.status.ComponentInstanceStatus;
+import jp.primecloud.auto.common.status.ComponentStatus;
+import jp.primecloud.auto.service.ComponentService;
 import jp.primecloud.auto.service.dto.ComponentDto;
 import jp.primecloud.auto.service.dto.ComponentInstanceDto;
 import jp.primecloud.auto.service.dto.UserAuthDto;
+import jp.primecloud.auto.ui.DialogConfirm.Buttons;
+import jp.primecloud.auto.ui.DialogConfirm.Result;
+import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.ViewContext;
+import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
 
 import com.vaadin.ui.Button;
@@ -44,10 +50,12 @@ public class ServiceButtonsBottom extends CssLayout {
 
     private Button deleteButton;
 
-    ServiceButtonsBottom(final MainView sender) {
+    public ServiceButtonsBottom(MainView sender) {
         this.sender = sender;
+    }
 
-        //テーブル下ボタンの配置
+    @Override
+    public void attach() {
         setWidth("100%");
         setMargin(true);
         addStyleName("service-buttons");
@@ -63,6 +71,13 @@ public class ServiceButtonsBottom extends CssLayout {
                 addButtonClick(event);
             }
         });
+        addComponent(addButton);
+
+        // スペースを入れる
+        Label spacer = new Label(" ", Label.CONTENT_XHTML);
+        spacer.setWidth("30px");
+        spacer.addStyleName("left");
+        addComponent(spacer);
 
         // Editボタン
         editButton = new Button(ViewProperties.getCaption("button.editService"));
@@ -73,9 +88,10 @@ public class ServiceButtonsBottom extends CssLayout {
         editButton.addListener(new Button.ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
-                sender.servicePanel.serviceTable.editButtonClick(event);
+                editButtonClick(event);
             }
         });
+        addComponent(editButton);
 
         // Deleteボタン
         deleteButton = new Button(ViewProperties.getCaption("button.deleteService"));
@@ -86,101 +102,152 @@ public class ServiceButtonsBottom extends CssLayout {
         deleteButton.addListener(new Button.ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
-                sender.servicePanel.serviceTable.delButtonClick(event);
+                deleteButtonClick(event);
             }
         });
-
-        //ボタンの無効化
-        hide();
-
-        Label spacer = new Label(" ", Label.CONTENT_XHTML);
-        spacer.setWidth("30px");
-        spacer.addStyleName("left");
-        addComponent(addButton);
-        addComponent(spacer);
-        addComponent(editButton);
         addComponent(deleteButton);
+
+        initialize();
     }
 
-    public void addButtonClick(ClickEvent event) {
-        final ComponentDto dto = (ComponentDto) sender.servicePanel.serviceTable.getValue();
-        WinServiceAdd winServiceAdd = new WinServiceAdd();
-        winServiceAdd.addListener(new Window.CloseListener() {
-            @Override
-            public void windowClose(CloseEvent e) {
-                sender.refreshTable();
-
-                // 選択されていたサービスを選択し直す
-                if (dto != null) {
-                    for (Object itemId : sender.servicePanel.serviceTable.getItemIds()) {
-                        ComponentDto dto2 = (ComponentDto) itemId;
-                        if (dto.getComponent().getComponentNo().equals(dto2.getComponent().getComponentNo())) {
-                            sender.servicePanel.serviceTable.select(itemId);
-                            break;
-                        }
-                    }
-                }
-            }
-        });
-        getWindow().addWindow(winServiceAdd);
-    }
-
-    void hide() {
-        //ボタンの無効化
+    public void initialize() {
         addButton.setEnabled(true);
         editButton.setEnabled(false);
         deleteButton.setEnabled(false);
 
-        //作成権限がなければ非活性
+        // 権限がなければNewボタンを無効にする
         UserAuthDto auth = ViewContext.getAuthority();
         if (!auth.isServiceMake()) {
             addButton.setEnabled(false);
         }
     }
 
-    void refresh(ComponentDto dto) {
-        if (dto != null) {
-            addButton.setEnabled(true);
-            //ステータスによってボタンの有効無効を切り替える
-            String status = dto.getStatus();
-            if ("STOPPED".equals(status)) {
-                editButton.setEnabled(true);
-                deleteButton.setEnabled(true);
-            } else if ("RUNNING".equals(status)) {
-                editButton.setEnabled(true);
-                deleteButton.setEnabled(false);
-            } else if ("WARNING".equals(status)) {
-                boolean processing = false;
-                for (ComponentInstanceDto componentInstance : dto.getComponentInstances()) {
-                    ComponentInstanceStatus s = ComponentInstanceStatus.fromStatus(componentInstance
-                            .getComponentInstance().getStatus());
-                    if (s != ComponentInstanceStatus.RUNNING && s != ComponentInstanceStatus.WARNING
-                            && s != ComponentInstanceStatus.STOPPED) {
-                        processing = true;
-                        break;
-                    }
+    public void refresh(ComponentDto dto) {
+        // ステータスによってボタンの活性状態を切り替える
+        ComponentStatus status = ComponentStatus.fromStatus(dto.getStatus());
+
+        // Editボタン
+        if (status == ComponentStatus.STOPPED || status == ComponentStatus.RUNNING) {
+            editButton.setEnabled(true);
+        } else if (status == ComponentStatus.WARNING) {
+            // サービスを設定中のサーバがなければ有効にする
+            boolean processing = false;
+            for (ComponentInstanceDto componentInstance : dto.getComponentInstances()) {
+                ComponentInstanceStatus status2 = ComponentInstanceStatus.fromStatus(componentInstance
+                        .getComponentInstance().getStatus());
+                if (status2 != ComponentInstanceStatus.RUNNING && status2 != ComponentInstanceStatus.WARNING
+                        && status2 != ComponentInstanceStatus.STOPPED) {
+                    processing = true;
+                    break;
                 }
-                editButton.setEnabled(!processing);
-                deleteButton.setEnabled(false);
-            } else {
-                editButton.setEnabled(false);
-                deleteButton.setEnabled(false);
             }
-
-            //権限に応じて操作可能なボタンを制御する
-            UserAuthDto auth = ViewContext.getAuthority();
-            if (!auth.isServiceMake()) {
-                addButton.setEnabled(false);
-                editButton.setEnabled(false);
-            }
-            if (!auth.isServiceDelete()) {
-                deleteButton.setEnabled(false);
-            }
-
+            editButton.setEnabled(!processing);
         } else {
-            //ボタンの無効化・非表示
-            hide();
+            editButton.setEnabled(false);
         }
+
+        // Deleteボタン
+        if (status == ComponentStatus.STOPPED) {
+            deleteButton.setEnabled(true);
+        } else {
+            deleteButton.setEnabled(false);
+        }
+
+        // 権限がなければボタンを無効にする
+        UserAuthDto auth = ViewContext.getAuthority();
+        if (!auth.isServiceMake()) {
+            editButton.setEnabled(false);
+        }
+        if (!auth.isServiceDelete()) {
+            deleteButton.setEnabled(false);
+        }
+    }
+
+    private void refreshTable() {
+        // 選択されているサービスを保持する
+        Long selectedComponentNo = null;
+        if (sender.servicePanel.serviceTable.getValue() != null) {
+            ComponentDto dto = (ComponentDto) sender.servicePanel.serviceTable.getValue();
+            selectedComponentNo = dto.getComponent().getComponentNo();
+        }
+        int index = sender.servicePanel.serviceTable.getCurrentPageFirstItemIndex();
+
+        // 表示を更新
+        sender.refreshTable();
+
+        // 選択されていたサービスを選択し直す
+        if (selectedComponentNo != null) {
+            for (Object itemId : sender.servicePanel.serviceTable.getItemIds()) {
+                ComponentDto dto = (ComponentDto) itemId;
+                if (selectedComponentNo.equals(dto.getComponent().getComponentNo())) {
+                    sender.servicePanel.serviceTable.select(itemId);
+                    sender.servicePanel.serviceTable.setCurrentPageFirstItemIndex(index);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void addButtonClick(ClickEvent event) {
+        WinServiceAdd winServiceAdd = new WinServiceAdd();
+        winServiceAdd.addListener(new Window.CloseListener() {
+            @Override
+            public void windowClose(CloseEvent e) {
+                refreshTable();
+            }
+        });
+
+        getWindow().addWindow(winServiceAdd);
+    }
+
+    private void editButtonClick(Button.ClickEvent event) {
+        ComponentDto dto = (ComponentDto) sender.servicePanel.serviceTable.getValue();
+
+        WinServiceEdit winServiceEdit = new WinServiceEdit(dto.getComponent().getComponentNo());
+        winServiceEdit.addListener(new Window.CloseListener() {
+            @Override
+            public void windowClose(CloseEvent e) {
+                refreshTable();
+            }
+        });
+
+        getWindow().addWindow(winServiceEdit);
+    }
+
+    private void deleteButtonClick(Button.ClickEvent event) {
+        final ComponentDto dto = (ComponentDto) sender.servicePanel.serviceTable.getValue();
+
+        // 確認ダイアログを表示
+        String message = ViewMessages.getMessage("IUI-000018", dto.getComponent().getComponentName());
+        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message, Buttons.OKCancel);
+        dialog.setCallback(new DialogConfirm.Callback() {
+            @Override
+            public void onDialogResult(Result result) {
+                if (result != Result.OK) {
+                    return;
+                }
+
+                delete(dto.getComponent().getComponentNo());
+            }
+        });
+
+        getApplication().getMainWindow().addWindow(dialog);
+    }
+
+    private void delete(Long componentNo) {
+        // オペレーションログ
+        AutoApplication apl = (AutoApplication) getApplication();
+        apl.doOpLog("SERVICE", "Delete Service", null, componentNo, null, null);
+
+        // サービスを削除
+        ComponentService componentService = BeanContext.getBean(ComponentService.class);
+        componentService.deleteComponent(componentNo);
+
+        // サービスの選択を解除
+        sender.servicePanel.serviceTable.select(null);
+
+        // 表示を更新
+        refreshTable();
     }
 
 }

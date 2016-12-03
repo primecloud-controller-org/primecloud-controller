@@ -182,8 +182,6 @@ public class LoadBalancerTable extends Table {
         setCellStyleGenerator(new StandardCellStyleGenerator());
 
         setColumnExpandRatio("hostName", 100);
-        addListener(Table.ValueChangeEvent.class, sender, "tableRowSelected");
-
     }
 
     public void refreshData() {
@@ -191,7 +189,7 @@ public class LoadBalancerTable extends Table {
     }
 
     public void refreshDesc() {
-        sender.refreshDesc(this);
+        sender.loadBalancerPanel.refreshDesc();
     }
 
 }

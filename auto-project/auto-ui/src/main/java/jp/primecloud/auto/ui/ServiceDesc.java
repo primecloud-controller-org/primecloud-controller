@@ -18,12 +18,17 @@
  */
 package jp.primecloud.auto.ui;
 
+import java.util.Collection;
+
+import jp.primecloud.auto.service.dto.ComponentDto;
+import jp.primecloud.auto.service.dto.InstanceDto;
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.ViewProperties;
 
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TabSheet.SelectedTabChangeEvent;
+import com.vaadin.ui.TabSheet.SelectedTabChangeListener;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
@@ -38,15 +43,18 @@ public class ServiceDesc extends Panel {
 
     private MainView sender;
 
-    TabSheet tabDesc = new TabSheet();
+    private TabSheet tab;
 
-    ServiceDescBasic serviceDescBasic;
+    private ServiceDescBasic serviceDescBasic;
 
-    ServiceDescDetail serviceDescDetail;
+    private ServiceDescDetail serviceDescDetail;
 
     public ServiceDesc(MainView sender) {
         this.sender = sender;
+    }
 
+    @Override
+    public void attach() {
         setWidth("100%");
         setHeight("100%");
         setCaption(ViewProperties.getCaption("panel.serviceDesc"));
@@ -59,25 +67,47 @@ public class ServiceDesc extends Panel {
         layout.setMargin(false);
         layout.setSpacing(false);
         layout.addStyleName("service-desc-layout");
-        tabDesc.addStyleName(Reindeer.TABSHEET_BORDERLESS);
-        tabDesc.setWidth("100%");
-        tabDesc.setHeight("100%");
+
+        tab = new TabSheet();
+        tab.addStyleName(Reindeer.TABSHEET_BORDERLESS);
+        tab.setWidth("100%");
+        tab.setHeight("100%");
+        addComponent(tab);
+
+        // 基本情報タブ
         serviceDescBasic = new ServiceDescBasic(sender);
-        tabDesc.addTab(serviceDescBasic, ViewProperties.getCaption("tab.serviceDescBasic"), Icons.BASIC.resource());
+        tab.addTab(serviceDescBasic, ViewProperties.getCaption("tab.serviceDescBasic"), Icons.BASIC.resource());
+
+        // 詳細情報タブ
         serviceDescDetail = new ServiceDescDetail();
-        tabDesc.addTab(serviceDescDetail, ViewProperties.getCaption("tab.serviceDescDetail"), Icons.DETAIL.resource());
-        //タブ用リスナー
-        tabDesc.addListener(TabSheet.SelectedTabChangeEvent.class, this, "selectedTabChange");
-        addComponent(tabDesc);
+        tab.addTab(serviceDescDetail, ViewProperties.getCaption("tab.serviceDescDetail"), Icons.DETAIL.resource());
+
+        tab.addListener(new SelectedTabChangeListener() {
+            @Override
+            public void selectedTabChange(SelectedTabChangeEvent event) {
+                ServiceDesc.this.selectedTabChange(event);
+            }
+        });
+    }
+
+    public void initialize() {
+        serviceDescBasic.initialize();
+        serviceDescDetail.initialize();
+    }
+
+    @SuppressWarnings("unchecked")
+    public void refresh(ComponentDto dto, boolean clearCheckBox) {
+        if (tab.getSelectedTab() == serviceDescBasic) {
+            serviceDescBasic.show(dto, clearCheckBox);
+        } else if (tab.getSelectedTab() == serviceDescDetail) {
+            Collection<InstanceDto> instanceDtos = (Collection<InstanceDto>) sender.serverPanel.serverTable
+                    .getItemIds();
+            serviceDescDetail.show(dto, instanceDtos);
+        }
     }
 
     public void selectedTabChange(SelectedTabChangeEvent event) {
-        sender.refreshDesc(sender.servicePanel.serviceTable);
-    }
-
-    public void initializeData() {
-        serviceDescBasic.initializeData();
-        serviceDescDetail.initializeData();
+        sender.servicePanel.refreshDesc();
     }
 
 }

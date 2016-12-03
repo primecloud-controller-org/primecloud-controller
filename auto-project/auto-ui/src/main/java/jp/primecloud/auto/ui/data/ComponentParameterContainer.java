@@ -50,27 +50,15 @@ import com.vaadin.data.util.BeanItemContainer;
 @SuppressWarnings("serial")
 public class ComponentParameterContainer extends BeanItemContainer<ComponentParameter> implements Serializable {
 
-    /**
-     * Natural property order for Farm bean. Used in tables and forms.
-     */
-    public static final Object[] NATURAL_COL_ORDER = new Object[] { "kind", "name", "value" };
-
-    /**
-     * "Human readable" captions for properties in same order as in
-     * NATURAL_COL_ORDER.
-     */
-    public static final String[] COL_HEADERS_ENGLISH = new String[] { "kind", "name", "value" };
-
-    public ComponentParameterContainer(ComponentDto componentDto, Collection<InstanceDto> instanceDtos) {
+    public ComponentParameterContainer(ComponentDto component, Collection<InstanceDto> instances) {
         super(ComponentParameter.class);
 
-        ComponentType componentType = componentDto.getComponentType();
-
+        ComponentType componentType = component.getComponentType();
         List<ComponentParameter> parameters = new ArrayList<ComponentParameter>();
 
         // ディスク
         String diskSize = null;
-        for (ComponentConfig config : componentDto.getComponentConfigs()) {
+        for (ComponentConfig config : component.getComponentConfigs()) {
             if (ComponentConstants.CONFIG_NAME_DISK_SIZE.equals(config.getConfigName())) {
                 diskSize = config.getConfigValue();
             }
@@ -100,7 +88,7 @@ public class ComponentParameterContainer extends BeanItemContainer<ComponentPara
         if (MySQLConstants.COMPONENT_TYPE_NAME.equals(componentType.getComponentTypeName())) {
             // Master
             Long masterInstanceNo = null;
-            for (InstanceConfig config : componentDto.getInstanceConfigs()) {
+            for (InstanceConfig config : component.getInstanceConfigs()) {
                 if (MySQLConstants.CONFIG_NAME_MASTER_INSTANCE_NO.equals(config.getConfigName())) {
                     if (StringUtils.isEmpty(config.getConfigValue())) {
                         masterInstanceNo = config.getInstanceNo();
@@ -110,7 +98,7 @@ public class ComponentParameterContainer extends BeanItemContainer<ComponentPara
             }
             InstanceDto masterInstance = null;
             if (masterInstanceNo != null) {
-                for (InstanceDto instance : instanceDtos) {
+                for (InstanceDto instance : instances) {
                     if (masterInstanceNo.equals(instance.getInstance().getInstanceNo())) {
                         masterInstance = instance;
                         break;
@@ -124,7 +112,7 @@ public class ComponentParameterContainer extends BeanItemContainer<ComponentPara
 
             // phpMyAdmin
             boolean phpMyAdmin = false;
-            for (ComponentConfig config : componentDto.getComponentConfigs()) {
+            for (ComponentConfig config : component.getComponentConfigs()) {
                 if (MySQLConstants.CONFIG_NAME_PHP_MY_ADMIN.equals(config.getConfigName())) {
                     phpMyAdmin = BooleanUtils.toBoolean(config.getConfigValue());
                 }

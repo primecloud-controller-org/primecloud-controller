@@ -18,43 +18,25 @@
  */
 package jp.primecloud.auto.ui;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
-import jp.primecloud.auto.common.status.ComponentInstanceStatus;
 import jp.primecloud.auto.entity.crud.ComponentType;
-import jp.primecloud.auto.service.ComponentService;
-import jp.primecloud.auto.service.ProcessService;
 import jp.primecloud.auto.service.dto.ComponentDto;
 import jp.primecloud.auto.service.dto.ComponentInstanceDto;
 import jp.primecloud.auto.service.dto.LoadBalancerDto;
-import jp.primecloud.auto.ui.DialogConfirm.Buttons;
-import jp.primecloud.auto.ui.DialogConfirm.Result;
 import jp.primecloud.auto.ui.data.ComponentDtoContainer;
-import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.IconUtils;
 import jp.primecloud.auto.ui.util.Icons;
-import jp.primecloud.auto.ui.util.ViewContext;
-import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
-import com.vaadin.data.Container;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
-import com.vaadin.ui.Window;
-import com.vaadin.ui.Window.CloseEvent;
 
 /**
  * <p>
@@ -74,16 +56,15 @@ public class ServiceTable extends Table {
             ViewProperties.getCaption("field.serverSum"), ViewProperties.getCaption("field.serviceStatus"),
             ViewProperties.getCaption("field.serviceIpPort"), ViewProperties.getCaption("field.serviceDetail") };
 
-    private Map<Long, List<Button>> map = new HashMap<Long, List<Button>>();
-
-    public ServiceTable(String caption, Container container, final MainView sender) {
-        super(caption, container);
+    public ServiceTable(MainView sender) {
         this.sender = sender;
-        setVisibleColumns(new Object[] {});
+    }
 
+    @Override
+    public void attach() {
+        setVisibleColumns(new Object[] {});
         setWidth("100%");
         setHeight("100%");
-
         setPageLength(0);
         setSortDisabled(true);
         setColumnReorderingAllowed(false);
@@ -156,7 +137,7 @@ public class ServiceTable extends Table {
                 for (LoadBalancerDto lbDto : (Collection<LoadBalancerDto>) sender.loadBalancerPanel.loadBalancerTable
                         .getItemIds()) {
                     if (dto.getComponent().getComponentNo().equals(lbDto.getLoadBalancer().getComponentNo())) {
-                        button = getLoadBalancerButton(lbDto);
+                        button = createLoadBalancerButton(lbDto);
                         break;
                     }
                 }
@@ -190,234 +171,26 @@ public class ServiceTable extends Table {
         setCellStyleGenerator(new StandardCellStyleGenerator());
 
         setColumnExpandRatio("serviceDetail", 100);
-
-        addListener(Table.ValueChangeEvent.class, sender, "tableRowSelected");
     }
 
-    Button getLoadBalancerButton(LoadBalancerDto lbDto) {
+    private Button createLoadBalancerButton(final LoadBalancerDto loadBalancerDto) {
         Button button = new Button();
-        button.setCaption(lbDto.getLoadBalancer().getLoadBalancerName());
+        button.setCaption(loadBalancerDto.getLoadBalancer().getLoadBalancerName());
         button.setIcon(Icons.LOADBALANCER_TAB.resource());
-        button.setData(lbDto);
+        button.setData(loadBalancerDto);
         button.addStyleName("borderless");
         button.addStyleName("loadbalancer-button");
         button.addListener(new Button.ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
-                loadBalancerButtonClick(event);
+                // ロードバランサを選択
+                sender.loadBalancerPanel.loadBalancerTable.select(loadBalancerDto);
+
+                // ロードバランサタブに移動
+                sender.tab.setSelectedTab(sender.loadBalancerPanel);
             }
         });
         return button;
-    }
-
-    void loadBalancerButtonClick(ClickEvent event) {
-        Button button = event.getButton();
-        LoadBalancerDto dto = (LoadBalancerDto) button.getData();
-
-        //該当ロードバランサーを選択
-        sender.loadBalancerPanel.loadBalancerTable.select(dto);
-        //ロードバランサーTabに移動
-        sender.tab.setSelectedTab(sender.loadBalancerPanel);
-    }
-
-    public void playButtonClick(Button.ClickEvent event) {
-        final ComponentDto dto = (ComponentDto) this.getValue();
-        final int index = this.getCurrentPageFirstItemIndex();
-
-        String actionName = event.getButton().getDescription();
-        String message = ViewMessages.getMessage("IUI-000016", new Object[] { dto.getComponent().getComponentName(),
-                actionName });
-        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message, Buttons.OKCancel);
-        dialog.setCallback(new DialogConfirm.Callback() {
-            @Override
-            public void onDialogResult(Result result) {
-                if (result != Result.OK) {
-                    return;
-                }
-                ProcessService processService = BeanContext.getBean(ProcessService.class);
-                Long farmNo = ViewContext.getFarmNo();
-                List<Long> list = new ArrayList<Long>();
-                list.add(dto.getComponent().getComponentNo());
-                processService.startComponents(farmNo, list);
-                sender.refreshTable();
-
-                // 選択されていたサービスを選択し直す
-                for (Object itemId : getItemIds()) {
-                    ComponentDto dto2 = (ComponentDto) itemId;
-                    if (dto.getComponent().getComponentNo().equals(dto2.getComponent().getComponentNo())) {
-                        select(itemId);
-                        setCurrentPageFirstItemIndex(index);
-                        setButtonStatus(dto2);
-                        break;
-                    }
-                }
-            }
-        });
-        getApplication().getMainWindow().addWindow(dialog);
-    }
-
-    public void stopButtonClick(Button.ClickEvent event) {
-        final ComponentDto dto = (ComponentDto) this.getValue();
-        final int index = this.getCurrentPageFirstItemIndex();
-
-        HorizontalLayout optionLayout = new HorizontalLayout();
-        final CheckBox checkBox = new CheckBox(ViewMessages.getMessage("IUI-000033"), false);
-        checkBox.setImmediate(true);
-        optionLayout.addComponent(checkBox);
-
-        String message = ViewMessages.getMessage("IUI-000017", dto.getComponent().getComponentName());
-        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message,
-                Buttons.OKCancel, optionLayout);
-        dialog.setCallback(new DialogConfirm.Callback() {
-            @Override
-            public void onDialogResult(Result result) {
-                if (result != Result.OK) {
-                    return;
-                }
-                ProcessService processService = BeanContext.getBean(ProcessService.class);
-                Long farmNo = ViewContext.getFarmNo();
-                List<Long> list = new ArrayList<Long>();
-                list.add(dto.getComponent().getComponentNo());
-                boolean stopInstance = (Boolean) checkBox.getValue();
-                processService.stopComponents(farmNo, list, stopInstance);
-                sender.refreshTable();
-
-                // 選択されていたサービスを選択し直す
-                for (Object itemId : getItemIds()) {
-                    ComponentDto dto2 = (ComponentDto) itemId;
-                    if (dto.getComponent().getComponentNo().equals(dto2.getComponent().getComponentNo())) {
-                        select(itemId);
-                        setCurrentPageFirstItemIndex(index);
-                        setButtonStatus(dto2);
-                        break;
-                    }
-                }
-            }
-        });
-        getApplication().getMainWindow().addWindow(dialog);
-    }
-
-    public void editButtonClick(Button.ClickEvent event) {
-        final ComponentDto dto = (ComponentDto) this.getValue();
-        final int index = this.getCurrentPageFirstItemIndex();
-
-        WinServiceEdit winServiceEdit = new WinServiceEdit(dto.getComponent().getComponentNo());
-        winServiceEdit.addListener(new Window.CloseListener() {
-            @Override
-            public void windowClose(CloseEvent e) {
-                sender.refreshTable();
-
-                // 選択されていたサービスを選択し直す
-                for (Object itemId : getItemIds()) {
-                    ComponentDto dto2 = (ComponentDto) itemId;
-                    if (dto.getComponent().getComponentNo().equals(dto2.getComponent().getComponentNo())) {
-                        select(itemId);
-                        setCurrentPageFirstItemIndex(index);
-                        setButtonStatus(dto2);
-                        break;
-                    }
-                }
-            }
-        });
-        getWindow().addWindow(winServiceEdit);
-    }
-
-    public void delButtonClick(Button.ClickEvent event) {
-        final ComponentDto dto = (ComponentDto) this.getValue();
-        final int index = this.getCurrentPageFirstItemIndex();
-
-        String message = ViewMessages.getMessage("IUI-000018", dto.getComponent().getComponentName());
-        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message, Buttons.OKCancel);
-        dialog.setCallback(new DialogConfirm.Callback() {
-            @Override
-            public void onDialogResult(Result result) {
-                if (result != Result.OK) {
-                    return;
-                }
-
-                //オペレーションログ
-                AutoApplication apl = (AutoApplication) getApplication();
-                apl.doOpLog("SERVICE", "Delete Service", null, dto.getComponent().getComponentNo(), null, null);
-
-                Long componentNo = dto.getComponent().getComponentNo();
-                ComponentService componentService = BeanContext.getBean(ComponentService.class);
-                componentService.deleteComponent(componentNo);
-                select(null);
-                sender.refreshTable();
-                setCurrentPageFirstItemIndex(index);
-            }
-        });
-        getApplication().getMainWindow().addWindow(dialog);
-    }
-
-    public void setButtonStatus(ComponentDto dto) {
-        //サービスの状態に合わせて、ボタンの状態を変更
-        // サービス起動状態： START,EDIT,STOP ボタン有効
-        // サービス停止状態： START,EDIT,DELETE ボタン有効
-        // サービス起動中：何も押せない
-        // WARNING；EDIT,STOP ボタン有効
-
-        jp.primecloud.auto.entity.crud.Component component = dto.getComponent();
-        for (Entry<Long, List<Button>> entry : map.entrySet()) {
-            Long key = entry.getKey();
-            if (key.equals(component.getComponentNo())) {
-                for (Button button : entry.getValue()) {
-                    if ("".equals(dto.getStatus()) || "STOPPED".equals(dto.getStatus())) {
-                        if (("STOP".equals(button.getCaption()))) {
-                            button.setEnabled(false);
-                        } else if (("START".equals(button.getCaption()))) {
-                            button.setIcon(Icons.PLAY.resource());
-                            button.setDescription(ViewProperties.getCaption("description.startService"));
-                            button.setEnabled(true);
-                        } else {
-                            button.setEnabled(true);
-                        }
-                    } else if ("RUNNING".equals(dto.getStatus())) {
-                        if (("STOP".equals(button.getCaption()))) {
-                            button.setEnabled(true);
-                        } else if (("START".equals(button.getCaption()))) {
-                            button.setIcon(Icons.RELOAD.resource());
-                            button.setDescription(ViewProperties.getCaption("description.reloadService"));
-                            button.setEnabled(true);
-                        } else if (("EDIT".equals(button.getCaption()))) {
-                            button.setEnabled(true);
-                        } else {
-                            button.setEnabled(false);
-                        }
-                    } else if ("WARNING".equals(dto.getStatus())) {
-                        if (("STOP".equals(button.getCaption()))) {
-                            button.setEnabled(true);
-                        } else if ("START".equals(button.getCaption())) {
-                            button.setIcon(Icons.RELOAD.resource());
-                            button.setDescription(ViewProperties.getCaption("description.reloadService"));
-                            button.setEnabled(true);
-                        } else if ("EDIT".equals(button.getCaption())) {
-                            // 処理中のサーバがなければ有効、あれば無効にする
-                            boolean processing = false;
-                            for (ComponentInstanceDto componentInstance : dto.getComponentInstances()) {
-                                ComponentInstanceStatus status = ComponentInstanceStatus.fromStatus(componentInstance
-                                        .getComponentInstance().getStatus());
-                                if (status != ComponentInstanceStatus.RUNNING
-                                        && status != ComponentInstanceStatus.WARNING
-                                        && status != ComponentInstanceStatus.STOPPED) {
-                                    processing = true;
-                                    break;
-                                }
-                            }
-                            button.setEnabled(!processing);
-                        } else {
-                            button.setEnabled(false);
-                        }
-                    } else {
-                        button.setEnabled(false);
-                    }
-                }
-            } else {
-                for (Button button : entry.getValue()) {
-                    button.setEnabled(false);
-                }
-            }
-        }
     }
 
     public void refreshData() {
@@ -425,7 +198,7 @@ public class ServiceTable extends Table {
     }
 
     public void refreshDesc() {
-        sender.refreshDesc(this);
+        sender.servicePanel.refreshDesc();
     }
 
 }

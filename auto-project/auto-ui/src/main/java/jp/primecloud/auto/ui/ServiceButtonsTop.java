@@ -48,82 +48,82 @@ public class ServiceButtonsTop extends CssLayout {
 
     private MainView sender;
 
-    private Button playButton;
+    private Button startAllButton;
 
-    private Button stopButton;
+    private Button stopAllButton;
 
-    ServiceButtonsTop(MainView sender) {
+    public ServiceButtonsTop(MainView sender) {
         this.sender = sender;
+    }
 
-        //テーブル下ボタンの配置
+    @Override
+    public void attach() {
         setWidth("100%");
         setMargin(false);
         addStyleName("service-buttons");
         addStyleName("service-table-label");
-        Label lservice = new Label(ViewProperties.getCaption("label.service"), Label.CONTENT_XHTML);
-        lservice.setWidth("200px");
-        addComponent(lservice);
 
-        stopButton = new Button(ViewProperties.getCaption("button.stopAllServices"));
-        stopButton.setDescription(ViewProperties.getCaption("description.stopAllServices"));
-        stopButton.setIcon(Icons.STOPMINI.resource());
-        stopButton.addListener(new ClickListener() {
+        Label label = new Label(ViewProperties.getCaption("label.service"), Label.CONTENT_XHTML);
+        label.setWidth("200px");
+        addComponent(label);
+
+        // StopAllボタン
+        stopAllButton = new Button(ViewProperties.getCaption("button.stopAllServices"));
+        stopAllButton.setDescription(ViewProperties.getCaption("description.stopAllServices"));
+        stopAllButton.setIcon(Icons.STOPMINI.resource());
+        stopAllButton.addListener(new ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
-                stopButtonClick(event);
+                stopAllButtonClick(event);
             }
         });
-        stopButton.addStyleName("right");
-        addComponent(stopButton);
+        stopAllButton.addStyleName("right");
+        addComponent(stopAllButton);
 
-        playButton = new Button(ViewProperties.getCaption("button.startAllServices"));
-        playButton.setDescription(ViewProperties.getCaption("description.startAllServices"));
-        playButton.setIcon(Icons.PLAYMINI.resource());
-        playButton.addListener(new ClickListener() {
+        // StartAllボタン
+        startAllButton = new Button(ViewProperties.getCaption("button.startAllServices"));
+        startAllButton.setDescription(ViewProperties.getCaption("description.startAllServices"));
+        startAllButton.setIcon(Icons.PLAYMINI.resource());
+        startAllButton.addListener(new ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
-                playButtonClick(event);
+                startAllButtonClick(event);
             }
         });
-        playButton.addStyleName("right");
-        addComponent(playButton);
+        startAllButton.addStyleName("right");
+        addComponent(startAllButton);
 
-        hide();
+        initialize();
     }
 
-    void hide() {
-        stopButton.setEnabled(true);
-        playButton.setEnabled(true);
-        //オペレート権限がなければ非活性
+    public void initialize() {
+        stopAllButton.setEnabled(true);
+        startAllButton.setEnabled(true);
+
+        // 権限がなければボタンを無効にする
         UserAuthDto auth = ViewContext.getAuthority();
         if (!auth.isServiceOperate()) {
-            stopButton.setEnabled(false);
-            playButton.setEnabled(false);
+            stopAllButton.setEnabled(false);
+            startAllButton.setEnabled(false);
         }
     }
 
-    public void playButtonClick(ClickEvent event) {
-        final ComponentDto dto = (ComponentDto) sender.servicePanel.serviceTable.getValue();
-
-        List<ComponentDto> componentDtos = new ArrayList<ComponentDto>();
+    private void startAllButtonClick(ClickEvent event) {
+        // 変更中のサービスが存在する場合は操作させない
         for (Object itemId : sender.servicePanel.serviceTable.getItemIds()) {
-            componentDtos.add((ComponentDto) itemId);
-        }
-
-        if (!componentDtos.isEmpty()) {
-            for (ComponentDto componentDto : componentDtos) {
-                if (componentDto.getStatus().equals(ComponentStatus.STARTING.toString())
-                        || componentDto.getStatus().equals(ComponentStatus.STOPPING.toString())
-                        || componentDto.getStatus().equals(ComponentStatus.CONFIGURING.toString())) {
-                    String message = ViewMessages.getMessage("IUI-000046",
-                            new Object[] { StringUtils.capitalize(componentDto.getStatus().toLowerCase()) });
-                    DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message);
-                    getApplication().getMainWindow().addWindow(dialog);
-                    return;
-                }
+            ComponentDto componentDto = (ComponentDto) itemId;
+            if (componentDto.getStatus().equals(ComponentStatus.STARTING.toString())
+                    || componentDto.getStatus().equals(ComponentStatus.STOPPING.toString())
+                    || componentDto.getStatus().equals(ComponentStatus.CONFIGURING.toString())) {
+                String message = ViewMessages.getMessage("IUI-000046",
+                        new Object[] { StringUtils.capitalize(componentDto.getStatus().toLowerCase()) });
+                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message);
+                getApplication().getMainWindow().addWindow(dialog);
+                return;
             }
         }
 
+        // 確認ダイアログを表示
         String message = ViewMessages.getMessage("IUI-000009");
         DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message,
                 Buttons.OKCancelConfirm);
@@ -134,43 +134,57 @@ public class ServiceButtonsTop extends CssLayout {
                     return;
                 }
 
-                ProcessService processService = BeanContext.getBean(ProcessService.class);
-                Long farmNo = ViewContext.getFarmNo();
-                List<Long> componentNos = new ArrayList<Long>();
-                for (Object itemId : sender.servicePanel.serviceTable.getItemIds()) {
-                    componentNos.add(((ComponentDto) itemId).getComponent().getComponentNo());
-                }
-
-                //オペレーションログ
-                AutoApplication apl = (AutoApplication) getApplication();
-                apl.doOpLog("SERVICE", "All Service Start", null, null, null, null);
-
-                processService.startComponents(farmNo, componentNos);
-                sender.refreshTable();
-
-                // 選択されていたサービスを選択し直す
-                if (dto != null) {
-                    for (Object itemId : sender.servicePanel.serviceTable.getItemIds()) {
-                        ComponentDto dto2 = (ComponentDto) itemId;
-                        if (dto.getComponent().getComponentNo().equals(dto2.getComponent().getComponentNo())) {
-                            sender.servicePanel.serviceTable.select(itemId);
-                            break;
-                        }
-                    }
-                }
+                startAll();
             }
         });
+
         getApplication().getMainWindow().addWindow(dialog);
     }
 
-    public void stopButtonClick(ClickEvent event) {
-        final ComponentDto dto = (ComponentDto) sender.servicePanel.serviceTable.getValue();
+    private void startAll() {
+        // 選択されているサービスを保持する
+        Long selectedComponentNo = null;
+        if (sender.servicePanel.serviceTable.getValue() != null) {
+            ComponentDto dto = (ComponentDto) sender.servicePanel.serviceTable.getValue();
+            selectedComponentNo = dto.getComponent().getComponentNo();
+        }
 
+        // オペレーションログ
+        AutoApplication apl = (AutoApplication) getApplication();
+        apl.doOpLog("SERVICE", "All Service Start", null, null, null, null);
+
+        // 全てのサービスを開始
+        List<Long> componentNos = new ArrayList<Long>();
+        for (Object itemId : sender.servicePanel.serviceTable.getItemIds()) {
+            componentNos.add(((ComponentDto) itemId).getComponent().getComponentNo());
+        }
+
+        ProcessService processService = BeanContext.getBean(ProcessService.class);
+        processService.startComponents(ViewContext.getFarmNo(), componentNos);
+
+        // 表示を更新
+        sender.refreshTable();
+
+        // 選択されていたサービスを選択し直す
+        if (selectedComponentNo != null) {
+            for (Object itemId : sender.servicePanel.serviceTable.getItemIds()) {
+                ComponentDto dto = (ComponentDto) itemId;
+                if (selectedComponentNo.equals(dto.getComponent().getComponentNo())) {
+                    sender.servicePanel.serviceTable.select(itemId);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void stopAllButtonClick(ClickEvent event) {
+        // ダイアログの表示オプション
         HorizontalLayout optionLayout = new HorizontalLayout();
         final CheckBox checkBox = new CheckBox(ViewMessages.getMessage("IUI-000033"), false);
         checkBox.setImmediate(true);
         optionLayout.addComponent(checkBox);
 
+        // 確認ダイアログを表示
         String message = ViewMessages.getMessage("IUI-000010");
         DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message,
                 Buttons.OKCancelConfirm, optionLayout);
@@ -180,34 +194,48 @@ public class ServiceButtonsTop extends CssLayout {
                 if (result != Result.OK) {
                     return;
                 }
-                ProcessService processService = BeanContext.getBean(ProcessService.class);
-                Long farmNo = ViewContext.getFarmNo();
-                List<Long> componentNos = new ArrayList<Long>();
-                for (Object itemId : sender.servicePanel.serviceTable.getItemIds()) {
-                    componentNos.add(((ComponentDto) itemId).getComponent().getComponentNo());
-                }
+
                 boolean stopInstance = (Boolean) checkBox.getValue();
-
-                //オペレーションログ
-                AutoApplication apl = (AutoApplication) getApplication();
-                apl.doOpLog("SERVICE", "All Service Stop", null, null, null, String.valueOf(stopInstance));
-
-                processService.stopComponents(farmNo, componentNos, stopInstance);
-                sender.refreshTable();
-
-                // 選択されていたサービスを選択し直す
-                if (dto != null) {
-                    for (Object itemId : sender.servicePanel.serviceTable.getItemIds()) {
-                        ComponentDto dto2 = (ComponentDto) itemId;
-                        if (dto.getComponent().getComponentNo().equals(dto2.getComponent().getComponentNo())) {
-                            sender.servicePanel.serviceTable.select(itemId);
-                            break;
-                        }
-                    }
-                }
+                stopAll(stopInstance);
             }
         });
         getApplication().getMainWindow().addWindow(dialog);
+    }
+
+    private void stopAll(boolean stopInstance) {
+        // 選択されているサービスを保持する
+        Long selectedComponentNo = null;
+        if (sender.servicePanel.serviceTable.getValue() != null) {
+            ComponentDto dto = (ComponentDto) sender.servicePanel.serviceTable.getValue();
+            selectedComponentNo = dto.getComponent().getComponentNo();
+        }
+
+        // オペレーションログ
+        AutoApplication apl = (AutoApplication) getApplication();
+        apl.doOpLog("SERVICE", "All Service Stop", null, null, null, String.valueOf(stopInstance));
+
+        // 全てのサービスを停止
+        List<Long> componentNos = new ArrayList<Long>();
+        for (Object itemId : sender.servicePanel.serviceTable.getItemIds()) {
+            componentNos.add(((ComponentDto) itemId).getComponent().getComponentNo());
+        }
+
+        ProcessService processService = BeanContext.getBean(ProcessService.class);
+        processService.stopComponents(ViewContext.getFarmNo(), componentNos, stopInstance);
+
+        // 表示を更新
+        sender.refreshTable();
+
+        // 選択されていたサービスを選択し直す
+        if (selectedComponentNo != null) {
+            for (Object itemId : sender.servicePanel.serviceTable.getItemIds()) {
+                ComponentDto dto = (ComponentDto) itemId;
+                if (selectedComponentNo.equals(dto.getComponent().getComponentNo())) {
+                    sender.servicePanel.serviceTable.select(itemId);
+                    break;
+                }
+            }
+        }
     }
 
 }

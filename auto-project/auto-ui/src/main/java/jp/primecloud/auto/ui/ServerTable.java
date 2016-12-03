@@ -220,7 +220,14 @@ public class ServerTable extends Table {
         setCellStyleGenerator(new StandardCellStyleGenerator());
 
         setColumnExpandRatio("fqdn", 100);
-        addListener(Table.ValueChangeEvent.class, sender, "tableRowSelected");
+    }
+
+    public void refreshData() {
+        ((InstanceDtoContainer) getContainerDataSource()).refresh2(this);
+    }
+
+    public void refreshDesc() {
+        sender.serverPanel.refreshDesc();
     }
 
     public void startMonitoringButtonClick(Button.ClickEvent event) {
@@ -536,14 +543,6 @@ public class ServerTable extends Table {
                 }
             }
         }
-    }
-
-    public void refreshData() {
-        ((InstanceDtoContainer) getContainerDataSource()).refresh2(this);
-    }
-
-    public void refreshDesc() {
-        sender.refreshDesc(this);
     }
 
 }

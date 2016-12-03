@@ -75,7 +75,7 @@ public class LoadBalancerDesc extends Panel {
     }
 
     public void selectedTabChange(SelectedTabChangeEvent event) {
-        sender.refreshDesc(sender.loadBalancerPanel.loadBalancerTable);
+        sender.loadBalancerPanel.refreshDesc();
     }
 
     public void initializeData() {

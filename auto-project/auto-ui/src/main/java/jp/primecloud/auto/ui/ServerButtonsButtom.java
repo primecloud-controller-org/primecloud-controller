@@ -153,7 +153,7 @@ public class ServerButtonsButtom extends CssLayout {
         });
 
         //ボタンの初期化
-        hide();
+        initialize();
 
         Label spacer = new Label(" ", Label.CONTENT_XHTML);
         spacer.setWidth("30px");
@@ -198,8 +198,7 @@ public class ServerButtonsButtom extends CssLayout {
         getWindow().addWindow(winServerAdd);
     }
 
-    void hide() {
-        //ボタンの初期化
+    void initialize() {
         addButton.setEnabled(true);
         editButton.setEnabled(false);
         deleteButton.setEnabled(false);
@@ -207,13 +206,14 @@ public class ServerButtonsButtom extends CssLayout {
         stopMonitoringButton.setEnabled(false);
         startButton.setEnabled(false);
         stopButton.setEnabled(false);
-        //作成権限がなければ非活性
+
+        // 権限がなければボタンを無効にする
         UserAuthDto auth = ViewContext.getAuthority();
         if (!auth.isServerMake()) {
             addButton.setEnabled(false);
         }
 
-        ////ReloadボタンをStartボタンに
+        // ReloadボタンをStartボタンに
         startButton.setCaption(ViewProperties.getCaption("button.startServer"));
         startButton.setDescription(ViewProperties.getCaption("description.startServer"));
     }
@@ -286,7 +286,7 @@ public class ServerButtonsButtom extends CssLayout {
 
         } else {
             //ボタンの無効化・非表示
-            hide();
+            initialize();
         }
     }
 

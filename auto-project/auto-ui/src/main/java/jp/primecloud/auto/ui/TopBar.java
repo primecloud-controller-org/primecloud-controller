@@ -18,14 +18,20 @@
  */
 package jp.primecloud.auto.ui;
 
+import java.util.List;
+
 import jp.primecloud.auto.common.log.LoggingUtils;
 import jp.primecloud.auto.config.Config;
+import jp.primecloud.auto.service.FarmService;
+import jp.primecloud.auto.service.dto.FarmDto;
 import jp.primecloud.auto.ui.DialogConfirm.Buttons;
 import jp.primecloud.auto.ui.DialogConfirm.Callback;
 import jp.primecloud.auto.ui.DialogConfirm.Result;
+import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.ContextUtils;
 import jp.primecloud.auto.ui.util.IconUtils;
 import jp.primecloud.auto.ui.util.Icons;
+import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
 
@@ -185,10 +191,30 @@ public class TopBar extends CssLayout {
         addComponent(accountButton);
     };
 
-    public void showUserName(String userName) {
-        // ログインユーザ名表示
-        accountButton.setCaption(userName);
+    public void loginSuccess() {
+        // ログインユーザ名を表示
+        accountButton.setCaption(ViewContext.getUsername());
         accountButton.setVisible(true);
+
+        // myCloud一件もない場合は、ダイアログを表示する
+        FarmService farmService = BeanContext.getBean(FarmService.class);
+        List<FarmDto> farms = farmService.getFarms(ViewContext.getUserNo(), ViewContext.getLoginUser());
+        if (farms.size() < 1) {
+            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"),
+                    ViewMessages.getMessage("IUI-000038"));
+            dialog.setCallback(new Callback() {
+                @Override
+                public void onDialogResult(Result result) {
+                    // myCloud管理画面を表示
+                    showCloudEditWindow();
+                }
+            });
+
+            getApplication().getMainWindow().addWindow(dialog);
+        } else {
+            // myCloud管理画面を表示
+            showCloudEditWindow();
+        }
     }
 
     public void showCloudEditWindow() {
@@ -196,7 +222,7 @@ public class TopBar extends CssLayout {
         window.addListener(new CloseListener() {
             @Override
             public void windowClose(CloseEvent e) {
-                sender.hide();
+                sender.initialize();
                 sender.refresh();
             }
         });

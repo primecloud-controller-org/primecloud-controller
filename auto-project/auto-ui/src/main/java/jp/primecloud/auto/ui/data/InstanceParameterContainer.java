@@ -54,17 +54,6 @@ import com.vaadin.data.util.BeanItemContainer;
 @SuppressWarnings("serial")
 public class InstanceParameterContainer extends BeanItemContainer<InstanceParameter> implements Serializable {
 
-    /**
-     * Natural property order for Farm bean. Used in tables and forms.
-     */
-    public static final Object[] NATURAL_COL_ORDER = new Object[] { "kind", "name", "value" };
-
-    /**
-     * "Human readable" captions for properties in same order as in
-     * NATURAL_COL_ORDER.
-     */
-    public static final String[] COL_HEADERS_ENGLISH = new String[] { "kind", "name", "value" };
-
     public InstanceParameterContainer(InstanceDto instanceDto) {
         super(InstanceParameter.class);
 

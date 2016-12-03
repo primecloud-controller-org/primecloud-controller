@@ -127,6 +127,8 @@ public class ServerDescBasic extends Panel {
 
         private final String COLUMN_HEIGHT = "28px";
 
+        private Object[] COLUMNS = { "componentName", "urlIcon", "status", "serviceDetail" };
+
         private String[] COLNAME = { ViewProperties.getCaption("field.serviceName"),
                 ViewProperties.getCaption("field.managementUrl"), ViewProperties.getCaption("field.serviceStatus"),
                 ViewProperties.getCaption("field.serviceDetail") };
@@ -289,7 +291,7 @@ public class ServerDescBasic extends Panel {
 
         public void refresh(ComponentDtoContainer dataSource) {
             setContainerDataSource(dataSource);
-            setVisibleColumns(ComponentDtoContainer.SERVER_DESC);
+            setVisibleColumns(COLUMNS);
             if (dataSource != null && dataSource.size() > 0) {
                 setColumnHeaders(COLNAME);
             }

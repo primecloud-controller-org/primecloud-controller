@@ -138,7 +138,7 @@ public class LoadBalancerTableOperation extends CssLayout {
         });
 
         //ボタンの初期化
-        hide();
+        initialize();
 
         Label spacer = new Label(" ", Label.CONTENT_XHTML);
         spacer.setWidth("30px");
@@ -152,15 +152,14 @@ public class LoadBalancerTableOperation extends CssLayout {
 
     }
 
-    void hide() {
-        //ボタンの初期化
+    void initialize() {
         addButton.setEnabled(true);
         editButton.setEnabled(false);
         deleteButton.setEnabled(false);
         startButton.setEnabled(false);
         stopButton.setEnabled(false);
 
-        //作成権限がなければ非活性
+        // 権限がなければボタンを無効にする
         UserAuthDto auth = ViewContext.getAuthority();
         if (!auth.isLbMake()) {
             addButton.setEnabled(false);
@@ -214,7 +213,7 @@ public class LoadBalancerTableOperation extends CssLayout {
 
         } else {
             //ボタンの無効化・非表示
-            hide();
+            initialize();
         }
     }
 
@@ -472,7 +471,7 @@ public class LoadBalancerTableOperation extends CssLayout {
                 stopButton.setEnabled(false);
             }
         } else {
-            hide();
+            initialize();
         }
     }
 

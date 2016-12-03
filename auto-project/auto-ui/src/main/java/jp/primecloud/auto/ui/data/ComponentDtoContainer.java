@@ -41,21 +41,6 @@ import com.vaadin.data.util.BeanItemContainer;
 @SuppressWarnings("serial")
 public class ComponentDtoContainer extends BeanItemContainer<ComponentDto> implements Serializable {
 
-    /**
-     * Natural property order for Farm bean. Used in tables and forms.
-     */
-    public static final Object[] NATURAL_COL_ORDER = new Object[] { "componentNo", "componentName", "status" };
-
-    /**
-     * "Human readable" captions for properties in same order as in
-     * NATURAL_COL_ORDER.
-     */
-    public static final String[] COL_HEADERS_ENGLISH = new String[] { "no", "name", "status" };
-
-    public static final Object[] SERVICE_DESC = new Object[] { "componentName", "serviceDetail", "status" };
-
-    public static final Object[] SERVER_DESC = new Object[] { "componentName", "urlIcon", "status", "serviceDetail" };
-
     public ComponentDtoContainer() {
         super(ComponentDto.class);
         refresh();
@@ -64,8 +49,8 @@ public class ComponentDtoContainer extends BeanItemContainer<ComponentDto> imple
     public ComponentDtoContainer(Collection<ComponentDto> components) {
         super(ComponentDto.class);
 
-        for (ComponentDto dto : components) {
-            addItem(dto);
+        for (ComponentDto component : components) {
+            addItem(component);
         }
     }
 
@@ -75,8 +60,8 @@ public class ComponentDtoContainer extends BeanItemContainer<ComponentDto> imple
         Long farmNo = ViewContext.getFarmNo();
         if (farmNo != null) {
             ComponentService componentService = BeanContext.getBean(ComponentService.class);
-            for (ComponentDto componentDto : componentService.getComponents(farmNo)) {
-                addItem(componentDto);
+            for (ComponentDto component : componentService.getComponents(farmNo)) {
+                addItem(component);
             }
         }
     }
@@ -88,37 +73,36 @@ public class ComponentDtoContainer extends BeanItemContainer<ComponentDto> imple
         if (farmNo != null) {
             ComponentService componentService = BeanContext.getBean(ComponentService.class);
             Object[] o = collection.toArray(); //現在のitem
-            List<ComponentDto> dtos = componentService.getComponents(farmNo); //取得したデータ
+            List<ComponentDto> components = componentService.getComponents(farmNo); //取得したデータ
             for (int i = 0; i < o.length; i++) {
                 ComponentDto oldComponent = (ComponentDto) o[i];
-                for (int j = 0; j < dtos.size(); j++) {
-                    ComponentDto newComponent = dtos.get(j);
+                for (int j = 0; j < components.size(); j++) {
+                    ComponentDto newComponent = components.get(j);
                     if (oldComponent.getComponent().getComponentNo()
                             .equals(newComponent.getComponent().getComponentNo())) {
-                        final BeanItem<ComponentDto> dto = this.getItem(o[i]);
-                        dto.getItemProperty("component").setValue(newComponent.getComponent());
-                        dto.getItemProperty("componentType").setValue(newComponent.getComponentType());
-                        dto.getItemProperty("componentConfigs").setValue(newComponent.getComponentConfigs());
-                        dto.getItemProperty("componentInstances").setValue(newComponent.getComponentInstances());
-                        dto.getItemProperty("instanceConfigs").setValue(newComponent.getInstanceConfigs());
-                        dto.getItemProperty("status").setValue(newComponent.getStatus());
-                        dtos.remove(newComponent);
+                        final BeanItem<ComponentDto> item = this.getItem(o[i]);
+                        item.getItemProperty("component").setValue(newComponent.getComponent());
+                        item.getItemProperty("componentType").setValue(newComponent.getComponentType());
+                        item.getItemProperty("componentConfigs").setValue(newComponent.getComponentConfigs());
+                        item.getItemProperty("componentInstances").setValue(newComponent.getComponentInstances());
+                        item.getItemProperty("instanceConfigs").setValue(newComponent.getInstanceConfigs());
+                        item.getItemProperty("status").setValue(newComponent.getStatus());
+                        components.remove(newComponent);
                         break;
                     } else {
-                        if (dtos.size() == j + 1) {
+                        if (components.size() == j + 1) {
                             removeItem(oldComponent);
                         }
                     }
                 }
             }
-            for (ComponentDto component : dtos) {
+            for (ComponentDto component : components) {
                 addItem(component);
             }
         }
 
         final Container.ItemSetChangeEvent event = new Container.ItemSetChangeEvent() {
-            private static final long serialVersionUID = -3002746333251784195L;
-
+            @Override
             public Container getContainer() {
                 return ComponentDtoContainer.this;
             }

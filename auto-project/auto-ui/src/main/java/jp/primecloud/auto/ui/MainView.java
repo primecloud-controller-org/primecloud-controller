@@ -23,49 +23,30 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import jp.primecloud.auto.common.status.ComponentInstanceStatus;
-import jp.primecloud.auto.common.status.InstanceStatus;
-import jp.primecloud.auto.common.status.LoadBalancerInstanceStatus;
-import jp.primecloud.auto.common.status.LoadBalancerListenerStatus;
-import jp.primecloud.auto.common.status.LoadBalancerStatus;
 import jp.primecloud.auto.config.Config;
-import jp.primecloud.auto.entity.crud.Farm;
-import jp.primecloud.auto.entity.crud.Instance;
-import jp.primecloud.auto.entity.crud.LoadBalancerInstance;
-import jp.primecloud.auto.entity.crud.LoadBalancerListener;
 import jp.primecloud.auto.service.FarmService;
 import jp.primecloud.auto.service.dto.ComponentDto;
 import jp.primecloud.auto.service.dto.ComponentInstanceDto;
 import jp.primecloud.auto.service.dto.FarmDto;
 import jp.primecloud.auto.service.dto.InstanceDto;
-import jp.primecloud.auto.service.dto.LoadBalancerDto;
-import jp.primecloud.auto.ui.DialogConfirm.Callback;
-import jp.primecloud.auto.ui.DialogConfirm.Result;
-import jp.primecloud.auto.ui.data.ComponentDtoContainer;
-import jp.primecloud.auto.ui.data.ComponentParameterContainer;
-import jp.primecloud.auto.ui.data.InstanceDtoContainer;
-import jp.primecloud.auto.ui.data.InstanceParameterContainer;
-import jp.primecloud.auto.ui.data.LoadBalancerDtoContainer;
 import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.ViewContext;
-import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
 
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.vaadin.henrik.refresher.Refresher;
 
-import com.vaadin.data.Property;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TabSheet.SelectedTabChangeEvent;
-import com.vaadin.ui.Table;
+import com.vaadin.ui.TabSheet.SelectedTabChangeListener;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
@@ -87,11 +68,11 @@ public class MainView extends VerticalLayout {
 
     private TopBar topBar;
 
-    private TextField lblMycloud;
+    private TextField myCloudField;
 
-    private Button reloadb;
+    private Button reloadButton;
 
-    TabSheet tab = new TabSheet();
+    TabSheet tab;
 
     ServicePanel servicePanel;
 
@@ -99,95 +80,102 @@ public class MainView extends VerticalLayout {
 
     LoadBalancerPanel loadBalancerPanel;
 
-    MainView() {
-        // サービスを有効にするかどうか
+    @Override
+    public void attach() {
+        // サービスを表示するかどうか
         String enableService = Config.getProperty("ui.enableService");
         this.enableService = (enableService == null) || (BooleanUtils.toBoolean(enableService));
 
-        // ロードバランサの有効/無効を判定
+        // ロードバランサを表示するかどうか
         String enableLoadBalancer = Config.getProperty("ui.enableLoadBalancer");
         this.enableLoadBalancer = (enableLoadBalancer == null) || (BooleanUtils.toBoolean(enableLoadBalancer));
 
-        setWidth("100%");
-        setHeight("100%");
+        setSizeFull();
         addStyleName("mycloud-panel");
-
         setMargin(false);
         setSpacing(false);
 
-        // 画面上部
+        // 画面上部のバー
         topBar = new TopBar(this);
         addComponent(topBar);
 
-        CssLayout hlay = new CssLayout();
-        hlay.setWidth("100%");
-        hlay.setHeight("28px");
-        hlay.addStyleName("mycloud-name");
-        hlay.setMargin(true);
+        // タブの上のバー
+        CssLayout topLayout = new CssLayout();
+        topLayout.setWidth("100%");
+        topLayout.setHeight("28px");
+        topLayout.addStyleName("mycloud-name");
+        topLayout.setMargin(true);
+        addComponent(topLayout);
 
-        //クラウド名ラベル
-        lblMycloud = new TextField();
-        lblMycloud.setWidth("80%");
-        lblMycloud.addStyleName("mycloud-label");
-        lblMycloud.setEnabled(false);
-        lblMycloud.setReadOnly(true);
-        hlay.addComponent(lblMycloud);
+        // myCloud名
+        myCloudField = new TextField();
+        myCloudField.setWidth("80%");
+        myCloudField.addStyleName("mycloud-label");
+        myCloudField.setEnabled(false);
+        myCloudField.setReadOnly(true);
+        topLayout.addComponent(myCloudField);
 
-        //リロードボタン
-        reloadb = new Button(ViewProperties.getCaption("button.reload"));
-        reloadb.setDescription(ViewProperties.getCaption("description.reload"));
-        reloadb.addStyleName("sync-button");
-        reloadb.addStyleName("borderless");
-        reloadb.setIcon(Icons.SYNC.resource());
-        reloadb.setEnabled(false);
-        reloadb.addListener(new Button.ClickListener() {
+        // Reloadボタン
+        reloadButton = new Button(ViewProperties.getCaption("button.reload"));
+        reloadButton.setDescription(ViewProperties.getCaption("description.reload"));
+        reloadButton.addStyleName("sync-button");
+        reloadButton.addStyleName("borderless");
+        reloadButton.setIcon(Icons.SYNC.resource());
+        reloadButton.setEnabled(false);
+        reloadButton.addListener(new Button.ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
-                // リロード前のタブを保持
-                Component c = tab.getSelectedTab();
                 refresh();
-                tab.setSelectedTab(c);
             }
         });
-        hlay.addComponent(reloadb);
-        addComponent(hlay);
+        topLayout.addComponent(reloadButton);
 
-        Panel panel = new Panel();
-        panel.setSizeFull();
+        // myCloud本体
+        VerticalLayout mainLayout = new VerticalLayout();
+        mainLayout.setSizeFull();
+        mainLayout.setSpacing(false);
+        mainLayout.setMargin(false);
 
-        // 最初はdisableに設定しておく
+        Panel mainPanel = new Panel(mainLayout);
+        mainPanel.setSizeFull();
+        mainPanel.addStyleName(Reindeer.PANEL_LIGHT);
+        addComponent(mainPanel);
+        setExpandRatio(mainPanel, 100);
+
+        // タブ
+        tab = new TabSheet();
         tab.setSizeFull();
         tab.setEnabled(false);
         tab.addStyleName(Reindeer.TABSHEET_BORDERLESS);
+        mainLayout.addComponent(tab);
+        mainLayout.setExpandRatio(tab, 100);
 
-        panel.addStyleName(Reindeer.PANEL_LIGHT);
-
-        VerticalLayout layout = (VerticalLayout) panel.getContent();
-        layout.setSizeFull();
-        layout.setSpacing(false);
-        layout.setMargin(false);
-
-        //サービス用タブ設定
+        // サービスタブ
         servicePanel = new ServicePanel(this);
         if (this.enableService) {
             tab.addTab(servicePanel, ViewProperties.getCaption("tab.service"), Icons.SERVICETAB.resource());
         }
 
-        //サーバ用タブ
+        // サーバタブ
         serverPanel = new ServerPanel(this);
         tab.addTab(serverPanel, ViewProperties.getCaption("tab.server"), Icons.SERVERTAB.resource());
 
-        //ロードバランサー用タブ
+        // ロードバランサタブ
         loadBalancerPanel = new LoadBalancerPanel(this);
         if (this.enableLoadBalancer) {
             tab.addTab(loadBalancerPanel, ViewProperties.getCaption("tab.loadbalancer"),
                     Icons.LOADBALANCER_TAB.resource());
         }
 
-        //タブ用リスナー
-        tab.addListener(TabSheet.SelectedTabChangeEvent.class, this, "selectedTabChange");
-        layout.addComponent(tab);
+        // 選択されたタブが変更された場合
+        tab.addListener(new SelectedTabChangeListener() {
+            @Override
+            public void selectedTabChange(SelectedTabChangeEvent event) {
+                MainView.this.selectedTabChange(event);
+            }
+        });
 
+        // 自動更新用のタイマー
         Refresher timer = new Refresher();
         timer.setRefreshInterval(15 * 1000); //更新間隔(msec)
         timer.addListener(new Refresher.RefreshListener() {
@@ -198,40 +186,15 @@ public class MainView extends VerticalLayout {
                 }
             }
         });
-        layout.addComponent(timer);
-        layout.setExpandRatio(tab, 100);
-
-        //myCloud本体の表示部分
-        addComponent(panel);
-        setExpandRatio(panel, 100);
+        mainLayout.addComponent(timer);
     }
 
     public void loginSuccess() {
-        // ログインユーザ名表示
-        topBar.showUserName(ViewContext.getUsername());
-
-        // myCloud一件もない場合は、ダイアログを表示する。
-        FarmService farmService = BeanContext.getBean(FarmService.class);
-        List<FarmDto> farms = farmService.getFarms(ViewContext.getUserNo(), ViewContext.getLoginUser());
-        if (farms.size() < 1) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"),
-                    ViewMessages.getMessage("IUI-000038"));
-            dialog.setCallback(new Callback() {
-                @Override
-                public void onDialogResult(Result result) {
-                    // myCloud管理画面を表示
-                    topBar.showCloudEditWindow();
-                }
-            });
-
-            getApplication().getMainWindow().addWindow(dialog);
-        } else {
-            // myCloud管理画面を表示
-            topBar.showCloudEditWindow();
-        }
+        topBar.loginSuccess();
     }
 
     public void refresh() {
+        // myCloud情報を取得
         FarmDto dto = null;
         Long farmNo = ViewContext.getFarmNo();
         if (farmNo != null) {
@@ -240,101 +203,23 @@ public class MainView extends VerticalLayout {
         }
 
         if (dto != null) {
-            Farm farm = dto.getFarm();
-            String mycloud = farm.getFarmName() + " [ " + farm.getDomainName() + " ] - " + farm.getComment();
-            lblMycloud.setReadOnly(false);
-            lblMycloud.setValue(mycloud);
-            lblMycloud.setReadOnly(true);
-            refreshTable();
-            //refreshTableSelectItem();
-            tab.setEnabled(true);
-            tab.setSelectedTab(servicePanel);
-            serverPanel.serverDesc.tabDesc.setSelectedTab(serverPanel.serverDesc.serverDescBasic);
-            servicePanel.serviceDesc.tabDesc.setSelectedTab(servicePanel.serviceDesc.serviceDescBasic);
-            loadBalancerPanel.loadBalancerDesc.tabDesc
-                    .setSelectedTab(loadBalancerPanel.loadBalancerDesc.loadBalancerDescBasic);
-
-            reloadb.setEnabled(true);
-        } else {
-            lblMycloud.setReadOnly(false);
-            lblMycloud.setValue("");
-            lblMycloud.setReadOnly(true);
-            refreshTable();
-            //refreshTableSelectItem();
-            tab.setEnabled(false);
-            reloadb.setEnabled(false);
-        }
-    }
-
-    public void tableRowSelected(Table.ValueChangeEvent event) {
-        synchronized (getApplication()) {
-            //選択行のボタンを有効にする
-            Property p = event.getProperty();
-            if (p instanceof ServiceTable) {
-                ServiceTable table = (ServiceTable) p;
-                ComponentDto dto = (ComponentDto) table.getValue();
-                servicePanel.serviceButtonsBottom.refresh(dto);
-
-                if (dto != null) {
-                    table.setButtonStatus(dto);
-                    // サービス情報の更新(選択されているTabだけ更新する)
-                    if (servicePanel.serviceDesc.tabDesc.getSelectedTab() == servicePanel.serviceDesc.serviceDescBasic) {
-                        //基本情報の更新
-                        servicePanel.serviceDesc.serviceDescBasic.left.setItem(dto);
-                        servicePanel.serviceDesc.serviceDescBasic.right
-                                .refresh(
-                                        new InstanceDtoContainer(
-                                                MainView.this.getInstances(dto.getComponentInstances())), true);
-                    } else if (servicePanel.serviceDesc.tabDesc.getSelectedTab() == servicePanel.serviceDesc.serviceDescDetail) {
-                        //詳細情報の更新
-                        servicePanel.serviceDesc.serviceDescDetail.left.setItem(dto);
-                        Collection<InstanceDto> instanceDtos = (Collection<InstanceDto>) serverPanel.serverTable
-                                .getItemIds();
-                        servicePanel.serviceDesc.serviceDescDetail.right
-                                .setContainerDataSource(new ComponentParameterContainer(dto, instanceDtos));
-                        servicePanel.serviceDesc.serviceDescDetail.right.setHeaders();
-                    }
-                }
-            } else if (p instanceof ServerTable) {
-                ServerTable table = (ServerTable) p;
-                InstanceDto dto = (InstanceDto) table.getValue();
-                Instance instance = dto != null ? dto.getInstance() : null;
-
-                serverPanel.serverButtonsBottom.refresh(dto);
-                if (dto != null) {
-                    table.setButtonStatus(dto.getInstance());
-                    // サーバ情報の更新(選択されているTabだけ更新する)
-                    if (serverPanel.serverDesc.tabDesc.getSelectedTab() == serverPanel.serverDesc.serverDescBasic) {
-                        //基本情報の更新
-                        serverPanel.serverDesc.serverDescBasic.left.setItem(dto);
-                        serverPanel.serverDesc.serverDescBasic.right.refresh(new ComponentDtoContainer(MainView.this
-                                .getComponents(dto.getComponentInstances())));
-                    } else if (serverPanel.serverDesc.tabDesc.getSelectedTab() == serverPanel.serverDesc.serverDescDetail) {
-                        //詳細情報の更新
-                        serverPanel.serverDesc.serverDescDetail.left.setServerName(instance);
-                        serverPanel.serverDesc.serverDescDetail.right
-                                .setContainerDataSource(new InstanceParameterContainer(dto));
-                        serverPanel.serverDesc.serverDescDetail.right.setHeaders();
-                    }
-                }
-            } else if (p instanceof LoadBalancerTable) {
-                LoadBalancerTable table = (LoadBalancerTable) p;
-                LoadBalancerDto dto = (LoadBalancerDto) table.getValue();
-                loadBalancerPanel.loadBalancerTableOpe.setButtonStatus(dto);
-                // ロードバランサー情報の更新(選択されているTabだけ更新する)
-                if (loadBalancerPanel.loadBalancerDesc.tabDesc.getSelectedTab() == loadBalancerPanel.loadBalancerDesc.loadBalancerDescBasic) {
-                    //基本情報の更新
-                    loadBalancerPanel.loadBalancerDesc.loadBalancerDescBasic.basicInfo.setItem(dto);
-                    // ロードバランサー サービス テーブル情報更新
-                    loadBalancerPanel.loadBalancerDesc.loadBalancerDescBasic.attachServiceTable.refresh(dto, true);
-                } else if (loadBalancerPanel.loadBalancerDesc.tabDesc.getSelectedTab() == loadBalancerPanel.loadBalancerDesc.loadBalancerDescServer) {
-                    // 割り当てサービス 詳細情報更新
-                    loadBalancerPanel.loadBalancerDesc.loadBalancerDescServer.loadBalancerInfo.setItem(dto);
-                    // ロードバランサー サーバ テーブル情報更新
-                    loadBalancerPanel.loadBalancerDesc.loadBalancerDescServer.attachServiceServerTable.refresh(dto,
-                            true);
-                }
+            String mycloud = dto.getFarm().getFarmName() + " [ " + dto.getFarm().getDomainName() + " ]";
+            if (StringUtils.isNotEmpty(dto.getFarm().getComment())) {
+                mycloud = mycloud + " - " + dto.getFarm().getComment();
             }
+            myCloudField.setReadOnly(false);
+            myCloudField.setValue(mycloud);
+            myCloudField.setReadOnly(true);
+            refreshTable();
+            tab.setEnabled(true);
+            reloadButton.setEnabled(true);
+        } else {
+            myCloudField.setReadOnly(false);
+            myCloudField.setValue("");
+            myCloudField.setReadOnly(true);
+            refreshTable();
+            tab.setEnabled(false);
+            reloadButton.setEnabled(false);
         }
     }
 
@@ -366,44 +251,23 @@ public class MainView extends VerticalLayout {
         return result;
     }
 
-    public void hide() {
-        //初期表示タブの表示を権限により制御する
-        if (tab.getSelectedTab() == servicePanel) {
-            servicePanel.serviceButtonsTop.hide();
-            servicePanel.serviceButtonsBottom.hide();
-        } else if (tab.getSelectedTab() == serverPanel) {
-            serverPanel.serverButtonsTop.hide();
-            serverPanel.serverButtonsBottom.hide();
-        } else if (tab.getSelectedTab() == loadBalancerPanel) {
-            loadBalancerPanel.loadBalancerTableOpe.hide();
+    public void initialize() {
+        if (enableService) {
+            servicePanel.initialize();
+        }
+        serverPanel.initialize();
+        if (enableLoadBalancer) {
+            loadBalancerPanel.initialize();
         }
     }
 
     public void refreshTable() {
         if (enableService) {
-            ((ComponentDtoContainer) servicePanel.serviceTable.getContainerDataSource()).refresh();
+            servicePanel.refreshTable();
         }
-        ((InstanceDtoContainer) serverPanel.serverTable.getContainerDataSource()).refresh();
+        serverPanel.refreshTable();
         if (enableLoadBalancer) {
-            ((LoadBalancerDtoContainer) loadBalancerPanel.loadBalancerTable.getContainerDataSource()).refresh();
-        }
-        refreshTableSelectItem();
-        if (enableService) {
-            servicePanel.serviceDesc.initializeData();
-        }
-        serverPanel.serverDesc.initializeData();
-        if (enableLoadBalancer) {
-            loadBalancerPanel.loadBalancerDesc.initializeData();
-        }
-    }
-
-    public void refreshTableSelectItem() {
-        if (enableService) {
-            servicePanel.serviceTable.setValue(null);
-        }
-        serverPanel.serverTable.setValue(null);
-        if (enableLoadBalancer) {
-            loadBalancerPanel.loadBalancerTable.setValue(null);
+            loadBalancerPanel.refreshTable();
         }
     }
 
@@ -418,147 +282,31 @@ public class MainView extends VerticalLayout {
     }
 
     private boolean needsRefresh() {
-        // サービスの更新チェック
-        Collection<ComponentDto> componentDtos = servicePanel.serviceTable.getItemIds();
-        for (ComponentDto dto : componentDtos) {
-            // サービスViewのサービス情報のサービスステータスが、Warninngの際、リフレッシュする対応
-            for (ComponentInstanceDto componentInstance : dto.getComponentInstances()) {
-                ComponentInstanceStatus componentInstanceStatus = ComponentInstanceStatus.fromStatus(componentInstance
-                        .getComponentInstance().getStatus());
-                if (componentInstanceStatus == ComponentInstanceStatus.STARTING
-                        || componentInstanceStatus == ComponentInstanceStatus.STOPPING
-                        || componentInstanceStatus == ComponentInstanceStatus.CONFIGURING) {
-                    return true;
-                }
-            }
+        boolean needsRefresh = servicePanel.needsRefresh();
+        if (needsRefresh) {
+            return true;
         }
 
-        // サーバの更新チェック
-        Collection<InstanceDto> instanceDtos = serverPanel.serverTable.getItemIds();
-        for (InstanceDto dto : instanceDtos) {
-            InstanceStatus status = InstanceStatus.fromStatus(dto.getInstance().getStatus());
-            if (status == InstanceStatus.STARTING || status == InstanceStatus.STOPPING
-                    || status == InstanceStatus.CONFIGURING) {
-                return true;
-            }
+        needsRefresh = serverPanel.needsRefresh();
+        if (needsRefresh) {
+            return true;
         }
 
-        // ロードバランサの更新チェック
-        Collection<LoadBalancerDto> loadBalancerDtos = loadBalancerPanel.loadBalancerTable.getItemIds();
-        for (LoadBalancerDto dto : loadBalancerDtos) {
-            LoadBalancerStatus status = LoadBalancerStatus.fromStatus(dto.getLoadBalancer().getStatus());
-            if (status == LoadBalancerStatus.STARTING || status == LoadBalancerStatus.STOPPING
-                    || status == LoadBalancerStatus.CONFIGURING) {
-                return true;
-            }
-
-            for (LoadBalancerListener listener : dto.getLoadBalancerListeners()) {
-                LoadBalancerListenerStatus status2 = LoadBalancerListenerStatus.fromStatus(listener.getStatus());
-                if (status2 == LoadBalancerListenerStatus.STARTING || status2 == LoadBalancerListenerStatus.STOPPING
-                        || status2 == LoadBalancerListenerStatus.CONFIGURING) {
-                    return true;
-                }
-            }
-
-            for (LoadBalancerInstance lbInstance : dto.getLoadBalancerInstances()) {
-                LoadBalancerInstanceStatus status2 = LoadBalancerInstanceStatus.fromStatus(lbInstance.getStatus());
-                if (status2 == LoadBalancerInstanceStatus.STARTING || status2 == LoadBalancerInstanceStatus.STOPPING
-                        || status2 == LoadBalancerInstanceStatus.CONFIGURING) {
-                    return true;
-                }
-            }
+        needsRefresh = loadBalancerPanel.needsRefresh();
+        if (needsRefresh) {
+            return true;
         }
 
         return false;
     }
 
-    public void refreshDesc(ServerTable table) {
-        //サーバTabが選択されていなければ、サーバ画面はリフレッシュしない
-        if (tab.getSelectedTab() == serverPanel) {
-            InstanceDto dto = (InstanceDto) table.getValue();
-            Instance instance = dto != null ? dto.getInstance() : null;
-
-            serverPanel.serverButtonsTop.hide();
-            serverPanel.serverButtonsBottom.refresh(dto);
-            if (dto != null) {
-                table.setButtonStatus(instance);
-                // サーバ情報の更新(選択されているTabだけ更新する)
-                if (serverPanel.serverDesc.tabDesc.getSelectedTab() == serverPanel.serverDesc.serverDescBasic) {
-                    //基本情報の更新
-                    serverPanel.serverDesc.serverDescBasic.left.setItem(dto);
-                    serverPanel.serverDesc.serverDescBasic.right.refresh(new ComponentDtoContainer(MainView.this
-                            .getComponents(dto.getComponentInstances())));
-                } else if (serverPanel.serverDesc.tabDesc.getSelectedTab() == serverPanel.serverDesc.serverDescDetail) {
-                    //詳細情報の更新
-                    serverPanel.serverDesc.serverDescDetail.left.setServerName(instance);
-                    serverPanel.serverDesc.serverDescDetail.right
-                            .setContainerDataSource(new InstanceParameterContainer(dto));
-                    serverPanel.serverDesc.serverDescDetail.right.setHeaders();
-                }
-            } else {
-                serverPanel.serverDesc.initializeData();
-            }
-        }
-    }
-
-    public void refreshDesc(ServiceTable table) {
-        //サービスTabが選択されていなければ、サービス画面はリフレッシュしない
+    private void selectedTabChange(SelectedTabChangeEvent event) {
         if (tab.getSelectedTab() == servicePanel) {
-            ComponentDto dto = (ComponentDto) table.getValue();
-            servicePanel.serviceButtonsTop.hide();
-            servicePanel.serviceButtonsBottom.refresh(dto);
-            if (dto != null) {
-                table.setButtonStatus(dto);
-                // サービス情報の更新(選択されているTabだけ更新する)
-                if (servicePanel.serviceDesc.tabDesc.getSelectedTab() == servicePanel.serviceDesc.serviceDescBasic) {
-                    //基本情報の更新
-                    servicePanel.serviceDesc.serviceDescBasic.left.setItem(dto);
-                    servicePanel.serviceDesc.serviceDescBasic.right.refresh(new InstanceDtoContainer(MainView.this
-                            .getInstances(dto.getComponentInstances())));
-
-                } else if (servicePanel.serviceDesc.tabDesc.getSelectedTab() == servicePanel.serviceDesc.serviceDescDetail) {
-                    //詳細情報の更新
-                    servicePanel.serviceDesc.serviceDescDetail.left.setItem(dto);
-                    Collection<InstanceDto> instanceDtos = (Collection<InstanceDto>) serverPanel.serverTable
-                            .getItemIds();
-                    servicePanel.serviceDesc.serviceDescDetail.right
-                            .setContainerDataSource(new ComponentParameterContainer(dto, instanceDtos));
-                    servicePanel.serviceDesc.serviceDescDetail.right.setHeaders();
-                }
-            } else {
-                servicePanel.serviceDesc.initializeData();
-            }
-        }
-    }
-
-    public void refreshDesc(LoadBalancerTable table) {
-        //ロードバランサーTabが選択されていなければ、ロードバランサー画面はリフレッシュしない
-        if (tab.getSelectedTab() == loadBalancerPanel) {
-            LoadBalancerDto dto = (LoadBalancerDto) table.getValue();
-            loadBalancerPanel.loadBalancerTableOpe.setButtonStatus(dto);
-            // ロードバランサー情報の更新(選択されているTabだけ更新する)
-            if (loadBalancerPanel.loadBalancerDesc.tabDesc.getSelectedTab() == loadBalancerPanel.loadBalancerDesc.loadBalancerDescBasic) {
-                //基本情報の更新
-                loadBalancerPanel.loadBalancerDesc.loadBalancerDescBasic.basicInfo.setItem(dto);
-                // ロードバランサー サービステーブル情報更新
-                loadBalancerPanel.loadBalancerDesc.loadBalancerDescBasic.attachServiceTable.refresh(dto, false);
-            } else if (loadBalancerPanel.loadBalancerDesc.tabDesc.getSelectedTab() == loadBalancerPanel.loadBalancerDesc.loadBalancerDescServer) {
-                // 割り当てサービス 詳細情報更新
-                loadBalancerPanel.loadBalancerDesc.loadBalancerDescServer.loadBalancerInfo.setItem(dto);
-                // ロードバランサー サーバ テーブル情報更新
-                loadBalancerPanel.loadBalancerDesc.loadBalancerDescServer.attachServiceServerTable.refresh(dto, false);
-            }
-        }
-    }
-
-    public void selectedTabChange(SelectedTabChangeEvent event) {
-        //タブ切り替え時にリフレッシュする(選択されていないTabは画面が更新されていないため)
-        if (tab.getSelectedTab() == servicePanel) {
-            refreshDesc(servicePanel.serviceTable);
+            servicePanel.refreshDesc();
         } else if (tab.getSelectedTab() == serverPanel) {
-            refreshDesc(serverPanel.serverTable);
+            serverPanel.refreshDesc();
         } else if (tab.getSelectedTab() == loadBalancerPanel) {
-            refreshDesc(loadBalancerPanel.loadBalancerTable);
+            loadBalancerPanel.refreshDesc();
         }
     }
 

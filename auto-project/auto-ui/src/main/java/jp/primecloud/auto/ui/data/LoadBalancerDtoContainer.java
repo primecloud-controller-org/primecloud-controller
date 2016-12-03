@@ -46,24 +46,16 @@ public class LoadBalancerDtoContainer extends BeanItemContainer<LoadBalancerDto>
         refresh();
     }
 
-    public LoadBalancerDtoContainer(Collection<LoadBalancerDto> dtos) {
-        super(LoadBalancerDto.class);
-        for (LoadBalancerDto dto : dtos) {
-            addItem(dto);
-        }
-    }
-
     public void refresh() {
         // ロジックを実行
         removeAllItems();
         Long farmNo = ViewContext.getFarmNo();
         if (farmNo != null) {
             LoadBalancerService loadBalancerService = BeanContext.getBean(LoadBalancerService.class);
-            for (LoadBalancerDto dto : loadBalancerService.getLoadBalancers(ViewContext.getFarmNo())) {
-                addItem(dto);
+            for (LoadBalancerDto loadBalancer : loadBalancerService.getLoadBalancers(farmNo)) {
+                addItem(loadBalancer);
             }
         }
-
     }
 
     public void refresh2(LoadBalancerTable table) {
@@ -73,36 +65,37 @@ public class LoadBalancerDtoContainer extends BeanItemContainer<LoadBalancerDto>
         if (farmNo != null) {
             LoadBalancerService loadBalancerService = BeanContext.getBean(LoadBalancerService.class);
             Object[] o = collection.toArray(); //現在のitem
-            List<LoadBalancerDto> dtos = loadBalancerService.getLoadBalancers(farmNo); //取得したデータ
+            List<LoadBalancerDto> loadBalancers = loadBalancerService.getLoadBalancers(farmNo); //取得したデータ
             for (int i = 0; i < o.length; i++) {
                 LoadBalancerDto oldDto = (LoadBalancerDto) o[i];
-                for (int j = 0; j < dtos.size(); j++) {
-                    LoadBalancerDto newDto = dtos.get(j);
+                for (int j = 0; j < loadBalancers.size(); j++) {
+                    LoadBalancerDto newDto = loadBalancers.get(j);
                     if (oldDto.getLoadBalancer().getLoadBalancerNo()
                             .equals(newDto.getLoadBalancer().getLoadBalancerNo())) {
-                        final BeanItem<LoadBalancerDto> dto = this.getItem(o[i]);
-                        dto.getItemProperty("loadBalancer").setValue(newDto.getLoadBalancer());
-                        dto.getItemProperty("platform").setValue(newDto.getPlatform());
-                        dto.getItemProperty("awsLoadBalancer").setValue(newDto.getAwsLoadBalancer());
-                        dto.getItemProperty("componentLoadBalancerDto").setValue(newDto.getComponentLoadBalancerDto());
-                        dto.getItemProperty("loadBalancerListeners").setValue(newDto.getLoadBalancerListeners());
-                        dto.getItemProperty("loadBalancerHealthCheck").setValue(newDto.getLoadBalancerHealthCheck());
-                        dto.getItemProperty("loadBalancerInstances").setValue(newDto.getLoadBalancerInstances());
-                        dtos.remove(newDto);
+                        final BeanItem<LoadBalancerDto> item = this.getItem(o[i]);
+                        item.getItemProperty("loadBalancer").setValue(newDto.getLoadBalancer());
+                        item.getItemProperty("platform").setValue(newDto.getPlatform());
+                        item.getItemProperty("awsLoadBalancer").setValue(newDto.getAwsLoadBalancer());
+                        item.getItemProperty("componentLoadBalancerDto").setValue(newDto.getComponentLoadBalancerDto());
+                        item.getItemProperty("loadBalancerListeners").setValue(newDto.getLoadBalancerListeners());
+                        item.getItemProperty("loadBalancerHealthCheck").setValue(newDto.getLoadBalancerHealthCheck());
+                        item.getItemProperty("loadBalancerInstances").setValue(newDto.getLoadBalancerInstances());
+                        loadBalancers.remove(newDto);
                         break;
                     } else {
-                        if (dtos.size() == j + 1) {
+                        if (loadBalancers.size() == j + 1) {
                             removeItem(oldDto);
                         }
                     }
                 }
             }
-            for (LoadBalancerDto dto : dtos) {
-                addItem(dto);
+            for (LoadBalancerDto loadBalancer : loadBalancers) {
+                addItem(loadBalancer);
             }
         }
 
         final Container.ItemSetChangeEvent event = new Container.ItemSetChangeEvent() {
+            @Override
             public Container getContainer() {
                 return LoadBalancerDtoContainer.this;
             }
