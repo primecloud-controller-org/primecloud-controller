@@ -36,13 +36,17 @@ import com.vaadin.ui.themes.Reindeer;
 @SuppressWarnings("serial")
 public class ServerDesc extends Panel {
 
+    private MainView sender;
+
     TabSheet tabDesc = new TabSheet();
 
-    ServerDescBasic serverDescBasic = new ServerDescBasic();
+    ServerDescBasic serverDescBasic;
 
-    ServerDescDetail serverDescDetail = new ServerDescDetail();
+    ServerDescDetail serverDescDetail;
 
-    public ServerDesc() {
+    public ServerDesc(MainView sender) {
+        this.sender = sender;
+
         setWidth("100%");
         setHeight("100%");
         setCaption(ViewProperties.getCaption("panel.serverDesc"));
@@ -58,7 +62,9 @@ public class ServerDesc extends Panel {
         tabDesc.addStyleName(Reindeer.TABSHEET_BORDERLESS);
         tabDesc.setWidth("100%");
         tabDesc.setHeight("100%");
+        serverDescBasic = new ServerDescBasic(sender);
         tabDesc.addTab(serverDescBasic, ViewProperties.getCaption("tab.serverDescBasic"), Icons.BASIC.resource());
+        serverDescDetail = new ServerDescDetail();
         tabDesc.addTab(serverDescDetail, ViewProperties.getCaption("tab.serverDescDetail"), Icons.DETAIL.resource());
         //タブ用リスナー
         tabDesc.addListener(TabSheet.SelectedTabChangeEvent.class, this, "selectedTabChange");
@@ -66,9 +72,7 @@ public class ServerDesc extends Panel {
     }
 
     public void selectedTabChange(SelectedTabChangeEvent event) {
-        AutoApplication ap = (AutoApplication) getApplication();
-        ServerTable tbl = (ServerTable) ap.myCloud.myCloudTabs.serverTable;
-        ap.myCloud.myCloudTabs.refreshDesc(tbl);
+        sender.refreshDesc(sender.serverPanel.serverTable);
     }
 
     public void initializeData() {

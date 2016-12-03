@@ -80,13 +80,17 @@ import com.vaadin.ui.themes.Reindeer;
 @SuppressWarnings({ "serial", "unchecked" })
 public class LoadBalancerDescBasic extends Panel {
 
+    private MainView sender;
+
     BasicInfo basicInfo = new BasicInfo();
 
     AttachServiceTable attachServiceTable = new AttachServiceTable("", null);
 
-    LoadbalancerServiceOperation loadBalancerOpe = new LoadbalancerServiceOperation();
+    private LoadbalancerServiceOperation loadBalancerOpe = new LoadbalancerServiceOperation();
 
-    LoadBalancerDescBasic() {
+    LoadBalancerDescBasic(MainView sender) {
+        this.sender = sender;
+
         addStyleName(Reindeer.PANEL_LIGHT);
         setHeight("100%");
 
@@ -132,18 +136,18 @@ public class LoadBalancerDescBasic extends Panel {
 
     class BasicInfo extends Panel {
 
-        final String COLUMN_HEIGHT = "30px";
+        private final String COLUMN_HEIGHT = "30px";
 
         //項目名
-        final String[] CAPTION_FIELD = { "field.loadBalancerName", "field.loadBalancerService", "field.fqdn",
+        private final String[] CAPTION_FIELD = { "field.loadBalancerName", "field.loadBalancerService", "field.fqdn",
                 "field.loadBalancerHostname", "field.status", "field.platform", "field.loadBalancerType",
                 "field.subnet", "field.comment", };
 
-        HashMap<String, Label> displayLabels = new HashMap<String, Label>();
+        private HashMap<String, Label> displayLabels = new HashMap<String, Label>();
 
-        LoadBalancerDto loadBalancerDto;
+        private LoadBalancerDto loadBalancerDto;
 
-        GridLayout layout;
+        private GridLayout layout;
 
         BasicInfo() {
             setCaption(ViewProperties.getCaption("table.loadBalancerBasicInfo"));
@@ -189,15 +193,6 @@ public class LoadBalancerDescBasic extends Panel {
 
             loadBalancerDto = dto;
 
-            MyCloudTabs myCloudTabs = null;
-            Component c = LoadBalancerDescBasic.this;
-            while (c != null) {
-                if (c instanceof MyCloudTabs) {
-                    myCloudTabs = (MyCloudTabs) c;
-                    break;
-                }
-                c = c.getParent();
-            }
             Component me = LoadBalancerDescBasic.this;
 
             if (dto != null) {
@@ -208,7 +203,7 @@ public class LoadBalancerDescBasic extends Panel {
 
                 // 割り当てサービス
                 ComponentDto componentDto = null;
-                for (ComponentDto cDto : (Collection<ComponentDto>) myCloudTabs.serviceTable.getItemIds()) {
+                for (ComponentDto cDto : (Collection<ComponentDto>) sender.servicePanel.serviceTable.getItemIds()) {
                     if (cDto.getComponent().getComponentNo().equals(dto.getLoadBalancer().getComponentNo())) {
                         componentDto = cDto;
                         break;
@@ -294,18 +289,19 @@ public class LoadBalancerDescBasic extends Panel {
     //右側割り当てサービスサーバ一覧
     class AttachServiceTable extends Table {
 
-        final String COLUMN_HEIGHT = "28px";
+        private final String COLUMN_HEIGHT = "28px";
 
         //項目名
-        final String[] COLNAME = { null, ViewProperties.getCaption("field.loadBalancerPort"),
+        private final String[] COLNAME = { null, ViewProperties.getCaption("field.loadBalancerPort"),
                 ViewProperties.getCaption("field.loadBalancerServicePort"),
                 ViewProperties.getCaption("field.loadBalancerProtocol"),
                 ViewProperties.getCaption("field.loadBalancerServiceStatus"),
                 ViewProperties.getCaption("field.editLoadBalancerListener"), };
 
-        final String[] VISIBLE_COLNAME = { "check", "loadBalancerPort", "servicePort", "protocol", "status", "edit", };
+        private final String[] VISIBLE_COLNAME = { "check", "loadBalancerPort", "servicePort", "protocol", "status",
+                "edit", };
 
-        HashMap<Integer, CheckBox> checkList = new HashMap<Integer, CheckBox>();
+        private HashMap<Integer, CheckBox> checkList = new HashMap<Integer, CheckBox>();
 
         public AttachServiceTable(String caption, Container dataSource) {
             super(caption, dataSource);
@@ -341,25 +337,25 @@ public class LoadBalancerDescBasic extends Panel {
                 public Component generateCell(Table source, Object itemId, Object columnId) {
                     LoadBalancerListener p = (LoadBalancerListener) itemId;
 
-                    Button btnEdit = new Button(ViewProperties.getCaption("button.editLoadBalancerListener"));
-                    btnEdit.setDescription(ViewProperties.getCaption("description.editLoadBalancerListener"));
-                    btnEdit.addStyleName("borderless");
-                    btnEdit.setIcon(Icons.EDITMINI.resource());
-                    btnEdit.setData(p);
+                    Button editButton = new Button(ViewProperties.getCaption("button.editLoadBalancerListener"));
+                    editButton.setDescription(ViewProperties.getCaption("description.editLoadBalancerListener"));
+                    editButton.addStyleName("borderless");
+                    editButton.setIcon(Icons.EDITMINI.resource());
+                    editButton.setData(p);
 
                     LoadBalancerListenerStatus status = LoadBalancerListenerStatus.fromStatus(p.getStatus());
                     if (status == LoadBalancerListenerStatus.STOPPED) {
-                        btnEdit.addListener(new Button.ClickListener() {
+                        editButton.addListener(new Button.ClickListener() {
                             @Override
                             public void buttonClick(ClickEvent event) {
                                 editButtonClick(event);
                             }
                         });
                     } else {
-                        btnEdit.setEnabled(false);
+                        editButton.setEnabled(false);
                     }
 
-                    return btnEdit;
+                    return editButton;
                 }
             });
 
@@ -522,16 +518,15 @@ public class LoadBalancerDescBasic extends Panel {
             win.addListener(new Window.CloseListener() {
                 @Override
                 public void windowClose(Window.CloseEvent e) {
-                    MyCloudTabs myCloudTabs = ((AutoApplication) getApplication()).myCloud.myCloudTabs;
-                    myCloudTabs.refreshTable();
+                    sender.refreshTable();
 
                     // 選択されていたロードバランサを選択し直す
                     if (dto != null) {
-                        for (Object itemId : myCloudTabs.loadBalancerTable.getItemIds()) {
+                        for (Object itemId : sender.loadBalancerPanel.loadBalancerTable.getItemIds()) {
                             LoadBalancerDto dto2 = (LoadBalancerDto) itemId;
                             if (dto.getLoadBalancer().getLoadBalancerNo()
                                     .equals(dto2.getLoadBalancer().getLoadBalancerNo())) {
-                                myCloudTabs.loadBalancerTable.select(itemId);
+                                sender.loadBalancerPanel.loadBalancerTable.select(itemId);
                                 break;
                             }
                         }
@@ -544,17 +539,17 @@ public class LoadBalancerDescBasic extends Panel {
 
     public class LoadbalancerServiceOperation extends HorizontalLayout {
 
-        final String BUTTON_WIDTH = "90px";
+        private final String BUTTON_WIDTH = "90px";
 
-        Button btnCheckAll;
+        private Button checkAllButton;
 
-        Button btnAdd;
+        private Button addButton;
 
-        Button btnDelete;
+        private Button deleteButton;
 
-        Button btnEnable;
+        private Button enableButton;
 
-        Button btnDisable;
+        private Button disableButton;
 
         LoadbalancerServiceOperation() {
             addStyleName("loadbalancer-service-operation-buttons");
@@ -562,56 +557,56 @@ public class LoadBalancerDescBasic extends Panel {
             setWidth("100%");
             setSpacing(true);
 
-            btnCheckAll = new Button(ViewProperties.getCaption("button.checkAll"));
-            btnCheckAll.setDescription(ViewProperties.getCaption("description.checkAll"));
-            btnCheckAll.addStyleName("borderless");
-            btnCheckAll.addStyleName("checkall");
-            btnCheckAll.setEnabled(false);
-            btnCheckAll.setIcon(Icons.CHECKON.resource());
-            btnCheckAll.addListener(Button.ClickEvent.class, this, "checkAllButtonClick");
+            checkAllButton = new Button(ViewProperties.getCaption("button.checkAll"));
+            checkAllButton.setDescription(ViewProperties.getCaption("description.checkAll"));
+            checkAllButton.addStyleName("borderless");
+            checkAllButton.addStyleName("checkall");
+            checkAllButton.setEnabled(false);
+            checkAllButton.setIcon(Icons.CHECKON.resource());
+            checkAllButton.addListener(Button.ClickEvent.class, this, "checkAllButtonClick");
 
-            btnAdd = new Button(ViewProperties.getCaption("button.addLoadBalancerListener"));
-            btnAdd.setDescription(ViewProperties.getCaption("description.addLoadBalancerListener"));
-            btnAdd.setWidth(BUTTON_WIDTH);
-            btnAdd.setIcon(Icons.ATTACH_MINI.resource());
-            btnAdd.setEnabled(false);
-            btnAdd.addListener(Button.ClickEvent.class, this, "addButtonClick");
+            addButton = new Button(ViewProperties.getCaption("button.addLoadBalancerListener"));
+            addButton.setDescription(ViewProperties.getCaption("description.addLoadBalancerListener"));
+            addButton.setWidth(BUTTON_WIDTH);
+            addButton.setIcon(Icons.ATTACH_MINI.resource());
+            addButton.setEnabled(false);
+            addButton.addListener(Button.ClickEvent.class, this, "addButtonClick");
 
-            btnDelete = new Button(ViewProperties.getCaption("button.delLoadBalancerListener"));
-            btnDelete.setDescription(ViewProperties.getCaption("description.delLoadBalancerListener"));
-            btnDelete.setWidth(BUTTON_WIDTH);
-            btnDelete.setIcon(Icons.DETACH_MINI.resource());
-            btnDelete.setEnabled(false);
-            btnDelete.addListener(Button.ClickEvent.class, this, "deleteButtonClick");
+            deleteButton = new Button(ViewProperties.getCaption("button.delLoadBalancerListener"));
+            deleteButton.setDescription(ViewProperties.getCaption("description.delLoadBalancerListener"));
+            deleteButton.setWidth(BUTTON_WIDTH);
+            deleteButton.setIcon(Icons.DETACH_MINI.resource());
+            deleteButton.setEnabled(false);
+            deleteButton.addListener(Button.ClickEvent.class, this, "deleteButtonClick");
 
-            btnEnable = new Button(ViewProperties.getCaption("button.enableLoadBalancerListener"));
-            btnEnable.setDescription(ViewProperties.getCaption("description.enableLoadBalancerListener"));
-            btnEnable.setWidth(BUTTON_WIDTH);
-            btnEnable.setIcon(Icons.ENABLE_MINI.resource());
-            btnEnable.setEnabled(false);
-            btnEnable.addListener(Button.ClickEvent.class, this, "enableButtonClick");
+            enableButton = new Button(ViewProperties.getCaption("button.enableLoadBalancerListener"));
+            enableButton.setDescription(ViewProperties.getCaption("description.enableLoadBalancerListener"));
+            enableButton.setWidth(BUTTON_WIDTH);
+            enableButton.setIcon(Icons.ENABLE_MINI.resource());
+            enableButton.setEnabled(false);
+            enableButton.addListener(Button.ClickEvent.class, this, "enableButtonClick");
 
-            btnDisable = new Button(ViewProperties.getCaption("button.disableLoadBalancerListener"));
-            btnDisable.setDescription(ViewProperties.getCaption("description.disableLoadBalancerListener"));
-            btnDisable.setWidth(BUTTON_WIDTH);
-            btnDisable.setIcon(Icons.DISABLE_MINI.resource());
-            btnDisable.setEnabled(false);
-            btnDisable.addListener(Button.ClickEvent.class, this, "disableButtonClick");
+            disableButton = new Button(ViewProperties.getCaption("button.disableLoadBalancerListener"));
+            disableButton.setDescription(ViewProperties.getCaption("description.disableLoadBalancerListener"));
+            disableButton.setWidth(BUTTON_WIDTH);
+            disableButton.setIcon(Icons.DISABLE_MINI.resource());
+            disableButton.setEnabled(false);
+            disableButton.addListener(Button.ClickEvent.class, this, "disableButtonClick");
 
-            addComponent(btnCheckAll);
-            addComponent(btnAdd);
-            addComponent(btnDelete);
-            addComponent(btnEnable);
-            addComponent(btnDisable);
+            addComponent(checkAllButton);
+            addComponent(addButton);
+            addComponent(deleteButton);
+            addComponent(enableButton);
+            addComponent(disableButton);
 
-            setComponentAlignment(btnCheckAll, Alignment.MIDDLE_LEFT);
-            setComponentAlignment(btnAdd, Alignment.BOTTOM_LEFT);
-            setComponentAlignment(btnDelete, Alignment.BOTTOM_LEFT);
-            setComponentAlignment(btnEnable, Alignment.BOTTOM_LEFT);
-            setComponentAlignment(btnDisable, Alignment.BOTTOM_LEFT);
-            setExpandRatio(btnCheckAll, 1f);
-            setExpandRatio(btnDelete, 10f);
-            setExpandRatio(btnDisable, 10f);
+            setComponentAlignment(checkAllButton, Alignment.MIDDLE_LEFT);
+            setComponentAlignment(addButton, Alignment.BOTTOM_LEFT);
+            setComponentAlignment(deleteButton, Alignment.BOTTOM_LEFT);
+            setComponentAlignment(enableButton, Alignment.BOTTOM_LEFT);
+            setComponentAlignment(disableButton, Alignment.BOTTOM_LEFT);
+            setExpandRatio(checkAllButton, 1f);
+            setExpandRatio(deleteButton, 10f);
+            setExpandRatio(disableButton, 10f);
         }
 
         void refresh() {
@@ -620,26 +615,26 @@ public class LoadBalancerDescBasic extends Panel {
             // ロードバランサの選択状態に応じてボタンの有効／無効を制御する
             // CloudStackはリスナーを利用しない
             if (dto == null || PCCConstant.LOAD_BALANCER_CLOUDSTACK.equals(dto.getLoadBalancer().getType())) {
-                btnCheckAll.setEnabled(false);
-                btnAdd.setEnabled(false);
-                btnDelete.setEnabled(false);
-                btnEnable.setEnabled(false);
-                btnDisable.setEnabled(false);
+                checkAllButton.setEnabled(false);
+                addButton.setEnabled(false);
+                deleteButton.setEnabled(false);
+                enableButton.setEnabled(false);
+                disableButton.setEnabled(false);
             } else {
-                btnCheckAll.setEnabled(true);
-                btnAdd.setEnabled(true);
-                btnDelete.setEnabled(true);
-                btnEnable.setEnabled(true);
-                btnDisable.setEnabled(true);
+                checkAllButton.setEnabled(true);
+                addButton.setEnabled(true);
+                deleteButton.setEnabled(true);
+                enableButton.setEnabled(true);
+                disableButton.setEnabled(true);
             }
 
             UserAuthDto auth = ViewContext.getAuthority();
             //権限に応じて操作可能なボタンを制御する
             if (!auth.isLbOperate()) {
-                btnAdd.setEnabled(false);
-                btnDelete.setEnabled(false);
-                btnEnable.setEnabled(false);
-                btnDisable.setEnabled(false);
+                addButton.setEnabled(false);
+                deleteButton.setEnabled(false);
+                enableButton.setEnabled(false);
+                disableButton.setEnabled(false);
             }
         }
 
@@ -665,16 +660,15 @@ public class LoadBalancerDescBasic extends Panel {
             win.addListener(new Window.CloseListener() {
                 @Override
                 public void windowClose(Window.CloseEvent e) {
-                    MyCloudTabs myCloudTabs = ((AutoApplication) getApplication()).myCloud.myCloudTabs;
-                    myCloudTabs.refreshTable();
+                    sender.refreshTable();
 
                     // 選択されていたロードバランサを選択し直す
                     if (dto != null) {
-                        for (Object itemId : myCloudTabs.loadBalancerTable.getItemIds()) {
+                        for (Object itemId : sender.loadBalancerPanel.loadBalancerTable.getItemIds()) {
                             LoadBalancerDto dto2 = (LoadBalancerDto) itemId;
                             if (dto.getLoadBalancer().getLoadBalancerNo()
                                     .equals(dto2.getLoadBalancer().getLoadBalancerNo())) {
-                                myCloudTabs.loadBalancerTable.select(itemId);
+                                sender.loadBalancerPanel.loadBalancerTable.select(itemId);
                                 break;
                             }
                         }
@@ -739,16 +733,15 @@ public class LoadBalancerDescBasic extends Panel {
                     loadBalancerService.deleteListener(listener.getLoadBalancerNo(), listener.getLoadBalancerPort());
 
                     // 表示の更新
-                    MyCloudTabs myCloudTabs = ((AutoApplication) getApplication()).myCloud.myCloudTabs;
-                    myCloudTabs.refreshTable();
+                    sender.refreshTable();
 
                     // 選択されていたロードバランサを選択し直す
                     if (dto != null) {
-                        for (Object itemId : myCloudTabs.loadBalancerTable.getItemIds()) {
+                        for (Object itemId : sender.loadBalancerPanel.loadBalancerTable.getItemIds()) {
                             LoadBalancerDto dto2 = (LoadBalancerDto) itemId;
                             if (dto.getLoadBalancer().getLoadBalancerNo()
                                     .equals(dto2.getLoadBalancer().getLoadBalancerNo())) {
-                                myCloudTabs.loadBalancerTable.select(itemId);
+                                sender.loadBalancerPanel.loadBalancerTable.select(itemId);
                                 break;
                             }
                         }
@@ -842,16 +835,15 @@ public class LoadBalancerDescBasic extends Panel {
                             .getLoadBalancerNo(), loadBalancerPorts);
 
                     // 表示の更新
-                    MyCloudTabs myCloudTabs = ((AutoApplication) getApplication()).myCloud.myCloudTabs;
-                    myCloudTabs.refreshTable();
+                    sender.refreshTable();
 
                     // 選択されていたロードバランサを選択し直す
                     if (dto != null) {
-                        for (Object itemId : myCloudTabs.loadBalancerTable.getItemIds()) {
+                        for (Object itemId : sender.loadBalancerPanel.loadBalancerTable.getItemIds()) {
                             LoadBalancerDto dto2 = (LoadBalancerDto) itemId;
                             if (dto.getLoadBalancer().getLoadBalancerNo()
                                     .equals(dto2.getLoadBalancer().getLoadBalancerNo())) {
-                                myCloudTabs.loadBalancerTable.select(itemId);
+                                sender.loadBalancerPanel.loadBalancerTable.select(itemId);
                                 break;
                             }
                         }
@@ -944,16 +936,15 @@ public class LoadBalancerDescBasic extends Panel {
                             .getLoadBalancerNo(), loadBalancerPorts);
 
                     // 表示の更新
-                    MyCloudTabs myCloudTabs = ((AutoApplication) getApplication()).myCloud.myCloudTabs;
-                    myCloudTabs.refreshTable();
+                    sender.refreshTable();
 
                     // 選択されていたロードバランサを選択し直す
                     if (dto != null) {
-                        for (Object itemId : myCloudTabs.loadBalancerTable.getItemIds()) {
+                        for (Object itemId : sender.loadBalancerPanel.loadBalancerTable.getItemIds()) {
                             LoadBalancerDto dto2 = (LoadBalancerDto) itemId;
                             if (dto.getLoadBalancer().getLoadBalancerNo()
                                     .equals(dto2.getLoadBalancer().getLoadBalancerNo())) {
-                                myCloudTabs.loadBalancerTable.select(itemId);
+                                sender.loadBalancerPanel.loadBalancerTable.select(itemId);
                                 break;
                             }
                         }
@@ -964,15 +955,7 @@ public class LoadBalancerDescBasic extends Panel {
         }
 
         public void refreshTable(Component component) {
-            MyCloudTabs myCloudTabs = null;
-            while (component != null) {
-                if (component instanceof MyCloudTabs) {
-                    myCloudTabs = (MyCloudTabs) component;
-                    break;
-                }
-                component = component.getParent();
-            }
-            myCloudTabs.refreshTableOnly();
+            sender.refreshTableOnly();
         }
     }
 
@@ -980,8 +963,7 @@ public class LoadBalancerDescBasic extends Panel {
         attachServiceTable.getContainerDataSource().removeAllItems();
         loadBalancerOpe.refresh();
 
-        AutoApplication ap = (AutoApplication) getApplication();
-        LoadBalancerDto dto = (LoadBalancerDto) ap.myCloud.myCloudTabs.loadBalancerTable.getValue();
+        LoadBalancerDto dto = (LoadBalancerDto) sender.loadBalancerPanel.loadBalancerTable.getValue();
         basicInfo.setItem(dto);
     }
 

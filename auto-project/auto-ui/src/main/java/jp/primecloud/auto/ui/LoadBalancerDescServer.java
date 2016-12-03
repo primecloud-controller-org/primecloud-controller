@@ -82,13 +82,17 @@ import com.vaadin.ui.themes.Reindeer;
 @SuppressWarnings({ "serial", "unchecked" })
 public class LoadBalancerDescServer extends Panel {
 
+    private MainView sender;
+
     LoadBalancerDetailInfo loadBalancerInfo = new LoadBalancerDetailInfo();
 
     AttachSeriviceServerTable attachServiceServerTable = new AttachSeriviceServerTable("", null);
 
-    LoadbalancerServerOperation loadBalancerOpe = new LoadbalancerServerOperation();
+    private LoadbalancerServerOperation loadBalancerOpe = new LoadbalancerServerOperation();
 
-    LoadBalancerDescServer() {
+    LoadBalancerDescServer(MainView sender) {
+        this.sender = sender;
+
         addStyleName(Reindeer.PANEL_LIGHT);
         setHeight("100%");
 
@@ -150,24 +154,24 @@ public class LoadBalancerDescServer extends Panel {
 
     class LoadBalancerDetailInfo extends Panel {
 
-        LoadBalancerDto loadBalancerDto;
+        private LoadBalancerDto loadBalancerDto;
 
-        final String COLUMN_HEIGHT = "30px";
+        private final String COLUMN_HEIGHT = "30px";
 
         //項目名
-        final String[] CAPTION_FIELD_DEF = { "field.loadBalancerName", "field.loadBalancerService", "field.fqdn",
-                "field.loadBalancerHostname", "field.status", "field.platform", "field.loadBalancerType",
+        private final String[] CAPTION_FIELD_DEF = { "field.loadBalancerName", "field.loadBalancerService",
+                "field.fqdn", "field.loadBalancerHostname", "field.status", "field.platform", "field.loadBalancerType",
                 "field.subnet", "field.comment", "field.checkProtocol", "field.checkPort", "field.checkPath",
                 "field.checkTimeout", "field.checkInterval", "field.checkDownThreshold", "field.checkRecoverThreshold", };
 
         //項目名
-        final String[] CAPTION_FIELD_CLOUDSTACK = { "field.loadBalancerName", "field.loadBalancerService",
+        private final String[] CAPTION_FIELD_CLOUDSTACK = { "field.loadBalancerName", "field.loadBalancerService",
                 "field.fqdn", "field.loadBalancerHostname", "field.status", "field.platform", "field.loadBalancerType",
                 "field.comment", "field.algorithm", "field.publicip", "field.publicport", "field.privateport", };
 
-        HashMap<String, Label> displayLabels = new HashMap<String, Label>();
+        private HashMap<String, Label> displayLabels = new HashMap<String, Label>();
 
-        GridLayout layout;
+        private GridLayout layout;
 
         LoadBalancerDetailInfo() {
 
@@ -245,15 +249,6 @@ public class LoadBalancerDescServer extends Panel {
                     reMakeLayout(CAPTION_FIELD_DEF);
                 }
 
-                MyCloudTabs myCloudTabs = null;
-                Component c = LoadBalancerDescServer.this;
-                while (c != null) {
-                    if (c instanceof MyCloudTabs) {
-                        myCloudTabs = (MyCloudTabs) c;
-                        break;
-                    }
-                    c = c.getParent();
-                }
                 Component me = LoadBalancerDescServer.this;
 
                 LoadBalancer lb = dto.getLoadBalancer();
@@ -263,7 +258,7 @@ public class LoadBalancerDescServer extends Panel {
 
                 // 割り当てサービス
                 ComponentDto componentDto = null;
-                for (ComponentDto cDto : (Collection<ComponentDto>) myCloudTabs.serviceTable.getItemIds()) {
+                for (ComponentDto cDto : (Collection<ComponentDto>) sender.servicePanel.serviceTable.getItemIds()) {
                     if (cDto.getComponent().getComponentNo().equals(dto.getLoadBalancer().getComponentNo())) {
                         componentDto = cDto;
                         break;
@@ -403,20 +398,20 @@ public class LoadBalancerDescServer extends Panel {
     //右側割り当てサービスサーバ一覧
     class AttachSeriviceServerTable extends Table {
 
-        final String COLUMN_HEIGHT = "28px";
+        private final String COLUMN_HEIGHT = "28px";
 
         //項目名
-        final String[] COLNAME = { null, ViewProperties.getCaption("field.serverName"),
+        private final String[] COLNAME = { null, ViewProperties.getCaption("field.serverName"),
                 ViewProperties.getCaption("field.loadBalancerServerStatus"),
                 ViewProperties.getCaption("field.serviceStatus") };
 
-        final String[] VISIBLE_COLNAME = { "check", "instanceName", "status", "serviceStatus" };
+        private final String[] VISIBLE_COLNAME = { "check", "instanceName", "status", "serviceStatus" };
 
-        ComponentDto componentDto;
+        private ComponentDto componentDto;
 
-        HashMap<Long, CheckBox> checkList = new HashMap<Long, CheckBox>();
+        private HashMap<Long, CheckBox> checkList = new HashMap<Long, CheckBox>();
 
-        HashMap<Long, String> statusMap = new HashMap<Long, String>();
+        private HashMap<Long, String> statusMap = new HashMap<Long, String>();
 
         public AttachSeriviceServerTable(String caption, Container dataSource) {
             super(caption, dataSource);
@@ -631,21 +626,11 @@ public class LoadBalancerDescServer extends Panel {
                 checkList.clear();
             }
 
-            //MyCloudTabsの検索
-            MyCloudTabs myCloudTabs = null;
-            Component c = LoadBalancerDescServer.this;
-            while (c != null) {
-                if (c instanceof MyCloudTabs) {
-                    myCloudTabs = (MyCloudTabs) c;
-                    break;
-                }
-                c = c.getParent();
-            }
-
             //ComponentDtoの検索
             componentDto = null;
             if (dto != null) {
-                Collection<ComponentDto> dtos = (Collection<ComponentDto>) myCloudTabs.serviceTable.getItemIds();
+                Collection<ComponentDto> dtos = (Collection<ComponentDto>) sender.servicePanel.serviceTable
+                        .getItemIds();
                 for (ComponentDto cDto : dtos) {
                     if (dto.getLoadBalancer().getComponentNo().equals(cDto.getComponent().getComponentNo())) {
                         componentDto = cDto;
@@ -654,7 +639,7 @@ public class LoadBalancerDescServer extends Panel {
                 }
             }
             if (componentDto != null) {
-                setContainerDataSource(new InstanceDtoContainer(myCloudTabs.getInstances(componentDto
+                setContainerDataSource(new InstanceDtoContainer(sender.getInstances(componentDto
                         .getComponentInstances())));
                 setVisibleColumns(VISIBLE_COLNAME);
                 setColumnHeaders(COLNAME);
@@ -670,13 +655,13 @@ public class LoadBalancerDescServer extends Panel {
 
     public class LoadbalancerServerOperation extends HorizontalLayout {
 
-        final String BUTTON_WIDTH = "90px";
+        private final String BUTTON_WIDTH = "90px";
 
-        Button btnCheckAll;
+        private Button checkAllButton;
 
-        Button btnEnable;
+        private Button enableButton;
 
-        Button btnDisable;
+        private Button disableButton;
 
         LoadbalancerServerOperation() {
             addStyleName("operation-buttons");
@@ -684,55 +669,55 @@ public class LoadBalancerDescServer extends Panel {
             setWidth("100%");
             setSpacing(true);
 
-            btnCheckAll = new Button(ViewProperties.getCaption("button.checkAll"));
-            btnCheckAll.setDescription(ViewProperties.getCaption("description.checkAll"));
-            btnCheckAll.addStyleName("borderless");
-            btnCheckAll.addStyleName("checkall");
-            btnCheckAll.setEnabled(false);
-            btnCheckAll.setIcon(Icons.CHECKON.resource());
-            btnCheckAll.addListener(Button.ClickEvent.class, this, "checkAllButtonClick");
+            checkAllButton = new Button(ViewProperties.getCaption("button.checkAll"));
+            checkAllButton.setDescription(ViewProperties.getCaption("description.checkAll"));
+            checkAllButton.addStyleName("borderless");
+            checkAllButton.addStyleName("checkall");
+            checkAllButton.setEnabled(false);
+            checkAllButton.setIcon(Icons.CHECKON.resource());
+            checkAllButton.addListener(Button.ClickEvent.class, this, "checkAllButtonClick");
 
-            btnEnable = new Button(ViewProperties.getCaption("button.enableLoadBalanceServer"));
-            btnEnable.setDescription(ViewProperties.getCaption("description.enableLoadBalanceServer"));
-            btnEnable.setWidth(BUTTON_WIDTH);
-            btnEnable.setIcon(Icons.ENABLE_MINI.resource());
-            btnEnable.setEnabled(false);
-            btnEnable.addListener(Button.ClickEvent.class, this, "enableButtonClick");
+            enableButton = new Button(ViewProperties.getCaption("button.enableLoadBalanceServer"));
+            enableButton.setDescription(ViewProperties.getCaption("description.enableLoadBalanceServer"));
+            enableButton.setWidth(BUTTON_WIDTH);
+            enableButton.setIcon(Icons.ENABLE_MINI.resource());
+            enableButton.setEnabled(false);
+            enableButton.addListener(Button.ClickEvent.class, this, "enableButtonClick");
 
-            btnDisable = new Button(ViewProperties.getCaption("button.disableLoadBalanceServer"));
-            btnDisable.setDescription(ViewProperties.getCaption("description.disableLoadBalanceServer"));
-            btnDisable.setWidth(BUTTON_WIDTH);
-            btnDisable.setIcon(Icons.DISABLE_MINI.resource());
-            btnDisable.setEnabled(false);
-            btnDisable.addListener(Button.ClickEvent.class, this, "disableButtonClick");
+            disableButton = new Button(ViewProperties.getCaption("button.disableLoadBalanceServer"));
+            disableButton.setDescription(ViewProperties.getCaption("description.disableLoadBalanceServer"));
+            disableButton.setWidth(BUTTON_WIDTH);
+            disableButton.setIcon(Icons.DISABLE_MINI.resource());
+            disableButton.setEnabled(false);
+            disableButton.addListener(Button.ClickEvent.class, this, "disableButtonClick");
 
-            addComponent(btnCheckAll);
-            addComponent(btnEnable);
-            addComponent(btnDisable);
+            addComponent(checkAllButton);
+            addComponent(enableButton);
+            addComponent(disableButton);
 
-            setComponentAlignment(btnCheckAll, Alignment.MIDDLE_LEFT);
-            setComponentAlignment(btnEnable, Alignment.BOTTOM_RIGHT);
-            setComponentAlignment(btnDisable, Alignment.BOTTOM_RIGHT);
-            setExpandRatio(btnCheckAll, 1.0f);
+            setComponentAlignment(checkAllButton, Alignment.MIDDLE_LEFT);
+            setComponentAlignment(enableButton, Alignment.BOTTOM_RIGHT);
+            setComponentAlignment(disableButton, Alignment.BOTTOM_RIGHT);
+            setExpandRatio(checkAllButton, 1.0f);
         }
 
         void refresh() {
             Container container = attachServiceServerTable.getContainerDataSource();
             if (container != null && container.getItemIds().size() > 0) {
-                btnCheckAll.setEnabled(true);
-                btnEnable.setEnabled(true);
-                btnDisable.setEnabled(true);
+                checkAllButton.setEnabled(true);
+                enableButton.setEnabled(true);
+                disableButton.setEnabled(true);
             } else {
-                btnCheckAll.setEnabled(false);
-                btnEnable.setEnabled(false);
-                btnDisable.setEnabled(false);
+                checkAllButton.setEnabled(false);
+                enableButton.setEnabled(false);
+                disableButton.setEnabled(false);
             }
 
             UserAuthDto auth = ViewContext.getAuthority();
             //権限に応じて操作可能なボタンを制御する
             if (!auth.isLbOperate()) {
-                btnEnable.setEnabled(false);
-                btnDisable.setEnabled(false);
+                enableButton.setEnabled(false);
+                disableButton.setEnabled(false);
             }
         }
 
@@ -815,20 +800,19 @@ public class LoadBalancerDescServer extends Panel {
                     }
 
                     // ロードバランサテーブルの選択状態を取得
-                    MyCloudTabs myCloudTabs = ((AutoApplication) getApplication()).myCloud.myCloudTabs;
-                    int index = myCloudTabs.loadBalancerTable.getCurrentPageFirstItemIndex();
+                    int index = sender.loadBalancerPanel.loadBalancerTable.getCurrentPageFirstItemIndex();
 
                     // 画面のリフレッシュ
-                    myCloudTabs.refreshTable();
+                    sender.refreshTable();
 
                     // 選択されていたロードバランサを選択し直す
-                    for (Object itemId : myCloudTabs.loadBalancerTable.getItemIds()) {
+                    for (Object itemId : sender.loadBalancerPanel.loadBalancerTable.getItemIds()) {
                         LoadBalancerDto dto2 = (LoadBalancerDto) itemId;
                         if (dto.getLoadBalancer().getLoadBalancerNo()
                                 .equals(dto2.getLoadBalancer().getLoadBalancerNo())) {
-                            myCloudTabs.loadBalancerTable.select(itemId);
-                            myCloudTabs.loadBalancerTable.setCurrentPageFirstItemIndex(index);
-                            myCloudTabs.loadBalancerTableOpe.setButtonStatus(dto2);
+                            sender.loadBalancerPanel.loadBalancerTable.select(itemId);
+                            sender.loadBalancerPanel.loadBalancerTable.setCurrentPageFirstItemIndex(index);
+                            sender.loadBalancerPanel.loadBalancerTableOpe.setButtonStatus(dto2);
                             break;
                         }
                     }
@@ -900,20 +884,19 @@ public class LoadBalancerDescServer extends Panel {
                     }
 
                     // ロードバランサテーブルの選択状態を取得
-                    MyCloudTabs myCloudTabs = ((AutoApplication) getApplication()).myCloud.myCloudTabs;
-                    int index = myCloudTabs.loadBalancerTable.getCurrentPageFirstItemIndex();
+                    int index = sender.loadBalancerPanel.loadBalancerTable.getCurrentPageFirstItemIndex();
 
                     // 画面のリフレッシュ
-                    myCloudTabs.refreshTable();
+                    sender.refreshTable();
 
                     // 選択されていたロードバランサを選択し直す
-                    for (Object itemId : myCloudTabs.loadBalancerTable.getItemIds()) {
+                    for (Object itemId : sender.loadBalancerPanel.loadBalancerTable.getItemIds()) {
                         LoadBalancerDto dto2 = (LoadBalancerDto) itemId;
                         if (dto.getLoadBalancer().getLoadBalancerNo()
                                 .equals(dto2.getLoadBalancer().getLoadBalancerNo())) {
-                            myCloudTabs.loadBalancerTable.select(itemId);
-                            myCloudTabs.loadBalancerTable.setCurrentPageFirstItemIndex(index);
-                            myCloudTabs.loadBalancerTableOpe.setButtonStatus(dto2);
+                            sender.loadBalancerPanel.loadBalancerTable.select(itemId);
+                            sender.loadBalancerPanel.loadBalancerTable.setCurrentPageFirstItemIndex(index);
+                            sender.loadBalancerPanel.loadBalancerTableOpe.setButtonStatus(dto2);
                             break;
                         }
                     }
@@ -928,8 +911,7 @@ public class LoadBalancerDescServer extends Panel {
         attachServiceServerTable.getContainerDataSource().removeAllItems();
         loadBalancerOpe.refresh();
 
-        AutoApplication ap = (AutoApplication) getApplication();
-        LoadBalancerDto dto = (LoadBalancerDto) ap.myCloud.myCloudTabs.loadBalancerTable.getValue();
+        LoadBalancerDto dto = (LoadBalancerDto) sender.loadBalancerPanel.loadBalancerTable.getValue();
         loadBalancerInfo.setItem(dto);
     }
 

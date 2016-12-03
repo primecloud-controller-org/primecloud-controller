@@ -45,17 +45,17 @@ import com.vaadin.ui.Table;
 @SuppressWarnings({ "serial", "unchecked" })
 public class LoadBalancerTable extends Table {
 
-    final String COLUMN_HEIGHT = "28px";
+    private final String COLUMN_HEIGHT = "28px";
 
-    final MyCloudTabs sender;
+    private final MainView sender;
 
     //項目名
-    String[] CAPNAME = { ViewProperties.getCaption("field.no"), ViewProperties.getCaption("field.loadBalancerName"),
-            ViewProperties.getCaption("field.loadBalancerStatus"),
+    private String[] CAPNAME = { ViewProperties.getCaption("field.no"),
+            ViewProperties.getCaption("field.loadBalancerName"), ViewProperties.getCaption("field.loadBalancerStatus"),
             ViewProperties.getCaption("field.loadBalancerHostname"),
             ViewProperties.getCaption("field.loadBalancerType"), ViewProperties.getCaption("field.loadBalancerService") };
 
-    LoadBalancerTable(String caption, Container container, final MyCloudTabs sender) {
+    LoadBalancerTable(String caption, Container container, final MainView sender) {
         super(caption, container);
 
         this.sender = sender;
@@ -155,7 +155,7 @@ public class LoadBalancerTable extends Table {
             public Component generateCell(Table source, Object itemId, Object columnId) {
                 LoadBalancerDto p = (LoadBalancerDto) itemId;
                 ComponentDto componentDto = null;
-                for (ComponentDto dto : (Collection<ComponentDto>) sender.serviceTable.getItemIds()) {
+                for (ComponentDto dto : (Collection<ComponentDto>) sender.servicePanel.serviceTable.getItemIds()) {
                     if (dto.getComponent().getComponentNo().equals(p.getLoadBalancer().getComponentNo())) {
                         componentDto = dto;
                         break;

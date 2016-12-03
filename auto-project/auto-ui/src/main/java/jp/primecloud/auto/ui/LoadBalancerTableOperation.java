@@ -54,31 +54,31 @@ import com.vaadin.ui.Window.CloseEvent;
 @SuppressWarnings("serial")
 public class LoadBalancerTableOperation extends CssLayout {
 
-    Button btnNew;
+    private MainView sender;
 
-    Button btnEdit;
+    private Button addButton;
 
-    Button btnDelete;
+    private Button editButton;
 
-    Button btnStart;
+    private Button deleteButton;
 
-    Button btnStop;
+    private Button startButton;
 
-    MyCloudTabs myCloudTabs;
+    private Button stopButton;
 
-    LoadBalancerTableOperation(MyCloudTabs sender) {
-        this.myCloudTabs = sender;
+    LoadBalancerTableOperation(MainView sender) {
+        this.sender = sender;
 
         addStyleName("loadbalancer-table-operation");
         setWidth("100%");
         setMargin(true);
 
         // Newボタン
-        btnNew = new Button(ViewProperties.getCaption("button.addLoadBalancer"));
-        btnNew.setDescription(ViewProperties.getCaption("description.addLoadBalancer"));
-        btnNew.setIcon(Icons.ADD.resource());
-        btnNew.addStyleName("left");
-        btnNew.addListener(new Button.ClickListener() {
+        addButton = new Button(ViewProperties.getCaption("button.addLoadBalancer"));
+        addButton.setDescription(ViewProperties.getCaption("description.addLoadBalancer"));
+        addButton.setIcon(Icons.ADD.resource());
+        addButton.addStyleName("left");
+        addButton.addListener(new Button.ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
                 addButtonClick();
@@ -86,12 +86,12 @@ public class LoadBalancerTableOperation extends CssLayout {
         });
 
         // Editボタン
-        btnEdit = new Button(ViewProperties.getCaption("button.editLoadBalancer"));
-        btnEdit.setDescription(ViewProperties.getCaption("description.editLoadBalancer"));
-        btnEdit.setWidth("90px");
-        btnEdit.setIcon(Icons.EDITMINI.resource());
-        btnEdit.addStyleName("left");
-        btnEdit.addListener(new Button.ClickListener() {
+        editButton = new Button(ViewProperties.getCaption("button.editLoadBalancer"));
+        editButton.setDescription(ViewProperties.getCaption("description.editLoadBalancer"));
+        editButton.setWidth("90px");
+        editButton.setIcon(Icons.EDITMINI.resource());
+        editButton.addStyleName("left");
+        editButton.addListener(new Button.ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
                 editButtonClick();
@@ -99,12 +99,12 @@ public class LoadBalancerTableOperation extends CssLayout {
         });
 
         // Deleteボタン
-        btnDelete = new Button(ViewProperties.getCaption("button.deleteLoadBalancer"));
-        btnDelete.setDescription(ViewProperties.getCaption("description.deleteLoadBalancer"));
-        btnDelete.setWidth("90px");
-        btnDelete.setIcon(Icons.DELETEMINI.resource());
-        btnDelete.addStyleName("left");
-        btnDelete.addListener(new Button.ClickListener() {
+        deleteButton = new Button(ViewProperties.getCaption("button.deleteLoadBalancer"));
+        deleteButton.setDescription(ViewProperties.getCaption("description.deleteLoadBalancer"));
+        deleteButton.setWidth("90px");
+        deleteButton.setIcon(Icons.DELETEMINI.resource());
+        deleteButton.addStyleName("left");
+        deleteButton.addListener(new Button.ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
                 delButtonClick();
@@ -112,12 +112,12 @@ public class LoadBalancerTableOperation extends CssLayout {
         });
 
         // Startボタン
-        btnStart = new Button(ViewProperties.getCaption("button.startLoadBalancer"));
-        btnStart.setDescription(ViewProperties.getCaption("description.startLoadBalancer"));
-        btnStart.setWidth("90px");
-        btnStart.setIcon(Icons.PLAYMINI.resource());
-        btnStart.addStyleName("right");
-        btnStart.addListener(new Button.ClickListener() {
+        startButton = new Button(ViewProperties.getCaption("button.startLoadBalancer"));
+        startButton.setDescription(ViewProperties.getCaption("description.startLoadBalancer"));
+        startButton.setWidth("90px");
+        startButton.setIcon(Icons.PLAYMINI.resource());
+        startButton.addStyleName("right");
+        startButton.addListener(new Button.ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
                 playButtonClick();
@@ -125,12 +125,12 @@ public class LoadBalancerTableOperation extends CssLayout {
         });
 
         // Stopボタン
-        btnStop = new Button(ViewProperties.getCaption("button.stopLoadBalancer"));
-        btnStop.setDescription(ViewProperties.getCaption("description.stopLoadBalancer"));
-        btnStop.setWidth("90px");
-        btnStop.setIcon(Icons.STOPMINI.resource());
-        btnStop.addStyleName("right");
-        btnStop.addListener(new Button.ClickListener() {
+        stopButton = new Button(ViewProperties.getCaption("button.stopLoadBalancer"));
+        stopButton.setDescription(ViewProperties.getCaption("description.stopLoadBalancer"));
+        stopButton.setWidth("90px");
+        stopButton.setIcon(Icons.STOPMINI.resource());
+        stopButton.addStyleName("right");
+        stopButton.addListener(new Button.ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
                 stopButtonClick();
@@ -143,27 +143,27 @@ public class LoadBalancerTableOperation extends CssLayout {
         Label spacer = new Label(" ", Label.CONTENT_XHTML);
         spacer.setWidth("30px");
         spacer.addStyleName("left");
-        addComponent(btnNew);
+        addComponent(addButton);
         addComponent(spacer);
-        addComponent(btnEdit);
-        addComponent(btnDelete);
-        addComponent(btnStop);
-        addComponent(btnStart);
+        addComponent(editButton);
+        addComponent(deleteButton);
+        addComponent(stopButton);
+        addComponent(startButton);
 
     }
 
     void hide() {
         //ボタンの初期化
-        btnNew.setEnabled(true);
-        btnEdit.setEnabled(false);
-        btnDelete.setEnabled(false);
-        btnStart.setEnabled(false);
-        btnStop.setEnabled(false);
+        addButton.setEnabled(true);
+        editButton.setEnabled(false);
+        deleteButton.setEnabled(false);
+        startButton.setEnabled(false);
+        stopButton.setEnabled(false);
 
         //作成権限がなければ非活性
         UserAuthDto auth = ViewContext.getAuthority();
         if (!auth.isLbMake()) {
-            btnNew.setEnabled(false);
+            addButton.setEnabled(false);
         }
     }
 
@@ -174,42 +174,42 @@ public class LoadBalancerTableOperation extends CssLayout {
             // TODO: ロードバランサーステータス取得ロジック
             //status = loadbalancer.getStatus();
             if ("STOPPED".equals(status)) {
-                btnEdit.setEnabled(true);
-                btnDelete.setEnabled(true);
-                btnStart.setEnabled(true);
-                btnStop.setEnabled(false);
+                editButton.setEnabled(true);
+                deleteButton.setEnabled(true);
+                startButton.setEnabled(true);
+                stopButton.setEnabled(false);
 
             } else if ("RUNNING".equals(status)) {
-                btnEdit.setEnabled(true);
-                btnDelete.setEnabled(false);
-                btnStart.setEnabled(false);
-                btnStop.setEnabled(true);
+                editButton.setEnabled(true);
+                deleteButton.setEnabled(false);
+                startButton.setEnabled(false);
+                stopButton.setEnabled(true);
 
             } else if ("WARNING".equals(status)) {
-                btnEdit.setEnabled(false);
-                btnDelete.setEnabled(false);
-                btnStart.setEnabled(false);
-                btnStop.setEnabled(true);
+                editButton.setEnabled(false);
+                deleteButton.setEnabled(false);
+                startButton.setEnabled(false);
+                stopButton.setEnabled(true);
 
             } else {
-                btnEdit.setEnabled(true);
-                btnDelete.setEnabled(false);
-                btnStart.setEnabled(false);
-                btnStop.setEnabled(false);
+                editButton.setEnabled(true);
+                deleteButton.setEnabled(false);
+                startButton.setEnabled(false);
+                stopButton.setEnabled(false);
             }
 
             UserAuthDto auth = ViewContext.getAuthority();
             //権限に応じて操作可能なボタンを制御する
             if (!auth.isLbMake()) {
-                btnNew.setEnabled(false);
-                btnEdit.setEnabled(false);
+                addButton.setEnabled(false);
+                editButton.setEnabled(false);
             }
             if (!auth.isLbDelete()) {
-                btnDelete.setEnabled(false);
+                deleteButton.setEnabled(false);
             }
             if (!auth.isLbOperate()) {
-                btnStart.setEnabled(false);
-                btnStop.setEnabled(false);
+                startButton.setEnabled(false);
+                stopButton.setEnabled(false);
             }
 
         } else {
@@ -220,21 +220,21 @@ public class LoadBalancerTableOperation extends CssLayout {
 
     public void addButtonClick() {
         // ロードバランサ追加処理
-        final LoadBalancerDto dto = (LoadBalancerDto) myCloudTabs.loadBalancerTable.getValue();
+        final LoadBalancerDto dto = (LoadBalancerDto) sender.loadBalancerPanel.loadBalancerTable.getValue();
 
         WinLoadBalancerAdd winLoadBalancerAdd = new WinLoadBalancerAdd();
         winLoadBalancerAdd.addListener(new Window.CloseListener() {
             @Override
             public void windowClose(CloseEvent e) {
-                myCloudTabs.refreshTable();
+                sender.refreshTable();
 
                 // 選択されていたロードバランサを選択し直す
                 if (dto != null) {
-                    for (Object itemId : myCloudTabs.loadBalancerTable.getItemIds()) {
+                    for (Object itemId : sender.loadBalancerPanel.loadBalancerTable.getItemIds()) {
                         LoadBalancerDto dto2 = (LoadBalancerDto) itemId;
                         if (dto.getLoadBalancer().getLoadBalancerNo()
                                 .equals(dto2.getLoadBalancer().getLoadBalancerNo())) {
-                            myCloudTabs.loadBalancerTable.select(itemId);
+                            sender.loadBalancerPanel.loadBalancerTable.select(itemId);
                             break;
                         }
                     }
@@ -246,8 +246,8 @@ public class LoadBalancerTableOperation extends CssLayout {
 
     public void playButtonClick() {
         // ロードバランサ開始処理
-        final LoadBalancerDto dto = (LoadBalancerDto) myCloudTabs.loadBalancerTable.getValue();
-        final int index = myCloudTabs.loadBalancerTable.getCurrentPageFirstItemIndex();
+        final LoadBalancerDto dto = (LoadBalancerDto) sender.loadBalancerPanel.loadBalancerTable.getValue();
+        final int index = sender.loadBalancerPanel.loadBalancerTable.getCurrentPageFirstItemIndex();
 
         if (PCCConstant.LOAD_BALANCER_ELB.equals(dto.getLoadBalancer().getType())) {
             PlatformDto platform = dto.getPlatform();
@@ -281,14 +281,14 @@ public class LoadBalancerTableOperation extends CssLayout {
 
                 list.add(dto.getLoadBalancer().getLoadBalancerNo());
                 processService.startLoadBalancers(farmNo, list);
-                myCloudTabs.refreshTable();
+                sender.refreshTable();
 
                 // 選択されていたロードバランサを選択し直す
-                for (Object itemId : myCloudTabs.loadBalancerTable.getItemIds()) {
+                for (Object itemId : sender.loadBalancerPanel.loadBalancerTable.getItemIds()) {
                     LoadBalancerDto dto2 = (LoadBalancerDto) itemId;
                     if (dto.getLoadBalancer().getLoadBalancerNo().equals(dto2.getLoadBalancer().getLoadBalancerNo())) {
-                        myCloudTabs.loadBalancerTable.select(itemId);
-                        myCloudTabs.loadBalancerTable.setCurrentPageFirstItemIndex(index);
+                        sender.loadBalancerPanel.loadBalancerTable.select(itemId);
+                        sender.loadBalancerPanel.loadBalancerTable.setCurrentPageFirstItemIndex(index);
                         setButtonStatus(dto2);
                         break;
                     }
@@ -300,8 +300,8 @@ public class LoadBalancerTableOperation extends CssLayout {
 
     public void stopButtonClick() {
         // ロードバランサ停止処理
-        final LoadBalancerDto dto = (LoadBalancerDto) myCloudTabs.loadBalancerTable.getValue();
-        final int index = myCloudTabs.loadBalancerTable.getCurrentPageFirstItemIndex();
+        final LoadBalancerDto dto = (LoadBalancerDto) sender.loadBalancerPanel.loadBalancerTable.getValue();
+        final int index = sender.loadBalancerPanel.loadBalancerTable.getCurrentPageFirstItemIndex();
 
         String message = ViewMessages.getMessage("IUI-000058", dto.getLoadBalancer().getLoadBalancerName());
         DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message, Buttons.OKCancel);
@@ -322,14 +322,14 @@ public class LoadBalancerTableOperation extends CssLayout {
                         .getLoadBalancerNo(), null);
 
                 processService.stopLoadBalancers(farmNo, list);
-                myCloudTabs.refreshTable();
+                sender.refreshTable();
 
                 // 選択されていたロードバランサを選択し直す
-                for (Object itemId : myCloudTabs.loadBalancerTable.getItemIds()) {
+                for (Object itemId : sender.loadBalancerPanel.loadBalancerTable.getItemIds()) {
                     LoadBalancerDto dto2 = (LoadBalancerDto) itemId;
                     if (dto.getLoadBalancer().getLoadBalancerNo().equals(dto2.getLoadBalancer().getLoadBalancerNo())) {
-                        myCloudTabs.loadBalancerTable.select(itemId);
-                        myCloudTabs.loadBalancerTable.setCurrentPageFirstItemIndex(index);
+                        sender.loadBalancerPanel.loadBalancerTable.select(itemId);
+                        sender.loadBalancerPanel.loadBalancerTable.setCurrentPageFirstItemIndex(index);
                         setButtonStatus(dto2);
                         break;
                     }
@@ -341,8 +341,8 @@ public class LoadBalancerTableOperation extends CssLayout {
 
     public void editButtonClick() {
         // ロードバランサ編集処理
-        final LoadBalancerDto dto = (LoadBalancerDto) myCloudTabs.loadBalancerTable.getValue();
-        final int index = myCloudTabs.loadBalancerTable.getCurrentPageFirstItemIndex();
+        final LoadBalancerDto dto = (LoadBalancerDto) sender.loadBalancerPanel.loadBalancerTable.getValue();
+        final int index = sender.loadBalancerPanel.loadBalancerTable.getCurrentPageFirstItemIndex();
 
         Long loadBalancerNo = dto.getLoadBalancer().getLoadBalancerNo();
         if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(dto.getLoadBalancer().getType())) {
@@ -350,15 +350,15 @@ public class LoadBalancerTableOperation extends CssLayout {
             winLoadBalancerEdit.addListener(new Window.CloseListener() {
                 @Override
                 public void windowClose(CloseEvent e) {
-                    myCloudTabs.refreshTable();
+                    sender.refreshTable();
 
                     // 選択されていたロードバランサを選択し直す
-                    for (Object itemId : myCloudTabs.loadBalancerTable.getItemIds()) {
+                    for (Object itemId : sender.loadBalancerPanel.loadBalancerTable.getItemIds()) {
                         LoadBalancerDto dto2 = (LoadBalancerDto) itemId;
                         if (dto.getLoadBalancer().getLoadBalancerNo()
                                 .equals(dto2.getLoadBalancer().getLoadBalancerNo())) {
-                            myCloudTabs.loadBalancerTable.select(itemId);
-                            myCloudTabs.loadBalancerTable.setCurrentPageFirstItemIndex(index);
+                            sender.loadBalancerPanel.loadBalancerTable.select(itemId);
+                            sender.loadBalancerPanel.loadBalancerTable.setCurrentPageFirstItemIndex(index);
                             setButtonStatus(dto2);
                             break;
                         }
@@ -371,15 +371,15 @@ public class LoadBalancerTableOperation extends CssLayout {
             winLoadBalancerEdit.addListener(new Window.CloseListener() {
                 @Override
                 public void windowClose(CloseEvent e) {
-                    myCloudTabs.refreshTable();
+                    sender.refreshTable();
 
                     // 選択されていたロードバランサを選択し直す
-                    for (Object itemId : myCloudTabs.loadBalancerTable.getItemIds()) {
+                    for (Object itemId : sender.loadBalancerPanel.loadBalancerTable.getItemIds()) {
                         LoadBalancerDto dto2 = (LoadBalancerDto) itemId;
                         if (dto.getLoadBalancer().getLoadBalancerNo()
                                 .equals(dto2.getLoadBalancer().getLoadBalancerNo())) {
-                            myCloudTabs.loadBalancerTable.select(itemId);
-                            myCloudTabs.loadBalancerTable.setCurrentPageFirstItemIndex(index);
+                            sender.loadBalancerPanel.loadBalancerTable.select(itemId);
+                            sender.loadBalancerPanel.loadBalancerTable.setCurrentPageFirstItemIndex(index);
                             setButtonStatus(dto2);
                             break;
                         }
@@ -388,13 +388,13 @@ public class LoadBalancerTableOperation extends CssLayout {
             });
             getWindow().addWindow(winLoadBalancerEdit);
         }
-        myCloudTabs.refreshTable();
+        sender.refreshTable();
     }
 
     public void delButtonClick() {
         // ロードバランサ削除処理
-        final LoadBalancerDto dto = (LoadBalancerDto) myCloudTabs.loadBalancerTable.getValue();
-        final int index = myCloudTabs.loadBalancerTable.getCurrentPageFirstItemIndex();
+        final LoadBalancerDto dto = (LoadBalancerDto) sender.loadBalancerPanel.loadBalancerTable.getValue();
+        final int index = sender.loadBalancerPanel.loadBalancerTable.getCurrentPageFirstItemIndex();
 
         String message = ViewMessages.getMessage("IUI-000056", dto.getLoadBalancer().getLoadBalancerName());
         DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message, Buttons.OKCancel);
@@ -413,9 +413,9 @@ public class LoadBalancerTableOperation extends CssLayout {
                 Long loadBalancerNo = dto.getLoadBalancer().getLoadBalancerNo();
                 LoadBalancerService loadBalancerService = BeanContext.getBean(LoadBalancerService.class);
                 loadBalancerService.deleteLoadBalancer(loadBalancerNo);
-                myCloudTabs.loadBalancerTable.select(null);
-                myCloudTabs.refreshTable();
-                myCloudTabs.loadBalancerTable.setCurrentPageFirstItemIndex(index);
+                sender.loadBalancerPanel.loadBalancerTable.select(null);
+                sender.refreshTable();
+                sender.loadBalancerPanel.loadBalancerTable.setCurrentPageFirstItemIndex(index);
             }
         });
         getApplication().getMainWindow().addWindow(dialog);
@@ -427,49 +427,49 @@ public class LoadBalancerTableOperation extends CssLayout {
 
             switch (status) {
                 case STOPPED:
-                    btnStart.setEnabled(true);
-                    btnStop.setEnabled(false);
-                    btnEdit.setEnabled(true);
-                    btnDelete.setEnabled(true);
+                    startButton.setEnabled(true);
+                    stopButton.setEnabled(false);
+                    editButton.setEnabled(true);
+                    deleteButton.setEnabled(true);
                     break;
 
                 case RUNNING:
-                    btnStart.setEnabled(true);
-                    btnStop.setEnabled(true);
-                    btnEdit.setEnabled(true);
-                    btnDelete.setEnabled(false);
+                    startButton.setEnabled(true);
+                    stopButton.setEnabled(true);
+                    editButton.setEnabled(true);
+                    deleteButton.setEnabled(false);
                     break;
 
                 case WARNING:
-                    btnStart.setEnabled(false);
-                    btnStop.setEnabled(true);
-                    btnEdit.setEnabled(false);
-                    btnDelete.setEnabled(false);
+                    startButton.setEnabled(false);
+                    stopButton.setEnabled(true);
+                    editButton.setEnabled(false);
+                    deleteButton.setEnabled(false);
                     break;
 
                 case STARTING:
                 case CONFIGURING:
                 case STOPPING:
                 default:
-                    btnStart.setEnabled(false);
-                    btnStop.setEnabled(false);
-                    btnEdit.setEnabled(false);
-                    btnDelete.setEnabled(false);
+                    startButton.setEnabled(false);
+                    stopButton.setEnabled(false);
+                    editButton.setEnabled(false);
+                    deleteButton.setEnabled(false);
                     break;
             }
 
             UserAuthDto auth = ViewContext.getAuthority();
             //権限に応じて操作可能なボタンを制御する
             if (!auth.isLbMake()) {
-                btnNew.setEnabled(false);
-                btnEdit.setEnabled(false);
+                addButton.setEnabled(false);
+                editButton.setEnabled(false);
             }
             if (!auth.isLbDelete()) {
-                btnDelete.setEnabled(false);
+                deleteButton.setEnabled(false);
             }
             if (!auth.isLbOperate()) {
-                btnStart.setEnabled(false);
-                btnStop.setEnabled(false);
+                startButton.setEnabled(false);
+                stopButton.setEnabled(false);
             }
         } else {
             hide();

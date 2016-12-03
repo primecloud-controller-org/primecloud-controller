@@ -73,7 +73,7 @@ public class ServiceDescDetail extends Panel {
 
     class DetailInfoOpe extends VerticalLayout {
 
-        Label serviceName = new Label();
+        private Label serviceName = new Label();
 
         DetailInfoOpe() {
             addStyleName("service-desc-detail-info");

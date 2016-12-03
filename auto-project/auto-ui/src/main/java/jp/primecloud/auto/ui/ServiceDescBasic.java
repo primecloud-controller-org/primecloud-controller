@@ -75,13 +75,16 @@ import com.vaadin.ui.themes.Reindeer;
 @SuppressWarnings({ "serial", "unchecked" })
 public class ServiceDescBasic extends Panel {
 
+    private MainView sender;
+
     BasicInfoOpe left = new BasicInfoOpe();
 
     AttachServersOpe right = new AttachServersOpe("", null);
 
     ServiceSvrOperation serverOpe = new ServiceSvrOperation();
 
-    public ServiceDescBasic() {
+    public ServiceDescBasic(MainView sender) {
+        this.sender = sender;
 
         addStyleName(Reindeer.PANEL_LIGHT);
 
@@ -135,10 +138,10 @@ public class ServiceDescBasic extends Panel {
     //右側サーバ一覧パネル
     class AttachServersOpe extends Table {
 
-        final String COLUMN_HEIGHT = "28px";
+        private final String COLUMN_HEIGHT = "28px";
 
         //項目名
-        String[] COLNAME = { null, ViewProperties.getCaption("field.serverName"),
+        private String[] COLNAME = { null, ViewProperties.getCaption("field.serverName"),
                 ViewProperties.getCaption("field.managementUrl"), ViewProperties.getCaption("field.serviceStatus"),
                 ViewProperties.getCaption("field.platform") };
 
@@ -249,17 +252,7 @@ public class ServiceDescBasic extends Panel {
                 public Component generateCell(Table source, Object itemId, Object columnId) {
                     InstanceDto p = (InstanceDto) itemId;
 
-                    MyCloudTabs myCloudTabs = null;
-                    Component component = AttachServersOpe.this;
-                    while (component != null) {
-                        if (component instanceof MyCloudTabs) {
-                            myCloudTabs = (MyCloudTabs) component;
-                            break;
-                        }
-                        component = component.getParent();
-                    }
-
-                    ComponentDto componentDto = (ComponentDto) myCloudTabs.serviceTable.getValue();
+                    ComponentDto componentDto = (ComponentDto) sender.servicePanel.serviceTable.getValue();
                     String status = "";
                     for (ComponentInstanceDto componentInstance : componentDto.getComponentInstances()) {
                         if (componentInstance.getComponentInstance().getInstanceNo()
@@ -361,26 +354,26 @@ public class ServiceDescBasic extends Panel {
 
     class BasicInfoOpe extends Panel {
 
-        Label serviceName;
+        private Label serviceName;
 
-        VerticalLayout vlLoadBalancer;
+        private VerticalLayout vlLoadBalancer;
 
-        Label serviceDetail;
+        private Label serviceDetail;
 
-        Label status;
+        private Label status;
 
-        Label comment;
+        private Label comment;
 
-        ComponentDto component;
+        private ComponentDto component;
 
-        final String COLUMN_HEIGHT = "30px";
+        private final String COLUMN_HEIGHT = "30px";
 
         //項目名
-        String[] CAPNAME = { ViewProperties.getCaption("field.serviceName"),
+        private String[] CAPNAME = { ViewProperties.getCaption("field.serviceName"),
                 ViewProperties.getCaption("field.service"), ViewProperties.getCaption("field.status"),
                 ViewProperties.getCaption("field.comment"), ViewProperties.getCaption("field.loadBalancer"), };
 
-        GridLayout layout;
+        private GridLayout layout;
 
         BasicInfoOpe() {
             setCaption(ViewProperties.getCaption("table.serviceBasicInfo"));
@@ -447,16 +440,8 @@ public class ServiceDescBasic extends Panel {
                 vlLoadBalancer = new VerticalLayout();
                 vlLoadBalancer.setSpacing(false);
 
-                MyCloudTabs myCloudTabs = null;
-                Component c = BasicInfoOpe.this;
-                while (c != null) {
-                    if (c instanceof MyCloudTabs) {
-                        myCloudTabs = (MyCloudTabs) c;
-                        break;
-                    }
-                    c = c.getParent();
-                }
-                for (LoadBalancerDto lbDto : (Collection<LoadBalancerDto>) myCloudTabs.loadBalancerTable.getItemIds()) {
+                for (LoadBalancerDto lbDto : (Collection<LoadBalancerDto>) sender.loadBalancerPanel.loadBalancerTable
+                        .getItemIds()) {
                     if (dto.getComponent().getComponentNo().equals(lbDto.getLoadBalancer().getComponentNo())) {
                         vlLoadBalancer.addComponent(getLoadBalancerButton(lbDto));
                     }
@@ -494,38 +479,29 @@ public class ServiceDescBasic extends Panel {
         }
 
         Button getLoadBalancerButton(LoadBalancerDto lbDto) {
-            Button btn = new Button();
-            btn.setCaption(lbDto.getLoadBalancer().getLoadBalancerName());
-            btn.setIcon(Icons.LOADBALANCER_TAB.resource());
-            btn.setData(lbDto);
-            btn.addStyleName("borderless");
-            btn.addStyleName("loadbalancer-button");
-            btn.addListener(new Button.ClickListener() {
+            Button button = new Button();
+            button.setCaption(lbDto.getLoadBalancer().getLoadBalancerName());
+            button.setIcon(Icons.LOADBALANCER_TAB.resource());
+            button.setData(lbDto);
+            button.addStyleName("borderless");
+            button.addStyleName("loadbalancer-button");
+            button.addListener(new Button.ClickListener() {
                 @Override
                 public void buttonClick(ClickEvent event) {
                     loadBalancerButtonClick(event);
                 }
             });
-            return btn;
+            return button;
         }
 
         void loadBalancerButtonClick(ClickEvent event) {
-            Button btn = event.getButton();
-            LoadBalancerDto dto = (LoadBalancerDto) btn.getData();
+            Button button = event.getButton();
+            LoadBalancerDto dto = (LoadBalancerDto) button.getData();
 
-            MyCloudTabs myCloudTabs = null;
-            Component c = ServiceDescBasic.this;
-            while (c != null) {
-                if (c instanceof MyCloudTabs) {
-                    myCloudTabs = (MyCloudTabs) c;
-                    break;
-                }
-                c = c.getParent();
-            }
             //該当ロードバランサーを選択
-            myCloudTabs.loadBalancerTable.select(dto);
+            sender.loadBalancerPanel.loadBalancerTable.select(dto);
             //ロードバランサーTabに移動
-            myCloudTabs.tabDesc.setSelectedTab(myCloudTabs.pnLoadBalancer);
+            sender.tab.setSelectedTab(sender.loadBalancerPanel);
         }
 
     }
@@ -538,11 +514,11 @@ public class ServiceDescBasic extends Panel {
 
     public class ServiceSvrOperation extends HorizontalLayout {
 
-        Button btnCheckAll;
+        private Button checkAllButton;
 
-        Button btnStart;
+        private Button startButton;
 
-        Button btnStop;
+        private Button stopButton;
 
         ServiceSvrOperation() {
             addStyleName("operation-buttons");
@@ -550,55 +526,55 @@ public class ServiceDescBasic extends Panel {
             setWidth("100%");
             setSpacing(true);
 
-            btnCheckAll = new Button(ViewProperties.getCaption("button.checkAll"));
-            btnCheckAll.setDescription(ViewProperties.getCaption("description.checkAll"));
-            btnCheckAll.addStyleName("borderless");
-            btnCheckAll.addStyleName("checkall");
-            btnCheckAll.setEnabled(false);
-            btnCheckAll.setIcon(Icons.CHECKON.resource());
-            btnCheckAll.addListener(Button.ClickEvent.class, this, "checkAllButtonClick");
+            checkAllButton = new Button(ViewProperties.getCaption("button.checkAll"));
+            checkAllButton.setDescription(ViewProperties.getCaption("description.checkAll"));
+            checkAllButton.addStyleName("borderless");
+            checkAllButton.addStyleName("checkall");
+            checkAllButton.setEnabled(false);
+            checkAllButton.setIcon(Icons.CHECKON.resource());
+            checkAllButton.addListener(Button.ClickEvent.class, this, "checkAllButtonClick");
 
-            btnStart = new Button(ViewProperties.getCaption("button.startService"));
-            btnStart.setDescription(ViewProperties.getCaption("description.startService"));
-            btnStart.setWidth("90px");
-            btnStart.setIcon(Icons.PLAYMINI.resource());
-            btnStart.setEnabled(false);
-            btnStart.addListener(Button.ClickEvent.class, this, "playButtonClick");
+            startButton = new Button(ViewProperties.getCaption("button.startService"));
+            startButton.setDescription(ViewProperties.getCaption("description.startService"));
+            startButton.setWidth("90px");
+            startButton.setIcon(Icons.PLAYMINI.resource());
+            startButton.setEnabled(false);
+            startButton.addListener(Button.ClickEvent.class, this, "playButtonClick");
 
-            btnStop = new Button(ViewProperties.getCaption("button.stopService"));
-            btnStop.setDescription(ViewProperties.getCaption("description.stopService"));
-            btnStop.setWidth("90px");
-            btnStop.setIcon(Icons.STOPMINI.resource());
-            btnStop.setEnabled(false);
-            btnStop.addListener(Button.ClickEvent.class, this, "stopButtonClick");
+            stopButton = new Button(ViewProperties.getCaption("button.stopService"));
+            stopButton.setDescription(ViewProperties.getCaption("description.stopService"));
+            stopButton.setWidth("90px");
+            stopButton.setIcon(Icons.STOPMINI.resource());
+            stopButton.setEnabled(false);
+            stopButton.addListener(Button.ClickEvent.class, this, "stopButtonClick");
 
-            addComponent(btnCheckAll);
-            addComponent(btnStart);
-            addComponent(btnStop);
+            addComponent(checkAllButton);
+            addComponent(startButton);
+            addComponent(stopButton);
 
-            setComponentAlignment(btnCheckAll, Alignment.MIDDLE_LEFT);
-            setComponentAlignment(btnStart, Alignment.BOTTOM_RIGHT);
-            setComponentAlignment(btnStop, Alignment.BOTTOM_RIGHT);
-            setExpandRatio(btnCheckAll, 1.0f);
+            setComponentAlignment(checkAllButton, Alignment.MIDDLE_LEFT);
+            setComponentAlignment(startButton, Alignment.BOTTOM_RIGHT);
+            setComponentAlignment(stopButton, Alignment.BOTTOM_RIGHT);
+            setExpandRatio(checkAllButton, 1.0f);
         }
 
         void refresh() {
             Container container = right.getContainerDataSource();
             if (container != null && container.getItemIds().size() > 0) {
-                btnCheckAll.setEnabled(true);
-                btnStart.setEnabled(true);
-                btnStop.setEnabled(true);
+                checkAllButton.setEnabled(true);
+                startButton.setEnabled(true);
+                stopButton.setEnabled(true);
             } else {
-                btnCheckAll.setEnabled(false);
-                btnStart.setEnabled(false);
-                btnStop.setEnabled(false);
+                checkAllButton.setEnabled(false);
+                startButton.setEnabled(false);
+                stopButton.setEnabled(false);
             }
 
             UserAuthDto auth = ViewContext.getAuthority();
             //権限に応じて操作可能なボタンを制御する
             if (!auth.isServiceOperate()) {
-                btnStart.setEnabled(false);
-                btnStop.setEnabled(false);
+                startButton.setEnabled(false);
+                stopButton.setEnabled(false);
             }
         }
 
@@ -855,15 +831,7 @@ public class ServiceDescBasic extends Panel {
         }
 
         public void refresh(Component component) {
-            MyCloudTabs myCloudTabs = null;
-            while (component != null) {
-                if (component instanceof MyCloudTabs) {
-                    myCloudTabs = (MyCloudTabs) component;
-                    break;
-                }
-                component = component.getParent();
-            }
-            myCloudTabs.refreshTableOnly();
+            sender.refreshTableOnly();
         }
 
     }

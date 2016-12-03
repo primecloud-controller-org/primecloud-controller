@@ -73,7 +73,8 @@ public class ServerDescDetail extends Panel {
     }
 
     class DetailInfo extends VerticalLayout {
-        Label serverName = new Label();
+
+        private Label serverName = new Label();
 
         DetailInfo() {
             setMargin(false, false, false, true);

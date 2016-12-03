@@ -44,7 +44,13 @@ import com.vaadin.ui.Window.CloseListener;
 @SuppressWarnings("serial")
 public class TopBar extends CssLayout {
 
-    private Button btnAccount;
+    private MainView sender;
+
+    private Button accountButton;
+
+    public TopBar(MainView sender) {
+        this.sender = sender;
+    }
 
     @Override
     public void attach() {
@@ -73,19 +79,19 @@ public class TopBar extends CssLayout {
         }
 
         // myCloud管理ボタン
-        Button btnMyCloud = new Button(ViewProperties.getCaption("button.myCloudManage"));
-        btnMyCloud.setDescription(ViewProperties.getCaption("description.myCloudManage"));
-        btnMyCloud.addStyleName("borderless");
-        btnMyCloud.addStyleName("mycloud");
-        btnMyCloud.setIcon(Icons.CLOUDBIG.resource());
-        btnMyCloud.setVisible(true);
-        btnMyCloud.addListener(new Button.ClickListener() {
+        Button myCloudButton = new Button(ViewProperties.getCaption("button.myCloudManage"));
+        myCloudButton.setDescription(ViewProperties.getCaption("description.myCloudManage"));
+        myCloudButton.addStyleName("borderless");
+        myCloudButton.addStyleName("mycloud");
+        myCloudButton.setIcon(Icons.CLOUDBIG.resource());
+        myCloudButton.setVisible(true);
+        myCloudButton.addListener(new Button.ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
                 showCloudEditWindow();
             }
         });
-        addComponent(btnMyCloud);
+        addComponent(myCloudButton);
 
         // 監視システム(Zabbix)リンク
         String url = Config.getProperty("zabbix.display");
@@ -97,13 +103,13 @@ public class TopBar extends CssLayout {
         addComponent(zabbix);
 
         // イベントログ表示ボタン
-        Button btnLogView = new Button(ViewProperties.getCaption("link.eventlog"));
-        btnLogView.setDescription(ViewProperties.getCaption("description.link.eventlog"));
-        btnLogView.addStyleName("borderless");
-        btnLogView.addStyleName("eventlog");
-        btnLogView.setIcon(Icons.CUSTOM.resource());
-        btnLogView.setVisible(true);
-        btnLogView.addListener(new Button.ClickListener() {
+        Button eventLogButton = new Button(ViewProperties.getCaption("link.eventlog"));
+        eventLogButton.setDescription(ViewProperties.getCaption("description.link.eventlog"));
+        eventLogButton.addStyleName("borderless");
+        eventLogButton.addStyleName("eventlog");
+        eventLogButton.setIcon(Icons.CUSTOM.resource());
+        eventLogButton.setVisible(true);
+        eventLogButton.addListener(new Button.ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
                 WinLogView window = new WinLogView();
@@ -111,7 +117,7 @@ public class TopBar extends CssLayout {
                 getApplication().getMainWindow().open(new ExternalResource(window.getURL()), "_blank");
             }
         });
-        addComponent(btnLogView);
+        addComponent(eventLogButton);
 
         // 課金システムリンク
         Boolean usePayment = BooleanUtils.toBooleanObject(Config.getProperty("payment.usePayment"));
@@ -126,12 +132,12 @@ public class TopBar extends CssLayout {
         }
 
         // ログアウトボタン
-        Button btnLogout = new Button(ViewProperties.getCaption("button.logout"));
-        btnLogout.setDescription(ViewProperties.getCaption("description.logout"));
-        btnLogout.addStyleName("borderless");
-        btnLogout.addStyleName("logout");
-        btnLogout.setIcon(Icons.LOGOUT.resource());
-        btnLogout.addListener(new Button.ClickListener() {
+        Button logoutButton = new Button(ViewProperties.getCaption("button.logout"));
+        logoutButton.setDescription(ViewProperties.getCaption("description.logout"));
+        logoutButton.addStyleName("borderless");
+        logoutButton.addStyleName("logout");
+        logoutButton.setIcon(Icons.LOGOUT.resource());
+        logoutButton.addListener(new Button.ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
                 DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.dialogConfirm"),
@@ -143,7 +149,7 @@ public class TopBar extends CssLayout {
                             // セッション情報を初期化
                             LoggingUtils.removeContext();
                             ContextUtils.invalidateSession();
-                            btnAccount.setVisible(false);
+                            accountButton.setVisible(false);
 
                             // このアプリケーションのインスタンスを破棄する
                             getApplication().close();
@@ -154,16 +160,16 @@ public class TopBar extends CssLayout {
                 getApplication().getMainWindow().addWindow(dialog);
             }
         });
-        addComponent(btnLogout);
+        addComponent(logoutButton);
 
         // ログインアカウント管理ボタン
-        btnAccount = new Button(ViewProperties.getCaption("button.account"));
-        btnAccount.setDescription(ViewProperties.getCaption("description.account"));
-        btnAccount.addStyleName("borderless");
-        btnAccount.addStyleName("account");
-        btnAccount.setIcon(Icons.USER.resource());
-        btnAccount.setVisible(false);
-        btnAccount.addListener(new Button.ClickListener() {
+        accountButton = new Button(ViewProperties.getCaption("button.account"));
+        accountButton.setDescription(ViewProperties.getCaption("description.account"));
+        accountButton.addStyleName("borderless");
+        accountButton.addStyleName("account");
+        accountButton.setIcon(Icons.USER.resource());
+        accountButton.setVisible(false);
+        accountButton.addListener(new Button.ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
                 /*
@@ -176,13 +182,13 @@ public class TopBar extends CssLayout {
                 */
             }
         });
-        addComponent(btnAccount);
+        addComponent(accountButton);
     };
 
     public void showUserName(String userName) {
         // ログインユーザ名表示
-        btnAccount.setCaption(userName);
-        btnAccount.setVisible(true);
+        accountButton.setCaption(userName);
+        accountButton.setVisible(true);
     }
 
     public void showCloudEditWindow() {
@@ -190,8 +196,8 @@ public class TopBar extends CssLayout {
         window.addListener(new CloseListener() {
             @Override
             public void windowClose(CloseEvent e) {
-                ((AutoApplication) getApplication()).myCloud.hide();
-                ((AutoApplication) getApplication()).myCloud.refresh();
+                sender.hide();
+                sender.refresh();
             }
         });
         getApplication().getMainWindow().addWindow(window);

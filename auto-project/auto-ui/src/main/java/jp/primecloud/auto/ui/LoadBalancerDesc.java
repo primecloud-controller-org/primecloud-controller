@@ -36,13 +36,17 @@ import com.vaadin.ui.themes.Reindeer;
 @SuppressWarnings("serial")
 public class LoadBalancerDesc extends Panel {
 
+    private MainView sender;
+
     TabSheet tabDesc = new TabSheet();
 
-    LoadBalancerDescBasic loadBalancerDescBasic = new LoadBalancerDescBasic();
+    LoadBalancerDescBasic loadBalancerDescBasic;
 
-    LoadBalancerDescServer loadBalancerDescServer = new LoadBalancerDescServer();
+    LoadBalancerDescServer loadBalancerDescServer;
 
-    public LoadBalancerDesc() {
+    public LoadBalancerDesc(MainView sender) {
+        this.sender = sender;
+
         setWidth("100%");
         setHeight("100%");
         setCaption(ViewProperties.getCaption("panel.loadBalancerDesc"));
@@ -58,9 +62,10 @@ public class LoadBalancerDesc extends Panel {
         tabDesc.addStyleName(Reindeer.TABSHEET_BORDERLESS);
         tabDesc.setWidth("100%");
         tabDesc.setHeight("100%");
-
+        loadBalancerDescBasic = new LoadBalancerDescBasic(sender);
         tabDesc.addTab(loadBalancerDescBasic, ViewProperties.getCaption("tab.loadBalancerDescBasic"),
                 Icons.BASIC.resource());
+        loadBalancerDescServer = new LoadBalancerDescServer(sender);
         tabDesc.addTab(loadBalancerDescServer, ViewProperties.getCaption("tab.loadBalancerDescServer"),
                 Icons.DETAIL.resource());
 
@@ -70,9 +75,7 @@ public class LoadBalancerDesc extends Panel {
     }
 
     public void selectedTabChange(SelectedTabChangeEvent event) {
-        AutoApplication ap = (AutoApplication) getApplication();
-        LoadBalancerTable tbl = (LoadBalancerTable) ap.myCloud.myCloudTabs.loadBalancerTable;
-        ap.myCloud.myCloudTabs.refreshDesc(tbl);
+        sender.refreshDesc(sender.loadBalancerPanel.loadBalancerTable);
     }
 
     public void initializeData() {

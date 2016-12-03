@@ -71,16 +71,14 @@ import com.vaadin.ui.themes.Reindeer;
 @SuppressWarnings("serial")
 public class ServerDescBasic extends Panel {
 
+    private MainView sender;
+
     BasicInfo left = new BasicInfo();
 
     AttachService right = new AttachService("", null);
 
-    boolean enableService = true;
-
-    public ServerDescBasic() {
-        // サービスを有効にするかどうか
-        String enableService = Config.getProperty("ui.enableService");
-        this.enableService = (enableService == null) || (BooleanUtils.toBoolean(enableService));
+    public ServerDescBasic(MainView sender) {
+        this.sender = sender;
 
         setHeight("100%");
         addStyleName(Reindeer.PANEL_LIGHT);
@@ -127,9 +125,9 @@ public class ServerDescBasic extends Panel {
     //右側サーバ一覧パネル
     class AttachService extends Table {
 
-        final String COLUMN_HEIGHT = "28px";
+        private final String COLUMN_HEIGHT = "28px";
 
-        String[] COLNAME = { ViewProperties.getCaption("field.serviceName"),
+        private String[] COLNAME = { ViewProperties.getCaption("field.serviceName"),
                 ViewProperties.getCaption("field.managementUrl"), ViewProperties.getCaption("field.serviceStatus"),
                 ViewProperties.getCaption("field.serviceDetail") };
 
@@ -161,8 +159,7 @@ public class ServerDescBasic extends Panel {
                     ComponentType componentType = componentDto.getComponentType();
                     String type = componentType.getComponentTypeName();
 
-                    AutoApplication ap = (AutoApplication) getApplication();
-                    InstanceDto dto = (InstanceDto) ap.myCloud.myCloudTabs.serverTable.getValue();
+                    InstanceDto dto = (InstanceDto) sender.serverPanel.serverTable.getValue();
 
                     //リンクを追加する
                     String status = "";
@@ -217,8 +214,7 @@ public class ServerDescBasic extends Panel {
                 public Component generateCell(Table source, Object itemId, Object columnId) {
                     ComponentDto componentDto = (ComponentDto) itemId;
                     jp.primecloud.auto.entity.crud.Component p = componentDto.getComponent();
-                    AutoApplication ap = (AutoApplication) getApplication();
-                    InstanceDto dto = (InstanceDto) ap.myCloud.myCloudTabs.serverTable.getValue();
+                    InstanceDto dto = (InstanceDto) sender.serverPanel.serverTable.getValue();
 
                     String status = "";
                     for (ComponentInstanceDto componentInstance : dto.getComponentInstances()) {
@@ -244,8 +240,7 @@ public class ServerDescBasic extends Panel {
                     String name = componentType.getComponentTypeNameDisp();
 
                     //MySQLならMasterとSlaveでアイコンを変える
-                    AutoApplication ap = (AutoApplication) getApplication();
-                    InstanceDto dto = (InstanceDto) ap.myCloud.myCloudTabs.serverTable.getValue();
+                    InstanceDto dto = (InstanceDto) sender.serverPanel.serverTable.getValue();
 
                     if (MySQLConstants.COMPONENT_TYPE_NAME.equals(type)) {
                         // Master
@@ -307,37 +302,33 @@ public class ServerDescBasic extends Panel {
 
         protected Log log = LogFactory.getLog(BasicInfo.class);
 
-        final String COLUMN_HEIGHT = "30px";
+        private final String COLUMN_HEIGHT = "30px";
 
-        final String COLUMN_HEIGHT_DOUBLE = "60px";
+        private Label fqdn;
 
-        Label hostName;
+        private Label comment;
 
-        Label fqdn;
+        private Label ipAddress;
 
-        Label comment;
+        private Label platform;
 
-        Label ipAddress;
+        private Label status;
 
-        Label platform;
+        private Label monitoringStatus;
 
-        Label status;
+        private CssLayout layoutOsType;
 
-        Label monitoringStatus;
+        private Label ostype;
 
-        CssLayout layoutOsType;
+        private Button getPassword;
 
-        Label ostype;
+        private GridLayout layout;
 
-        Button getPassword;
+        private Boolean useZabbix = BooleanUtils.toBooleanObject(Config.getProperty("zabbix.useZabbix"));
 
-        GridLayout layout;
+        private Boolean changeMonitoring = BooleanUtils.toBooleanObject(Config.getProperty("zabbix.changeMonitoring"));
 
-        Boolean useZabbix = BooleanUtils.toBooleanObject(Config.getProperty("zabbix.useZabbix"));
-
-        Boolean changeMonitoring = BooleanUtils.toBooleanObject(Config.getProperty("zabbix.changeMonitoring"));
-
-        Boolean showPublicIp = BooleanUtils.toBooleanObject(Config.getProperty("ui.showPublicIp"));
+        private Boolean showPublicIp = BooleanUtils.toBooleanObject(Config.getProperty("ui.showPublicIp"));
 
         BasicInfo() {
             //項目名
@@ -386,8 +377,7 @@ public class ServerDescBasic extends Panel {
             getPassword.addListener(new ClickListener() {
                 @Override
                 public void buttonClick(ClickEvent event) {
-                    AutoApplication ap = (AutoApplication) getApplication();
-                    InstanceDto dto = (InstanceDto) ap.myCloud.myCloudTabs.serverTable.getValue();
+                    InstanceDto dto = (InstanceDto) sender.serverPanel.serverTable.getValue();
                     Long instanceNo = (Long) getPassword.getData();
                     WinPassword winPassword = new WinPassword(dto, instanceNo);
                     getWindow().addWindow(winPassword);

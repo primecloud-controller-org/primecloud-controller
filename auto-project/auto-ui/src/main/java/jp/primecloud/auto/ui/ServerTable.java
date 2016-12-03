@@ -68,20 +68,20 @@ import com.vaadin.ui.Window.CloseEvent;
 @SuppressWarnings("serial")
 public class ServerTable extends Table {
 
-    final String COLUMN_HEIGHT = "28px";
+    private final String COLUMN_HEIGHT = "28px";
 
-    final MyCloudTabs sender;
+    private final MainView sender;
 
     //項目名
-    String[] CAPNAME = { ViewProperties.getCaption("field.no"), ViewProperties.getCaption("field.serverName"),
+    private String[] CAPNAME = { ViewProperties.getCaption("field.no"), ViewProperties.getCaption("field.serverName"),
             ViewProperties.getCaption("field.fqdn"), ViewProperties.getCaption("field.ipAddress"),
             ViewProperties.getCaption("field.serverOsStatus"), ViewProperties.getCaption("field.serverServices") };
 
     private Map<Long, List<Button>> map = new HashMap<Long, List<Button>>();
 
-    boolean enableService = true;
+    private boolean enableService = true;
 
-    ServerTable(String caption, Container container, final MyCloudTabs sender) {
+    ServerTable(String caption, Container container, final MainView sender) {
         super(caption, container);
 
         // サービスを有効にするかどうか

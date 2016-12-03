@@ -65,18 +65,18 @@ import com.vaadin.ui.Window.CloseEvent;
 @SuppressWarnings({ "serial", "unchecked" })
 public class ServiceTable extends Table {
 
-    MyCloudTabs sender;
+    private MainView sender;
 
-    final String COLUMN_HEIGHT = "28px";
+    private final String COLUMN_HEIGHT = "28px";
 
     //項目名
-    String[] CAPNAME = { ViewProperties.getCaption("field.no"), ViewProperties.getCaption("field.serviceName"),
+    private String[] CAPNAME = { ViewProperties.getCaption("field.no"), ViewProperties.getCaption("field.serviceName"),
             ViewProperties.getCaption("field.serverSum"), ViewProperties.getCaption("field.serviceStatus"),
             ViewProperties.getCaption("field.serviceIpPort"), ViewProperties.getCaption("field.serviceDetail") };
 
     private Map<Long, List<Button>> map = new HashMap<Long, List<Button>>();
 
-    public ServiceTable(String caption, Container container, MyCloudTabs sender) {
+    public ServiceTable(String caption, Container container, final MainView sender) {
         super(caption, container);
         this.sender = sender;
         setVisibleColumns(new Object[] {});
@@ -152,24 +152,16 @@ public class ServiceTable extends Table {
             public Component generateCell(Table source, Object itemId, Object columnId) {
                 ComponentDto dto = (ComponentDto) itemId;
 
-                MyCloudTabs myCloudTabs = null;
-                Component c = ServiceTable.this;
-                while (c != null) {
-                    if (c instanceof MyCloudTabs) {
-                        myCloudTabs = (MyCloudTabs) c;
-                        break;
-                    }
-                    c = c.getParent();
-                }
-                Button btn = null;
-                for (LoadBalancerDto lbDto : (Collection<LoadBalancerDto>) myCloudTabs.loadBalancerTable.getItemIds()) {
+                Button button = null;
+                for (LoadBalancerDto lbDto : (Collection<LoadBalancerDto>) sender.loadBalancerPanel.loadBalancerTable
+                        .getItemIds()) {
                     if (dto.getComponent().getComponentNo().equals(lbDto.getLoadBalancer().getComponentNo())) {
-                        btn = getLoadBalancerButton(lbDto);
+                        button = getLoadBalancerButton(lbDto);
                         break;
                     }
                 }
-                if (btn != null) {
-                    return btn;
+                if (button != null) {
+                    return button;
                 } else {
                     return (new Label(""));
                 }
@@ -203,38 +195,29 @@ public class ServiceTable extends Table {
     }
 
     Button getLoadBalancerButton(LoadBalancerDto lbDto) {
-        Button btn = new Button();
-        btn.setCaption(lbDto.getLoadBalancer().getLoadBalancerName());
-        btn.setIcon(Icons.LOADBALANCER_TAB.resource());
-        btn.setData(lbDto);
-        btn.addStyleName("borderless");
-        btn.addStyleName("loadbalancer-button");
-        btn.addListener(new Button.ClickListener() {
+        Button button = new Button();
+        button.setCaption(lbDto.getLoadBalancer().getLoadBalancerName());
+        button.setIcon(Icons.LOADBALANCER_TAB.resource());
+        button.setData(lbDto);
+        button.addStyleName("borderless");
+        button.addStyleName("loadbalancer-button");
+        button.addListener(new Button.ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
                 loadBalancerButtonClick(event);
             }
         });
-        return btn;
+        return button;
     }
 
     void loadBalancerButtonClick(ClickEvent event) {
-        Button btn = event.getButton();
-        LoadBalancerDto dto = (LoadBalancerDto) btn.getData();
+        Button button = event.getButton();
+        LoadBalancerDto dto = (LoadBalancerDto) button.getData();
 
-        MyCloudTabs myCloudTabs = null;
-        Component c = ServiceTable.this;
-        while (c != null) {
-            if (c instanceof MyCloudTabs) {
-                myCloudTabs = (MyCloudTabs) c;
-                break;
-            }
-            c = c.getParent();
-        }
         //該当ロードバランサーを選択
-        myCloudTabs.loadBalancerTable.select(dto);
+        sender.loadBalancerPanel.loadBalancerTable.select(dto);
         //ロードバランサーTabに移動
-        myCloudTabs.tabDesc.setSelectedTab(myCloudTabs.pnLoadBalancer);
+        sender.tab.setSelectedTab(sender.loadBalancerPanel);
     }
 
     public void playButtonClick(Button.ClickEvent event) {
