@@ -111,12 +111,12 @@ public class ServiceButtonsTop extends CssLayout {
     private void startAllButtonClick(ClickEvent event) {
         // 変更中のサービスが存在する場合は操作させない
         for (Object itemId : sender.servicePanel.serviceTable.getItemIds()) {
-            ComponentDto componentDto = (ComponentDto) itemId;
-            if (componentDto.getStatus().equals(ComponentStatus.STARTING.toString())
-                    || componentDto.getStatus().equals(ComponentStatus.STOPPING.toString())
-                    || componentDto.getStatus().equals(ComponentStatus.CONFIGURING.toString())) {
+            ComponentDto component = (ComponentDto) itemId;
+            if (component.getStatus().equals(ComponentStatus.STARTING.toString())
+                    || component.getStatus().equals(ComponentStatus.STOPPING.toString())
+                    || component.getStatus().equals(ComponentStatus.CONFIGURING.toString())) {
                 String message = ViewMessages.getMessage("IUI-000046",
-                        new Object[] { StringUtils.capitalize(componentDto.getStatus().toLowerCase()) });
+                        new Object[] { StringUtils.capitalize(component.getStatus().toLowerCase()) });
                 DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message);
                 getApplication().getMainWindow().addWindow(dialog);
                 return;
@@ -145,8 +145,8 @@ public class ServiceButtonsTop extends CssLayout {
         // 選択されているサービスを保持する
         Long selectedComponentNo = null;
         if (sender.servicePanel.serviceTable.getValue() != null) {
-            ComponentDto dto = (ComponentDto) sender.servicePanel.serviceTable.getValue();
-            selectedComponentNo = dto.getComponent().getComponentNo();
+            ComponentDto component = (ComponentDto) sender.servicePanel.serviceTable.getValue();
+            selectedComponentNo = component.getComponent().getComponentNo();
         }
 
         // オペレーションログ
@@ -168,8 +168,8 @@ public class ServiceButtonsTop extends CssLayout {
         // 選択されていたサービスを選択し直す
         if (selectedComponentNo != null) {
             for (Object itemId : sender.servicePanel.serviceTable.getItemIds()) {
-                ComponentDto dto = (ComponentDto) itemId;
-                if (selectedComponentNo.equals(dto.getComponent().getComponentNo())) {
+                ComponentDto component = (ComponentDto) itemId;
+                if (selectedComponentNo.equals(component.getComponent().getComponentNo())) {
                     sender.servicePanel.serviceTable.select(itemId);
                     break;
                 }
@@ -206,8 +206,8 @@ public class ServiceButtonsTop extends CssLayout {
         // 選択されているサービスを保持する
         Long selectedComponentNo = null;
         if (sender.servicePanel.serviceTable.getValue() != null) {
-            ComponentDto dto = (ComponentDto) sender.servicePanel.serviceTable.getValue();
-            selectedComponentNo = dto.getComponent().getComponentNo();
+            ComponentDto component = (ComponentDto) sender.servicePanel.serviceTable.getValue();
+            selectedComponentNo = component.getComponent().getComponentNo();
         }
 
         // オペレーションログ
@@ -229,8 +229,8 @@ public class ServiceButtonsTop extends CssLayout {
         // 選択されていたサービスを選択し直す
         if (selectedComponentNo != null) {
             for (Object itemId : sender.servicePanel.serviceTable.getItemIds()) {
-                ComponentDto dto = (ComponentDto) itemId;
-                if (selectedComponentNo.equals(dto.getComponent().getComponentNo())) {
+                ComponentDto component = (ComponentDto) itemId;
+                if (selectedComponentNo.equals(component.getComponent().getComponentNo())) {
                     sender.servicePanel.serviceTable.select(itemId);
                     break;
                 }

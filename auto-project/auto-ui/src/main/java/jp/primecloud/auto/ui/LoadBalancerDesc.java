@@ -18,6 +18,7 @@
  */
 package jp.primecloud.auto.ui;
 
+import jp.primecloud.auto.service.dto.LoadBalancerDto;
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.ViewProperties;
 
@@ -38,15 +39,18 @@ public class LoadBalancerDesc extends Panel {
 
     private MainView sender;
 
-    TabSheet tabDesc = new TabSheet();
+    private TabSheet tab;
 
-    LoadBalancerDescBasic loadBalancerDescBasic;
+    private LoadBalancerDescBasic loadBalancerDescBasic;
 
-    LoadBalancerDescServer loadBalancerDescServer;
+    private LoadBalancerDescServer loadBalancerDescServer;
 
     public LoadBalancerDesc(MainView sender) {
         this.sender = sender;
+    }
 
+    @Override
+    public void attach() {
         setWidth("100%");
         setHeight("100%");
         setCaption(ViewProperties.getCaption("panel.loadBalancerDesc"));
@@ -59,28 +63,41 @@ public class LoadBalancerDesc extends Panel {
         layout.setMargin(false);
         layout.setSpacing(false);
         layout.addStyleName("loadbalancer-desc-layout");
-        tabDesc.addStyleName(Reindeer.TABSHEET_BORDERLESS);
-        tabDesc.setWidth("100%");
-        tabDesc.setHeight("100%");
+
+        tab = new TabSheet();
+        tab.addStyleName(Reindeer.TABSHEET_BORDERLESS);
+        tab.setWidth("100%");
+        tab.setHeight("100%");
+        addComponent(tab);
+
+        // 基本情報
         loadBalancerDescBasic = new LoadBalancerDescBasic(sender);
-        tabDesc.addTab(loadBalancerDescBasic, ViewProperties.getCaption("tab.loadBalancerDescBasic"),
+        tab.addTab(loadBalancerDescBasic, ViewProperties.getCaption("tab.loadBalancerDescBasic"),
                 Icons.BASIC.resource());
+
+        // 詳細情報
         loadBalancerDescServer = new LoadBalancerDescServer(sender);
-        tabDesc.addTab(loadBalancerDescServer, ViewProperties.getCaption("tab.loadBalancerDescServer"),
+        tab.addTab(loadBalancerDescServer, ViewProperties.getCaption("tab.loadBalancerDescServer"),
                 Icons.DETAIL.resource());
 
-        //タブ用リスナー
-        tabDesc.addListener(TabSheet.SelectedTabChangeEvent.class, this, "selectedTabChange");
-        addComponent(tabDesc);
+        tab.addListener(TabSheet.SelectedTabChangeEvent.class, this, "selectedTabChange");
+    }
+
+    public void initialize() {
+        loadBalancerDescBasic.initialize();
+        loadBalancerDescServer.initialize();
+    }
+
+    public void show(LoadBalancerDto loadBalancer, boolean clearCheckBox) {
+        if (tab.getSelectedTab() == loadBalancerDescBasic) {
+            loadBalancerDescBasic.show(loadBalancer, clearCheckBox);
+        } else if (tab.getSelectedTab() == loadBalancerDescServer) {
+            loadBalancerDescServer.show(loadBalancer, clearCheckBox);
+        }
     }
 
     public void selectedTabChange(SelectedTabChangeEvent event) {
         sender.loadBalancerPanel.refreshDesc();
-    }
-
-    public void initializeData() {
-        loadBalancerDescBasic.initializeData();
-        loadBalancerDescServer.initializeData();
     }
 
 }

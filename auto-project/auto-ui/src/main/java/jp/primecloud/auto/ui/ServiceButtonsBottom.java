@@ -60,7 +60,7 @@ public class ServiceButtonsBottom extends CssLayout {
         setMargin(true);
         addStyleName("service-buttons");
 
-        // Newボタン
+        // Addボタン
         addButton = new Button(ViewProperties.getCaption("button.addService"));
         addButton.setDescription(ViewProperties.getCaption("description.addService"));
         addButton.setIcon(Icons.ADD.resource());
@@ -115,16 +115,16 @@ public class ServiceButtonsBottom extends CssLayout {
         editButton.setEnabled(false);
         deleteButton.setEnabled(false);
 
-        // 権限がなければNewボタンを無効にする
+        // 権限がなければAddボタンを無効にする
         UserAuthDto auth = ViewContext.getAuthority();
         if (!auth.isServiceMake()) {
             addButton.setEnabled(false);
         }
     }
 
-    public void refresh(ComponentDto dto) {
+    public void refresh(ComponentDto component) {
         // ステータスによってボタンの活性状態を切り替える
-        ComponentStatus status = ComponentStatus.fromStatus(dto.getStatus());
+        ComponentStatus status = ComponentStatus.fromStatus(component.getStatus());
 
         // Editボタン
         if (status == ComponentStatus.STOPPED || status == ComponentStatus.RUNNING) {
@@ -132,7 +132,7 @@ public class ServiceButtonsBottom extends CssLayout {
         } else if (status == ComponentStatus.WARNING) {
             // サービスを設定中のサーバがなければ有効にする
             boolean processing = false;
-            for (ComponentInstanceDto componentInstance : dto.getComponentInstances()) {
+            for (ComponentInstanceDto componentInstance : component.getComponentInstances()) {
                 ComponentInstanceStatus status2 = ComponentInstanceStatus.fromStatus(componentInstance
                         .getComponentInstance().getStatus());
                 if (status2 != ComponentInstanceStatus.RUNNING && status2 != ComponentInstanceStatus.WARNING
@@ -167,8 +167,8 @@ public class ServiceButtonsBottom extends CssLayout {
         // 選択されているサービスを保持する
         Long selectedComponentNo = null;
         if (sender.servicePanel.serviceTable.getValue() != null) {
-            ComponentDto dto = (ComponentDto) sender.servicePanel.serviceTable.getValue();
-            selectedComponentNo = dto.getComponent().getComponentNo();
+            ComponentDto component = (ComponentDto) sender.servicePanel.serviceTable.getValue();
+            selectedComponentNo = component.getComponent().getComponentNo();
         }
         int index = sender.servicePanel.serviceTable.getCurrentPageFirstItemIndex();
 
@@ -178,8 +178,8 @@ public class ServiceButtonsBottom extends CssLayout {
         // 選択されていたサービスを選択し直す
         if (selectedComponentNo != null) {
             for (Object itemId : sender.servicePanel.serviceTable.getItemIds()) {
-                ComponentDto dto = (ComponentDto) itemId;
-                if (selectedComponentNo.equals(dto.getComponent().getComponentNo())) {
+                ComponentDto component = (ComponentDto) itemId;
+                if (selectedComponentNo.equals(component.getComponent().getComponentNo())) {
                     sender.servicePanel.serviceTable.select(itemId);
                     sender.servicePanel.serviceTable.setCurrentPageFirstItemIndex(index);
                     break;
@@ -201,9 +201,9 @@ public class ServiceButtonsBottom extends CssLayout {
     }
 
     private void editButtonClick(Button.ClickEvent event) {
-        ComponentDto dto = (ComponentDto) sender.servicePanel.serviceTable.getValue();
+        ComponentDto component = (ComponentDto) sender.servicePanel.serviceTable.getValue();
 
-        WinServiceEdit winServiceEdit = new WinServiceEdit(dto.getComponent().getComponentNo());
+        WinServiceEdit winServiceEdit = new WinServiceEdit(component.getComponent().getComponentNo());
         winServiceEdit.addListener(new Window.CloseListener() {
             @Override
             public void windowClose(CloseEvent e) {
@@ -215,10 +215,10 @@ public class ServiceButtonsBottom extends CssLayout {
     }
 
     private void deleteButtonClick(Button.ClickEvent event) {
-        final ComponentDto dto = (ComponentDto) sender.servicePanel.serviceTable.getValue();
+        final ComponentDto component = (ComponentDto) sender.servicePanel.serviceTable.getValue();
 
         // 確認ダイアログを表示
-        String message = ViewMessages.getMessage("IUI-000018", dto.getComponent().getComponentName());
+        String message = ViewMessages.getMessage("IUI-000018", component.getComponent().getComponentName());
         DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message, Buttons.OKCancel);
         dialog.setCallback(new DialogConfirm.Callback() {
             @Override
@@ -227,7 +227,7 @@ public class ServiceButtonsBottom extends CssLayout {
                     return;
                 }
 
-                delete(dto.getComponent().getComponentNo());
+                delete(component.getComponent().getComponentNo());
             }
         });
 

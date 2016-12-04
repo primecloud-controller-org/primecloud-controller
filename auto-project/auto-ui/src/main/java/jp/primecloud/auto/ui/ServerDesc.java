@@ -18,12 +18,14 @@
  */
 package jp.primecloud.auto.ui;
 
+import jp.primecloud.auto.service.dto.InstanceDto;
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.ViewProperties;
 
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TabSheet.SelectedTabChangeEvent;
+import com.vaadin.ui.TabSheet.SelectedTabChangeListener;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
@@ -38,15 +40,18 @@ public class ServerDesc extends Panel {
 
     private MainView sender;
 
-    TabSheet tabDesc = new TabSheet();
+    private TabSheet tab;
 
-    ServerDescBasic serverDescBasic;
+    private ServerDescBasic serverDescBasic;
 
-    ServerDescDetail serverDescDetail;
+    private ServerDescDetail serverDescDetail;
 
     public ServerDesc(MainView sender) {
         this.sender = sender;
+    }
 
+    @Override
+    public void attach() {
         setWidth("100%");
         setHeight("100%");
         setCaption(ViewProperties.getCaption("panel.serverDesc"));
@@ -59,25 +64,44 @@ public class ServerDesc extends Panel {
         layout.setMargin(false);
         layout.setSpacing(false);
         layout.addStyleName("server-desc-layout");
-        tabDesc.addStyleName(Reindeer.TABSHEET_BORDERLESS);
-        tabDesc.setWidth("100%");
-        tabDesc.setHeight("100%");
+
+        tab = new TabSheet();
+        tab.addStyleName(Reindeer.TABSHEET_BORDERLESS);
+        tab.setWidth("100%");
+        tab.setHeight("100%");
+        addComponent(tab);
+
+        // 基本情報タブ
         serverDescBasic = new ServerDescBasic(sender);
-        tabDesc.addTab(serverDescBasic, ViewProperties.getCaption("tab.serverDescBasic"), Icons.BASIC.resource());
+        tab.addTab(serverDescBasic, ViewProperties.getCaption("tab.serverDescBasic"), Icons.BASIC.resource());
+
+        // 詳細情報タブ
         serverDescDetail = new ServerDescDetail();
-        tabDesc.addTab(serverDescDetail, ViewProperties.getCaption("tab.serverDescDetail"), Icons.DETAIL.resource());
-        //タブ用リスナー
-        tabDesc.addListener(TabSheet.SelectedTabChangeEvent.class, this, "selectedTabChange");
-        addComponent(tabDesc);
+        tab.addTab(serverDescDetail, ViewProperties.getCaption("tab.serverDescDetail"), Icons.DETAIL.resource());
+
+        tab.addListener(new SelectedTabChangeListener() {
+            @Override
+            public void selectedTabChange(SelectedTabChangeEvent event) {
+                ServerDesc.this.selectedTabChange(event);
+            }
+        });
+    }
+
+    public void initialize() {
+        serverDescBasic.initialize();
+        serverDescDetail.initialize();
+    }
+
+    public void show(InstanceDto instance) {
+        if (tab.getSelectedTab() == serverDescBasic) {
+            serverDescBasic.show(instance);
+        } else if (tab.getSelectedTab() == serverDescDetail) {
+            serverDescDetail.show(instance);
+        }
     }
 
     public void selectedTabChange(SelectedTabChangeEvent event) {
         sender.serverPanel.refreshDesc();
-    }
-
-    public void initializeData() {
-        serverDescBasic.initializeData();
-        serverDescDetail.initializeData();
     }
 
 }

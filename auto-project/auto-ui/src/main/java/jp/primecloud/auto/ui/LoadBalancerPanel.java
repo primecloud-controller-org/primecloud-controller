@@ -41,13 +41,20 @@ import com.vaadin.ui.themes.Reindeer;
 @SuppressWarnings("serial")
 public class LoadBalancerPanel extends Panel {
 
+    private MainView sender;
+
     LoadBalancerTable loadBalancerTable;
 
-    LoadBalancerTableOperation loadBalancerTableOpe;
+    private LoadBalancerButtonsBottom loadBalancerButtonsBottom;
 
     private LoadBalancerDesc loadBalancerDesc;
 
     public LoadBalancerPanel(MainView sender) {
+        this.sender = sender;
+    }
+
+    @Override
+    public void attach() {
         setSizeFull();
         addStyleName(Reindeer.PANEL_LIGHT);
 
@@ -56,14 +63,6 @@ public class LoadBalancerPanel extends Panel {
         layout.addStyleName("loadbalancer-tab");
         layout.setSpacing(false);
         layout.setMargin(false);
-
-        CssLayout hLBalancer = new CssLayout();
-        Label lLBalancer = new Label(ViewProperties.getCaption("label.loadbalancer"));
-        hLBalancer.setWidth("100%");
-        hLBalancer.setMargin(true);
-        hLBalancer.addStyleName("loadbalancer-table-label");
-        hLBalancer.addComponent(lLBalancer);
-        hLBalancer.setHeight("28px");
 
         // スプリットパネル
         SplitPanel splitPanel = new SplitPanel();
@@ -77,9 +76,18 @@ public class LoadBalancerPanel extends Panel {
         upperLayout.setSizeFull();
         upperLayout.setSpacing(false);
         upperLayout.setMargin(false);
-        upperLayout.addComponent(hLBalancer);
 
-        loadBalancerTable = new LoadBalancerTable(null, new LoadBalancerDtoContainer(), sender);
+        CssLayout upperTopLayout = new CssLayout();
+        Label label = new Label(ViewProperties.getCaption("label.loadbalancer"));
+        upperTopLayout.setWidth("100%");
+        upperTopLayout.setMargin(true);
+        upperTopLayout.addStyleName("loadbalancer-table-label");
+        upperTopLayout.addComponent(label);
+        upperTopLayout.setHeight("28px");
+        upperLayout.addComponent(upperTopLayout);
+
+        loadBalancerTable = new LoadBalancerTable(sender);
+        loadBalancerTable.setContainerDataSource(new LoadBalancerDtoContainer());
         upperLayout.addComponent(loadBalancerTable);
         loadBalancerTable.addListener(new ValueChangeListener() {
             @Override
@@ -88,8 +96,8 @@ public class LoadBalancerPanel extends Panel {
             }
         });
 
-        loadBalancerTableOpe = new LoadBalancerTableOperation(sender);
-        upperLayout.addComponent(loadBalancerTableOpe);
+        loadBalancerButtonsBottom = new LoadBalancerButtonsBottom(sender);
+        upperLayout.addComponent(loadBalancerButtonsBottom);
         upperLayout.setExpandRatio(loadBalancerTable, 10);
         splitPanel.addComponent(upperLayout);
 
@@ -99,52 +107,39 @@ public class LoadBalancerPanel extends Panel {
     }
 
     public void initialize() {
-        loadBalancerTableOpe.initialize();
+        loadBalancerButtonsBottom.initialize();
     }
 
     public void refreshTable() {
         ((LoadBalancerDtoContainer) loadBalancerTable.getContainerDataSource()).refresh();
         loadBalancerTable.setValue(null);
-        loadBalancerDesc.initializeData();
+        loadBalancerDesc.initialize();
     }
 
     public void tableRowSelected(ValueChangeEvent event) {
-        LoadBalancerDto dto = (LoadBalancerDto) loadBalancerTable.getValue();
-        loadBalancerTableOpe.setButtonStatus(dto);
-        // ロードバランサー情報の更新(選択されているTabだけ更新する)
-        if (loadBalancerDesc.tabDesc.getSelectedTab() == loadBalancerDesc.loadBalancerDescBasic) {
-            //基本情報の更新
-            loadBalancerDesc.loadBalancerDescBasic.basicInfo.setItem(dto);
-            // ロードバランサー サービス テーブル情報更新
-            loadBalancerDesc.loadBalancerDescBasic.attachServiceTable.refresh(dto, true);
-        } else if (loadBalancerDesc.tabDesc.getSelectedTab() == loadBalancerDesc.loadBalancerDescServer) {
-            // 割り当てサービス 詳細情報更新
-            loadBalancerDesc.loadBalancerDescServer.loadBalancerInfo.setItem(dto);
-            // ロードバランサー サーバ テーブル情報更新
-            loadBalancerDesc.loadBalancerDescServer.attachServiceServerTable.refresh(dto, true);
+        LoadBalancerDto loadBalancer = (LoadBalancerDto) loadBalancerTable.getValue();
+        if (loadBalancer != null) {
+            loadBalancerButtonsBottom.show(loadBalancer);
+            loadBalancerDesc.show(loadBalancer, true);
+        } else {
+            loadBalancerButtonsBottom.initialize();
+            loadBalancerDesc.initialize();
         }
     }
 
     public void refreshDesc() {
-        LoadBalancerDto dto = (LoadBalancerDto) loadBalancerTable.getValue();
-        loadBalancerTableOpe.setButtonStatus(dto);
-        // ロードバランサー情報の更新(選択されているTabだけ更新する)
-        if (loadBalancerDesc.tabDesc.getSelectedTab() == loadBalancerDesc.loadBalancerDescBasic) {
-            //基本情報の更新
-            loadBalancerDesc.loadBalancerDescBasic.basicInfo.setItem(dto);
-            // ロードバランサー サービステーブル情報更新
-            loadBalancerDesc.loadBalancerDescBasic.attachServiceTable.refresh(dto, false);
-        } else if (loadBalancerDesc.tabDesc.getSelectedTab() == loadBalancerDesc.loadBalancerDescServer) {
-            // 割り当てサービス 詳細情報更新
-            loadBalancerDesc.loadBalancerDescServer.loadBalancerInfo.setItem(dto);
-            // ロードバランサー サーバ テーブル情報更新
-            loadBalancerDesc.loadBalancerDescServer.attachServiceServerTable.refresh(dto, false);
+        LoadBalancerDto loadBalancer = (LoadBalancerDto) loadBalancerTable.getValue();
+        if (loadBalancer != null) {
+            loadBalancerButtonsBottom.show(loadBalancer);
+            loadBalancerDesc.show(loadBalancer, false);
+        } else {
+            loadBalancerButtonsBottom.initialize();
+            loadBalancerDesc.initialize();
         }
     }
 
     @SuppressWarnings("unchecked")
     public boolean needsRefresh() {
-        // ロードバランサの更新チェック
         Collection<LoadBalancerDto> loadBalancerDtos = loadBalancerTable.getItemIds();
         for (LoadBalancerDto dto : loadBalancerDtos) {
             LoadBalancerStatus status = LoadBalancerStatus.fromStatus(dto.getLoadBalancer().getStatus());

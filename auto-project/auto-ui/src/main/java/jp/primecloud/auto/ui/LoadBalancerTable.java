@@ -23,7 +23,6 @@ import java.util.Collection;
 import jp.primecloud.auto.common.status.LoadBalancerStatus;
 import jp.primecloud.auto.service.dto.ComponentDto;
 import jp.primecloud.auto.service.dto.LoadBalancerDto;
-import jp.primecloud.auto.service.dto.PlatformDto;
 import jp.primecloud.auto.ui.data.LoadBalancerDtoContainer;
 import jp.primecloud.auto.ui.util.IconUtils;
 import jp.primecloud.auto.ui.util.Icons;
@@ -31,7 +30,6 @@ import jp.primecloud.auto.ui.util.ViewProperties;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.vaadin.data.Container;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
@@ -45,9 +43,9 @@ import com.vaadin.ui.Table;
 @SuppressWarnings({ "serial", "unchecked" })
 public class LoadBalancerTable extends Table {
 
-    private final String COLUMN_HEIGHT = "28px";
-
     private final MainView sender;
+
+    private final String COLUMN_HEIGHT = "28px";
 
     //項目名
     private String[] CAPNAME = { ViewProperties.getCaption("field.no"),
@@ -55,17 +53,15 @@ public class LoadBalancerTable extends Table {
             ViewProperties.getCaption("field.loadBalancerHostname"),
             ViewProperties.getCaption("field.loadBalancerType"), ViewProperties.getCaption("field.loadBalancerService") };
 
-    LoadBalancerTable(String caption, Container container, final MainView sender) {
-        super(caption, container);
-
+    public LoadBalancerTable(MainView sender) {
         this.sender = sender;
+    }
+
+    @Override
+    public void attach() {
         setVisibleColumns(new Object[] {});
-
         setWidth("100%");
-        if (this.isEnabled()) {
-            setHeight("100%");
-        }
-
+        setHeight("100%");
         setPageLength(0);
         setSortDisabled(true);
         setColumnReorderingAllowed(false);
@@ -78,100 +74,108 @@ public class LoadBalancerTable extends Table {
         setCacheRate(0.1);
 
         addGeneratedColumn("no", new ColumnGenerator() {
+            @Override
             public Component generateCell(Table source, Object itemId, Object columnId) {
-                LoadBalancerDto p = (LoadBalancerDto) itemId;
-                Label nlbl = new Label(String.valueOf(p.getLoadBalancer().getLoadBalancerNo()));
-                return nlbl;
+                LoadBalancerDto loadBalancer = (LoadBalancerDto) itemId;
+
+                Label label = new Label(String.valueOf(loadBalancer.getLoadBalancer().getLoadBalancerNo()));
+                return label;
             }
         });
 
         addGeneratedColumn("name", new ColumnGenerator() {
+            @Override
             public Component generateCell(Table source, Object itemId, Object columnId) {
-                LoadBalancerDto p = (LoadBalancerDto) itemId;
-                Label nlbl;
-                if (StringUtils.isEmpty(p.getLoadBalancer().getComment())) {
-                    nlbl = new Label(p.getLoadBalancer().getLoadBalancerName(), Label.CONTENT_TEXT);
+                LoadBalancerDto loadBalancer = (LoadBalancerDto) itemId;
+
+                Label label;
+                if (StringUtils.isEmpty(loadBalancer.getLoadBalancer().getComment())) {
+                    label = new Label(loadBalancer.getLoadBalancer().getLoadBalancerName(), Label.CONTENT_XHTML);
                 } else {
-                    String name = p.getLoadBalancer().getComment() + "\n[" + p.getLoadBalancer().getLoadBalancerName()
-                            + "]";
-                    nlbl = new Label(name, Label.CONTENT_PREFORMATTED);
-                    nlbl.setHeight(COLUMN_HEIGHT);
+                    String name = loadBalancer.getLoadBalancer().getComment() + "\n["
+                            + loadBalancer.getLoadBalancer().getLoadBalancerName() + "]";
+                    label = new Label(name, Label.CONTENT_PREFORMATTED);
+                    label.setHeight(COLUMN_HEIGHT);
                 }
-                return nlbl;
+                return label;
             }
         });
 
         addGeneratedColumn("status", new ColumnGenerator() {
+            @Override
             public Component generateCell(Table source, Object itemId, Object columnId) {
-                LoadBalancerDto p = (LoadBalancerDto) itemId;
-                LoadBalancerStatus status = LoadBalancerStatus.fromStatus(p.getLoadBalancer().getStatus());
-                String statusString = status.name().substring(0, 1).toUpperCase()
-                        + status.name().substring(1).toLowerCase();
+                LoadBalancerDto loadBalancer = (LoadBalancerDto) itemId;
+
+                LoadBalancerStatus status = LoadBalancerStatus.fromStatus(loadBalancer.getLoadBalancer().getStatus());
+
                 Icons icon;
-                //ロードバランサーがRUNNIGだが、リスナ一覧にリスナーが存在しない(+WARNING)
-                if (status == LoadBalancerStatus.RUNNING && p.getLoadBalancerListeners().size() == 0) {
+                if (status == LoadBalancerStatus.RUNNING && loadBalancer.getLoadBalancerListeners().size() == 0) {
+                    // ステータスがRUNNINGでもリスナーが存在しない場合はアイコンを変える
                     icon = Icons.RUN_WARNING;
                 } else {
-                    icon = Icons.fromName(statusString);
+                    icon = Icons.fromName(status.name());
                 }
 
-                Label slbl = new Label(IconUtils.createImageTag(LoadBalancerTable.this, icon, statusString),
+                String statusString = status.name().substring(0, 1).toUpperCase()
+                        + status.name().substring(1).toLowerCase();
+
+                Label label = new Label(IconUtils.createImageTag(LoadBalancerTable.this, icon, statusString),
                         Label.CONTENT_XHTML);
-                slbl.setHeight(COLUMN_HEIGHT);
-                return slbl;
+                label.setHeight(COLUMN_HEIGHT);
+                return label;
             }
         });
 
         addGeneratedColumn("hostName", new ColumnGenerator() {
+            @Override
             public Component generateCell(Table source, Object itemId, Object columnId) {
-                LoadBalancerDto p = (LoadBalancerDto) itemId;
+                LoadBalancerDto loadBalancer = (LoadBalancerDto) itemId;
 
-                String hostname = p.getLoadBalancer().getCanonicalName();
-                Label nlbl = new Label("", Label.CONTENT_TEXT);
-                if (hostname != null) {
-                    nlbl.setValue(hostname);
+                Label label = new Label("", Label.CONTENT_TEXT);
+                if (loadBalancer.getLoadBalancer().getCanonicalName() != null) {
+                    label.setValue(loadBalancer.getLoadBalancer().getCanonicalName());
                 }
-                return nlbl;
+                return label;
             }
         });
 
         addGeneratedColumn("type", new ColumnGenerator() {
+            @Override
             public Component generateCell(Table source, Object itemId, Object columnId) {
-                LoadBalancerDto p = (LoadBalancerDto) itemId;
-                PlatformDto platformDto = p.getPlatform();
+                LoadBalancerDto loadBalancer = (LoadBalancerDto) itemId;
 
-                //プラットフォームアイコン名の取得
-                Icons icon = IconUtils.getPlatformIcon(platformDto);
-
-                String type = ViewProperties.getLoadBalancerType(p.getLoadBalancer().getType());
-                Label slbl = new Label(IconUtils.createImageTag(LoadBalancerTable.this, icon, type),
+                Icons icon = IconUtils.getPlatformIcon(loadBalancer.getPlatform());
+                String type = ViewProperties.getLoadBalancerType(loadBalancer.getLoadBalancer().getType());
+                Label label = new Label(IconUtils.createImageTag(LoadBalancerTable.this, icon, type),
                         Label.CONTENT_XHTML);
-
-                return slbl;
+                return label;
             }
         });
 
         addGeneratedColumn("serviceName", new ColumnGenerator() {
+            @Override
             public Component generateCell(Table source, Object itemId, Object columnId) {
-                LoadBalancerDto p = (LoadBalancerDto) itemId;
-                ComponentDto componentDto = null;
-                for (ComponentDto dto : (Collection<ComponentDto>) sender.servicePanel.serviceTable.getItemIds()) {
-                    if (dto.getComponent().getComponentNo().equals(p.getLoadBalancer().getComponentNo())) {
-                        componentDto = dto;
+                LoadBalancerDto loadBalancer = (LoadBalancerDto) itemId;
+
+                ComponentDto component = null;
+                for (ComponentDto component2 : (Collection<ComponentDto>) sender.servicePanel.serviceTable.getItemIds()) {
+                    if (component2.getComponent().getComponentNo()
+                            .equals(loadBalancer.getLoadBalancer().getComponentNo())) {
+                        component = component2;
                         break;
                     }
                 }
 
-                Label nlbl;
-                if (StringUtils.isEmpty(componentDto.getComponent().getComment())) {
-                    nlbl = new Label(componentDto.getComponent().getComponentName(), Label.CONTENT_TEXT);
+                Label label;
+                if (StringUtils.isEmpty(component.getComponent().getComment())) {
+                    label = new Label(component.getComponent().getComponentName(), Label.CONTENT_TEXT);
                 } else {
-                    String name = componentDto.getComponent().getComment() + "\n["
-                            + componentDto.getComponent().getComponentName() + "]";
-                    nlbl = new Label(name, Label.CONTENT_PREFORMATTED);
-                    nlbl.setHeight(COLUMN_HEIGHT);
+                    String name = component.getComponent().getComment() + "\n["
+                            + component.getComponent().getComponentName() + "]";
+                    label = new Label(name, Label.CONTENT_PREFORMATTED);
+                    label.setHeight(COLUMN_HEIGHT);
                 }
-                return nlbl;
+                return label;
             }
         });
 

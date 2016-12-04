@@ -18,7 +18,8 @@
  */
 package jp.primecloud.auto.ui;
 
-import jp.primecloud.auto.entity.crud.Instance;
+import jp.primecloud.auto.service.dto.InstanceDto;
+import jp.primecloud.auto.ui.data.InstanceParameterContainer;
 import jp.primecloud.auto.ui.util.ViewProperties;
 
 import com.vaadin.ui.HorizontalLayout;
@@ -37,11 +38,12 @@ import com.vaadin.ui.themes.Reindeer;
 @SuppressWarnings("serial")
 public class ServerDescDetail extends Panel {
 
-    DetailInfo left = new DetailInfo();
+    private DetailInfo left;
 
-    DetailParameters right = new DetailParameters();
+    private DetailParameters right;
 
-    public ServerDescDetail() {
+    @Override
+    public void attach() {
         setHeight("100%");
         addStyleName(Reindeer.PANEL_LIGHT);
 
@@ -52,83 +54,92 @@ public class ServerDescDetail extends Panel {
         panel.setSpacing(false);
         panel.addStyleName("server-desc-detail");
 
-        HorizontalLayout hlPanels = new HorizontalLayout();
-        hlPanels.setWidth("100%");
-        hlPanels.setHeight("100%");
-        hlPanels.setMargin(true);
-        hlPanels.setSpacing(true);
-        hlPanels.addStyleName("server-desc-detail");
+        HorizontalLayout layout = new HorizontalLayout();
+        layout.setWidth("100%");
+        layout.setHeight("100%");
+        layout.setMargin(true);
+        layout.setSpacing(true);
+        layout.addStyleName("server-desc-detail");
 
+        left = new DetailInfo();
         left.setWidth("200px");
+        layout.addComponent(left);
+
+        right = new DetailParameters();
         right.setWidth("100%");
         right.setHeight("100%");
+        layout.addComponent(right);
 
-        hlPanels.addComponent(left);
-        hlPanels.addComponent(right);
+        layout.setExpandRatio(right, 100);
 
-        hlPanels.setExpandRatio(right, 100);
-
-        panel.addComponent(hlPanels);
-        panel.setExpandRatio(hlPanels, 1.0f);
+        panel.addComponent(layout);
+        panel.setExpandRatio(layout, 1.0f);
     }
 
-    class DetailInfo extends VerticalLayout {
+    public void initialize() {
+        left.initialize();
+        right.getContainerDataSource().removeAllItems();
+    }
 
-        private Label serverName = new Label();
+    public void show(InstanceDto instance) {
+        left.show(instance);
+        right.refresh(instance);
+    }
 
-        DetailInfo() {
+    private class DetailInfo extends VerticalLayout {
+
+        private Label serverNameLabel;
+
+        @Override
+        public void attach() {
             setMargin(false, false, false, true);
             setSpacing(true);
-
             setCaption(ViewProperties.getCaption("label.serverDetailInfo"));
             addStyleName("server-desc-detail-info");
 
-            //名前ラベル追加
-            addComponent(serverName);
+            // サーバ名
+            serverNameLabel = new Label();
+            addComponent(serverNameLabel);
         }
 
-        public void setServerName(Instance instance) {
-            if (instance != null) {
-                serverName.setCaption(instance.getInstanceName());
-            } else {
-                serverName.setCaption(null);
-            }
+        public void initialize() {
+            serverNameLabel.setCaption(null);
         }
+
+        public void show(InstanceDto instance) {
+            serverNameLabel.setCaption(instance.getInstance().getInstanceName());
+        }
+
     }
 
-    class DetailParameters extends Table {
+    private class DetailParameters extends Table {
 
-        DetailParameters() {
+        private String[] COLNAME = { ViewProperties.getCaption("field.categoryName"),
+                ViewProperties.getCaption("field.parameterName"), ViewProperties.getCaption("field.parameterValue") };
 
+        @Override
+        public void attach() {
+            // テーブル基本設定
             addStyleName("server-desc-detail-param");
             setCaption(ViewProperties.getCaption("label.serverDetailParams"));
-
-            //テーブル基本設定
             setColumnHeaderMode(Table.COLUMN_HEADER_MODE_EXPLICIT);
             setSortDisabled(true);
             setMultiSelect(false);
             setImmediate(true);
 
-            //カラム設定
+            // カラム設定
             addContainerProperty("Kind", String.class, null);
             addContainerProperty("Name", String.class, null);
             addContainerProperty("Value", String.class, null);
             setColumnExpandRatio("Value", 100);
-
-            //テーブルのカラムに対してStyleNameを設定
             setCellStyleGenerator(new StandardCellStyleGenerator());
         }
 
-        public void setHeaders() {
-            setColumnHeaders(new String[] { ViewProperties.getCaption("field.categoryName"),
-                    ViewProperties.getCaption("field.parameterName"), ViewProperties.getCaption("field.parameterValue") });
+        public void refresh(InstanceDto instance) {
+            setContainerDataSource(new InstanceParameterContainer(instance));
+            setColumnHeaders(COLNAME);
         }
 
-    }
-
-    public void initializeData() {
-        left.setServerName(null);
-        right.getContainerDataSource().removeAllItems();
     }
 
 }

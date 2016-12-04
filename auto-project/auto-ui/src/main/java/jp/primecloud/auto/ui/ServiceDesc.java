@@ -96,13 +96,12 @@ public class ServiceDesc extends Panel {
     }
 
     @SuppressWarnings("unchecked")
-    public void refresh(ComponentDto dto, boolean clearCheckBox) {
+    public void show(ComponentDto component, boolean clearCheckBox) {
         if (tab.getSelectedTab() == serviceDescBasic) {
-            serviceDescBasic.show(dto, clearCheckBox);
+            serviceDescBasic.show(component, clearCheckBox);
         } else if (tab.getSelectedTab() == serviceDescDetail) {
-            Collection<InstanceDto> instanceDtos = (Collection<InstanceDto>) sender.serverPanel.serverTable
-                    .getItemIds();
-            serviceDescDetail.show(dto, instanceDtos);
+            Collection<InstanceDto> instances = (Collection<InstanceDto>) sender.serverPanel.serverTable.getItemIds();
+            serviceDescDetail.show(component, instances);
         }
     }
 

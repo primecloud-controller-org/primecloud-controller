@@ -109,21 +109,21 @@ public class ServicePanel extends Panel {
     }
 
     public void tableRowSelected(ValueChangeEvent event) {
-        ComponentDto dto = (ComponentDto) serviceTable.getValue();
-        if (dto != null) {
-            serviceButtonsBottom.refresh(dto);
-            serviceDesc.refresh(dto, true);
+        ComponentDto component = (ComponentDto) serviceTable.getValue();
+        if (component != null) {
+            serviceButtonsBottom.refresh(component);
+            serviceDesc.show(component, true);
         } else {
             serviceButtonsBottom.initialize();
         }
     }
 
     public void refreshDesc() {
-        ComponentDto dto = (ComponentDto) serviceTable.getValue();
+        ComponentDto component = (ComponentDto) serviceTable.getValue();
         serviceButtonsTop.initialize();
-        if (dto != null) {
-            serviceButtonsBottom.refresh(dto);
-            serviceDesc.refresh(dto, false);
+        if (component != null) {
+            serviceButtonsBottom.refresh(component);
+            serviceDesc.show(component, false);
         } else {
             serviceButtonsBottom.initialize();
             serviceDesc.initialize();
@@ -132,9 +132,9 @@ public class ServicePanel extends Panel {
 
     @SuppressWarnings("unchecked")
     public boolean needsRefresh() {
-        Collection<ComponentDto> componentDtos = serviceTable.getItemIds();
-        for (ComponentDto dto : componentDtos) {
-            for (ComponentInstanceDto componentInstance : dto.getComponentInstances()) {
+        Collection<ComponentDto> components = serviceTable.getItemIds();
+        for (ComponentDto component : components) {
+            for (ComponentInstanceDto componentInstance : component.getComponentInstances()) {
                 ComponentInstanceStatus componentInstanceStatus = ComponentInstanceStatus.fromStatus(componentInstance
                         .getComponentInstance().getStatus());
                 if (componentInstanceStatus == ComponentInstanceStatus.STARTING

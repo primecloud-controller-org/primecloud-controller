@@ -20,7 +20,6 @@ package jp.primecloud.auto.ui;
 
 import java.util.Collection;
 
-import jp.primecloud.auto.entity.crud.ComponentType;
 import jp.primecloud.auto.service.dto.ComponentDto;
 import jp.primecloud.auto.service.dto.ComponentInstanceDto;
 import jp.primecloud.auto.service.dto.LoadBalancerDto;
@@ -44,7 +43,7 @@ import com.vaadin.ui.Table;
  * </p>
  *
  */
-@SuppressWarnings({ "serial", "unchecked" })
+@SuppressWarnings("serial")
 public class ServiceTable extends Table {
 
     private MainView sender;
@@ -78,24 +77,24 @@ public class ServiceTable extends Table {
         addGeneratedColumn("no", new ColumnGenerator() {
             @Override
             public Component generateCell(Table source, Object itemId, Object columnId) {
-                ComponentDto p = (ComponentDto) itemId;
-                Label nlbl = new Label(String.valueOf(p.getComponent().getComponentNo()));
-                return nlbl;
+                ComponentDto component = (ComponentDto) itemId;
+
+                Label label = new Label(String.valueOf(component.getComponent().getComponentNo()));
+                return label;
             }
         });
 
         addGeneratedColumn("name", new ColumnGenerator() {
             @Override
             public Component generateCell(Table source, Object itemId, Object columnId) {
-                ComponentDto p = (ComponentDto) itemId;
-                String name;
-                if (StringUtils.isEmpty(p.getComponent().getComment())) {
-                    name = p.getComponent().getComponentName();
-                } else {
-                    name = p.getComponent().getComment() + "\n[" + p.getComponent().getComponentName() + "]";
+                ComponentDto component = (ComponentDto) itemId;
+
+                String name = component.getComponent().getComponentName();
+                if (StringUtils.isNotEmpty(component.getComponent().getComment())) {
+                    name = component.getComponent().getComment() + "\n[" + name + "]";
                 }
-                Label nlbl = new Label(name, Label.CONTENT_PREFORMATTED);
-                return nlbl;
+                Label label = new Label(name, Label.CONTENT_PREFORMATTED);
+                return label;
             }
         });
 
@@ -103,41 +102,45 @@ public class ServiceTable extends Table {
         addGeneratedColumn("srvs", new ColumnGenerator() {
             @Override
             public Component generateCell(Table source, Object itemId, Object columnId) {
-                ComponentDto p = (ComponentDto) itemId;
+                ComponentDto component = (ComponentDto) itemId;
+
                 int srvs = 0;
-                for (ComponentInstanceDto componentInstance : p.getComponentInstances()) {
+                for (ComponentInstanceDto componentInstance : component.getComponentInstances()) {
                     if (BooleanUtils.isTrue(componentInstance.getComponentInstance().getAssociate())) {
                         srvs++;
                     }
                 }
-                Label lbl = new Label(Integer.toString(srvs));
-                return lbl;
+                Label label = new Label(Integer.toString(srvs));
+                return label;
             }
         });
 
         addGeneratedColumn("status", new ColumnGenerator() {
             @Override
             public Component generateCell(Table source, Object itemId, Object columnId) {
-                ComponentDto p = (ComponentDto) itemId;
-                String a = p.getStatus().substring(0, 1).toUpperCase() + p.getStatus().substring(1).toLowerCase();
-                Icons icon = Icons.fromName(a);
-                Label slbl = new Label(IconUtils.createImageTag(ServiceTable.this, icon, a), Label.CONTENT_XHTML);
-                slbl.setHeight(COLUMN_HEIGHT);
+                ComponentDto component = (ComponentDto) itemId;
 
-                return slbl;
+                String status = component.getStatus();
+                Icons icon = Icons.fromName(status);
+                status = status.substring(0, 1).toUpperCase() + status.substring(1).toLowerCase();
+                Label label = new Label(IconUtils.createImageTag(ServiceTable.this, icon, status), Label.CONTENT_XHTML);
+                label.setHeight(COLUMN_HEIGHT);
+                return label;
             }
         });
 
         addGeneratedColumn("loadBalancer", new ColumnGenerator() {
             @Override
+            @SuppressWarnings("unchecked")
             public Component generateCell(Table source, Object itemId, Object columnId) {
-                ComponentDto dto = (ComponentDto) itemId;
+                ComponentDto component = (ComponentDto) itemId;
 
                 Button button = null;
-                for (LoadBalancerDto lbDto : (Collection<LoadBalancerDto>) sender.loadBalancerPanel.loadBalancerTable
+                for (LoadBalancerDto loadBalancer : (Collection<LoadBalancerDto>) sender.loadBalancerPanel.loadBalancerTable
                         .getItemIds()) {
-                    if (dto.getComponent().getComponentNo().equals(lbDto.getLoadBalancer().getComponentNo())) {
-                        button = createLoadBalancerButton(lbDto);
+                    if (component.getComponent().getComponentNo()
+                            .equals(loadBalancer.getLoadBalancer().getComponentNo())) {
+                        button = createLoadBalancerButton(loadBalancer);
                         break;
                     }
                 }
@@ -152,15 +155,13 @@ public class ServiceTable extends Table {
         addGeneratedColumn("serviceDetail", new ColumnGenerator() {
             @Override
             public Component generateCell(Table source, Object itemId, Object columnId) {
-                ComponentDto p = (ComponentDto) itemId;
-                ComponentType componentType = p.getComponentType();
+                ComponentDto component = (ComponentDto) itemId;
 
-                // サービス名
-                String name = componentType.getComponentTypeNameDisp();
-                Icons nameIcon = Icons.fromName(componentType.getComponentTypeName());
-                Label slbl = new Label(IconUtils.createImageTag(ServiceTable.this, nameIcon, name), Label.CONTENT_XHTML);
-                slbl.setHeight(COLUMN_HEIGHT);
-                return slbl;
+                String name = component.getComponentType().getComponentTypeNameDisp();
+                Icons icon = Icons.fromName(component.getComponentType().getComponentTypeName());
+                Label label = new Label(IconUtils.createImageTag(ServiceTable.this, icon, name), Label.CONTENT_XHTML);
+                label.setHeight(COLUMN_HEIGHT);
+                return label;
             }
         });
 
@@ -173,18 +174,18 @@ public class ServiceTable extends Table {
         setColumnExpandRatio("serviceDetail", 100);
     }
 
-    private Button createLoadBalancerButton(final LoadBalancerDto loadBalancerDto) {
+    private Button createLoadBalancerButton(final LoadBalancerDto loadBalancer) {
         Button button = new Button();
-        button.setCaption(loadBalancerDto.getLoadBalancer().getLoadBalancerName());
+        button.setCaption(loadBalancer.getLoadBalancer().getLoadBalancerName());
         button.setIcon(Icons.LOADBALANCER_TAB.resource());
-        button.setData(loadBalancerDto);
+        button.setData(loadBalancer);
         button.addStyleName("borderless");
         button.addStyleName("loadbalancer-button");
         button.addListener(new Button.ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
                 // ロードバランサを選択
-                sender.loadBalancerPanel.loadBalancerTable.select(loadBalancerDto);
+                sender.loadBalancerPanel.loadBalancerTable.select(loadBalancer);
 
                 // ロードバランサタブに移動
                 sender.tab.setSelectedTab(sender.loadBalancerPanel);

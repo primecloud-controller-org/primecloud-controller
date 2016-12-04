@@ -23,6 +23,7 @@ import java.util.List;
 
 import jp.primecloud.auto.config.Config;
 import jp.primecloud.auto.service.ProcessService;
+import jp.primecloud.auto.service.dto.ComponentDto;
 import jp.primecloud.auto.service.dto.InstanceDto;
 import jp.primecloud.auto.service.dto.UserAuthDto;
 import jp.primecloud.auto.ui.DialogConfirm.Buttons;
@@ -49,76 +50,82 @@ public class ServerButtonsTop extends CssLayout {
 
     private MainView sender;
 
-    private Button playButton;
+    private Button startAllButton;
 
-    private Button stopButton;
+    private Button stopAllButton;
 
-    ServerButtonsTop(MainView sender) {
+    public ServerButtonsTop(MainView sender) {
         this.sender = sender;
+    }
 
-        //テーブル下ボタンの配置
+    @Override
+    public void attach() {
         setWidth("100%");
         setMargin(true);
         addStyleName("server-buttons");
         addStyleName("server-table-label");
-        Label lserver = new Label(ViewProperties.getCaption("label.server"), Label.CONTENT_XHTML);
-        lserver.setWidth("200px");
-        addComponent(lserver);
 
-        stopButton = new Button(ViewProperties.getCaption("button.stopAllServers"));
-        stopButton.setDescription(ViewProperties.getCaption("description.stopAllServers"));
-        stopButton.setIcon(Icons.STOPMINI.resource());
-        stopButton.addListener(new ClickListener() {
+        Label labeal = new Label(ViewProperties.getCaption("label.server"), Label.CONTENT_XHTML);
+        labeal.setWidth("200px");
+        addComponent(labeal);
+
+        // StopAllボタン
+        stopAllButton = new Button(ViewProperties.getCaption("button.stopAllServers"));
+        stopAllButton.setDescription(ViewProperties.getCaption("description.stopAllServers"));
+        stopAllButton.setIcon(Icons.STOPMINI.resource());
+        stopAllButton.addListener(new ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
-                stopButtonClick(event);
+                stopAllButtonClick(event);
             }
         });
-        stopButton.addStyleName("right");
-        addComponent(stopButton);
+        stopAllButton.addStyleName("right");
+        addComponent(stopAllButton);
 
-        playButton = new Button(ViewProperties.getCaption("button.startAllServers"));
-        playButton.setDescription(ViewProperties.getCaption("description.startAllServers"));
-        playButton.setIcon(Icons.PLAYMINI.resource());
-        playButton.addListener(new ClickListener() {
+        // StartAllボタン
+        startAllButton = new Button(ViewProperties.getCaption("button.startAllServers"));
+        startAllButton.setDescription(ViewProperties.getCaption("description.startAllServers"));
+        startAllButton.setIcon(Icons.PLAYMINI.resource());
+        startAllButton.addListener(new ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
-                playButtonClick(event);
+                startAllButtonClick(event);
             }
         });
-        playButton.addStyleName("right");
-        addComponent(playButton);
+        startAllButton.addStyleName("right");
+        addComponent(startAllButton);
 
         initialize();
     }
 
-    void initialize() {
-        stopButton.setEnabled(true);
-        playButton.setEnabled(true);
+    public void initialize() {
+        stopAllButton.setEnabled(true);
+        startAllButton.setEnabled(true);
 
         // 権限がなければボタンを無効にする
         UserAuthDto auth = ViewContext.getAuthority();
         if (!auth.isServerOperate()) {
-            stopButton.setEnabled(false);
-            playButton.setEnabled(false);
+            stopAllButton.setEnabled(false);
+            startAllButton.setEnabled(false);
         }
     }
 
-    public void playButtonClick(ClickEvent event) {
-        final InstanceDto dto = (InstanceDto) sender.serverPanel.serverTable.getValue();
-
-        VerticalLayout optionLayout = new VerticalLayout();
-        final CheckBox checkBox = new CheckBox(ViewMessages.getMessage("IUI-000035"), false);
-        checkBox.setImmediate(true);
-        optionLayout.addComponent(checkBox);
-        optionLayout.setComponentAlignment(checkBox, Alignment.MIDDLE_CENTER);
-
-        // サービスを有効にするかどうか
+    private void startAllButtonClick(ClickEvent event) {
+        // ダイアログの表示オプション
+        VerticalLayout optionLayout = null;
+        final CheckBox checkBox;
         String enableService = Config.getProperty("ui.enableService");
-        if (enableService != null && !BooleanUtils.toBoolean(enableService)) {
-            optionLayout = null;
+        if (enableService == null || BooleanUtils.toBoolean(enableService)) {
+            optionLayout = new VerticalLayout();
+            checkBox = new CheckBox(ViewMessages.getMessage("IUI-000035"), false);
+            checkBox.setImmediate(true);
+            optionLayout.addComponent(checkBox);
+            optionLayout.setComponentAlignment(checkBox, Alignment.MIDDLE_CENTER);
+        } else {
+            checkBox = null;
         }
 
+        // 確認ダイアログを表示
         String message = ViewMessages.getMessage("IUI-000011");
         DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message,
                 Buttons.OKCancelConfirm, optionLayout);
@@ -128,39 +135,58 @@ public class ServerButtonsTop extends CssLayout {
                 if (result != Result.OK) {
                     return;
                 }
-                ProcessService processService = BeanContext.getBean(ProcessService.class);
-                Long farmNo = ViewContext.getFarmNo();
-                List<Long> instanceNos = new ArrayList<Long>();
-                for (Object itemId : sender.serverPanel.serverTable.getItemIds()) {
-                    instanceNos.add(((InstanceDto) itemId).getInstance().getInstanceNo());
-                }
-                boolean startService = (Boolean) checkBox.getValue();
 
-                //オペレーションログ
-                AutoApplication apl = (AutoApplication) getApplication();
-                apl.doOpLog("SERVER", "All Server Start", null, null, null, String.valueOf(startService));
-
-                processService.startInstances(farmNo, instanceNos, startService);
-                sender.refreshTable();
-
-                // 選択されていたサーバを選択し直す
-                if (dto != null) {
-                    for (Object itemId : sender.serverPanel.serverTable.getItemIds()) {
-                        InstanceDto dto2 = (InstanceDto) itemId;
-                        if (dto.getInstance().getInstanceNo().equals(dto2.getInstance().getInstanceNo())) {
-                            sender.serverPanel.serverTable.select(itemId);
-                            break;
-                        }
-                    }
-                }
+                boolean startService = (checkBox == null) ? false : (Boolean) checkBox.getValue();
+                startAll(startService);
             }
         });
+
         getApplication().getMainWindow().addWindow(dialog);
     }
 
-    public void stopButtonClick(ClickEvent event) {
-        final InstanceDto dto = (InstanceDto) sender.serverPanel.serverTable.getValue();
+    private void startAll(boolean startService) {
+        // 選択されているサーバを保持する
+        Long selectedInstanceNo = null;
+        if (sender.serverPanel.serverTable.getValue() != null) {
+            InstanceDto instance = (InstanceDto) sender.serverPanel.serverTable.getValue();
+            selectedInstanceNo = instance.getInstance().getInstanceNo();
+        }
 
+        // オペレーションログ
+        AutoApplication apl = (AutoApplication) getApplication();
+        apl.doOpLog("SERVER", "All Server Start", null, null, null, String.valueOf(startService));
+
+        // 全てのサーバを起動
+        List<Long> instanceNos = new ArrayList<Long>();
+        for (Object itemId : sender.serverPanel.serverTable.getItemIds()) {
+            instanceNos.add(((InstanceDto) itemId).getInstance().getInstanceNo());
+        }
+
+        List<Long> componentNos = new ArrayList<Long>();
+        for (Object itemId : sender.servicePanel.serviceTable.getItemIds()) {
+            componentNos.add(((ComponentDto) itemId).getComponent().getComponentNo());
+        }
+
+        ProcessService processService = BeanContext.getBean(ProcessService.class);
+        processService.startInstances(ViewContext.getFarmNo(), instanceNos, startService);
+
+        // 表示を更新
+        sender.refreshTable();
+
+        // 選択されていたサーバを選択し直す
+        if (selectedInstanceNo != null) {
+            for (Object itemId : sender.serverPanel.serverTable.getItemIds()) {
+                InstanceDto instance = (InstanceDto) itemId;
+                if (selectedInstanceNo.equals(instance.getInstance().getInstanceNo())) {
+                    sender.serverPanel.serverTable.select(itemId);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void stopAllButtonClick(ClickEvent event) {
+        // 確認ダイアログの表示
         String message = ViewMessages.getMessage("IUI-000012");
         DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message,
                 Buttons.OKCancelConfirm);
@@ -170,33 +196,48 @@ public class ServerButtonsTop extends CssLayout {
                 if (result != Result.OK) {
                     return;
                 }
-                ProcessService processService = BeanContext.getBean(ProcessService.class);
-                Long farmNo = ViewContext.getFarmNo();
-                List<Long> instanceNos = new ArrayList<Long>();
-                for (Object itemId : sender.serverPanel.serverTable.getItemIds()) {
-                    instanceNos.add(((InstanceDto) itemId).getInstance().getInstanceNo());
-                }
 
-                //オペレーションログ
-                AutoApplication apl = (AutoApplication) getApplication();
-                apl.doOpLog("SERVER", "All Server Stop", null, null, null, null);
-
-                processService.stopInstances(farmNo, instanceNos);
-                sender.refreshTable();
-
-                // 選択されていたサーバを選択し直す
-                if (dto != null) {
-                    for (Object itemId : sender.serverPanel.serverTable.getItemIds()) {
-                        InstanceDto dto2 = (InstanceDto) itemId;
-                        if (dto.getInstance().getInstanceNo().equals(dto2.getInstance().getInstanceNo())) {
-                            sender.serverPanel.serverTable.select(itemId);
-                            break;
-                        }
-                    }
-                }
+                stopAll();
             }
         });
+
         getApplication().getMainWindow().addWindow(dialog);
+    }
+
+    private void stopAll() {
+        // 選択されているサーバを保持する
+        Long selectedInstanceNo = null;
+        if (sender.serverPanel.serverTable.getValue() != null) {
+            InstanceDto instance = (InstanceDto) sender.serverPanel.serverTable.getValue();
+            selectedInstanceNo = instance.getInstance().getInstanceNo();
+        }
+
+        // オペレーションログ
+        AutoApplication apl = (AutoApplication) getApplication();
+        apl.doOpLog("SERVER", "All Server Stop", null, null, null, null);
+
+        // 全てのサーバを停止
+        List<Long> instanceNos = new ArrayList<Long>();
+        for (Object itemId : sender.serverPanel.serverTable.getItemIds()) {
+            instanceNos.add(((InstanceDto) itemId).getInstance().getInstanceNo());
+        }
+
+        ProcessService processService = BeanContext.getBean(ProcessService.class);
+        processService.stopInstances(ViewContext.getFarmNo(), instanceNos);
+
+        // 表示を更新
+        sender.refreshTable();
+
+        // 選択されていたサーバを選択し直す
+        if (selectedInstanceNo != null) {
+            for (Object itemId : sender.serverPanel.serverTable.getItemIds()) {
+                InstanceDto instance = (InstanceDto) itemId;
+                if (selectedInstanceNo.equals(instance.getInstance().getInstanceNo())) {
+                    sender.serverPanel.serverTable.select(itemId);
+                    break;
+                }
+            }
+        }
     }
 
 }

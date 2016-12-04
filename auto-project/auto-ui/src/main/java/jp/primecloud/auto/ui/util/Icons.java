@@ -192,7 +192,7 @@ public class Icons {
 
     public static Icons MONITORING = new Icons("Monitoring.png");
 
-    public static Icons UN_MONITORING = new Icons("Un_monitoring.png");
+    public static Icons UN_MONITORING = new Icons("UnMonitoring.png");
 
     protected static Map<String, Icons> map;
 

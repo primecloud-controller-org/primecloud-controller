@@ -164,7 +164,7 @@ public class ServiceDescBasic extends Panel {
         serverOpe.refresh(instances);
     }
 
-    public ComponentInstanceDto findComponentInstance(Long instanceNo) {
+    private ComponentInstanceDto findComponentInstance(Long instanceNo) {
         for (ComponentInstanceDto componentInstance : component.getComponentInstances()) {
             if (componentInstance.getComponentInstance().getInstanceNo().equals(instanceNo)) {
                 return componentInstance;
@@ -293,9 +293,9 @@ public class ServiceDescBasic extends Panel {
                             .getInstanceNo());
                     String status = (componentInstance == null) ? "" : componentInstance.getComponentInstance()
                             .getStatus();
-                    status = status.substring(0, 1).toUpperCase() + status.substring(1).toLowerCase();
 
                     Icons icon = Icons.fromName(status);
+                    status = status.substring(0, 1).toUpperCase() + status.substring(1).toLowerCase();
                     Label label = new Label(IconUtils.createImageTag(ServiceDescBasic.this, icon, status),
                             Label.CONTENT_XHTML);
                     label.setHeight(COLUMN_HEIGHT);
@@ -387,122 +387,152 @@ public class ServiceDescBasic extends Panel {
             gridLayout.setColumnExpandRatio(1, 65);
             layout.addComponent(gridLayout);
 
-            Label label;
             int line = 0;
 
             // サービス名
-            label = new Label(ViewProperties.getCaption("field.serviceName"), Label.CONTENT_XHTML);
-            label.setHeight(COLUMN_HEIGHT);
-            gridLayout.addComponent(label, 0, line++);
+            {
+                Label label = new Label(ViewProperties.getCaption("field.serviceName"), Label.CONTENT_XHTML);
+                label.setHeight(COLUMN_HEIGHT);
+                gridLayout.addComponent(label, 0, line++);
+            }
 
             // サービス
-            label = new Label(ViewProperties.getCaption("field.service"), Label.CONTENT_XHTML);
-            label.setHeight(COLUMN_HEIGHT);
-            gridLayout.addComponent(label, 0, line++);
+            {
+                Label label = new Label(ViewProperties.getCaption("field.service"), Label.CONTENT_XHTML);
+                label.setHeight(COLUMN_HEIGHT);
+                gridLayout.addComponent(label, 0, line++);
+            }
 
             // ステータス
-            label = new Label(ViewProperties.getCaption("field.status"), Label.CONTENT_XHTML);
-            label.setHeight(COLUMN_HEIGHT);
-            gridLayout.addComponent(label, 0, line++);
+            {
+                Label label = new Label(ViewProperties.getCaption("field.status"), Label.CONTENT_XHTML);
+                label.setHeight(COLUMN_HEIGHT);
+                gridLayout.addComponent(label, 0, line++);
+            }
 
             // コメント
-            label = new Label(ViewProperties.getCaption("field.comment"), Label.CONTENT_XHTML);
-            label.setHeight(COLUMN_HEIGHT);
-            gridLayout.addComponent(label, 0, line++);
+            {
+                Label label = new Label(ViewProperties.getCaption("field.comment"), Label.CONTENT_XHTML);
+                label.setHeight(COLUMN_HEIGHT);
+                gridLayout.addComponent(label, 0, line++);
+            }
 
             // ロードバランサ
-            label = new Label(ViewProperties.getCaption("field.loadBalancer"), Label.CONTENT_XHTML);
-            label.setHeight(COLUMN_HEIGHT);
-            gridLayout.addComponent(label, 0, line++);
+            {
+                Label label = new Label(ViewProperties.getCaption("field.loadBalancer"), Label.CONTENT_XHTML);
+                label.setHeight(COLUMN_HEIGHT);
+                gridLayout.addComponent(label, 0, line++);
+            }
         }
 
         public void initialize() {
-            Label label;
             int line = 0;
 
             // サービス名
-            label = new Label("", Label.CONTENT_XHTML);
-            gridLayout.removeComponent(1, line);
-            gridLayout.addComponent(label, 1, line++);
+            {
+                Label label = new Label("", Label.CONTENT_XHTML);
+                gridLayout.removeComponent(1, line);
+                gridLayout.addComponent(label, 1, line++);
+            }
 
             // サービス
-            label = new Label("", Label.CONTENT_XHTML);
-            gridLayout.removeComponent(1, line);
-            gridLayout.addComponent(label, 1, line++);
+            {
+                Label label = new Label("", Label.CONTENT_XHTML);
+                gridLayout.removeComponent(1, line);
+                gridLayout.addComponent(label, 1, line++);
+            }
 
             // ステータス
-            label = new Label("", Label.CONTENT_XHTML);
-            gridLayout.removeComponent(1, line);
-            gridLayout.addComponent(label, 1, line++);
+            {
+                Label label = new Label("", Label.CONTENT_XHTML);
+                gridLayout.removeComponent(1, line);
+                gridLayout.addComponent(label, 1, line++);
+            }
 
             // コメント
-            label = new Label("", Label.CONTENT_XHTML);
-            gridLayout.removeComponent(1, line);
-            gridLayout.addComponent(label, 1, line++);
+            {
+                Label label = new Label("", Label.CONTENT_XHTML);
+                gridLayout.removeComponent(1, line);
+                gridLayout.addComponent(label, 1, line++);
+            }
 
             // ロードバランサ
-            VerticalLayout layout = new VerticalLayout();
-            gridLayout.removeComponent(1, line);
-            gridLayout.addComponent(layout, 1, line++);
+            {
+                VerticalLayout layout = new VerticalLayout();
+                gridLayout.removeComponent(1, line);
+                gridLayout.addComponent(layout, 1, line++);
+            }
         }
 
         @SuppressWarnings("unchecked")
         public void show(ComponentDto component) {
-            Label label;
             int line = 0;
 
             // サービス名
-            label = new Label(component.getComponent().getComponentName(), Label.CONTENT_XHTML);
-            gridLayout.removeComponent(1, line);
-            gridLayout.addComponent(label, 1, line++);
-
-            // サービス
-            Icons nameIcon = Icons.fromName(component.getComponentType().getComponentTypeName());
-            String name = component.getComponentType().getComponentTypeNameDisp();
-            label = new Label(IconUtils.createImageTag(ServiceDescBasic.this, nameIcon, name), Label.CONTENT_XHTML);
-            gridLayout.removeComponent(1, line);
-            gridLayout.addComponent(label, 1, line++);
-
-            // ステータス
-            String stat = component.getStatus().substring(0, 1).toUpperCase()
-                    + component.getStatus().substring(1).toLowerCase();
-            Icons icon = Icons.fromName(stat);
-            label = new Label(IconUtils.createImageTag(ServiceDescBasic.this, icon, stat), Label.CONTENT_XHTML);
-            gridLayout.removeComponent(1, line);
-            gridLayout.addComponent(label, 1, line++);
-
-            // コメント
-            label = new Label(component.getComponent().getComment(), Label.CONTENT_XHTML);
-            gridLayout.removeComponent(1, line);
-            gridLayout.addComponent(label, 1, line++);
-
-            // ロードバランサ
-            VerticalLayout layout = new VerticalLayout();
-            layout.setSpacing(false);
-
-            for (LoadBalancerDto lbDto : (Collection<LoadBalancerDto>) sender.loadBalancerPanel.loadBalancerTable
-                    .getItemIds()) {
-                if (component.getComponent().getComponentNo().equals(lbDto.getLoadBalancer().getComponentNo())) {
-                    layout.addComponent(createLoadBalancerButton(lbDto));
-                }
+            {
+                Label label = new Label(component.getComponent().getComponentName(), Label.CONTENT_XHTML);
+                gridLayout.removeComponent(1, line);
+                gridLayout.addComponent(label, 1, line++);
             }
 
-            gridLayout.removeComponent(1, line);
-            gridLayout.addComponent(layout, 1, line++);
+            // サービス
+            {
+                Icons icon = Icons.fromName(component.getComponentType().getComponentTypeName());
+                String name = component.getComponentType().getComponentTypeNameDisp();
+                Label label = new Label(IconUtils.createImageTag(ServiceDescBasic.this, icon, name),
+                        Label.CONTENT_XHTML);
+                gridLayout.removeComponent(1, line);
+                gridLayout.addComponent(label, 1, line++);
+            }
+
+            // ステータス
+            {
+                String status = component.getStatus();
+                Icons icon = Icons.fromName(status);
+                status = status.substring(0, 1).toUpperCase() + status.substring(1).toLowerCase();
+                Label label = new Label(IconUtils.createImageTag(ServiceDescBasic.this, icon, status),
+                        Label.CONTENT_XHTML);
+                gridLayout.removeComponent(1, line);
+                gridLayout.addComponent(label, 1, line++);
+            }
+
+            // コメント
+            {
+                Label label = new Label(component.getComponent().getComment(), Label.CONTENT_XHTML);
+                gridLayout.removeComponent(1, line);
+                gridLayout.addComponent(label, 1, line++);
+            }
+
+            // ロードバランサ
+            {
+                VerticalLayout layout = new VerticalLayout();
+                layout.setSpacing(false);
+
+                for (LoadBalancerDto loadBalancer : (Collection<LoadBalancerDto>) sender.loadBalancerPanel.loadBalancerTable
+                        .getItemIds()) {
+                    if (component.getComponent().getComponentNo()
+                            .equals(loadBalancer.getLoadBalancer().getComponentNo())) {
+                        layout.addComponent(createLoadBalancerButton(loadBalancer));
+                    }
+                }
+
+                gridLayout.removeComponent(1, line);
+                gridLayout.addComponent(layout, 1, line++);
+            }
         }
 
-        private Button createLoadBalancerButton(final LoadBalancerDto loadBalancerDto) {
+        private Button createLoadBalancerButton(final LoadBalancerDto loadBalancer) {
             Button button = new Button();
-            button.setCaption(loadBalancerDto.getLoadBalancer().getLoadBalancerName());
+            button.setCaption(loadBalancer.getLoadBalancer().getLoadBalancerName());
             button.setIcon(Icons.LOADBALANCER_TAB.resource());
-            button.setData(loadBalancerDto);
+            button.setData(loadBalancer);
             button.addStyleName("borderless");
             button.addStyleName("loadbalancer-button");
             button.addListener(new Button.ClickListener() {
                 @Override
                 public void buttonClick(ClickEvent event) {
                     // ロードバランサを選択
-                    sender.loadBalancerPanel.loadBalancerTable.select(loadBalancerDto);
+                    sender.loadBalancerPanel.loadBalancerTable.select(loadBalancer);
 
                     // ロードバランサタブに移動
                     sender.tab.setSelectedTab(sender.loadBalancerPanel);
@@ -609,8 +639,8 @@ public class ServiceDescBasic extends Panel {
                 }
             }
 
-            for (CheckBox chk : right.checkBoxes.values()) {
-                chk.setValue(!checkAll);
+            for (CheckBox checkBox : right.checkBoxes.values()) {
+                checkBox.setValue(!checkAll);
             }
         }
 
