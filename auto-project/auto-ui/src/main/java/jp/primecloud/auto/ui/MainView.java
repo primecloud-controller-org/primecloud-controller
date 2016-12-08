@@ -18,10 +18,9 @@
  */
 package jp.primecloud.auto.ui;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import jp.primecloud.auto.config.Config;
 import jp.primecloud.auto.service.FarmService;
@@ -29,6 +28,7 @@ import jp.primecloud.auto.service.dto.ComponentDto;
 import jp.primecloud.auto.service.dto.ComponentInstanceDto;
 import jp.primecloud.auto.service.dto.FarmDto;
 import jp.primecloud.auto.service.dto.InstanceDto;
+import jp.primecloud.auto.service.dto.LoadBalancerDto;
 import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.ViewContext;
@@ -57,14 +57,10 @@ import com.vaadin.ui.themes.Reindeer;
  * </p>
  *
  */
-@SuppressWarnings({ "serial", "unchecked" })
+@SuppressWarnings("serial")
 public class MainView extends VerticalLayout {
 
     protected Log log = LogFactory.getLog(MainView.class);
-
-    private boolean enableService;
-
-    private boolean enableLoadBalancer;
 
     private TopBar topBar;
 
@@ -82,14 +78,6 @@ public class MainView extends VerticalLayout {
 
     @Override
     public void attach() {
-        // サービスを表示するかどうか
-        String enableService = Config.getProperty("ui.enableService");
-        this.enableService = (enableService == null) || (BooleanUtils.toBoolean(enableService));
-
-        // ロードバランサを表示するかどうか
-        String enableLoadBalancer = Config.getProperty("ui.enableLoadBalancer");
-        this.enableLoadBalancer = (enableLoadBalancer == null) || (BooleanUtils.toBoolean(enableLoadBalancer));
-
         setSizeFull();
         addStyleName("mycloud-panel");
         setMargin(false);
@@ -151,8 +139,9 @@ public class MainView extends VerticalLayout {
         mainLayout.setExpandRatio(tab, 100);
 
         // サービスタブ
-        servicePanel = new ServicePanel(this);
-        if (this.enableService) {
+        String enableService = Config.getProperty("ui.enableService");
+        if (enableService == null || BooleanUtils.toBoolean(enableService)) {
+            servicePanel = new ServicePanel(this);
             tab.addTab(servicePanel, ViewProperties.getCaption("tab.service"), Icons.SERVICETAB.resource());
         }
 
@@ -161,8 +150,9 @@ public class MainView extends VerticalLayout {
         tab.addTab(serverPanel, ViewProperties.getCaption("tab.server"), Icons.SERVERTAB.resource());
 
         // ロードバランサタブ
-        loadBalancerPanel = new LoadBalancerPanel(this);
-        if (this.enableLoadBalancer) {
+        String enableLoadBalancer = Config.getProperty("ui.enableLoadBalancer");
+        if (enableLoadBalancer == null || BooleanUtils.toBoolean(enableLoadBalancer)) {
+            loadBalancerPanel = new LoadBalancerPanel(this);
             tab.addTab(loadBalancerPanel, ViewProperties.getCaption("tab.loadbalancer"),
                     Icons.LOADBALANCER_TAB.resource());
         }
@@ -223,78 +213,128 @@ public class MainView extends VerticalLayout {
         }
     }
 
-    public Collection<ComponentDto> getComponents(List<ComponentInstanceDto> componentInstances) {
-        Collection<ComponentDto> dtos = (Collection<ComponentDto>) servicePanel.serviceTable.getItemIds();
-        Set<ComponentDto> result = new LinkedHashSet<ComponentDto>();
-        for (ComponentDto dto : dtos) {
-            for (ComponentInstanceDto ci : componentInstances) {
-                if (ci.getComponentInstance().getComponentNo().equals(dto.getComponent().getComponentNo())) {
-                    result.add(dto);
-                    break;
-                }
+    public ComponentDto getComponent(Long componentNo) {
+        if (servicePanel == null) {
+            return null;
+        }
+
+        for (ComponentDto component : (Collection<ComponentDto>) servicePanel.serviceTable.getItemIds()) {
+            if (componentNo.equals(component.getComponent().getComponentNo())) {
+                return component;
             }
         }
-        return result;
+
+        return null;
     }
 
-    public Collection<InstanceDto> getInstances(List<ComponentInstanceDto> componentInstances) {
-        Collection<InstanceDto> dtos = (Collection<InstanceDto>) serverPanel.serverTable.getItemIds();
-        Set<InstanceDto> result = new LinkedHashSet<InstanceDto>();
-        for (InstanceDto dto : dtos) {
-            for (ComponentInstanceDto ci : componentInstances) {
-                if (ci.getComponentInstance().getInstanceNo().equals(dto.getInstance().getInstanceNo())) {
-                    result.add(dto);
+    public List<ComponentDto> getComponents(List<ComponentInstanceDto> componentInstances) {
+        List<ComponentDto> components = new ArrayList<ComponentDto>();
+        if (servicePanel == null) {
+            return components;
+        }
+
+        for (ComponentDto component : (Collection<ComponentDto>) servicePanel.serviceTable.getItemIds()) {
+            for (ComponentInstanceDto componentInstance : componentInstances) {
+                if (componentInstance.getComponentInstance().getComponentNo()
+                        .equals(component.getComponent().getComponentNo())) {
+                    if (!components.contains(component)) {
+                        components.add(component);
+                    }
                     break;
                 }
             }
         }
-        return result;
+
+        return components;
+    }
+
+    public List<InstanceDto> getInstances() {
+        List<InstanceDto> instances = new ArrayList<InstanceDto>();
+
+        instances.addAll((Collection<InstanceDto>) serverPanel.serverTable.getItemIds());
+
+        return instances;
+    }
+
+    public List<InstanceDto> getInstances(List<ComponentInstanceDto> componentInstances) {
+        List<InstanceDto> instances = new ArrayList<InstanceDto>();
+
+        for (InstanceDto instance : (Collection<InstanceDto>) serverPanel.serverTable.getItemIds()) {
+            for (ComponentInstanceDto componentInstance : componentInstances) {
+                if (componentInstance.getComponentInstance().getInstanceNo()
+                        .equals(instance.getInstance().getInstanceNo())) {
+                    if (!instances.contains(instance)) {
+                        instances.add(instance);
+                    }
+                    break;
+                }
+            }
+        }
+
+        return instances;
+    }
+
+    public List<LoadBalancerDto> getLoadBalancers(Long componentNo) {
+        List<LoadBalancerDto> loadBalancers = new ArrayList<LoadBalancerDto>();
+        if (loadBalancerPanel == null) {
+            return loadBalancers;
+        }
+
+        for (LoadBalancerDto loadBalancer : (Collection<LoadBalancerDto>) loadBalancerPanel.loadBalancerTable
+                .getItemIds()) {
+            if (componentNo.equals(loadBalancer.getLoadBalancer().getComponentNo())) {
+                loadBalancers.add(loadBalancer);
+            }
+        }
+
+        return loadBalancers;
     }
 
     public void initialize() {
-        if (enableService) {
+        if (servicePanel != null) {
             servicePanel.initialize();
         }
         serverPanel.initialize();
-        if (enableLoadBalancer) {
+        if (loadBalancerPanel != null) {
             loadBalancerPanel.initialize();
         }
     }
 
     public void refreshTable() {
-        if (enableService) {
+        if (servicePanel != null) {
             servicePanel.refreshTable();
         }
         serverPanel.refreshTable();
-        if (enableLoadBalancer) {
+        if (loadBalancerPanel != null) {
             loadBalancerPanel.refreshTable();
         }
     }
 
     public void refreshTableOnly() {
-        if (enableService) {
+        if (servicePanel != null) {
             servicePanel.serviceTable.refreshData();
         }
         serverPanel.serverTable.refreshData();
-        if (enableLoadBalancer) {
+        if (loadBalancerPanel != null) {
             loadBalancerPanel.loadBalancerTable.refreshData();
         }
     }
 
     private boolean needsRefresh() {
-        boolean needsRefresh = servicePanel.needsRefresh();
-        if (needsRefresh) {
+        if (servicePanel != null) {
+            if (servicePanel.needsRefresh()) {
+                return true;
+            }
+        }
+
+        if (serverPanel.needsRefresh()) {
             return true;
         }
 
-        needsRefresh = serverPanel.needsRefresh();
-        if (needsRefresh) {
-            return true;
-        }
-
-        needsRefresh = loadBalancerPanel.needsRefresh();
-        if (needsRefresh) {
-            return true;
+        if (loadBalancerPanel != null) {
+            if (loadBalancerPanel.needsRefresh()) {
+                return true;
+            }
         }
 
         return false;

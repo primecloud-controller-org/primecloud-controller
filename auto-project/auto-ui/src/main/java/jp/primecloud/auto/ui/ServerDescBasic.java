@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.ui;
 
-import java.util.Collection;
 import java.util.List;
 
 import jp.primecloud.auto.common.constant.PCCConstant;
@@ -110,26 +109,40 @@ public class ServerDescBasic extends Panel {
         layout2.addComponent(padding2);
 
         // 割り当てサービス
-        right = new AttachService();
-        right.setHeight("100%");
-        right.setWidth("100%");
-        layout2.addComponent(right);
+        String enableService = Config.getProperty("ui.enableService");
+        if (enableService == null || BooleanUtils.toBoolean(enableService)) {
+            right = new AttachService();
+            right.setHeight("100%");
+            right.setWidth("100%");
+            layout2.addComponent(right);
+        }
 
         layout2.setExpandRatio(left, 40);
-        layout2.setExpandRatio(right, 60);
+        if (right != null) {
+            layout2.setExpandRatio(right, 60);
+        } else {
+            VerticalLayout dummyLayout = new VerticalLayout();
+            dummyLayout.setSizeFull();
+            layout2.addComponent(dummyLayout);
+            layout2.setExpandRatio(dummyLayout, 60);
+        }
 
         layout.addComponent(layout2);
         layout.setExpandRatio(layout2, 1.0f);
     }
 
     public void initialize() {
-        right.getContainerDataSource().removeAllItems();
         left.initialize();
+        if (right != null) {
+            right.getContainerDataSource().removeAllItems();
+        }
     }
 
     public void show(InstanceDto instance) {
         left.show(instance);
-        right.refresh(sender.getComponents(instance.getComponentInstances()));
+        if (right != null) {
+            right.refresh(sender.getComponents(instance.getComponentInstances()));
+        }
     }
 
     private ComponentInstanceDto findComponentInstance(List<ComponentInstanceDto> componentInstances, Long componentNo) {
@@ -293,7 +306,7 @@ public class ServerDescBasic extends Panel {
             setCellStyleGenerator(new StandardCellStyleGenerator());
         }
 
-        public void refresh(Collection<ComponentDto> components) {
+        public void refresh(List<ComponentDto> components) {
             setContainerDataSource(new ComponentDtoContainer(components));
             setVisibleColumns(COLUMNS);
             if (components.size() > 0) {

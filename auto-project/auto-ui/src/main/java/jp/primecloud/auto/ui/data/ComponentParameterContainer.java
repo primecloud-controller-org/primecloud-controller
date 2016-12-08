@@ -20,7 +20,6 @@ package jp.primecloud.auto.ui.data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import jp.primecloud.auto.component.apache.ApacheConstants;
@@ -50,7 +49,7 @@ import com.vaadin.data.util.BeanItemContainer;
 @SuppressWarnings("serial")
 public class ComponentParameterContainer extends BeanItemContainer<ComponentParameter> implements Serializable {
 
-    public ComponentParameterContainer(ComponentDto component, Collection<InstanceDto> instances) {
+    public ComponentParameterContainer(ComponentDto component, List<InstanceDto> instances) {
         super(ComponentParameter.class);
 
         ComponentType componentType = component.getComponentType();

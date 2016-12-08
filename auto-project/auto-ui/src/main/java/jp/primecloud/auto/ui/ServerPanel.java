@@ -111,6 +111,9 @@ public class ServerPanel extends Panel {
         if (instance != null) {
             serverButtonsBottom.refresh(instance);
             serverDesc.show(instance);
+        } else {
+            serverButtonsBottom.initialize();
+            serverDesc.initialize();
         }
     }
 
@@ -126,7 +129,6 @@ public class ServerPanel extends Panel {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public boolean needsRefresh() {
         Collection<InstanceDto> instances = serverTable.getItemIds();
         for (InstanceDto instance : instances) {

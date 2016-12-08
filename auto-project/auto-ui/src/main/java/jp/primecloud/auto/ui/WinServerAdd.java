@@ -63,7 +63,7 @@ import com.vaadin.ui.Window;
  * </p>
  *
  */
-@SuppressWarnings({ "serial", "unchecked" })
+@SuppressWarnings("serial")
 public class WinServerAdd extends Window {
 
     private final String COLUMN_HEIGHT = "28px";
@@ -163,8 +163,12 @@ public class WinServerAdd extends Window {
                 }
             });
 
+            // サービスを有効にするかどうか
+            String enableServiceConf = Config.getProperty("ui.enableService");
+            boolean enableService = (enableServiceConf == null) || (BooleanUtils.toBoolean(enableServiceConf));
+
             // サーバ種別情報テーブル
-            imageTable = new SelectImageTable();
+            imageTable = new SelectImageTable(enableService);
             getLayout().addComponent(imageTable);
             imageTable.addListener(new Property.ValueChangeListener() {
                 @Override
@@ -172,10 +176,6 @@ public class WinServerAdd extends Window {
                     imageTableSelect(event);
                 }
             });
-
-            // サービスを有効にするかどうか
-            String enableServiceConf = Config.getProperty("ui.enableService");
-            boolean enableService = (enableServiceConf == null) || (BooleanUtils.toBoolean(enableServiceConf));
 
             if (enableService) {
                 // サービス情報テーブル
@@ -269,6 +269,7 @@ public class WinServerAdd extends Window {
             }
         }
 
+        @SuppressWarnings("unchecked")
         private void attachButtonClick(ClickEvent event) {
             if (cloudTable.getValue() == null || imageTable.getValue() == null) {
                 return;
@@ -355,12 +356,22 @@ public class WinServerAdd extends Window {
 
     private class SelectImageTable extends Table {
 
+        private boolean enableService;
+
+        public SelectImageTable(boolean enableService) {
+            this.enableService = enableService;
+        }
+
         @Override
         public void attach() {
             // テーブル基本設定
             setCaption(ViewProperties.getCaption("table.selectImage"));
             setWidth("470px");
-            setPageLength(3);
+            if (enableService) {
+                setPageLength(3);
+            } else {
+                setPageLength(6);
+            }
             setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
             setSortDisabled(true);
             setColumnReorderingAllowed(false);

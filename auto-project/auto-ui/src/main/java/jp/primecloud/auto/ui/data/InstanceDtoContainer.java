@@ -47,7 +47,7 @@ public class InstanceDtoContainer extends BeanItemContainer<InstanceDto> impleme
         refresh();
     }
 
-    public InstanceDtoContainer(Collection<InstanceDto> instances) {
+    public InstanceDtoContainer(List<InstanceDto> instances) {
         super(InstanceDto.class);
 
         for (InstanceDto dto : instances) {
@@ -112,7 +112,8 @@ public class InstanceDtoContainer extends BeanItemContainer<InstanceDto> impleme
                         item.getItemProperty("vcloudInstance").setValue(newInstance.getVcloudInstance());
                         item.getItemProperty("vcloudKeyPair").setValue(newInstance.getVcloudKeyPair());
                         item.getItemProperty("vcloudDisks").setValue(newInstance.getVcloudDisks());
-                        item.getItemProperty("vcloudInstanceNetworks").setValue(newInstance.getVcloudInstanceNetworks());
+                        item.getItemProperty("vcloudInstanceNetworks")
+                                .setValue(newInstance.getVcloudInstanceNetworks());
                         item.getItemProperty("platformVcloudStorageType").setValue(
                                 newInstance.getPlatformVcloudStorageType());
 

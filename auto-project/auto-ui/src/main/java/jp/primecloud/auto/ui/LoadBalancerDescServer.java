@@ -19,7 +19,6 @@
 package jp.primecloud.auto.ui;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,7 +73,7 @@ import com.vaadin.ui.themes.Reindeer;
  * </p>
  *
  */
-@SuppressWarnings({ "serial", "unchecked" })
+@SuppressWarnings("serial")
 public class LoadBalancerDescServer extends Panel {
 
     private MainView sender;
@@ -608,15 +607,7 @@ public class LoadBalancerDescServer extends Panel {
                 checkBoxes.clear();
             }
 
-            // Componentの取得
-            ComponentDto component = null;
-            for (ComponentDto component2 : (Collection<ComponentDto>) sender.servicePanel.serviceTable.getItemIds()) {
-                if (loadBalancer.getLoadBalancer().getComponentNo().equals(component2.getComponent().getComponentNo())) {
-                    component = component2;
-                    break;
-                }
-            }
-
+            ComponentDto component = sender.getComponent(loadBalancer.getLoadBalancer().getComponentNo());
             setContainerDataSource(new InstanceDtoContainer(sender.getInstances(component.getComponentInstances())));
             setVisibleColumns(VISIBLE_COLNAME);
             setColumnHeaders(COLNAME);

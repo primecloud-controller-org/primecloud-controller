@@ -100,13 +100,16 @@ public class TopBar extends CssLayout {
         addComponent(myCloudButton);
 
         // 監視システム(Zabbix)リンク
-        String url = Config.getProperty("zabbix.display");
-        Link zabbix = new Link(ViewProperties.getCaption("link.zabbix"), new ExternalResource(url));
-        zabbix.setDescription(ViewProperties.getCaption("description.link.zabbix"));
-        zabbix.setIcon(Icons.MNGSYSTEM.resource());
-        zabbix.setTargetName("_blank");
-        zabbix.addStyleName("zabbix");
-        addComponent(zabbix);
+        String useZabbix = Config.getProperty("zabbix.useZabbix");
+        if (useZabbix == null || BooleanUtils.toBoolean(useZabbix)) {
+            String url = Config.getProperty("zabbix.display");
+            Link zabbix = new Link(ViewProperties.getCaption("link.zabbix"), new ExternalResource(url));
+            zabbix.setDescription(ViewProperties.getCaption("description.link.zabbix"));
+            zabbix.setIcon(Icons.MNGSYSTEM.resource());
+            zabbix.setTargetName("_blank");
+            zabbix.addStyleName("zabbix");
+            addComponent(zabbix);
+        }
 
         // イベントログ表示ボタン
         Button eventLogButton = new Button(ViewProperties.getCaption("link.eventlog"));

@@ -461,7 +461,9 @@ public class WinServerEdit extends Window {
             // ロードバランサでない場合
             if (BooleanUtils.isNotTrue(instance.getInstance().getLoadBalancer())) {
                 // 利用可能サービス
-                serviceTable.show(image.getComponentTypes());
+                if (serviceTable != null) {
+                    serviceTable.show(image.getComponentTypes());
+                }
             }
         }
 

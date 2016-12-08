@@ -74,7 +74,7 @@ import com.vaadin.ui.themes.Reindeer;
  * </p>
  *
  */
-@SuppressWarnings({ "serial", "unchecked" })
+@SuppressWarnings("serial")
 public class LoadBalancerDescBasic extends Panel {
 
     private MainView sender;
@@ -348,14 +348,7 @@ public class LoadBalancerDescBasic extends Panel {
 
             // 割り当てサービス
             {
-                ComponentDto component = null;
-                for (ComponentDto component2 : (Collection<ComponentDto>) sender.servicePanel.serviceTable.getItemIds()) {
-                    if (component2.getComponent().getComponentNo()
-                            .equals(loadBalancer.getLoadBalancer().getComponentNo())) {
-                        component = component2;
-                        break;
-                    }
-                }
+                ComponentDto component = sender.getComponent(loadBalancer.getLoadBalancer().getComponentNo());
 
                 String name;
                 if (StringUtils.isEmpty(component.getComponent().getComment())) {

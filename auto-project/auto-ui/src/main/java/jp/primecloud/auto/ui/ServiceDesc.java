@@ -18,7 +18,7 @@
  */
 package jp.primecloud.auto.ui;
 
-import java.util.Collection;
+import java.util.List;
 
 import jp.primecloud.auto.service.dto.ComponentDto;
 import jp.primecloud.auto.service.dto.InstanceDto;
@@ -95,12 +95,11 @@ public class ServiceDesc extends Panel {
         serviceDescDetail.initialize();
     }
 
-    @SuppressWarnings("unchecked")
     public void show(ComponentDto component, boolean clearCheckBox) {
         if (tab.getSelectedTab() == serviceDescBasic) {
             serviceDescBasic.show(component, clearCheckBox);
         } else if (tab.getSelectedTab() == serviceDescDetail) {
-            Collection<InstanceDto> instances = (Collection<InstanceDto>) sender.serverPanel.serverTable.getItemIds();
+            List<InstanceDto> instances = sender.getInstances();
             serviceDescDetail.show(component, instances);
         }
     }

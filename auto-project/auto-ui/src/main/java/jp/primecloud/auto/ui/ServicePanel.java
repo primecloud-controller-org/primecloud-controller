@@ -115,6 +115,7 @@ public class ServicePanel extends Panel {
             serviceDesc.show(component, true);
         } else {
             serviceButtonsBottom.initialize();
+            serviceDesc.initialize();
         }
     }
 
@@ -130,7 +131,6 @@ public class ServicePanel extends Panel {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public boolean needsRefresh() {
         Collection<ComponentDto> components = serviceTable.getItemIds();
         for (ComponentDto component : components) {

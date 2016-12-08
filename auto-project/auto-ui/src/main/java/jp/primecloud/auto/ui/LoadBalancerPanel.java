@@ -138,7 +138,6 @@ public class LoadBalancerPanel extends Panel {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public boolean needsRefresh() {
         Collection<LoadBalancerDto> loadBalancerDtos = loadBalancerTable.getItemIds();
         for (LoadBalancerDto dto : loadBalancerDtos) {

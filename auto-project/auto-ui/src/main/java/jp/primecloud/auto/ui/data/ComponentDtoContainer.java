@@ -46,7 +46,7 @@ public class ComponentDtoContainer extends BeanItemContainer<ComponentDto> imple
         refresh();
     }
 
-    public ComponentDtoContainer(Collection<ComponentDto> components) {
+    public ComponentDtoContainer(List<ComponentDto> components) {
         super(ComponentDto.class);
 
         for (ComponentDto component : components) {

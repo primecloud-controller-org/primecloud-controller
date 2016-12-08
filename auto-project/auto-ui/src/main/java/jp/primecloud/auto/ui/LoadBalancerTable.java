@@ -40,7 +40,7 @@ import com.vaadin.ui.Table;
  * </p>
  *
  */
-@SuppressWarnings({ "serial", "unchecked" })
+@SuppressWarnings("serial")
 public class LoadBalancerTable extends Table {
 
     private final MainView sender;
@@ -157,14 +157,7 @@ public class LoadBalancerTable extends Table {
             public Component generateCell(Table source, Object itemId, Object columnId) {
                 LoadBalancerDto loadBalancer = (LoadBalancerDto) itemId;
 
-                ComponentDto component = null;
-                for (ComponentDto component2 : (Collection<ComponentDto>) sender.servicePanel.serviceTable.getItemIds()) {
-                    if (component2.getComponent().getComponentNo()
-                            .equals(loadBalancer.getLoadBalancer().getComponentNo())) {
-                        component = component2;
-                        break;
-                    }
-                }
+                ComponentDto component = sender.getComponent(loadBalancer.getLoadBalancer().getComponentNo());
 
                 Label label;
                 if (StringUtils.isEmpty(component.getComponent().getComment())) {
@@ -186,6 +179,12 @@ public class LoadBalancerTable extends Table {
         setCellStyleGenerator(new StandardCellStyleGenerator());
 
         setColumnExpandRatio("hostName", 100);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Collection<LoadBalancerDto> getItemIds() {
+        return (Collection<LoadBalancerDto>) super.getItemIds();
     }
 
     public void refreshData() {

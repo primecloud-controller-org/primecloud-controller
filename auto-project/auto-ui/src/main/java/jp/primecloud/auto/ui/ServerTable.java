@@ -18,6 +18,8 @@
  */
 package jp.primecloud.auto.ui;
 
+import java.util.Collection;
+
 import jp.primecloud.auto.component.mysql.MySQLConstants;
 import jp.primecloud.auto.config.Config;
 import jp.primecloud.auto.entity.crud.ComponentType;
@@ -188,6 +190,12 @@ public class ServerTable extends Table {
         setCellStyleGenerator(new StandardCellStyleGenerator());
 
         setColumnExpandRatio("fqdn", 100);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Collection<InstanceDto> getItemIds() {
+        return (Collection<InstanceDto>) super.getItemIds();
     }
 
     public void refreshData() {

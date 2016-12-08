@@ -157,7 +157,7 @@ public class ServiceDescBasic extends Panel {
     public void show(ComponentDto component, boolean clearCheckBox) {
         this.component = component;
 
-        Collection<InstanceDto> instances = sender.getInstances(component.getComponentInstances());
+        List<InstanceDto> instances = sender.getInstances(component.getComponentInstances());
 
         left.show(component);
         right.refresh(instances, clearCheckBox);
@@ -350,7 +350,7 @@ public class ServiceDescBasic extends Panel {
             });
         }
 
-        public void refresh(Collection<InstanceDto> instances, boolean clearCheckBox) {
+        public void refresh(List<InstanceDto> instances, boolean clearCheckBox) {
             if (clearCheckBox) {
                 checkBoxes.clear();
             }
@@ -464,7 +464,6 @@ public class ServiceDescBasic extends Panel {
             }
         }
 
-        @SuppressWarnings("unchecked")
         public void show(ComponentDto component) {
             int line = 0;
 
@@ -508,12 +507,10 @@ public class ServiceDescBasic extends Panel {
                 VerticalLayout layout = new VerticalLayout();
                 layout.setSpacing(false);
 
-                for (LoadBalancerDto loadBalancer : (Collection<LoadBalancerDto>) sender.loadBalancerPanel.loadBalancerTable
-                        .getItemIds()) {
-                    if (component.getComponent().getComponentNo()
-                            .equals(loadBalancer.getLoadBalancer().getComponentNo())) {
-                        layout.addComponent(createLoadBalancerButton(loadBalancer));
-                    }
+                List<LoadBalancerDto> loadBalancers = sender
+                        .getLoadBalancers(component.getComponent().getComponentNo());
+                for (LoadBalancerDto loadBalancer : loadBalancers) {
+                    layout.addComponent(createLoadBalancerButton(loadBalancer));
                 }
 
                 gridLayout.removeComponent(1, line);

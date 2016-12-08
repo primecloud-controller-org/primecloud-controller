@@ -19,6 +19,7 @@
 package jp.primecloud.auto.ui;
 
 import java.util.Collection;
+import java.util.List;
 
 import jp.primecloud.auto.service.dto.ComponentDto;
 import jp.primecloud.auto.service.dto.ComponentInstanceDto;
@@ -131,21 +132,13 @@ public class ServiceTable extends Table {
 
         addGeneratedColumn("loadBalancer", new ColumnGenerator() {
             @Override
-            @SuppressWarnings("unchecked")
             public Component generateCell(Table source, Object itemId, Object columnId) {
                 ComponentDto component = (ComponentDto) itemId;
 
-                Button button = null;
-                for (LoadBalancerDto loadBalancer : (Collection<LoadBalancerDto>) sender.loadBalancerPanel.loadBalancerTable
-                        .getItemIds()) {
-                    if (component.getComponent().getComponentNo()
-                            .equals(loadBalancer.getLoadBalancer().getComponentNo())) {
-                        button = createLoadBalancerButton(loadBalancer);
-                        break;
-                    }
-                }
-                if (button != null) {
-                    return button;
+                List<LoadBalancerDto> loadBalancers = sender
+                        .getLoadBalancers(component.getComponent().getComponentNo());
+                if (loadBalancers.size() > 0) {
+                    return createLoadBalancerButton(loadBalancers.get(0));
                 } else {
                     return (new Label(""));
                 }
@@ -192,6 +185,12 @@ public class ServiceTable extends Table {
             }
         });
         return button;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Collection<ComponentDto> getItemIds() {
+        return (Collection<ComponentDto>) super.getItemIds();
     }
 
     public void refreshData() {

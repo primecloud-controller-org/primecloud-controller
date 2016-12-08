@@ -18,7 +18,7 @@
  */
 package jp.primecloud.auto.ui;
 
-import java.util.Collection;
+import java.util.List;
 
 import jp.primecloud.auto.service.dto.ComponentDto;
 import jp.primecloud.auto.service.dto.InstanceDto;
@@ -83,7 +83,7 @@ public class ServiceDescDetail extends Panel {
         right.getContainerDataSource().removeAllItems();
     }
 
-    public void show(ComponentDto component, Collection<InstanceDto> instances) {
+    public void show(ComponentDto component, List<InstanceDto> instances) {
         left.show(component);
         right.refresh(component, instances);
     }
@@ -139,7 +139,7 @@ public class ServiceDescDetail extends Panel {
             setCellStyleGenerator(new StandardCellStyleGenerator());
         }
 
-        public void refresh(ComponentDto component, Collection<InstanceDto> instances) {
+        public void refresh(ComponentDto component, List<InstanceDto> instances) {
             setContainerDataSource(new ComponentParameterContainer(component, instances));
             setColumnHeaders(COLNAME);
         }
