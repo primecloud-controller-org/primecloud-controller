@@ -405,8 +405,7 @@ public class ServerDescBasic extends Panel {
                 @Override
                 public void buttonClick(ClickEvent event) {
                     InstanceDto instance = (InstanceDto) sender.serverPanel.serverTable.getValue();
-                    Long instanceNo = (Long) getPassword.getData();
-                    WinPassword winPassword = new WinPassword(instance, instanceNo);
+                    WinPassword winPassword = new WinPassword(instance);
                     getWindow().addWindow(winPassword);
                 }
             });
@@ -513,16 +512,16 @@ public class ServerDescBasic extends Panel {
 
                 // OSがWindowsの場合パスワード取得ボタンを表示
                 if (instance.getImage().getImage().getOs().startsWith(PCCConstant.OS_NAME_WIN)) {
-                    boolean show = true;
+                    boolean show = false;
 
-                    // Azureの場合はボタンを表示させない
-                    if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatform().getPlatformType())) {
-                        show = false;
+                    // AWSでEucalyptusでない場合
+                    if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatform().getPlatformType())) {
+                        if (BooleanUtils.isNotTrue(platform.getPlatformAws().getEuca())) {
+                            show = true;
+                        }
                     }
-
-                    // Eucalyptusの場合はボタンを表示させない
-                    if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatform().getPlatformType())
-                            && BooleanUtils.isTrue(platform.getPlatformAws().getEuca())) {
+                    // CloudStackの場合
+                    else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatform().getPlatformType())) {
                         show = false;
                     }
 
@@ -530,7 +529,6 @@ public class ServerDescBasic extends Panel {
                         InstanceStatus instanceStatus = InstanceStatus.fromStatus(instance.getInstance().getStatus());
                         if (instanceStatus == InstanceStatus.RUNNING) {
                             getPassword.setEnabled(true);
-                            getPassword.setData(instance.getInstance().getInstanceNo());
                         } else {
                             getPassword.setEnabled(false);
                         }
@@ -581,7 +579,6 @@ public class ServerDescBasic extends Panel {
                 gridLayout.addComponent(label, 1, line++);
             }
         }
-
     }
 
 }

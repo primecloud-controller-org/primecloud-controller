@@ -20,8 +20,8 @@ package jp.primecloud.auto.ui;
 
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.service.AwsDescribeService;
+import jp.primecloud.auto.service.IaasDescribeService;
 import jp.primecloud.auto.service.dto.InstanceDto;
-import jp.primecloud.auto.service.dto.PlatformDto;
 import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.ViewMessages;
@@ -46,15 +46,18 @@ import com.vaadin.ui.Window;
 @SuppressWarnings("serial")
 public class WinPassword extends Window {
 
-    Button passwordButton;
+    private InstanceDto instance;
 
-    Button closeButton;
+    private TextField passwordField;
 
-    TextField passwordField;
+    private TextField privateKeyField;
 
-    TextField privateKeyField;
+    public WinPassword(InstanceDto instance) {
+        this.instance = instance;
+    }
 
-    public WinPassword(InstanceDto instanceDto, final Long instanceNo) {
+    @Override
+    public void attach() {
         setCaption(ViewProperties.getCaption("description.getPassword"));
         setModal(true);
         setWidth("580px");
@@ -66,12 +69,11 @@ public class WinPassword extends Window {
         layout.setStyleName("win-password");
 
         //プラットフォーム
-        PlatformDto platformDto = instanceDto.getPlatform();
         String keyName = "";
-        if (PCCConstant.PLATFORM_TYPE_AWS.equals(platformDto.getPlatform().getPlatformType())) {
-            keyName = instanceDto.getAwsInstance().getKeyName();
-        } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platformDto.getPlatform().getPlatformType())) {
-            keyName = instanceDto.getCloudstackInstance().getKeyName();
+        if (PCCConstant.PLATFORM_TYPE_AWS.equals(instance.getPlatform().getPlatform().getPlatformType())) {
+            keyName = instance.getAwsInstance().getKeyName();
+        } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(instance.getPlatform().getPlatform().getPlatformType())) {
+            keyName = instance.getCloudstackInstance().getKeyName();
         }
 
         Label privateKeyLabel = new Label(ViewMessages.getMessage("IUI-000099", keyName));
@@ -80,13 +82,11 @@ public class WinPassword extends Window {
         privateKeyField = new TextField();
         privateKeyField.setSizeFull();
         privateKeyField.setRows(10);
-
         privateKeyField.setStyleName("privatekey");
         layout.addComponent(privateKeyField);
 
         passwordField = new TextField("");
         passwordField.setColumns(20);
-
         passwordField.setCaption(ViewProperties.getCaption("label.password"));
         passwordField.setStyleName("password");
         layout.addComponent(passwordField);
@@ -95,17 +95,16 @@ public class WinPassword extends Window {
         horizontalLayout.setMargin(true);
         horizontalLayout.setSpacing(true);
 
-        passwordButton = new Button(ViewProperties.getCaption("button.getPassword"));
+        Button passwordButton = new Button(ViewProperties.getCaption("button.getPassword"));
         passwordButton.addListener(new ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
-                getPassword(instanceNo);
+                getPassword(instance.getInstance().getInstanceNo());
             }
         });
-
         horizontalLayout.addComponent(passwordButton);
 
-        closeButton = new Button(ViewProperties.getCaption("button.close"));
+        Button closeButton = new Button(ViewProperties.getCaption("button.close"));
         closeButton.addListener(new ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
@@ -130,8 +129,19 @@ public class WinPassword extends Window {
     private void getPassword(Long instanceNo) {
         privateKeyField.validate();
 
-        AwsDescribeService awsDescribeService = BeanContext.getBean(AwsDescribeService.class);
-        String password = awsDescribeService.getPassword(instanceNo, privateKeyField.getValue().toString());
+        String privateKey = privateKeyField.getValue().toString();
+
+        // パスワードを取得
+        String password = null;
+        if (PCCConstant.PLATFORM_TYPE_AWS.equals(instance.getPlatform().getPlatform().getPlatformType())) {
+            // AWSの場合
+            AwsDescribeService awsDescribeService = BeanContext.getBean(AwsDescribeService.class);
+            password = awsDescribeService.getPassword(instanceNo, privateKey);
+        } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(instance.getPlatform().getPlatform().getPlatformType())) {
+            // CloudStackの場合
+            IaasDescribeService iaasDescribeService = BeanContext.getBean(IaasDescribeService.class);
+            password = iaasDescribeService.getPassword(instanceNo, privateKey);
+        }
 
         passwordField.setValue(password);
     }
