@@ -18,6 +18,9 @@
  */
 package jp.primecloud.auto.ui;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import jp.primecloud.auto.service.dto.UserAuthDto;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewProperties;
@@ -41,7 +44,13 @@ public class AutoApplication extends Application {
         setErrorHandler(new ErrorHandler(this));
 
         // ログアウト後の画面設定
-        setLogoutURL("../../../");
+        String logoutUrl;
+        try {
+            logoutUrl = new URL(getURL(), "..").toExternalForm();
+        } catch (MalformedURLException e) {
+            logoutUrl = "../../../";
+        }
+        setLogoutURL(logoutUrl);
 
         ViewContext.setAuthority(new UserAuthDto(false));
 
