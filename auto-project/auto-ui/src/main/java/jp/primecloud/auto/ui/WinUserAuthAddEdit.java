@@ -25,7 +25,6 @@ import java.util.Map;
 import jp.primecloud.auto.entity.crud.AuthoritySet;
 import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.UserAuth;
-import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.UserManagementService;
 import jp.primecloud.auto.service.UserService;
 import jp.primecloud.auto.service.dto.FarmDto;
@@ -40,7 +39,6 @@ import jp.primecloud.auto.ui.util.ViewProperties;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.Validator;
-import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.data.validator.RegexpValidator;
 import com.vaadin.data.validator.StringLengthValidator;
@@ -460,28 +458,11 @@ public class WinUserAuthAddEdit extends Window {
         setCustomErrorHandler(event.getButton());
 
         //入力チェック
-        try {
-            //ユーザ名
-            userNameField.validate();
-            //パスワード
-            passwordField.validate();
-        } catch (InvalidValueException e) {
-            String errMes = e.getMessage();
-            if (null == errMes) {
-                //メッセージが取得できない場合は複合エラー 先頭を表示する
-                InvalidValueException[] exceptions = e.getCauses();
-                errMes = exceptions[0].getMessage();
-            }
-
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), errMes);
-            getParent().addWindow(dialog);
-            return;
-        }
+        userNameField.validate();
+        passwordField.validate();
 
         // 入力値の取得
-        //ユーザ名
         String userName = (String) userNameField.getValue();
-        //パスワード
         String password = (String) passwordField.getValue();
 
         //権限テーブル
@@ -501,21 +482,13 @@ public class WinUserAuthAddEdit extends Window {
         }
 
         //更新処理
-        try {
-            UserManagementService userManagementService = BeanContext.getBean(UserManagementService.class);
-            if (isAddUser) {
-                //新規ユーザ追加画面
-                userManagementService.createUserAndUserAuth(masterUserNo, userName, password, authMap);
-            } else {
-                //ユーザ編集画面
-                userManagementService.updateUserAndUserAuth(userNo, userName, password, authMap);
-            }
-        } catch (AutoApplicationException e) {
-            //更新エラーの場合
-            String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-            getParent().addWindow(dialog);
-            return;
+        UserManagementService userManagementService = BeanContext.getBean(UserManagementService.class);
+        if (isAddUser) {
+            //新規ユーザ追加画面
+            userManagementService.createUserAndUserAuth(masterUserNo, userName, password, authMap);
+        } else {
+            //ユーザ編集画面
+            userManagementService.updateUserAndUserAuth(userNo, userName, password, authMap);
         }
 
         // 画面を閉じる
@@ -537,16 +510,8 @@ public class WinUserAuthAddEdit extends Window {
                 }
 
                 //更新処理
-                try {
-                    UserManagementService userManagementService = BeanContext.getBean(UserManagementService.class);
-                    userManagementService.deleteUser(userNo);
-                } catch (AutoApplicationException e) {
-                    //更新エラーの場合
-                    String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-                    DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-                    getParent().addWindow(dialog);
-                    return;
-                }
+                UserManagementService userManagementService = BeanContext.getBean(UserManagementService.class);
+                userManagementService.deleteUser(userNo);
 
                 // 画面を閉じる
                 close();

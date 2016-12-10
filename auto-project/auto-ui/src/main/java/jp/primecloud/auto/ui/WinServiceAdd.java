@@ -33,6 +33,7 @@ import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.ContextUtils;
 import jp.primecloud.auto.ui.util.IconUtils;
 import jp.primecloud.auto.ui.util.Icons;
+import jp.primecloud.auto.ui.util.OperationLogger;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
@@ -40,7 +41,6 @@ import jp.primecloud.auto.ui.util.ViewProperties;
 import org.apache.commons.lang.BooleanUtils;
 
 import com.vaadin.data.Property;
-import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.validator.RegexpValidator;
 import com.vaadin.data.validator.StringLengthValidator;
 import com.vaadin.event.ShortcutAction.KeyCode;
@@ -382,10 +382,7 @@ public class WinServiceAdd extends Window {
         final Long componentTypeNo = basicForm.serviceTable.getValue();
         if (componentTypeNo == null) {
             // サービス種類が選択されていない場合
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                    ViewMessages.getMessage("IUI-000030"));
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
+            throw new AutoApplicationException("IUI-000030");
         }
 
         ComponentTypeDto componentType = findComponentType(componentTypeNo);
@@ -431,51 +428,23 @@ public class WinServiceAdd extends Window {
         Collection<String> serverNames = basicForm.serverSelect.getValue();
 
         // 入力チェック
-        try {
-            basicForm.serviceNameField.validate();
-            basicForm.commentField.validate();
-            basicForm.diskSizeField.validate();
-        } catch (InvalidValueException e) {
-            String errMes = e.getMessage();
-            if (null == errMes) {
-                //メッセージが取得できない場合は複合エラー 先頭を表示する
-                InvalidValueException[] exceptions = e.getCauses();
-                errMes = exceptions[0].getMessage();
-            }
-
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), errMes);
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
-        }
+        basicForm.serviceNameField.validate();
+        basicForm.commentField.validate();
+        basicForm.diskSizeField.validate();
         if (componentTypeNo == null) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                    ViewMessages.getMessage("IUI-000030"));
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
+            throw new AutoApplicationException("IUI-000030");
         }
         if ("base".equals(serviceName) || serviceName.startsWith("lb-")) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                    ViewMessages.getMessage("IUI-000053", serviceName));
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
+            throw new AutoApplicationException("IUI-000053", serviceName);
         }
 
         // サービスを作成
         ComponentService componentService = BeanContext.getBean(ComponentService.class);
-        Long componentNo;
-        try {
-            componentNo = componentService.createComponent(ViewContext.getFarmNo(), serviceName, componentTypeNo,
-                    comment, Integer.valueOf(diskSize));
-        } catch (AutoApplicationException e) {
-            String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
-        }
+        Long componentNo = componentService.createComponent(ViewContext.getFarmNo(), serviceName, componentTypeNo,
+                comment, Integer.valueOf(diskSize));
 
         // オペレーションログ
-        AutoApplication aapl = (AutoApplication) getApplication();
-        aapl.doOpLog("SERVICE", "Make Service", null, componentNo, null, null);
+        OperationLogger.writeComponent("SERVICE", "Make Service", componentNo, null);
 
         // 選択されたサーバのinstanceNoのリスト
         List<Long> instanceNos = new ArrayList<Long>();
@@ -492,10 +461,7 @@ public class WinServiceAdd extends Window {
             // エラーの場合、作成したサービスを削除する
             componentService.deleteComponent(componentNo);
 
-            String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
+            throw e;
         }
 
         // 画面を閉じる

@@ -119,7 +119,7 @@ public class LoadBalancerTable extends Table {
                 String statusString = status.name().substring(0, 1).toUpperCase()
                         + status.name().substring(1).toLowerCase();
 
-                Label label = new Label(IconUtils.createImageTag(LoadBalancerTable.this, icon, statusString),
+                Label label = new Label(IconUtils.createImageTag(getApplication(), icon, statusString),
                         Label.CONTENT_XHTML);
                 label.setHeight(COLUMN_HEIGHT);
                 return label;
@@ -146,8 +146,7 @@ public class LoadBalancerTable extends Table {
 
                 Icons icon = IconUtils.getPlatformIcon(loadBalancer.getPlatform());
                 String type = ViewProperties.getLoadBalancerType(loadBalancer.getLoadBalancer().getType());
-                Label label = new Label(IconUtils.createImageTag(LoadBalancerTable.this, icon, type),
-                        Label.CONTENT_XHTML);
+                Label label = new Label(IconUtils.createImageTag(getApplication(), icon, type), Label.CONTENT_XHTML);
                 return label;
             }
         });

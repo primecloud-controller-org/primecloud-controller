@@ -24,6 +24,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.log.EventLogLevel;
 import jp.primecloud.auto.log.dao.crud.EventLogDao;
 import jp.primecloud.auto.log.entity.crud.EventLog;
@@ -565,10 +566,7 @@ public class WinLogView extends Window {
         searchCondition.setLimit(limit);
 
         if (!fromDate.isValid() || !toDate.isValid()) {
-            String message = ViewMessages.getMessage("IUI-000076", dateFormat);
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-            getWindow().addWindow(dialog);
-            return;
+            throw new AutoApplicationException("IUI-000076", dateFormat);
         }
 
         List<EventLog> eventLogs = eventLogService.readBySearchCondition(searchCondition);

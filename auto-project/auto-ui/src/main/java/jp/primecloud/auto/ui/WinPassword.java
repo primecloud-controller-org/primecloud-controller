@@ -19,7 +19,6 @@
 package jp.primecloud.auto.ui;
 
 import jp.primecloud.auto.common.constant.PCCConstant;
-import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.AwsDescribeService;
 import jp.primecloud.auto.service.dto.InstanceDto;
 import jp.primecloud.auto.service.dto.PlatformDto;
@@ -28,7 +27,6 @@ import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
 
-import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -130,24 +128,10 @@ public class WinPassword extends Window {
     }
 
     private void getPassword(Long instanceNo) {
-        try {
-            privateKeyField.validate();
-        } catch (InvalidValueException e) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), e.getMessage());
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
-        }
+        privateKeyField.validate();
 
         AwsDescribeService awsDescribeService = BeanContext.getBean(AwsDescribeService.class);
-        String password = "";
-        try {
-            password = awsDescribeService.getPassword(instanceNo, privateKeyField.getValue().toString());
-        } catch (AutoApplicationException e) {
-            String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
-        }
+        String password = awsDescribeService.getPassword(instanceNo, privateKeyField.getValue().toString());
 
         passwordField.setValue(password);
     }

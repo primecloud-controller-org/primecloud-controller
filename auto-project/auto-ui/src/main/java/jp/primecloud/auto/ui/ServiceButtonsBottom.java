@@ -28,6 +28,7 @@ import jp.primecloud.auto.ui.DialogConfirm.Buttons;
 import jp.primecloud.auto.ui.DialogConfirm.Result;
 import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.Icons;
+import jp.primecloud.auto.ui.util.OperationLogger;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
@@ -236,8 +237,7 @@ public class ServiceButtonsBottom extends CssLayout {
 
     private void delete(Long componentNo) {
         // オペレーションログ
-        AutoApplication apl = (AutoApplication) getApplication();
-        apl.doOpLog("SERVICE", "Delete Service", null, componentNo, null, null);
+        OperationLogger.writeComponent("SERVICE", "Delete Service", componentNo, null);
 
         // サービスを削除
         ComponentService componentService = BeanContext.getBean(ComponentService.class);

@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.ui;
 
-import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.FarmService;
 import jp.primecloud.auto.service.dto.FarmDto;
 import jp.primecloud.auto.ui.DialogConfirm.Buttons;
@@ -27,10 +26,10 @@ import jp.primecloud.auto.ui.DialogConfirm.Result;
 import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.ContextUtils;
 import jp.primecloud.auto.ui.util.Icons;
+import jp.primecloud.auto.ui.util.OperationLogger;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
 
-import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.validator.StringLengthValidator;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -175,13 +174,7 @@ public class MyCloudEdit extends Window {
         final String comment = (String) basicTab.commentField.getValue();
 
         // 入力チェック
-        try {
-            basicTab.commentField.validate();
-        } catch (InvalidValueException e) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), e.getMessage());
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
-        }
+        basicTab.commentField.validate();
 
         // myCloud編集の確認ダイアログを表示
         String diagMessage = ViewMessages.getMessage("IUI-000041", cloudName);
@@ -194,19 +187,11 @@ public class MyCloudEdit extends Window {
                     return;
                 }
 
-                AutoApplication aapl = (AutoApplication) getApplication();
-                aapl.doOpLog("CLOUD", "Edit Cloud", farmNo, null);
+                OperationLogger.writeFarm("CLOUD", "Edit Cloud", farmNo, null);
 
                 // myCloudを編集
                 FarmService farmService = BeanContext.getBean(FarmService.class);
-                try {
-                    farmService.updateFarm(farmNo, comment, domainName);
-                } catch (AutoApplicationException e) {
-                    String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-                    DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-                    getApplication().getMainWindow().addWindow(dialog);
-                    return;
-                }
+                farmService.updateFarm(farmNo, comment, domainName);
 
                 // 編集したmyCloudのfarmNoをセッションに格納
                 ContextUtils.setAttribute("editFarmNo", farmNo);

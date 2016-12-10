@@ -23,7 +23,6 @@ import java.util.List;
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.entity.crud.ComponentType;
 import jp.primecloud.auto.entity.crud.LoadBalancerListener;
-import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.ComponentService;
 import jp.primecloud.auto.service.LoadBalancerService;
 import jp.primecloud.auto.service.dto.ComponentDto;
@@ -31,6 +30,7 @@ import jp.primecloud.auto.service.dto.LoadBalancerDto;
 import jp.primecloud.auto.service.dto.SslKeyDto;
 import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.Icons;
+import jp.primecloud.auto.ui.util.OperationLogger;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
@@ -38,7 +38,6 @@ import jp.primecloud.auto.ui.validator.IntegerRangeValidator;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
-import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.Alignment;
@@ -396,17 +395,11 @@ public class WinLoadBalancerConfigListener extends Window {
         Long sslKeyNo = (Long) basicForm.sslKeySelect.getValue();
 
         // 入力チェック
-        try {
-            basicForm.loadBalancerPortField.validate();
-            basicForm.servicePortField.validate();
-            basicForm.protocolSelect.validate();
-            if (basicForm.sslKeySelect.isEnabled()) {
-                basicForm.sslKeySelect.validate();
-            }
-        } catch (InvalidValueException e) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), e.getMessage());
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
+        basicForm.loadBalancerPortField.validate();
+        basicForm.servicePortField.validate();
+        basicForm.protocolSelect.validate();
+        if (basicForm.sslKeySelect.isEnabled()) {
+            basicForm.sslKeySelect.validate();
         }
 
         LoadBalancerService loadBalancerService = BeanContext.getBean(LoadBalancerService.class);
@@ -416,35 +409,21 @@ public class WinLoadBalancerConfigListener extends Window {
         // 追加時
         if (isAddMode()) {
             // オペレーションログ
-            AutoApplication aapl = (AutoApplication) getApplication();
-            aapl.doOpLog("LOAD_BALANCER", "Attach LB_Listener", null, null, loadBalancerNo, loadBalancerPortString);
+            OperationLogger.writeLoadBalancer("LOAD_BALANCER", "Attach LB_Listener", loadBalancerNo,
+                    loadBalancerPortString);
 
             // リスナーの追加
-            try {
-                loadBalancerService.createListener(loadBalancerNo, loadBalancerPort, servicePort, protocol, sslKeyNo);
-            } catch (AutoApplicationException e) {
-                String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-                getApplication().getMainWindow().addWindow(dialog);
-                return;
-            }
+            loadBalancerService.createListener(loadBalancerNo, loadBalancerPort, servicePort, protocol, sslKeyNo);
         }
         // 編集時
         else {
             // オペレーションログ
-            AutoApplication aapl = (AutoApplication) getApplication();
-            aapl.doOpLog("LOAD_BALANCER", "Edit LB_Listener", null, null, loadBalancerNo, loadBalancerPortString);
+            OperationLogger.writeLoadBalancer("LOAD_BALANCER", "Edit LB_Listener", loadBalancerNo,
+                    loadBalancerPortString);
 
             // リスナーの更新
-            try {
-                loadBalancerService.updateListener(loadBalancerNo, this.loadBalancerPort, loadBalancerPort,
-                        servicePort, protocol, sslKeyNo);
-            } catch (AutoApplicationException e) {
-                String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-                getApplication().getMainWindow().addWindow(dialog);
-                return;
-            }
+            loadBalancerService.updateListener(loadBalancerNo, this.loadBalancerPort, loadBalancerPort, servicePort,
+                    protocol, sslKeyNo);
         }
 
         // 画面を閉じる

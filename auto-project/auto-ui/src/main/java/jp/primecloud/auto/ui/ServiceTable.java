@@ -124,7 +124,7 @@ public class ServiceTable extends Table {
                 String status = component.getStatus();
                 Icons icon = Icons.fromName(status);
                 status = status.substring(0, 1).toUpperCase() + status.substring(1).toLowerCase();
-                Label label = new Label(IconUtils.createImageTag(ServiceTable.this, icon, status), Label.CONTENT_XHTML);
+                Label label = new Label(IconUtils.createImageTag(getApplication(), icon, status), Label.CONTENT_XHTML);
                 label.setHeight(COLUMN_HEIGHT);
                 return label;
             }
@@ -152,7 +152,7 @@ public class ServiceTable extends Table {
 
                 String name = component.getComponentType().getComponentTypeNameDisp();
                 Icons icon = Icons.fromName(component.getComponentType().getComponentTypeName());
-                Label label = new Label(IconUtils.createImageTag(ServiceTable.this, icon, name), Label.CONTENT_XHTML);
+                Label label = new Label(IconUtils.createImageTag(getApplication(), icon, name), Label.CONTENT_XHTML);
                 label.setHeight(COLUMN_HEIGHT);
                 return label;
             }

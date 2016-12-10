@@ -35,6 +35,7 @@ import jp.primecloud.auto.service.dto.LoadBalancerPlatformDto;
 import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.IconUtils;
 import jp.primecloud.auto.ui.util.Icons;
+import jp.primecloud.auto.ui.util.OperationLogger;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
@@ -47,7 +48,6 @@ import com.amazonaws.services.ec2.model.SecurityGroup;
 import com.amazonaws.services.ec2.model.Subnet;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
-import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.validator.StringLengthValidator;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.AbsoluteLayout;
@@ -732,33 +732,25 @@ public class WinLoadBalancerEdit extends Window {
     @SuppressWarnings("unchecked")
     private void okButtonClick(ClickEvent event) {
         // 入力チェック
-        try {
-            // 基本設定
-            basicTab.commentField.validate();
-            if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancer.getLoadBalancer().getType())) {
-                if (BooleanUtils.isTrue(platform.getPlatformAws().getVpc())) {
-                    basicTab.subnetSelect.validate();
-                    basicTab.securityGroupSelect.validate();
-                }
+        // 基本設定
+        basicTab.commentField.validate();
+        if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancer.getLoadBalancer().getType())) {
+            if (BooleanUtils.isTrue(platform.getPlatformAws().getVpc())) {
+                basicTab.subnetSelect.validate();
+                basicTab.securityGroupSelect.validate();
             }
-
-            // ヘルスチェック設定
-            healthCheckTab.checkProtocolSelect.validate();
-            healthCheckTab.checkPortField.validate();
-            String checkProtocol = (String) healthCheckTab.checkProtocolSelect.getValue();
-            if ("HTTP".equals(checkProtocol)) {
-                healthCheckTab.checkPathField.validate();
-            }
-            healthCheckTab.checkTimeoutField.validate();
-            healthCheckTab.checkIntervalField.validate();
-            healthCheckTab.unhealthyThresholdField.validate();
-            healthCheckTab.healthyThresholdField.validate();
-
-        } catch (InvalidValueException e) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), e.getMessage());
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
         }
+
+        // ヘルスチェック設定
+        healthCheckTab.checkProtocolSelect.validate();
+        healthCheckTab.checkPortField.validate();
+        if ("HTTP".equals(healthCheckTab.checkProtocolSelect.getValue())) {
+            healthCheckTab.checkPathField.validate();
+        }
+        healthCheckTab.checkTimeoutField.validate();
+        healthCheckTab.checkIntervalField.validate();
+        healthCheckTab.unhealthyThresholdField.validate();
+        healthCheckTab.healthyThresholdField.validate();
 
         // サブネットのチェック
         if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancer.getLoadBalancer().getType())) {
@@ -770,10 +762,7 @@ public class WinLoadBalancerEdit extends Window {
                     Subnet subnet = findSubnet(subnetId);
                     if (zones.contains(subnet.getAvailabilityZone())) {
                         // 同じゾーンのサブネットを複数選択している場合
-                        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                                ViewMessages.getMessage("IUI-000110"));
-                        getApplication().getMainWindow().addWindow(dialog);
-                        return;
+                        throw new AutoApplicationException("IUI-000110");
                     }
                     zones.add(subnet.getAvailabilityZone());
                 }
@@ -781,52 +770,42 @@ public class WinLoadBalancerEdit extends Window {
         }
 
         // オペレーションログ
-        AutoApplication aapl = (AutoApplication) getApplication();
-        aapl.doOpLog("LOAD_BALANCER", "Edit Load_Balancer", null, null, loadBalancerNo, null);
+        OperationLogger.writeLoadBalancer("LOAD_BALANCER", "Edit Load_Balancer", loadBalancerNo, null);
 
         LoadBalancerService loadBalancerService = BeanContext.getBean(LoadBalancerService.class);
 
         // ロードバランサを変更
-        try {
-            String comment = (String) basicTab.commentField.getValue();
-            Long componentNo = (Long) basicTab.serviceSelect.getValue();
+        String comment = (String) basicTab.commentField.getValue();
+        Long componentNo = (Long) basicTab.serviceSelect.getValue();
 
-            // AWSロードバランサを変更
-            if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancer.getLoadBalancer().getType())) {
-                String subnetId = null;
-                String zone = null;
-                String securityGroup = null;
-                boolean internal = false;
+        // AWSロードバランサを変更
+        if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancer.getLoadBalancer().getType())) {
+            String subnetId = null;
+            String zone = null;
+            String securityGroup = null;
+            boolean internal = false;
 
-                if (BooleanUtils.isTrue(platform.getPlatformAws().getVpc())) {
-                    securityGroup = (String) basicTab.securityGroupSelect.getValue();
-                    internal = (Boolean) basicTab.internalSelect.getValue();
+            if (BooleanUtils.isTrue(platform.getPlatformAws().getVpc())) {
+                securityGroup = (String) basicTab.securityGroupSelect.getValue();
+                internal = (Boolean) basicTab.internalSelect.getValue();
 
-                    Collection<String> selectedSubnetIds = (Collection<String>) basicTab.subnetSelect.getValue();
-                    for (String selectedSubnetId : selectedSubnetIds) {
-                        subnetId = (subnetId == null) ? selectedSubnetId : (subnetId + "," + selectedSubnetId);
+                Collection<String> selectedSubnetIds = (Collection<String>) basicTab.subnetSelect.getValue();
+                for (String selectedSubnetId : selectedSubnetIds) {
+                    subnetId = (subnetId == null) ? selectedSubnetId : (subnetId + "," + selectedSubnetId);
 
-                        Subnet subnet = findSubnet(selectedSubnetId);
-                        zone = (zone == null) ? subnet.getAvailabilityZone() : (zone + "," + subnet
-                                .getAvailabilityZone());
-                    }
+                    Subnet subnet = findSubnet(selectedSubnetId);
+                    zone = (zone == null) ? subnet.getAvailabilityZone() : (zone + "," + subnet.getAvailabilityZone());
                 }
+            }
 
-                String loadBalancerName = loadBalancer.getLoadBalancer().getLoadBalancerName();
-                loadBalancerService.updateAwsLoadBalancer(loadBalancerNo, loadBalancerName, comment, componentNo,
-                        subnetId, securityGroup, zone, internal);
-            }
-            // UltraMonkeyロードバランサを変更
-            else if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(loadBalancer.getLoadBalancer().getType())) {
-                String loadBalancerName = loadBalancer.getLoadBalancer().getLoadBalancerName();
-                loadBalancerService.updateUltraMonkeyLoadBalancer(loadBalancerNo, loadBalancerName, comment,
-                        componentNo);
-            }
-        } catch (AutoApplicationException e) {
-            String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
+            String loadBalancerName = loadBalancer.getLoadBalancer().getLoadBalancerName();
+            loadBalancerService.updateAwsLoadBalancer(loadBalancerNo, loadBalancerName, comment, componentNo, subnetId,
+                    securityGroup, zone, internal);
+        }
+        // UltraMonkeyロードバランサを変更
+        else if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(loadBalancer.getLoadBalancer().getType())) {
+            String loadBalancerName = loadBalancer.getLoadBalancer().getLoadBalancerName();
+            loadBalancerService.updateUltraMonkeyLoadBalancer(loadBalancerNo, loadBalancerName, comment, componentNo);
         }
 
         // ヘルスチェック設定の変更
@@ -838,15 +817,8 @@ public class WinLoadBalancerEdit extends Window {
         Integer healthyThreshold = Integer.valueOf((String) healthCheckTab.healthyThresholdField.getValue());
         Integer unhealthyThreshold = Integer.valueOf((String) healthCheckTab.unhealthyThresholdField.getValue());
 
-        try {
-            loadBalancerService.configureHealthCheck(loadBalancerNo, checkProtocol, checkPort, checkPath, checkTimeout,
-                    checkInterval, healthyThreshold, unhealthyThreshold);
-        } catch (AutoApplicationException e) {
-            String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
-        }
+        loadBalancerService.configureHealthCheck(loadBalancerNo, checkProtocol, checkPort, checkPath, checkTimeout,
+                checkInterval, healthyThreshold, unhealthyThreshold);
 
         // 画面を閉じる
         close();

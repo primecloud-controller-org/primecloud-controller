@@ -31,12 +31,12 @@ import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.ContextUtils;
 import jp.primecloud.auto.ui.util.IconUtils;
 import jp.primecloud.auto.ui.util.Icons;
+import jp.primecloud.auto.ui.util.OperationLogger;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
 
 import com.vaadin.data.Property;
-import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.validator.RegexpValidator;
 import com.vaadin.data.validator.StringLengthValidator;
 import com.vaadin.ui.Alignment;
@@ -270,20 +270,11 @@ public class MyCloudAdd extends Window {
         final Long templateNo = basicTab.templateTable.getValue();
 
         // 入力チェック
-        try {
-            basicTab.cloudNameField.validate();
-            basicTab.commentField.validate();
-        } catch (InvalidValueException e) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), e.getMessage());
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
-        }
+        basicTab.cloudNameField.validate();
+        basicTab.commentField.validate();
         if (templateNo == null) {
             // テンプレートが選択されていない場合
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                    ViewMessages.getMessage("IUI-000004"));
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
+            throw new AutoApplicationException("IUI-000004");
         }
 
         // myCloud作成の確認ダイアログを表示
@@ -304,31 +295,15 @@ public class MyCloudAdd extends Window {
 
                 // myCloudを作成
                 FarmService farmService = BeanContext.getBean(FarmService.class);
-                Long farmNo;
-                try {
-                    Long userNo = ViewContext.getUserNo();
-                    farmNo = farmService.createFarm(userNo, cloudName, comment);
-                } catch (AutoApplicationException e) {
-                    String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-                    DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-                    getApplication().getMainWindow().addWindow(dialog);
-                    return;
-                }
+                Long userNo = ViewContext.getUserNo();
+                Long farmNo = farmService.createFarm(userNo, cloudName, comment);
 
                 // オペレーションログ
-                AutoApplication aapl = (AutoApplication) getApplication();
-                aapl.doOpLog("CLOUD", "Make Cloud", farmNo, null);
+                OperationLogger.writeFarm("CLOUD", "Make Cloud", farmNo, null);
 
                 // テンプレートを適用
                 TemplateService templateService = BeanContext.getBean(TemplateService.class);
-                try {
-                    templateService.applyTemplate(farmNo, templateNo);
-                } catch (AutoApplicationException e) {
-                    String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-                    DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-                    getApplication().getMainWindow().addWindow(dialog);
-                    return;
-                }
+                templateService.applyTemplate(farmNo, templateNo);
 
                 // 追加したmyCloudの情報をセッションに格納
                 ContextUtils.setAttribute("newfarmNo", farmNo);

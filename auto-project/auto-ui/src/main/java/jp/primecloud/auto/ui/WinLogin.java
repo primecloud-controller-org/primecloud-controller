@@ -29,7 +29,6 @@ import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
 
-import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -109,14 +108,8 @@ public class WinLogin extends Window {
         String password = (String) passwordField.getValue();
 
         // 入力チェック
-        try {
-            usernameField.validate();
-            passwordField.validate();
-        } catch (InvalidValueException e) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), e.getMessage());
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
-        }
+        usernameField.validate();
+        passwordField.validate();
 
         // ログイン処理
         UserService userService = BeanContext.getBean(UserService.class);
@@ -124,11 +117,8 @@ public class WinLogin extends Window {
         try {
             userDto = userService.authenticate(username, password);
         } catch (AutoApplicationException e) {
-            // TODO: 認証情報が間違っている場合の処理
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                    ViewMessages.getMessage("IUI-000021"));
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
+            // 認証情報が間違っている場合の処理
+            throw new AutoApplicationException("IUI-000021");
         }
 
         // ユーザ情報をセッションに格納

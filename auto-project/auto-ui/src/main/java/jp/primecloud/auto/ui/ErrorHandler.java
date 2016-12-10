@@ -33,6 +33,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.vaadin.Application;
+import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.event.ListenerMethod;
 import com.vaadin.terminal.Terminal.ErrorEvent;
 import com.vaadin.terminal.Terminal.ErrorListener;
@@ -72,40 +73,57 @@ public class ErrorHandler implements ErrorListener {
         }
 
         // 予期せぬエラーの場合、エラーログを出力する
-        if (!(throwable instanceof AutoException) && !(throwable instanceof MultiCauseException)) {
+        if (!(throwable instanceof AutoException) && !(throwable instanceof MultiCauseException)
+                && !(throwable instanceof InvalidValueException)) {
             String message = "[ECOMMON-000000] " + MessageUtils.getMessage("ECOMMON-000000");
             log.error(message, throwable);
         }
 
-        String message;
-        if (throwable instanceof AutoApplicationException) {
-            // アプリケーションのエラーメッセージを表示
+        String caption = ViewProperties.getCaption("dialog.error");
+
+        // 入力チェックエラーの場合
+        if (throwable instanceof InvalidValueException) {
+            String message = throwable.getMessage();
+            if (null == message) {
+                // メッセージが取得できない場合は複合エラー 先頭を表示する
+                InvalidValueException[] exceptions = ((InvalidValueException) throwable).getCauses();
+                message = exceptions[0].getMessage();
+            }
+
+            DialogConfirm dialog = new DialogConfirm(caption, message);
+            application.getMainWindow().addWindow(dialog);
+        }
+        // アプリケーションエラーの場合
+        else if (throwable instanceof AutoApplicationException) {
             AutoApplicationException e = (AutoApplicationException) throwable;
-            message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-        } else {
-            // 予期せぬエラーとしてダイアログを表示
+            String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
+
+            DialogConfirm dialog = new DialogConfirm(caption, message);
+            application.getMainWindow().addWindow(dialog);
+        }
+        // 予期せぬエラーの場合
+        else {
             String code;
             if (throwable instanceof AutoException) {
                 code = ((AutoException) throwable).getCode();
             } else {
                 code = "ECOMMON-000000";
             }
-            message = ViewMessages.getMessage("EUI-000001", code);
+            String message = ViewMessages.getMessage("EUI-000001", code);
+
+            DialogConfirm dialog = new DialogConfirm(caption, message, Buttons.OK);
+            dialog.setCallback(new DialogConfirm.Callback() {
+                @Override
+                public void onDialogResult(Result result) {
+                    // セッション情報を初期化
+                    LoggingUtils.removeContext();
+                    ContextUtils.invalidateSession();
+
+                    application.close();
+                }
+            });
+            application.getMainWindow().addWindow(dialog);
         }
-        String caption = ViewProperties.getCaption("dialog.error");
-
-        DialogConfirm dialog = new DialogConfirm(caption, message, Buttons.OK);
-        dialog.setCallback(new DialogConfirm.Callback() {
-            @Override
-            public void onDialogResult(Result result) {
-                // セッション情報を初期化
-                LoggingUtils.removeContext();
-                ContextUtils.invalidateSession();
-
-                application.close();
-            }
-        });
-        application.getMainWindow().addWindow(dialog);
     }
 
 }

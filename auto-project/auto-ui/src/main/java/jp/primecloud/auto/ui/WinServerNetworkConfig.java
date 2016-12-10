@@ -22,6 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.IaasDescribeService;
 import jp.primecloud.auto.service.dto.InstanceNetworkDto;
 import jp.primecloud.auto.service.dto.NetworkDto;
@@ -38,7 +39,6 @@ import com.vaadin.Application;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Validator;
-import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.data.validator.RegexpValidator;
 import com.vaadin.event.ShortcutAction.KeyCode;
@@ -423,25 +423,19 @@ public class WinServerNetworkConfig extends Window {
         String ipAddress = (String) ipAddressField.getValue();
 
         // 入力チェック
-        try {
-            //基本バリデーション
-            networkSelect.validate();
-            ipModeSelect.validate();
-            ipAddressField.validate();
+        //基本バリデーション
+        networkSelect.validate();
+        ipModeSelect.validate();
+        ipAddressField.validate();
 
-            //カスタムチェック
-            if ("MANUAL".equals(ipMode)) {
-                IaasDescribeService describeService = BeanContext.getBean(IaasDescribeService.class);
-                String otherInstanceName = describeService.hasIpAddresse(platformNo, instanceNo, ipAddress);
-                if (StringUtils.isNotEmpty(otherInstanceName)) {
-                    //すでにIPが同ネットワーク内で割り当てられている場合
-                    throw new InvalidValueException(ViewMessages.getMessage("IUI-000128", ipAddress, otherInstanceName));
-                }
+        //カスタムチェック
+        if ("MANUAL".equals(ipMode)) {
+            IaasDescribeService describeService = BeanContext.getBean(IaasDescribeService.class);
+            String otherInstanceName = describeService.hasIpAddresse(platformNo, instanceNo, ipAddress);
+            if (StringUtils.isNotEmpty(otherInstanceName)) {
+                //すでにIPが同ネットワーク内で割り当てられている場合
+                throw new AutoApplicationException("IUI-000128", ipAddress, otherInstanceName);
             }
-        } catch (InvalidValueException e) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), e.getMessage());
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
         }
 
         // 入力値を格納

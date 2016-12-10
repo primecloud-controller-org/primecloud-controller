@@ -49,6 +49,8 @@ import com.vaadin.ui.TabSheet.SelectedTabChangeEvent;
 import com.vaadin.ui.TabSheet.SelectedTabChangeListener;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
+import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.themes.Reindeer;
 
 /**
@@ -177,10 +179,24 @@ public class MainView extends VerticalLayout {
             }
         });
         mainLayout.addComponent(timer);
+
+        // ログイン画面を表示
+        showLogin();
     }
 
-    public void loginSuccess() {
-        topBar.loginSuccess();
+    public void showLogin() {
+        WinLogin winLogin = new WinLogin();
+        winLogin.addListener(new Window.CloseListener() {
+            @Override
+            public void windowClose(CloseEvent e) {
+                // ログインに成功した場合
+                Long loginUserNo = ViewContext.getLoginUser();
+                if (loginUserNo != null) {
+                    topBar.loginSuccess();
+                }
+            }
+        });
+        getApplication().getMainWindow().addWindow(winLogin);
     }
 
     public void refresh() {
@@ -321,6 +337,10 @@ public class MainView extends VerticalLayout {
     }
 
     private boolean needsRefresh() {
+        if (ViewContext.getFarmNo() == null) {
+            return false;
+        }
+
         if (servicePanel != null) {
             if (servicePanel.needsRefresh()) {
                 return true;

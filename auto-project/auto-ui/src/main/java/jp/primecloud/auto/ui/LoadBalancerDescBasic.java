@@ -40,6 +40,7 @@ import jp.primecloud.auto.ui.DialogConfirm.Result;
 import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.IconUtils;
 import jp.primecloud.auto.ui.util.Icons;
+import jp.primecloud.auto.ui.util.OperationLogger;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
@@ -359,7 +360,7 @@ public class LoadBalancerDescBasic extends Panel {
                 }
                 Icons icon = Icons.fromName(component.getComponentType().getComponentTypeName());
 
-                Label label = new Label(IconUtils.createImageTag(this, icon, name), Label.CONTENT_XHTML);
+                Label label = new Label(IconUtils.createImageTag(getApplication(), icon, name), Label.CONTENT_XHTML);
                 gridLayout.removeComponent(1, line);
                 gridLayout.addComponent(label, 1, line++);
             }
@@ -393,7 +394,8 @@ public class LoadBalancerDescBasic extends Panel {
                 String statusString = status.name().substring(0, 1).toUpperCase()
                         + status.name().substring(1).toLowerCase();
 
-                Label label = new Label(IconUtils.createImageTag(this, icon, statusString), Label.CONTENT_XHTML);
+                Label label = new Label(IconUtils.createImageTag(getApplication(), icon, statusString),
+                        Label.CONTENT_XHTML);
                 gridLayout.removeComponent(1, line);
                 gridLayout.addComponent(label, 1, line++);
             }
@@ -402,7 +404,8 @@ public class LoadBalancerDescBasic extends Panel {
             {
                 Icons icon = IconUtils.getPlatformIcon(loadBalancer.getPlatform());
                 String description = loadBalancer.getPlatform().getPlatform().getPlatformNameDisp();
-                Label label = new Label(IconUtils.createImageTag(this, icon, description), Label.CONTENT_XHTML);
+                Label label = new Label(IconUtils.createImageTag(getApplication(), icon, description),
+                        Label.CONTENT_XHTML);
                 gridLayout.removeComponent(1, line);
                 gridLayout.addComponent(label, 1, line++);
             }
@@ -561,7 +564,7 @@ public class LoadBalancerDescBasic extends Panel {
                     }
                     statusString = statusString.substring(0, 1).toUpperCase() + statusString.substring(1).toLowerCase();
 
-                    Label label = new Label(IconUtils.createImageTag(LoadBalancerDescBasic.this, icon, statusString),
+                    Label label = new Label(IconUtils.createImageTag(getApplication(), icon, statusString),
                             Label.CONTENT_XHTML);
                     label.setHeight(COLUMN_HEIGHT);
                     return label;
@@ -902,8 +905,7 @@ public class LoadBalancerDescBasic extends Panel {
 
         private void delete(LoadBalancerListener listener) {
             // オペレーションログ
-            AutoApplication apl = (AutoApplication) getApplication();
-            apl.doOpLog("LOAD_BALANCER", "Detach LB_Listener", null, null, listener.getLoadBalancerNo(),
+            OperationLogger.writeLoadBalancer("LOAD_BALANCER", "Detach LB_Listener", listener.getLoadBalancerNo(),
                     String.valueOf(listener.getLoadBalancerPort()));
 
             // リスナーの削除
@@ -989,8 +991,7 @@ public class LoadBalancerDescBasic extends Panel {
 
         private void enable(List<LoadBalancerListener> listeners) {
             // オペレーションログ
-            AutoApplication apl = (AutoApplication) getApplication();
-            apl.doOpLog("LOAD_BALANCER", "Enable LB_Listener", null, null, loadBalancer.getLoadBalancer()
+            OperationLogger.writeLoadBalancer("LOAD_BALANCER", "Enable LB_Listener", loadBalancer.getLoadBalancer()
                     .getLoadBalancerNo(), String.valueOf(listeners.size()));
 
             // リスナーの有効化
@@ -1080,8 +1081,7 @@ public class LoadBalancerDescBasic extends Panel {
 
         private void disable(List<LoadBalancerListener> listeners) {
             // オペレーションログ
-            AutoApplication apl = (AutoApplication) getApplication();
-            apl.doOpLog("LOAD_BALANCER", "Disable LB_Listener", null, null, loadBalancer.getLoadBalancer()
+            OperationLogger.writeLoadBalancer("LOAD_BALANCER", "Disable LB_Listener", loadBalancer.getLoadBalancer()
                     .getLoadBalancerNo(), String.valueOf(listeners.size()));
 
             // リスナーの無効化

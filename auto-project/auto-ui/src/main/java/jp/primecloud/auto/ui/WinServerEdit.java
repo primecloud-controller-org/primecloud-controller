@@ -65,6 +65,7 @@ import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.ContextUtils;
 import jp.primecloud.auto.ui.util.IconUtils;
 import jp.primecloud.auto.ui.util.Icons;
+import jp.primecloud.auto.ui.util.OperationLogger;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
@@ -82,7 +83,6 @@ import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.Validator;
-import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.data.validator.RegexpValidator;
 import com.vaadin.data.validator.StringLengthValidator;
@@ -919,20 +919,14 @@ public class WinServerEdit extends Window {
 
             // ElasticIPが選択されていない場合
             if (addressNo == null || NULL_ADDRESS.equals(addressNo)) {
-                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                        ViewMessages.getMessage("IUI-000062"));
-                getApplication().getMainWindow().addWindow(dialog);
-                return;
+                throw new AutoApplicationException("IUI-000062");
             }
 
             // 自サーバ以外に割り当てられているElasticIPが選択されている場合は削除できない
             final AwsAddress address = findAwsAddress(addressNo);
             if (address.getInstanceNo() != null
                     && !address.getInstanceNo().equals(instance.getInstance().getInstanceNo())) {
-                String message = ViewMessages.getMessage("IUI-000064");
-                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-                getApplication().getMainWindow().addWindow(dialog);
-                return;
+                throw new AutoApplicationException("IUI-000064");
             }
 
             String message = ViewMessages.getMessage("IUI-000060", address.getPublicIp());
@@ -1620,20 +1614,14 @@ public class WinServerEdit extends Window {
 
             // ElasticIPが選択されていない場合
             if (address == null || NULL_ADDRESS.equals(address)) {
-                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                        ViewMessages.getMessage("IUI-000062"));
-                getApplication().getMainWindow().addWindow(dialog);
-                return;
+                throw new AutoApplicationException("IUI-000062");
             }
 
             //すでに設定されているElasticIPでなく、かつ割り当て済の場合は削除できない
             if (null != address.getInstanceNo()) {
                 if (null == instance.getCloudstackAddress()
                         || !instance.getCloudstackAddress().getAddressNo().equals(address.getAddressNo())) {
-                    String message = ViewMessages.getMessage("IUI-000064");
-                    DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-                    getApplication().getMainWindow().addWindow(dialog);
-                    return;
+                    throw new AutoApplicationException("IUI-000064");
                 }
             }
 
@@ -2831,23 +2819,17 @@ public class WinServerEdit extends Window {
         }
 
         // 入力チェック
-        try {
-            basicTab.commentField.validate();
-            awsDetailTab.sizeSelect.validate();
-            awsDetailTab.keySelect.validate();
-            awsDetailTab.grpSelect.validate();
-            if (BooleanUtils.isTrue(platform.getPlatformAws().getVpc())) {
-                awsDetailTab.subnetSelect.validate();
-                awsDetailTab.privateIpField.validate();
-            } else {
-                awsDetailTab.zoneSelect.validate();
-            }
-            awsDetailTab.elasticIpSelect.validate();
-        } catch (InvalidValueException e) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), e.getMessage());
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
+        basicTab.commentField.validate();
+        awsDetailTab.sizeSelect.validate();
+        awsDetailTab.keySelect.validate();
+        awsDetailTab.grpSelect.validate();
+        if (BooleanUtils.isTrue(platform.getPlatformAws().getVpc())) {
+            awsDetailTab.subnetSelect.validate();
+            awsDetailTab.privateIpField.validate();
+        } else {
+            awsDetailTab.zoneSelect.validate();
         }
+        awsDetailTab.elasticIpSelect.validate();
 
         // プライベートIPアドレスがサブネット内で有効かどうかをチェック
         if (BooleanUtils.isTrue(platform.getPlatformAws().getVpc()) && StringUtils.isNotEmpty(privateIp)) {
@@ -2857,11 +2839,8 @@ public class WinServerEdit extends Window {
 
             // AWSのサブネットの最初の4つと最後の1つのIPアドレスは予約されているため使用できない
             if (privateIpAddress < networkAddress + 4 || broadcastAddress - 1 < privateIpAddress) {
-                String message = ViewMessages.getMessage("IUI-000109", IpAddressUtils.format(networkAddress + 4),
+                throw new AutoApplicationException("IUI-000109", IpAddressUtils.format(networkAddress + 4),
                         IpAddressUtils.format(broadcastAddress - 1));
-                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-                getApplication().getMainWindow().addWindow(dialog);
-                return;
             }
         }
 
@@ -2871,29 +2850,18 @@ public class WinServerEdit extends Window {
             if (awsAddress.getInstanceNo() != null) {
                 if (instance.getAwsAddress() == null
                         || !instance.getAwsAddress().getAddressNo().equals(awsAddress.getAddressNo())) {
-                    String message = ViewMessages.getMessage("IUI-000064");
-                    DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-                    getApplication().getMainWindow().addWindow(dialog);
-                    return;
+                    throw new AutoApplicationException("IUI-000064");
                 }
             }
         }
 
         // オペレーションログ
-        AutoApplication aapl = (AutoApplication) getApplication();
-        aapl.doOpLog("SERVER", "Edit Server", instanceNo, null, null, null);
+        OperationLogger.writeInstance("SERVER", "Edit Server", instanceNo, null);
 
         // AWSサーバを更新
         InstanceService instanceService = BeanContext.getBean(InstanceService.class);
-        try {
-            instanceService.updateAwsInstance(instanceNo, instance.getInstance().getInstanceName(), comment, keyName,
-                    serverSize, groupName, zoneName, addressNo, subnetId, privateIp);
-        } catch (AutoApplicationException e) {
-            String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
-        }
+        instanceService.updateAwsInstance(instanceNo, instance.getInstance().getInstanceName(), comment, keyName,
+                serverSize, groupName, zoneName, addressNo, subnetId, privateIp);
 
         // サーバにサービスを関連付ける
         if (basicTab.componentNos != null && basicTab.attachService) {
@@ -2928,37 +2896,23 @@ public class WinServerEdit extends Window {
         }
 
         // 入力チェック
-        try {
-            basicTab.commentField.validate();
-            vmwareDetailTab.keySelect.validate();
-            vmwareDetailTab.clusterSelect.validate();
-            vmwareDetailTab.sizeSelect.validate();
-            if (BooleanUtils.isTrue(isStaticipSelected)) {
-                vmwareEditIpTab.ipAddressField.validate();
-                vmwareEditIpTab.subnetMaskField.validate();
-                vmwareEditIpTab.defaultGatewayField.validate();
-            }
-        } catch (InvalidValueException e) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), e.getMessage());
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
+        basicTab.commentField.validate();
+        vmwareDetailTab.keySelect.validate();
+        vmwareDetailTab.clusterSelect.validate();
+        vmwareDetailTab.sizeSelect.validate();
+        if (BooleanUtils.isTrue(isStaticipSelected)) {
+            vmwareEditIpTab.ipAddressField.validate();
+            vmwareEditIpTab.subnetMaskField.validate();
+            vmwareEditIpTab.defaultGatewayField.validate();
         }
 
         // オペレーションログ
-        AutoApplication aapl = (AutoApplication) getApplication();
-        aapl.doOpLog("SERVER", "Edit Server", instanceNo, null, null, null);
+        OperationLogger.writeInstance("SERVER", "Edit Server", instanceNo, null);
 
         // VMwareサーバを更新
         InstanceService instanceService = BeanContext.getBean(InstanceService.class);
-        try {
-            instanceService.updateVmwareInstance(instanceNo, instance.getInstance().getInstanceName(), comment,
-                    serverSize, cluster, null, keyNo, vmwareAddressDto);
-        } catch (AutoApplicationException e) {
-            String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
-        }
+        instanceService.updateVmwareInstance(instanceNo, instance.getInstance().getInstanceName(), comment, serverSize,
+                cluster, null, keyNo, vmwareAddressDto);
 
         // サーバにサービスを関連付ける
         if (basicTab.componentNos != null && basicTab.attachService) {
@@ -2984,31 +2938,17 @@ public class WinServerEdit extends Window {
         }
 
         // 入力チェック
-        try {
-            basicTab.commentField.validate();
-            niftyDetailTab.keySelect.validate();
-            niftyDetailTab.sizeSelect.validate();
-        } catch (InvalidValueException e) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), e.getMessage());
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
-        }
+        basicTab.commentField.validate();
+        niftyDetailTab.keySelect.validate();
+        niftyDetailTab.sizeSelect.validate();
 
         // オペレーションログ
-        AutoApplication aapl = (AutoApplication) getApplication();
-        aapl.doOpLog("SERVER", "Edit Server", instanceNo, null, null, null);
+        OperationLogger.writeInstance("SERVER", "Edit Server", instanceNo, null);
 
         // Niftyサーバを更新
         InstanceService instanceService = BeanContext.getBean(InstanceService.class);
-        try {
-            instanceService.updateNiftyInstance(instanceNo, instance.getInstance().getInstanceName(), comment,
-                    serverSize, selectedKeyPair.getKeyNo());
-        } catch (AutoApplicationException e) {
-            String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
-        }
+        instanceService.updateNiftyInstance(instanceNo, instance.getInstance().getInstanceName(), comment, serverSize,
+                selectedKeyPair.getKeyNo());
 
         // サーバにサービスを関連付ける
         if (basicTab.componentNos != null && basicTab.attachService) {
@@ -3034,43 +2974,26 @@ public class WinServerEdit extends Window {
         }
 
         // 入力チェック
-        try {
-            basicTab.commentField.validate();
-            cloudStackDetailTab.sizeSelect.validate();
-            cloudStackDetailTab.zoneSelect.validate();
-            cloudStackDetailTab.elasticIpSelect.validate();
-        } catch (InvalidValueException e) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), e.getMessage());
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
-        }
+        basicTab.commentField.validate();
+        cloudStackDetailTab.sizeSelect.validate();
+        cloudStackDetailTab.zoneSelect.validate();
+        cloudStackDetailTab.elasticIpSelect.validate();
 
         // 自身以外に割り当て済みのElasticIPアドレスは利用できない
         if (!cloudStackDetailTab.NULL_ADDRESS.equals(address) && address.getInstanceNo() != null) {
             if (instance.getCloudstackAddress() == null
                     || !instance.getCloudstackAddress().getAddressNo().equals(address.getAddressNo())) {
-                String message = ViewMessages.getMessage("IUI-000064");
-                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-                getApplication().getMainWindow().addWindow(dialog);
-                return;
+                throw new AutoApplicationException("IUI-000064");
             }
         }
 
         // オペレーションログ
-        AutoApplication aapl = (AutoApplication) getApplication();
-        aapl.doOpLog("SERVER", "Edit Server", instanceNo, null, null, null);
+        OperationLogger.writeInstance("SERVER", "Edit Server", instanceNo, null);
 
         // CloudStackサーバを更新
         InstanceService instanceService = BeanContext.getBean(InstanceService.class);
-        try {
-            instanceService.updateCloudstackInstance(instanceNo, instance.getInstance().getInstanceName(), comment,
-                    keyName, serverSize, groupName, zoneId, address.getAddressNo());
-        } catch (AutoApplicationException e) {
-            String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
-        }
+        instanceService.updateCloudstackInstance(instanceNo, instance.getInstance().getInstanceName(), comment,
+                keyName, serverSize, groupName, zoneId, address.getAddressNo());
 
         // サーバにサービスを関連付ける
         if (basicTab.componentNos != null && basicTab.attachService) {
@@ -3089,32 +3012,18 @@ public class WinServerEdit extends Window {
         Long storageTypeNo = (Long) vcloudDetailTab.storageTypeSelect.getValue();
 
         // 入力チェック
-        try {
-            basicTab.commentField.validate();
-            vcloudDetailTab.storageTypeSelect.validate();
-            vcloudDetailTab.keySelect.validate();
-            vcloudDetailTab.sizeSelect.validate();
-        } catch (InvalidValueException e) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), e.getMessage());
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
-        }
+        basicTab.commentField.validate();
+        vcloudDetailTab.storageTypeSelect.validate();
+        vcloudDetailTab.keySelect.validate();
+        vcloudDetailTab.sizeSelect.validate();
 
         // オペレーションログ
-        AutoApplication aapl = (AutoApplication) getApplication();
-        aapl.doOpLog("SERVER", "Edit Server", instanceNo, null, null, null);
+        OperationLogger.writeInstance("SERVER", "Edit Server", instanceNo, null);
 
         // VCloudサーバを更新
         InstanceService instanceService = BeanContext.getBean(InstanceService.class);
-        try {
-            instanceService.updateVcloudInstance(instanceNo, instance.getInstance().getInstanceName(), comment,
-                    storageTypeNo, keyNo, serverSize, vcloudNetworkTab.instanceNetworks);
-        } catch (AutoApplicationException e) {
-            String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
-        }
+        instanceService.updateVcloudInstance(instanceNo, instance.getInstance().getInstanceName(), comment,
+                storageTypeNo, keyNo, serverSize, vcloudNetworkTab.instanceNetworks);
 
         // サーバにサービスを関連付ける
         if (basicTab.componentNos != null && basicTab.attachService) {
@@ -3138,31 +3047,17 @@ public class WinServerEdit extends Window {
         }
 
         // 入力チェック
-        try {
-            basicTab.commentField.validate();
-            azureDetailTab.sizeSelect.validate();
-            azureDetailTab.subnetSelect.validate();
-        } catch (InvalidValueException e) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), e.getMessage());
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
-        }
+        basicTab.commentField.validate();
+        azureDetailTab.sizeSelect.validate();
+        azureDetailTab.subnetSelect.validate();
 
         // オペレーションログ
-        AutoApplication aapl = (AutoApplication) getApplication();
-        aapl.doOpLog("SERVER", "Edit Server", instanceNo, null, null, null);
+        OperationLogger.writeInstance("SERVER", "Edit Server", instanceNo, null);
 
         // Azureサーバを更新
         InstanceService instanceService = BeanContext.getBean(InstanceService.class);
-        try {
-            instanceService.updateAzureInstance(instanceNo, instance.getInstance().getInstanceName(), comment,
-                    serverSize, availabilitySet, subnetId);
-        } catch (AutoApplicationException e) {
-            String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
-        }
+        instanceService.updateAzureInstance(instanceNo, instance.getInstance().getInstanceName(), comment, serverSize,
+                availabilitySet, subnetId);
 
         // サーバにサービスを関連付ける
         if (basicTab.componentNos != null && basicTab.attachService) {
@@ -3187,30 +3082,16 @@ public class WinServerEdit extends Window {
         }
 
         // 入力チェック
-        try {
-            basicTab.commentField.validate();
-            openStackDetailTab.sizeSelect.validate();
-        } catch (InvalidValueException e) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), e.getMessage());
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
-        }
+        basicTab.commentField.validate();
+        openStackDetailTab.sizeSelect.validate();
 
         // オペレーションログ
-        AutoApplication aapl = (AutoApplication) getApplication();
-        aapl.doOpLog("SERVER", "Edit Server", instanceNo, null, null, null);
+        OperationLogger.writeInstance("SERVER", "Edit Server", instanceNo, null);
 
         // OpenStackサーバを更新
         InstanceService instanceService = BeanContext.getBean(InstanceService.class);
-        try {
-            instanceService.updateOpenStackInstance(instanceNo, instance.getInstance().getInstanceName(), comment,
-                    serverSize, zoneName, groupName, keyName);
-        } catch (AutoApplicationException e) {
-            String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
-        }
+        instanceService.updateOpenStackInstance(instanceNo, instance.getInstance().getInstanceName(), comment,
+                serverSize, zoneName, groupName, keyName);
 
         // サーバにサービスを関連付ける
         if (basicTab.componentNos != null && basicTab.attachService) {

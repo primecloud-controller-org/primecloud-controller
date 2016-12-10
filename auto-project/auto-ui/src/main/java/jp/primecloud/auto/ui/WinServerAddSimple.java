@@ -36,6 +36,7 @@ import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.ContextUtils;
 import jp.primecloud.auto.ui.util.IconUtils;
 import jp.primecloud.auto.ui.util.Icons;
+import jp.primecloud.auto.ui.util.OperationLogger;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
@@ -43,7 +44,6 @@ import jp.primecloud.auto.ui.util.ViewProperties;
 import org.apache.commons.lang.BooleanUtils;
 
 import com.vaadin.data.Validator;
-import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.validator.RegexpValidator;
 import com.vaadin.data.validator.StringLengthValidator;
 import com.vaadin.ui.Alignment;
@@ -352,25 +352,13 @@ public class WinServerAddSimple extends Window {
         final Long platformNo = serverAddForm.cloudTable.getValue();
 
         // 入力チェック
-        try {
-            serverAddForm.prefixField.validate();
-            serverAddForm.serverNumber.validate();
-        } catch (InvalidValueException e) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), e.getMessage());
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
-        }
+        serverAddForm.prefixField.validate();
+        serverAddForm.serverNumber.validate();
         if (platformNo == null) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                    ViewMessages.getMessage("IUI-000023"));
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
+            throw new AutoApplicationException("IUI-000023");
         }
         if (prefix.startsWith("lb-")) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                    ViewMessages.getMessage("IUI-000083", prefix));
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
+            throw new AutoApplicationException("IUI-000083", prefix);
         }
 
         // 作成するサーバ名
@@ -451,62 +439,54 @@ public class WinServerAddSimple extends Window {
         Long farmNo = ViewContext.getFarmNo();
         String comment = "";
         for (String serverName : serverNames) {
-            try {
-                // AWSサーバを作成
-                if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatform().getPlatformType())) {
-                    String[] instanceTypes = image.getImageAws().getInstanceTypes().split(",");
-                    instanceService.createIaasInstance(farmNo, serverName, platformNo, comment, image.getImage()
-                            .getImageNo(), instanceTypes[0].trim());
-                }
-                // VMwareサーバを作成
-                else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatform().getPlatformType())) {
-                    String[] instanceTypes = image.getImageVmware().getInstanceTypes().split(",");
-                    instanceService.createVmwareInstance(farmNo, serverName, platformNo, comment, image.getImage()
-                            .getImageNo(), instanceTypes[0].trim());
-                }
-                // Niftyサーバを作成
-                else if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platform.getPlatform().getPlatformType())) {
-                    String[] instanceTypes = image.getImageNifty().getInstanceTypes().split(",");
-                    instanceService.createNiftyInstance(farmNo, serverName, platformNo, comment, image.getImage()
-                            .getImageNo(), instanceTypes[0].trim());
-                }
-                // CloudStackサーバを作成
-                else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatform().getPlatformType())) {
-                    String[] instanceTypes = image.getImageCloudstack().getInstanceTypes().split(",");
-                    instanceService.createIaasInstance(farmNo, serverName, platformNo, comment, image.getImage()
-                            .getImageNo(), instanceTypes[0].trim());
-                }
-                // VCloudサーバを作成
-                else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatform().getPlatformType())) {
-                    String[] instanceTypes = image.getImageVcloud().getInstanceTypes().split(",");
-                    instanceService.createIaasInstance(farmNo, serverName, platformNo, comment, image.getImage()
-                            .getImageNo(), instanceTypes[0].trim());
-                }
-                // Azureサーバを作成
-                else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatform().getPlatformType())) {
-                    String[] instanceTypes = image.getImageAzure().getInstanceTypes().split(",");
-                    instanceService.createIaasInstance(farmNo, serverName, platformNo, comment, image.getImage()
-                            .getImageNo(), instanceTypes[0].trim());
-                }
-                // OpenStackサーバを作成
-                else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatform().getPlatformType())) {
-                    String[] instanceTypes = image.getImageOpenstack().getInstanceTypes().split(",");
-                    instanceService.createIaasInstance(farmNo, serverName, platformNo, comment, image.getImage()
-                            .getImageNo(), instanceTypes[0].trim());
-                }
-            } catch (AutoApplicationException e) {
-                String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-                getApplication().getMainWindow().addWindow(dialog);
-                return;
+            // AWSサーバを作成
+            if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatform().getPlatformType())) {
+                String[] instanceTypes = image.getImageAws().getInstanceTypes().split(",");
+                instanceService.createIaasInstance(farmNo, serverName, platformNo, comment, image.getImage()
+                        .getImageNo(), instanceTypes[0].trim());
+            }
+            // VMwareサーバを作成
+            else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatform().getPlatformType())) {
+                String[] instanceTypes = image.getImageVmware().getInstanceTypes().split(",");
+                instanceService.createVmwareInstance(farmNo, serverName, platformNo, comment, image.getImage()
+                        .getImageNo(), instanceTypes[0].trim());
+            }
+            // Niftyサーバを作成
+            else if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platform.getPlatform().getPlatformType())) {
+                String[] instanceTypes = image.getImageNifty().getInstanceTypes().split(",");
+                instanceService.createNiftyInstance(farmNo, serverName, platformNo, comment, image.getImage()
+                        .getImageNo(), instanceTypes[0].trim());
+            }
+            // CloudStackサーバを作成
+            else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatform().getPlatformType())) {
+                String[] instanceTypes = image.getImageCloudstack().getInstanceTypes().split(",");
+                instanceService.createIaasInstance(farmNo, serverName, platformNo, comment, image.getImage()
+                        .getImageNo(), instanceTypes[0].trim());
+            }
+            // VCloudサーバを作成
+            else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatform().getPlatformType())) {
+                String[] instanceTypes = image.getImageVcloud().getInstanceTypes().split(",");
+                instanceService.createIaasInstance(farmNo, serverName, platformNo, comment, image.getImage()
+                        .getImageNo(), instanceTypes[0].trim());
+            }
+            // Azureサーバを作成
+            else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatform().getPlatformType())) {
+                String[] instanceTypes = image.getImageAzure().getInstanceTypes().split(",");
+                instanceService.createIaasInstance(farmNo, serverName, platformNo, comment, image.getImage()
+                        .getImageNo(), instanceTypes[0].trim());
+            }
+            // OpenStackサーバを作成
+            else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatform().getPlatformType())) {
+                String[] instanceTypes = image.getImageOpenstack().getInstanceTypes().split(",");
+                instanceService.createIaasInstance(farmNo, serverName, platformNo, comment, image.getImage()
+                        .getImageNo(), instanceTypes[0].trim());
             }
         }
 
         // オペレーションログ
-        AutoApplication aapl = (AutoApplication) getApplication();
         String prefix = (String) serverAddForm.prefixField.getValue();
         String serverNumber = String.valueOf(serverAddForm.serverNumber.getValue());
-        aapl.doOpLog("SIMPLE_SERVER", "Make Server Simple", null, null, null, prefix + ":" + serverNumber);
+        OperationLogger.write("SIMPLE_SERVER", "Make Server Simple", prefix + ":" + serverNumber);
 
         // 作成したサーバ名をセッションに格納
         ContextUtils.setAttribute("serverNames", serverNames);

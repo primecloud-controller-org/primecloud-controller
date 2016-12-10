@@ -24,6 +24,7 @@ import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.InstanceStatus;
 import jp.primecloud.auto.common.status.ZabbixInstanceStatus;
 import jp.primecloud.auto.config.Config;
+import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.InstanceService;
 import jp.primecloud.auto.service.ProcessService;
 import jp.primecloud.auto.service.dto.InstanceDto;
@@ -33,6 +34,7 @@ import jp.primecloud.auto.ui.DialogConfirm.Buttons;
 import jp.primecloud.auto.ui.DialogConfirm.Result;
 import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.Icons;
+import jp.primecloud.auto.ui.util.OperationLogger;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
@@ -376,8 +378,7 @@ public class ServerButtonsBottom extends CssLayout {
 
     private void delete(Long instanceNo) {
         // オペレーションログ
-        AutoApplication apl = (AutoApplication) getApplication();
-        apl.doOpLog("SERVER", "Delete Server", instanceNo, null, null, null);
+        OperationLogger.writeInstance("SERVER", "Delete Server", instanceNo, null);
 
         // サーバを削除
         InstanceService instanceService = BeanContext.getBean(InstanceService.class);
@@ -399,20 +400,14 @@ public class ServerButtonsBottom extends CssLayout {
             // サブネットが設定されていることを確認
             if (BooleanUtils.isTrue(platform.getPlatformAws().getVpc())
                     && StringUtils.isEmpty(instance.getAwsInstance().getSubnetId())) {
-                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                        ViewMessages.getMessage("IUI-000111"));
-                getApplication().getMainWindow().addWindow(dialog);
-                return;
+                throw new AutoApplicationException("IUI-000111");
             }
         }
         // Azureの場合
         else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatform().getPlatformType())) {
             // サブネットが設定されていることを確認
             if (StringUtils.isEmpty(instance.getAzureInstance().getSubnetId())) {
-                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                        ViewMessages.getMessage("IUI-000111"));
-                getApplication().getMainWindow().addWindow(dialog);
-                return;
+                throw new AutoApplicationException("IUI-000111");
             }
 
             // インスタンス起動チェック（個別起動）
@@ -422,10 +417,7 @@ public class ServerButtonsBottom extends CssLayout {
             if (startupErrFlg == true) {
                 // インスタンス作成中のものがあった場合は、起動不可
                 // 同一インスタンスNoは、除外する
-                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                        ViewMessages.getMessage("IUI-000133"));
-                getApplication().getMainWindow().addWindow(dialog);
-                return;
+                throw new AutoApplicationException("IUI-000133");
             }
         }
 
@@ -466,8 +458,7 @@ public class ServerButtonsBottom extends CssLayout {
 
     private void start(Long instanceNo, boolean startService) {
         // オペレーションログ
-        AutoApplication apl = (AutoApplication) getApplication();
-        apl.doOpLog("SERVER", "Start Server", instanceNo, null, null, String.valueOf(startService));
+        OperationLogger.writeInstance("SERVER", "Start Server", instanceNo, String.valueOf(startService));
 
         // サーバを起動
         ProcessService processService = BeanContext.getBean(ProcessService.class);
@@ -499,8 +490,7 @@ public class ServerButtonsBottom extends CssLayout {
 
     private void stop(Long instanceNo) {
         // オペレーションログ
-        AutoApplication apl = (AutoApplication) getApplication();
-        apl.doOpLog("SERVER", "Stop Server", instanceNo, null, null, null);
+        OperationLogger.writeInstance("SERVER", "Stop Server", instanceNo, null);
 
         // サーバを停止
         ProcessService processService = BeanContext.getBean(ProcessService.class);
@@ -532,9 +522,8 @@ public class ServerButtonsBottom extends CssLayout {
 
     private void startMonitoring(InstanceDto instance) {
         // オペレーションログ
-        AutoApplication apl = (AutoApplication) getApplication();
-        apl.doOpLog("SERVER", "Start Monitoring Server", instance.getInstance().getInstanceNo(), null, null, instance
-                .getInstance().getInstanceName());
+        OperationLogger.writeInstance("SERVER", "Start Monitoring Server", instance.getInstance().getInstanceNo(),
+                instance.getInstance().getInstanceName());
 
         //監視を有効化
         InstanceService instanceService = BeanContext.getBean(InstanceService.class);
@@ -566,9 +555,8 @@ public class ServerButtonsBottom extends CssLayout {
 
     private void stopMonitoring(InstanceDto instance) {
         // オペレーションログ
-        AutoApplication apl = (AutoApplication) getApplication();
-        apl.doOpLog("SERVER", "Stop Monitoring Server", instance.getInstance().getInstanceNo(), null, null, instance
-                .getInstance().getInstanceName());
+        OperationLogger.writeInstance("SERVER", "Stop Monitoring Server", instance.getInstance().getInstanceNo(),
+                instance.getInstance().getInstanceName());
 
         // 監視を無効化
         InstanceService instanceService = BeanContext.getBean(InstanceService.class);

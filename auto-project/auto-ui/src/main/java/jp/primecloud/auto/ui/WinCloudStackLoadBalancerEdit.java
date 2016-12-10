@@ -20,7 +20,6 @@ package jp.primecloud.auto.ui;
 
 import java.util.List;
 
-import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.ComponentService;
 import jp.primecloud.auto.service.LoadBalancerService;
 import jp.primecloud.auto.service.dto.ComponentDto;
@@ -36,7 +35,6 @@ import jp.primecloud.auto.ui.util.ViewProperties;
 import org.apache.commons.lang.StringUtils;
 
 import com.vaadin.data.Item;
-import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.validator.StringLengthValidator;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.AbstractSelect;
@@ -311,38 +309,24 @@ public class WinCloudStackLoadBalancerEdit extends Window {
 
     private void editButtonClick(ClickEvent event) {
         // 入力チェック
-        try {
-            basicTab.commentField.validate();
-            basicTab.algorithmSelect.validate();
-            basicTab.publicPortField.validate();
-            basicTab.privatePortField.validate();
-
-        } catch (InvalidValueException e) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), e.getMessage());
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
-        }
+        basicTab.commentField.validate();
+        basicTab.algorithmSelect.validate();
+        basicTab.publicPortField.validate();
+        basicTab.privatePortField.validate();
 
         LoadBalancerService loadBalancerService = BeanContext.getBean(LoadBalancerService.class);
 
-        // ロードバランサを変更
-        try {
-            // 入力値を取得
-            String comment = (String) basicTab.commentField.getValue();
-            Long componentNo = (Long) basicTab.serviceSelect.getValue();
-            String algorithm = (String) basicTab.algorithmSelect.getValue();
-            String publicPort = (String) basicTab.publicPortField.getValue();
-            String privatePort = (String) basicTab.privatePortField.getValue();
+        // 入力値を取得
+        String comment = (String) basicTab.commentField.getValue();
+        Long componentNo = (Long) basicTab.serviceSelect.getValue();
+        String algorithm = (String) basicTab.algorithmSelect.getValue();
+        String publicPort = (String) basicTab.publicPortField.getValue();
+        String privatePort = (String) basicTab.privatePortField.getValue();
 
-            String loadBalancerName = loadBalancer.getLoadBalancer().getLoadBalancerName();
-            loadBalancerService.updateCloudstackLoadBalancer(loadBalancerNo, loadBalancerName, comment, componentNo,
-                    algorithm, publicPort, privatePort);
-        } catch (AutoApplicationException e) {
-            String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
-        }
+        // ロードバランサを変更
+        String loadBalancerName = loadBalancer.getLoadBalancer().getLoadBalancerName();
+        loadBalancerService.updateCloudstackLoadBalancer(loadBalancerNo, loadBalancerName, comment, componentNo,
+                algorithm, publicPort, privatePort);
 
         // 画面を閉じる
         close();

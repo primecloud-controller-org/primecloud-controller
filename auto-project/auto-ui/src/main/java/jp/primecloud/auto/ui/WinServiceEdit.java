@@ -36,7 +36,6 @@ import jp.primecloud.auto.entity.crud.NiftyVolume;
 import jp.primecloud.auto.entity.crud.OpenstackVolume;
 import jp.primecloud.auto.entity.crud.VcloudDisk;
 import jp.primecloud.auto.entity.crud.VmwareDisk;
-import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.process.ComponentConstants;
 import jp.primecloud.auto.service.ComponentService;
 import jp.primecloud.auto.service.InstanceService;
@@ -49,6 +48,7 @@ import jp.primecloud.auto.ui.DialogConfirm.Result;
 import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.ContextUtils;
 import jp.primecloud.auto.ui.util.Icons;
+import jp.primecloud.auto.ui.util.OperationLogger;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
@@ -58,7 +58,6 @@ import org.apache.commons.lang.StringUtils;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.validator.RegexpValidator;
 import com.vaadin.data.validator.StringLengthValidator;
 import com.vaadin.event.ShortcutAction.KeyCode;
@@ -768,36 +767,22 @@ public class WinServiceEdit extends Window {
         }
 
         // 入力チェック
-        try {
-            basicTab.commentField.validate();
-            basicTab.diskSizeField.validate();
+        basicTab.commentField.validate();
+        basicTab.diskSizeField.validate();
 
-            if (detailTab != null) {
-                detailTab.customParam1Field.validate();
-                detailTab.customParam2Field.validate();
-                detailTab.customParam3Field.validate();
-            }
-        } catch (InvalidValueException e) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), e.getMessage());
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
+        if (detailTab != null) {
+            detailTab.customParam1Field.validate();
+            detailTab.customParam2Field.validate();
+            detailTab.customParam3Field.validate();
         }
 
         // オペレーションログ
-        AutoApplication aapl = (AutoApplication) getApplication();
-        aapl.doOpLog("SERVICE", "Edit Service", null, componentNo, null, null);
+        OperationLogger.writeComponent("SERVICE", "Edit Service", componentNo, null);
 
         // サービスを更新
         ComponentService componentService = BeanContext.getBean(ComponentService.class);
-        try {
-            componentService.updateComponent(componentNo, comment, Integer.valueOf(diskSize), customParam1,
-                    customParam2, customParam3);
-        } catch (AutoApplicationException e) {
-            String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
-        }
+        componentService.updateComponent(componentNo, comment, Integer.valueOf(diskSize), customParam1, customParam2,
+                customParam3);
 
         // 選択されたサーバのinstanceNoのリスト
         List<Long> instanceNos = new ArrayList<Long>();
@@ -814,14 +799,7 @@ public class WinServiceEdit extends Window {
         }
 
         // サービスにサーバを適用
-        try {
-            componentService.associateInstances(componentNo, instanceNos);
-        } catch (AutoApplicationException e) {
-            String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
-        }
+        componentService.associateInstances(componentNo, instanceNos);
 
         // 画面を閉じる
         close();

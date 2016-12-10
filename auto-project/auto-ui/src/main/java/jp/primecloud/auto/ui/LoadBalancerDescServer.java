@@ -29,7 +29,6 @@ import jp.primecloud.auto.common.status.LoadBalancerInstanceStatus;
 import jp.primecloud.auto.common.status.LoadBalancerStatus;
 import jp.primecloud.auto.entity.crud.LoadBalancerHealthCheck;
 import jp.primecloud.auto.entity.crud.LoadBalancerInstance;
-import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.LoadBalancerService;
 import jp.primecloud.auto.service.dto.ComponentDto;
 import jp.primecloud.auto.service.dto.ComponentInstanceDto;
@@ -42,6 +41,7 @@ import jp.primecloud.auto.ui.data.InstanceDtoContainer;
 import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.IconUtils;
 import jp.primecloud.auto.ui.util.Icons;
+import jp.primecloud.auto.ui.util.OperationLogger;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
@@ -451,8 +451,8 @@ public class LoadBalancerDescServer extends Panel {
                     InstanceDto instance = (InstanceDto) itemId;
 
                     Icons icon = IconUtils.getPlatformIcon(instance.getPlatform());
-                    Label label = new Label(IconUtils.createImageTag(AttachSeriviceServerTable.this, icon, instance
-                            .getInstance().getInstanceName()), Label.CONTENT_XHTML);
+                    Label label = new Label(IconUtils.createImageTag(getApplication(), icon, instance.getInstance()
+                            .getInstanceName()), Label.CONTENT_XHTML);
                     label.setHeight(COLUMN_HEIGHT);
                     return label;
                 }
@@ -534,13 +534,11 @@ public class LoadBalancerDescServer extends Panel {
                     Label label;
                     if (notice) {
                         icon = Icons.fromName(status + "_WITH_ATTENTION");
-                        label = new Label(IconUtils.createImageTag(AttachSeriviceServerTable.this, icon, status),
-                                Label.CONTENT_XHTML);
+                        label = new Label(IconUtils.createImageTag(getApplication(), icon, status), Label.CONTENT_XHTML);
                         label.setDescription(noticeMessage);
                     } else {
                         icon = Icons.fromName(status);
-                        label = new Label(IconUtils.createImageTag(AttachSeriviceServerTable.this, icon, status),
-                                Label.CONTENT_XHTML);
+                        label = new Label(IconUtils.createImageTag(getApplication(), icon, status), Label.CONTENT_XHTML);
                     }
                     label.setHeight(COLUMN_HEIGHT);
                     return label;
@@ -563,7 +561,7 @@ public class LoadBalancerDescServer extends Panel {
 
                     Icons icon = Icons.fromName(status);
                     status = status.substring(0, 1).toUpperCase() + status.substring(1).toLowerCase();
-                    Label label = new Label(IconUtils.createImageTag(AttachSeriviceServerTable.this, icon, status),
+                    Label label = new Label(IconUtils.createImageTag(getApplication(), icon, status),
                             Label.CONTENT_XHTML);
                     label.setHeight(COLUMN_HEIGHT);
                     return label;
@@ -768,20 +766,12 @@ public class LoadBalancerDescServer extends Panel {
 
         private void enable(Long loadBalancerNo, List<Long> instanceNos) {
             // オペレーションログ
-            AutoApplication apl = (AutoApplication) getApplication();
-            apl.doOpLog("LOAD_BALANCER", "Enable Server", null, null, loadBalancerNo,
+            OperationLogger.writeLoadBalancer("LOAD_BALANCER", "Enable Server", loadBalancerNo,
                     String.valueOf(instanceNos.size()));
 
             // 振り分けの有効化
             LoadBalancerService loadBalancerService = BeanContext.getBean(LoadBalancerService.class);
-            try {
-                loadBalancerService.enableInstances(loadBalancerNo, instanceNos);
-            } catch (AutoApplicationException e) {
-                String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-                getApplication().getMainWindow().addWindow(dialog);
-                return;
-            }
+            loadBalancerService.enableInstances(loadBalancerNo, instanceNos);
 
             // 表示の更新
             refreshTable();
@@ -836,20 +826,12 @@ public class LoadBalancerDescServer extends Panel {
 
         private void disable(Long loadBalancerNo, List<Long> instanceNos) {
             // オペレーションログ
-            AutoApplication apl = (AutoApplication) getApplication();
-            apl.doOpLog("LOAD_BALANCER", "Disable Server", null, null, loadBalancerNo,
+            OperationLogger.writeLoadBalancer("LOAD_BALANCER", "Disable Server", loadBalancerNo,
                     String.valueOf(instanceNos.size()));
 
             // 振り分けの無効化
             LoadBalancerService loadBalancerService = BeanContext.getBean(LoadBalancerService.class);
-            try {
-                loadBalancerService.disableInstances(loadBalancerNo, instanceNos);
-            } catch (AutoApplicationException e) {
-                String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-                DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-                getApplication().getMainWindow().addWindow(dialog);
-                return;
-            }
+            loadBalancerService.disableInstances(loadBalancerNo, instanceNos);
 
             // 表示の更新
             refreshTable();

@@ -18,15 +18,12 @@
  */
 package jp.primecloud.auto.ui;
 
-import jp.primecloud.auto.log.service.OperationLogService;
 import jp.primecloud.auto.service.dto.UserAuthDto;
-import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewProperties;
 
 import com.vaadin.Application;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Window.CloseEvent;
 
 /**
  * <p>
@@ -38,8 +35,6 @@ import com.vaadin.ui.Window.CloseEvent;
 @SuppressWarnings("serial")
 public class AutoApplication extends Application {
 
-    private MainView mainView;
-
     @Override
     public void init() {
         // エラーハンドリング
@@ -50,47 +45,14 @@ public class AutoApplication extends Application {
 
         ViewContext.setAuthority(new UserAuthDto(false));
 
-        // myCloud表示
-        mainView = new MainView();
-
         Window mainWindow = new Window(ViewProperties.getCaption("window.main"));
-        mainWindow.setContent(mainView);
         mainWindow.setWidth("960px");
         mainWindow.setHeight("100%");
         setTheme("classy");
         setMainWindow(mainWindow);
 
-        // ログイン画面
-        WinLogin winLogin = new WinLogin();
-        winLogin.addListener(new Window.CloseListener() {
-            @Override
-            public void windowClose(CloseEvent e) {
-                // ログインに成功した場合
-                Long loginUserNo = ViewContext.getLoginUser();
-                if (loginUserNo != null) {
-                    mainView.loginSuccess();
-                }
-            }
-        });
-        mainWindow.addWindow(winLogin);
-    }
-
-    public void doOpLog(String screen, String operation, Long farmNo, String memo) {
-        doOpLog(ViewContext.getUserNo(), ViewContext.getUsername(), farmNo, screen, operation, null, null, null, memo);
-    }
-
-    //通常処理
-    public void doOpLog(String screen, String operation, Long instanceNo, Long componentNo, Long loadBalancerNo,
-            String memo) {
-        doOpLog(ViewContext.getUserNo(), ViewContext.getUsername(), ViewContext.getFarmNo(), screen, operation,
-                instanceNo, componentNo, loadBalancerNo, memo);
-    }
-
-    public void doOpLog(Long userNo, String userName, Long farmNo, String screen, String operation, Long instanceNo,
-            Long componentNo, Long loadBalancerNo, String memo) {
-        OperationLogService orerationLogService = BeanContext.getBean(OperationLogService.class);
-        orerationLogService.writeOperationLog(userNo, userName, farmNo, screen, operation, instanceNo, componentNo,
-                loadBalancerNo, memo);
+        MainView mainView = new MainView();
+        mainWindow.setContent(mainView);
     }
 
 }

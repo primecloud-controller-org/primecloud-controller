@@ -32,6 +32,7 @@ import jp.primecloud.auto.service.dto.LoadBalancerPlatformDto;
 import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.IconUtils;
 import jp.primecloud.auto.ui.util.Icons;
+import jp.primecloud.auto.ui.util.OperationLogger;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
@@ -40,7 +41,6 @@ import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
 import com.vaadin.data.Property;
-import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.validator.RegexpValidator;
 import com.vaadin.data.validator.StringLengthValidator;
 import com.vaadin.event.ShortcutAction.KeyCode;
@@ -432,76 +432,44 @@ public class WinLoadBalancerAdd extends Window {
         Long componentNo = basicForm.serviceTable.getValue();
 
         // 入力チェック
-        try {
-            basicForm.loadBalancerNameField.validate();
-            basicForm.commentField.validate();
-        } catch (InvalidValueException e) {
-            String errMes = e.getMessage();
-            if (null == errMes) {
-                // メッセージが取得できない場合は複合エラー 先頭を表示する
-                InvalidValueException[] exceptions = e.getCauses();
-                errMes = exceptions[0].getMessage();
-            }
-
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), errMes);
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
-        }
+        basicForm.loadBalancerNameField.validate();
+        basicForm.commentField.validate();
         if (platformNo == null) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                    ViewMessages.getMessage("IUI-000023"));
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
+            throw new AutoApplicationException("IUI-000023");
         }
         if (type == null || type.length() == 0) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                    ViewMessages.getMessage("IUI-000054"));
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
+            throw new AutoApplicationException("IUI-000054");
         }
         if (componentNo == null) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                    ViewMessages.getMessage("IUI-000065"));
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
+            throw new AutoApplicationException("IUI-000065");
         }
         if (loadBalancerName.startsWith("lb-")) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                    ViewMessages.getMessage("IUI-000084", loadBalancerName));
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
+            throw new AutoApplicationException("IUI-000084", loadBalancerName);
         }
 
         // ロードバランサを作成
         LoadBalancerService loadBalancerService = BeanContext.getBean(LoadBalancerService.class);
         Long farmNo = ViewContext.getFarmNo();
         Long loadBalancerNo = null;
-        try {
-            // AWSロードバランサを作成
-            if (PCCConstant.LOAD_BALANCER_ELB.equals(type)) {
-                loadBalancerNo = loadBalancerService.createAwsLoadBalancer(farmNo, loadBalancerName, comment,
-                        platformNo, componentNo, false);
-            }
-            // UltraMonkeyロードバランサを作成
-            else if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(type)) {
-                loadBalancerNo = loadBalancerService.createUltraMonkeyLoadBalancer(farmNo, loadBalancerName, comment,
-                        platformNo, componentNo);
-            }
-            // CloudStackロードバランサを作成
-            else if (PCCConstant.LOAD_BALANCER_CLOUDSTACK.equals(type)) {
-                loadBalancerNo = loadBalancerService.createCloudstackLoadBalancer(farmNo, loadBalancerName, comment,
-                        platformNo, componentNo);
-            }
-        } catch (AutoApplicationException e) {
-            String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
+
+        // AWSロードバランサを作成
+        if (PCCConstant.LOAD_BALANCER_ELB.equals(type)) {
+            loadBalancerNo = loadBalancerService.createAwsLoadBalancer(farmNo, loadBalancerName, comment, platformNo,
+                    componentNo, false);
+        }
+        // UltraMonkeyロードバランサを作成
+        else if (PCCConstant.LOAD_BALANCER_ULTRAMONKEY.equals(type)) {
+            loadBalancerNo = loadBalancerService.createUltraMonkeyLoadBalancer(farmNo, loadBalancerName, comment,
+                    platformNo, componentNo);
+        }
+        // CloudStackロードバランサを作成
+        else if (PCCConstant.LOAD_BALANCER_CLOUDSTACK.equals(type)) {
+            loadBalancerNo = loadBalancerService.createCloudstackLoadBalancer(farmNo, loadBalancerName, comment,
+                    platformNo, componentNo);
         }
 
         // オペレーションログ
-        AutoApplication aapl = (AutoApplication) getApplication();
-        aapl.doOpLog("LOAD_BALANCER", "Make Load_Balancer", null, null, loadBalancerNo, null);
+        OperationLogger.writeLoadBalancer("LOAD_BALANCER", "Make Load_Balancer", loadBalancerNo, null);
 
         // 画面を閉じる
         close();

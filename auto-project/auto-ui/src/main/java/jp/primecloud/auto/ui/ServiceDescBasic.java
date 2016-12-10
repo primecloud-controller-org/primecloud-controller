@@ -28,6 +28,7 @@ import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.ComponentInstanceStatus;
 import jp.primecloud.auto.component.mysql.MySQLConstants;
 import jp.primecloud.auto.entity.crud.InstanceConfig;
+import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.ProcessService;
 import jp.primecloud.auto.service.dto.ComponentDto;
 import jp.primecloud.auto.service.dto.ComponentInstanceDto;
@@ -41,6 +42,7 @@ import jp.primecloud.auto.ui.data.InstanceDtoContainer;
 import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.IconUtils;
 import jp.primecloud.auto.ui.util.Icons;
+import jp.primecloud.auto.ui.util.OperationLogger;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
@@ -296,7 +298,7 @@ public class ServiceDescBasic extends Panel {
 
                     Icons icon = Icons.fromName(status);
                     status = status.substring(0, 1).toUpperCase() + status.substring(1).toLowerCase();
-                    Label label = new Label(IconUtils.createImageTag(ServiceDescBasic.this, icon, status),
+                    Label label = new Label(IconUtils.createImageTag(getApplication(), icon, status),
                             Label.CONTENT_XHTML);
                     label.setHeight(COLUMN_HEIGHT);
 
@@ -311,8 +313,7 @@ public class ServiceDescBasic extends Panel {
 
                     Icons icon = IconUtils.getPlatformIcon(instance.getPlatform());
                     String name = instance.getPlatform().getPlatform().getPlatformSimplenameDisp();
-                    Label label = new Label(IconUtils.createImageTag(ServiceDescBasic.this, icon, name),
-                            Label.CONTENT_XHTML);
+                    Label label = new Label(IconUtils.createImageTag(getApplication(), icon, name), Label.CONTENT_XHTML);
                     label.setHeight(COLUMN_HEIGHT);
 
                     return label;
@@ -478,8 +479,7 @@ public class ServiceDescBasic extends Panel {
             {
                 Icons icon = Icons.fromName(component.getComponentType().getComponentTypeName());
                 String name = component.getComponentType().getComponentTypeNameDisp();
-                Label label = new Label(IconUtils.createImageTag(ServiceDescBasic.this, icon, name),
-                        Label.CONTENT_XHTML);
+                Label label = new Label(IconUtils.createImageTag(getApplication(), icon, name), Label.CONTENT_XHTML);
                 gridLayout.removeComponent(1, line);
                 gridLayout.addComponent(label, 1, line++);
             }
@@ -489,8 +489,7 @@ public class ServiceDescBasic extends Panel {
                 String status = component.getStatus();
                 Icons icon = Icons.fromName(status);
                 status = status.substring(0, 1).toUpperCase() + status.substring(1).toLowerCase();
-                Label label = new Label(IconUtils.createImageTag(ServiceDescBasic.this, icon, status),
-                        Label.CONTENT_XHTML);
+                Label label = new Label(IconUtils.createImageTag(getApplication(), icon, status), Label.CONTENT_XHTML);
                 gridLayout.removeComponent(1, line);
                 gridLayout.addComponent(label, 1, line++);
             }
@@ -683,19 +682,13 @@ public class ServiceDescBasic extends Panel {
                 if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatform().getPlatformType())) {
                     if (BooleanUtils.isTrue(platform.getPlatformAws().getVpc())
                             && StringUtils.isEmpty(instance.getAwsInstance().getSubnetId())) {
-                        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                                ViewMessages.getMessage("IUI-000112", instance.getInstance().getInstanceName()));
-                        getApplication().getMainWindow().addWindow(dialog);
-                        return;
+                        throw new AutoApplicationException("IUI-000112", instance.getInstance().getInstanceName());
                     }
                 }
                 // Azureの場合
                 else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatform().getPlatformType())) {
                     if (StringUtils.isEmpty(instance.getAzureInstance().getSubnetId())) {
-                        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                                ViewMessages.getMessage("IUI-000112", instance.getInstance().getInstanceName()));
-                        getApplication().getMainWindow().addWindow(dialog);
-                        return;
+                        throw new AutoApplicationException("IUI-000112", instance.getInstance().getInstanceName());
                     }
                 }
             }
@@ -714,10 +707,7 @@ public class ServiceDescBasic extends Panel {
                     boolean startupAllErrFlg = flgMap.get("startupAllErrFlg");
                     if (startupAllErrFlg) {
                         // インスタンス作成中のものがあった場合は、起動不可
-                        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                                ViewMessages.getMessage("IUI-000134", instance.getInstance().getInstanceName()));
-                        getApplication().getMainWindow().addWindow(dialog);
-                        return;
+                        throw new AutoApplicationException("IUI-000134", instance.getInstance().getInstanceName());
                     }
 
                     // インスタンス起動チェック（個別起動）
@@ -726,10 +716,7 @@ public class ServiceDescBasic extends Panel {
                     if (startupErrFlg) {
                         // インスタンス作成中のものがあった場合は、起動不可
                         // 同一インスタンスNoは、除外する
-                        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                                ViewMessages.getMessage("IUI-000134", instance.getInstance().getInstanceName()));
-                        getApplication().getMainWindow().addWindow(dialog);
-                        return;
+                        throw new AutoApplicationException("IUI-000134", instance.getInstance().getInstanceName());
                     }
                 }
             }
@@ -755,8 +742,7 @@ public class ServiceDescBasic extends Panel {
 
         private void start(List<InstanceDto> instances) {
             // オペレーションログ
-            AutoApplication apl = (AutoApplication) getApplication();
-            apl.doOpLog("SERVICE", "Start Service", null, component.getComponent().getComponentNo(), null, null);
+            OperationLogger.writeComponent("SERVICE", "Start Service", component.getComponent().getComponentNo(), null);
 
             // 開始処理
             List<Long> instanceNos = new ArrayList<Long>();
@@ -853,8 +839,7 @@ public class ServiceDescBasic extends Panel {
 
         private void stop(List<InstanceDto> instances, boolean stopInstance) {
             // オペレーションログ
-            AutoApplication apl = (AutoApplication) getApplication();
-            apl.doOpLog("SERVICE", "Stop Service", null, component.getComponent().getComponentNo(), null,
+            OperationLogger.writeComponent("SERVICE", "Stop Service", component.getComponent().getComponentNo(),
                     String.valueOf(stopInstance));
 
             // 停止処理

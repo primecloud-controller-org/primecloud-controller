@@ -19,13 +19,11 @@
 package jp.primecloud.auto.ui;
 
 import jp.primecloud.auto.entity.crud.UserAuth;
-import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.UserManagementService;
 import jp.primecloud.auto.service.UserService;
 import jp.primecloud.auto.service.dto.UserAuthDto;
 import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.Icons;
-import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
 
 import org.apache.commons.lang.BooleanUtils;
@@ -500,16 +498,8 @@ public class WinUserAuthEditDetail extends Window {
         //TODO
 
         //更新処理
-        try {
-            UserManagementService userManagementService = BeanContext.getBean(UserManagementService.class);
-            userManagementService.updateUserAuth(farmNo, userNo, inputAuthDto);
-        } catch (AutoApplicationException e) {
-            //更新エラーの場合
-            String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-            getParent().addWindow(dialog);
-            return;
-        }
+        UserManagementService userManagementService = BeanContext.getBean(UserManagementService.class);
+        userManagementService.updateUserAuth(farmNo, userNo, inputAuthDto);
 
         // 画面を閉じる
         close();

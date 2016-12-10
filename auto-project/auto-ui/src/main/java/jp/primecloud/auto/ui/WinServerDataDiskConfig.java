@@ -18,6 +18,7 @@
  */
 package jp.primecloud.auto.ui;
 
+import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.InstanceService;
 import jp.primecloud.auto.service.dto.DataDiskDto;
 import jp.primecloud.auto.ui.util.BeanContext;
@@ -26,7 +27,6 @@ import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
 
 import com.vaadin.Application;
-import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.validator.RegexpValidator;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.Alignment;
@@ -147,23 +147,18 @@ public class WinServerDataDiskConfig extends Window {
         String diskSize = (String) txtDiskSize.getValue();
 
         // 入力チェック
-        try {
-            //基本バリデーション
-            txtDiskSize.validate();
+        //基本バリデーション
+        txtDiskSize.validate();
 
-            //個別バリデーション
-            if (!isAddMode) {
-                //編集の場合
-                if (Integer.valueOf(diskSize) < dataDiskDto.getDiskSize()) {
-                    //変更後のディスクサイズが変更前より小さい場合
-                    throw new InvalidValueException(ViewMessages.getMessage("IUI-000125"));
-                }
+        //個別バリデーション
+        if (!isAddMode) {
+            //編集の場合
+            if (Integer.valueOf(diskSize) < dataDiskDto.getDiskSize()) {
+                //変更後のディスクサイズが変更前より小さい場合
+                throw new AutoApplicationException("IUI-000125");
             }
-        } catch (InvalidValueException e) {
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), e.getMessage());
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
         }
+
         // 更新処理
         InstanceService instanceService = BeanContext.getBean(InstanceService.class);
 

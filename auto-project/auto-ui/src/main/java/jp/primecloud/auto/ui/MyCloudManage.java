@@ -32,6 +32,7 @@ import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.ContextUtils;
 import jp.primecloud.auto.ui.util.IconUtils;
 import jp.primecloud.auto.ui.util.Icons;
+import jp.primecloud.auto.ui.util.OperationLogger;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
@@ -282,10 +283,7 @@ public class MyCloudManage extends Window {
         final Long farmNo = cloudTable.getValue();
         if (farmNo == null) {
             // myCloudが選択されていない場合
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                    ViewMessages.getMessage("IUI-000005"));
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
+            throw new AutoApplicationException("IUI-000005");
         }
 
         final FarmDto farm = findFarm(farmNo);
@@ -300,19 +298,11 @@ public class MyCloudManage extends Window {
                 }
 
                 // オペレーションログ
-                AutoApplication aapl = (AutoApplication) getApplication();
-                aapl.doOpLog("CLOUD", "Delete Cloud", farmNo, null);
+                OperationLogger.writeFarm("CLOUD", "Delete Cloud", farmNo, null);
 
                 // myCloudの削除
                 FarmService farmService = BeanContext.getBean(FarmService.class);
-                try {
-                    farmService.deleteFarm(farmNo);
-                } catch (AutoApplicationException e) {
-                    String message = ViewMessages.getMessage(e.getCode(), e.getAdditions());
-                    DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"), message);
-                    getApplication().getMainWindow().addWindow(dialog);
-                    return;
-                }
+                farmService.deleteFarm(farmNo);
 
                 // 削除したmyCloud情報をテーブルから除去
                 cloudTable.removeItem(farmNo);
@@ -338,10 +328,7 @@ public class MyCloudManage extends Window {
         Long farmNo = cloudTable.getValue();
         if (farmNo == null) {
             // myCloudが選択されていない場合
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                    ViewMessages.getMessage("IUI-000008"));
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
+            throw new AutoApplicationException("IUI-000008");
         }
 
         FarmDto farm = findFarm(farmNo);
@@ -394,10 +381,7 @@ public class MyCloudManage extends Window {
         Long farmNo = cloudTable.getValue();
         if (farmNo == null) {
             // myCloudが選択されていない場合
-            DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                    ViewMessages.getMessage("IUI-000047"));
-            getApplication().getMainWindow().addWindow(dialog);
-            return;
+            throw new AutoApplicationException("IUI-000047");
         }
 
         // myCloud編集画面

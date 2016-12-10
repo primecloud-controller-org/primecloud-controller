@@ -26,8 +26,6 @@ import jp.primecloud.auto.service.dto.PlatformDto;
 import org.apache.commons.lang.StringUtils;
 
 import com.vaadin.Application;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.Window;
 
 /**
  * <p>
@@ -129,18 +127,6 @@ public class IconUtils {
         return rtIcon;
     }
 
-    private static Application getApplication(Component component) {
-        Application application = null;
-        while (component != null) {
-            if (component instanceof Window) {
-                application = ((Window) component).getApplication();
-                break;
-            }
-            component = component.getParent();
-        }
-        return application;
-    }
-
     public static String getIconPath(Application application, Icons icon) {
         if (application != null) {
             String theme = application.getTheme();
@@ -151,14 +137,6 @@ public class IconUtils {
         } else {
             return VAADIN_THEMES_PATH + DEFAULT_THEME + FILE_SEPARATOR + icon.path();
         }
-    }
-
-    public static String getIconPath(Component component, Icons icon) {
-        return getIconPath(getApplication(component), icon);
-    }
-
-    public static String createImageTag(Component component, Icons icon, String text) {
-        return createImageTag(getApplication(component), icon, text);
     }
 
     public static String createImageTag(Application application, Icons icon) {

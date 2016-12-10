@@ -22,6 +22,7 @@ import java.util.Arrays;
 
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.LoadBalancerStatus;
+import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.LoadBalancerService;
 import jp.primecloud.auto.service.ProcessService;
 import jp.primecloud.auto.service.dto.LoadBalancerDto;
@@ -30,6 +31,7 @@ import jp.primecloud.auto.ui.DialogConfirm.Buttons;
 import jp.primecloud.auto.ui.DialogConfirm.Result;
 import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.Icons;
+import jp.primecloud.auto.ui.util.OperationLogger;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
@@ -257,10 +259,7 @@ public class LoadBalancerButtonsBottom extends CssLayout {
         if (PCCConstant.LOAD_BALANCER_ELB.equals(loadBalancer.getLoadBalancer().getType())) {
             if (BooleanUtils.isTrue(loadBalancer.getPlatform().getPlatformAws().getVpc())) {
                 if (StringUtils.isEmpty(loadBalancer.getAwsLoadBalancer().getSubnetId())) {
-                    DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.error"),
-                            ViewMessages.getMessage("IUI-000111"));
-                    getApplication().getMainWindow().addWindow(dialog);
-                    return;
+                    throw new AutoApplicationException("IUI-000111");
                 }
             }
         }
@@ -286,8 +285,7 @@ public class LoadBalancerButtonsBottom extends CssLayout {
 
     private void start(Long loadBalancerNo) {
         // オペレーションログ
-        AutoApplication apl = (AutoApplication) getApplication();
-        apl.doOpLog("LOAD_BALANCER", "Start Load_Balancer", null, null, loadBalancerNo, null);
+        OperationLogger.writeLoadBalancer("LOAD_BALANCER", "Start Load_Balancer", loadBalancerNo, null);
 
         // ロードバランサを起動
         ProcessService processService = BeanContext.getBean(ProcessService.class);
@@ -319,8 +317,7 @@ public class LoadBalancerButtonsBottom extends CssLayout {
 
     private void stop(Long loadBalancerNo) {
         // オペレーションログ
-        AutoApplication apl = (AutoApplication) getApplication();
-        apl.doOpLog("LOAD_BALANCER", "Stop Load_Balancer", null, null, loadBalancerNo, null);
+        OperationLogger.writeLoadBalancer("LOAD_BALANCER", "Stop Load_Balancer", loadBalancerNo, null);
 
         // ロードバランサを停止
         ProcessService processService = BeanContext.getBean(ProcessService.class);
@@ -370,8 +367,7 @@ public class LoadBalancerButtonsBottom extends CssLayout {
 
     private void delete(Long loadBalancerNo) {
         // オペレーションログ
-        AutoApplication apl = (AutoApplication) getApplication();
-        apl.doOpLog("LOAD_BALANCER", "Delete Load_Balancer", null, null, loadBalancerNo, null);
+        OperationLogger.writeLoadBalancer("LOAD_BALANCER", "Delete Load_Balancer", loadBalancerNo, null);
 
         // ロードバランサを削除
         LoadBalancerService loadBalancerService = BeanContext.getBean(LoadBalancerService.class);

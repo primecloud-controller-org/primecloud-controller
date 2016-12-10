@@ -92,7 +92,7 @@ public class ServerTable extends Table {
                 InstanceDto instance = (InstanceDto) itemId;
 
                 Icons icon = IconUtils.getPlatformIcon(instance.getPlatform());
-                Label label = new Label(IconUtils.createImageTag(ServerTable.this, icon, instance.getInstance()
+                Label label = new Label(IconUtils.createImageTag(getApplication(), icon, instance.getInstance()
                         .getInstanceName()), Label.CONTENT_XHTML);
                 label.setHeight(COLUMN_HEIGHT);
                 return label;
@@ -130,7 +130,7 @@ public class ServerTable extends Table {
                 String status = instance.getInstance().getStatus();
                 Icons icon = Icons.fromName(status);
                 status = status.substring(0, 1).toUpperCase() + status.substring(1).toLowerCase();
-                Label label = new Label(IconUtils.createImageTag(ServerTable.this, icon, status), Label.CONTENT_XHTML);
+                Label label = new Label(IconUtils.createImageTag(getApplication(), icon, status), Label.CONTENT_XHTML);
                 label.setHeight(COLUMN_HEIGHT);
                 return label;
             }
@@ -172,8 +172,8 @@ public class ServerTable extends Table {
                     }
 
                     context = context + "<img style=\"width: 5px;\" src=\" "
-                            + IconUtils.getIconPath(ServerTable.this, Icons.SPACER) + "\" >" + "<img src=\""
-                            + IconUtils.getIconPath(ServerTable.this, nameIcon) + "\" + " + " title=\"" + name + "\">";
+                            + IconUtils.getIconPath(getApplication(), Icons.SPACER) + "\" >" + "<img src=\""
+                            + IconUtils.getIconPath(getApplication(), nameIcon) + "\" + " + " title=\"" + name + "\">";
                 }
                 context = context + "</div>";
 

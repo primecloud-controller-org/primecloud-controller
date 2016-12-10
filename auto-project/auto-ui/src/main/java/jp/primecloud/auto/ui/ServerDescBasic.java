@@ -257,7 +257,7 @@ public class ServerDescBasic extends Panel {
 
                     Icons icon = Icons.fromName(status);
                     status = status.substring(0, 1).toUpperCase() + status.substring(1).toLowerCase();
-                    Label label = new Label(IconUtils.createImageTag(ServerDescBasic.this, icon, status),
+                    Label label = new Label(IconUtils.createImageTag(getApplication(), icon, status),
                             Label.CONTENT_XHTML);
                     label.setHeight(COLUMN_HEIGHT);
                     return label;
@@ -495,7 +495,7 @@ public class ServerDescBasic extends Panel {
             {
                 Icons icon = IconUtils.getPlatformIcon(platform);
                 String description = platform.getPlatform().getPlatformNameDisp();
-                Label label = new Label(IconUtils.createImageTag(ServerDescBasic.this, icon, description),
+                Label label = new Label(IconUtils.createImageTag(getApplication(), icon, description),
                         Label.CONTENT_XHTML);
                 gridLayout.removeComponent(1, line);
                 gridLayout.addComponent(label, 1, line++);
@@ -508,7 +508,7 @@ public class ServerDescBasic extends Panel {
                 layout.setMargin(false);
                 Icons icon = IconUtils.getOsIcon(instance.getImage());
                 String os = instance.getImage().getImage().getOsDisp();
-                Label label = new Label(IconUtils.createImageTag(ServerDescBasic.this, icon, os), Label.CONTENT_XHTML);
+                Label label = new Label(IconUtils.createImageTag(getApplication(), icon, os), Label.CONTENT_XHTML);
                 layout.addComponent(label);
 
                 // OSがWindowsの場合パスワード取得ボタンを表示
@@ -548,8 +548,7 @@ public class ServerDescBasic extends Panel {
                 String status = instance.getInstance().getStatus();
                 Icons icon = Icons.fromName(status);
                 status = status.substring(0, 1).toUpperCase() + status.substring(1).toLowerCase();
-                Label label = new Label(IconUtils.createImageTag(ServerDescBasic.this, icon, status),
-                        Label.CONTENT_XHTML);
+                Label label = new Label(IconUtils.createImageTag(getApplication(), icon, status), Label.CONTENT_XHTML);
                 gridLayout.removeComponent(1, line);
                 gridLayout.addComponent(label, 1, line++);
             }
@@ -570,8 +569,7 @@ public class ServerDescBasic extends Panel {
                 }
                 status = sb.toString();
 
-                Label label = new Label(IconUtils.createImageTag(ServerDescBasic.this, icon, status),
-                        Label.CONTENT_XHTML);
+                Label label = new Label(IconUtils.createImageTag(getApplication(), icon, status), Label.CONTENT_XHTML);
                 gridLayout.removeComponent(1, line);
                 gridLayout.addComponent(label, 1, line++);
             }

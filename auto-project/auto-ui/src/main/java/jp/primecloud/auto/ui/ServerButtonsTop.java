@@ -30,6 +30,7 @@ import jp.primecloud.auto.ui.DialogConfirm.Buttons;
 import jp.primecloud.auto.ui.DialogConfirm.Result;
 import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.Icons;
+import jp.primecloud.auto.ui.util.OperationLogger;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
@@ -153,8 +154,7 @@ public class ServerButtonsTop extends CssLayout {
         }
 
         // オペレーションログ
-        AutoApplication apl = (AutoApplication) getApplication();
-        apl.doOpLog("SERVER", "All Server Start", null, null, null, String.valueOf(startService));
+        OperationLogger.write("SERVER", "All Server Start", String.valueOf(startService));
 
         // 全てのサーバを起動
         List<Long> instanceNos = new ArrayList<Long>();
@@ -213,8 +213,7 @@ public class ServerButtonsTop extends CssLayout {
         }
 
         // オペレーションログ
-        AutoApplication apl = (AutoApplication) getApplication();
-        apl.doOpLog("SERVER", "All Server Stop", null, null, null, null);
+        OperationLogger.write("SERVER", "All Server Stop", null);
 
         // 全てのサーバを停止
         List<Long> instanceNos = new ArrayList<Long>();

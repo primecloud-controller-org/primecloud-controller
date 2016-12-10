@@ -42,13 +42,13 @@ import com.vaadin.ui.Window;
 @SuppressWarnings("serial")
 public class DialogConfirm extends Window {
 
-    Callback callback;
+    protected Callback callback;
 
-    Button okButton;
+    protected Button okButton;
 
-    Button cancelButton;
+    protected Button cancelButton;
 
-    ComboBox confirm;
+    protected ComboBox confirm;
 
     public DialogConfirm(String caption, String message) {
         this(caption, message, Buttons.OK);
