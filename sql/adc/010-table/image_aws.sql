@@ -5,5 +5,6 @@ create table IMAGE_AWS (
     RAMDISK_ID varchar(100),
     INSTANCE_TYPES varchar(500) not null,
     EBS_IMAGE tinyint(1) not null,
+    ROOT_SIZE int,
     constraint IMAGE_AWS primary key (IMAGE_NO)
 );

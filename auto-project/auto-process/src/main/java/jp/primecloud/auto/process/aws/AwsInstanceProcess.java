@@ -238,8 +238,8 @@ public class AwsInstanceProcess extends ServiceSupport {
         }
 
         // BlockDeviceMapping
-        List<BlockDeviceMapping> blockDeviceMappings = createBlockDeviceMappings(awsProcessClient,
-                imageAws.getImageId(), awsInstance.getInstanceType());
+        List<BlockDeviceMapping> blockDeviceMappings = createBlockDeviceMappings(awsProcessClient, imageAws,
+                awsInstance);
         request.withBlockDeviceMappings(blockDeviceMappings);
 
         // イベントログ出力
@@ -741,10 +741,11 @@ public class AwsInstanceProcess extends ServiceSupport {
         return userData;
     }
 
-    protected List<BlockDeviceMapping> createBlockDeviceMappings(AwsProcessClient awsProcessClient, String imageId,
-            String instanceType) {
+    protected List<BlockDeviceMapping> createBlockDeviceMappings(AwsProcessClient awsProcessClient, ImageAws imageAws,
+            AwsInstance awsInstance) {
         // イメージの取得
-        com.amazonaws.services.ec2.model.Image image = awsCommonProcess.describeImage(awsProcessClient, imageId);
+        com.amazonaws.services.ec2.model.Image image = awsCommonProcess.describeImage(awsProcessClient,
+                imageAws.getImageId());
 
         if (image == null) {
             return null;
@@ -758,20 +759,22 @@ public class AwsInstanceProcess extends ServiceSupport {
         List<BlockDeviceMapping> mappings = new ArrayList<BlockDeviceMapping>();
 
         // イメージのBlockDeviceMappingの設定
-        List<BlockDeviceMapping> imageMappings = createImageBlockDeviceMappings(awsProcessClient, image);
+        List<BlockDeviceMapping> imageMappings = createImageBlockDeviceMappings(awsProcessClient, imageAws,
+                awsInstance, image);
         if (imageMappings != null) {
             mappings.addAll(imageMappings);
         }
 
         // インスタンスストアのBlockDeviceMappingの設定
         List<BlockDeviceMapping> instanceStoreMappings = createInstanceStoreBlockDeviceMappings(awsProcessClient,
-                image, instanceType);
+                imageAws, awsInstance, image);
         if (instanceStoreMappings != null) {
             mappings.addAll(instanceStoreMappings);
         }
 
         // 追加のBlockDeviceMappingの設定
-        List<BlockDeviceMapping> additionalMappings = createAdditionalBlockDeviceMappings(awsProcessClient, image);
+        List<BlockDeviceMapping> additionalMappings = createAdditionalBlockDeviceMappings(awsProcessClient, imageAws,
+                awsInstance, image);
         if (additionalMappings != null) {
             mappings.addAll(additionalMappings);
         }
@@ -780,7 +783,7 @@ public class AwsInstanceProcess extends ServiceSupport {
     }
 
     protected List<BlockDeviceMapping> createImageBlockDeviceMappings(AwsProcessClient awsProcessClient,
-            com.amazonaws.services.ec2.model.Image image) {
+            ImageAws imageAws, AwsInstance awsInstance, com.amazonaws.services.ec2.model.Image image) {
         // イメージのBlockDeviceMappingを複製する
         List<BlockDeviceMapping> mappings = new ArrayList<BlockDeviceMapping>();
         for (BlockDeviceMapping originalMapping : image.getBlockDeviceMappings()) {
@@ -811,12 +814,22 @@ public class AwsInstanceProcess extends ServiceSupport {
             }
         }
 
+        // ルートデバイスのボリュームサイズを指定する
+        if (imageAws.getRootSize() != null) {
+            for (BlockDeviceMapping mapping : mappings) {
+                if (image.getRootDeviceName().equals(mapping.getDeviceName())) {
+                    mapping.getEbs().setVolumeSize(imageAws.getRootSize());
+                    break;
+                }
+            }
+        }
+
         return mappings;
     }
 
     protected List<BlockDeviceMapping> createInstanceStoreBlockDeviceMappings(AwsProcessClient awsProcessClient,
-            com.amazonaws.services.ec2.model.Image image, String instanceType) {
-        int count = AwsInstanceTypeDefinition.getInstanceStoreCount(instanceType);
+            ImageAws imageAws, AwsInstance awsInstance, com.amazonaws.services.ec2.model.Image image) {
+        int count = AwsInstanceTypeDefinition.getInstanceStoreCount(awsInstance.getInstanceType());
         if (count == 0) {
             return null;
         }
@@ -879,7 +892,7 @@ public class AwsInstanceProcess extends ServiceSupport {
 
     // 拡張用
     protected List<BlockDeviceMapping> createAdditionalBlockDeviceMappings(AwsProcessClient awsProcessClient,
-            com.amazonaws.services.ec2.model.Image image) {
+            ImageAws imageAws, AwsInstance awsInstance, com.amazonaws.services.ec2.model.Image image) {
         return null;
     }
 

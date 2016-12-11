@@ -12,6 +12,7 @@
 		<result property="ramdiskId" column="RAMDISK_ID" nullValue="" />
 		<result property="instanceTypes" column="INSTANCE_TYPES" nullValue="" />
 		<result property="ebsImage" column="EBS_IMAGE" />
+		<result property="rootSize" column="ROOT_SIZE" />
 	</resultMap>
 
 	<sql id="selectSql">
@@ -22,7 +23,8 @@
 			t1.KERNEL_ID as KERNEL_ID,
 			t1.RAMDISK_ID as RAMDISK_ID,
 			t1.INSTANCE_TYPES as INSTANCE_TYPES,
-			t1.EBS_IMAGE as EBS_IMAGE
+			t1.EBS_IMAGE as EBS_IMAGE,
+			t1.ROOT_SIZE as ROOT_SIZE
 		from
 			IMAGE_AWS t1
 		]]>
@@ -67,14 +69,16 @@
 			KERNEL_ID,
 			RAMDISK_ID,
 			INSTANCE_TYPES,
-			EBS_IMAGE
+			EBS_IMAGE,
+			ROOT_SIZE
 		) values (
 			#imageNo#,
 			#imageId#,
 			#kernelId#,
 			#ramdiskId#,
 			#instanceTypes#,
-			#ebsImage#
+			#ebsImage#,
+			#rootSize#
 		)
 		]]>
 	</insert>
@@ -86,7 +90,8 @@
 			KERNEL_ID = #kernelId#,
 			RAMDISK_ID = #ramdiskId#,
 			INSTANCE_TYPES = #instanceTypes#,
-			EBS_IMAGE = #ebsImage#
+			EBS_IMAGE = #ebsImage#,
+			ROOT_SIZE = #rootSize#
 		where
 			IMAGE_NO = #imageNo#
 		]]>

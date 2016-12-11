@@ -49,6 +49,9 @@ public abstract class BaseImageAws implements Serializable {
     /** EBS_IMAGE [BIT(0,0)] */
     private Boolean ebsImage;
 
+    /** ROOT_SIZE [INT(10,0)] */
+    private Integer rootSize;
+
     /**
      * imageNoを取得します。
      *
@@ -157,6 +160,23 @@ public abstract class BaseImageAws implements Serializable {
         this.ebsImage = ebsImage;
     }
 
+    /**
+     * rootSizeを取得します。
+     *
+     * @return rootSize
+     */
+    public Integer getRootSize() {
+        return rootSize;
+    }
+
+    /**
+     * rootSizeを設定します。
+     *
+     * @param rootSize rootSize
+     */
+    public void setRootSize(Integer rootSize) {
+        this.rootSize = rootSize;
+    }
 
     /**
      * {@inheritDoc}
@@ -172,6 +192,7 @@ public abstract class BaseImageAws implements Serializable {
         result = prime * result + ((ramdiskId == null) ? 0 : ramdiskId.hashCode());
         result = prime * result + ((instanceTypes == null) ? 0 : instanceTypes.hashCode());
         result = prime * result + ((ebsImage == null) ? 0 : ebsImage.hashCode());
+        result = prime * result + ((rootSize == null) ? 0 : rootSize.hashCode());
 
         return result;
     }
@@ -216,6 +237,11 @@ public abstract class BaseImageAws implements Serializable {
         } else if (!ebsImage.equals(other.ebsImage)) {
             return false;
         }
+        if (rootSize == null) {
+            if (other.rootSize != null) { return false; }
+        } else if (!rootSize.equals(other.rootSize)) {
+            return false;
+        }
 
         return true;
     }
@@ -232,7 +258,8 @@ public abstract class BaseImageAws implements Serializable {
         sb.append("kernelId=").append(kernelId).append(", ");
         sb.append("ramdiskId=").append(ramdiskId).append(", ");
         sb.append("instanceTypes=").append(instanceTypes).append(", ");
-        sb.append("ebsImage=").append(ebsImage);
+        sb.append("ebsImage=").append(ebsImage).append(", ");
+        sb.append("rootSize=").append(rootSize);
         sb.append("]");
         return sb.toString();
     }
