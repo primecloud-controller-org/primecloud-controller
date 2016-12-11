@@ -763,17 +763,17 @@ public class AwsInstanceProcess extends ServiceSupport {
             mappings.addAll(imageMappings);
         }
 
-        // 追加のBlockDeviceMappingの設定
-        List<BlockDeviceMapping> additionalMappings = createAdditionalBlockDeviceMappings(awsProcessClient, image);
-        if (additionalMappings != null) {
-            mappings.addAll(additionalMappings);
-        }
-
-        // Instance StoreのBlockDeviceMappingの設定
+        // インスタンスストアのBlockDeviceMappingの設定
         List<BlockDeviceMapping> instanceStoreMappings = createInstanceStoreBlockDeviceMappings(awsProcessClient,
                 image, instanceType);
         if (instanceStoreMappings != null) {
             mappings.addAll(instanceStoreMappings);
+        }
+
+        // 追加のBlockDeviceMappingの設定
+        List<BlockDeviceMapping> additionalMappings = createAdditionalBlockDeviceMappings(awsProcessClient, image);
+        if (additionalMappings != null) {
+            mappings.addAll(additionalMappings);
         }
 
         return mappings;
@@ -781,9 +781,14 @@ public class AwsInstanceProcess extends ServiceSupport {
 
     protected List<BlockDeviceMapping> createImageBlockDeviceMappings(AwsProcessClient awsProcessClient,
             com.amazonaws.services.ec2.model.Image image) {
-        List<BlockDeviceMapping> mappings = image.getBlockDeviceMappings();
-        if (mappings == null) {
-            return null;
+        // イメージのBlockDeviceMappingを複製する
+        List<BlockDeviceMapping> mappings = new ArrayList<BlockDeviceMapping>();
+        for (BlockDeviceMapping originalMapping : image.getBlockDeviceMappings()) {
+            BlockDeviceMapping mapping = originalMapping.clone();
+            if (originalMapping.getEbs() != null) {
+                mapping.withEbs(originalMapping.getEbs().clone());
+            }
+            mappings.add(mapping);
         }
 
         for (BlockDeviceMapping mapping : mappings) {
@@ -794,8 +799,10 @@ public class AwsInstanceProcess extends ServiceSupport {
             // インスタンス削除時にEBSが削除されるようにする
             mapping.getEbs().withDeleteOnTermination(true);
 
-            // Encryptedは指定できない
-            mapping.getEbs().withEncrypted(null);
+            // スナップショットから作る場合、Encryptedは指定できない
+            if (StringUtils.isNotEmpty(mapping.getEbs().getSnapshotId())) {
+                mapping.getEbs().withEncrypted(null);
+            }
 
             // ボリュームタイプを指定する
             String volumeType = Config.getProperty("aws.volumeType");
@@ -807,12 +814,6 @@ public class AwsInstanceProcess extends ServiceSupport {
         return mappings;
     }
 
-    // 拡張用
-    protected List<BlockDeviceMapping> createAdditionalBlockDeviceMappings(AwsProcessClient awsProcessClient,
-            com.amazonaws.services.ec2.model.Image image) {
-        return null;
-    }
-
     protected List<BlockDeviceMapping> createInstanceStoreBlockDeviceMappings(AwsProcessClient awsProcessClient,
             com.amazonaws.services.ec2.model.Image image, String instanceType) {
         int count = AwsInstanceTypeDefinition.getInstanceStoreCount(instanceType);
@@ -820,24 +821,66 @@ public class AwsInstanceProcess extends ServiceSupport {
             return null;
         }
 
-        // BlockMappingに追加するInstance Storeは4つに制限する
+        // BlockDeviceMappingに追加するインスタンスストアは4つに制限する
         if (count > 4) {
             count = 4;
         }
 
         List<BlockDeviceMapping> mappings = new ArrayList<BlockDeviceMapping>();
         for (int i = 0; i < count; i++) {
+            String virtualName = "ephemeral" + i;
+
+            // イメージのBlockDeviceMappingでインスタンスストアが指定されている場合はスキップする
+            boolean exist = false;
+            for (BlockDeviceMapping mapping : image.getBlockDeviceMappings()) {
+                if (virtualName.equals(mapping.getVirtualName())) {
+                    exist = true;
+                    break;
+                }
+            }
+            if (exist) {
+                continue;
+            }
+
+            // 空いているデバイス名の識別子を取得
+            String identifier = null;
+            for (int j = 0; j < 25; j++) {
+                char id = (char) ('b' + j);
+                exist = false;
+                for (BlockDeviceMapping mapping : image.getBlockDeviceMappings()) {
+                    if (mapping.getDeviceName().equals("/dev/sd" + id) || mapping.getDeviceName().equals("xvd" + id)) {
+                        exist = true;
+                        break;
+                    }
+                }
+                if (!exist) {
+                    identifier = String.valueOf(id);
+                    break;
+                }
+            }
+
+            if (identifier == null) {
+                // b から z までの識別子が全て使われている場合は何もしない
+                continue;
+            }
+
             BlockDeviceMapping mapping = new BlockDeviceMapping();
-            mapping.withVirtualName("ephemeral" + i);
+            mapping.withVirtualName(virtualName);
             if (StringUtils.equals(image.getPlatform(), PlatformValues.Windows.toString())) {
-                mapping.withDeviceName("xvd" + (char) ('b' + i));
+                mapping.withDeviceName("xvd" + identifier);
             } else {
-                mapping.withDeviceName("/dev/sd" + (char) ('b' + i));
+                mapping.withDeviceName("/dev/sd" + identifier);
             }
             mappings.add(mapping);
         }
 
         return mappings;
+    }
+
+    // 拡張用
+    protected List<BlockDeviceMapping> createAdditionalBlockDeviceMappings(AwsProcessClient awsProcessClient,
+            com.amazonaws.services.ec2.model.Image image) {
+        return null;
     }
 
     public void createTag(AwsProcessClient awsProcessClient, Long instanceNo) {
