@@ -683,7 +683,10 @@ public class LoadBalancerDescServer extends Panel {
         }
 
         public void show(LoadBalancerDto loadBalancer) {
-            if (loadBalancer.getLoadBalancerInstances().size() == 0) {
+            ComponentDto component = sender.getComponent(loadBalancer.getLoadBalancer().getComponentNo());
+            List<ComponentInstanceDto> componentInstances = component.getComponentInstances();
+
+            if (componentInstances.size() == 0) {
                 checkAllButton.setEnabled(false);
                 enableButton.setEnabled(false);
                 disableButton.setEnabled(false);
