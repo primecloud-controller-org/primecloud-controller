@@ -59,8 +59,6 @@ public class ViewPropertiesTest {
 
     @Test
     public void test() {
-        ViewProperties.reload();
-
         assertEquals("ComponentTypeNameXxx", ViewProperties.getComponentTypeName("xxx"));
         assertEquals("ComponentTypeLayerXxx", ViewProperties.getComponentTypeLayer("xxx"));
         assertEquals("PlatformNameXxx", ViewProperties.getPlatformName("xxx"));

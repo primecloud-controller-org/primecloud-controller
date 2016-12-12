@@ -20,9 +20,11 @@ package jp.primecloud.auto.ui.util;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Locale;
-import java.util.Properties;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,61 +37,50 @@ import org.apache.commons.logging.LogFactory;
  */
 public class ViewProperties {
 
-    private static Log log = LogFactory.getLog(ViewProperties.class);
+    protected static Log log = LogFactory.getLog(ViewProperties.class);
 
-    private static final String PATH = "/opt/adc/conf/";
+    protected static ResourceBundle defaultBundle;
 
-    private static final String BASE_NAME = "view";
+    protected static ResourceBundle userBundle;
 
-    private static final String EXTENSION = ".properties";
+    protected static final String USER_RESOURCE_DIR = "/opt/adc/conf/";
 
-    private static final Locale LOCALE = Locale.getDefault();
+    static {
+        // 標準のリソースバンドルの読み込み
+        defaultBundle = ResourceBundle.getBundle("view");
 
-    private static final String LANG = LOCALE.getLanguage();
-
-    private static final String COUNTRY = LOCALE.getCountry();
-
-    private static final String VARIANT = LOCALE.getVariant();
-
-    protected static Properties viewProperties = getProperties();
-
-    public static void reload() {
-        viewProperties = getProperties();
+        // 利用者によるカスタマイズ用のリソースバンドルの読み込み
+        ClassLoader loader = new ClassLoader() {
+            @Override
+            public InputStream getResourceAsStream(String name) {
+                File file = new File(USER_RESOURCE_DIR, name);
+                try {
+                    return new FileInputStream(file);
+                } catch (FileNotFoundException e) {
+                    return null;
+                }
+            }
+        };
+        try {
+            userBundle = ResourceBundle.getBundle("view", Locale.getDefault(), loader);
+        } catch (MissingResourceException ignore) {
+        }
     }
 
     public static String get(String key) {
-        String value = "";
-        if (viewProperties != null) {
-            value = viewProperties.getProperty(key, "");
+        if (userBundle != null) {
+            try {
+                return userBundle.getString(key);
+            } catch (MissingResourceException ignore) {
+            }
         }
-        return value;
-    }
 
-    private static Properties getProperties() {
-        Properties properties = null;
         try {
-            String path = PATH + BASE_NAME + "_" + LANG + "_" + COUNTRY + "_" + VARIANT + EXTENSION;
-            File file = new File(path);
-            if (!file.exists()) {
-                path = PATH + BASE_NAME + "_" + LANG + "_" + COUNTRY + EXTENSION;
-                file = new File(path);
-            }
-            if (!file.exists()) {
-                path = PATH + BASE_NAME + "_" + LANG + EXTENSION;
-                file = new File(path);
-            }
-            if (!file.exists()) {
-                path = PATH + BASE_NAME + EXTENSION;
-                file = new File(path);
-            }
-            InputStream input = new FileInputStream(file);
-            properties = new Properties();
-            properties.load(input);
-            input.close();
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            return defaultBundle.getString(key);
+        } catch (MissingResourceException ignore) {
         }
-        return properties;
+
+        return "";
     }
 
     public static String getComponentTypeName(String key) {
