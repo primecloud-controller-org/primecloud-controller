@@ -637,6 +637,11 @@ public class WinServerEdit extends Window {
                 privateIpField.setImmediate(true);
                 privateIpField.setWidth(TEXT_WIDTH);
                 form.getLayout().addComponent(privateIpField);
+
+                String enablePrivateIp = Config.getProperty("ui.aws.enablePrivateIp");
+                if (StringUtils.isNotEmpty(enablePrivateIp) && !BooleanUtils.toBoolean(enablePrivateIp)) {
+                    privateIpField.setEnabled(false);
+                }
             }
             // 非VPCの場合
             else {
@@ -650,48 +655,51 @@ public class WinServerEdit extends Window {
                 form.getLayout().addComponent(zoneSelect);
             }
 
-            Label spacer = new Label(" ");
-            spacer.addStyleName("desc-padding-horizontal");
-            spacer.setHeight("5px");
-            form.getLayout().addComponent(spacer);
-
             // ElasticIp
-            elasticIpSelect = new ComboBox(ViewProperties.getCaption("field.elasticIp"));
-            elasticIpSelect.setWidth(IP_COMBOBOX_WIDTH);
-            elasticIpSelect.setNullSelectionAllowed(false);
-            elasticIpSelect.addContainerProperty(ELASTIC_IP_CAPTION_ID, String.class, null);
-            elasticIpSelect.setItemCaptionPropertyId(ELASTIC_IP_CAPTION_ID);
-            elasticIpSelect.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
-            form.getLayout().addComponent(elasticIpSelect);
+            String enableElasticIp = Config.getProperty("ui.aws.enableElasticIp");
+            if (StringUtils.isEmpty(enableElasticIp) || BooleanUtils.toBoolean(enableElasticIp)) {
+                Label spacer = new Label(" ");
+                spacer.addStyleName("desc-padding-horizontal");
+                spacer.setHeight("5px");
+                form.getLayout().addComponent(spacer);
 
-            Button addButton = new Button(ViewProperties.getCaption("button.addElasticIp"));
-            addButton.setDescription(ViewProperties.getCaption("description.addElasticIp"));
-            addButton.setIcon(Icons.ADD.resource());
-            addButton.setWidth(BUTTON_WIDTH);
-            addButton.addListener(new ClickListener() {
-                @Override
-                public void buttonClick(ClickEvent event) {
-                    addButtonClick();
-                }
-            });
+                elasticIpSelect = new ComboBox(ViewProperties.getCaption("field.elasticIp"));
+                elasticIpSelect.setWidth(IP_COMBOBOX_WIDTH);
+                elasticIpSelect.setNullSelectionAllowed(false);
+                elasticIpSelect.addContainerProperty(ELASTIC_IP_CAPTION_ID, String.class, null);
+                elasticIpSelect.setItemCaptionPropertyId(ELASTIC_IP_CAPTION_ID);
+                elasticIpSelect.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
+                form.getLayout().addComponent(elasticIpSelect);
 
-            Button deleteButton = new Button(ViewProperties.getCaption("button.deleteElasticIp"));
-            deleteButton.setDescription(ViewProperties.getCaption("description.deleteElasticIp"));
-            deleteButton.setIcon(Icons.DELETEMINI.resource());
-            deleteButton.setWidth(BUTTON_WIDTH);
-            deleteButton.addListener(new ClickListener() {
-                @Override
-                public void buttonClick(ClickEvent event) {
-                    deleteButtonClick();
-                }
-            });
+                Button addButton = new Button(ViewProperties.getCaption("button.addElasticIp"));
+                addButton.setDescription(ViewProperties.getCaption("description.addElasticIp"));
+                addButton.setIcon(Icons.ADD.resource());
+                addButton.setWidth(BUTTON_WIDTH);
+                addButton.addListener(new ClickListener() {
+                    @Override
+                    public void buttonClick(ClickEvent event) {
+                        addButtonClick();
+                    }
+                });
 
-            HorizontalLayout layout = new HorizontalLayout();
-            layout.setSpacing(true);
-            layout.setMargin(false);
-            layout.addComponent(addButton);
-            layout.addComponent(deleteButton);
-            form.getLayout().addComponent(layout);
+                Button deleteButton = new Button(ViewProperties.getCaption("button.deleteElasticIp"));
+                deleteButton.setDescription(ViewProperties.getCaption("description.deleteElasticIp"));
+                deleteButton.setIcon(Icons.DELETEMINI.resource());
+                deleteButton.setWidth(BUTTON_WIDTH);
+                deleteButton.addListener(new ClickListener() {
+                    @Override
+                    public void buttonClick(ClickEvent event) {
+                        deleteButtonClick();
+                    }
+                });
+
+                HorizontalLayout layout = new HorizontalLayout();
+                layout.setSpacing(true);
+                layout.setMargin(false);
+                layout.addComponent(addButton);
+                layout.addComponent(deleteButton);
+                form.getLayout().addComponent(layout);
+            }
 
             addComponent(form);
         }
@@ -774,9 +782,11 @@ public class WinServerEdit extends Window {
                 privateIpField.addValidator(privateIpFieldValidator);
             }
 
-            message = ViewMessages.getMessage("IUI-000063");
-            elasticIpSelect.setRequired(true);
-            elasticIpSelect.setRequiredError(message);
+            if (elasticIpSelect != null) {
+                message = ViewMessages.getMessage("IUI-000063");
+                elasticIpSelect.setRequired(true);
+                elasticIpSelect.setRequiredError(message);
+            }
         }
 
         public void show() {
@@ -808,7 +818,14 @@ public class WinServerEdit extends Window {
                 subnetSelect.select(instance.getAwsInstance().getSubnetId());
 
                 // プライベートIPアドレス
+                boolean enablePrivateIp = privateIpField.isEnabled();
+                if (!enablePrivateIp) {
+                    privateIpField.setEnabled(true);
+                }
                 privateIpField.setValue(instance.getAwsInstance().getPrivateIpAddress());
+                if (!enablePrivateIp) {
+                    privateIpField.setEnabled(false);
+                }
             }
             // 非VPCの場合
             else {
@@ -821,11 +838,13 @@ public class WinServerEdit extends Window {
             }
 
             // ElasticIP
-            showElasticIp();
-            if (instance.getAwsAddress() != null) {
-                elasticIpSelect.select(instance.getAwsAddress().getAddressNo());
-            } else {
-                elasticIpSelect.select(NULL_ADDRESS);
+            if (elasticIpSelect != null) {
+                showElasticIp();
+                if (instance.getAwsAddress() != null) {
+                    elasticIpSelect.select(instance.getAwsAddress().getAddressNo());
+                } else {
+                    elasticIpSelect.select(NULL_ADDRESS);
+                }
             }
 
             // サーバが停止していない場合、詳細設定タブ自体を変更できないようにする
@@ -2802,7 +2821,7 @@ public class WinServerEdit extends Window {
         String zoneName = null;
         String subnetId = null;
         String privateIp = null;
-        Long addressNo = (Long) awsDetailTab.elasticIpSelect.getValue();
+        Long addressNo = (awsDetailTab.elasticIpSelect == null) ? null : (Long) awsDetailTab.elasticIpSelect.getValue();
 
         Subnet subnet = null;
         if (BooleanUtils.isTrue(platform.getPlatformAws().getVpc())) {
@@ -2829,7 +2848,9 @@ public class WinServerEdit extends Window {
         } else {
             awsDetailTab.zoneSelect.validate();
         }
-        awsDetailTab.elasticIpSelect.validate();
+        if (awsDetailTab.elasticIpSelect != null) {
+            awsDetailTab.elasticIpSelect.validate();
+        }
 
         // プライベートIPアドレスがサブネット内で有効かどうかをチェック
         if (BooleanUtils.isTrue(platform.getPlatformAws().getVpc()) && StringUtils.isNotEmpty(privateIp)) {
