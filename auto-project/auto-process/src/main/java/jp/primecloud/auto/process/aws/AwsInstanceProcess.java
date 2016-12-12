@@ -836,9 +836,13 @@ public class AwsInstanceProcess extends ServiceSupport {
             return null;
         }
 
-        // BlockDeviceMappingに追加するインスタンスストアは4つに制限する
-        if (count > 4) {
-            count = 4;
+        // インスタンスストア数の上限が指定されている場合、その数までに制限する
+        String maxInstanceStore = Config.getProperty("aws.maxInstanceStore");
+        if (StringUtils.isNotEmpty(maxInstanceStore)) {
+            int max = Integer.parseInt(maxInstanceStore);
+            if (count > max) {
+                count = max;
+            }
         }
 
         // イメージのBlockDeviceMappingのデバイス名
