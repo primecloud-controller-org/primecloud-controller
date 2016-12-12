@@ -48,6 +48,13 @@
 			<outputDirectory>/${pom.version}/pcc/hook</outputDirectory>
 		</fileSet>
 		<fileSet>
+			<directory>../../auto-project/auto-ui/src/main/resources</directory>
+			<outputDirectory>/${pom.version}/pcc/conf</outputDirectory>
+			<includes>
+				<include>view*.properties</include>
+			</includes>
+		</fileSet>
+		<fileSet>
 			<directory>../../zabbix</directory>
 			<outputDirectory>/${pom.version}/zabbix</outputDirectory>
 		</fileSet>
