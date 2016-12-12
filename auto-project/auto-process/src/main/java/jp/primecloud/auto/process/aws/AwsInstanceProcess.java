@@ -20,9 +20,11 @@ package jp.primecloud.auto.process.aws;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import jp.primecloud.auto.config.Config;
 import jp.primecloud.auto.entity.crud.AwsInstance;
@@ -839,6 +841,12 @@ public class AwsInstanceProcess extends ServiceSupport {
             count = 4;
         }
 
+        // イメージのBlockDeviceMappingのデバイス名
+        Set<String> deviceNames = new HashSet<String>();
+        for (BlockDeviceMapping mapping : image.getBlockDeviceMappings()) {
+            deviceNames.add(mapping.getDeviceName());
+        }
+
         List<BlockDeviceMapping> mappings = new ArrayList<BlockDeviceMapping>();
         for (int i = 0; i < count; i++) {
             String virtualName = "ephemeral" + i;
@@ -859,14 +867,7 @@ public class AwsInstanceProcess extends ServiceSupport {
             String identifier = null;
             for (int j = 0; j < 25; j++) {
                 char id = (char) ('b' + j);
-                exist = false;
-                for (BlockDeviceMapping mapping : image.getBlockDeviceMappings()) {
-                    if (mapping.getDeviceName().equals("/dev/sd" + id) || mapping.getDeviceName().equals("xvd" + id)) {
-                        exist = true;
-                        break;
-                    }
-                }
-                if (!exist) {
+                if (!deviceNames.contains("/dev/sd" + id) && !deviceNames.contains("xvd" + id)) {
                     identifier = String.valueOf(id);
                     break;
                 }
@@ -877,14 +878,19 @@ public class AwsInstanceProcess extends ServiceSupport {
                 continue;
             }
 
+            String deviceName;
+            if (StringUtils.equals(image.getPlatform(), PlatformValues.Windows.toString())) {
+                deviceName = "xvd" + identifier;
+            } else {
+                deviceName = "/dev/sd" + identifier;
+            }
+
             BlockDeviceMapping mapping = new BlockDeviceMapping();
             mapping.withVirtualName(virtualName);
-            if (StringUtils.equals(image.getPlatform(), PlatformValues.Windows.toString())) {
-                mapping.withDeviceName("xvd" + identifier);
-            } else {
-                mapping.withDeviceName("/dev/sd" + identifier);
-            }
+            mapping.withDeviceName(deviceName);
             mappings.add(mapping);
+
+            deviceNames.add(deviceName);
         }
 
         return mappings;
