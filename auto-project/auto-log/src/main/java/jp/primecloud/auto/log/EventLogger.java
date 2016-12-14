@@ -106,11 +106,7 @@ public class EventLogger {
 
     public void log(EventLogLevel logLevel, Long farmNo, String farmName, Long componentNo, String componentName,
             Long instanceNo, String instanceName, String code, String instanceType,  Long platformNo, Object[] additions) {
-        //Long userNo = LoggingUtils.getUserNo();
-        Long userNo = LoggingUtils.getLoginUserNo();
-        if (userNo == null) {
-            userNo = LoggingUtils.getUserNo();
-        }
+        Long userNo = LoggingUtils.getUserNo();
         String userName = LoggingUtils.getUserName();
 
         log(logLevel, userNo, userName, farmNo, farmName, componentNo, componentName, instanceNo, instanceName, code,

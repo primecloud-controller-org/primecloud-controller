@@ -58,16 +58,6 @@ public interface BaseUserDao {
         );
 
     /**
-     * 与えられたキーに該当するレコードを検索します。
-     *
-     * @param masterUser masterUser
-     * @return 与えられたキーに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
-     */
-    public List<User> readByMasterUser(
-            Long masterUser
-        );
-
-    /**
      * 主キーのコレクションに該当するレコードを検索します。
      *
      * @param userNos userNoのコレクション
@@ -122,15 +112,6 @@ public interface BaseUserDao {
         );
 
     /**
-     * 与えられたキーに該当するレコードを削除します。
-     *
-     * @param masterUser masterUser
-     */
-    public void deleteByMasterUser(
-            Long masterUser
-        );
-
-    /**
      * 全てのレコードの件数を取得します。
      *
      * @return 全てのレコードの件数。
@@ -155,16 +136,6 @@ public interface BaseUserDao {
      */
     public long countByUsername(
             String username
-        );
-
-    /**
-     * 与えられたキーに該当するレコードの件数を取得します。
-     *
-     * @param masterUser masterUser
-     * @return 与えられたキーに該当するレコードの件数。
-     */
-    public long countByMasterUser(
-            Long masterUser
         );
 
 }

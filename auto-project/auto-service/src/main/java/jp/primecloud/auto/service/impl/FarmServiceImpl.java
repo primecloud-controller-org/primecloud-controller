@@ -20,7 +20,6 @@ package jp.primecloud.auto.service.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -36,8 +35,6 @@ import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.entity.crud.Platform;
-import jp.primecloud.auto.entity.crud.User;
-import jp.primecloud.auto.entity.crud.UserAuth;
 import jp.primecloud.auto.entity.crud.VmwareNetwork;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.exception.AutoException;
@@ -97,52 +94,14 @@ public class FarmServiceImpl extends ServiceSupport implements FarmService {
      * {@inheritDoc}
      */
     @Override
-    public List<FarmDto> getFarms(Long userNo, Long loginUserNo) {
+    public List<FarmDto> getFarms(Long userNo) {
         List<FarmDto> dtos = new ArrayList<FarmDto>();
 
-        // ユーザ情報取得
-        User user = userDao.read(loginUserNo);
-
-        // パワーユーザは全てのファーム
-        if (user.getPowerUser()) {
-            List<Farm> farms = farmDao.readAll();
-            for (Farm farm : farms) {
-                FarmDto dto = new FarmDto();
-                dto.setFarm(farm);
-                dtos.add(dto);
-            }
-        }
-        // マスターユーザは自身の管理下のファーム
-        else if (loginUserNo.equals(userNo)) {
-            List<Farm> farms = farmDao.readByUserNo(userNo);
-            for (Farm farm : farms) {
-                FarmDto dto = new FarmDto();
-                dto.setFarm(farm);
-                dtos.add(dto);
-            }
-        }
-
-        // 一般ユーザはマスターユーザ管理下のファームのうち、権限のあるもの
-        else {
-            List<Farm> farms = farmDao.readByUserNo(userNo);
-
-            // ユーザ権限取得
-            List<UserAuth> userAuth = userAuthDao.readByUserNo(loginUserNo);
-            HashMap<Long, Boolean> authMap = new HashMap<Long, Boolean>();
-            for (UserAuth auth : userAuth) {
-                if (auth.getFarmUse()) {
-                    authMap.put(auth.getFarmNo(), auth.getFarmUse());
-                }
-            }
-
-            for (Farm farm : farms) {
-                // 利用可能なファームのみ
-                if (authMap.containsKey(farm.getFarmNo())) {
-                    FarmDto dto = new FarmDto();
-                    dto.setFarm(farm);
-                    dtos.add(dto);
-                }
-            }
+        List<Farm> farms = farmDao.readByUserNo(userNo);
+        for (Farm farm : farms) {
+            FarmDto dto = new FarmDto();
+            dto.setFarm(farm);
+            dtos.add(dto);
         }
 
         // ソート
@@ -486,9 +445,6 @@ public class FarmServiceImpl extends ServiceSupport implements FarmService {
                 // ボリュームが存在しない場合などに備えて例外を握りつぶす
             }
         }
-
-        //ユーザ権限の削除
-        userAuthDao.deleteByFarmNo(farmNo);
 
         // ファームの削除処理
         farmDao.deleteByFarmNo(farmNo);

@@ -35,7 +35,6 @@ import jp.primecloud.auto.service.dto.ComponentInstanceDto;
 import jp.primecloud.auto.service.dto.InstanceDto;
 import jp.primecloud.auto.service.dto.LoadBalancerDto;
 import jp.primecloud.auto.service.dto.PlatformDto;
-import jp.primecloud.auto.service.dto.UserAuthDto;
 import jp.primecloud.auto.ui.DialogConfirm.Buttons;
 import jp.primecloud.auto.ui.DialogConfirm.Result;
 import jp.primecloud.auto.ui.data.InstanceDtoContainer;
@@ -43,7 +42,6 @@ import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.IconUtils;
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.OperationLogger;
-import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
 
@@ -613,13 +611,6 @@ public class ServiceDescBasic extends Panel {
                 stopButton.setEnabled(true);
             } else {
                 checkAllButton.setEnabled(false);
-                startButton.setEnabled(false);
-                stopButton.setEnabled(false);
-            }
-
-            // 権限がなければボタンを無効にする
-            UserAuthDto auth = ViewContext.getAuthority();
-            if (!auth.isServiceOperate()) {
                 startButton.setEnabled(false);
                 stopButton.setEnabled(false);
             }

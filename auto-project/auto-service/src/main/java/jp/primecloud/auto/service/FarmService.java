@@ -30,7 +30,7 @@ import jp.primecloud.auto.service.dto.FarmDto;
  */
 public interface FarmService {
 
-    public List<FarmDto> getFarms(Long userNo, Long loginUserNo);
+    public List<FarmDto> getFarms(Long userNo);
 
     public FarmDto getFarm(Long farmNo);
 

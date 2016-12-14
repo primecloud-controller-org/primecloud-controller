@@ -122,16 +122,6 @@ if [ -n "${USER_NAME}" -a -n "${PASSWORD}" ]; then
                 exit 1
         fi
 
-        #PCCユーザーの更新(ユーザ権限の付与)
-        #ユーザ作成時はマスターユーザかつパワーユーザとしておく
-        SQL_UPDATE_PCC_USER="UPDATE USER SET MASTER_USER=?, POWER_USER=? WHERE USER_NO=?" 
-        MESSAGE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -U -sql \"${SQL_UPDATE_PCC_USER}\" -prepared \"${USER_NO}\" \"0\" \"${USER_NO}\""`
-        
-        if [ -n "${MESSAGE}" ]; then
-                echo "${MESSAGE}" 
-                exit 1
-        fi
-
         #VMWAREのキーペアを作成
 
         #公開鍵の作成

@@ -178,19 +178,6 @@ public class TopBar extends CssLayout {
         accountButton.addStyleName("account");
         accountButton.setIcon(Icons.USER.resource());
         accountButton.setVisible(false);
-        accountButton.addListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(ClickEvent event) {
-                /*
-                //マスターユーザーにのみ開放する
-                if (ViewContext.getPowerDefaultMaster().equals(ViewContext.getLoginUser())){
-                    WinUserManagement window = new WinUserManagement();
-                    getApplication().addWindow(window);
-                    mainWindow.open(new ExternalResource( window.getURL()) , "_user" );
-                }
-                */
-            }
-        });
         addComponent(accountButton);
     };
 
@@ -201,7 +188,7 @@ public class TopBar extends CssLayout {
 
         // myCloud一件もない場合は、ダイアログを表示する
         FarmService farmService = BeanContext.getBean(FarmService.class);
-        List<FarmDto> farms = farmService.getFarms(ViewContext.getUserNo(), ViewContext.getLoginUser());
+        List<FarmDto> farms = farmService.getFarms(ViewContext.getUserNo());
         if (farms.size() < 1) {
             DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"),
                     ViewMessages.getMessage("IUI-000038"));

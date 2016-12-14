@@ -18,7 +18,6 @@
  */
 package jp.primecloud.auto.service;
 
-import jp.primecloud.auto.service.dto.UserAuthDto;
 import jp.primecloud.auto.service.dto.UserDto;
 
 /**
@@ -32,7 +31,5 @@ public interface UserService {
     public UserDto authenticate(String username, String password);
 
     public UserDto getUser(Long userNo);
-
-    public UserAuthDto getUserAuth(Long userNo, Long farmNo);
 
 }

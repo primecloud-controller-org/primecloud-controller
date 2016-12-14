@@ -466,12 +466,11 @@ public class WinLogView extends Window {
 
         // ユーザ番号
         Long userNo = ViewContext.getUserNo();
-        Long lohinUserNo = ViewContext.getLoginUser();
 
         if (userNo != null) {
             // クラウド情報を取得
             FarmService farmService = BeanContext.getBean(FarmService.class);
-            farms = farmService.getFarms(userNo, lohinUserNo);
+            farms = farmService.getFarms(userNo);
 
             List<Long> farmNos = new ArrayList<Long>();
             for (int i = 0; i < farms.size(); i++) {

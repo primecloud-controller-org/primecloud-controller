@@ -26,7 +26,6 @@ import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.LoadBalancerService;
 import jp.primecloud.auto.service.ProcessService;
 import jp.primecloud.auto.service.dto.LoadBalancerDto;
-import jp.primecloud.auto.service.dto.UserAuthDto;
 import jp.primecloud.auto.ui.DialogConfirm.Buttons;
 import jp.primecloud.auto.ui.DialogConfirm.Result;
 import jp.primecloud.auto.ui.util.BeanContext;
@@ -161,12 +160,6 @@ public class LoadBalancerButtonsBottom extends CssLayout {
         deleteButton.setEnabled(false);
         startButton.setEnabled(false);
         stopButton.setEnabled(false);
-
-        // 権限がなければボタンを無効にする
-        UserAuthDto auth = ViewContext.getAuthority();
-        if (!auth.isLbMake()) {
-            addButton.setEnabled(false);
-        }
     }
 
     public void show(LoadBalancerDto loadBalancerDto) {
@@ -199,19 +192,6 @@ public class LoadBalancerButtonsBottom extends CssLayout {
             deleteButton.setEnabled(true);
         } else {
             deleteButton.setEnabled(false);
-        }
-
-        // 権限がなければボタンを無効にする
-        UserAuthDto auth = ViewContext.getAuthority();
-        if (!auth.isLbMake()) {
-            editButton.setEnabled(false);
-        }
-        if (!auth.isLbDelete()) {
-            deleteButton.setEnabled(false);
-        }
-        if (!auth.isLbOperate()) {
-            startButton.setEnabled(false);
-            stopButton.setEnabled(false);
         }
     }
 

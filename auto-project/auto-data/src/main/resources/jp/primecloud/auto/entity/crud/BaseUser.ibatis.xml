@@ -9,8 +9,6 @@
 		<result property="userNo" column="USER_NO" />
 		<result property="username" column="USERNAME" nullValue="" />
 		<result property="password" column="PASSWORD" nullValue="" />
-		<result property="masterUser" column="MASTER_USER" />
-		<result property="powerUser" column="POWER_USER" />
 	</resultMap>
 
 	<sql id="selectSql">
@@ -18,9 +16,7 @@
 		select
 			t1.USER_NO as USER_NO,
 			t1.USERNAME as USERNAME,
-			t1.PASSWORD as PASSWORD,
-			t1.MASTER_USER as MASTER_USER,
-			t1.POWER_USER as POWER_USER
+			t1.PASSWORD as PASSWORD
 		from
 			USER t1
 		]]>
@@ -52,14 +48,6 @@
 		]]>
 	</select>
 
-	<select id="readByMasterUser" parameterClass="java.util.Map" resultMap="userResultMap">
-		<include refid="selectSql" />
-		<![CDATA[
-		where
-			t1.MASTER_USER = #masterUser#
-		]]>
-	</select>
-
 	<select id="readInUserNos" parameterClass="java.util.Map" resultMap="userResultMap">
 		<include refid="selectSql" />
 		<![CDATA[
@@ -78,15 +66,11 @@
 		insert into USER (
 			USER_NO,
 			USERNAME,
-			PASSWORD,
-			MASTER_USER,
-			POWER_USER
+			PASSWORD
 		) values (
 			#userNo#,
 			#username#,
-			#password#,
-			#masterUser#,
-			#powerUser#
+			#password#
 		)
 		]]>
 	</insert>
@@ -96,15 +80,11 @@
 		insert into USER (
 			USER_NO,
 			USERNAME,
-			PASSWORD,
-			MASTER_USER,
-			POWER_USER
+			PASSWORD
 		) values (
 			#userNo#,
 			#username#,
-			#password#,
-			#masterUser#,
-			#powerUser#
+			#password#
 		)
 		]]>
 		<selectKey keyProperty="userNo" resultClass="java.lang.Long" type="post">
@@ -118,9 +98,7 @@
 		<![CDATA[
 		update USER set
 			USERNAME = #username#,
-			PASSWORD = #password#,
-			MASTER_USER = #masterUser#,
-			POWER_USER = #powerUser#
+			PASSWORD = #password#
 		where
 			USER_NO = #userNo#
 		]]>
@@ -156,14 +134,6 @@
 		]]>
 	</delete>
 
-	<delete id="deleteByMasterUser" parameterClass="java.util.Map">
-		<![CDATA[
-		delete from USER
-		where
-			MASTER_USER = #masterUser#
-		]]>
-	</delete>
-
 	<select id="countAll" resultClass="java.lang.Long">
 		<include refid="countSql" />
 	</select>
@@ -181,14 +151,6 @@
 		<![CDATA[
 		where
 			USERNAME = #username#
-		]]>
-	</select>
-
-	<select id="countByMasterUser" parameterClass="java.util.Map" resultClass="java.lang.Long">
-		<include refid="countSql" />
-		<![CDATA[
-		where
-			MASTER_USER = #masterUser#
 		]]>
 	</select>
 

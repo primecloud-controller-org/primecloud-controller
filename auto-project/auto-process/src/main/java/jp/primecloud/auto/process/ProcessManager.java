@@ -180,11 +180,10 @@ public class ProcessManager extends ServiceSupport {
                 Runnable runnable = new Runnable() {
                     @Override
                     public void run() {
-                        LoggingUtils.setUserNo(user.getMasterUser());
+                        LoggingUtils.setUserNo(user.getUserNo());
                         LoggingUtils.setUserName(user.getUsername());
                         LoggingUtils.setFarmNo(farm.getFarmNo());
                         LoggingUtils.setFarmName(farm.getFarmName());
-                        LoggingUtils.setLoginUserNo(user.getUserNo());
                         try {
                             instanceProcess.start(instanceNo);
                         } catch (MultiCauseException ignore) {
@@ -238,11 +237,10 @@ public class ProcessManager extends ServiceSupport {
             Runnable runnable = new Runnable() {
                 @Override
                 public void run() {
-                    LoggingUtils.setUserNo(user.getMasterUser());
+                    LoggingUtils.setUserNo(user.getUserNo());
                     LoggingUtils.setUserName(user.getUsername());
                     LoggingUtils.setFarmNo(farm.getFarmNo());
                     LoggingUtils.setFarmName(farm.getFarmName());
-                    LoggingUtils.setLoginUserNo(user.getUserNo());
                     try {
                         instancesProcess.start(farm.getFarmNo());
                     } catch (MultiCauseException ignore) {
@@ -455,11 +453,10 @@ public class ProcessManager extends ServiceSupport {
             Runnable runnable = new Runnable() {
                 @Override
                 public void run() {
-                    LoggingUtils.setUserNo(user.getMasterUser());
+                    LoggingUtils.setUserNo(user.getUserNo());
                     LoggingUtils.setUserName(user.getUsername());
                     LoggingUtils.setFarmNo(farm.getFarmNo());
                     LoggingUtils.setFarmName(farm.getFarmName());
-                    LoggingUtils.setLoginUserNo(user.getUserNo());
                     try {
                         componentProcess.configure(farm.getFarmNo());
                     } catch (MultiCauseException ignore) {
@@ -507,11 +504,10 @@ public class ProcessManager extends ServiceSupport {
             Runnable runnable = new Runnable() {
                 @Override
                 public void run() {
-                    LoggingUtils.setUserNo(user.getMasterUser());
+                    LoggingUtils.setUserNo(user.getUserNo());
                     LoggingUtils.setUserName(user.getUsername());
                     LoggingUtils.setFarmNo(farm.getFarmNo());
                     LoggingUtils.setFarmName(farm.getFarmName());
-                    LoggingUtils.setLoginUserNo(user.getUserNo());
                     try {
                         instancesProcess.stop(farm.getFarmNo());
                     } catch (MultiCauseException ignore) {
@@ -573,11 +569,10 @@ public class ProcessManager extends ServiceSupport {
                 Runnable runnable = new Runnable() {
                     @Override
                     public void run() {
-                        LoggingUtils.setUserNo(user.getMasterUser());
+                        LoggingUtils.setUserNo(user.getUserNo());
                         LoggingUtils.setUserName(user.getUsername());
                         LoggingUtils.setFarmNo(farm.getFarmNo());
                         LoggingUtils.setFarmName(farm.getFarmName());
-                        LoggingUtils.setLoginUserNo(user.getUserNo());
                         try {
                             log.debug("instanceProcess.stop(instanceNo):" + String.valueOf(instanceNo));
                             instanceProcess.stop(instanceNo);
@@ -641,11 +636,10 @@ public class ProcessManager extends ServiceSupport {
                 Runnable runnable = new Runnable() {
                     @Override
                     public void run() {
-                        LoggingUtils.setUserNo(user.getMasterUser());
+                        LoggingUtils.setUserNo(user.getUserNo());
                         LoggingUtils.setUserName(user.getUsername());
                         LoggingUtils.setFarmNo(farm.getFarmNo());
                         LoggingUtils.setFarmName(farm.getFarmName());
-                        LoggingUtils.setLoginUserNo(user.getUserNo());
                         try {
                             loadBalancerProcess.start(loadBalancerNo);
                         } catch (MultiCauseException ignore) {
@@ -708,11 +702,10 @@ public class ProcessManager extends ServiceSupport {
                 Runnable runnable = new Runnable() {
                     @Override
                     public void run() {
-                        LoggingUtils.setUserNo(user.getMasterUser());
+                        LoggingUtils.setUserNo(user.getUserNo());
                         LoggingUtils.setUserName(user.getUsername());
                         LoggingUtils.setFarmNo(farm.getFarmNo());
                         LoggingUtils.setFarmName(farm.getFarmName());
-                        LoggingUtils.setLoginUserNo(user.getUserNo());
                         try {
                             loadBalancerProcess.stop(loadBalancerNo);
                         } catch (MultiCauseException ignore) {

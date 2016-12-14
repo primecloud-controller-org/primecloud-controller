@@ -87,7 +87,6 @@ import jp.primecloud.auto.dao.crud.TemplateDao;
 import jp.primecloud.auto.dao.crud.TemplateComponentDao;
 import jp.primecloud.auto.dao.crud.TemplateInstanceDao;
 import jp.primecloud.auto.dao.crud.UserDao;
-import jp.primecloud.auto.dao.crud.UserAuthDao;
 import jp.primecloud.auto.dao.crud.VcloudCertificateDao;
 import jp.primecloud.auto.dao.crud.VcloudDiskDao;
 import jp.primecloud.auto.dao.crud.VcloudInstanceDao;
@@ -245,7 +244,6 @@ public abstract class BaseServiceSupport {
 
     protected UserDao userDao;
 
-    protected UserAuthDao userAuthDao;
 
     protected VcloudCertificateDao vcloudCertificateDao;
 
@@ -867,15 +865,6 @@ public abstract class BaseServiceSupport {
      */
     public void setUserDao(UserDao userDao) {
         this.userDao = userDao;
-    }
-
-    /**
-     * userAuthDaoを設定します。
-     *
-     * @param userAuthDao userAuthDao
-     */
-    public void setUserAuthDao(UserAuthDao userAuthDao) {
-        this.userAuthDao = userAuthDao;
     }
 
     /**

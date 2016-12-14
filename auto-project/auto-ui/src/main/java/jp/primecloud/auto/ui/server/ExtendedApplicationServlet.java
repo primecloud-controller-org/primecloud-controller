@@ -59,7 +59,6 @@ public class ExtendedApplicationServlet extends ApplicationServlet {
         LoggingUtils.setUserName(ViewContext.getUsername());
         LoggingUtils.setFarmNo(ViewContext.getFarmNo());
         LoggingUtils.setFarmName(ViewContext.getFarmName());
-        LoggingUtils.setLoginUserNo(ViewContext.getLoginUser());
 
         try {
             super.service(request, response);

@@ -70,7 +70,6 @@
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseTemplateComponent.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseTemplateInstance.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseUser.ibatis.xml" />
-	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseUserAuth.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseVcloudCertificate.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseVcloudDisk.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/BaseVcloudInstance.ibatis.xml" />
@@ -154,7 +153,6 @@
 	<sqlMap resource="jp/primecloud/auto/entity/crud/TemplateComponent.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/TemplateInstance.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/User.ibatis.xml" />
-	<sqlMap resource="jp/primecloud/auto/entity/crud/UserAuth.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/VcloudCertificate.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/VcloudDisk.ibatis.xml" />
 	<sqlMap resource="jp/primecloud/auto/entity/crud/VcloudInstance.ibatis.xml" />

@@ -23,13 +23,11 @@ import jp.primecloud.auto.common.status.ComponentStatus;
 import jp.primecloud.auto.service.ComponentService;
 import jp.primecloud.auto.service.dto.ComponentDto;
 import jp.primecloud.auto.service.dto.ComponentInstanceDto;
-import jp.primecloud.auto.service.dto.UserAuthDto;
 import jp.primecloud.auto.ui.DialogConfirm.Buttons;
 import jp.primecloud.auto.ui.DialogConfirm.Result;
 import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.Icons;
 import jp.primecloud.auto.ui.util.OperationLogger;
-import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
 
@@ -115,12 +113,6 @@ public class ServiceButtonsBottom extends CssLayout {
         addButton.setEnabled(true);
         editButton.setEnabled(false);
         deleteButton.setEnabled(false);
-
-        // 権限がなければAddボタンを無効にする
-        UserAuthDto auth = ViewContext.getAuthority();
-        if (!auth.isServiceMake()) {
-            addButton.setEnabled(false);
-        }
     }
 
     public void refresh(ComponentDto component) {
@@ -151,15 +143,6 @@ public class ServiceButtonsBottom extends CssLayout {
         if (status == ComponentStatus.STOPPED) {
             deleteButton.setEnabled(true);
         } else {
-            deleteButton.setEnabled(false);
-        }
-
-        // 権限がなければボタンを無効にする
-        UserAuthDto auth = ViewContext.getAuthority();
-        if (!auth.isServiceMake()) {
-            editButton.setEnabled(false);
-        }
-        if (!auth.isServiceDelete()) {
             deleteButton.setEnabled(false);
         }
     }

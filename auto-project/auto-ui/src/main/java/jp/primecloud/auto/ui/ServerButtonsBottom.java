@@ -29,7 +29,6 @@ import jp.primecloud.auto.service.InstanceService;
 import jp.primecloud.auto.service.ProcessService;
 import jp.primecloud.auto.service.dto.InstanceDto;
 import jp.primecloud.auto.service.dto.PlatformDto;
-import jp.primecloud.auto.service.dto.UserAuthDto;
 import jp.primecloud.auto.ui.DialogConfirm.Buttons;
 import jp.primecloud.auto.ui.DialogConfirm.Result;
 import jp.primecloud.auto.ui.util.BeanContext;
@@ -205,12 +204,6 @@ public class ServerButtonsBottom extends CssLayout {
             stopMonitoringButton.setEnabled(false);
         }
 
-        // 権限がなければAddボタンを無効にする
-        UserAuthDto auth = ViewContext.getAuthority();
-        if (!auth.isServerMake()) {
-            addButton.setEnabled(false);
-        }
-
         // ReloadボタンをStartボタンに
         startButton.setCaption(ViewProperties.getCaption("button.startServer"));
         startButton.setDescription(ViewProperties.getCaption("description.startServer"));
@@ -282,25 +275,6 @@ public class ServerButtonsBottom extends CssLayout {
 
                 stopMonitoringButton.setEnabled(enabled);
             } else {
-                stopMonitoringButton.setEnabled(false);
-            }
-        }
-
-        // 権限がなければボタンを無効にする
-        UserAuthDto auth = ViewContext.getAuthority();
-        if (!auth.isServerMake()) {
-            editButton.setEnabled(false);
-        }
-        if (!auth.isServerDelete()) {
-            deleteButton.setEnabled(false);
-        }
-        if (!auth.isServerOperate()) {
-            startButton.setEnabled(false);
-            stopButton.setEnabled(false);
-            if (startMonitoringButton != null) {
-                startMonitoringButton.setEnabled(false);
-            }
-            if (stopMonitoringButton != null) {
                 stopMonitoringButton.setEnabled(false);
             }
         }

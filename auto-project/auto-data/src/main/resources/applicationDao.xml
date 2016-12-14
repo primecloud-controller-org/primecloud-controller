@@ -260,10 +260,6 @@
 		<property name="sqlMapClient" ref="sqlMapClient" />
 	</bean>
 
-	<bean id="userAuthDao" class="jp.primecloud.auto.dao.crud.impl.UserAuthDaoImpl">
-		<property name="sqlMapClient" ref="sqlMapClient" />
-	</bean>
-
 	<bean id="vcloudCertificateDao" class="jp.primecloud.auto.dao.crud.impl.VcloudCertificateDaoImpl">
 		<property name="sqlMapClient" ref="sqlMapClient" />
 	</bean>

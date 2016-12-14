@@ -22,9 +22,7 @@ import java.util.List;
 
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.FarmService;
-import jp.primecloud.auto.service.UserService;
 import jp.primecloud.auto.service.dto.FarmDto;
-import jp.primecloud.auto.service.dto.UserAuthDto;
 import jp.primecloud.auto.ui.DialogConfirm.Buttons;
 import jp.primecloud.auto.ui.DialogConfirm.Callback;
 import jp.primecloud.auto.ui.DialogConfirm.Result;
@@ -178,24 +176,9 @@ public class MyCloudManage extends Window {
         bottomLayout.setComponentAlignment(bottomRightLayout, Alignment.MIDDLE_RIGHT);
         layout.addComponent(bottomLayout);
 
-        // 追加、編集、削除はマスターユーザ/パワーユーザに開放
-        if (ViewContext.getPowerUser()) {
-            addButton.setEnabled(true);
-            deleteButton.setEnabled(true);
-            editButton.setEnabled(true);
-            // ただしマスター権限を持たないパワーユーザは新規作成は不可能
-            if (ViewContext.getPowerUser() && !ViewContext.getPowerDefaultMaster().equals(ViewContext.getLoginUser())) {
-                addButton.setEnabled(false);
-            }
-        } else if (ViewContext.getUserNo().equals(ViewContext.getLoginUser())) {
-            addButton.setEnabled(true);
-            deleteButton.setEnabled(true);
-            editButton.setEnabled(true);
-        } else {
-            addButton.setEnabled(false);
-            deleteButton.setEnabled(false);
-            editButton.setEnabled(false);
-        }
+        addButton.setEnabled(true);
+        deleteButton.setEnabled(true);
+        editButton.setEnabled(true);
 
         // myCloud情報を表示
         loadData();
@@ -267,7 +250,7 @@ public class MyCloudManage extends Window {
     private void loadData() {
         // myCloud情報を取得
         FarmService farmService = BeanContext.getBean(FarmService.class);
-        farms = farmService.getFarms(ViewContext.getUserNo(), ViewContext.getLoginUser());
+        farms = farmService.getFarms(ViewContext.getUserNo());
     }
 
     private FarmDto findFarm(Long farmNo) {
@@ -316,7 +299,6 @@ public class MyCloudManage extends Window {
                 if (farmNo.equals(ViewContext.getFarmNo())) {
                     ViewContext.setFarmNo(null);
                     ViewContext.setFarmName(null);
-                    ViewContext.setAuthority(new UserAuthDto(false));
                 }
             }
         });
@@ -333,19 +315,9 @@ public class MyCloudManage extends Window {
 
         FarmDto farm = findFarm(farmNo);
 
-        // 権限検索ロジックを実行
-        UserService userService = BeanContext.getBean(UserService.class);
-        UserAuthDto userAuthDto = userService.getUserAuth(ViewContext.getLoginUser(), farmNo);
-
         // 選択したmyCloudをセッションに格納
         ViewContext.setFarmNo(farmNo);
         ViewContext.setFarmName(farm.getFarm().getFarmName());
-        ViewContext.setAuthority(userAuthDto);
-
-        // パワーユーザは各MyCloudのマスターに成りすます
-        if (ViewContext.getPowerUser()) {
-            ViewContext.setUserNo(farm.getFarm().getUserNo());
-        }
 
         // 画面を閉じる
         close();
@@ -366,7 +338,6 @@ public class MyCloudManage extends Window {
                     // 新規追加したmyCloudを選択する
                     ViewContext.setFarmNo(farmNo);
                     ViewContext.setFarmName(farmName);
-                    ViewContext.setAuthority(new UserAuthDto(true));
 
                     // 画面を閉じる
                     close();

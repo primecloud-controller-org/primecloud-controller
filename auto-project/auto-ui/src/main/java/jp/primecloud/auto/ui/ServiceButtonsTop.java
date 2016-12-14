@@ -24,7 +24,6 @@ import java.util.List;
 import jp.primecloud.auto.common.status.ComponentStatus;
 import jp.primecloud.auto.service.ProcessService;
 import jp.primecloud.auto.service.dto.ComponentDto;
-import jp.primecloud.auto.service.dto.UserAuthDto;
 import jp.primecloud.auto.ui.DialogConfirm.Buttons;
 import jp.primecloud.auto.ui.DialogConfirm.Result;
 import jp.primecloud.auto.ui.util.BeanContext;
@@ -100,13 +99,6 @@ public class ServiceButtonsTop extends CssLayout {
     public void initialize() {
         stopAllButton.setEnabled(true);
         startAllButton.setEnabled(true);
-
-        // 権限がなければボタンを無効にする
-        UserAuthDto auth = ViewContext.getAuthority();
-        if (!auth.isServiceOperate()) {
-            stopAllButton.setEnabled(false);
-            startAllButton.setEnabled(false);
-        }
     }
 
     private void startAllButtonClick(ClickEvent event) {

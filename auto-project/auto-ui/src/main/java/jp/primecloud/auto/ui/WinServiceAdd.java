@@ -187,10 +187,6 @@ public class WinServiceAdd extends Window {
             Button addServerButton = new Button(ViewProperties.getCaption("button.addServerQuick"));
             addServerButton.setDescription(ViewProperties.getCaption("description.addServerQuick"));
             addServerButton.setIcon(Icons.ADD.resource());
-            // サーバ作成権限がない場合は無効
-            if (!ViewContext.getAuthority().isServerMake()) {
-                addServerButton.setEnabled(false);
-            }
 
             addServerButton.addListener(new ClickListener() {
                 @Override

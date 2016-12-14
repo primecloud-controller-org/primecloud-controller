@@ -190,8 +190,8 @@ public class MainView extends VerticalLayout {
             @Override
             public void windowClose(CloseEvent e) {
                 // ログインに成功した場合
-                Long loginUserNo = ViewContext.getLoginUser();
-                if (loginUserNo != null) {
+                Long userNo = ViewContext.getUserNo();
+                if (userNo != null) {
                     topBar.loginSuccess();
                 }
             }

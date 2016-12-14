@@ -21,14 +21,12 @@ package jp.primecloud.auto.service.impl;
 import jp.primecloud.auto.common.component.PasswordEncryptor;
 import jp.primecloud.auto.entity.crud.PccSystemInfo;
 import jp.primecloud.auto.entity.crud.User;
-import jp.primecloud.auto.entity.crud.UserAuth;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.log.EventLogLevel;
 import jp.primecloud.auto.log.EventLogger;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.service.UserService;
-import jp.primecloud.auto.service.dto.UserAuthDto;
 import jp.primecloud.auto.service.dto.UserDto;
 
 /**
@@ -107,32 +105,6 @@ public class UserServiceImpl extends ServiceSupport implements UserService {
         dto.setUser(user);
 
         return dto;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public UserAuthDto getUserAuth(Long loginUser, Long farmNo) {
-        User user = userDao.read(loginUser);
-
-        // パワーユーザ
-        if (user.getPowerUser()) {
-            return new UserAuthDto(true);
-        }
-
-        // マスターユーザ
-        if (loginUser.equals(user.getMasterUser())) {
-            return new UserAuthDto(true);
-        }
-
-        // 一般ユーザ
-        UserAuth userAuth = userAuthDao.read(farmNo, loginUser);
-        if (userAuth != null) {
-            return new UserAuthDto(userAuth);
-        }
-
-        return new UserAuthDto(false);
     }
 
     /**

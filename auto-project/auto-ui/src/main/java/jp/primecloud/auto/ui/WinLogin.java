@@ -21,7 +21,6 @@ package jp.primecloud.auto.ui;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.service.UserService;
-import jp.primecloud.auto.service.dto.UserAuthDto;
 import jp.primecloud.auto.service.dto.UserDto;
 import jp.primecloud.auto.ui.util.BeanContext;
 import jp.primecloud.auto.ui.util.Icons;
@@ -123,16 +122,8 @@ public class WinLogin extends Window {
 
         // ユーザ情報をセッションに格納
         User user = userDto.getUser();
-        ViewContext.setUserNo(user.getMasterUser());
+        ViewContext.setUserNo(user.getUserNo());
         ViewContext.setUsername(user.getUsername());
-        ViewContext.setLoginUser(user.getUserNo());
-        ViewContext.setPowerUser(user.getPowerUser());
-        ViewContext.setPowerDefaultMaster(user.getMasterUser());
-        if (user.getPowerUser() || user.getMasterUser().equals(user.getUserNo())) {
-            ViewContext.setAuthority(new UserAuthDto(true));
-        } else {
-            ViewContext.setAuthority(new UserAuthDto(false));
-        }
 
         // ログイン画面を閉じる
         close();

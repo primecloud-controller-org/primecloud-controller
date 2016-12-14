@@ -40,12 +40,6 @@ public abstract class BaseUser implements Serializable {
     /** PASSWORD [VARCHAR(50,0)] */
     private String password;
 
-    /** MASTER_USER [BIGINT(19,0)] */
-    private Long masterUser;
-
-    /** POWER_USER [BIT(0,0)] */
-    private Boolean powerUser;
-
     /**
      * userNoを取得します。
      *
@@ -101,43 +95,6 @@ public abstract class BaseUser implements Serializable {
     }
 
     /**
-     * masterUserを取得します。
-     *
-     * @return masterUser
-     */
-    public Long getMasterUser() {
-        return masterUser;
-    }
-
-    /**
-     * masterUserを設定します。
-     *
-     * @param masterUser masterUser
-     */
-    public void setMasterUser(Long masterUser) {
-        this.masterUser = masterUser;
-    }
-
-    /**
-     * powerUserを取得します。
-     *
-     * @return powerUser
-     */
-    public Boolean getPowerUser() {
-        return powerUser;
-    }
-
-    /**
-     * powerUserを設定します。
-     *
-     * @param powerUser powerUser
-     */
-    public void setPowerUser(Boolean powerUser) {
-        this.powerUser = powerUser;
-    }
-
-
-    /**
      * {@inheritDoc}
      */
     @Override
@@ -148,8 +105,6 @@ public abstract class BaseUser implements Serializable {
         result = prime * result + ((userNo == null) ? 0 : userNo.hashCode());
         result = prime * result + ((username == null) ? 0 : username.hashCode());
         result = prime * result + ((password == null) ? 0 : password.hashCode());
-        result = prime * result + ((masterUser == null) ? 0 : masterUser.hashCode());
-        result = prime * result + ((powerUser == null) ? 0 : powerUser.hashCode());
 
         return result;
     }
@@ -179,16 +134,6 @@ public abstract class BaseUser implements Serializable {
         } else if (!password.equals(other.password)) {
             return false;
         }
-        if (masterUser == null) {
-            if (other.masterUser != null) { return false; }
-        } else if (!masterUser.equals(other.masterUser)) {
-            return false;
-        }
-        if (powerUser == null) {
-            if (other.powerUser != null) { return false; }
-        } else if (!powerUser.equals(other.powerUser)) {
-            return false;
-        }
 
         return true;
     }
@@ -202,9 +147,7 @@ public abstract class BaseUser implements Serializable {
         sb.append("User").append(" [");
         sb.append("userNo=").append(userNo).append(", ");
         sb.append("username=").append(username).append(", ");
-        sb.append("password=").append(password).append(", ");
-        sb.append("masterUser=").append(masterUser).append(", ");
-        sb.append("powerUser=").append(powerUser);
+        sb.append("password=").append(password);
         sb.append("]");
         return sb.toString();
     }

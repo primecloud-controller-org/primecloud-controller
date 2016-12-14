@@ -19,7 +19,6 @@
 package jp.primecloud.auto.ui.util;
 
 import jp.primecloud.auto.common.log.LoggingUtils;
-import jp.primecloud.auto.service.dto.UserAuthDto;
 
 /**
  * <p>
@@ -38,14 +37,6 @@ public class ViewContext {
     private static final String USERNAME_KEY = PREFIX + "username";
 
     private static final String FARM_NAME_KEY = PREFIX + "farmName";
-
-    private static final String LOGIN_USER_KEY = PREFIX + "loginUser";
-
-    private static final String AUTHORITY_KEY = PREFIX + "authority";
-
-    private static final String POWER_USER_KEY = PREFIX + "powerUser";
-
-    private static final String POWER_DEFAULT_KEY = PREFIX + "powerDefault";
 
     public static Long getUserNo() {
         return (Long) ContextUtils.getAttribute(USER_NO_KEY);
@@ -81,38 +72,6 @@ public class ViewContext {
     public static void setFarmName(String farmName) {
         ContextUtils.setAttribute(FARM_NAME_KEY, farmName);
         LoggingUtils.setFarmName(farmName);
-    }
-
-    public static Long getLoginUser() {
-        return (Long) ContextUtils.getAttribute(LOGIN_USER_KEY);
-    }
-
-    public static void setLoginUser(Long loginUser) {
-        ContextUtils.setAttribute(LOGIN_USER_KEY, loginUser);
-    }
-
-    public static UserAuthDto getAuthority() {
-        return (UserAuthDto) ContextUtils.getAttribute(AUTHORITY_KEY);
-    }
-
-    public static void setAuthority(UserAuthDto authority) {
-        ContextUtils.setAttribute(AUTHORITY_KEY, authority);
-    }
-
-    public static Boolean getPowerUser() {
-        return (Boolean) ContextUtils.getAttribute(POWER_USER_KEY);
-    }
-
-    public static void setPowerUser(Boolean powerUser) {
-        ContextUtils.setAttribute(POWER_USER_KEY, powerUser);
-    }
-
-    public static Long getPowerDefaultMaster() {
-        return (Long) ContextUtils.getAttribute(POWER_DEFAULT_KEY);
-    }
-
-    public static void setPowerDefaultMaster(Long userNo) {
-        ContextUtils.setAttribute(POWER_DEFAULT_KEY, userNo);
     }
 
 }

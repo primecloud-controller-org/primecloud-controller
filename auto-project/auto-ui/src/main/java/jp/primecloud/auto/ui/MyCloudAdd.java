@@ -288,11 +288,6 @@ public class MyCloudAdd extends Window {
                     return;
                 }
 
-                // パワーユーザ兼任の場合は自分の管理下で作成するためUserNoを元に戻す
-                if (ViewContext.getPowerUser()) {
-                    ViewContext.setUserNo(ViewContext.getPowerDefaultMaster());
-                }
-
                 // myCloudを作成
                 FarmService farmService = BeanContext.getBean(FarmService.class);
                 Long userNo = ViewContext.getUserNo();

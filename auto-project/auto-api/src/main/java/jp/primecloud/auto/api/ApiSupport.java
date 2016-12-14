@@ -127,14 +127,6 @@ public class ApiSupport extends ApiConstants {
     protected User checkAndGetUser() {
         User user = (User) request.getAttribute(PARAM_NAME_USER);
 
-        // マスターユーザでない場合、マスターユーザに置き換える
-        if (!user.getUserNo().equals(user.getMasterUser())) {
-            user = userDao.read(user.getMasterUser());
-
-            LoggingUtils.setUserNo(user.getUserNo());
-            LoggingUtils.setUserName(user.getUsername());
-        }
-
         return user;
     }
 
@@ -142,16 +134,8 @@ public class ApiSupport extends ApiConstants {
         User user = checkAndGetUser();
 
         if (!user.getUserNo().equals(farm.getUserNo())) {
-            if (BooleanUtils.isTrue(user.getPowerUser())) {
-                // POWER USERからのアクセスの場合、ファームに紐付くユーザに置き換える
-                user = userDao.read(farm.getUserNo());
-
-                LoggingUtils.setUserNo(user.getUserNo());
-                LoggingUtils.setUserName(user.getUsername());
-            } else {
-                // ファームを操作する権限がない場合
-                throw new AutoApplicationException("EAPI-100042", farm.getFarmNo());
-            }
+            // ファームを操作する権限がない場合
+            throw new AutoApplicationException("EAPI-100042", farm.getFarmNo());
         }
 
         LoggingUtils.setFarmNo(farm.getFarmNo());

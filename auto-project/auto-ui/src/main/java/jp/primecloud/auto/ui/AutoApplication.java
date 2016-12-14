@@ -21,8 +21,6 @@ package jp.primecloud.auto.ui;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import jp.primecloud.auto.service.dto.UserAuthDto;
-import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewProperties;
 
 import com.vaadin.Application;
@@ -51,8 +49,6 @@ public class AutoApplication extends Application {
             logoutUrl = "../../../";
         }
         setLogoutURL(logoutUrl);
-
-        ViewContext.setAuthority(new UserAuthDto(false));
 
         Window mainWindow = new Window(ViewProperties.getCaption("window.main"));
         mainWindow.setWidth("960px");

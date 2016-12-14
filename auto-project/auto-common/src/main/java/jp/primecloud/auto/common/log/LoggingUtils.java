@@ -49,9 +49,6 @@ public class LoggingUtils {
 
     protected static ThreadLocal<Long> platformNos = new ThreadLocal<Long>();
 
-    protected static ThreadLocal<Long> loginUserNos = new ThreadLocal<Long>();
-
-
     private LoggingUtils() {
     }
 
@@ -90,7 +87,6 @@ public class LoggingUtils {
         context.put("instanceName", getInstanceName());
         context.put("instanceType", getInstanceType());
         context.put("platformNo", getPlatformNo());
-        context.put("loginUserNo", getLoginUserNo());
         return context;
     }
 
@@ -105,7 +101,6 @@ public class LoggingUtils {
         setInstanceName((String) context.get("instanceName"));
         setInstanceType((String) context.get("instanceType"));
         setPlatformNo((Long) context.get("platformNo"));
-        setLoginUserNo((Long) context.get("loginUserNo"));
     }
 
     public static void removeContext() {
@@ -119,7 +114,6 @@ public class LoggingUtils {
         instanceNames.remove();
         instanceTypes.remove();
         platformNos.remove();
-        loginUserNos.remove();
     }
 
     public static Long getUserNo() {
@@ -202,11 +196,4 @@ public class LoggingUtils {
         platformNos.set(platformNo);
     }
 
-    public static Long getLoginUserNo() {
-        return loginUserNos.get();
-    }
-
-    public static void setLoginUserNo(Long loginUserName) {
-        loginUserNos.set(loginUserName);
-    }
 }

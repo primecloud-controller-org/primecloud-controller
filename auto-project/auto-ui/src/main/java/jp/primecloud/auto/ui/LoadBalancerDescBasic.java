@@ -34,7 +34,6 @@ import jp.primecloud.auto.service.LoadBalancerService;
 import jp.primecloud.auto.service.ProcessService;
 import jp.primecloud.auto.service.dto.ComponentDto;
 import jp.primecloud.auto.service.dto.LoadBalancerDto;
-import jp.primecloud.auto.service.dto.UserAuthDto;
 import jp.primecloud.auto.ui.DialogConfirm.Buttons;
 import jp.primecloud.auto.ui.DialogConfirm.Result;
 import jp.primecloud.auto.ui.util.BeanContext;
@@ -813,15 +812,6 @@ public class LoadBalancerDescBasic extends Panel {
                 deleteButton.setEnabled(true);
                 enableButton.setEnabled(true);
                 disableButton.setEnabled(true);
-
-                // 権限がなければボタンを無効にする
-                UserAuthDto auth = ViewContext.getAuthority();
-                if (!auth.isLbOperate()) {
-                    addButton.setEnabled(false);
-                    deleteButton.setEnabled(false);
-                    enableButton.setEnabled(false);
-                    disableButton.setEnabled(false);
-                }
             }
         }
 

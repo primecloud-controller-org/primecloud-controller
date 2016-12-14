@@ -127,7 +127,6 @@ public class ApiFilter extends ApiSupport implements ContainerRequestFilter {
 
         // ログ出力用データを設定
         LoggingUtils.setUserNo(accessUser.getUserNo());
-        LoggingUtils.setLoginUserNo(accessUser.getUserNo());
         LoggingUtils.setUserName(accessUser.getUsername());
 
         // デコードしたパラメータを再設定
