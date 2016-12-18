@@ -129,7 +129,6 @@ import jp.primecloud.auto.service.dto.ZoneDto;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
 import com.amazonaws.services.ec2.model.AvailabilityZone;
@@ -1946,11 +1945,9 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
                 Image image = imageDao.read(instance.getImageNo());
                 throw new AutoApplicationException("ESERVICE-000431", image.getImageName());
             }
-            if (StringUtils.isNotEmpty(awsInstance.getInstanceId())
-                    && !ObjectUtils.equals(awsInstance.getRootSize(), rootSize)) {
+            if (StringUtils.isNotEmpty(awsInstance.getInstanceId()) && !rootSize.equals(awsInstance.getRootSize())) {
                 throw new AutoApplicationException("ESERVICE-000432", instance.getInstanceName());
             }
-
             if (rootSize.intValue() < imageAws.getRootSize() || rootSize.intValue() > 1024) {
                 throw new AutoApplicationException("ESERVICE-000433", imageAws.getRootSize(), 1024);
             }
@@ -1978,7 +1975,9 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         awsInstance.setSecurityGroups(securityGroupName);
         awsInstance.setAvailabilityZone(availabilityZoneName);
         awsInstance.setSubnetId(subnetId);
-        awsInstance.setRootSize(rootSize);
+        if (rootSize != null) {
+            awsInstance.setRootSize(rootSize);
+        }
         awsInstance.setPrivateIpAddress(privateIpAddress);
         awsInstanceDao.update(awsInstance);
 
