@@ -69,9 +69,11 @@ import jp.primecloud.auto.ui.util.OperationLogger;
 import jp.primecloud.auto.ui.util.ViewContext;
 import jp.primecloud.auto.ui.util.ViewMessages;
 import jp.primecloud.auto.ui.util.ViewProperties;
+import jp.primecloud.auto.ui.validator.IntegerRangeValidator;
 import jp.primecloud.auto.util.IpAddressUtils;
 
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
 import com.amazonaws.services.ec2.model.AvailabilityZone;
@@ -561,6 +563,8 @@ public class WinServerEdit extends Window {
 
         private ComboBox zoneSelect;
 
+        private TextField rootSizeField;
+
         private ComboBox elasticIpSelect;
 
         private List<String> keyNames;
@@ -654,6 +658,12 @@ public class WinServerEdit extends Window {
                 zoneSelect.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
                 form.getLayout().addComponent(zoneSelect);
             }
+
+            // ルートサイズ
+            rootSizeField = new TextField(ViewProperties.getCaption("field.rootSize"));
+            rootSizeField.setImmediate(true);
+            rootSizeField.setWidth(TEXT_WIDTH);
+            form.getLayout().addComponent(rootSizeField);
 
             // ElasticIp
             String enableElasticIp = Config.getProperty("ui.aws.enableElasticIp");
@@ -782,6 +792,12 @@ public class WinServerEdit extends Window {
                 privateIpField.addValidator(privateIpFieldValidator);
             }
 
+            if (BooleanUtils.isTrue(image.getImageAws().getEbsImage()) && image.getImageAws().getRootSize() != null) {
+                message = ViewMessages.getMessage("IUI-000135", image.getImageAws().getRootSize(), 1024);
+                rootSizeField.setRequired(false);
+                rootSizeField.addValidator(new IntegerRangeValidator(image.getImageAws().getRootSize(), 1024, message));
+            }
+
             if (elasticIpSelect != null) {
                 message = ViewMessages.getMessage("IUI-000063");
                 elasticIpSelect.setRequired(true);
@@ -837,6 +853,12 @@ public class WinServerEdit extends Window {
                 zoneSelect.select(instance.getAwsInstance().getAvailabilityZone());
             }
 
+            // ルートディスクサイズ
+            rootSizeField.setValue(ObjectUtils.toString(instance.getAwsInstance().getRootSize(), ""));
+            if (BooleanUtils.isNotTrue(image.getImageAws().getEbsImage()) || image.getImageAws().getRootSize() == null) {
+                rootSizeField.setEnabled(false);
+            }
+
             // ElasticIP
             if (elasticIpSelect != null) {
                 showElasticIp();
@@ -863,6 +885,7 @@ public class WinServerEdit extends Window {
                     grpSelect.setEnabled(false); // セキュリティグループは非VPCの場合のみ変更できない
                     zoneSelect.setEnabled(false);
                 }
+                rootSizeField.setEnabled(false);
             }
 
             // ボリュームが作成済みの場合、いくつかの項目を変更できないようにする
@@ -2821,6 +2844,7 @@ public class WinServerEdit extends Window {
         String zoneName = null;
         String subnetId = null;
         String privateIp = null;
+        String rootSize = (String) awsDetailTab.rootSizeField.getValue();
         Long addressNo = (awsDetailTab.elasticIpSelect == null) ? null : (Long) awsDetailTab.elasticIpSelect.getValue();
 
         Subnet subnet = null;
@@ -2848,6 +2872,7 @@ public class WinServerEdit extends Window {
         } else {
             awsDetailTab.zoneSelect.validate();
         }
+        awsDetailTab.rootSizeField.validate();
         if (awsDetailTab.elasticIpSelect != null) {
             awsDetailTab.elasticIpSelect.validate();
         }
@@ -2876,13 +2901,19 @@ public class WinServerEdit extends Window {
             }
         }
 
+        Integer rootSize2 = null;
+        try {
+            rootSize2 = Integer.valueOf(rootSize);
+        } catch (Exception ignore) {
+        }
+
         // オペレーションログ
         OperationLogger.writeInstance("SERVER", "Edit Server", instanceNo, null);
 
         // AWSサーバを更新
         InstanceService instanceService = BeanContext.getBean(InstanceService.class);
         instanceService.updateAwsInstance(instanceNo, instance.getInstance().getInstanceName(), comment, keyName,
-                serverSize, groupName, zoneName, addressNo, subnetId, privateIp);
+                serverSize, groupName, zoneName, addressNo, subnetId, rootSize2, privateIp);
 
         // サーバにサービスを関連付ける
         if (basicTab.componentNos != null && basicTab.attachService) {

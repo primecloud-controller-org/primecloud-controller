@@ -817,10 +817,10 @@ public class AwsInstanceProcess extends ServiceSupport {
         }
 
         // ルートデバイスのボリュームサイズを指定する
-        if (imageAws.getRootSize() != null) {
+        if (awsInstance.getRootSize() != null) {
             for (BlockDeviceMapping mapping : mappings) {
                 if (image.getRootDeviceName().equals(mapping.getDeviceName())) {
-                    mapping.getEbs().setVolumeSize(imageAws.getRootSize());
+                    mapping.getEbs().setVolumeSize(awsInstance.getRootSize());
                     break;
                 }
             }

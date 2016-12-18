@@ -12,6 +12,7 @@
 		<result property="securityGroups" column="SECURITY_GROUPS" nullValue="" />
 		<result property="availabilityZone" column="AVAILABILITY_ZONE" nullValue="" />
 		<result property="subnetId" column="SUBNET_ID" nullValue="" />
+		<result property="rootSize" column="ROOT_SIZE" />
 		<result property="instanceId" column="INSTANCE_ID" nullValue="" />
 		<result property="status" column="STATUS" nullValue="" />
 		<result property="dnsName" column="DNS_NAME" nullValue="" />
@@ -29,6 +30,7 @@
 			t1.SECURITY_GROUPS as SECURITY_GROUPS,
 			t1.AVAILABILITY_ZONE as AVAILABILITY_ZONE,
 			t1.SUBNET_ID as SUBNET_ID,
+			t1.ROOT_SIZE as ROOT_SIZE,
 			t1.INSTANCE_ID as INSTANCE_ID,
 			t1.STATUS as STATUS,
 			t1.DNS_NAME as DNS_NAME,
@@ -80,6 +82,7 @@
 			SECURITY_GROUPS,
 			AVAILABILITY_ZONE,
 			SUBNET_ID,
+			ROOT_SIZE,
 			INSTANCE_ID,
 			STATUS,
 			DNS_NAME,
@@ -93,6 +96,7 @@
 			#securityGroups#,
 			#availabilityZone#,
 			#subnetId#,
+			#rootSize#,
 			#instanceId#,
 			#status#,
 			#dnsName#,
@@ -111,6 +115,7 @@
 			SECURITY_GROUPS = #securityGroups#,
 			AVAILABILITY_ZONE = #availabilityZone#,
 			SUBNET_ID = #subnetId#,
+			ROOT_SIZE = #rootSize#,
 			INSTANCE_ID = #instanceId#,
 			STATUS = #status#,
 			DNS_NAME = #dnsName#,

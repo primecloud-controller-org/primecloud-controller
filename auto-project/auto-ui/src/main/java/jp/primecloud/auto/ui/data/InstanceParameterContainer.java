@@ -41,6 +41,7 @@ import jp.primecloud.auto.service.dto.InstanceDto;
 import jp.primecloud.auto.ui.util.ViewProperties;
 
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
 import com.vaadin.data.util.BeanItemContainer;
@@ -130,6 +131,8 @@ public class InstanceParameterContainer extends BeanItemContainer<InstanceParame
                     awsInstance.getAvailabilityZone()));
             parameters.add(new InstanceParameter(kind, ViewProperties.getCaption("param.instance.subnetId"),
                     awsInstance.getSubnetId()));
+            parameters.add(new InstanceParameter(kind, ViewProperties.getCaption("param.instance.rootSize"),
+                    ObjectUtils.toString(awsInstance.getRootSize(), "")));
         }
         // Vmware
         else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType()) && vmwareInstance != null) {

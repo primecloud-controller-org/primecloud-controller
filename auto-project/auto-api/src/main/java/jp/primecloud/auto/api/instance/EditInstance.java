@@ -238,7 +238,7 @@ public class EditInstance extends ApiSupport {
 
         // 更新処理
         instanceService.updateAwsInstance(instance.getInstanceNo(), instance.getInstanceName(), comment, keyName,
-                instanceType, securityGroups, availabilityZone, ipAddressNo, subnetId, privateIp);
+                instanceType, securityGroups, availabilityZone, ipAddressNo, subnetId, null, privateIp);
     }
 
     private void editCloudstackInstance(Long userNo, Instance instance, String instanceType, String keyName,

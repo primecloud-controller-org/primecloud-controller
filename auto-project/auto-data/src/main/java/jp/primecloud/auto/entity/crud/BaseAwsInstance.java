@@ -49,6 +49,9 @@ public abstract class BaseAwsInstance implements Serializable {
     /** SUBNET_ID [VARCHAR(30,0)] */
     private String subnetId;
 
+    /** ROOT_SIZE [INT(10,0)] */
+    private Integer rootSize;
+
     /** INSTANCE_ID [VARCHAR(30,0)] */
     private String instanceId;
 
@@ -176,6 +179,24 @@ public abstract class BaseAwsInstance implements Serializable {
     }
 
     /**
+     * rootSizeを取得します。
+     *
+     * @return rootSize
+     */
+    public Integer getRootSize() {
+        return rootSize;
+    }
+
+    /**
+     * rootSizeを設定します。
+     *
+     * @param rootSize rootSize
+     */
+    public void setRootSize(Integer rootSize) {
+        this.rootSize = rootSize;
+    }
+
+    /**
      * instanceIdを取得します。
      *
      * @return instanceId
@@ -298,6 +319,7 @@ public abstract class BaseAwsInstance implements Serializable {
         result = prime * result + ((securityGroups == null) ? 0 : securityGroups.hashCode());
         result = prime * result + ((availabilityZone == null) ? 0 : availabilityZone.hashCode());
         result = prime * result + ((subnetId == null) ? 0 : subnetId.hashCode());
+        result = prime * result + ((rootSize == null) ? 0 : rootSize.hashCode());
         result = prime * result + ((instanceId == null) ? 0 : instanceId.hashCode());
         result = prime * result + ((status == null) ? 0 : status.hashCode());
         result = prime * result + ((dnsName == null) ? 0 : dnsName.hashCode());
@@ -348,6 +370,11 @@ public abstract class BaseAwsInstance implements Serializable {
         } else if (!subnetId.equals(other.subnetId)) {
             return false;
         }
+        if (rootSize == null) {
+            if (other.rootSize != null) { return false; }
+        } else if (!rootSize.equals(other.rootSize)) {
+            return false;
+        }
         if (instanceId == null) {
             if (other.instanceId != null) { return false; }
         } else if (!instanceId.equals(other.instanceId)) {
@@ -395,6 +422,7 @@ public abstract class BaseAwsInstance implements Serializable {
         sb.append("securityGroups=").append(securityGroups).append(", ");
         sb.append("availabilityZone=").append(availabilityZone).append(", ");
         sb.append("subnetId=").append(subnetId).append(", ");
+        sb.append("rootSize=").append(rootSize).append(", ");
         sb.append("instanceId=").append(instanceId).append(", ");
         sb.append("status=").append(status).append(", ");
         sb.append("dnsName=").append(dnsName).append(", ");

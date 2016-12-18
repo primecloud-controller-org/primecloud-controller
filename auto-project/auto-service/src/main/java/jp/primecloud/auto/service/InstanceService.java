@@ -51,7 +51,7 @@ public interface InstanceService {
 
     public void updateAwsInstance(Long instanceNo, String instanceName, String comment, String keyName,
             String instanceType, String securityGroupName, String availabilityZoneName, Long addressNo,
-            String subnetId, String privateIpAddress);
+            String subnetId, Integer rootSize, String privateIpAddress);
 
     public void updateCloudstackInstance(Long instanceNo, String instanceName, String comment, String keyName,
             String instanceType, String securityGroupName, String availabilityZoneName, Long addressNo);

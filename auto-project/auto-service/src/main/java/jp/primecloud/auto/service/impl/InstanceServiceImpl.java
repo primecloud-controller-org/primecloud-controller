@@ -129,6 +129,7 @@ import jp.primecloud.auto.service.dto.ZoneDto;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
 import com.amazonaws.services.ec2.model.AvailabilityZone;
@@ -1341,8 +1342,12 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         List<SecurityGroup> securityGroups = awsDescribeService.getSecurityGroups(farm.getUserNo(),
                 platformAws.getPlatformNo());
         groupName = setSecurityGroupAws(securityGroups, "aws.defaultSecurityGroup");
-
         awsInstance.setSecurityGroups(groupName);
+
+        // RootSize
+        if (imageAws.getRootSize() != null) {
+            awsInstance.setRootSize(imageAws.getRootSize());
+        }
 
         awsInstanceDao.create(awsInstance);
     }
@@ -1821,7 +1826,7 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
     @Override
     public void updateAwsInstance(Long instanceNo, String instanceName, String comment, String keyName,
             String instanceType, String securityGroupName, String availabilityZoneName, Long addressNo,
-            String subnetId, String privateIpAddress) {
+            String subnetId, Integer rootSize, String privateIpAddress) {
         // インスタンスの更新
         updateInstance(instanceNo, instanceName, comment);
 
@@ -1868,6 +1873,9 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
             }
             if (StringUtils.isEmpty(awsInstance.getSubnetId()) ? StringUtils.isNotEmpty(subnetId) : !StringUtils
                     .equals(awsInstance.getSubnetId(), subnetId)) {
+                throw new AutoApplicationException("ESERVICE-000407", instance.getInstanceName());
+            }
+            if (awsInstance.getRootSize() == null ? rootSize != null : !awsInstance.getRootSize().equals(rootSize)) {
                 throw new AutoApplicationException("ESERVICE-000407", instance.getInstanceName());
             }
             if (StringUtils.isEmpty(awsInstance.getPrivateIpAddress()) ? StringUtils.isNotEmpty(privateIpAddress)
@@ -1928,6 +1936,26 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
             }
         }
 
+        // ルートサイズのチェック
+        if (rootSize != null) {
+            if (BooleanUtils.isNotTrue(imageAws.getEbsImage())) {
+                Image image = imageDao.read(instance.getImageNo());
+                throw new AutoApplicationException("ESERVICE-000430", image.getImageName());
+            }
+            if (imageAws.getRootSize() == null) {
+                Image image = imageDao.read(instance.getImageNo());
+                throw new AutoApplicationException("ESERVICE-000431", image.getImageName());
+            }
+            if (StringUtils.isNotEmpty(awsInstance.getInstanceId())
+                    && !ObjectUtils.equals(awsInstance.getRootSize(), rootSize)) {
+                throw new AutoApplicationException("ESERVICE-000432", instance.getInstanceName());
+            }
+
+            if (rootSize.intValue() < imageAws.getRootSize() || rootSize.intValue() > 1024) {
+                throw new AutoApplicationException("ESERVICE-000433", imageAws.getRootSize(), 1024);
+            }
+        }
+
         // AWSアドレスのチェック
         AwsAddress awsAddress = null;
         if (addressNo != null) {
@@ -1950,6 +1978,7 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         awsInstance.setSecurityGroups(securityGroupName);
         awsInstance.setAvailabilityZone(availabilityZoneName);
         awsInstance.setSubnetId(subnetId);
+        awsInstance.setRootSize(rootSize);
         awsInstance.setPrivateIpAddress(privateIpAddress);
         awsInstanceDao.update(awsInstance);
 

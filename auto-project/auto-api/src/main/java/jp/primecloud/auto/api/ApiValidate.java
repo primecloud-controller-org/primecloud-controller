@@ -333,6 +333,13 @@ public class ApiValidate extends ApiConstants {
         ValidateUtil.required(subnet, "EAPI-000001", new Object[] { PARAM_NAME_SUBNET });
     }
 
+    public static void validateRootSize(String rootSize, int min) {
+        if (StringUtils.isNotEmpty(rootSize)) {
+            ValidateUtil.intInRange(rootSize, min, 1024, "EAPI-000002",
+                    new Object[] { PARAM_NAME_ROOT_SIZE, min, 1024 });
+        }
+    }
+
     public static void validatePrivateIpAddress(String privateIpAddress) {
         if (StringUtils.isNotEmpty(privateIpAddress)) {
             ValidateUtil

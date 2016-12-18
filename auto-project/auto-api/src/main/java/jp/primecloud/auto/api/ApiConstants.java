@@ -71,6 +71,7 @@ public class ApiConstants {
     protected static final String PARAM_NAME_DEFAULT_GATEWAY = "DefaultGateway";
     protected static final String PARAM_NAME_INSTANCE_NOS = "InstanceNos";
     protected static final String PARAM_NAME_SUBNET = "Subnet";
+    protected static final String PARAM_NAME_ROOT_SIZE = "RootSize";
     protected static final String PARAM_NAME_PRIVATE_IP = "PrivateIpAddress";
     protected static final String PARAM_NAME_IS_FROM_CURRENT = "IsFromCurrent";
     protected static final String PARAM_NAME_FROM_CURRENT = "FromCurrent";

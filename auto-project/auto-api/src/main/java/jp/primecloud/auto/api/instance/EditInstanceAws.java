@@ -59,7 +59,7 @@ public class EditInstanceAws extends ApiSupport {
             @QueryParam(PARAM_NAME_SECURITY_GROUPS) String securityGroups,
             @QueryParam(PARAM_NAME_AVAILABILITY_ZONE) String availabilityZone,
             @QueryParam(PARAM_NAME_IP_ADDRESS) String ipAddress, @QueryParam(PARAM_NAME_SUBNET) String subnet,
-            @QueryParam(PARAM_NAME_PRIVATE_IP) String privateIp) {
+            @QueryParam(PARAM_NAME_ROOT_SIZE) String rootSize, @QueryParam(PARAM_NAME_PRIVATE_IP) String privateIp) {
 
         // InstanceNo
         ApiValidate.validateInstanceNo(instanceNo);
@@ -122,6 +122,16 @@ public class EditInstanceAws extends ApiSupport {
             }
         }
 
+        // RootSize
+        Integer rootSize2 = null;
+        if (StringUtils.isNotEmpty(rootSize)) {
+            ImageAws imageAws = imageAwsDao.read(instance.getImageNo());
+            int min = imageAws.getRootSize() == null ? 0 : imageAws.getRootSize();
+            ApiValidate.validateRootSize(rootSize, min);
+
+            rootSize2 = Integer.valueOf(rootSize);
+        }
+
         // PrivateIpAddress(VPCのみ)
         if (BooleanUtils.isTrue(platformAws.getVpc()) && StringUtils.isNotEmpty(privateIp)) {
             ApiValidate.validatePrivateIpAddress(privateIp);
@@ -169,10 +179,10 @@ public class EditInstanceAws extends ApiSupport {
         if (BooleanUtils.isTrue(platformAws.getVpc())) {
             instanceService.updateAwsInstance(instance.getInstanceNo(), instance.getInstanceName(), comment, keyName,
                     instanceType, securityGroups, awsSubnet.getAvailabilityZone(), addressNo, awsSubnet.getSubnetId(),
-                    privateIp);
+                    rootSize2, privateIp);
         } else {
             instanceService.updateAwsInstance(instance.getInstanceNo(), instance.getInstanceName(), comment, keyName,
-                    instanceType, securityGroups, availabilityZone, addressNo, null, null);
+                    instanceType, securityGroups, availabilityZone, addressNo, null, rootSize2, null);
         }
 
         EditInstanceAwsResponse response = new EditInstanceAwsResponse();
