@@ -1706,6 +1706,12 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         Long keyPairNo = vmwareKeyPairs.get(0).getKeyNo();
         vmwareInstance.setKeyPairNo(keyPairNo);
 
+        // RootSize
+        ImageVmware imageVmware = imageVmwareDao.read(imageNo);
+        if (imageVmware.getRootSize() != null) {
+            vmwareInstance.setRootSize(imageVmware.getRootSize());
+        }
+
         vmwareInstanceDao.create(vmwareInstance);
 
         // イベントログ出力
@@ -2482,9 +2488,9 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
      */
     @Override
     public void updateVmwareInstance(Long instanceNo, String instanceName, String comment, String instanceType,
-            String computeResource, String resourcePool, Long keyPairNo) {
+            String computeResource, String resourcePool, Long keyPairNo, Integer rootSize) {
         updateVmwareInstance(instanceNo, instanceName, comment, instanceType, computeResource, resourcePool, keyPairNo,
-                null);
+                rootSize, null);
     }
 
     /**
@@ -2492,7 +2498,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
      */
     @Override
     public void updateVmwareInstance(Long instanceNo, String instanceName, String comment, String instanceType,
-            String computeResource, String resourcePool, Long keyPairNo, VmwareAddressDto vmwareAddressDto) {
+            String computeResource, String resourcePool, Long keyPairNo, Integer rootSize,
+            VmwareAddressDto vmwareAddressDto) {
         // インスタンスの更新
         updateInstance(instanceNo, instanceName, comment);
 
@@ -2540,6 +2547,10 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
             if (!keyPairNo.equals(vmwareInstance.getKeyPairNo())) {
                 throw new AutoApplicationException("ESERVICE-000407", instance.getInstanceName());
             }
+            if (vmwareInstance.getRootSize() == null ? rootSize != null : !vmwareInstance.getRootSize()
+                    .equals(rootSize)) {
+                throw new AutoApplicationException("ESERVICE-000407", instance.getInstanceName());
+            }
             if (vmwareAddress == null || BooleanUtils.isNotTrue(vmwareAddress.getEnabled())) {
                 if (vmwareAddressDto != null) {
                     throw new AutoApplicationException("ESERVICE-000407", instance.getInstanceName());
@@ -2555,11 +2566,29 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
             }
         }
 
+        // ルートサイズのチェック
+        if (rootSize != null) {
+            ImageVmware imageVmware = imageVmwareDao.read(instance.getImageNo());
+            if (imageVmware.getRootSize() == null) {
+                Image image = imageDao.read(instance.getImageNo());
+                throw new AutoApplicationException("ESERVICE-000431", image.getImageName());
+            }
+            if (StringUtils.isNotEmpty(vmwareInstance.getDatastore()) && !rootSize.equals(vmwareInstance.getRootSize())) {
+                throw new AutoApplicationException("ESERVICE-000432", instance.getInstanceName());
+            }
+            if (rootSize.intValue() < imageVmware.getRootSize() || rootSize.intValue() > 1024) {
+                throw new AutoApplicationException("ESERVICE-000433", imageVmware.getRootSize(), 1024);
+            }
+        }
+
         // VMwareインスタンスの更新
         vmwareInstance.setInstanceType(instanceType);
         vmwareInstance.setComputeResource(computeResource);
         vmwareInstance.setResourcePool(resourcePool);
         vmwareInstance.setKeyPairNo(keyPairNo);
+        if (rootSize != null) {
+            vmwareInstance.setRootSize(rootSize);
+        }
         vmwareInstanceDao.update(vmwareInstance);
 
         Farm farm = farmDao.read(instance.getFarmNo());

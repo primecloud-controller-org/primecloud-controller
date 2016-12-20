@@ -9,6 +9,7 @@
 		<result property="imageNo" column="IMAGE_NO" />
 		<result property="templateName" column="TEMPLATE_NAME" nullValue="" />
 		<result property="instanceTypes" column="INSTANCE_TYPES" nullValue="" />
+		<result property="rootSize" column="ROOT_SIZE" />
 	</resultMap>
 
 	<sql id="selectSql">
@@ -16,7 +17,8 @@
 		select
 			t1.IMAGE_NO as IMAGE_NO,
 			t1.TEMPLATE_NAME as TEMPLATE_NAME,
-			t1.INSTANCE_TYPES as INSTANCE_TYPES
+			t1.INSTANCE_TYPES as INSTANCE_TYPES,
+			t1.ROOT_SIZE as ROOT_SIZE
 		from
 			IMAGE_VMWARE t1
 		]]>
@@ -58,11 +60,13 @@
 		insert into IMAGE_VMWARE (
 			IMAGE_NO,
 			TEMPLATE_NAME,
-			INSTANCE_TYPES
+			INSTANCE_TYPES,
+			ROOT_SIZE
 		) values (
 			#imageNo#,
 			#templateName#,
-			#instanceTypes#
+			#instanceTypes#,
+			#rootSize#
 		)
 		]]>
 	</insert>
@@ -71,7 +75,8 @@
 		<![CDATA[
 		update IMAGE_VMWARE set
 			TEMPLATE_NAME = #templateName#,
-			INSTANCE_TYPES = #instanceTypes#
+			INSTANCE_TYPES = #instanceTypes#,
+			ROOT_SIZE = #rootSize#
 		where
 			IMAGE_NO = #imageNo#
 		]]>

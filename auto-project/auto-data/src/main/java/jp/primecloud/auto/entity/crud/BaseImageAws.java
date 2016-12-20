@@ -178,6 +178,7 @@ public abstract class BaseImageAws implements Serializable {
         this.rootSize = rootSize;
     }
 
+
     /**
      * {@inheritDoc}
      */

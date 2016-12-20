@@ -161,6 +161,8 @@ public class InstanceParameterContainer extends BeanItemContainer<InstanceParame
                     vmwareInstance.getResourcePool()));
             parameters.add(new InstanceParameter(kind, ViewProperties.getCaption("param.instance.datastore"),
                     vmwareInstance.getDatastore()));
+            parameters.add(new InstanceParameter(kind, ViewProperties.getCaption("param.instance.rootSize"),
+                    ObjectUtils.toString(vmwareInstance.getRootSize(), "")));
         }
         // Nifty
         else if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platform.getPlatformType()) && niftyInstance != null) {

@@ -1020,6 +1020,8 @@ public class WinServerEdit extends Window {
 
         private ComboBox clusterSelect;
 
+        private TextField rootSizeField;
+
         private List<VmwareKeyPair> vmwareKeyPairs;
 
         private List<String> clusters;
@@ -1060,6 +1062,11 @@ public class WinServerEdit extends Window {
             clusterSelect.setNullSelectionAllowed(false);
             form.getLayout().addComponent(clusterSelect);
 
+            // ルートサイズ
+            rootSizeField = new TextField(ViewProperties.getCaption("field.rootSize"));
+            rootSizeField.setImmediate(true);
+            form.getLayout().addComponent(rootSizeField);
+
             addComponent(form);
         }
 
@@ -1090,6 +1097,13 @@ public class WinServerEdit extends Window {
             message = ViewMessages.getMessage("IUI-000034");
             clusterSelect.setRequired(true);
             clusterSelect.setRequiredError(message);
+
+            if (image.getImageVmware().getRootSize() != null) {
+                message = ViewMessages.getMessage("IUI-000135", image.getImageVmware().getRootSize(), 1024);
+                rootSizeField.setRequired(false);
+                rootSizeField.addValidator(new IntegerRangeValidator(image.getImageVmware().getRootSize(), 1024,
+                        message));
+            }
         }
 
         public void show() {
@@ -1113,10 +1127,21 @@ public class WinServerEdit extends Window {
                 clusterSelect.setEnabled(false);
             }
 
+            // ルートディスクサイズ
+            rootSizeField.setValue(ObjectUtils.toString(instance.getVmwareInstance().getRootSize(), ""));
+            if (image.getImageVmware().getRootSize() == null) {
+                rootSizeField.setEnabled(false);
+            }
+
             // サーバが停止していない場合、詳細設定タブ自体を変更できないようにする
             InstanceStatus status = InstanceStatus.fromStatus(instance.getInstance().getStatus());
             if (status != InstanceStatus.STOPPED) {
                 form.setEnabled(false);
+            }
+
+            // サーバが既に作成済みの場合、いくつかの項目を変更できないようにする
+            if (StringUtils.isNotEmpty(instance.getVmwareInstance().getDatastore())) {
+                rootSizeField.setEnabled(false);
             }
         }
 
@@ -2930,6 +2955,7 @@ public class WinServerEdit extends Window {
         Long keyNo = (Long) vmwareDetailTab.keySelect.getValue();
         String serverSize = (String) vmwareDetailTab.sizeSelect.getValue();
         String cluster = (String) vmwareDetailTab.clusterSelect.getValue();
+        String rootSize = (String) vmwareDetailTab.rootSizeField.getValue();
 
         VmwareAddressDto vmwareAddressDto = null;
         Boolean isStaticipSelected = false;
@@ -2952,10 +2978,17 @@ public class WinServerEdit extends Window {
         vmwareDetailTab.keySelect.validate();
         vmwareDetailTab.clusterSelect.validate();
         vmwareDetailTab.sizeSelect.validate();
+        vmwareDetailTab.rootSizeField.validate();
         if (BooleanUtils.isTrue(isStaticipSelected)) {
             vmwareEditIpTab.ipAddressField.validate();
             vmwareEditIpTab.subnetMaskField.validate();
             vmwareEditIpTab.defaultGatewayField.validate();
+        }
+
+        Integer rootSize2 = null;
+        try {
+            rootSize2 = Integer.valueOf(rootSize);
+        } catch (Exception ignore) {
         }
 
         // オペレーションログ
@@ -2964,7 +2997,7 @@ public class WinServerEdit extends Window {
         // VMwareサーバを更新
         InstanceService instanceService = BeanContext.getBean(InstanceService.class);
         instanceService.updateVmwareInstance(instanceNo, instance.getInstance().getInstanceName(), comment, serverSize,
-                cluster, null, keyNo, vmwareAddressDto);
+                cluster, null, keyNo, rootSize2, vmwareAddressDto);
 
         // サーバにサービスを関連付ける
         if (basicTab.componentNos != null && basicTab.attachService) {

@@ -6,6 +6,7 @@ create table VMWARE_INSTANCE (
     RESOURCE_POOL varchar(100),
     DATASTORE varchar(100),
     KEY_PAIR_NO bigint,
+    ROOT_SIZE int,
     IP_ADDRESS varchar(100),
     PRIVATE_IP_ADDRESS varchar(100),
     constraint VMWARE_INSTANCE_PK primary key(INSTANCE_NO)

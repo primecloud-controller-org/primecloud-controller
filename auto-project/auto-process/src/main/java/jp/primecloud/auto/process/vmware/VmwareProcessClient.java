@@ -217,6 +217,71 @@ public class VmwareProcessClient {
         return cloneSpec;
     }
 
+    public void extendRootDisk(String machineName, Integer rootSize) {
+        // VirtualMachine
+        VirtualMachine machine = getVirtualMachine(machineName);
+
+        // ルートディスク
+        VirtualDisk disk = getVirtualDisk(machine, 0);
+
+        // 指定されたサイズよりも実際のサイズが大きければ、ディスクの拡張を行わない
+        long newCapacityInKB = rootSize.longValue() * 1024 * 1024;
+        if (disk.getCapacityInKB() >= newCapacityInKB) {
+            return;
+        }
+
+        // 設定変更仕様
+        disk.setCapacityInKB(newCapacityInKB);
+        VirtualDeviceConfigSpec diskSpec = new VirtualDeviceConfigSpec();
+        diskSpec.setOperation(VirtualDeviceConfigSpecOperation.edit);
+        diskSpec.setDevice(disk);
+
+        VirtualMachineConfigSpec configSpec = new VirtualMachineConfigSpec();
+        configSpec.setDeviceChange(new VirtualDeviceConfigSpec[] { diskSpec });
+
+        // ディスクの設定変更
+        Task task;
+        try {
+            task = machine.reconfigVM_Task(configSpec);
+        } catch (RemoteException e) {
+            throw new AutoException("EPROCESS-000534", e, machineName);
+        }
+
+        if (log.isInfoEnabled()) {
+            log.info(MessageUtils.getMessage("IPROCESS-100425", machineName, rootSize));
+        }
+
+        // 設定が変更されるまで待機
+        try {
+            task.waitForTask();
+        } catch (RemoteException e) {
+            throw new AutoException("EPROCESS-000534", e, machineName);
+        } catch (InterruptedException ignore) {
+        }
+
+        // タスク情報の取得
+        TaskInfo taskInfo;
+        try {
+            taskInfo = task.getTaskInfo();
+        } catch (RemoteException e) {
+            throw new AutoException("EPROCESS-000534", e, machineName);
+        }
+
+        if (taskInfo.getState() != TaskInfoState.success) {
+            // ディスクの設定変更に失敗した場合
+            AutoException exception = new AutoException("EPROCESS-000534", machineName);
+            if (taskInfo.getError() != null) {
+                exception.addDetailInfo(ReflectionToStringBuilder.toString(taskInfo.getError().getFault()));
+                exception.addDetailInfo(taskInfo.getError().getLocalizedMessage());
+            }
+            throw exception;
+        }
+
+        if (log.isInfoEnabled()) {
+            log.info(MessageUtils.getMessage("IPROCESS-100426", machineName, rootSize));
+        }
+    }
+
     public void powerOnVM(String machineName) {
         // VirtualMachine
         VirtualMachine machine = getVirtualMachine(machineName);

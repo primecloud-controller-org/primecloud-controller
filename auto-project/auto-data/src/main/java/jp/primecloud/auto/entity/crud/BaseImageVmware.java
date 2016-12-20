@@ -40,6 +40,9 @@ public abstract class BaseImageVmware implements Serializable {
     /** INSTANCE_TYPES [VARCHAR(500,0)] */
     private String instanceTypes;
 
+    /** ROOT_SIZE [INT(10,0)] */
+    private Integer rootSize;
+
     /**
      * imageNoを取得します。
      *
@@ -94,6 +97,24 @@ public abstract class BaseImageVmware implements Serializable {
         this.instanceTypes = instanceTypes;
     }
 
+    /**
+     * rootSizeを取得します。
+     *
+     * @return rootSize
+     */
+    public Integer getRootSize() {
+        return rootSize;
+    }
+
+    /**
+     * rootSizeを設定します。
+     *
+     * @param rootSize rootSize
+     */
+    public void setRootSize(Integer rootSize) {
+        this.rootSize = rootSize;
+    }
+
 
     /**
      * {@inheritDoc}
@@ -106,6 +127,7 @@ public abstract class BaseImageVmware implements Serializable {
         result = prime * result + ((imageNo == null) ? 0 : imageNo.hashCode());
         result = prime * result + ((templateName == null) ? 0 : templateName.hashCode());
         result = prime * result + ((instanceTypes == null) ? 0 : instanceTypes.hashCode());
+        result = prime * result + ((rootSize == null) ? 0 : rootSize.hashCode());
 
         return result;
     }
@@ -135,6 +157,11 @@ public abstract class BaseImageVmware implements Serializable {
         } else if (!instanceTypes.equals(other.instanceTypes)) {
             return false;
         }
+        if (rootSize == null) {
+            if (other.rootSize != null) { return false; }
+        } else if (!rootSize.equals(other.rootSize)) {
+            return false;
+        }
 
         return true;
     }
@@ -148,7 +175,8 @@ public abstract class BaseImageVmware implements Serializable {
         sb.append("ImageVmware").append(" [");
         sb.append("imageNo=").append(imageNo).append(", ");
         sb.append("templateName=").append(templateName).append(", ");
-        sb.append("instanceTypes=").append(instanceTypes);
+        sb.append("instanceTypes=").append(instanceTypes).append(", ");
+        sb.append("rootSize=").append(rootSize);
         sb.append("]");
         return sb.toString();
     }

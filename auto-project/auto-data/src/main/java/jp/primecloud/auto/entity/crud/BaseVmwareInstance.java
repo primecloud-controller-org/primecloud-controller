@@ -52,6 +52,9 @@ public abstract class BaseVmwareInstance implements Serializable {
     /** KEY_PAIR_NO [BIGINT(19,0)] */
     private Long keyPairNo;
 
+    /** ROOT_SIZE [INT(10,0)] */
+    private Integer rootSize;
+
     /** IP_ADDRESS [VARCHAR(100,0)] */
     private String ipAddress;
 
@@ -185,6 +188,24 @@ public abstract class BaseVmwareInstance implements Serializable {
     }
 
     /**
+     * rootSizeを取得します。
+     *
+     * @return rootSize
+     */
+    public Integer getRootSize() {
+        return rootSize;
+    }
+
+    /**
+     * rootSizeを設定します。
+     *
+     * @param rootSize rootSize
+     */
+    public void setRootSize(Integer rootSize) {
+        this.rootSize = rootSize;
+    }
+
+    /**
      * ipAddressを取得します。
      *
      * @return ipAddress
@@ -236,6 +257,7 @@ public abstract class BaseVmwareInstance implements Serializable {
         result = prime * result + ((resourcePool == null) ? 0 : resourcePool.hashCode());
         result = prime * result + ((datastore == null) ? 0 : datastore.hashCode());
         result = prime * result + ((keyPairNo == null) ? 0 : keyPairNo.hashCode());
+        result = prime * result + ((rootSize == null) ? 0 : rootSize.hashCode());
         result = prime * result + ((ipAddress == null) ? 0 : ipAddress.hashCode());
         result = prime * result + ((privateIpAddress == null) ? 0 : privateIpAddress.hashCode());
 
@@ -287,6 +309,11 @@ public abstract class BaseVmwareInstance implements Serializable {
         } else if (!keyPairNo.equals(other.keyPairNo)) {
             return false;
         }
+        if (rootSize == null) {
+            if (other.rootSize != null) { return false; }
+        } else if (!rootSize.equals(other.rootSize)) {
+            return false;
+        }
         if (ipAddress == null) {
             if (other.ipAddress != null) { return false; }
         } else if (!ipAddress.equals(other.ipAddress)) {
@@ -315,6 +342,7 @@ public abstract class BaseVmwareInstance implements Serializable {
         sb.append("resourcePool=").append(resourcePool).append(", ");
         sb.append("datastore=").append(datastore).append(", ");
         sb.append("keyPairNo=").append(keyPairNo).append(", ");
+        sb.append("rootSize=").append(rootSize).append(", ");
         sb.append("ipAddress=").append(ipAddress).append(", ");
         sb.append("privateIpAddress=").append(privateIpAddress);
         sb.append("]");

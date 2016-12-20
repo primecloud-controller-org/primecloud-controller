@@ -94,6 +94,11 @@ public class VmwareMachineProcess extends ServiceSupport {
         vmwareProcessClient.cloneVM(vmwareInstance.getMachineName(), imageVmware.getTemplateName(),
                 vmwareInstance.getComputeResource(), vmwareInstance.getResourcePool(), datastoreName);
 
+        // 仮想マシンのルートサイズを拡張
+        if (vmwareInstance.getRootSize() != null) {
+            vmwareProcessClient.extendRootDisk(vmwareInstance.getMachineName(), vmwareInstance.getRootSize());
+        }
+
         // イベントログ出力
         processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance, "VmwareInstanceCreateFinish",
                 new Object[] { platform.getPlatformName(), vmwareInstance.getMachineName() });

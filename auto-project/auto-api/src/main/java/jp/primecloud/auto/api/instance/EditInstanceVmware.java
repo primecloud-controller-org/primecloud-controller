@@ -53,7 +53,7 @@ public class EditInstanceVmware extends ApiSupport {
             @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo, @QueryParam(PARAM_NAME_COMMENT) String comment,
             @QueryParam(PARAM_NAME_INSTANCE_TYPE) String instanceType, @QueryParam(PARAM_NAME_KEY_NAME) String keyName,
             @QueryParam(PARAM_NAME_COMPUTE_RESOURCE) String computeResource,
-            @QueryParam(PARAM_NAME_IS_STATIC_IP) String isStaticIp,
+            @QueryParam(PARAM_NAME_ROOT_SIZE) String rootSize, @QueryParam(PARAM_NAME_IS_STATIC_IP) String isStaticIp,
             @QueryParam(PARAM_NAME_IP_ADDRESS) String ipAddress, @QueryParam(PARAM_NAME_SUBNET_MASK) String subnetMask,
             @QueryParam(PARAM_NAME_DEFAULT_GATEWAY) String defaultGateway) {
 
@@ -105,6 +105,16 @@ public class EditInstanceVmware extends ApiSupport {
             throw new AutoApplicationException("EAPI-000016", instance.getPlatformNo(), computeResource);
         }
 
+        // RootSize
+        Integer rootSize2 = null;
+        if (StringUtils.isNotEmpty(rootSize)) {
+            ImageVmware imageVmware = imageVmwareDao.read(instance.getImageNo());
+            int min = imageVmware.getRootSize() == null ? 0 : imageVmware.getRootSize();
+            ApiValidate.validateRootSize(rootSize, min);
+
+            rootSize2 = Integer.valueOf(rootSize);
+        }
+
         // IsStaticIp
         ApiValidate.validateIsStaticIp(isStaticIp);
         VmwareAddressDto addressDto = null;
@@ -121,7 +131,7 @@ public class EditInstanceVmware extends ApiSupport {
 
         // 更新処理
         instanceService.updateVmwareInstance(Long.parseLong(instanceNo), instance.getInstanceName(), comment,
-                instanceType, computeResource, null, keyPair.getKeyNo(), addressDto);
+                instanceType, computeResource, null, keyPair.getKeyNo(), rootSize2, addressDto);
 
         EditInstanceVmwareResponse response = new EditInstanceVmwareResponse();
 

@@ -74,10 +74,10 @@ public interface InstanceService {
     public void detachDataDisk(Long instanceNo, Long diskNo);
 
     public void updateVmwareInstance(Long instanceNo, String instanceName, String comment, String instanceType,
-            String computeResource, String resourcePool, Long keyPairNo);
+            String computeResource, String resourcePool, Long keyPairNo, Integer rootSize);
 
     public void updateVmwareInstance(Long instanceNo, String instanceName, String comment, String instanceType,
-            String computeResource, String resourcePool, Long keyPairNo, VmwareAddressDto vmwareAddressDto);
+            String computeResource, String resourcePool, Long keyPairNo, Integer rootSize, VmwareAddressDto vmwareAddressDto);
 
     public void updateNiftyInstance(Long instanceNo, String instanceName, String comment, String instanceType,
             Long keyPairNo);

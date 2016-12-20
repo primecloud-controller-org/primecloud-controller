@@ -13,6 +13,7 @@
 		<result property="resourcePool" column="RESOURCE_POOL" nullValue="" />
 		<result property="datastore" column="DATASTORE" nullValue="" />
 		<result property="keyPairNo" column="KEY_PAIR_NO" />
+		<result property="rootSize" column="ROOT_SIZE" />
 		<result property="ipAddress" column="IP_ADDRESS" nullValue="" />
 		<result property="privateIpAddress" column="PRIVATE_IP_ADDRESS" nullValue="" />
 	</resultMap>
@@ -27,6 +28,7 @@
 			t1.RESOURCE_POOL as RESOURCE_POOL,
 			t1.DATASTORE as DATASTORE,
 			t1.KEY_PAIR_NO as KEY_PAIR_NO,
+			t1.ROOT_SIZE as ROOT_SIZE,
 			t1.IP_ADDRESS as IP_ADDRESS,
 			t1.PRIVATE_IP_ADDRESS as PRIVATE_IP_ADDRESS
 		from
@@ -83,6 +85,7 @@
 			RESOURCE_POOL,
 			DATASTORE,
 			KEY_PAIR_NO,
+			ROOT_SIZE,
 			IP_ADDRESS,
 			PRIVATE_IP_ADDRESS
 		) values (
@@ -93,6 +96,7 @@
 			#resourcePool#,
 			#datastore#,
 			#keyPairNo#,
+			#rootSize#,
 			#ipAddress#,
 			#privateIpAddress#
 		)
@@ -108,6 +112,7 @@
 			RESOURCE_POOL = #resourcePool#,
 			DATASTORE = #datastore#,
 			KEY_PAIR_NO = #keyPairNo#,
+			ROOT_SIZE = #rootSize#,
 			IP_ADDRESS = #ipAddress#,
 			PRIVATE_IP_ADDRESS = #privateIpAddress#
 		where
