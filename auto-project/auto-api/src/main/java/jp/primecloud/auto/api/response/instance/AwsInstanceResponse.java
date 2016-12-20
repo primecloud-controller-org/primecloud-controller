@@ -25,6 +25,9 @@ public class AwsInstanceResponse {
     @JsonProperty("Subnet")
     private String subnet;
 
+    @JsonProperty("RootSize")
+    private Integer rootSize;
+
     @JsonProperty("Status")
     private String status;
 
@@ -49,6 +52,7 @@ public class AwsInstanceResponse {
         this.securityGroups = awsInstance.getSecurityGroups();
         this.availabilityZone = awsInstance.getAvailabilityZone();
         this.subnetId = awsInstance.getSubnetId();
+        this.rootSize = awsInstance.getRootSize();
         this.status = awsInstance.getStatus();
         this.dnsName = awsInstance.getDnsName();
         this.privateDnsName = awsInstance.getPrivateDnsName();
@@ -102,6 +106,14 @@ public class AwsInstanceResponse {
 
     public void setSubnet(String subnet) {
         this.subnet = subnet;
+    }
+
+    public Integer getRootSize() {
+        return rootSize;
+    }
+
+    public void setRootSize(Integer rootSize) {
+        this.rootSize = rootSize;
     }
 
     public String getStatus() {

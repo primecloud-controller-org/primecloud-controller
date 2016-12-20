@@ -24,6 +24,9 @@ public class VmwareInstanceResponse {
     @JsonProperty("KeyName")
     private String keyName;
 
+    @JsonProperty("RootSize")
+    private Integer rootSize;
+
     @JsonProperty("IpAddress")
     private String ipAddress;
 
@@ -45,6 +48,7 @@ public class VmwareInstanceResponse {
         this.computeResource = vmwareInstance.getComputeResource();
         this.resourcePool = vmwareInstance.getResourcePool();
         this.datastore = vmwareInstance.getDatastore();
+        this.rootSize = vmwareInstance.getRootSize();
         this.ipAddress = vmwareInstance.getIpAddress();
         this.privateIpAddress = vmwareInstance.getPrivateIpAddress();
     }
@@ -95,6 +99,14 @@ public class VmwareInstanceResponse {
 
     public void setKeyName(String keyName) {
         this.keyName = keyName;
+    }
+
+    public Integer getRootSize() {
+        return rootSize;
+    }
+
+    public void setRootSize(Integer rootSize) {
+        this.rootSize = rootSize;
     }
 
     public String getIpAddress() {
