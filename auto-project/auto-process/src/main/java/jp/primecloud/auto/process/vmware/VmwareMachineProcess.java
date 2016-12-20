@@ -111,8 +111,14 @@ public class VmwareMachineProcess extends ServiceSupport {
         Datastore datastore = null;
         long freeSpace = 0L;
 
+        // ComputeResourceごとのフォルダがあれば、その中のデータストアを用いる
         String datastoreFolderName = vmwareInstance.getComputeResource() + "-storage";
         Folder datastoreFolder = vmwareProcessClient.getVmwareClient().search(Folder.class, datastoreFolderName);
+        if (datastoreFolder == null) {
+            // ComputeResourceごとのフォルダがなければ、"storage"フォルダの中のデータストアを用いる
+            datastoreFolder = vmwareProcessClient.getVmwareClient().search(Folder.class, "storage");
+        }
+
         if (datastoreFolder != null) {
             ManagedEntity[] entities = vmwareProcessClient.getVmwareClient().searchByType(datastoreFolder,
                     Datastore.class);
