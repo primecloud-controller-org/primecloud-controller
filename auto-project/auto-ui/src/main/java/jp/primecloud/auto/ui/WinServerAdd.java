@@ -385,7 +385,6 @@ public class WinServerAdd extends Window {
             // カラム設定
             addContainerProperty("No", Integer.class, null);
             addContainerProperty("Image", Label.class, new Label());
-            addContainerProperty("Detail", Label.class, new Label());
             setColumnExpandRatio("Image", 100);
             setCellStyleGenerator(new StandardCellStyleGenerator());
         }
@@ -406,13 +405,7 @@ public class WinServerAdd extends Window {
                 Label nlbl = new Label(IconUtils.createImageTag(getApplication(), nameIcon, name), Label.CONTENT_XHTML);
                 nlbl.setHeight(COLUMN_HEIGHT);
 
-                // OS名
-                String os = image.getImage().getOsDisp();
-                Icons osIcon = IconUtils.getOsIcon(image);
-                Label slbl = new Label(IconUtils.createImageTag(getApplication(), osIcon, os), Label.CONTENT_XHTML);
-                slbl.setHeight(COLUMN_HEIGHT);
-
-                addItem(new Object[] { (i + 1), nlbl, slbl }, image.getImage().getImageNo());
+                addItem(new Object[] { (i + 1), nlbl }, image.getImage().getImageNo());
             }
         }
 
