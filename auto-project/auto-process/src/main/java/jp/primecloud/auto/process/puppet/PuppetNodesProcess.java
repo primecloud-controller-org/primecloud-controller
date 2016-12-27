@@ -120,17 +120,6 @@ public class PuppetNodesProcess extends ServiceSupport {
                 //instance.setStatus(InstanceStatus.CONFIGURING.toString());
                 instance.setCoodinateStatus(status.toString());
                 instanceDao.update(instance);
-            } else {
-                // Puppet設定対象外のものは協調設定済みにする
-                InstanceCoodinateStatus status;
-                if (startInstanceNos.contains(instance.getInstanceNo())) {
-                    status = InstanceCoodinateStatus.COODINATED;
-                } else {
-                    status = InstanceCoodinateStatus.UN_COODINATED;
-                }
-
-                instance.setCoodinateStatus(status.toString());
-                instanceDao.update(instance);
             }
         }
 

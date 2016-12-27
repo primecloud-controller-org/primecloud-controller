@@ -40,11 +40,10 @@ import jp.primecloud.auto.entity.crud.LoadBalancerListener;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.MultiCauseException;
 import jp.primecloud.auto.log.EventLogger;
+import jp.primecloud.auto.process.lb.LoadBalancerProcess;
 import jp.primecloud.auto.service.ServiceSupport;
 
 import org.apache.commons.lang.BooleanUtils;
-
-import jp.primecloud.auto.process.lb.LoadBalancerProcess;
 
 /**
  * <p>
@@ -224,8 +223,10 @@ public class ProcessManager extends ServiceSupport {
             if (InstanceStatus.fromStatus(instance.getStatus()) == InstanceStatus.RUNNING) {
                 if (BooleanUtils.isTrue(instance.getEnabled())) {
                     if (InstanceCoodinateStatus.fromStatus(instance.getCoodinateStatus()) == InstanceCoodinateStatus.UN_COODINATED) {
-                        coodinated = false;
-                        break;
+                        if (puppetInstanceDao.countByInstanceNo(instance.getInstanceNo()) > 0) {
+                            coodinated = false;
+                            break;
+                        }
                     }
                 }
             }
@@ -491,8 +492,10 @@ public class ProcessManager extends ServiceSupport {
             if (InstanceStatus.fromStatus(instance.getStatus()) == InstanceStatus.RUNNING) {
                 if (BooleanUtils.isNotTrue(instance.getEnabled())) {
                     if (InstanceCoodinateStatus.fromStatus(instance.getCoodinateStatus()) == InstanceCoodinateStatus.COODINATED) {
-                        coodinated = true;
-                        break;
+                        if (puppetInstanceDao.countByInstanceNo(instance.getInstanceNo()) > 0) {
+                            coodinated = true;
+                            break;
+                        }
                     }
                 }
             }
@@ -576,7 +579,7 @@ public class ProcessManager extends ServiceSupport {
                         LoggingUtils.setFarmName(farm.getFarmName());
                         LoggingUtils.setLoginUserNo(user.getUserNo());
                         try {
-                            log.debug("instanceProcess.stop(instanceNo):"+String.valueOf(instanceNo));
+                            log.debug("instanceProcess.stop(instanceNo):" + String.valueOf(instanceNo));
                             instanceProcess.stop(instanceNo);
                         } catch (MultiCauseException ignore) {
                         } catch (Throwable e) {
