@@ -23,7 +23,6 @@ import java.util.List;
 
 import jp.primecloud.auto.config.Config;
 import jp.primecloud.auto.service.ProcessService;
-import jp.primecloud.auto.service.dto.ComponentDto;
 import jp.primecloud.auto.service.dto.InstanceDto;
 import jp.primecloud.auto.service.dto.UserAuthDto;
 import jp.primecloud.auto.ui.DialogConfirm.Buttons;
@@ -160,11 +159,6 @@ public class ServerButtonsTop extends CssLayout {
         List<Long> instanceNos = new ArrayList<Long>();
         for (Object itemId : sender.serverPanel.serverTable.getItemIds()) {
             instanceNos.add(((InstanceDto) itemId).getInstance().getInstanceNo());
-        }
-
-        List<Long> componentNos = new ArrayList<Long>();
-        for (Object itemId : sender.servicePanel.serviceTable.getItemIds()) {
-            componentNos.add(((ComponentDto) itemId).getComponent().getComponentNo());
         }
 
         ProcessService processService = BeanContext.getBean(ProcessService.class);
