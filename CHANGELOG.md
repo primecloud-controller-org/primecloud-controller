@@ -3,6 +3,103 @@
 しています。
 
 
+2017-01-05 PrimeCloud Controller 2.8.0リリース
+============================================
+
+## 主な変更点
+
+### 機能追加
+
+- Java 8環境をサポートしました。 [#74](https://github.com/primecloud-controller-org/primecloud-controller/issues/74)
+- VMware vSphere 6.0をサポートしました。 [#89](https://github.com/primecloud-controller-org/primecloud-controller/issues/89)
+- Zabbix Server 3.0系をサポートしました。 [#76](https://github.com/primecloud-controller-org/primecloud-controller/issues/76)
+- AWSプラットフォームのサーバのルートディスクサイズを変更できるようにしました。 [#64](https://github.com/primecloud-controller-org/primecloud-controller/issues/64)
+- VMwareプラットフォームのサーバのルートディスクサイズを変更できるようにしました。 [#90](https://github.com/primecloud-controller-org/primecloud-controller/issues/90)
+- 実行できるAPIを制限できるようにしました。 [#79](https://github.com/primecloud-controller-org/primecloud-controller/issues/79)
+
+### 改善
+
+- AWSプラットフォームで利用できるサブネットを限定できるようにしました。 [#84](https://github.com/primecloud-controller-org/primecloud-controller/issues/84)
+- AWSプラットフォームのサーバでプライベートIPアドレスやElastic IP利用するかどうか変更できるようにしました。 [d2b51a3](https://github.com/primecloud-controller-org/primecloud-controller/commit/d2b51a3ff1a3cf9c712924a39daa0e74a37ed890)
+- AWSプラットフォームのサーバで利用できるインスタンスストア数を制限できるようにしました。 [a5b85c9](https://github.com/primecloud-controller-org/primecloud-controller/commit/a5b85c92e8ad40b6b1a489216286db526f258a79)
+- AWSプラットフォームのボリュームのタイプを指定できるようにしました。 [#86](https://github.com/primecloud-controller-org/primecloud-controller/issues/86)
+- 特別な設定がなくてもクラウドプラットフォームが提供するロードバランサを利用できるようにしました。 [#81](https://github.com/primecloud-controller-org/primecloud-controller/issues/81)
+- UltraMonkeyロードバランサを起動した際に、Zabbixのホストとして登録するようにしました。 [#88](https://github.com/primecloud-controller-org/primecloud-controller/issues/88)
+- EditInstanceVmware APIが正しく動作するように修正しました。 [37fbce1](https://github.com/primecloud-controller-org/primecloud-controller/commit/37fbce1919fb737c301a59c9d2bca683c7e6df1f)
+- EditInstance APIをクラウドプラットフォームごとのAPIに分割しました。 [f1631da](https://github.com/primecloud-controller-org/primecloud-controller/commit/f1631dabfe4a0608c094881ff4daa28b26cf4c70)
+- Puppetのマニフェストの中で、同じコンポーネントがアタッチされたインスタンスの情報を扱えるようにしました。 [#82](https://github.com/primecloud-controller-org/primecloud-controller/issues/82)
+
+### 修正
+
+- 認証が必要なプロキシ環境下でクラウドプラットフォームを制御できない不具合を修正しました。 [#78](https://github.com/primecloud-controller-org/primecloud-controller/issues/78)
+- プラットフォーム情報の取得APIでシステム内部の情報を取得できてしまう問題を修正しました。 [#80](https://github.com/primecloud-controller-org/primecloud-controller/issues/80)
+- AWSロードバランサのリスナーのプロトコルをSSLに変更できない不具合を修正しました。 [#83](https://github.com/primecloud-controller-org/primecloud-controller/issues/83)
+- UltraMonkeyロードバランサを停止した際に、WARNレベルのログが出力される問題を修正しました。 [#87](https://github.com/primecloud-controller-org/primecloud-controller/issues/87)
+- Windowsサーバのパスワード取得ボタンが使えないプラットフォーム以外でも表示されてしまう問題を修正しました。 [2bc7cba](https://github.com/primecloud-controller-org/primecloud-controller/commit/2bc7cbae8d63a86e5678b85ef6ddc37195ae3481)
+
+### 変更
+
+- サーバ追加画面のサーバ種別欄にOSを表示しないようにしました。 [fb0c19a](https://github.com/primecloud-controller-org/primecloud-controller/commit/fb0c19ae9f8f03601624eb128459b6440d8371a3)
+- 一部APIの戻り値のフィールド名を変更しました。 [244d61b](https://github.com/primecloud-controller-org/primecloud-controller/commit/244d61b5788e95d8c13929c2ec1d128084820c83)
+- 実験的に実装していたオートスケーリング関連のコードを削除しました。 [1b7d73a](https://github.com/primecloud-controller-org/primecloud-controller/commit/1b7d73a4122b84d8ddf3ec8125c2ae290cc8f3f5)
+- UltraMonkeyロードバランサで自動的に付けられるサーバ名のルールを変更しました。 [6717cb8](https://github.com/primecloud-controller-org/primecloud-controller/commit/6717cb804d9ee4a5f5d05138b224923e4871ecc6)
+
+### その他
+
+- インストール時に導入されるサンプルデータを変更しました。 [c2b5b8a](https://github.com/primecloud-controller-org/primecloud-controller/commit/c2b5b8a09695e5d35485607b01cc5b575ae0dd45)
+- AWSプラットフォームの制御において、IaaS Gatewayの代わりにaws-java-sdkを用いるように変更しました。 [#72](https://github.com/primecloud-controller-org/primecloud-controller/issues/72)
+- ソースコードを全体的にリファクタリングしました。 
+
+
+## アップグレード
+
+バージョン2.7.0の環境をアップグレードする場合、次の点に注意してください。
+
+### コンフィグファイルの変更
+
+```/opt/adc/conf/config.properties``` ファイルに次の設定を追加してください。  
+（※追加しなくても動作に影響はありません。）
+
+```
+aws.logging = false
+aws.maxInstanceStore = 4
+aws.volumeType = standard
+
+ui.aws.enablePrivateIp = true
+ui.aws.enableElasticIp = true
+
+api.allowApi = .*
+```
+
+### データベースのスキーマの変更
+
+データベースで次のDDL文を実行し、スキーマを変更してください。
+
+```sql
+drop table AUTO_SCALING_CONF;
+
+alter table PLATFORM_AWS add column SUBNET_ID varchar(300);
+
+create table ZABBIX_LOAD_BALANCER (
+    LOAD_BALANCER_NO bigint not null,
+    HOSTID varchar(20),
+    STATUS varchar(20),
+    constraint ZABBIX_LOAD_BALANCER_PK primary key(LOAD_BALANCER_NO)
+);
+alter table ZABBIX_LOAD_BALANCER add constraint ZABBIX_LOAD_BALANCER_FK1 foreign key (LOAD_BALANCER_NO) references LOAD_BALANCER (LOAD_BALANCER_NO);
+insert into ZABBIX_LOAD_BALANCER select LOAD_BALANCER_NO, HOSTID, STATUS from AWS_LOAD_BALANCER;
+alter table AWS_LOAD_BALANCER drop column HOSTID;
+alter table AWS_LOAD_BALANCER drop column STATUS;
+
+alter table IMAGE_AWS add column ROOT_SIZE int;
+alter table AWS_INSTANCE add column ROOT_SIZE int after SUBNET_ID;
+
+alter table IMAGE_VMWARE add column ROOT_SIZE int;
+alter table VMWARE_INSTANCE add column ROOT_SIZE int after KEY_PAIR_NO;
+```
+
+
+
 2016-09-22 PrimeCloud Controller 2.7.0リリース
 ============================================
 
