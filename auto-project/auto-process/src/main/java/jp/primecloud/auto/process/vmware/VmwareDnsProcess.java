@@ -89,16 +89,24 @@ public class VmwareDnsProcess extends ServiceSupport {
         Instance instance = instanceDao.read(instanceNo);
         VmwareInstance vmwareInstance = vmwareInstanceDao.read(instanceNo);
 
+        String privateIp = vmwareInstance.getPrivateIpAddress();
+
+        // VmwareInstanceにPulicIpAddressが無い場合、PrivateIpAddressをIPアドレスとする
+        String publicIp;
+        if (StringUtils.isEmpty(vmwareInstance.getIpAddress())) {
+            publicIp = vmwareInstance.getPrivateIpAddress();
+        } else {
+            publicIp = vmwareInstance.getIpAddress();
+        }
+
         // 最新のVmwareInstance情報がInstanceに登録されている場合はスキップする
-        if (StringUtils.equals(instance.getPublicIp(), vmwareInstance.getIpAddress())) {
+        if (StringUtils.equals(instance.getPublicIp(), publicIp)) {
             return;
         }
 
         DnsProcessClient dnsProcessClient = dnsProcessClientFactory.createDnsProcessClient();
 
         String fqdn = instance.getFqdn();
-        String publicIp = vmwareInstance.getIpAddress();
-        String privateIp = vmwareInstance.getPrivateIpAddress();
 
         // 正引きの追加
         dnsProcessClient.addForward(fqdn, publicIp);

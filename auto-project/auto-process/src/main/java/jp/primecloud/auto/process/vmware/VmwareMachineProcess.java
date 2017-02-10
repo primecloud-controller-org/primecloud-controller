@@ -307,14 +307,14 @@ public class VmwareMachineProcess extends ServiceSupport {
             }
 
             // NIC情報がPublicかPrivateかの判定
-            if (publicNetworkName.equals(nicInfo.getNetwork())) {
+            if (StringUtils.isNotEmpty(publicNetworkName) && publicNetworkName.equals(nicInfo.getNetwork())) {
                 publicIpAddress = ipAddress;
             } else if (privateNetworkName.equals(nicInfo.getNetwork())) {
                 privateIpAddress = ipAddress;
             }
         }
 
-        if (publicIpAddress == null) {
+        if (StringUtils.isNotEmpty(publicNetworkName) && publicIpAddress == null) {
             // パブリックIPを取得できない場合
             throw new AutoException("EPROCESS-000510", vmwareInstance.getMachineName());
         } else if (privateIpAddress == null) {

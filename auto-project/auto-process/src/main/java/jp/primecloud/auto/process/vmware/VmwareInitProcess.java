@@ -23,9 +23,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.config.Config;
 import jp.primecloud.auto.entity.crud.Farm;
@@ -39,6 +36,10 @@ import jp.primecloud.auto.log.EventLogger;
 import jp.primecloud.auto.process.ProcessLogger;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+
 import com.vmware.vim25.DistributedVirtualPortgroupInfo;
 import com.vmware.vim25.VirtualDevice;
 import com.vmware.vim25.VirtualEthernetCard;
@@ -211,7 +212,8 @@ public class VmwareInitProcess extends ServiceSupport {
      * @param instanceNo
      * @param vmwareNetworkProcess
      */
-    public void initializeNetwork(VmwareProcessClient vmwareProcessClient, Long instanceNo, VmwareNetworkProcess vmwareNetworkProcess) {
+    public void initializeNetwork(VmwareProcessClient vmwareProcessClient, Long instanceNo,
+            VmwareNetworkProcess vmwareNetworkProcess) {
         VmwareInstance vmwareInstance = vmwareInstanceDao.read(instanceNo);
 
         // VirtualMachine
@@ -224,35 +226,42 @@ public class VmwareInitProcess extends ServiceSupport {
         PlatformVmware platformVmware = platformVmwareDao.read(vmwareProcessClient.getPlatformNo());
         String publicNetworkName = platformVmware.getPublicNetwork();
 
-        boolean configPublic = false;
-        DistributedVirtualPortgroupInfo dvPortgroupInfo = null;
+        // パブリックネットワークに相応する分散ポートグループの取得
         String publicPortGroup = null;
-        // 分散ポートグループ情報取得
-        dvPortgroupInfo = vmwareNetworkProcess.getDVPortgroupInfo(machine, publicNetworkName);
-        // 分散ポートグループの場合
-        if (dvPortgroupInfo != null)
-        {
-            publicPortGroup = dvPortgroupInfo.getPortgroupKey();
+        if (StringUtils.isNotEmpty(publicNetworkName)) {
+            DistributedVirtualPortgroupInfo dvPortgroupInfo = vmwareNetworkProcess.getDVPortgroupInfo(machine,
+                    publicNetworkName);
+            if (dvPortgroupInfo != null) {
+                publicPortGroup = dvPortgroupInfo.getPortgroupKey();
+            }
         }
+
+        boolean configPublic = false;
 
         int i = 1;
         for (VirtualDevice device : machine.getConfig().getHardware().getDevice()) {
             if (device instanceof VirtualEthernetCard) {
                 VirtualEthernetCard ethernetCard = (VirtualEthernetCard) device;
+
+                // ネットワーク名の取得
                 String networkName = null;
-                String portGroup = null;
                 if (ethernetCard.getBacking() instanceof VirtualEthernetCardNetworkBackingInfo) {
-                    VirtualEthernetCardNetworkBackingInfo backingInfo1 = (VirtualEthernetCardNetworkBackingInfo) ethernetCard.getBacking();
-                    networkName = backingInfo1.getDeviceName();
+                    VirtualEthernetCardNetworkBackingInfo backingInfo = (VirtualEthernetCardNetworkBackingInfo) ethernetCard
+                            .getBacking();
+                    networkName = backingInfo.getDeviceName();
                 }
+
+                // ポートグループ名の取得
+                String portGroup = null;
                 if (ethernetCard.getBacking() instanceof VirtualEthernetCardDistributedVirtualPortBackingInfo) {
-                    VirtualEthernetCardDistributedVirtualPortBackingInfo backingInfo2 = (VirtualEthernetCardDistributedVirtualPortBackingInfo) ethernetCard.getBacking();
+                    VirtualEthernetCardDistributedVirtualPortBackingInfo backingInfo2 = (VirtualEthernetCardDistributedVirtualPortBackingInfo) ethernetCard
+                            .getBacking();
                     portGroup = backingInfo2.getPort().getPortgroupKey();
                 }
 
                 Map<String, String> map;
-                if ((StringUtils.isNotEmpty(networkName) && StringUtils.equals(networkName, publicNetworkName)) ||
-                        (StringUtils.isNotEmpty(portGroup) && StringUtils.equals(portGroup, publicPortGroup))) {
+                if ((StringUtils.isNotEmpty(networkName) && StringUtils.equals(networkName, publicNetworkName))
+                        || (StringUtils.isNotEmpty(portGroup) && StringUtils.equals(portGroup, publicPortGroup))) {
                     // パブリックのイーサネットカードの場合
                     map = createPublicNetworkData(instanceNo, ethernetCard);
                     configPublic = true;
@@ -295,8 +304,8 @@ public class VmwareInitProcess extends ServiceSupport {
                 } else {
                     // イベントログ出力
                     Instance instance = instanceDao.read(instanceNo);
-                    processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance,  "VmwareNetworkCustomizeDhcp",
-                            new Object[] { vmwareInstance.getMachineName() });
+                    processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance,
+                            "VmwareNetworkCustomizeDhcp", new Object[] { vmwareInstance.getMachineName() });
 
                     if (BooleanUtils.isTrue(vmwareAddress.getAssociated())) {
                         // データベース更新
