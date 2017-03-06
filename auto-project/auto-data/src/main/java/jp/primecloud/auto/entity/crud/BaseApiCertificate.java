@@ -40,6 +40,9 @@ public abstract class BaseApiCertificate implements Serializable {
     /** API_SECRET_KEY [VARCHAR(100,0)] */
     private String apiSecretKey;
 
+    /** ENABLED [BIT(0,0)] */
+    private Boolean enabled;
+
     /**
      * userNoを取得します。
      *
@@ -94,6 +97,24 @@ public abstract class BaseApiCertificate implements Serializable {
         this.apiSecretKey = apiSecretKey;
     }
 
+    /**
+     * enabledを取得します。
+     *
+     * @return enabled
+     */
+    public Boolean getEnabled() {
+        return enabled;
+    }
+
+    /**
+     * enabledを設定します。
+     *
+     * @param enabled enabled
+     */
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+    }
+
 
     /**
      * {@inheritDoc}
@@ -106,6 +127,7 @@ public abstract class BaseApiCertificate implements Serializable {
         result = prime * result + ((userNo == null) ? 0 : userNo.hashCode());
         result = prime * result + ((apiAccessId == null) ? 0 : apiAccessId.hashCode());
         result = prime * result + ((apiSecretKey == null) ? 0 : apiSecretKey.hashCode());
+        result = prime * result + ((enabled == null) ? 0 : enabled.hashCode());
 
         return result;
     }
@@ -135,6 +157,11 @@ public abstract class BaseApiCertificate implements Serializable {
         } else if (!apiSecretKey.equals(other.apiSecretKey)) {
             return false;
         }
+        if (enabled == null) {
+            if (other.enabled != null) { return false; }
+        } else if (!enabled.equals(other.enabled)) {
+            return false;
+        }
 
         return true;
     }
@@ -148,7 +175,8 @@ public abstract class BaseApiCertificate implements Serializable {
         sb.append("ApiCertificate").append(" [");
         sb.append("userNo=").append(userNo).append(", ");
         sb.append("apiAccessId=").append(apiAccessId).append(", ");
-        sb.append("apiSecretKey=").append(apiSecretKey);
+        sb.append("apiSecretKey=").append(apiSecretKey).append(", ");
+        sb.append("enabled=").append(enabled);
         sb.append("]");
         return sb.toString();
     }

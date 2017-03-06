@@ -9,6 +9,7 @@
 		<result property="userNo" column="USER_NO" />
 		<result property="apiAccessId" column="API_ACCESS_ID" nullValue="" />
 		<result property="apiSecretKey" column="API_SECRET_KEY" nullValue="" />
+		<result property="enabled" column="ENABLED" />
 	</resultMap>
 
 	<sql id="selectSql">
@@ -16,7 +17,8 @@
 		select
 			t1.USER_NO as USER_NO,
 			t1.API_ACCESS_ID as API_ACCESS_ID,
-			t1.API_SECRET_KEY as API_SECRET_KEY
+			t1.API_SECRET_KEY as API_SECRET_KEY,
+			t1.ENABLED as ENABLED
 		from
 			API_CERTIFICATE t1
 		]]>
@@ -74,11 +76,13 @@
 		insert into API_CERTIFICATE (
 			USER_NO,
 			API_ACCESS_ID,
-			API_SECRET_KEY
+			API_SECRET_KEY,
+			ENABLED
 		) values (
 			#userNo#,
 			#apiAccessId#,
-			#apiSecretKey#
+			#apiSecretKey#,
+			#enabled#
 		)
 		]]>
 	</insert>
@@ -87,7 +91,8 @@
 		<![CDATA[
 		update API_CERTIFICATE set
 			API_ACCESS_ID = #apiAccessId#,
-			API_SECRET_KEY = #apiSecretKey#
+			API_SECRET_KEY = #apiSecretKey#,
+			ENABLED = #enabled#
 		where
 			USER_NO = #userNo#
 		]]>

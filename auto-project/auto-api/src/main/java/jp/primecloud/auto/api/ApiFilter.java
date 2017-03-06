@@ -43,6 +43,7 @@ import jp.primecloud.auto.util.MessageUtils;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
 import com.sun.jersey.spi.container.ContainerRequest;
@@ -103,11 +104,21 @@ public class ApiFilter extends ApiSupport implements ContainerRequestFilter {
             throw new AutoApplicationException("EAPI-000008", PARAM_NAME_ACCESS_ID, accessId);
         }
 
+        if (BooleanUtils.isNotTrue(apiCertificate.getEnabled())) {
+            // API認証情報が無効の場合
+            throw new AutoApplicationException("EAPI-000024", accessId);
+        }
+
         // ユーザ情報の取得
         User accessUser = userDao.read(apiCertificate.getUserNo());
         if (accessUser == null) {
             // ユーザ情報が存在しない場合
             throw new AutoApplicationException("EAPI-100000", "User", "UserNo", apiCertificate.getUserNo());
+        }
+
+        if (BooleanUtils.isNotTrue(accessUser.getEnabled())) {
+            // ユーザが無効の場合
+            throw new AutoApplicationException("EAPI-000025");
         }
 
         // Signatureの合致チェック

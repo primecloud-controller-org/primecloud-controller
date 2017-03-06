@@ -78,7 +78,7 @@ if [ -n "${USER_NAME}" ]; then
         API_SECRET_KEY="${MESSAGE}"
 
         #PCC-API認証情報の作成
-        SQL_CREATE_API_CERTIFICATE="INSERT INTO API_CERTIFICATE values (${USER_NO}, '${API_ACCESS_ID}','${API_SECRET_KEY}')"
+        SQL_CREATE_API_CERTIFICATE="INSERT INTO API_CERTIFICATE (USER_NO, API_ACCESS_ID, API_SECRET_KEY) values (${USER_NO}, '${API_ACCESS_ID}','${API_SECRET_KEY}')"
         MESSAGE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -U -sql \"${SQL_CREATE_API_CERTIFICATE}\""`
         if [ -n "${MESSAGE}" ]; then
                 echo "${MESSAGE}"
