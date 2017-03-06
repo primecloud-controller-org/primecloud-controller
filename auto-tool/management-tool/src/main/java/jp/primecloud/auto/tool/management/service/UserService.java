@@ -29,7 +29,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import jp.primecloud.auto.common.component.PasswordEncryptor;
-import jp.primecloud.auto.config.Config;
 import jp.primecloud.auto.entity.crud.AwsCertificate;
 import jp.primecloud.auto.entity.crud.CloudstackCertificate;
 import jp.primecloud.auto.entity.crud.NiftyCertificate;
@@ -56,7 +55,6 @@ public class UserService {
             titles.append(StringUtils.rightPad("Status", padSize, " "));
             titles.append(StringUtils.rightPad("Platform", padSize, " "));
             System.out.println(titles.toString());
-            String disablecode = Config.getProperty("DISABLE_CODE");
 
             Map<Long, Platform> platformMap = new LinkedHashMap<Long, Platform>();
             String platformSql = "SELECT * FROM PLATFORM";
@@ -129,7 +127,7 @@ public class UserService {
                 List<String> columns = new ArrayList<String>();
                 columns.add(user.getUsername());
                 // アカウントの無効化チェック
-                if(!StringUtils.startsWith(user.getPassword(), disablecode)){
+                if(BooleanUtils.isTrue(user.getEnabled()) && !StringUtils.startsWith(user.getPassword(), "DISABLE\t")){
                     columns.add("enable");
                 }else{
                     columns.add("disable");

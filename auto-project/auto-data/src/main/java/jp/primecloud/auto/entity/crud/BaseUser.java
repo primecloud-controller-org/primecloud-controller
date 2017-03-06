@@ -40,6 +40,9 @@ public abstract class BaseUser implements Serializable {
     /** PASSWORD [VARCHAR(50,0)] */
     private String password;
 
+    /** ENABLED [BIT(0,0)] */
+    private Boolean enabled;
+
     /**
      * userNoを取得します。
      *
@@ -95,6 +98,25 @@ public abstract class BaseUser implements Serializable {
     }
 
     /**
+     * enabledを取得します。
+     *
+     * @return enabled
+     */
+    public Boolean getEnabled() {
+        return enabled;
+    }
+
+    /**
+     * enabledを設定します。
+     *
+     * @param enabled enabled
+     */
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+    }
+
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -105,6 +127,7 @@ public abstract class BaseUser implements Serializable {
         result = prime * result + ((userNo == null) ? 0 : userNo.hashCode());
         result = prime * result + ((username == null) ? 0 : username.hashCode());
         result = prime * result + ((password == null) ? 0 : password.hashCode());
+        result = prime * result + ((enabled == null) ? 0 : enabled.hashCode());
 
         return result;
     }
@@ -134,6 +157,11 @@ public abstract class BaseUser implements Serializable {
         } else if (!password.equals(other.password)) {
             return false;
         }
+        if (enabled == null) {
+            if (other.enabled != null) { return false; }
+        } else if (!enabled.equals(other.enabled)) {
+            return false;
+        }
 
         return true;
     }
@@ -147,7 +175,8 @@ public abstract class BaseUser implements Serializable {
         sb.append("User").append(" [");
         sb.append("userNo=").append(userNo).append(", ");
         sb.append("username=").append(username).append(", ");
-        sb.append("password=").append(password);
+        sb.append("password=").append(password).append(", ");
+        sb.append("enabled=").append(enabled);
         sb.append("]");
         return sb.toString();
     }

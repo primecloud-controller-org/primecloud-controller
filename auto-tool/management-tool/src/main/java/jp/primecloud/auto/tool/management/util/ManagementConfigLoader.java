@@ -37,12 +37,9 @@ public class ManagementConfigLoader {
 
     public static String propertyPath = "management-config.properties";
 
-    public static String permanentPropPath = "permanent-config.properties";
-
     public static void init() {
         try {
             loadProperties(propertyPath);
-            loadProperties(permanentPropPath);
 //            loadConfig();
             loadProp();
         } catch (Exception e) {

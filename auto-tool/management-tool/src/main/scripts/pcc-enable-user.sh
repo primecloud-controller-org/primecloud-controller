@@ -46,18 +46,11 @@ if [ -n "${USER_NAME}" ]; then
                 exit 1
         fi
 
-		#無効化文字列を読む
-        DISABLE_CODE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -config DISABLE_CODE"`
-		if [ "${DISABLE_CODE}" = "NULL" ]; then
-			echo "無効化文字列の読み込みに失敗しました。"
-			exit 1
-		fi
+        #ユーザがすでに有効化されているかどうかの確認
+        SQL_USER_DISABLED="SELECT USER_NO from USER where USER_NO = ${USER_NO} and (ENABLED = 0 or PASSWORD like 'DISABLE\t%')"
+        USER_NO_CHECK=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -S -sql \"${SQL_USER_DISABLED}\" -columntype int -columnname USER_NO"`
 
-        #すでに有効化されているかか確認
-        SQL_USER_ENABLED="SELECT LOCATE('${DISABLE_CODE}',PASSWORD) as LOCATE from USER where USER_NO=${USER_NO}"
-        LOCATE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -S -sql \"${SQL_USER_ENABLED}\" -columntype int -columnname LOCATE"`
-
-        if [ "${LOCATE}" = "0" ]; then
+        if [ "${USER_NO_CHECK}" = "NULL" ]; then
                 echo "${USER_NAME} はすでに有効化されています。"
                 exit 1
         fi
@@ -74,8 +67,8 @@ if [ -n "${USER_NAME}" ]; then
 	        fi
         fi
 
-        #対象のユーザのパスワードを有効化する
-        SQL_USER_ENABLE="UPDATE USER SET PASSWORD=TRIM(LEADING '${DISABLE_CODE}' FROM PASSWORD) where USER_NO=${USER_NO}"
+        #対象のユーザを有効化する
+        SQL_USER_ENABLE="UPDATE USER SET ENABLED = 1, PASSWORD=TRIM(LEADING 'DISABLE\t' FROM PASSWORD) where USER_NO=${USER_NO}"
         MESSAGE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -U -sql \"${SQL_USER_ENABLE}\""`
 
         if [ -n "${MESSAGE}" ]; then

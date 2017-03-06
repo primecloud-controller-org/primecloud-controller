@@ -18,6 +18,8 @@
  */
 package jp.primecloud.auto.service.impl;
 
+import org.apache.commons.lang.BooleanUtils;
+
 import jp.primecloud.auto.common.component.PasswordEncryptor;
 import jp.primecloud.auto.entity.crud.PccSystemInfo;
 import jp.primecloud.auto.entity.crud.User;
@@ -51,6 +53,13 @@ public class UserServiceImpl extends ServiceSupport implements UserService {
             eventLogger.log(EventLogLevel.INFO, null, null, null, null, null, null, null, null, "AuditLoginFailure",
                     null, null, new Object[] { username });
             throw new AutoApplicationException("ESERVICE-000101", username);
+        }
+
+        if (BooleanUtils.isNotTrue(user.getEnabled())) {
+            // ユーザが無効の場合
+            eventLogger.log(EventLogLevel.INFO, null, null, null, null, null, null, null, null, "AuditLoginFailure",
+                    null, null, new Object[] { username });
+            throw new AutoApplicationException("ESERVICE-000106", username);
         }
 
         // ユーザパスワード暗号化キーを取得

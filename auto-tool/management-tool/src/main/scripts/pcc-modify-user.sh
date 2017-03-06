@@ -85,19 +85,13 @@ if [ -n "${USER_NAME}" -a -n "${PASSWORD}" ]; then
             #        exit 1
             #fi
         #fi
-        #無効化文字列を読む
-        DISABLE_CODE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -config DISABLE_CODE"`
-        if [ "${DISABLE_CODE}" = "NULL" ]; then
-            echo "DISABLE_CODEの読み込みに失敗しました。"
-            exit 1
-        fi
 
-        #無効化されているか確認
-        SQL_USER_DISABLED="SELECT LOCATE('${DISABLE_CODE}',PASSWORD) as LOCATE from USER where USER_NO=${USER_NO}"
-        LOCATE=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -S -sql \"${SQL_USER_DISABLED}\" -columntype int -columnname LOCATE"`
+        #ユーザがすでに無効化されているかどうかの確認
+        SQL_USER_DISABLED="SELECT USER_NO from USER where USER_NO = ${USER_NO} and (ENABLED = 0 or PASSWORD like 'DISABLE\t%')"
+        USER_NO_CHECK=`su tomcat -c "java ${JAVA_OPTS} -cp ${CLASSPATH} ${MAIN} -S -sql \"${SQL_USER_DISABLED}\" -columntype int -columnname USER_NO"`
 
-        if [ "${LOCATE}" != "0" ]; then
-                echo "${USER_NAME} は無効化されています。"
+        if [ "${USER_NO_CHECK}" != "NULL" ]; then
+                echo "${USER_NAME} はすでに無効化されています。"
                 exit 1
         fi
 

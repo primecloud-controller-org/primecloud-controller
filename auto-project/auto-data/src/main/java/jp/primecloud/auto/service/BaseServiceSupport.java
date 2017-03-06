@@ -244,7 +244,6 @@ public abstract class BaseServiceSupport {
 
     protected UserDao userDao;
 
-
     protected VcloudCertificateDao vcloudCertificateDao;
 
     protected VcloudDiskDao vcloudDiskDao;

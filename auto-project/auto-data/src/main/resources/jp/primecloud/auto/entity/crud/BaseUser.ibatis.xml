@@ -9,6 +9,7 @@
 		<result property="userNo" column="USER_NO" />
 		<result property="username" column="USERNAME" nullValue="" />
 		<result property="password" column="PASSWORD" nullValue="" />
+		<result property="enabled" column="ENABLED" />
 	</resultMap>
 
 	<sql id="selectSql">
@@ -16,7 +17,8 @@
 		select
 			t1.USER_NO as USER_NO,
 			t1.USERNAME as USERNAME,
-			t1.PASSWORD as PASSWORD
+			t1.PASSWORD as PASSWORD,
+			t1.ENABLED as ENABLED
 		from
 			USER t1
 		]]>
@@ -66,11 +68,13 @@
 		insert into USER (
 			USER_NO,
 			USERNAME,
-			PASSWORD
+			PASSWORD,
+			ENABLED
 		) values (
 			#userNo#,
 			#username#,
-			#password#
+			#password#,
+			#enabled#
 		)
 		]]>
 	</insert>
@@ -80,11 +84,13 @@
 		insert into USER (
 			USER_NO,
 			USERNAME,
-			PASSWORD
+			PASSWORD,
+			ENABLED
 		) values (
 			#userNo#,
 			#username#,
-			#password#
+			#password#,
+			#enabled#
 		)
 		]]>
 		<selectKey keyProperty="userNo" resultClass="java.lang.Long" type="post">
@@ -98,7 +104,8 @@
 		<![CDATA[
 		update USER set
 			USERNAME = #username#,
-			PASSWORD = #password#
+			PASSWORD = #password#,
+			ENABLED = #enabled#
 		where
 			USER_NO = #userNo#
 		]]>
