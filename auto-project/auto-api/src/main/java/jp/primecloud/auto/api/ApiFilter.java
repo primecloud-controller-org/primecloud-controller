@@ -22,6 +22,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -144,6 +145,10 @@ public class ApiFilter extends ApiSupport implements ContainerRequestFilter {
         for (String key : decodeParamMap.keySet()) {
             request.getQueryParameters().putSingle(key, decodeParamMap.get(key));
         }
+
+        // 最終利用日時を更新
+        apiCertificate.setLastUseDate(new Date());
+        apiCertificateDao.update(apiCertificate);
 
         // アクセスログ出力
         log.info(MessageUtils.getMessage("IAPI-000001", accessUser.getUsername(), apiName));

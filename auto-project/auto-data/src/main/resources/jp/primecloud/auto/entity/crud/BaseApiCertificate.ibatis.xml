@@ -10,6 +10,7 @@
 		<result property="apiAccessId" column="API_ACCESS_ID" nullValue="" />
 		<result property="apiSecretKey" column="API_SECRET_KEY" nullValue="" />
 		<result property="enabled" column="ENABLED" />
+		<result property="lastUseDate" column="LAST_USE_DATE" />
 	</resultMap>
 
 	<sql id="selectSql">
@@ -18,7 +19,8 @@
 			t1.USER_NO as USER_NO,
 			t1.API_ACCESS_ID as API_ACCESS_ID,
 			t1.API_SECRET_KEY as API_SECRET_KEY,
-			t1.ENABLED as ENABLED
+			t1.ENABLED as ENABLED,
+			t1.LAST_USE_DATE as LAST_USE_DATE
 		from
 			API_CERTIFICATE t1
 		]]>
@@ -77,12 +79,14 @@
 			USER_NO,
 			API_ACCESS_ID,
 			API_SECRET_KEY,
-			ENABLED
+			ENABLED,
+			LAST_USE_DATE
 		) values (
 			#userNo#,
 			#apiAccessId#,
 			#apiSecretKey#,
-			#enabled#
+			#enabled#,
+			#lastUseDate#
 		)
 		]]>
 	</insert>
@@ -92,7 +96,8 @@
 		update API_CERTIFICATE set
 			API_ACCESS_ID = #apiAccessId#,
 			API_SECRET_KEY = #apiSecretKey#,
-			ENABLED = #enabled#
+			ENABLED = #enabled#,
+			LAST_USE_DATE = #lastUseDate#
 		where
 			USER_NO = #userNo#
 		]]>

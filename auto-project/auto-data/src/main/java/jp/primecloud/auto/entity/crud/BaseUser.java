@@ -19,6 +19,7 @@
 package jp.primecloud.auto.entity.crud;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * <p>
@@ -42,6 +43,9 @@ public abstract class BaseUser implements Serializable {
 
     /** ENABLED [BIT(0,0)] */
     private Boolean enabled;
+
+    /** LAST_LOGIN_DATE [DATETIME(0,0)] */
+    private Date lastLoginDate;
 
     /**
      * userNoを取得します。
@@ -115,6 +119,24 @@ public abstract class BaseUser implements Serializable {
         this.enabled = enabled;
     }
 
+    /**
+     * lastLoginDateを取得します。
+     *
+     * @return lastLoginDate
+     */
+    public Date getLastLoginDate() {
+        return lastLoginDate;
+    }
+
+    /**
+     * lastLoginDateを設定します。
+     *
+     * @param lastLoginDate lastLoginDate
+     */
+    public void setLastLoginDate(Date lastLoginDate) {
+        this.lastLoginDate = lastLoginDate;
+    }
+
 
     /**
      * {@inheritDoc}
@@ -128,6 +150,7 @@ public abstract class BaseUser implements Serializable {
         result = prime * result + ((username == null) ? 0 : username.hashCode());
         result = prime * result + ((password == null) ? 0 : password.hashCode());
         result = prime * result + ((enabled == null) ? 0 : enabled.hashCode());
+        result = prime * result + ((lastLoginDate == null) ? 0 : lastLoginDate.hashCode());
 
         return result;
     }
@@ -162,6 +185,11 @@ public abstract class BaseUser implements Serializable {
         } else if (!enabled.equals(other.enabled)) {
             return false;
         }
+        if (lastLoginDate == null) {
+            if (other.lastLoginDate != null) { return false; }
+        } else if (!lastLoginDate.equals(other.lastLoginDate)) {
+            return false;
+        }
 
         return true;
     }
@@ -176,7 +204,8 @@ public abstract class BaseUser implements Serializable {
         sb.append("userNo=").append(userNo).append(", ");
         sb.append("username=").append(username).append(", ");
         sb.append("password=").append(password).append(", ");
-        sb.append("enabled=").append(enabled);
+        sb.append("enabled=").append(enabled).append(", ");
+        sb.append("lastLoginDate=").append(lastLoginDate);
         sb.append("]");
         return sb.toString();
     }

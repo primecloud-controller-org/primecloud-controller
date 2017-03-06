@@ -10,6 +10,7 @@
 		<result property="username" column="USERNAME" nullValue="" />
 		<result property="password" column="PASSWORD" nullValue="" />
 		<result property="enabled" column="ENABLED" />
+		<result property="lastLoginDate" column="LAST_LOGIN_DATE" />
 	</resultMap>
 
 	<sql id="selectSql">
@@ -18,7 +19,8 @@
 			t1.USER_NO as USER_NO,
 			t1.USERNAME as USERNAME,
 			t1.PASSWORD as PASSWORD,
-			t1.ENABLED as ENABLED
+			t1.ENABLED as ENABLED,
+			t1.LAST_LOGIN_DATE as LAST_LOGIN_DATE
 		from
 			USER t1
 		]]>
@@ -69,12 +71,14 @@
 			USER_NO,
 			USERNAME,
 			PASSWORD,
-			ENABLED
+			ENABLED,
+			LAST_LOGIN_DATE
 		) values (
 			#userNo#,
 			#username#,
 			#password#,
-			#enabled#
+			#enabled#,
+			#lastLoginDate#
 		)
 		]]>
 	</insert>
@@ -85,12 +89,14 @@
 			USER_NO,
 			USERNAME,
 			PASSWORD,
-			ENABLED
+			ENABLED,
+			LAST_LOGIN_DATE
 		) values (
 			#userNo#,
 			#username#,
 			#password#,
-			#enabled#
+			#enabled#,
+			#lastLoginDate#
 		)
 		]]>
 		<selectKey keyProperty="userNo" resultClass="java.lang.Long" type="post">
@@ -105,7 +111,8 @@
 		update USER set
 			USERNAME = #username#,
 			PASSWORD = #password#,
-			ENABLED = #enabled#
+			ENABLED = #enabled#,
+			LAST_LOGIN_DATE = #lastLoginDate#
 		where
 			USER_NO = #userNo#
 		]]>

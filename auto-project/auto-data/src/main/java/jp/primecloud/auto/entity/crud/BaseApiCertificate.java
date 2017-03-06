@@ -19,6 +19,7 @@
 package jp.primecloud.auto.entity.crud;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * <p>
@@ -42,6 +43,9 @@ public abstract class BaseApiCertificate implements Serializable {
 
     /** ENABLED [BIT(0,0)] */
     private Boolean enabled;
+
+    /** LAST_USE_DATE [DATETIME(0,0)] */
+    private Date lastUseDate;
 
     /**
      * userNoを取得します。
@@ -115,6 +119,24 @@ public abstract class BaseApiCertificate implements Serializable {
         this.enabled = enabled;
     }
 
+    /**
+     * lastUseDateを取得します。
+     *
+     * @return lastUseDate
+     */
+    public Date getLastUseDate() {
+        return lastUseDate;
+    }
+
+    /**
+     * lastUseDateを設定します。
+     *
+     * @param lastUseDate lastUseDate
+     */
+    public void setLastUseDate(Date lastUseDate) {
+        this.lastUseDate = lastUseDate;
+    }
+
 
     /**
      * {@inheritDoc}
@@ -128,6 +150,7 @@ public abstract class BaseApiCertificate implements Serializable {
         result = prime * result + ((apiAccessId == null) ? 0 : apiAccessId.hashCode());
         result = prime * result + ((apiSecretKey == null) ? 0 : apiSecretKey.hashCode());
         result = prime * result + ((enabled == null) ? 0 : enabled.hashCode());
+        result = prime * result + ((lastUseDate == null) ? 0 : lastUseDate.hashCode());
 
         return result;
     }
@@ -162,6 +185,11 @@ public abstract class BaseApiCertificate implements Serializable {
         } else if (!enabled.equals(other.enabled)) {
             return false;
         }
+        if (lastUseDate == null) {
+            if (other.lastUseDate != null) { return false; }
+        } else if (!lastUseDate.equals(other.lastUseDate)) {
+            return false;
+        }
 
         return true;
     }
@@ -176,7 +204,8 @@ public abstract class BaseApiCertificate implements Serializable {
         sb.append("userNo=").append(userNo).append(", ");
         sb.append("apiAccessId=").append(apiAccessId).append(", ");
         sb.append("apiSecretKey=").append(apiSecretKey).append(", ");
-        sb.append("enabled=").append(enabled);
+        sb.append("enabled=").append(enabled).append(", ");
+        sb.append("lastUseDate=").append(lastUseDate);
         sb.append("]");
         return sb.toString();
     }

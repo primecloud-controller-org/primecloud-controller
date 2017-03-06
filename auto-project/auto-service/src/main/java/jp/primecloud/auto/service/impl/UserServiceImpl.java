@@ -18,7 +18,7 @@
  */
 package jp.primecloud.auto.service.impl;
 
-import org.apache.commons.lang.BooleanUtils;
+import java.util.Date;
 
 import jp.primecloud.auto.common.component.PasswordEncryptor;
 import jp.primecloud.auto.entity.crud.PccSystemInfo;
@@ -30,6 +30,8 @@ import jp.primecloud.auto.log.EventLogger;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.service.UserService;
 import jp.primecloud.auto.service.dto.UserDto;
+
+import org.apache.commons.lang.BooleanUtils;
 
 /**
  * <p>
@@ -82,6 +84,11 @@ public class UserServiceImpl extends ServiceSupport implements UserService {
             throw new AutoApplicationException("ESERVICE-000102", username);
         }
 
+        // 最終ログイン日時を更新
+        user.setLastLoginDate(new Date());
+        userDao.update(user);
+
+        // ユーザ情報に平文のパスワードを設定
         user.setPassword(password);
 
         UserDto dto = new UserDto();
