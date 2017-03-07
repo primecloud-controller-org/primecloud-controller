@@ -164,12 +164,13 @@ public class AwsVolumeProcess extends ServiceSupport {
 
     public void createVolume(AwsProcessClient awsProcessClient, Long instanceNo, Long volumeNo) {
         AwsVolume awsVolume = awsVolumeDao.read(volumeNo);
+        AwsInstance awsInstance = awsInstanceDao.read(instanceNo);
 
         // ボリュームの作成
         CreateVolumeRequest request = new CreateVolumeRequest();
         request.withSize(awsVolume.getSize());
         request.withSnapshotId(awsVolume.getSnapshotId());
-        request.withAvailabilityZone(awsVolume.getAvailabilityZone());
+        request.withAvailabilityZone(awsInstance.getAvailabilityZone());
 
         String volumeType = Config.getProperty("aws.volumeType");
         if (StringUtils.isNotEmpty(volumeType)) {
@@ -187,10 +188,14 @@ public class AwsVolumeProcess extends ServiceSupport {
         }
 
         //イベントログ出力
-        Component component = componentDao.read(awsVolume.getComponentNo());
+        String componentName = null;
+        if (awsVolume.getComponentNo() != null) {
+            Component component = componentDao.read(awsVolume.getComponentNo());
+            componentName = component.getComponentName();
+        }
         Instance instance = instanceDao.read(instanceNo);
         Platform platform = awsProcessClient.getPlatform();
-        eventLogger.debug(awsVolume.getComponentNo(), component.getComponentName(), instanceNo,
+        eventLogger.debug(awsVolume.getComponentNo(), componentName, instanceNo,
                 instance.getInstanceName(), "AwsEbsCreate", null, platform.getPlatformNo(),
                 new Object[] { platform.getPlatformName() });
 
@@ -231,10 +236,14 @@ public class AwsVolumeProcess extends ServiceSupport {
         }
 
         //イベントログ出力
-        Component component = componentDao.read(awsVolume.getComponentNo());
+        String componentName = null;
+        if (awsVolume.getComponentNo() != null) {
+            Component component = componentDao.read(awsVolume.getComponentNo());
+            componentName = component.getComponentName();
+        }
         Instance instance = instanceDao.read(instanceNo);
         Platform platform = awsProcessClient.getPlatform();
-        eventLogger.debug(awsVolume.getComponentNo(), component.getComponentName(), instanceNo,
+        eventLogger.debug(awsVolume.getComponentNo(), componentName, instanceNo,
                 instance.getInstanceName(), "AwsEbsCreateFinish", null, platform.getPlatformNo(), new Object[] {
                         platform.getPlatformName(), awsVolume.getVolumeId(), awsVolume.getSize() });
 
@@ -250,14 +259,16 @@ public class AwsVolumeProcess extends ServiceSupport {
         String volumeId = awsVolume.getVolumeId();
 
         //イベントログ出力
-        Component component = componentDao.read(awsVolume.getComponentNo());
+        String componentName = null;
+        if (awsVolume.getComponentNo() != null) {
+            Component component = componentDao.read(awsVolume.getComponentNo());
+            componentName = component.getComponentName();
+        }
         Instance instance = instanceDao.read(instanceNo);
-        eventLogger.debug(awsVolume.getComponentNo(), component.getComponentName(), instanceNo,
+        eventLogger.debug(awsVolume.getComponentNo(), componentName, instanceNo,
                 instance.getInstanceName(), "AwsEbsAttach", null, awsProcessClient.getPlatform().getPlatformNo(),
                 new Object[] { instance.getInstanceName(), awsVolume.getVolumeId(), awsVolume.getDevice() });
 
-        // ボリュームのアタッチ
-        // awsProcessClient.attachVolume(volumeId, instanceId, awsVolume.getDevice());
         // ボリュームのアタッチ
         AttachVolumeRequest request = new AttachVolumeRequest();
         request.withVolumeId(volumeId);
@@ -315,9 +326,13 @@ public class AwsVolumeProcess extends ServiceSupport {
         }
 
         //イベントログ出力
-        Component component = componentDao.read(awsVolume.getComponentNo());
+        String componentName = null;
+        if (awsVolume.getComponentNo() != null) {
+            Component component = componentDao.read(awsVolume.getComponentNo());
+            componentName = component.getComponentName();
+        }
         Instance instance = instanceDao.read(instanceNo);
-        eventLogger.debug(awsVolume.getComponentNo(), component.getComponentName(), instanceNo,
+        eventLogger.debug(awsVolume.getComponentNo(), componentName, instanceNo,
                 instance.getInstanceName(), "AwsEbsAttachFinish", null, awsProcessClient.getPlatform().getPlatformNo(),
                 new Object[] { instance.getInstanceName(), awsVolume.getVolumeId(), awsVolume.getDevice() });
 
@@ -332,9 +347,13 @@ public class AwsVolumeProcess extends ServiceSupport {
         String volumeId = awsVolume.getVolumeId();
 
         //イベントログ出力
-        Component component = componentDao.read(awsVolume.getComponentNo());
+        String componentName = null;
+        if (awsVolume.getComponentNo() != null) {
+            Component component = componentDao.read(awsVolume.getComponentNo());
+            componentName = component.getComponentName();
+        }
         Instance instance = instanceDao.read(instanceNo);
-        eventLogger.debug(awsVolume.getComponentNo(), component.getComponentName(), instanceNo,
+        eventLogger.debug(awsVolume.getComponentNo(), componentName, instanceNo,
                 instance.getInstanceName(), "AwsEbsDetach", null, awsProcessClient.getPlatform().getPlatformNo(),
                 new Object[] { instance.getInstanceName(), awsVolume.getVolumeId(), awsVolume.getDevice() });
 
@@ -390,9 +409,13 @@ public class AwsVolumeProcess extends ServiceSupport {
         }
 
         //イベントログ出力
-        Component component = componentDao.read(awsVolume.getComponentNo());
+        String componentName = null;
+        if (awsVolume.getComponentNo() != null) {
+            Component component = componentDao.read(awsVolume.getComponentNo());
+            componentName = component.getComponentName();
+        }
         Instance instance = instanceDao.read(instanceNo);
-        eventLogger.debug(awsVolume.getComponentNo(), component.getComponentName(), instanceNo,
+        eventLogger.debug(awsVolume.getComponentNo(), componentName, instanceNo,
                 instance.getInstanceName(), "AwsEbsDetachFinish", null, awsProcessClient.getPlatform().getPlatformNo(),
                 new Object[] { instance.getInstanceName(), awsVolume.getVolumeId(), awsVolume.getDevice() });
 
@@ -494,11 +517,18 @@ public class AwsVolumeProcess extends ServiceSupport {
 
         // タグを追加する
         List<Tag> tags = new ArrayList<Tag>();
-        tags.add(new Tag("Name", instance.getFqdn() + "_" + component.getComponentName()));
+        if (component != null) {
+            tags.add(new Tag("Name", instance.getFqdn() + "_" + component.getComponentName()));
+        } else {
+            String deviceName = awsVolume.getDevice().substring(awsVolume.getDevice().lastIndexOf("/") + 1);
+            tags.add(new Tag("Name", instance.getFqdn() + "_" + deviceName));
+        }
         tags.add(new Tag("UserName", user.getUsername()));
         tags.add(new Tag("CloudName", farm.getDomainName()));
         tags.add(new Tag("ServerName", instance.getFqdn()));
-        tags.add(new Tag("ServiceName", component.getComponentName()));
+        if (component != null) {
+            tags.add(new Tag("ServiceName", component.getComponentName()));
+        }
         awsCommonProcess.createTag(awsProcessClient, awsVolume.getVolumeId(), tags);
     }
 

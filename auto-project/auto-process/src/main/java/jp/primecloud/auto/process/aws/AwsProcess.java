@@ -180,17 +180,20 @@ public class AwsProcess extends ServiceSupport {
                     continue;
                 }
 
-                if (awsVolume.getComponentNo() != null) {
-                    // コンポーネントに関するボリュームの場合、この分岐は何らかの問題でボリュームがデタッチされていない
-                    if (BooleanUtils.isTrue(imageAws.getEbsImage())) {
-                        // EBSイメージの場合、ここで改めてデタッチする
-                        awsVolumeProcess.stopVolume(awsProcessClient, instanceNo, awsVolume.getVolumeNo());
-                    } else {
-                        // インスタンスストアイメージの場合、インスタンス終了に伴い自動的にデタッチされているため、ステータスをクリアする
-                        awsVolume.setStatus(null);
-                        awsVolume.setInstanceId(null);
-                        awsVolumeDao.update(awsVolume);
-                    }
+                if (awsVolume.getComponentNo() == null) {
+                    // コンポーネントに関しないボリュームの場合はデタッチしない
+                    continue;
+                }
+
+                // この分岐は何らかの問題でボリュームがデタッチされていない場合に相当する
+                if (BooleanUtils.isTrue(imageAws.getEbsImage())) {
+                    // EBSイメージの場合、ここで改めてデタッチする
+                    awsVolumeProcess.stopVolume(awsProcessClient, instanceNo, awsVolume.getVolumeNo());
+                } else {
+                    // インスタンスストアイメージの場合、インスタンス終了に伴い自動的にデタッチされているため、ステータスをクリアする
+                    awsVolume.setStatus(null);
+                    awsVolume.setInstanceId(null);
+                    awsVolumeDao.update(awsVolume);
                 }
             }
         } catch (RuntimeException e) {

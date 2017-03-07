@@ -2930,8 +2930,12 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
             }
             AwsProcessClient awsProcessClient = awsProcessClientFactory.createAwsProcessClient(farm.getUserNo(),
                     awsVolume.getPlatformNo());
+            awsProcessClient.setDescribeInterval(5);
 
             try {
+                // ボリュームのデタッチ
+                awsVolumeProcess.stopVolume(awsProcessClient, instanceNo, awsVolume.getVolumeNo());
+
                 // ボリュームの削除
                 awsVolumeProcess.deleteVolume(awsProcessClient, instanceNo, awsVolume.getVolumeNo());
                 //awsVolumeProcess.waitDeleteVolume(awsProcessClient, instanceNo, awsVolume.getVolumeNo());

@@ -20,12 +20,16 @@ package jp.primecloud.auto.process.vmware;
 
 import java.util.List;
 
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.VmwareDisk;
 import jp.primecloud.auto.entity.crud.VmwareInstance;
 import jp.primecloud.auto.entity.crud.VmwareNetwork;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
+
 import com.vmware.vim25.GuestInfo;
 import com.vmware.vim25.VirtualMachineToolsRunningStatus;
 import com.vmware.vim25.mo.VirtualMachine;
@@ -175,6 +179,17 @@ public class VmwareProcess extends ServiceSupport {
                 // ディスクをデタッチ
                 List<VmwareDisk> vmwareDisks = vmwareDiskDao.readByInstanceNo(instanceNo);
                 for (VmwareDisk vmwareDisk : vmwareDisks) {
+                    if (StringUtils.isEmpty(vmwareDisk.getFileName()) || BooleanUtils.isNotTrue(vmwareDisk.getAttached())) {
+                        // まだ作られていない場合、またはインスタンスにアタッチされていない場合は何もしない
+                        continue;
+                    }
+
+                    if (vmwareDisk.getComponentNo() == null) {
+                        // コンポーネントに関しないディスクの場合はデタッチしない
+                        continue;
+                    }
+
+                    // この分岐は何らかの問題でディスクがデタッチされていない場合に相当する
                     try {
                         vmwareDiskProcess.detachDisk(vmwareProcessClient, instanceNo, vmwareDisk.getDiskNo());
                     } catch (RuntimeException e) {
