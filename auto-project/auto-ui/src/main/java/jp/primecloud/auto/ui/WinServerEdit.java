@@ -75,6 +75,7 @@ import jp.primecloud.auto.util.IpAddressUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 
 import com.amazonaws.services.ec2.model.AvailabilityZone;
 import com.amazonaws.services.ec2.model.KeyPairInfo;
@@ -793,9 +794,10 @@ public class WinServerEdit extends Window {
             }
 
             if (BooleanUtils.isTrue(image.getImageAws().getEbsImage()) && image.getImageAws().getRootSize() != null) {
-                message = ViewMessages.getMessage("IUI-000135", image.getImageAws().getRootSize(), 1024);
+                int maxRootSize = NumberUtils.toInt(Config.getProperty("aws.maxRootSize"), 1024);
+                message = ViewMessages.getMessage("IUI-000135", image.getImageAws().getRootSize(), maxRootSize);
                 rootSizeField.setRequired(false);
-                rootSizeField.addValidator(new IntegerRangeValidator(image.getImageAws().getRootSize(), 1024, message));
+                rootSizeField.addValidator(new IntegerRangeValidator(image.getImageAws().getRootSize(), maxRootSize, message));
             }
 
             if (elasticIpSelect != null) {
@@ -886,6 +888,14 @@ public class WinServerEdit extends Window {
                     zoneSelect.setEnabled(false);
                 }
                 rootSizeField.setEnabled(false);
+            }
+
+            // サーバが作成済みの場合、ルートディスクサイズの入力チェックを無効にする
+            if (StringUtils.isNotEmpty(instance.getAwsInstance().getInstanceId())) {
+                List<Validator> validators = new ArrayList<Validator>(rootSizeField.getValidators());
+                for (Validator validator : validators) {
+                    rootSizeField.removeValidator(validator);
+                }
             }
 
             // ボリュームが作成済みの場合、いくつかの項目を変更できないようにする
@@ -1099,9 +1109,10 @@ public class WinServerEdit extends Window {
             clusterSelect.setRequiredError(message);
 
             if (image.getImageVmware().getRootSize() != null) {
-                message = ViewMessages.getMessage("IUI-000135", image.getImageVmware().getRootSize(), 1024);
+                int maxRootSize = NumberUtils.toInt(Config.getProperty("vmware.maxRootSize"), 1024);
+                message = ViewMessages.getMessage("IUI-000135", image.getImageVmware().getRootSize(), maxRootSize);
                 rootSizeField.setRequired(false);
-                rootSizeField.addValidator(new IntegerRangeValidator(image.getImageVmware().getRootSize(), 1024,
+                rootSizeField.addValidator(new IntegerRangeValidator(image.getImageVmware().getRootSize(), maxRootSize,
                         message));
             }
         }
@@ -1142,6 +1153,14 @@ public class WinServerEdit extends Window {
             // サーバが既に作成済みの場合、いくつかの項目を変更できないようにする
             if (StringUtils.isNotEmpty(instance.getVmwareInstance().getDatastore())) {
                 rootSizeField.setEnabled(false);
+            }
+
+            // サーバが作成済みの場合、ルートディスクサイズの入力チェックを無効にする
+            if (StringUtils.isNotEmpty(instance.getVmwareInstance().getDatastore())) {
+                List<Validator> validators = new ArrayList<Validator>(rootSizeField.getValidators());
+                for (Validator validator : validators) {
+                    rootSizeField.removeValidator(validator);
+                }
             }
         }
 

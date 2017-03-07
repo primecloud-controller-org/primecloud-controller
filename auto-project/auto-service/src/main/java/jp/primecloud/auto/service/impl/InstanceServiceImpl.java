@@ -130,6 +130,7 @@ import jp.primecloud.auto.service.dto.ZoneDto;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 
 import com.amazonaws.services.ec2.model.AvailabilityZone;
 import com.amazonaws.services.ec2.model.KeyPairInfo;
@@ -1954,8 +1955,12 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
             if (StringUtils.isNotEmpty(awsInstance.getInstanceId()) && !rootSize.equals(awsInstance.getRootSize())) {
                 throw new AutoApplicationException("ESERVICE-000432", instance.getInstanceName());
             }
-            if (rootSize.intValue() < imageAws.getRootSize() || rootSize.intValue() > 1024) {
-                throw new AutoApplicationException("ESERVICE-000433", imageAws.getRootSize(), 1024);
+
+            if (StringUtils.isEmpty(awsInstance.getInstanceId())) {
+                int maxRootSize = NumberUtils.toInt(Config.getProperty("aws.maxRootSize"), 1024);
+                if (rootSize.intValue() < imageAws.getRootSize() || rootSize.intValue() > maxRootSize) {
+                    throw new AutoApplicationException("ESERVICE-000433", imageAws.getRootSize(), maxRootSize);
+                }
             }
         }
 
@@ -1981,7 +1986,7 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         awsInstance.setSecurityGroups(securityGroupName);
         awsInstance.setAvailabilityZone(availabilityZoneName);
         awsInstance.setSubnetId(subnetId);
-        if (rootSize != null) {
+        if (rootSize != null && StringUtils.isEmpty(awsInstance.getInstanceId())) {
             awsInstance.setRootSize(rootSize);
         }
         awsInstance.setPrivateIpAddress(privateIpAddress);
@@ -2576,8 +2581,12 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
             if (StringUtils.isNotEmpty(vmwareInstance.getDatastore()) && !rootSize.equals(vmwareInstance.getRootSize())) {
                 throw new AutoApplicationException("ESERVICE-000432", instance.getInstanceName());
             }
-            if (rootSize.intValue() < imageVmware.getRootSize() || rootSize.intValue() > 1024) {
-                throw new AutoApplicationException("ESERVICE-000433", imageVmware.getRootSize(), 1024);
+
+            if (StringUtils.isEmpty(vmwareInstance.getDatastore())) {
+                int maxRootSize = NumberUtils.toInt(Config.getProperty("vmware.maxRootSize"), 1024);
+                if (rootSize.intValue() < imageVmware.getRootSize() || rootSize.intValue() > maxRootSize) {
+                    throw new AutoApplicationException("ESERVICE-000433", imageVmware.getRootSize(), maxRootSize);
+                }
             }
         }
 
@@ -2586,7 +2595,7 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         vmwareInstance.setComputeResource(computeResource);
         vmwareInstance.setResourcePool(resourcePool);
         vmwareInstance.setKeyPairNo(keyPairNo);
-        if (rootSize != null) {
+        if (rootSize != null && StringUtils.isEmpty(vmwareInstance.getDatastore())) {
             vmwareInstance.setRootSize(rootSize);
         }
         vmwareInstanceDao.update(vmwareInstance);
