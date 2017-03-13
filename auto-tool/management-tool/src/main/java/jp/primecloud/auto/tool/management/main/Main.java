@@ -18,6 +18,10 @@
  */
 package jp.primecloud.auto.tool.management.main;
 
+import java.util.Date;
+
+import org.apache.commons.beanutils.ConvertUtils;
+import org.apache.commons.beanutils.converters.DateConverter;
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -107,6 +111,8 @@ public class Main {
             HelpFormatter f = new HelpFormatter();
             f.printHelp("PCC script ", options);
         }
+
+        ConvertUtils.register(new DateConverter(null), Date.class);
 
         ManagementConfigLoader.init();
         //コマンドの実行
