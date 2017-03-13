@@ -29,10 +29,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.BooleanUtils;
-
 import jp.primecloud.auto.common.component.FreeMarkerGenerator;
 import jp.primecloud.auto.common.component.PasswordEncryptor;
 import jp.primecloud.auto.common.constant.PCCConstant;
@@ -53,11 +49,14 @@ import jp.primecloud.auto.entity.crud.PlatformAws;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.exception.MultiCauseException;
-import jp.primecloud.auto.log.EventLogger;
 import jp.primecloud.auto.process.ProcessLogger;
 import jp.primecloud.auto.puppet.PuppetClient;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
+
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.BooleanUtils;
 
 /**
  * <p>
@@ -76,8 +75,6 @@ public class PuppetLoadBalancerProcess extends ServiceSupport {
     protected ExecutorService executorService;
 
     protected ProcessLogger processLogger;
-
-    protected EventLogger eventLogger;
 
     public void configure(final Long loadBalancerNo, final Long componentNo, List<Long> instanceNos) {
         final Map<String, Object> rootMap = createRootMap(loadBalancerNo, componentNo, instanceNos);
@@ -193,25 +190,25 @@ public class PuppetLoadBalancerProcess extends ServiceSupport {
 
         // Puppetクライアントの設定更新処理を実行
         try {
-            processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, component, instance, "PuppetManifestApply", new String[] { instance.getFqdn(), type });
+            processLogger.debug(component, instance, "PuppetManifestApply", new String[] { instance.getFqdn(), type });
 
             puppetClient.runClient(instance.getFqdn());
 
         } catch (RuntimeException e) {
-            processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, component, instance, "PuppetManifestApplyFail", new String[] { instance.getFqdn(), type });
+            processLogger.debug(component, instance, "PuppetManifestApplyFail", new String[] { instance.getFqdn(), type });
 
             // マニフェスト適用に失敗した場合、警告ログ出力した後にリトライする
             String code = (e instanceof AutoException) ? AutoException.class.cast(e).getCode() : null;
             if ("EPUPPET-000003".equals(code) || "EPUPPET-000007".equals(code)) {
                 log.warn(e.getMessage());
 
-                processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, component, instance, "PuppetManifestApply", new String[] { instance.getFqdn(), type });
+                processLogger.debug(component, instance, "PuppetManifestApply", new String[] { instance.getFqdn(), type });
 
                 try {
                     puppetClient.runClient(instance.getFqdn());
 
                 } catch (RuntimeException e2) {
-                    processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, component, instance, "PuppetManifestApplyFail", new String[] { instance.getFqdn(), type });
+                    processLogger.debug(component, instance, "PuppetManifestApplyFail", new String[] { instance.getFqdn(), type });
 
                     throw e2;
                 }
@@ -220,7 +217,7 @@ public class PuppetLoadBalancerProcess extends ServiceSupport {
             }
         }
 
-        processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, component, instance, "PuppetManifestApplyFinish", new String[] { instance.getFqdn(), type });
+        processLogger.debug(component, instance, "PuppetManifestApplyFinish", new String[] { instance.getFqdn(), type });
     }
 
     protected Map<String, Object> createRootMap(Long loadBalancerNo, Long componentNo, List<Long> instanceNos) {
@@ -522,16 +519,6 @@ public class PuppetLoadBalancerProcess extends ServiceSupport {
     public void setExecutorService(ExecutorService executorService) {
         this.executorService = executorService;
     }
-
-    /**
-     * eventLoggerを設定します。
-     *
-     * @param eventLogger eventLogger
-     */
-    public void setEventLogger(EventLogger eventLogger) {
-        this.eventLogger = eventLogger;
-    }
-
 
     /**
      * processLoggerを設定します。

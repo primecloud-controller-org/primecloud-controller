@@ -30,10 +30,6 @@ import jp.primecloud.auto.log.entity.crud.EventLog;
 import jp.primecloud.auto.util.CompositeResourceBundle;
 import jp.primecloud.auto.util.MessageUtils;
 
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Transactional;
-
-
 /**
  * <p>
  * イベントログをデータベースに出力する為のクラスです。<br />
@@ -58,34 +54,6 @@ public class EventLogger {
     }
 
     public void error(String code, Object[] additions) {
-        log(EventLogLevel.ERROR, code, additions);
-    }
-
-    public void warn(String code, Object[] additions) {
-        log(EventLogLevel.WARN, code, additions);
-    }
-
-    public void error(Long componentNo, String componentName, Long instanceNo, String instanceName, String code,
-            String instanceType,  Long platformNo, Object[] additions) {
-        log(EventLogLevel.ERROR, componentNo, componentName, instanceNo, instanceName, code, instanceType,  platformNo, additions);
-    }
-
-    public void warn(Long componentNo, String componentName, Long instanceNo, String instanceName, String code,
-            String instanceType,  Long platformNo, Object[] additions) {
-        log(EventLogLevel.WARN, componentNo, componentName, instanceNo, instanceName, code, instanceType,  platformNo, additions);
-    }
-
-    public void info(Long componentNo, String componentName, Long instanceNo, String instanceName, String code,
-            String instanceType,  Long platformNo, Object[] additions) {
-        log(EventLogLevel.INFO, componentNo, componentName, instanceNo, instanceName, code, instanceType,  platformNo, additions);
-    }
-
-    public void debug(Long componentNo, String componentName, Long instanceNo, String instanceName, String code,
-            String instanceType,  Long platformNo, Object[] additions) {
-        log(EventLogLevel.DEBUG, componentNo, componentName, instanceNo, instanceName, code, instanceType,  platformNo, additions);
-    }
-
-    public void log(EventLogLevel logLevel, String code, Object[] additions) {
         Long componentNo = LoggingUtils.getComponentNo();
         String componentName = LoggingUtils.getComponentName();
         Long instanceNo = LoggingUtils.getInstanceNo();
@@ -93,28 +61,29 @@ public class EventLogger {
         String instanceType = LoggingUtils.getInstanceType();
         Long platformNo = LoggingUtils.getPlatformNo();
 
-        log(logLevel, componentNo, componentName, instanceNo, instanceName, code, instanceType,  platformNo, additions);
+        log(EventLogLevel.ERROR, componentNo, componentName, instanceNo, instanceName, code, instanceType, platformNo,
+                additions);
     }
 
     public void log(EventLogLevel logLevel, Long componentNo, String componentName, Long instanceNo,
-            String instanceName, String code, String instanceType,  Long platformNo, Object[] additions) {
+            String instanceName, String code, String instanceType, Long platformNo, Object[] additions) {
         Long farmNo = LoggingUtils.getFarmNo();
         String farmName = LoggingUtils.getFarmName();
 
-        log(logLevel, farmNo, farmName, componentNo, componentName, instanceNo, instanceName, code, instanceType,  platformNo, additions);
+        log(logLevel, farmNo, farmName, componentNo, componentName, instanceNo, instanceName, code, instanceType,
+                platformNo, additions);
     }
 
     public void log(EventLogLevel logLevel, Long farmNo, String farmName, Long componentNo, String componentName,
-            Long instanceNo, String instanceName, String code, String instanceType,  Long platformNo, Object[] additions) {
+            Long instanceNo, String instanceName, String code, String instanceType, Long platformNo, Object[] additions) {
         Long userNo = LoggingUtils.getUserNo();
         String userName = LoggingUtils.getUserName();
 
         log(logLevel, userNo, userName, farmNo, farmName, componentNo, componentName, instanceNo, instanceName, code,
-                instanceType,  platformNo, additions);
+                instanceType, platformNo, additions);
     }
 
     /**
-     *
      * データベースにイベントログを書き込みます。
      *
      * @param logLevel
@@ -131,10 +100,9 @@ public class EventLogger {
      * @param platformNo
      * @param additions
      */
-    @Transactional(isolation =Isolation.READ_UNCOMMITTED)
     public void log(EventLogLevel logLevel, Long userNo, String userName, Long farmNo, String farmName,
             Long componentNo, String componentName, Long instanceNo, String instanceName, String code,
-            String instanceType,  Long platformNo, Object[] additions) {
+            String instanceType, Long platformNo, Object[] additions) {
         // イベントログメッセージの取得
         String pattern = getPattern(code);
         String message = MessageUtils.format(pattern, additions);

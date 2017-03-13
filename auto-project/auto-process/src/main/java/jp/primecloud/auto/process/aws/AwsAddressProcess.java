@@ -24,11 +24,9 @@ import java.util.List;
 import jp.primecloud.auto.entity.crud.AwsAddress;
 import jp.primecloud.auto.entity.crud.AwsInstance;
 import jp.primecloud.auto.entity.crud.Instance;
-import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.exception.AutoApplicationException;
 import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.log.EventLogLevel;
-import jp.primecloud.auto.log.EventLogger;
+import jp.primecloud.auto.process.ProcessLogger;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
 
@@ -56,7 +54,7 @@ public class AwsAddressProcess extends ServiceSupport {
 
     protected AwsCommonProcess awsCommonProcess;
 
-    protected EventLogger eventLogger;
+    protected ProcessLogger processLogger;
 
     /**
      * TODO: メソッドコメント
@@ -87,14 +85,13 @@ public class AwsAddressProcess extends ServiceSupport {
         }
 
         // イベントログ出力
-        Platform platform = awsProcessClient.getPlatform();
-        eventLogger.log(EventLogLevel.DEBUG, null, null, null, null, null, null, "AwsElasticIpAllocate", null,
-                platform.getPlatformNo(), new Object[] { platform.getPlatformName(), publicIp });
+        processLogger.debug(null, null, "AwsElasticIpAllocate", new Object[] {
+                awsProcessClient.getPlatform().getPlatformName(), publicIp });
 
         // AWSアドレス情報を作成
         AwsAddress awsAddress = new AwsAddress();
         awsAddress.setUserNo(awsProcessClient.getUserNo());
-        awsAddress.setPlatformNo(platform.getPlatformNo());
+        awsAddress.setPlatformNo(awsProcessClient.getPlatform().getPlatformNo());
         awsAddress.setPublicIp(publicIp);
         awsAddress.setComment("Allocate at " + DateFormatUtils.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
         awsAddressDao.create(awsAddress);
@@ -140,9 +137,8 @@ public class AwsAddressProcess extends ServiceSupport {
             awsProcessClient.getEc2Client().releaseAddress(request);
 
             // イベントログ出力
-            Platform platform = awsProcessClient.getPlatform();
-            eventLogger.log(EventLogLevel.DEBUG, null, null, null, null, null, null, "AwsElasticIpRelease", null,
-                    platform.getPlatformNo(), new Object[] { platform.getPlatformName(), awsAddress.getPublicIp() });
+            processLogger.debug(null, null, "AwsElasticIpRelease", new Object[] {
+                    awsProcessClient.getPlatform().getPlatformName(), awsAddress.getPublicIp() });
 
         } catch (Exception ignore) {
             // Elastic IPが実際には存在しない場合などに備えて、警告ログを出力して例外を握りつぶす
@@ -278,9 +274,8 @@ public class AwsAddressProcess extends ServiceSupport {
 
         // イベントログ出力
         Instance instance2 = instanceDao.read(instanceNo);
-        eventLogger.debug(null, null, instanceNo, instance2.getInstanceName(), "AwsElasticIpAssociate", null,
-                awsProcessClient.getPlatform().getPlatformNo(),
-                new Object[] { awsInstance.getInstanceId(), awsAddress.getPublicIp() });
+        processLogger.debug(null, instance2, "AwsElasticIpAssociate", new Object[] { awsInstance.getInstanceId(),
+                awsAddress.getPublicIp() });
 
         // データベースの更新
         awsAddress.setInstanceId(awsInstance.getInstanceId());
@@ -385,9 +380,8 @@ public class AwsAddressProcess extends ServiceSupport {
 
         //イベントログ出力
         Instance instance = instanceDao.read(instanceNo);
-        eventLogger.debug(null, null, instanceNo, instance.getInstanceName(), "AwsElasticIpDisassociate", null,
-                awsProcessClient.getPlatform().getPlatformNo(),
-                new Object[] { awsAddress.getInstanceId(), awsAddress.getPublicIp() });
+        processLogger.debug(null, instance, "AwsElasticIpDisassociate", new Object[] { awsAddress.getInstanceId(),
+                awsAddress.getPublicIp() });
 
         // データベースの更新
         awsAddress.setInstanceId(null);
@@ -398,8 +392,8 @@ public class AwsAddressProcess extends ServiceSupport {
         this.awsCommonProcess = awsCommonProcess;
     }
 
-    public void setEventLogger(EventLogger eventLogger) {
-        this.eventLogger = eventLogger;
+    public void setProcessLogger(ProcessLogger processLogger) {
+        this.processLogger = processLogger;
     }
 
 }

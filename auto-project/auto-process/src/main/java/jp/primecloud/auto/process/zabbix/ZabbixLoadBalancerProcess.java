@@ -28,7 +28,6 @@ import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.entity.crud.ZabbixLoadBalancer;
 import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.log.EventLogger;
 import jp.primecloud.auto.process.ProcessLogger;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
@@ -46,8 +45,6 @@ import org.apache.commons.lang.StringUtils;
 public class ZabbixLoadBalancerProcess extends ServiceSupport {
 
     protected ZabbixProcessClientFactory zabbixProcessClientFactory;
-
-    protected EventLogger eventLogger;
 
     protected ProcessLogger processLogger;
 
@@ -78,8 +75,7 @@ public class ZabbixLoadBalancerProcess extends ServiceSupport {
                     proxyHostid);
 
             // イベントログ出力
-            processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "ZabbixRegist", new Object[] {
-                    loadBalancer.getFqdn(), hostid });
+            processLogger.debug(null, null, "ZabbixRegist", new Object[] { loadBalancer.getFqdn(), hostid });
 
             // データベースの更新
             zabbixLoadBalancer.setHostid(hostid);
@@ -96,8 +92,7 @@ public class ZabbixLoadBalancerProcess extends ServiceSupport {
             zabbixLoadBalancerDao.update(zabbixLoadBalancer);
 
             // イベントログ出力
-            processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "ZabbixStart", new Object[] {
-                    loadBalancer.getFqdn(), hostid });
+            processLogger.debug(null, null, "ZabbixStart", new Object[] { loadBalancer.getFqdn(), hostid });
         }
 
         // ログ出力
@@ -129,8 +124,8 @@ public class ZabbixLoadBalancerProcess extends ServiceSupport {
                     false, false, null, proxyHostid);
 
             // イベントログ出力
-            processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "ZabbixStop", new Object[] {
-                    loadBalancer.getFqdn(), zabbixLoadBalancer.getHostid() });
+            processLogger.debug(null, null, "ZabbixStop",
+                    new Object[] { loadBalancer.getFqdn(), zabbixLoadBalancer.getHostid() });
 
             // データベースの更新
             zabbixLoadBalancer.setStatus(ZabbixInstanceStatus.UN_MONITORING.toString());
@@ -217,10 +212,6 @@ public class ZabbixLoadBalancerProcess extends ServiceSupport {
 
     public void setZabbixProcessClientFactory(ZabbixProcessClientFactory zabbixProcessClientFactory) {
         this.zabbixProcessClientFactory = zabbixProcessClientFactory;
-    }
-
-    public void setEventLogger(EventLogger eventLogger) {
-        this.eventLogger = eventLogger;
     }
 
     public void setProcessLogger(ProcessLogger processLogger) {

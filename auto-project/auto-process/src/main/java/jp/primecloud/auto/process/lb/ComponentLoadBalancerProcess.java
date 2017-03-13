@@ -39,18 +39,16 @@ import jp.primecloud.auto.entity.crud.LoadBalancerInstance;
 import jp.primecloud.auto.entity.crud.LoadBalancerListener;
 import jp.primecloud.auto.entity.crud.ZabbixInstance;
 import jp.primecloud.auto.exception.MultiCauseException;
-import jp.primecloud.auto.log.EventLogger;
-import jp.primecloud.auto.service.ServiceSupport;
-import jp.primecloud.auto.util.MessageUtils;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.process.DnsProcessClient;
 import jp.primecloud.auto.process.DnsProcessClientFactory;
 import jp.primecloud.auto.process.InstanceProcess;
 import jp.primecloud.auto.process.ProcessLogger;
 import jp.primecloud.auto.process.zabbix.ZabbixHostProcess;
+import jp.primecloud.auto.service.ServiceSupport;
+import jp.primecloud.auto.util.MessageUtils;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * <p>
@@ -71,8 +69,6 @@ public class ComponentLoadBalancerProcess extends ServiceSupport {
     protected ZabbixHostProcess zabbixHostProcess;
 
     protected ProcessLogger processLogger;
-
-    protected EventLogger eventLogger;
 
     public void start(Long loadBalancerNo) {
         LoadBalancer loadBalancer = loadBalancerDao.read(loadBalancerNo);
@@ -469,7 +465,7 @@ public class ComponentLoadBalancerProcess extends ServiceSupport {
             dnsProcessClient.addCanonicalName(fqdn, canonicalName);
 
             // イベントログ出力
-            processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "DnsRegistCanonical", new Object[] { fqdn, canonicalName });
+            processLogger.debug(null, null, "DnsRegistCanonical", new Object[] { fqdn, canonicalName });
         }
 
         // データベース更新
@@ -498,7 +494,7 @@ public class ComponentLoadBalancerProcess extends ServiceSupport {
                 dnsProcessClient.deleteCanonicalName(fqdn);
 
                 // イベントログ出力
-                processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "DnsUnregistCanonical", new Object[] { fqdn, canonicalName });
+                processLogger.debug(null, null, "DnsUnregistCanonical", new Object[] { fqdn, canonicalName });
 
             } catch (RuntimeException e) {
                 log.warn(e.getMessage());
@@ -558,15 +554,6 @@ public class ComponentLoadBalancerProcess extends ServiceSupport {
      */
     public void setProcessLogger(ProcessLogger processLogger) {
         this.processLogger = processLogger;
-    }
-
-    /**
-     * eventLoggerを設定します。
-     *
-     * @param eventLogger eventLogger
-     */
-    public void setEventLogger(EventLogger eventLogger) {
-        this.eventLogger = eventLogger;
     }
 
 }

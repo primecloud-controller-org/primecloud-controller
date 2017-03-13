@@ -58,8 +58,7 @@ public class VcloudDnsProcess extends ServiceSupport {
         }
 
         // イベントログ出力
-        processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance, "DnsRegist",
-                new Object[] { instance.getFqdn(), instance.getPublicIp() });
+        processLogger.debug(null, instance, "DnsRegist", new Object[] { instance.getFqdn(), instance.getPublicIp() });
     }
 
     /**
@@ -73,8 +72,7 @@ public class VcloudDnsProcess extends ServiceSupport {
         stopDnsNormal(instanceNo);
 
         // イベントログ出力
-        processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance, "DnsUnregist",
-                new Object[] { instance.getFqdn(), instance.getPublicIp() });
+        processLogger.debug(null, instance, "DnsUnregist", new Object[] { instance.getFqdn(), instance.getPublicIp() });
     }
 
     //VPNを使用しないVCloudDNS設定

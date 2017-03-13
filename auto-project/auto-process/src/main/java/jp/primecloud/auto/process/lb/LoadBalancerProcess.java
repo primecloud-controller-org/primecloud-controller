@@ -29,7 +29,6 @@ import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.entity.crud.LoadBalancerInstance;
 import jp.primecloud.auto.entity.crud.LoadBalancerListener;
 import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.log.EventLogger;
 import jp.primecloud.auto.process.ProcessLogger;
 import jp.primecloud.auto.process.aws.AwsLoadBalancerProcess;
 import jp.primecloud.auto.process.aws.AwsProcessClient;
@@ -60,8 +59,6 @@ public class LoadBalancerProcess extends ServiceSupport {
     protected ZabbixLoadBalancerProcess zabbixLoadBalancerProcess;
 
     protected ProcessLogger processLogger;
-
-    protected EventLogger eventLogger;
 
     protected ProcessHook processHook;
 
@@ -106,11 +103,9 @@ public class LoadBalancerProcess extends ServiceSupport {
 
         // イベントログ出力
         if (status == LoadBalancerStatus.STARTING) {
-            processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, null, "LoadBalancerStart",
-                    new Object[] { loadBalancer.getLoadBalancerName() });
+            processLogger.info(null, null, "LoadBalancerStart", new Object[] { loadBalancer.getLoadBalancerName() });
         } else if (status == LoadBalancerStatus.CONFIGURING) {
-            processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, null, "LoadBalancerReload",
-                    new Object[] { loadBalancer.getLoadBalancerName() });
+            processLogger.info(null, null, "LoadBalancerReload", new Object[] { loadBalancer.getLoadBalancerName() });
         }
 
         try {
@@ -128,11 +123,9 @@ public class LoadBalancerProcess extends ServiceSupport {
 
             // イベントログ出力
             if (status == LoadBalancerStatus.STARTING) {
-                processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, null, "LoadBalancerStartFail",
-                        new Object[] { loadBalancer.getLoadBalancerName() });
+                processLogger.info(null, null, "LoadBalancerStartFail", new Object[] { loadBalancer.getLoadBalancerName() });
             } else if (status == LoadBalancerStatus.CONFIGURING) {
-                processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, null, "LoadBalancerReloadFail",
-                        new Object[] { loadBalancer.getLoadBalancerName() });
+                processLogger.info(null, null, "LoadBalancerReloadFail", new Object[] { loadBalancer.getLoadBalancerName() });
             }
 
             // ステータスの更新
@@ -151,11 +144,9 @@ public class LoadBalancerProcess extends ServiceSupport {
 
         // イベントログ出力
         if (status == LoadBalancerStatus.STARTING) {
-            processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, null, "LoadBalancerStartFinish",
-                    new Object[] { loadBalancer.getLoadBalancerName() });
+            processLogger.info(null, null, "LoadBalancerStartFinish", new Object[] { loadBalancer.getLoadBalancerName() });
         } else if (status == LoadBalancerStatus.CONFIGURING) {
-            processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, null, "LoadBalancerReloadFinish",
-                    new Object[] { loadBalancer.getLoadBalancerName() });
+            processLogger.info(null, null, "LoadBalancerReloadFinish", new Object[] { loadBalancer.getLoadBalancerName() });
         }
 
         // ステータスの更新
@@ -207,8 +198,7 @@ public class LoadBalancerProcess extends ServiceSupport {
         loadBalancerDao.update(loadBalancer);
 
         // イベントログ出力
-        processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, null, "LoadBalancerStop",
-                new Object[] { loadBalancer.getLoadBalancerName() });
+        processLogger.info(null, null, "LoadBalancerStop", new Object[] { loadBalancer.getLoadBalancerName() });
 
         try {
             // Zabbixの監視停止
@@ -228,8 +218,7 @@ public class LoadBalancerProcess extends ServiceSupport {
         }
 
         // イベントログ出力
-        processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, null, "LoadBalancerStopFinish",
-                new Object[] { loadBalancer.getLoadBalancerName() });
+        processLogger.info(null, null, "LoadBalancerStopFinish", new Object[] { loadBalancer.getLoadBalancerName() });
 
         // ステータスの更新
         loadBalancer = loadBalancerDao.read(loadBalancerNo);
@@ -284,8 +273,7 @@ public class LoadBalancerProcess extends ServiceSupport {
 
         // イベントログ出力
         if (BooleanUtils.isTrue(loadBalancer.getConfigure())) {
-            processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, null, "LoadBalancerConfig",
-                    new Object[] { loadBalancer.getLoadBalancerName() });
+            processLogger.info(null, null, "LoadBalancerConfig", new Object[] { loadBalancer.getLoadBalancerName() });
         }
 
         try {
@@ -295,8 +283,7 @@ public class LoadBalancerProcess extends ServiceSupport {
         } catch (RuntimeException e) {
             // イベントログ出力
             if (BooleanUtils.isTrue(loadBalancer.getConfigure())) {
-                processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, null, "LoadBalancerConfigFail",
-                        new Object[] { loadBalancer.getLoadBalancerName() });
+                processLogger.info(null, null, "LoadBalancerConfigFail", new Object[] { loadBalancer.getLoadBalancerName() });
             }
 
             // ステータスの更新
@@ -318,8 +305,7 @@ public class LoadBalancerProcess extends ServiceSupport {
 
         // イベントログ出力
         if (BooleanUtils.isTrue(loadBalancer.getConfigure())) {
-            processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, null, "LoadBalancerConfigFinish",
-                    new Object[] { loadBalancer.getLoadBalancerName() });
+            processLogger.info(null, null, "LoadBalancerConfigFinish", new Object[] { loadBalancer.getLoadBalancerName() });
         }
 
         // ステータスの更新
@@ -418,15 +404,6 @@ public class LoadBalancerProcess extends ServiceSupport {
 
     public void setZabbixLoadBalancerProcess(ZabbixLoadBalancerProcess zabbixLoadBalancerProcess) {
         this.zabbixLoadBalancerProcess = zabbixLoadBalancerProcess;
-    }
-
-    /**
-     * eventLoggerを設定します。
-     *
-     * @param eventLogger eventLogger
-     */
-    public void setEventLogger(EventLogger eventLogger) {
-        this.eventLogger = eventLogger;
     }
 
     /**

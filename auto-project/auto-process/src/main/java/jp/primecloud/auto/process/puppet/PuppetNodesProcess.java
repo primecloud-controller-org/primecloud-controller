@@ -221,7 +221,7 @@ public class PuppetNodesProcess extends ServiceSupport {
         // ログ用情報を格納
         LoggingUtils.setInstanceNo(instanceNo);
         LoggingUtils.setInstanceName(instance.getInstanceName());
-        LoggingUtils.setInstanceType(processLogger.getInstanceType(instanceNo));
+        LoggingUtils.setInstanceType(processLogger.getInstanceType(instanceNo, instance.getPlatformNo()));
         LoggingUtils.setPlatformNo(instance.getPlatformNo());
 
         // マニフェストファイルのリストア
@@ -308,8 +308,8 @@ public class PuppetNodesProcess extends ServiceSupport {
         Image image = imageDao.read(instance.getImageNo());
         // Puppetクライアントの設定更新処理を実行
         try {
-            processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance, "PuppetManifestApply",
-                    new String[] { instance.getFqdn(), "base_coordinate" });
+            processLogger.debug(null, instance, "PuppetManifestApply", new String[] { instance.getFqdn(),
+                    "base_coordinate" });
 
             puppetClient.runClient(instance.getFqdn());
             if (StringUtils.startsWithIgnoreCase(image.getOs(), PCCConstant.OS_NAME_WIN)) {
@@ -321,23 +321,23 @@ public class PuppetNodesProcess extends ServiceSupport {
             }
 
         } catch (RuntimeException e) {
-            processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance,
-                    "PuppetManifestApplyFail", new String[] { instance.getFqdn(), "base_coordinate" });
+            processLogger.debug(null, instance, "PuppetManifestApplyFail", new String[] { instance.getFqdn(),
+                    "base_coordinate" });
 
             // マニフェスト適用に失敗した場合、警告ログ出力した後にリトライする
             String code = (e instanceof AutoException) ? AutoException.class.cast(e).getCode() : null;
             if ("EPUPPET-000003".equals(code) || "EPUPPET-000007".equals(code)) {
                 log.warn(e.getMessage());
 
-                processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance,
-                        "PuppetManifestApply", new String[] { instance.getFqdn(), "base_coordinate" });
+                processLogger.debug(null, instance, "PuppetManifestApply", new String[] { instance.getFqdn(),
+                        "base_coordinate" });
 
                 try {
                     puppetClient.runClient(instance.getFqdn());
 
                 } catch (RuntimeException e2) {
-                    processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance,
-                            "PuppetManifestApplyFail", new String[] { instance.getFqdn(), "base_coordinate" });
+                    processLogger.debug(null, instance, "PuppetManifestApplyFail", new String[] { instance.getFqdn(),
+                            "base_coordinate" });
 
                     throw e2;
                 }
@@ -346,8 +346,8 @@ public class PuppetNodesProcess extends ServiceSupport {
             }
         }
 
-        processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance,
-                "PuppetManifestApplyFinish", new String[] { instance.getFqdn(), "base_coordinate" });
+        processLogger.debug(null, instance, "PuppetManifestApplyFinish", new String[] { instance.getFqdn(),
+                "base_coordinate" });
     }
 
     @SuppressWarnings("unchecked")

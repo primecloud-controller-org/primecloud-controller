@@ -28,7 +28,6 @@ import jp.primecloud.auto.entity.crud.NiftyInstance;
 import jp.primecloud.auto.entity.crud.NiftyVolume;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.log.EventLogger;
 import jp.primecloud.auto.nifty.dto.VolumeAttachmentDto;
 import jp.primecloud.auto.nifty.dto.VolumeDto;
 import jp.primecloud.auto.nifty.process.NiftyProcessClient;
@@ -44,8 +43,6 @@ import org.apache.commons.lang.StringUtils;
  *
  */
 public class NiftyVolumeProcess extends ServiceSupport {
-
-    protected EventLogger eventLogger;
 
     protected ProcessLogger processLogger;
 
@@ -80,7 +77,7 @@ public class NiftyVolumeProcess extends ServiceSupport {
                 // 排他制御(apiを同時に実行するとエラーになる対策)
                 synchronized(lock) {
                     //イベントログ出力
-                    processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, component, instance, "NiftyDiskCreate",
+                    processLogger.debug(component, instance, "NiftyDiskCreate",
                             new Object[] { platform.getPlatformName() });
 
                     // ボリュームIDがない場合は新規作成、アタッチを行う
@@ -93,7 +90,7 @@ public class NiftyVolumeProcess extends ServiceSupport {
                     volume = niftyProcessClient.waitCreateVolume(volume.getVolumeId());
 
                     //イベントログ出力
-                    processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, component, instance, "NiftyDiskCreateFinish",
+                    processLogger.debug(component, instance, "NiftyDiskCreateFinish",
                             new Object[] { platform.getPlatformName(), volume.getVolumeId(), niftyVolume.getSize() });
 
                     List<VolumeAttachmentDto> attachments = volume.getAttachments();
@@ -128,7 +125,7 @@ public class NiftyVolumeProcess extends ServiceSupport {
                 // 排他制御(apiを同時に実行するとエラーになる対策)
                 synchronized(lock) {
                     //イベントログ出力
-                    processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, component, instance, "NiftyDiskAttach",
+                    processLogger.debug(component, instance, "NiftyDiskAttach",
                             new Object[] { instance.getInstanceName(), niftyVolume.getVolumeId() });
 
                     // ボリュームのアタッチ
@@ -141,7 +138,7 @@ public class NiftyVolumeProcess extends ServiceSupport {
                     volume = niftyProcessClient.waitAttachVolume(niftyVolume.getVolumeId(), niftyInstance.getInstanceId());
 
                     //イベントログ出力
-                    processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, component, instance, "NiftyDiskAttachFinish",
+                    processLogger.debug(component, instance, "NiftyDiskAttachFinish",
                             new Object[] { instance.getInstanceName(), niftyVolume.getVolumeId() });
 
                     List<VolumeAttachmentDto> attachments = volume.getAttachments();
@@ -197,7 +194,7 @@ public class NiftyVolumeProcess extends ServiceSupport {
                 //イベントログ出力
                 Component component = componentDao.read(niftyVolume.getComponentNo());
                 Instance instance = instanceDao.read(instanceNo);
-                processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, component, instance, "NiftyDiskDetach", new Object[] {
+                processLogger.debug(component, instance, "NiftyDiskDetach", new Object[] {
                         instance.getInstanceName(), niftyVolume.getVolumeId() });
 
                 // ディスクをデタッチ
@@ -208,7 +205,7 @@ public class NiftyVolumeProcess extends ServiceSupport {
                 volume = niftyProcessClient.waitDetachVolume(niftyVolume.getVolumeId(), niftyVolume.getInstanceId());
 
                 //イベントログ出力
-                processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, component, instance, "NiftyDiskDetachFinish",
+                processLogger.debug(component, instance, "NiftyDiskDetachFinish",
                         new Object[] { instance.getInstanceName(), niftyVolume.getVolumeId() });
 
                 // データベース更新
@@ -222,15 +219,6 @@ public class NiftyVolumeProcess extends ServiceSupport {
             niftyVolumeDao.update(niftyVolume);
             throw e;
         }
-    }
-
-    /**
-     * eventLoggerを設定します。
-     *
-     * @param eventLogger eventLogger
-     */
-    public void setEventLogger(EventLogger eventLogger) {
-        this.eventLogger = eventLogger;
     }
 
     /**

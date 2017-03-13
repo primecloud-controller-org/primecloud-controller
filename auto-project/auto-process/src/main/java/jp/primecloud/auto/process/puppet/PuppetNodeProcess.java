@@ -26,11 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.common.component.FreeMarkerGenerator;
 import jp.primecloud.auto.common.component.PasswordEncryptor;
 import jp.primecloud.auto.common.component.PasswordGenerator;
@@ -52,11 +47,15 @@ import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.entity.crud.VcloudDisk;
 import jp.primecloud.auto.entity.crud.VmwareDisk;
 import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.log.EventLogger;
 import jp.primecloud.auto.process.ProcessLogger;
 import jp.primecloud.auto.puppet.PuppetClient;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
+
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * <p>
@@ -76,8 +75,6 @@ public class PuppetNodeProcess extends ServiceSupport {
 
     protected ProcessLogger processLogger;
 
-    protected EventLogger eventLogger;
-
     public void startNode(Long instanceNo) {
         PuppetInstance puppetInstance = puppetInstanceDao.read(instanceNo);
         if (puppetInstance == null) {
@@ -92,7 +89,7 @@ public class PuppetNodeProcess extends ServiceSupport {
         }
 
         // イベントログ出力
-        processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance, "InstanceBaseStart", null);
+        processLogger.debug(null, instance, "InstanceBaseStart", null);
 
         // PuppetMaster用のパスワード発行
         createPassword(instanceNo);
@@ -118,7 +115,7 @@ public class PuppetNodeProcess extends ServiceSupport {
         }
 
         // イベントログ出力
-        processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance, "InstanceBaseStartFinish", null);
+        processLogger.debug(null, instance, "InstanceBaseStartFinish", null);
 
         if (log.isInfoEnabled()) {
             log.info(MessageUtils.getMessage("IPROCESS-100202", instanceNo, instance.getInstanceName()));
@@ -139,7 +136,7 @@ public class PuppetNodeProcess extends ServiceSupport {
         }
 
         // イベントログ出力
-        processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance, "InstanceBaseStop", null);
+        processLogger.debug(null, instance, "InstanceBaseStop", null);
 
         // マニフェスト用情報モデルの作成
         Map<String, Object> rootMap = createNodeMap(instanceNo, false);
@@ -162,7 +159,7 @@ public class PuppetNodeProcess extends ServiceSupport {
         clearCa(instanceNo);
 
         // イベントログ出力
-        processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance, "InstanceBaseStopFinish", null);
+        processLogger.debug(null, instance, "InstanceBaseStopFinish", null);
 
         if (log.isInfoEnabled()) {
             log.info(MessageUtils.getMessage("IPROCESS-100204", instanceNo, instance.getInstanceName()));
@@ -240,29 +237,26 @@ public class PuppetNodeProcess extends ServiceSupport {
     protected void runPuppet(Instance instance) {
         // Puppetクライアントの設定更新処理を実行
         try {
-            processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance, "PuppetManifestApply",
+            processLogger.debug(null, instance, "PuppetManifestApply",
                     new String[] { instance.getFqdn(), "base" });
 
             puppetClient.runClient(instance.getFqdn());
 
         } catch (RuntimeException e) {
-            processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance,
-                    "PuppetManifestApplyFail", new String[] { instance.getFqdn(), "base" });
+            processLogger.debug(null, instance, "PuppetManifestApplyFail", new String[] { instance.getFqdn(), "base" });
 
             // マニフェスト適用に失敗した場合、警告ログ出力した後にリトライする
             String code = (e instanceof AutoException) ? AutoException.class.cast(e).getCode() : null;
             if ("EPUPPET-000003".equals(code) || "EPUPPET-000007".equals(code)) {
                 log.warn(e.getMessage());
 
-                processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance,
-                        "PuppetManifestApply", new String[] { instance.getFqdn(), "base" });
+                processLogger.debug(null, instance, "PuppetManifestApply", new String[] { instance.getFqdn(), "base" });
 
                 try {
                     puppetClient.runClient(instance.getFqdn());
 
                 } catch (RuntimeException e2) {
-                    processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance,
-                            "PuppetManifestApplyFail", new String[] { instance.getFqdn(), "base" });
+                    processLogger.debug(null, instance, "PuppetManifestApplyFail", new String[] { instance.getFqdn(), "base" });
 
                     throw e2;
                 }
@@ -271,8 +265,7 @@ public class PuppetNodeProcess extends ServiceSupport {
             }
         }
 
-        processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance,
-                "PuppetManifestApplyFinish", new String[] { instance.getFqdn(), "base" });
+        processLogger.debug(null, instance, "PuppetManifestApplyFinish", new String[] { instance.getFqdn(), "base" });
     }
 
     protected Map<String, Object> createNodeMap(Long instanceNo, boolean start) {
@@ -582,15 +575,6 @@ public class PuppetNodeProcess extends ServiceSupport {
      */
     public void setProcessLogger(ProcessLogger processLogger) {
         this.processLogger = processLogger;
-    }
-
-    /**
-     * eventLoggerを設定します。
-     *
-     * @param eventLogger eventLogger
-     */
-    public void setEventLogger(EventLogger eventLogger) {
-        this.eventLogger = eventLogger;
     }
 
 }

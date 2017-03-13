@@ -46,7 +46,6 @@ import org.apache.commons.lang.StringUtils;
 import jp.primecloud.auto.component.windows.WindowsConstants;
 import jp.primecloud.auto.process.ComponentConstants;
 import jp.primecloud.auto.process.ComponentProcessContext;
-import jp.primecloud.auto.process.ProcessLogger;
 import jp.primecloud.auto.process.puppet.PuppetComponentProcess;
 
 /**
@@ -135,11 +134,11 @@ public class WindowsComponentProcess extends PuppetComponentProcess {
             if (BooleanUtils.isTrue(componentInstance.getConfigure())) {
                 Instance instance = instanceMap.get(instanceNo);
                 if (status == ComponentInstanceStatus.STARTING) {
-                    processLogger.writeLogSupport(ProcessLogger.LOG_INFO, component, instance, "ComponentStart",  null);
+                    processLogger.info(component, instance, "ComponentStart",  null);
                 } else if (status == ComponentInstanceStatus.CONFIGURING) {
-                    processLogger.writeLogSupport(ProcessLogger.LOG_INFO, component, instance, "ComponentReload", null);
+                    processLogger.info(component, instance, "ComponentReload", null);
                 } else if (status == ComponentInstanceStatus.STOPPING) {
-                    processLogger.writeLogSupport(ProcessLogger.LOG_INFO, component, instance, "ComponentStop", null);
+                    processLogger.info(component, instance, "ComponentStop", null);
                 }
             }
         }
@@ -203,7 +202,7 @@ public class WindowsComponentProcess extends PuppetComponentProcess {
         // ログ用情報を格納
         LoggingUtils.setInstanceNo(instanceNo);
         LoggingUtils.setInstanceName(instance.getInstanceName());
-        LoggingUtils.setInstanceType(processLogger.getInstanceType(instanceNo));
+        LoggingUtils.setInstanceType(processLogger.getInstanceType(instanceNo, instance.getPlatformNo()));
         LoggingUtils.setPlatformNo(instance.getPlatformNo());
 
         if (log.isInfoEnabled()) {
@@ -222,11 +221,11 @@ public class WindowsComponentProcess extends PuppetComponentProcess {
                 // イベントログ出力
                 if (BooleanUtils.isTrue(componentInstance.getConfigure())) {
                     if (status == ComponentInstanceStatus.STARTING) {
-                        processLogger.writeLogSupport(ProcessLogger.LOG_INFO, component, instance, "ComponentStartFail", null);
+                        processLogger.info(component, instance, "ComponentStartFail", null);
                     } else if (status == ComponentInstanceStatus.CONFIGURING) {
-                        processLogger.writeLogSupport(ProcessLogger.LOG_INFO, component, instance, "ComponentReloadFail", null);
+                        processLogger.info(component, instance, "ComponentReloadFail", null);
                     } else if (status == ComponentInstanceStatus.STOPPING) {
-                        processLogger.writeLogSupport(ProcessLogger.LOG_INFO, component, instance, "ComponentStopFail", null);
+                        processLogger.info(component, instance, "ComponentStopFail", null);
                     }
                 }
 
@@ -250,11 +249,11 @@ public class WindowsComponentProcess extends PuppetComponentProcess {
         // イベントログ出力
         if (BooleanUtils.isTrue(componentInstance.getConfigure())) {
             if (status == ComponentInstanceStatus.STARTING) {
-                processLogger.writeLogSupport(ProcessLogger.LOG_INFO, component, instance, "ComponentStartFinish", null);
+                processLogger.info(component, instance, "ComponentStartFinish", null);
             } else if (status == ComponentInstanceStatus.CONFIGURING) {
-                processLogger.writeLogSupport(ProcessLogger.LOG_INFO, component, instance, "ComponentReloadFinish", null);
+                processLogger.info(component, instance, "ComponentReloadFinish", null);
             } else if (status == ComponentInstanceStatus.STOPPING) {
-                processLogger.writeLogSupport(ProcessLogger.LOG_INFO, component, instance, "ComponentStopFinish", null);
+                processLogger.info(component, instance, "ComponentStopFinish", null);
             }
         }
 

@@ -23,9 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.common.status.LoadBalancerInstanceStatus;
 import jp.primecloud.auto.common.status.LoadBalancerListenerStatus;
 import jp.primecloud.auto.config.Config;
@@ -37,13 +34,15 @@ import jp.primecloud.auto.entity.crud.LoadBalancerInstance;
 import jp.primecloud.auto.entity.crud.LoadBalancerListener;
 import jp.primecloud.auto.iaasgw.IaasGatewayFactory;
 import jp.primecloud.auto.iaasgw.IaasGatewayWrapper;
-import jp.primecloud.auto.log.EventLogger;
 import jp.primecloud.auto.process.DnsProcessClient;
 import jp.primecloud.auto.process.DnsProcessClientFactory;
 import jp.primecloud.auto.process.ProcessLogger;
 import jp.primecloud.auto.process.zabbix.ZabbixLoadBalancerProcess;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * <p>
@@ -58,8 +57,6 @@ public class IaasGatewayLoadBalancerProcess extends ServiceSupport {
     protected ZabbixLoadBalancerProcess zabbixLoadBalancerProcess;
 
     protected ProcessLogger processLogger;
-
-    protected EventLogger eventLogger;
 
     protected IaasGatewayFactory iaasGatewayFactory;
 
@@ -256,7 +253,7 @@ public class IaasGatewayLoadBalancerProcess extends ServiceSupport {
         dnsProcessClient.addCanonicalName(fqdn, canonicalName);
 
         // イベントログ出力
-        processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "DnsRegistCanonical", new Object[] { fqdn, canonicalName });
+        processLogger.debug(null, null, "DnsRegistCanonical", new Object[] { fqdn, canonicalName });
 
         // データベース更新
         loadBalancer = loadBalancerDao.read(loadBalancerNo);
@@ -283,7 +280,7 @@ public class IaasGatewayLoadBalancerProcess extends ServiceSupport {
             dnsProcessClient.deleteCanonicalName(fqdn);
 
             // イベントログ出力
-            processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "DnsUnregistCanonical", new Object[] { fqdn, canonicalName });
+            processLogger.debug(null, null, "DnsUnregistCanonical", new Object[] { fqdn, canonicalName });
 
         } catch (RuntimeException e) {
             log.warn(e.getMessage());
@@ -310,15 +307,6 @@ public class IaasGatewayLoadBalancerProcess extends ServiceSupport {
      */
     public void setProcessLogger(ProcessLogger processLogger) {
         this.processLogger = processLogger;
-    }
-
-    /**
-     * eventLoggerを設定します。
-     *
-     * @param eventLogger eventLogger
-     */
-    public void setEventLogger(EventLogger eventLogger) {
-        this.eventLogger = eventLogger;
     }
 
     /**

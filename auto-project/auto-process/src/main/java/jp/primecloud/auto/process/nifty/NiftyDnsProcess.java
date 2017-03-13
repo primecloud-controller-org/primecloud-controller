@@ -59,8 +59,7 @@ public class NiftyDnsProcess extends ServiceSupport {
 
         // イベントログ出力
         instance = instanceDao.read(instanceNo);
-        processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance, "DnsRegist",
-                new Object[] { instance.getFqdn(), instance.getPublicIp() });
+        processLogger.debug(null, instance, "DnsRegist", new Object[] { instance.getFqdn(), instance.getPublicIp() });
     }
 
     /**
@@ -81,8 +80,7 @@ public class NiftyDnsProcess extends ServiceSupport {
         }
 
         // イベントログ出力
-        processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance, "DnsUnregist",
-                new Object[] { instance.getFqdn(), instance.getPublicIp() });
+        processLogger.debug(null, instance, "DnsUnregist", new Object[] { instance.getFqdn(), instance.getPublicIp() });
     }
 
     protected void startDnsNormal(Long instanceNo) {

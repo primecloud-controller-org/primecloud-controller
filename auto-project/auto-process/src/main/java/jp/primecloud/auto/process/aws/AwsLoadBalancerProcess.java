@@ -34,10 +34,9 @@ import jp.primecloud.auto.entity.crud.LoadBalancer;
 import jp.primecloud.auto.entity.crud.LoadBalancerHealthCheck;
 import jp.primecloud.auto.entity.crud.LoadBalancerInstance;
 import jp.primecloud.auto.entity.crud.LoadBalancerListener;
-import jp.primecloud.auto.entity.crud.Platform;
-import jp.primecloud.auto.log.EventLogger;
 import jp.primecloud.auto.process.DnsProcessClient;
 import jp.primecloud.auto.process.DnsProcessClientFactory;
+import jp.primecloud.auto.process.ProcessLogger;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
 
@@ -76,7 +75,7 @@ public class AwsLoadBalancerProcess extends ServiceSupport {
 
     protected DnsProcessClientFactory dnsProcessClientFactory;
 
-    protected EventLogger eventLogger;
+    protected ProcessLogger processLogger;
 
     public void start(AwsProcessClient awsProcessClient, Long loadBalancerNo) {
         LoadBalancer loadBalancer = loadBalancerDao.read(loadBalancerNo);
@@ -247,9 +246,8 @@ public class AwsLoadBalancerProcess extends ServiceSupport {
         }
 
         // イベントログ出力
-        Platform platform = awsProcessClient.getPlatform();
-        eventLogger.debug(null, null, null, null, "AwsElbCreate", null, platform.getPlatformNo(), new Object[] {
-                platform.getPlatformName(), awsLoadBalancer.getName() });
+        processLogger.debug(null, null, "AwsElbCreate", new Object[] {
+                awsProcessClient.getPlatform().getPlatformName(), awsLoadBalancer.getName() });
 
         // ダミーのリスナーの削除
         DeleteLoadBalancerListenersRequest request2 = new DeleteLoadBalancerListenersRequest();
@@ -265,8 +263,8 @@ public class AwsLoadBalancerProcess extends ServiceSupport {
         awsProcessClient.getElbClient().modifyLoadBalancerAttributes(request3);
 
         // イベントログ出力
-        eventLogger.debug(null, null, null, null, "AwsCrossZoneEnabled", null, platform.getPlatformNo(), new Object[] {
-                platform.getPlatformName(), awsLoadBalancer.getName() });
+        processLogger.debug(null, null, "AwsCrossZoneEnabled", new Object[] {
+                awsProcessClient.getPlatform().getPlatformName(), awsLoadBalancer.getName() });
 
         // データベース更新
         awsLoadBalancer = awsLoadBalancerDao.read(loadBalancerNo);
@@ -289,9 +287,8 @@ public class AwsLoadBalancerProcess extends ServiceSupport {
         }
 
         // イベントログ出力
-        Platform platform = awsProcessClient.getPlatform();
-        eventLogger.debug(null, null, null, null, "AwsElbDelete", null, platform.getPlatformNo(), new Object[] {
-                platform.getPlatformName(), awsLoadBalancer.getName() });
+        processLogger.debug(null, null, "AwsElbDelete", new Object[] {
+                awsProcessClient.getPlatform().getPlatformName(), awsLoadBalancer.getName() });
 
         // データベース更新
         awsLoadBalancer = awsLoadBalancerDao.read(loadBalancerNo);
@@ -359,16 +356,8 @@ public class AwsLoadBalancerProcess extends ServiceSupport {
             }
 
             // イベントログ出力
-            Platform platform = awsProcessClient.getPlatform();
-            eventLogger.debug(
-                    null,
-                    null,
-                    null,
-                    null,
-                    "AwsElbListenerCreate",
-                    null,
-                    platform.getPlatformNo(),
-                    new Object[] { platform.getPlatformName(), awsLoadBalancer.getName(),
+            processLogger.debug(null, null, "AwsElbListenerCreate",
+                    new Object[] { awsProcessClient.getPlatform().getPlatformName(), awsLoadBalancer.getName(),
                             listener.getLoadBalancerPort() });
 
         } catch (RuntimeException e) {
@@ -404,16 +393,8 @@ public class AwsLoadBalancerProcess extends ServiceSupport {
             }
 
             // イベントログ出力
-            Platform platform = awsProcessClient.getPlatform();
-            eventLogger.debug(
-                    null,
-                    null,
-                    null,
-                    null,
-                    "AwsElbListenerDelete",
-                    null,
-                    platform.getPlatformNo(),
-                    new Object[] { platform.getPlatformName(), awsLoadBalancer.getName(),
+            processLogger.debug(null, null, "AwsElbListenerDelete",
+                    new Object[] { awsProcessClient.getPlatform().getPlatformName(), awsLoadBalancer.getName(),
                             listener.getLoadBalancerPort() });
 
         } catch (RuntimeException e) {
@@ -475,9 +456,8 @@ public class AwsLoadBalancerProcess extends ServiceSupport {
         }
 
         // イベントログ出力
-        Platform platform = awsProcessClient.getPlatform();
-        eventLogger.debug(null, null, null, null, "AwsElbHealthCheckConfig", null, platform.getPlatformNo(),
-                new Object[] { platform.getPlatformName(), awsLoadBalancer.getName() });
+        processLogger.debug(null, null, "AwsElbHealthCheckConfig", new Object[] {
+                awsProcessClient.getPlatform().getPlatformName(), awsLoadBalancer.getName() });
     }
 
     public void applySecurityGroups(AwsProcessClient awsProcessClient, Long loadBalancerNo) {
@@ -523,9 +503,8 @@ public class AwsLoadBalancerProcess extends ServiceSupport {
         }
 
         // イベントログ出力
-        Platform platform = awsProcessClient.getPlatform();
-        eventLogger.debug(null, null, null, null, "AwsElbSecurityGroupsConfig", null, platform.getPlatformNo(),
-                new Object[] { platform.getPlatformName(), awsLoadBalancer.getName() });
+        processLogger.debug(null, null, "AwsElbSecurityGroupsConfig", new Object[] {
+                awsProcessClient.getPlatform().getPlatformName(), awsLoadBalancer.getName() });
     }
 
     public void configureInstances(AwsProcessClient awsProcessClient, Long loadBalancerNo) {
@@ -641,9 +620,8 @@ public class AwsLoadBalancerProcess extends ServiceSupport {
             }
 
             // イベントログ出力
-            Platform platform = awsProcessClient.getPlatform();
-            eventLogger.debug(null, null, null, null, "AwsElbInstancesRegist", null, platform.getPlatformNo(),
-                    new Object[] { platform.getPlatformName(), awsLoadBalancer.getName(), instanceIds });
+            processLogger.debug(null, null, "AwsElbInstancesRegist", new Object[] {
+                    awsProcessClient.getPlatform().getPlatformName(), awsLoadBalancer.getName(), instanceIds });
 
         } catch (RuntimeException e) {
             // ステータスの更新
@@ -739,9 +717,8 @@ public class AwsLoadBalancerProcess extends ServiceSupport {
             }
 
             // イベントログ出力
-            Platform platform = awsProcessClient.getPlatform();
-            eventLogger.debug(null, null, null, null, "AwsElbInstancesDeregist", null, platform.getPlatformNo(),
-                    new Object[] { platform.getPlatformName(), awsLoadBalancer.getName(), instanceIds });
+            processLogger.debug(null, null, "AwsElbInstancesDeregist", new Object[] {
+                    awsProcessClient.getPlatform().getPlatformName(), awsLoadBalancer.getName(), instanceIds });
 
         } catch (RuntimeException e) {
             // ステータスの更新
@@ -785,8 +762,7 @@ public class AwsLoadBalancerProcess extends ServiceSupport {
         dnsProcessClient.addCanonicalName(fqdn, canonicalName);
 
         // イベントログ出力
-        eventLogger.debug(null, null, null, null, "DnsRegistCanonical", null, loadBalancer.getPlatformNo(),
-                new Object[] { fqdn, canonicalName });
+        processLogger.debug(null, null, "DnsRegistCanonical", new Object[] { fqdn, canonicalName });
 
         // データベース更新
         loadBalancer = loadBalancerDao.read(loadBalancerNo);
@@ -812,8 +788,7 @@ public class AwsLoadBalancerProcess extends ServiceSupport {
             dnsProcessClient.deleteCanonicalName(fqdn);
 
             // イベントログ出力
-            eventLogger.debug(null, null, null, null, "DnsUnregistCanonical", null, loadBalancer.getPlatformNo(),
-                    new Object[] { fqdn, canonicalName });
+            processLogger.debug(null, null, "DnsUnregistCanonical", new Object[] { fqdn, canonicalName });
 
         } catch (RuntimeException e) {
             log.warn(e.getMessage());
@@ -833,8 +808,8 @@ public class AwsLoadBalancerProcess extends ServiceSupport {
         this.dnsProcessClientFactory = dnsProcessClientFactory;
     }
 
-    public void setEventLogger(EventLogger eventLogger) {
-        this.eventLogger = eventLogger;
+    public void setProcessLogger(ProcessLogger processLogger) {
+        this.processLogger = processLogger;
     }
 
 }

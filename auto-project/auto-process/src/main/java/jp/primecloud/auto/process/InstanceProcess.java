@@ -26,7 +26,6 @@ import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.log.EventLogger;
 import jp.primecloud.auto.process.aws.AwsProcess;
 import jp.primecloud.auto.process.hook.ProcessHook;
 import jp.primecloud.auto.process.iaasgw.IaasGatewayProcess;
@@ -61,8 +60,6 @@ public class InstanceProcess extends ServiceSupport {
 
     protected ProcessLogger processLogger;
 
-    protected EventLogger eventLogger;
-
     protected ProcessHook processHook;
 
     public void start(Long instanceNo) {
@@ -83,7 +80,7 @@ public class InstanceProcess extends ServiceSupport {
         // ログ用情報を格納
         LoggingUtils.setInstanceNo(instanceNo);
         LoggingUtils.setInstanceName(instance.getInstanceName());
-        LoggingUtils.setInstanceType(processLogger.getInstanceType(instanceNo));
+        LoggingUtils.setInstanceType(processLogger.getInstanceType(instanceNo, instance.getPlatformNo()));
         LoggingUtils.setPlatformNo(instance.getPlatformNo());
 
         InstanceStatus status = InstanceStatus.fromStatus(instance.getStatus());
@@ -114,9 +111,9 @@ public class InstanceProcess extends ServiceSupport {
 
         // イベントログ出力
         if (status == InstanceStatus.STARTING) {
-            processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, instance, "InstanceStart", null);
+            processLogger.info(null, instance, "InstanceStart", null);
         } else if (status == InstanceStatus.CONFIGURING) {
-            processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, instance, "InstanceReload", null);
+            processLogger.info(null, instance, "InstanceReload", null);
         }
 
         // インスタンス起動処理
@@ -171,9 +168,9 @@ public class InstanceProcess extends ServiceSupport {
 
             // イベントログ出力
             if (status == InstanceStatus.STARTING) {
-                processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, instance, "InstanceStartFail", null);
+                processLogger.info(null, instance, "InstanceStartFail", null);
             } else if (status == InstanceStatus.CONFIGURING) {
-                processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, instance, "InstanceReloadFail", null);
+                processLogger.info(null, instance, "InstanceReloadFail", null);
             }
 
             // ステータスの更新
@@ -191,9 +188,9 @@ public class InstanceProcess extends ServiceSupport {
 
         // イベントログ出力
         if (status == InstanceStatus.STARTING) {
-            processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, instance, "InstanceStartFinish", null);
+            processLogger.info(null, instance, "InstanceStartFinish", null);
         } else if (status == InstanceStatus.CONFIGURING) {
-            processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, instance, "InstanceReloadFinish", null);
+            processLogger.info(null, instance, "InstanceReloadFinish", null);
         }
 
         // ステータス・進捗状況の更新
@@ -226,7 +223,7 @@ public class InstanceProcess extends ServiceSupport {
         // ログ用情報を格納
         LoggingUtils.setInstanceNo(instanceNo);
         LoggingUtils.setInstanceName(instance.getInstanceName());
-        LoggingUtils.setInstanceType(processLogger.getInstanceType(instanceNo));
+        LoggingUtils.setInstanceType(processLogger.getInstanceType(instanceNo, instance.getPlatformNo()));
         LoggingUtils.setPlatformNo(instance.getPlatformNo());
 
         InstanceStatus status = InstanceStatus.fromStatus(instance.getStatus());
@@ -251,7 +248,7 @@ public class InstanceProcess extends ServiceSupport {
         instanceDao.update(instance);
 
         // イベントログ出力
-        processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, instance, "InstanceStop", null);
+        processLogger.info(null, instance, "InstanceStop", null);
 
         try {
             // 監視設定処理
@@ -309,9 +306,9 @@ public class InstanceProcess extends ServiceSupport {
 
             // イベントログ出力
             if (status == InstanceStatus.STOPPING) {
-                processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, instance, "InstanceStopFail", null);
+                processLogger.info(null, instance, "InstanceStopFail", null);
             } else if (status == InstanceStatus.CONFIGURING) {
-                processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, instance, "InstanceReloadFail", null);
+                processLogger.info(null, instance, "InstanceReloadFail", null);
             }
 
             // ステータスの更新
@@ -326,7 +323,7 @@ public class InstanceProcess extends ServiceSupport {
         }
 
         // イベントログ出力
-        processLogger.writeLogSupport(ProcessLogger.LOG_INFO, null, instance, "InstanceStopFinish", null);
+        processLogger.info(null, instance, "InstanceStopFinish", null);
 
         // ステータス・進捗状況の更新
         instance = instanceDao.read(instanceNo);
@@ -396,15 +393,6 @@ public class InstanceProcess extends ServiceSupport {
      */
     public void setProcessLogger(ProcessLogger processLogger) {
         this.processLogger = processLogger;
-    }
-
-    /**
-     * eventLoggerを設定します。
-     *
-     * @param eventLogger eventLogger
-     */
-    public void setEventLogger(EventLogger eventLogger) {
-        this.eventLogger = eventLogger;
     }
 
     /**

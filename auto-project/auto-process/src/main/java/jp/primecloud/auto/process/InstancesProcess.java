@@ -25,14 +25,12 @@ import jp.primecloud.auto.common.status.InstanceCoodinateStatus;
 import jp.primecloud.auto.common.status.InstanceStatus;
 import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.Instance;
-import jp.primecloud.auto.log.EventLogger;
+import jp.primecloud.auto.process.hook.ProcessHook;
+import jp.primecloud.auto.process.puppet.PuppetNodesProcess;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
 
 import org.apache.commons.lang.BooleanUtils;
-
-import jp.primecloud.auto.process.hook.ProcessHook;
-import jp.primecloud.auto.process.puppet.PuppetNodesProcess;
 
 /**
  * <p>
@@ -45,8 +43,6 @@ public class InstancesProcess extends ServiceSupport {
     protected PuppetNodesProcess puppetNodesProcess;
 
     protected ProcessLogger processLogger;
-
-    protected EventLogger eventLogger;
 
     protected ProcessHook processHook;
 
@@ -73,7 +69,7 @@ public class InstancesProcess extends ServiceSupport {
         farmDao.update(farm);
 
         //イベントログ出力
-        processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "InstanceCoordinate", null);
+        processLogger.debug(null, null, "InstanceCoordinate", null);
 
         try {
             // 協調処理対象のインスタンスを取得
@@ -104,7 +100,7 @@ public class InstancesProcess extends ServiceSupport {
         }
 
         //イベントログ出力
-        processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "InstanceCoordinateFinish", null);
+        processLogger.debug(null, null, "InstanceCoordinateFinish", null);
 
         // フック処理の実行
         processHook.execute("post-start-instances", farm.getUserNo(), farm.getFarmNo());
@@ -137,7 +133,7 @@ public class InstancesProcess extends ServiceSupport {
         farmDao.update(farm);
 
         //イベントログ出力
-        processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "InstanceCoordinate", null);
+        processLogger.debug(null, null, "InstanceCoordinate", null);
 
         try {
             // 協調処理対象のインスタンスを取得
@@ -171,7 +167,7 @@ public class InstancesProcess extends ServiceSupport {
         }
 
         //イベントログ出力
-        processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, null, "InstanceCoordinateFinish", null);
+        processLogger.debug(null, null, "InstanceCoordinateFinish", null);
 
         // フック処理の実行
         processHook.execute("post-stop-instances", farm.getUserNo(), farm.getFarmNo());
@@ -197,15 +193,6 @@ public class InstancesProcess extends ServiceSupport {
      */
     public void setProcessLogger(ProcessLogger processLogger) {
         this.processLogger = processLogger;
-    }
-
-    /**
-     * eventLoggerを設定します。
-     *
-     * @param eventLogger eventLogger
-     */
-    public void setEventLogger(EventLogger eventLogger) {
-        this.eventLogger = eventLogger;
     }
 
     /**

@@ -21,9 +21,6 @@ package jp.primecloud.auto.process.zabbix;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.common.status.ZabbixInstanceStatus;
 import jp.primecloud.auto.config.Config;
@@ -37,13 +34,15 @@ import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.entity.crud.ZabbixInstance;
 import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.log.EventLogger;
 import jp.primecloud.auto.process.ProcessLogger;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
 import jp.primecloud.auto.zabbix.model.hostgroup.Hostgroup;
 import jp.primecloud.auto.zabbix.model.proxy.Proxy;
 import jp.primecloud.auto.zabbix.model.template.Template;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * <p>
@@ -54,8 +53,6 @@ import jp.primecloud.auto.zabbix.model.template.Template;
 public class ZabbixHostProcess extends ServiceSupport {
 
     protected ZabbixProcessClientFactory zabbixProcessClientFactory;
-
-    protected EventLogger eventLogger;
 
     protected ProcessLogger processLogger;
 
@@ -94,7 +91,7 @@ public class ZabbixHostProcess extends ServiceSupport {
             hostid = zabbixProcessClient.createHost(hostname, instance.getFqdn(), hostgroups, true, useIp, zabbixListenIp, proxyHostid);
 
             // イベントログ出力
-            processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null,instance, "ZabbixRegist", new Object[] {instance.getFqdn(), hostid });
+            processLogger.debug(null,instance, "ZabbixRegist", new Object[] {instance.getFqdn(), hostid });
 
             // データベースの更新
             zabbixInstance.setHostid(hostid);
@@ -109,7 +106,7 @@ public class ZabbixHostProcess extends ServiceSupport {
             zabbixInstanceDao.update(zabbixInstance);
 
             // イベントログ出力
-            processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null,instance, "ZabbixStart", new Object[] {instance.getFqdn(), hostid });
+            processLogger.debug(null,instance, "ZabbixStart", new Object[] {instance.getFqdn(), hostid });
         }
 
         // 標準テンプレートの適用
@@ -126,7 +123,7 @@ public class ZabbixHostProcess extends ServiceSupport {
 
                 if (ret) {
                     // イベントログ出力
-                    processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null,instance, "ZabbixTemplateAdd", new Object[] {instance.getFqdn(), templateName });
+                    processLogger.debug(null,instance, "ZabbixTemplateAdd", new Object[] {instance.getFqdn(), templateName });
                 }
             }
         }
@@ -170,7 +167,7 @@ public class ZabbixHostProcess extends ServiceSupport {
             zabbixProcessClient.updateHost(zabbixInstance.getHostid(), hostname, instance.getFqdn(), null, false, useIp, null, proxyHostid);
 
             // イベントログ出力
-            processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null,instance, "ZabbixStop", new Object[] {instance.getFqdn(), zabbixInstance.getHostid() });
+            processLogger.debug(null,instance, "ZabbixStop", new Object[] {instance.getFqdn(), zabbixInstance.getHostid() });
 
             // データベースの更新
             zabbixInstance.setStatus(ZabbixInstanceStatus.UN_MONITORING.toString());
@@ -224,14 +221,14 @@ public class ZabbixHostProcess extends ServiceSupport {
                 boolean ret = zabbixProcessClient.addTemplate(zabbixInstance.getHostid(), template);
                 if (ret) {
                     // イベントログ出力
-                    processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, component, instance, "ZabbixTemplateAdd", new Object[] { instance.getFqdn(), templateName });
+                    processLogger.debug(component, instance, "ZabbixTemplateAdd", new Object[] { instance.getFqdn(), templateName });
                 }
 
                 // ホストに紐づくアイテムを有効化
                 boolean ret2 = zabbixProcessClient.enableItems(zabbixInstance.getHostid(), template.getTemplateid());
                 if (ret2) {
                     // イベントログ出力
-                    processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, component, instance, "ZabbixItemEnable", new Object[] { instance.getFqdn(), templateName });
+                    processLogger.debug(component, instance, "ZabbixItemEnable", new Object[] { instance.getFqdn(), templateName });
                 }
             }
         }
@@ -279,7 +276,7 @@ public class ZabbixHostProcess extends ServiceSupport {
             boolean ret = zabbixProcessClient.disableItems(zabbixInstance.getHostid(), template.getTemplateid());
             if (ret) {
                 // イベントログ出力
-                processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, component, instance, "ZabbixItemDisable", new Object[] { instance.getFqdn(), templateName });
+                processLogger.debug(component, instance, "ZabbixItemDisable", new Object[] { instance.getFqdn(), templateName });
             }
         }
 
@@ -326,14 +323,14 @@ public class ZabbixHostProcess extends ServiceSupport {
             boolean ret = zabbixProcessClient.removeTemplate(zabbixInstance.getHostid(), template);
             if (ret) {
                 // イベントログ出力
-                processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, component, instance, "ZabbixTemplateRemove", new Object[] { instance.getFqdn(), templateName });
+                processLogger.debug(component, instance, "ZabbixTemplateRemove", new Object[] { instance.getFqdn(), templateName });
             }
 
             // アイテムを削除
             boolean ret2 = zabbixProcessClient.deleteItems(zabbixInstance.getHostid(), template.getTemplateid());
             if (ret2) {
                 // イベントログ出力
-                processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, component, instance, "ZabbixItemDelete", new Object[] { instance.getFqdn(), templateName });
+                processLogger.debug(component, instance, "ZabbixItemDelete", new Object[] { instance.getFqdn(), templateName });
             }
         }
 
@@ -585,15 +582,6 @@ public class ZabbixHostProcess extends ServiceSupport {
      */
     public void setZabbixProcessClientFactory(ZabbixProcessClientFactory zabbixProcessClientFactory) {
         this.zabbixProcessClientFactory = zabbixProcessClientFactory;
-    }
-
-    /**
-     * eventLoggerを設定します。
-     *
-     * @param eventLogger eventLogger
-     */
-    public void setEventLogger(EventLogger eventLogger) {
-        this.eventLogger = eventLogger;
     }
 
     /**

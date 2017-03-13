@@ -23,13 +23,12 @@ import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.VmwareDisk;
 import jp.primecloud.auto.entity.crud.VmwareInstance;
-import jp.primecloud.auto.log.EventLogger;
+import jp.primecloud.auto.process.ProcessLogger;
 import jp.primecloud.auto.service.ServiceSupport;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
-import jp.primecloud.auto.process.ProcessLogger;
 import com.vmware.vim25.VirtualDeviceFileBackingInfo;
 import com.vmware.vim25.VirtualDisk;
 import com.vmware.vim25.mo.Datastore;
@@ -41,8 +40,6 @@ import com.vmware.vim25.mo.Datastore;
  *
  */
 public class VmwareDiskProcess extends ServiceSupport {
-
-    protected EventLogger eventLogger;
 
     protected ProcessLogger processLogger;
 
@@ -68,11 +65,10 @@ public class VmwareDiskProcess extends ServiceSupport {
         Instance instance = instanceDao.read(instanceNo);
         Platform platform = platformDao.read(vmwareProcessClient.getPlatformNo());
         if (StringUtils.isEmpty(vmwareDisk.getFileName())) {
-            processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, component, instance, "VmwareDiskCreate",
-                    new Object[] { platform.getPlatformName() });
+            processLogger.debug(component, instance, "VmwareDiskCreate", new Object[] { platform.getPlatformName() });
         } else {
-            processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, component, instance,  "VmwareDiskAttach",
-                    new Object[] { platform.getPlatformName(), vmwareDisk.getFileName() });
+            processLogger.debug(component, instance, "VmwareDiskAttach", new Object[] { platform.getPlatformName(),
+                    vmwareDisk.getFileName() });
         }
 
         // ディスクのアタッチ
@@ -86,10 +82,10 @@ public class VmwareDiskProcess extends ServiceSupport {
 
         //イベントログ出力
         if (StringUtils.isEmpty(vmwareDisk.getFileName())) {
-            processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, component, instance, "VmwareDiskCreateFinish",
+            processLogger.debug(component, instance, "VmwareDiskCreateFinish",
                     new Object[] { platform.getPlatformName(), backingInfo.getFileName(), vmwareDisk.getSize() });
         } else {
-            processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, component, instance, "VmwareDiskAttachFinish",
+            processLogger.debug(component, instance, "VmwareDiskAttachFinish",
                     new Object[] { platform.getPlatformName(), vmwareDisk.getFileName(), vmwareDisk.getSize() });
         }
 
@@ -122,15 +118,15 @@ public class VmwareDiskProcess extends ServiceSupport {
         Component component = componentDao.read(vmwareDisk.getComponentNo());
         Instance instance = instanceDao.read(instanceNo);
         Platform platform = platformDao.read(vmwareProcessClient.getPlatformNo());
-        processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, component, instance, "VmwareDiskDetach",
-                new Object[] { platform.getPlatformName(), vmwareDisk.getFileName() });
+        processLogger.debug(component, instance, "VmwareDiskDetach", new Object[] { platform.getPlatformName(),
+                vmwareDisk.getFileName() });
 
         // ディスクをデタッチ
         vmwareProcessClient.detachDisk(vmwareInstance.getMachineName(), vmwareDisk.getScsiId());
 
         //イベントログ出力
-        processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, component, instance, "VmwareDiskDetachFinish",
-                new Object[] { platform.getPlatformName(), vmwareDisk.getFileName() });
+        processLogger.debug(component, instance, "VmwareDiskDetachFinish", new Object[] { platform.getPlatformName(),
+                vmwareDisk.getFileName() });
 
         // データベース更新
         vmwareDisk = vmwareDiskDao.read(diskNo);
@@ -150,28 +146,19 @@ public class VmwareDiskProcess extends ServiceSupport {
         //イベントログ出力
         Component component = componentDao.read(vmwareDisk.getComponentNo());
         Instance instance = instanceDao.read(vmwareDisk.getInstanceNo());
-        processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, component, instance, "VmwareDiskDelete", new Object[] { vmwareDisk.getFileName() });
+        processLogger.debug(component, instance, "VmwareDiskDelete", new Object[] { vmwareDisk.getFileName() });
 
         // ディスクファイルの削除
         vmwareProcessClient.deleteDisk(vmwareDisk.getDatastore(), vmwareDisk.getFileName());
 
         //イベントログ出力
-        processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, component, instance, "VmwareDiskDeleteFinish", new Object[] { vmwareDisk.getFileName() });
+        processLogger.debug(component, instance, "VmwareDiskDeleteFinish", new Object[] { vmwareDisk.getFileName() });
 
         // データベース更新
         vmwareDisk = vmwareDiskDao.read(diskNo);
         vmwareDisk.setDatastore(null);
         vmwareDisk.setFileName(null);
         vmwareDiskDao.update(vmwareDisk);
-    }
-
-    /**
-     * eventLoggerを設定します。
-     *
-     * @param eventLogger eventLogger
-     */
-    public void setEventLogger(EventLogger eventLogger) {
-        this.eventLogger = eventLogger;
     }
 
     /**

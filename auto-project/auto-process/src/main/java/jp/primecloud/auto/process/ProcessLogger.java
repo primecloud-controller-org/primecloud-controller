@@ -18,6 +18,7 @@
  */
 package jp.primecloud.auto.process;
 
+import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.entity.crud.AwsInstance;
 import jp.primecloud.auto.entity.crud.AzureInstance;
 import jp.primecloud.auto.entity.crud.CloudstackInstance;
@@ -25,8 +26,10 @@ import jp.primecloud.auto.entity.crud.Component;
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.NiftyInstance;
 import jp.primecloud.auto.entity.crud.OpenstackInstance;
+import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.VcloudInstance;
 import jp.primecloud.auto.entity.crud.VmwareInstance;
+import jp.primecloud.auto.log.EventLogLevel;
 import jp.primecloud.auto.log.EventLogger;
 import jp.primecloud.auto.service.ServiceSupport;
 
@@ -38,107 +41,73 @@ import jp.primecloud.auto.service.ServiceSupport;
  */
 public class ProcessLogger extends ServiceSupport {
 
-    public static int LOG_ERR   = 1;
-    public static int LOG_WARN  = 2;
-    public static int LOG_INFO  = 3;
-    public static int LOG_DEBUG = 4;
-
     protected EventLogger eventLogger;
 
-    /**
-     * eventLoggerを設定します。
-     *
-     * @param eventLogger eventLogger
-     */
+    public void info(Component component, Instance instance, String code, Object[] additions) {
+        log(EventLogLevel.INFO, component, instance, code, additions);
+    }
+
+    public void debug(Component component, Instance instance, String code, Object[] additions) {
+        log(EventLogLevel.DEBUG, component, instance, code, additions);
+    }
+
+    protected void log(EventLogLevel level, Component component, Instance instance, String code, Object[] additions) {
+        Long componentNo = (component == null) ? null : component.getComponentNo();
+        String componentName = (component == null) ? null : component.getComponentName();
+        Long instanceNo = (instance == null) ? null : instance.getInstanceNo();
+        String instanceName = (instance == null) ? null : instance.getInstanceName();
+        Long platformNo = (instance == null) ? null : instance.getPlatformNo();
+        String instanceType = (instance == null) ? null : getInstanceType(instanceNo, platformNo);
+
+        eventLogger.log(level, componentNo, componentName, instanceNo, instanceName, code, instanceType, platformNo,
+                additions);
+    }
+
+    public String getInstanceType(Long instanceNo, Long platformNo) {
+        Platform platform = platformDao.read(platformNo);
+
+        if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
+            AwsInstance awsInstance = awsInstanceDao.read(instanceNo);
+            if (awsInstance != null) {
+                return awsInstance.getInstanceType();
+            }
+        } else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
+            VmwareInstance vmwareInstance = vmwareInstanceDao.read(instanceNo);
+            if (vmwareInstance != null) {
+                return vmwareInstance.getInstanceType();
+            }
+        } else if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platform.getPlatformType())) {
+            NiftyInstance niftyInstance = niftyInstanceDao.read(instanceNo);
+            if (niftyInstance != null) {
+                return niftyInstance.getInstanceType();
+            }
+        } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
+            CloudstackInstance cloudstackInstance = cloudstackInstanceDao.read(instanceNo);
+            if (cloudstackInstance != null) {
+                return cloudstackInstance.getInstanceType();
+            }
+        } else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
+            VcloudInstance vcloudInstance = vcloudInstanceDao.read(instanceNo);
+            if (vcloudInstance != null) {
+                return vcloudInstance.getInstanceType();
+            }
+        } else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
+            AzureInstance azureInstance = azureInstanceDao.read(instanceNo);
+            if (azureInstance != null) {
+                return azureInstance.getInstanceType();
+            }
+        } else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
+            OpenstackInstance openstackInstance = openstackInstanceDao.read(instanceNo);
+            if (openstackInstance != null) {
+                return openstackInstance.getInstanceType();
+            }
+        }
+
+        return null;
+    }
+
     public void setEventLogger(EventLogger eventLogger) {
         this.eventLogger = eventLogger;
-    }
-
-    public void writeLogSupport (int logType, Component component, Instance instance, String code, Object[] additions) {
-
-        Long componentNo = null;
-        String componentName = null;
-
-        Long instanceNo = null;
-        String instanceType = null;
-        String instanceName = null;
-        Long platformNo = null;
-
-        if (instance != null) {
-            instanceNo = instance.getInstanceNo();
-            instanceName = instance.getInstanceName();
-            platformNo = instance.getPlatformNo();
-            instanceType = getInstanceType(instanceNo);
-        }
-
-        if (component != null) {
-            componentNo = component.getComponentNo();
-            componentName = component.getComponentName();
-        }
-
-        switch(logType){
-            case 1:
-                eventLogger.error(componentNo, componentName, instanceNo, instanceName,
-                        code, instanceType, platformNo, additions);
-                break;
-            case 2:
-                eventLogger.warn(componentNo, componentName, instanceNo, instanceName,
-                        code, instanceType, platformNo, additions);
-                break;
-            case 3:
-                eventLogger.info(componentNo, componentName, instanceNo, instanceName,
-                        code, instanceType, platformNo, additions);
-                break;
-
-            case 4:
-            default:
-                eventLogger.debug(componentNo, componentName, instanceNo, instanceName,
-                        code, instanceType, platformNo, additions);
-                break;
-        }
-    }
-
-    public String getInstanceType(Long instanceNo) {
-
-        AwsInstance awsInstance =  awsInstanceDao.read(instanceNo);
-        if (awsInstance != null){
-            return awsInstance.getInstanceType();
-        }
-
-        CloudstackInstance csInstance =  cloudstackInstanceDao.read(instanceNo);
-        if (csInstance != null){
-            return csInstance.getInstanceType();
-        }
-
-        VmwareInstance vmInstance =  vmwareInstanceDao.read(instanceNo);
-        if (vmInstance != null){
-            return vmInstance.getInstanceType();
-        }
-
-        NiftyInstance niftyInstance =  niftyInstanceDao.read(instanceNo);
-        if (niftyInstance != null){
-            return niftyInstance.getInstanceType();
-        }
-
-        VcloudInstance vcloudInstance = vcloudInstanceDao.read(instanceNo);
-        if (vcloudInstance != null){
-            return vcloudInstance.getInstanceType();
-        }
-
-        AzureInstance azureInstance = azureInstanceDao.read(instanceNo);
-        if (azureInstance != null){
-            return azureInstance.getInstanceType();
-        }
-
-        OpenstackInstance osInstance = openstackInstanceDao.read(instanceNo);
-        if (osInstance != null){
-            return osInstance.getInstanceType();
-        }
-
-        //上記にクラウドに該当しない時に、OpenStackのm1.tinyを返す
-        return "m1.tiny";
-
-        //return null;
     }
 
 }

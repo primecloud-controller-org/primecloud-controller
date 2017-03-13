@@ -32,7 +32,6 @@ import jp.primecloud.auto.entity.crud.PlatformVmware;
 import jp.primecloud.auto.entity.crud.VmwareAddress;
 import jp.primecloud.auto.entity.crud.VmwareInstance;
 import jp.primecloud.auto.entity.crud.VmwareKeyPair;
-import jp.primecloud.auto.log.EventLogger;
 import jp.primecloud.auto.process.ProcessLogger;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
@@ -54,8 +53,6 @@ import com.vmware.vim25.mo.VirtualMachine;
  *
  */
 public class VmwareInitProcess extends ServiceSupport {
-
-    protected EventLogger eventLogger;
 
     protected ProcessLogger processLogger;
 
@@ -286,9 +283,8 @@ public class VmwareInitProcess extends ServiceSupport {
                 if (BooleanUtils.isTrue(vmwareAddress.getEnabled())) {
                     // イベントログ出力
                     Instance instance = instanceDao.read(instanceNo);
-                    processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance,
-                            "VmwareNetworkCustomizeStatic", new Object[] { vmwareInstance.getMachineName(),
-                                    vmwareAddress.getIpAddress() });
+                    processLogger.debug(null, instance, "VmwareNetworkCustomizeStatic",
+                            new Object[] { vmwareInstance.getMachineName(), vmwareAddress.getIpAddress() });
 
                     if (BooleanUtils.isNotTrue(vmwareAddress.getAssociated())) {
                         // データベース更新
@@ -304,8 +300,8 @@ public class VmwareInitProcess extends ServiceSupport {
                 } else {
                     // イベントログ出力
                     Instance instance = instanceDao.read(instanceNo);
-                    processLogger.writeLogSupport(ProcessLogger.LOG_DEBUG, null, instance,
-                            "VmwareNetworkCustomizeDhcp", new Object[] { vmwareInstance.getMachineName() });
+                    processLogger.debug(null, instance, "VmwareNetworkCustomizeDhcp",
+                            new Object[] { vmwareInstance.getMachineName() });
 
                     if (BooleanUtils.isTrue(vmwareAddress.getAssociated())) {
                         // データベース更新
@@ -354,15 +350,6 @@ public class VmwareInitProcess extends ServiceSupport {
         map.put("BootProto", "dhcp");
         map.put("Mac", ethernetCard.getMacAddress().toUpperCase());
         return map;
-    }
-
-    /**
-     * eventLoggerを設定します。
-     *
-     * @param eventLogger eventLogger
-     */
-    public void setEventLogger(EventLogger eventLogger) {
-        this.eventLogger = eventLogger;
     }
 
     /**
