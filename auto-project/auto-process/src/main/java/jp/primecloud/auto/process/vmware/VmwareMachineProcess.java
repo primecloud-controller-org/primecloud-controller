@@ -21,6 +21,7 @@ package jp.primecloud.auto.process.vmware;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
 
 import jp.primecloud.auto.common.constant.PCCConstant;
@@ -251,10 +252,33 @@ public class VmwareMachineProcess extends ServiceSupport {
      * @param instanceNo
      */
     public void waitForRunning(VmwareProcessClient vmwareProcessClient, Long instanceNo) {
+        Instance instance = instanceDao.read(instanceNo);
         VmwareInstance vmwareInstance = vmwareInstanceDao.read(instanceNo);
 
+        // ネットワーク名の取得
+        PlatformVmware platformVmware = platformVmwareDao.read(instance.getPlatformNo());
+        String publicNetworkName = platformVmware.getPublicNetwork();
+        String privateNetworkName = platformVmware.getPrivateNetwork();
+
+        List<VmwareNetwork> vmwareNetworks = vmwareNetworkDao.readByFarmNo(instance.getFarmNo());
+        for (VmwareNetwork vmwareNetwork : vmwareNetworks) {
+            if (BooleanUtils.isTrue(vmwareNetwork.getPublicNetwork())) {
+                publicNetworkName = vmwareNetwork.getNetworkName();
+            } else {
+                privateNetworkName = vmwareNetwork.getNetworkName();
+            }
+        }
+
+        List<String> networkNames = new ArrayList<String>();
+        if (StringUtils.isNotEmpty(publicNetworkName)) {
+            networkNames.add(publicNetworkName);
+        }
+        if (StringUtils.isNotEmpty(privateNetworkName)) {
+            networkNames.add(privateNetworkName);
+        }
+
         // ゲストの起動完了待ち
-        vmwareProcessClient.waitForRunning(vmwareInstance.getMachineName());
+        vmwareProcessClient.waitForRunning(vmwareInstance.getMachineName(), networkNames);
     }
 
     /**

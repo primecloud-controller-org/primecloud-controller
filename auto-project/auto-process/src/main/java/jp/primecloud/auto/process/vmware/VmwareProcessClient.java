@@ -34,6 +34,7 @@ import org.apache.commons.logging.LogFactory;
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.util.MessageUtils;
 import jp.primecloud.auto.vmware.VmwareClient;
+
 import com.vmware.vim25.AlreadyExists;
 import com.vmware.vim25.CustomFieldDef;
 import com.vmware.vim25.CustomizationSpec;
@@ -576,7 +577,7 @@ public class VmwareProcessClient {
         }
     }
 
-    public void waitForRunning(String machineName) {
+    public void waitForRunning(String machineName, List<String> networkNames) {
         VirtualMachine machine = getVirtualMachine(machineName);
 
         // 起動判定処理
@@ -626,9 +627,14 @@ public class VmwareProcessClient {
                 continue;
             }
 
-            // リンクローカルでないIPアドレスが付いていること
-            int count = 0;
+            // IPv4アドレスが付いたネットワークアダプタ名を取得
+            List<String> enableNetworkNames = new ArrayList<String>();
             for (GuestNicInfo nicInfo : guestInfo.getNet()) {
+                // 仮想ネットワークアダプタの場合はスキップ
+                if (StringUtils.isEmpty(nicInfo.getNetwork())) {
+                    continue;
+                }
+
                 // NIC情報からIPv4のアドレスを取得
                 NetIpConfigInfoIpAddress[] tmpAddresses = nicInfo.getIpConfig().getIpAddress();
                 if (tmpAddresses == null) {
@@ -646,11 +652,16 @@ public class VmwareProcessClient {
                     }
                 }
 
-                if (ipAddress != null && !StringUtils.startsWith(ipAddress, "169.254.")) {
-                    count++;
+                // IPアドレスを取得できない、またはリンクローカルのIPアドレスの場合はスキップ
+                if (ipAddress == null || StringUtils.startsWith(ipAddress, "169.254.")) {
+                    continue;
                 }
+
+                enableNetworkNames.add(nicInfo.getNetwork());
             }
-            if (count != guestInfo.getNet().length) {
+
+            // 指定された全てのネットワークアダプタにIPv4アドレスが付いていること
+            if (!enableNetworkNames.containsAll(networkNames)) {
                 continue;
             }
 

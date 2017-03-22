@@ -3,6 +3,7 @@ package jp.primecloud.auto.process.vmware;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
 import jp.primecloud.auto.common.component.PasswordEncryptor;
@@ -12,12 +13,15 @@ import jp.primecloud.auto.entity.crud.Farm;
 import jp.primecloud.auto.entity.crud.Image;
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.PccSystemInfo;
+import jp.primecloud.auto.entity.crud.PlatformVmware;
 import jp.primecloud.auto.entity.crud.User;
 import jp.primecloud.auto.entity.crud.VmwareInstance;
+import jp.primecloud.auto.entity.crud.VmwareNetwork;
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
 import jp.primecloud.auto.vmware.VmwareClient;
+
 import com.vmware.vim25.CustomizationAdapterMapping;
 import com.vmware.vim25.CustomizationDhcpIpGenerator;
 import com.vmware.vim25.CustomizationFixedName;
@@ -73,7 +77,29 @@ public class VmwareCustomizeProcess extends ServiceSupport {
 
             vmwareProcessClient.powerOnVM(vmwareInstance.getMachineName());
 
-            vmwareProcessClient.waitForRunning(vmwareInstance.getMachineName());
+            // ネットワーク名の取得
+            PlatformVmware platformVmware = platformVmwareDao.read(instance.getPlatformNo());
+            String publicNetworkName = platformVmware.getPublicNetwork();
+            String privateNetworkName = platformVmware.getPrivateNetwork();
+
+            List<VmwareNetwork> vmwareNetworks = vmwareNetworkDao.readByFarmNo(instance.getFarmNo());
+            for (VmwareNetwork vmwareNetwork : vmwareNetworks) {
+                if (BooleanUtils.isTrue(vmwareNetwork.getPublicNetwork())) {
+                    publicNetworkName = vmwareNetwork.getNetworkName();
+                } else {
+                    privateNetworkName = vmwareNetwork.getNetworkName();
+                }
+            }
+
+            List<String> networkNames = new ArrayList<String>();
+            if (StringUtils.isNotEmpty(publicNetworkName)) {
+                networkNames.add(publicNetworkName);
+            }
+            if (StringUtils.isNotEmpty(privateNetworkName)) {
+                networkNames.add(privateNetworkName);
+            }
+
+            vmwareProcessClient.waitForRunning(vmwareInstance.getMachineName(), networkNames);
 
             vmwareProcessClient.shutdownGuest(vmwareInstance.getMachineName());
 
