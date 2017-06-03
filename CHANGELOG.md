@@ -3,6 +3,72 @@
 しています。
 
 
+2017-06-03 PrimeCloud Controller 2.9.0リリース
+============================================
+
+## 主な変更点
+
+### 機能追加
+
+- ユーザの最終ログイン日時を記録するようにしました。 [#95](https://github.com/primecloud-controller-org/primecloud-controller/issues/95)
+- サーバのルートボリュームサイズの上限を設定できるようにしました。 [#96](https://github.com/primecloud-controller-org/primecloud-controller/issues/96)
+
+### 改善
+
+- VMwareの仮想マシンに複数ネットワークインターフェースを付けるかどうかを指定できるようにしました。 [#77](https://github.com/primecloud-controller-org/primecloud-controller/issues/77)
+- サービスに関連付かないボリュームがある場合の動作を改善しました。 [357709d](https://github.com/primecloud-controller-org/primecloud-controller/commit/357709d7817d99ee8e28b473c301f2aaa6aea08e)
+
+### 修正
+
+- 無効にしたユーザがAPIを利用できてしまう不具合を修正しました。 [#93](https://github.com/primecloud-controller-org/primecloud-controller/issues/93)
+- VMwareプラットフォームでIPv4アドレスのないネットワークアダプタがあると起動エラーとなる問題を修正しました。 [#97](https://github.com/primecloud-controller-org/primecloud-controller/issues/97)
+
+### 変更
+
+- ユーザ権限機能を除去しました。 [#92](https://github.com/primecloud-controller-org/primecloud-controller/issues/92)
+- ユーザが有効か無効どうかのチェックをわかりやすくしました。 [#94](https://github.com/primecloud-controller-org/primecloud-controller/issues/94)
+
+### その他
+
+- Zabbix 3.0.8 および 3.2.4 での動作を確認しました。 [9c18377](https://github.com/primecloud-controller-org/primecloud-controller/commit/9c183779837955c0d66a37bf20d7d16b34c26508)
+- ソースコードをリファクタリングしました。
+
+
+## アップグレード
+
+バージョン2.8.0の環境をアップグレードする場合、次の点に注意してください。
+
+### コンフィグファイルの変更
+
+```/opt/adc/conf/config.properties``` ファイルに次の設定を追加してください。  
+（※追加しなくても動作に影響はありません。）
+
+```
+aws.maxRootSize = 
+vmware.maxRootSize = 
+```
+
+### データベースのスキーマの変更
+
+データベースで次のDDL文を実行し、スキーマを変更してください。
+
+```sql
+drop table USER_AUTH;
+alter table USER drop foreign key USER_FK1;
+alter table USER drop MASTER_USER;
+alter table USER drop POWER_USER;
+
+alter table USER add ENABLED boolean not null default true after PASSWORD;
+update USER set ENABLED = 0, PASSWORD = trim(leading "DISABLE\t" from PASSWORD) where PASSWORD like "DISABLE\t%";
+
+alter table API_CERTIFICATE add ENABLED boolean not null default true after API_SECRET_KEY;
+
+alter table USER add LAST_LOGIN_DATE datetime after ENABLED;
+alter table API_CERTIFICATE add LAST_USE_DATE datetime after ENABLED;
+```
+
+
+
 2017-01-05 PrimeCloud Controller 2.8.0リリース
 ============================================
 
