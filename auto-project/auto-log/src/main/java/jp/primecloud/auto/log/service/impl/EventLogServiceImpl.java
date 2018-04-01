@@ -25,7 +25,6 @@ import jp.primecloud.auto.log.dao.crud.EventLogDao.SearchCondition;
 import jp.primecloud.auto.log.entity.crud.EventLog;
 import jp.primecloud.auto.log.service.EventLogService;
 
-
 /**
  * <p>
  * {@link EventLogService}の実装クラスです。

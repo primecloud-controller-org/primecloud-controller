@@ -22,8 +22,6 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import jp.primecloud.auto.common.component.FreeMarkerGenerator;
-
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;

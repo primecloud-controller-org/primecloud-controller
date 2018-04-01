@@ -96,16 +96,16 @@ public class EditInstanceAzure extends ApiSupport {
 
         // Subnet
         ApiValidate.validateSubnet(subnet);
-        SubnetDto subnetDto = getAzureSubnet(user.getUserNo(), instance.getPlatformNo(),
-                platformAzure.getNetworkName(), subnet);
+        SubnetDto subnetDto = getAzureSubnet(user.getUserNo(), instance.getPlatformNo(), platformAzure.getNetworkName(),
+                subnet);
         if (subnetDto == null) {
             // Subnetが存在しない
             throw new AutoApplicationException("EAPI-000017", instance.getPlatformNo(), subnet);
         }
 
         // 更新処理
-        instanceService.updateAzureInstance(instance.getInstanceNo(), instance.getInstanceName(), comment,
-                instanceType, availabilitySet, subnetDto.getSubnetId());
+        instanceService.updateAzureInstance(instance.getInstanceNo(), instance.getInstanceName(), comment, instanceType,
+                availabilitySet, subnetDto.getSubnetId());
 
         EditInstanceAzureResponse response = new EditInstanceAzureResponse();
 

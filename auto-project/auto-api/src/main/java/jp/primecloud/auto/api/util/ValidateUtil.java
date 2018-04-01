@@ -21,10 +21,10 @@ package jp.primecloud.auto.api.util;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import jp.primecloud.auto.exception.AutoApplicationException;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.GenericValidator;
-
-import jp.primecloud.auto.exception.AutoApplicationException;
 
 /**
  * <p>

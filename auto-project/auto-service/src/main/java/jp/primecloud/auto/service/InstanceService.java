@@ -50,8 +50,8 @@ public interface InstanceService {
             String instanceType);
 
     public void updateAwsInstance(Long instanceNo, String instanceName, String comment, String keyName,
-            String instanceType, String securityGroupName, String availabilityZoneName, Long addressNo,
-            String subnetId, Integer rootSize, String privateIpAddress);
+            String instanceType, String securityGroupName, String availabilityZoneName, Long addressNo, String subnetId,
+            Integer rootSize, String privateIpAddress);
 
     public void updateCloudstackInstance(Long instanceNo, String instanceName, String comment, String keyName,
             String instanceType, String securityGroupName, String availabilityZoneName, Long addressNo);
@@ -77,7 +77,8 @@ public interface InstanceService {
             String computeResource, String resourcePool, Long keyPairNo, Integer rootSize);
 
     public void updateVmwareInstance(Long instanceNo, String instanceName, String comment, String instanceType,
-            String computeResource, String resourcePool, Long keyPairNo, Integer rootSize, VmwareAddressDto vmwareAddressDto);
+            String computeResource, String resourcePool, Long keyPairNo, Integer rootSize,
+            VmwareAddressDto vmwareAddressDto);
 
     public void updateNiftyInstance(Long instanceNo, String instanceName, String comment, String instanceType,
             Long keyPairNo);

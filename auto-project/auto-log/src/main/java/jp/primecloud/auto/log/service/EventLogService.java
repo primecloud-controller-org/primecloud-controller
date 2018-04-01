@@ -23,7 +23,6 @@ import java.util.List;
 import jp.primecloud.auto.log.dao.crud.EventLogDao.SearchCondition;
 import jp.primecloud.auto.log.entity.crud.EventLog;
 
-
 /**
  * <p>
  * イベントログに関するロジックのインタフェースです。

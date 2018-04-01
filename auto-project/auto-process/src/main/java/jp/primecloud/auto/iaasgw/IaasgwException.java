@@ -20,33 +20,35 @@ package jp.primecloud.auto.iaasgw;
 
 import org.apache.commons.lang.StringUtils;
 
-
-
 public class IaasgwException extends Exception {
 
     /** シリアル */
     private static final long serialVersionUID = 6353444266483618113L;
 
-
     /** エラータイプ **/
     /** 0:不明 **/
     public final int ERR_TYPE_UNKNOWN = 0;
+
     /** 1:CLOUDSTACK*/
     public final int ERR_TYPE_CLOUDSTACK = 1;
+
     /** 2:AWS*/
     public final int ERR_TYPE_AWS = 2;
+
     /** 11:Iaasgw内部エラー*/
     public final int ERR_TYPE_IAASGW = 11;
+
     /** 12:コンパイル系エラー*/
     public final int ERR_TYPE_COMPILE = 12;
+
     /** 13:設定ファイル系エラー*/
     public final int ERR_TYPE_SETUP = 13;
+
     /** 21:Libcloud系エラー*/
     public final int ERR_TYPE_LIBCLOUD = 21;
 
     /** エラータイプ格納用 **/
     private int errType = ERR_TYPE_UNKNOWN;
-
 
     public IaasgwException() {
     }
@@ -63,10 +65,10 @@ public class IaasgwException extends Exception {
     public String getMessage() {
         String mess = super.getMessage();
 
+        if (StringUtils.isEmpty(mess))
+            return "";
 
-        if (StringUtils.isEmpty(mess)) return "";
-
-        if (mess.indexOf("IaasException") > 0){
+        if (mess.indexOf("IaasException") > 0) {
             /*
              * IaasException Iaasgw内部エラー
              * 例）IaasException: 'Launching instance failed.'
@@ -75,7 +77,7 @@ public class IaasgwException extends Exception {
             errType = ERR_TYPE_IAASGW;
             return mess.substring(mess.indexOf(":") + 1);
 
-        }else if (mess.startsWith("Exception")) {
+        } else if (mess.startsWith("Exception")) {
             /*
              * Cloudstack側がエラーを返した場合はこの戻り方となる
              * 例）Exception: {u'listsshkeypairsresponse': {u'errorcode': 401, u'errortext': u'unable to verify user credentials and/or request signature'}}
@@ -85,10 +87,10 @@ public class IaasgwException extends Exception {
              * 注）1つ先は「: u」等、区切り文字が来る
              */
             String[] cserr = mess.split("'");
-            for (int i=0; i < cserr.length; i++ ){
-                if ("errortext".equals(cserr[i])){
+            for (int i = 0; i < cserr.length; i++) {
+                if ("errortext".equals(cserr[i])) {
                     errType = ERR_TYPE_CLOUDSTACK;
-                    return cserr[i+2];
+                    return cserr[i + 2];
                 }
             }
             /*
@@ -99,7 +101,7 @@ public class IaasgwException extends Exception {
              * 注）分割数が足りない場合は無視する
              */
             String[] awserr = mess.split(":");
-            if (awserr.length >= 3){
+            if (awserr.length >= 3) {
                 errType = ERR_TYPE_AWS;
                 return awserr[2];
             }
@@ -109,7 +111,7 @@ public class IaasgwException extends Exception {
              */
             return mess;
 
-        }else if (mess.indexOf("AttributeError") > 0){
+        } else if (mess.indexOf("AttributeError") > 0) {
             /*
              * AttributeError コンパイル系エラー
              * 例）AttributeError: 'EC2IaasClient' object has no attribute 'waitGetPasswordData'
@@ -119,7 +121,7 @@ public class IaasgwException extends Exception {
             errType = ERR_TYPE_COMPILE;
             return mess.substring(mess.indexOf(":") + 1);
 
-        }else if (mess.indexOf("NoOptionError") > 0) {
+        } else if (mess.indexOf("NoOptionError") > 0) {
             /*
              * NoOptionError 設定ファイル系エラー
              * 例）NoOptionError: No option 'proxy' in section: 'PLATFORM_5'
@@ -129,7 +131,7 @@ public class IaasgwException extends Exception {
             errType = ERR_TYPE_SETUP;
             return mess.substring(mess.indexOf(":") + 1);
 
-        }else if (mess.indexOf("LibcloudError") > 0) {
+        } else if (mess.indexOf("LibcloudError") > 0) {
             /*
              * LibcloudError Libcloud内部エラー
              * 例）LibcloudError: <LibcloudError in None 'Job did not complete in 1200 seconds'>
@@ -138,7 +140,7 @@ public class IaasgwException extends Exception {
              */
             errType = ERR_TYPE_LIBCLOUD;
             //タイムアウト
-            if (mess.indexOf("seconds") > 0){
+            if (mess.indexOf("seconds") > 0) {
                 return "Completion timeout ! ";
             }
 

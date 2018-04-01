@@ -22,6 +22,7 @@ import java.util.Locale;
 
 import jp.primecloud.auto.zabbix.model.host.HostGetParam;
 import jp.primecloud.auto.zabbix.model.user.UserGetParam;
+
 import net.sf.json.processors.PropertyNameProcessor;
 
 /**

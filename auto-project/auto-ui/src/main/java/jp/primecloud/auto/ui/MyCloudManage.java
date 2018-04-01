@@ -229,8 +229,9 @@ public class MyCloudManage extends Window {
 
                 // myCloud名
                 Icons nameIcon = Icons.CLOUD;
-                Label slbl = new Label(IconUtils.createImageTag(getApplication(), nameIcon, farm.getFarm()
-                        .getFarmName()), Label.CONTENT_XHTML);
+                Label slbl = new Label(
+                        IconUtils.createImageTag(getApplication(), nameIcon, farm.getFarm().getFarmName()),
+                        Label.CONTENT_XHTML);
                 slbl.setHeight(COLUMN_HEIGHT);
 
                 // コメント
@@ -272,7 +273,8 @@ public class MyCloudManage extends Window {
         final FarmDto farm = findFarm(farmNo);
 
         String message = ViewMessages.getMessage("IUI-000006", farm.getFarm().getFarmName());
-        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message, Buttons.OKCancel);
+        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message,
+                Buttons.OKCancel);
         dialog.setCallback(new Callback() {
             @Override
             public void onDialogResult(Result result) {

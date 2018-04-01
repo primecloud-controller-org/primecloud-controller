@@ -87,8 +87,8 @@ public class AwsProcess extends ServiceSupport {
 
                         try {
                             // インスタンス情報の参照
-                            com.amazonaws.services.ec2.model.Instance instance2 = awsCommonProcess.describeInstance(
-                                    awsProcessClient, instanceId);
+                            com.amazonaws.services.ec2.model.Instance instance2 = awsCommonProcess
+                                    .describeInstance(awsProcessClient, instanceId);
 
                             if (InstanceStateName.Terminated.toString().equals(instance2.getState().getName())
                                     && "Server.InternalError".equals(instance2.getStateTransitionReason())) {

@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import com.nifty.cloud.sdk.server.model.InstanceState;
 
-
 /**
  * <p>
  * nifty sdkのInstanceStateクラスからのデータ移送用クラス

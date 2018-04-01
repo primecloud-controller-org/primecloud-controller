@@ -178,8 +178,8 @@ public class WinLoadBalancerAdd extends Window {
             loadBalancerNameField.setRequired(true);
             loadBalancerNameField.setRequiredError(message);
             loadBalancerNameField.addValidator(new StringLengthValidator(message, 1, 15, false));
-            loadBalancerNameField.addValidator(new RegexpValidator("^[0-9a-z]|[0-9a-z][0-9a-z-]*[0-9a-z]$", true,
-                    message));
+            loadBalancerNameField
+                    .addValidator(new RegexpValidator("^[0-9a-z]|[0-9a-z][0-9a-z-]*[0-9a-z]$", true, message));
 
             message = ViewMessages.getMessage("IUI-000003");
             commentField.addValidator(new StringLengthValidator(message, -1, 100, true));

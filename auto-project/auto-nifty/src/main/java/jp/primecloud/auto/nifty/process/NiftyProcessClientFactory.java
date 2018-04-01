@@ -51,9 +51,8 @@ public class NiftyProcessClientFactory {
 
     protected PlatformDao platformDao;
 
-
     public NiftyProcessClient createNiftyProcessClient(Long userNo, Long platformNo, String clientType) {
-        Platform platform =platformDao.read(platformNo);
+        Platform platform = platformDao.read(platformNo);
         if (platform == null) {
             throw new AutoException("EPROCESS-000004", platformNo);
         }
@@ -73,7 +72,8 @@ public class NiftyProcessClientFactory {
         }
 
         // 指定されたAccessKeyとSecretAccessKeyから認証情報インスタンスを生成します。
-        Credentials credential = new BasicCredentials(niftyCertificate.getNiftyAccessId(), niftyCertificate.getNiftySecretKey());
+        Credentials credential = new BasicCredentials(niftyCertificate.getNiftyAccessId(),
+                niftyCertificate.getNiftySecretKey());
 
         // 設定ファイル
         ClientConfiguration config = new ClientConfiguration();

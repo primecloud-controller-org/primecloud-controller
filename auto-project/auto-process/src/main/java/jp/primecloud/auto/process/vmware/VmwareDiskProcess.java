@@ -67,8 +67,8 @@ public class VmwareDiskProcess extends ServiceSupport {
         if (StringUtils.isEmpty(vmwareDisk.getFileName())) {
             processLogger.debug(component, instance, "VmwareDiskCreate", new Object[] { platform.getPlatformName() });
         } else {
-            processLogger.debug(component, instance, "VmwareDiskAttach", new Object[] { platform.getPlatformName(),
-                    vmwareDisk.getFileName() });
+            processLogger.debug(component, instance, "VmwareDiskAttach",
+                    new Object[] { platform.getPlatformName(), vmwareDisk.getFileName() });
         }
 
         // ディスクのアタッチ
@@ -77,8 +77,9 @@ public class VmwareDiskProcess extends ServiceSupport {
 
         // ディスク情報の取得
         VirtualDeviceFileBackingInfo backingInfo = VirtualDeviceFileBackingInfo.class.cast(disk.getBacking());
-        Datastore datastore = new Datastore(vmwareProcessClient.getVmwareClient().getServiceInstance()
-                .getServerConnection(), backingInfo.getDatastore());
+        Datastore datastore = new Datastore(
+                vmwareProcessClient.getVmwareClient().getServiceInstance().getServerConnection(),
+                backingInfo.getDatastore());
 
         //イベントログ出力
         if (StringUtils.isEmpty(vmwareDisk.getFileName())) {
@@ -118,15 +119,15 @@ public class VmwareDiskProcess extends ServiceSupport {
         Component component = componentDao.read(vmwareDisk.getComponentNo());
         Instance instance = instanceDao.read(instanceNo);
         Platform platform = platformDao.read(vmwareProcessClient.getPlatformNo());
-        processLogger.debug(component, instance, "VmwareDiskDetach", new Object[] { platform.getPlatformName(),
-                vmwareDisk.getFileName() });
+        processLogger.debug(component, instance, "VmwareDiskDetach",
+                new Object[] { platform.getPlatformName(), vmwareDisk.getFileName() });
 
         // ディスクをデタッチ
         vmwareProcessClient.detachDisk(vmwareInstance.getMachineName(), vmwareDisk.getScsiId());
 
         //イベントログ出力
-        processLogger.debug(component, instance, "VmwareDiskDetachFinish", new Object[] { platform.getPlatformName(),
-                vmwareDisk.getFileName() });
+        processLogger.debug(component, instance, "VmwareDiskDetachFinish",
+                new Object[] { platform.getPlatformName(), vmwareDisk.getFileName() });
 
         // データベース更新
         vmwareDisk = vmwareDiskDao.read(diskNo);

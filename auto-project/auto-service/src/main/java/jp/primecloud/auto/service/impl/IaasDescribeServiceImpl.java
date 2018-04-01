@@ -335,7 +335,8 @@ public class IaasDescribeServiceImpl extends ServiceSupport implements IaasDescr
 
         List<VcloudInstanceNetwork> vcloudInstanceNetworks = vcloudInstanceNetworkDao.readByPlatformNo(platformNo);
         for (VcloudInstanceNetwork instanceNetwork : vcloudInstanceNetworks) {
-            if (!instanceNo.equals(instanceNetwork.getInstanceNo()) && instanceNetwork.getIpAddress().equals(ipAddress)) {
+            if (!instanceNo.equals(instanceNetwork.getInstanceNo())
+                    && instanceNetwork.getIpAddress().equals(ipAddress)) {
                 Instance instance = instanceDao.read(instanceNetwork.getInstanceNo());
                 return instance.getInstanceName();
             }

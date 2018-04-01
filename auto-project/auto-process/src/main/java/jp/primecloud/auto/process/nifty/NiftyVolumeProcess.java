@@ -75,7 +75,7 @@ public class NiftyVolumeProcess extends ServiceSupport {
         if (StringUtils.isEmpty(niftyVolume.getVolumeId())) {
             try {
                 // 排他制御(apiを同時に実行するとエラーになる対策)
-                synchronized(lock) {
+                synchronized (lock) {
                     //イベントログ出力
                     processLogger.debug(component, instance, "NiftyDiskCreate",
                             new Object[] { platform.getPlatformName() });
@@ -123,7 +123,7 @@ public class NiftyVolumeProcess extends ServiceSupport {
         } else {
             try {
                 // 排他制御(apiを同時に実行するとエラーになる対策)
-                synchronized(lock) {
+                synchronized (lock) {
                     //イベントログ出力
                     processLogger.debug(component, instance, "NiftyDiskAttach",
                             new Object[] { instance.getInstanceName(), niftyVolume.getVolumeId() });
@@ -135,7 +135,8 @@ public class NiftyVolumeProcess extends ServiceSupport {
                     niftyVolumeDao.update(niftyVolume);
 
                     // ボリュームのアタッチ待ち
-                    volume = niftyProcessClient.waitAttachVolume(niftyVolume.getVolumeId(), niftyInstance.getInstanceId());
+                    volume = niftyProcessClient.waitAttachVolume(niftyVolume.getVolumeId(),
+                            niftyInstance.getInstanceId());
 
                     //イベントログ出力
                     processLogger.debug(component, instance, "NiftyDiskAttachFinish",
@@ -190,12 +191,12 @@ public class NiftyVolumeProcess extends ServiceSupport {
 
         try {
             // 排他制御(apiを同時に実行するとエラーになる対策)
-            synchronized(lock) {
+            synchronized (lock) {
                 //イベントログ出力
                 Component component = componentDao.read(niftyVolume.getComponentNo());
                 Instance instance = instanceDao.read(instanceNo);
-                processLogger.debug(component, instance, "NiftyDiskDetach", new Object[] {
-                        instance.getInstanceName(), niftyVolume.getVolumeId() });
+                processLogger.debug(component, instance, "NiftyDiskDetach",
+                        new Object[] { instance.getInstanceName(), niftyVolume.getVolumeId() });
 
                 // ディスクをデタッチ
                 niftyProcessClient.detachVolume(niftyVolume.getVolumeId(), niftyVolume.getInstanceId());

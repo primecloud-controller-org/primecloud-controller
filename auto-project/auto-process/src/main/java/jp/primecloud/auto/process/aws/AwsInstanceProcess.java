@@ -245,8 +245,8 @@ public class AwsInstanceProcess extends ServiceSupport {
         request.withBlockDeviceMappings(blockDeviceMappings);
 
         // イベントログ出力
-        processLogger.debug(null, instance, "AwsInstanceCreate", new Object[] { awsProcessClient.getPlatform()
-                .getPlatformName() });
+        processLogger.debug(null, instance, "AwsInstanceCreate",
+                new Object[] { awsProcessClient.getPlatform().getPlatformName() });
 
         // インスタンスの作成
         RunInstancesResult result = awsProcessClient.getEc2Client().runInstances(request);
@@ -275,8 +275,8 @@ public class AwsInstanceProcess extends ServiceSupport {
         String instanceId = awsInstance.getInstanceId();
 
         // インスタンスの作成待ち
-        com.amazonaws.services.ec2.model.Instance instance = awsCommonProcess
-                .waitInstance(awsProcessClient, instanceId);
+        com.amazonaws.services.ec2.model.Instance instance = awsCommonProcess.waitInstance(awsProcessClient,
+                instanceId);
 
         if (!instance.getState().getName().equals(InstanceStateName.Running.toString())) {
             // インスタンス作成失敗時
@@ -292,8 +292,8 @@ public class AwsInstanceProcess extends ServiceSupport {
 
         // イベントログ出力
         Instance instance2 = instanceDao.read(instanceNo);
-        processLogger.debug(null, instance2, "AwsInstanceCreateFinish", new Object[] {
-                awsProcessClient.getPlatform().getPlatformName(), instanceId });
+        processLogger.debug(null, instance2, "AwsInstanceCreateFinish",
+                new Object[] { awsProcessClient.getPlatform().getPlatformName(), instanceId });
 
         // データベース更新
         awsInstance.setAvailabilityZone(instance.getPlacement().getAvailabilityZone());
@@ -376,8 +376,8 @@ public class AwsInstanceProcess extends ServiceSupport {
 
         // イベントログ出力
         Instance instance = instanceDao.read(instanceNo);
-        processLogger.debug(null, instance, "AwsInstanceStart", new Object[] {
-                awsProcessClient.getPlatform().getPlatformName(), instanceId });
+        processLogger.debug(null, instance, "AwsInstanceStart",
+                new Object[] { awsProcessClient.getPlatform().getPlatformName(), instanceId });
 
         // インスタンスの起動
         StartInstancesRequest request = new StartInstancesRequest();
@@ -412,8 +412,8 @@ public class AwsInstanceProcess extends ServiceSupport {
         String instanceId = awsInstance.getInstanceId();
 
         // インスタンスの起動待ち
-        com.amazonaws.services.ec2.model.Instance instance = awsCommonProcess
-                .waitInstance(awsProcessClient, instanceId);
+        com.amazonaws.services.ec2.model.Instance instance = awsCommonProcess.waitInstance(awsProcessClient,
+                instanceId);
 
         if (!instance.getState().getName().equals(InstanceStateName.Running.toString())) {
             // インスタンス起動失敗時
@@ -429,8 +429,8 @@ public class AwsInstanceProcess extends ServiceSupport {
 
         // イベントログ出力
         Instance instance2 = instanceDao.read(instanceNo);
-        processLogger.debug(null, instance2, "AwsInstanceStartFinish", new Object[] {
-                awsProcessClient.getPlatform().getPlatformName(), instanceId });
+        processLogger.debug(null, instance2, "AwsInstanceStartFinish",
+                new Object[] { awsProcessClient.getPlatform().getPlatformName(), instanceId });
 
         // データベース更新
         awsInstance.setAvailabilityZone(instance.getPlacement().getAvailabilityZone());
@@ -448,8 +448,8 @@ public class AwsInstanceProcess extends ServiceSupport {
 
         // イベントログ出力
         Instance instance = instanceDao.read(instanceNo);
-        processLogger.debug(null, instance, "AwsInstanceStop", new Object[] {
-                awsProcessClient.getPlatform().getPlatformName(), instanceId });
+        processLogger.debug(null, instance, "AwsInstanceStop",
+                new Object[] { awsProcessClient.getPlatform().getPlatformName(), instanceId });
 
         // インスタンスの停止
         StopInstancesRequest request = new StopInstancesRequest();
@@ -484,8 +484,8 @@ public class AwsInstanceProcess extends ServiceSupport {
         String instanceId = awsInstance.getInstanceId();
 
         // インスタンスの停止待ち
-        com.amazonaws.services.ec2.model.Instance instance = awsCommonProcess
-                .waitInstance(awsProcessClient, instanceId);
+        com.amazonaws.services.ec2.model.Instance instance = awsCommonProcess.waitInstance(awsProcessClient,
+                instanceId);
 
         if (!instance.getState().getName().equals(InstanceStateName.Stopped.toString())) {
             // インスタンス停止失敗時
@@ -501,8 +501,8 @@ public class AwsInstanceProcess extends ServiceSupport {
 
         // イベントログ出力
         Instance instance2 = instanceDao.read(instanceNo);
-        processLogger.debug(null, instance2, "AwsInstanceStopFinish", new Object[] {
-                awsProcessClient.getPlatform().getPlatformName(), instanceId });
+        processLogger.debug(null, instance2, "AwsInstanceStopFinish",
+                new Object[] { awsProcessClient.getPlatform().getPlatformName(), instanceId });
 
         // データベース更新
         awsInstance.setAvailabilityZone(instance.getPlacement().getAvailabilityZone());
@@ -520,8 +520,8 @@ public class AwsInstanceProcess extends ServiceSupport {
 
         // イベントログ出力
         Instance instance = instanceDao.read(instanceNo);
-        processLogger.debug(null, instance, "AwsInstanceDelete", new Object[] {
-                awsProcessClient.getPlatform().getPlatformName(), instanceId });
+        processLogger.debug(null, instance, "AwsInstanceDelete",
+                new Object[] { awsProcessClient.getPlatform().getPlatformName(), instanceId });
 
         // インスタンスの削除
         TerminateInstancesRequest request = new TerminateInstancesRequest();
@@ -562,8 +562,8 @@ public class AwsInstanceProcess extends ServiceSupport {
 
             if (!StringUtils.equals(instance.getState().getName(), InstanceStateName.Terminated.toString())) {
                 // インスタンス削除失敗時
-                AutoException exception = new AutoException("EPROCESS-000109", instanceId, instance.getState()
-                        .getName());
+                AutoException exception = new AutoException("EPROCESS-000109", instanceId,
+                        instance.getState().getName());
                 exception.addDetailInfo("result=" + ReflectionToStringBuilder.toString(instance));
                 throw exception;
             }
@@ -583,8 +583,8 @@ public class AwsInstanceProcess extends ServiceSupport {
 
         // イベントログ出力
         Instance instance2 = instanceDao.read(instanceNo);
-        processLogger.debug(null, instance2, "AwsInstanceDeleteFinish", new Object[] {
-                awsProcessClient.getPlatform().getPlatformName(), instanceId });
+        processLogger.debug(null, instance2, "AwsInstanceDeleteFinish",
+                new Object[] { awsProcessClient.getPlatform().getPlatformName(), instanceId });
 
         String status = null;
         if (instance != null) {
@@ -746,8 +746,8 @@ public class AwsInstanceProcess extends ServiceSupport {
         List<BlockDeviceMapping> mappings = new ArrayList<BlockDeviceMapping>();
 
         // イメージのBlockDeviceMappingの設定
-        List<BlockDeviceMapping> imageMappings = createImageBlockDeviceMappings(awsProcessClient, imageAws,
-                awsInstance, image);
+        List<BlockDeviceMapping> imageMappings = createImageBlockDeviceMappings(awsProcessClient, imageAws, awsInstance,
+                image);
         if (imageMappings != null) {
             mappings.addAll(imageMappings);
         }

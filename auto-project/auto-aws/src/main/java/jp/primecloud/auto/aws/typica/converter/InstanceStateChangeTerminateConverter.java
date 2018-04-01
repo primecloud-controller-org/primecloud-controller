@@ -28,8 +28,8 @@ import com.xerox.amazonws.ec2.TerminatingInstanceDescription;
  * </p>
  *
  */
-public class InstanceStateChangeTerminateConverter extends
-        AbstractConverter<TerminatingInstanceDescription, InstanceStateChange> {
+public class InstanceStateChangeTerminateConverter
+        extends AbstractConverter<TerminatingInstanceDescription, InstanceStateChange> {
 
     @Override
     protected InstanceStateChange convertObject(TerminatingInstanceDescription from) {

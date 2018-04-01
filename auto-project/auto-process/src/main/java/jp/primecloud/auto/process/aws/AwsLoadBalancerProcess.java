@@ -190,8 +190,8 @@ public class AwsLoadBalancerProcess extends ServiceSupport {
         // VPCの場合
         else {
             // Subnet
-            List<Subnet> subnets = awsCommonProcess.describeSubnetsByVpcId(awsProcessClient, awsProcessClient
-                    .getPlatformAws().getVpcId());
+            List<Subnet> subnets = awsCommonProcess.describeSubnetsByVpcId(awsProcessClient,
+                    awsProcessClient.getPlatformAws().getVpcId());
             if (StringUtils.isNotEmpty(awsLoadBalancer.getSubnetId())) {
                 for (String subnetId : StringUtils.split(awsLoadBalancer.getSubnetId(), ",")) {
                     subnetId = subnetId.trim();
@@ -246,8 +246,8 @@ public class AwsLoadBalancerProcess extends ServiceSupport {
         }
 
         // イベントログ出力
-        processLogger.debug(null, null, "AwsElbCreate", new Object[] {
-                awsProcessClient.getPlatform().getPlatformName(), awsLoadBalancer.getName() });
+        processLogger.debug(null, null, "AwsElbCreate",
+                new Object[] { awsProcessClient.getPlatform().getPlatformName(), awsLoadBalancer.getName() });
 
         // ダミーのリスナーの削除
         DeleteLoadBalancerListenersRequest request2 = new DeleteLoadBalancerListenersRequest();
@@ -263,8 +263,8 @@ public class AwsLoadBalancerProcess extends ServiceSupport {
         awsProcessClient.getElbClient().modifyLoadBalancerAttributes(request3);
 
         // イベントログ出力
-        processLogger.debug(null, null, "AwsCrossZoneEnabled", new Object[] {
-                awsProcessClient.getPlatform().getPlatformName(), awsLoadBalancer.getName() });
+        processLogger.debug(null, null, "AwsCrossZoneEnabled",
+                new Object[] { awsProcessClient.getPlatform().getPlatformName(), awsLoadBalancer.getName() });
 
         // データベース更新
         awsLoadBalancer = awsLoadBalancerDao.read(loadBalancerNo);
@@ -287,8 +287,8 @@ public class AwsLoadBalancerProcess extends ServiceSupport {
         }
 
         // イベントログ出力
-        processLogger.debug(null, null, "AwsElbDelete", new Object[] {
-                awsProcessClient.getPlatform().getPlatformName(), awsLoadBalancer.getName() });
+        processLogger.debug(null, null, "AwsElbDelete",
+                new Object[] { awsProcessClient.getPlatform().getPlatformName(), awsLoadBalancer.getName() });
 
         // データベース更新
         awsLoadBalancer = awsLoadBalancerDao.read(loadBalancerNo);
@@ -456,8 +456,8 @@ public class AwsLoadBalancerProcess extends ServiceSupport {
         }
 
         // イベントログ出力
-        processLogger.debug(null, null, "AwsElbHealthCheckConfig", new Object[] {
-                awsProcessClient.getPlatform().getPlatformName(), awsLoadBalancer.getName() });
+        processLogger.debug(null, null, "AwsElbHealthCheckConfig",
+                new Object[] { awsProcessClient.getPlatform().getPlatformName(), awsLoadBalancer.getName() });
     }
 
     public void applySecurityGroups(AwsProcessClient awsProcessClient, Long loadBalancerNo) {
@@ -503,8 +503,8 @@ public class AwsLoadBalancerProcess extends ServiceSupport {
         }
 
         // イベントログ出力
-        processLogger.debug(null, null, "AwsElbSecurityGroupsConfig", new Object[] {
-                awsProcessClient.getPlatform().getPlatformName(), awsLoadBalancer.getName() });
+        processLogger.debug(null, null, "AwsElbSecurityGroupsConfig",
+                new Object[] { awsProcessClient.getPlatform().getPlatformName(), awsLoadBalancer.getName() });
     }
 
     public void configureInstances(AwsProcessClient awsProcessClient, Long loadBalancerNo) {
@@ -563,8 +563,8 @@ public class AwsLoadBalancerProcess extends ServiceSupport {
                     .readByLoadBalancerNo(loadBalancerNo);
             for (LoadBalancerInstance loadBalancerInstance : loadBalancerInstances) {
                 if (instanceNos.contains(loadBalancerInstance.getInstanceNo())) {
-                    LoadBalancerInstanceStatus status = LoadBalancerInstanceStatus.fromStatus(loadBalancerInstance
-                            .getStatus());
+                    LoadBalancerInstanceStatus status = LoadBalancerInstanceStatus
+                            .fromStatus(loadBalancerInstance.getStatus());
                     if (status == LoadBalancerInstanceStatus.STOPPED) {
                         tmpInstanceNos.add(loadBalancerInstance.getInstanceNo());
                     }
@@ -660,8 +660,8 @@ public class AwsLoadBalancerProcess extends ServiceSupport {
                     .readByLoadBalancerNo(loadBalancerNo);
             for (LoadBalancerInstance loadBalancerInstance : loadBalancerInstances) {
                 if (instanceNos.contains(loadBalancerInstance.getInstanceNo())) {
-                    LoadBalancerInstanceStatus status = LoadBalancerInstanceStatus.fromStatus(loadBalancerInstance
-                            .getStatus());
+                    LoadBalancerInstanceStatus status = LoadBalancerInstanceStatus
+                            .fromStatus(loadBalancerInstance.getStatus());
                     if (status == LoadBalancerInstanceStatus.RUNNING) {
                         tmpInstanceNos.add(loadBalancerInstance.getInstanceNo());
                     }

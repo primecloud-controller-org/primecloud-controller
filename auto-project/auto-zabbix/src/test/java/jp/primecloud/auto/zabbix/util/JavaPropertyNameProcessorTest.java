@@ -19,7 +19,6 @@
 package jp.primecloud.auto.zabbix.util;
 
 import static org.junit.Assert.assertEquals;
-import jp.primecloud.auto.zabbix.util.JavaPropertyNameProcessor;
 
 import org.junit.Test;
 

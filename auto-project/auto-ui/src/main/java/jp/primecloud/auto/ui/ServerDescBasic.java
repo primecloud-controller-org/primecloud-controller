@@ -145,7 +145,8 @@ public class ServerDescBasic extends Panel {
         }
     }
 
-    private ComponentInstanceDto findComponentInstance(List<ComponentInstanceDto> componentInstances, Long componentNo) {
+    private ComponentInstanceDto findComponentInstance(List<ComponentInstanceDto> componentInstances,
+            Long componentNo) {
         for (ComponentInstanceDto componentInstance : componentInstances) {
             if (componentNo.equals(componentInstance.getComponentInstance().getComponentNo())) {
                 return componentInstance;
@@ -201,13 +202,14 @@ public class ServerDescBasic extends Panel {
                     ComponentInstanceDto componentInstance = findComponentInstance(instance.getComponentInstances(),
                             component.getComponent().getComponentNo());
                     String url = (componentInstance == null) ? "" : componentInstance.getUrl();
-                    String status = (componentInstance == null) ? "" : componentInstance.getComponentInstance()
-                            .getStatus();
+                    String status = (componentInstance == null) ? ""
+                            : componentInstance.getComponentInstance().getStatus();
 
                     Icons icon = Icons.fromName(component.getComponentType().getComponentTypeName());
 
                     // MySQLならMasterとSlaveでアイコンを変える
-                    if (MySQLConstants.COMPONENT_TYPE_NAME.equals(component.getComponentType().getComponentTypeName())) {
+                    if (MySQLConstants.COMPONENT_TYPE_NAME
+                            .equals(component.getComponentType().getComponentTypeName())) {
                         // Master
                         Long masterInstanceNo = null;
                         for (InstanceConfig config : instance.getInstanceConfigs()) {
@@ -252,8 +254,8 @@ public class ServerDescBasic extends Panel {
 
                     ComponentInstanceDto componentInstance = findComponentInstance(instance.getComponentInstances(),
                             component.getComponent().getComponentNo());
-                    String status = (componentInstance == null) ? "" : componentInstance.getComponentInstance()
-                            .getStatus();
+                    String status = (componentInstance == null) ? ""
+                            : componentInstance.getComponentInstance().getStatus();
 
                     Icons icon = Icons.fromName(status);
                     status = status.substring(0, 1).toUpperCase() + status.substring(1).toLowerCase();
@@ -483,8 +485,8 @@ public class ServerDescBasic extends Panel {
             // IPアドレス
             {
                 boolean showPublicIp = BooleanUtils.toBoolean(Config.getProperty("ui.showPublicIp"));
-                String ipAddress = showPublicIp ? instance.getInstance().getPublicIp() : instance.getInstance()
-                        .getPrivateIp();
+                String ipAddress = showPublicIp ? instance.getInstance().getPublicIp()
+                        : instance.getInstance().getPrivateIp();
                 Label label = new Label(ipAddress, Label.CONTENT_XHTML);
                 gridLayout.removeComponent(1, line);
                 gridLayout.addComponent(label, 1, line++);

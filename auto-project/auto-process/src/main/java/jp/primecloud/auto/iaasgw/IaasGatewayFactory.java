@@ -39,11 +39,11 @@ public class IaasGatewayFactory {
             throw new AutoException("EPROCESS-000004", platformNo);
         }
 
-        if (!PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())&&
-            !PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType()) &&
-            !PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType()) &&
-            !PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType()) &&
-            !PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
+        if (!PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())
+                && !PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())
+                && !PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())
+                && !PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())
+                && !PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
             throw new AutoException("EPROCESS-000005", platform.getPlatformNo());
         }
 

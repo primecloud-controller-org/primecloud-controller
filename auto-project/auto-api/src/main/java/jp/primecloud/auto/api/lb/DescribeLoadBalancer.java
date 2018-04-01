@@ -80,8 +80,8 @@ public class DescribeLoadBalancer extends ApiSupport {
         LoadBalancerResponse loadBalancerResponse = new LoadBalancerResponse(loadBalancer);
 
         //リスナー取得
-        List<LoadBalancerListener> listeners = loadBalancerListenerDao.readByLoadBalancerNo(Long
-                .parseLong(loadBalancerNo));
+        List<LoadBalancerListener> listeners = loadBalancerListenerDao
+                .readByLoadBalancerNo(Long.parseLong(loadBalancerNo));
         if (listeners.isEmpty() == false) {
             //ソート
             Collections.sort(listeners, Comparators.COMPARATOR_LOAD_BALANCER_LISTENER);
@@ -99,8 +99,8 @@ public class DescribeLoadBalancer extends ApiSupport {
         }
 
         //コンポーネントインスタンス情報取得
-        List<ComponentInstance> componentInstances = componentInstanceDao.readByComponentNo(loadBalancer
-                .getComponentNo());
+        List<ComponentInstance> componentInstances = componentInstanceDao
+                .readByComponentNo(loadBalancer.getComponentNo());
         if (componentInstances.isEmpty() == false) {
             //ソート
             Collections.sort(componentInstances, Comparators.COMPARATOR_COMPONENT_INSTANCE);

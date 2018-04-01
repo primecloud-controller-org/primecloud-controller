@@ -356,8 +356,8 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
         }
 
         // イベントログ出力
-        eventLogger.log(EventLogLevel.INFO, farmNo, farm.getFarmName(), component.getComponentNo(), componentName,
-                null, null, "ComponentCreate", null, null, new Object[] { componentType.getComponentTypeName() });
+        eventLogger.log(EventLogLevel.INFO, farmNo, farm.getFarmName(), component.getComponentNo(), componentName, null,
+                null, "ComponentCreate", null, null, new Object[] { componentType.getComponentTypeName() });
 
         // フック処理の実行
         processHook.execute("post-create-component", farm.getUserNo(), farm.getFarmNo(), component.getComponentNo());
@@ -785,11 +785,11 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
             for (Component component : components) {
                 ComponentType type = componentTypeDao.read(component.getComponentTypeNo());
                 if (StringUtils.equals(componentType.getLayer(), type.getLayer())) {
-                    List<ComponentInstance> componentInstances = componentInstanceDao.readByComponentNo(component
-                            .getComponentNo());
+                    List<ComponentInstance> componentInstances = componentInstanceDao
+                            .readByComponentNo(component.getComponentNo());
                     for (ComponentInstance componentInstance : componentInstances) {
-                        ComponentInstanceStatus status = ComponentInstanceStatus.fromStatus(componentInstance
-                                .getStatus());
+                        ComponentInstanceStatus status = ComponentInstanceStatus
+                                .fromStatus(componentInstance.getStatus());
                         if (BooleanUtils.isTrue(componentInstance.getAssociate())
                                 || status != ComponentInstanceStatus.STOPPED) {
                             availableInstanceNos.remove(componentInstance.getInstanceNo());
@@ -864,8 +864,8 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
             }
             ComponentType componentType2 = componentTypeDao.read(component2.getComponentTypeNo());
             if (StringUtils.equals(componentType.getLayer(), componentType2.getLayer())) {
-                List<ComponentInstance> componentInstances = componentInstanceDao.readByComponentNo(component2
-                        .getComponentNo());
+                List<ComponentInstance> componentInstances = componentInstanceDao
+                        .readByComponentNo(component2.getComponentNo());
                 for (ComponentInstance componentInstance : componentInstances) {
                     ComponentInstanceStatus status = ComponentInstanceStatus.fromStatus(componentInstance.getStatus());
                     if (BooleanUtils.isTrue(componentInstance.getAssociate())
@@ -1045,8 +1045,8 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
             CloudstackInstance csInstance = cloudstackInstanceDao.read(csVolume.getInstanceNo());
             eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), csVolume.getComponentNo(),
                     component.getComponentName(), csVolume.getInstanceNo(), instance.getInstanceName(),
-                    "CloudStackVolumeDelete", csInstance.getInstanceType(), instance.getPlatformNo(), new Object[] {
-                            platform.getPlatformName(), csVolume.getVolumeId() });
+                    "CloudStackVolumeDelete", csInstance.getInstanceType(), instance.getPlatformNo(),
+                    new Object[] { platform.getPlatformName(), csVolume.getVolumeId() });
 
             try {
                 // ボリュームの削除
@@ -1070,8 +1070,8 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
             if (StringUtils.isEmpty(vmwareDisk.getFileName())) {
                 continue;
             }
-            VmwareProcessClient vmwareProcessClient = vmwareProcessClientFactory.createVmwareProcessClient(vmwareDisk
-                    .getPlatformNo());
+            VmwareProcessClient vmwareProcessClient = vmwareProcessClientFactory
+                    .createVmwareProcessClient(vmwareDisk.getPlatformNo());
             try {
                 vmwareDiskProcess.deleteDisk(vmwareProcessClient, vmwareDisk.getDiskNo());
             } catch (AutoException ignore) {
@@ -1132,8 +1132,8 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
             AzureInstance azureInstance = azureInstanceDao.read(azureDisk.getInstanceNo());
             eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), azureDisk.getComponentNo(),
                     component.getComponentName(), azureDisk.getInstanceNo(), instance.getInstanceName(),
-                    "AzureDiskDelete", azureInstance.getInstanceType(), instance.getPlatformNo(), new Object[] {
-                            platform.getPlatformName(), azureDisk.getDiskName() });
+                    "AzureDiskDelete", azureInstance.getInstanceType(), instance.getPlatformNo(),
+                    new Object[] { platform.getPlatformName(), azureDisk.getDiskName() });
 
             try {
                 // ボリュームの削除
@@ -1167,8 +1167,8 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
             OpenstackInstance osInstance = openstackInstanceDao.read(osVolume.getInstanceNo());
             eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), osVolume.getComponentNo(),
                     component.getComponentName(), osVolume.getInstanceNo(), instance.getInstanceName(),
-                    "OpenstackVolumeDelete", osInstance.getInstanceType(), instance.getPlatformNo(), new Object[] {
-                            platform.getPlatformName(), osVolume.getVolumeId() });
+                    "OpenstackVolumeDelete", osInstance.getInstanceType(), instance.getPlatformNo(),
+                    new Object[] { platform.getPlatformName(), osVolume.getVolumeId() });
 
             try {
                 // ボリュームの削除
@@ -1196,8 +1196,8 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
             // NiftyProcessClientの作成
             String clientType;
             clientType = PCCConstant.NIFTYCLIENT_TYPE_DISK;
-            NiftyProcessClient niftyProcessClient = niftyProcessClientFactory.createNiftyProcessClient(
-                    farm.getUserNo(), niftyVolume.getPlatformNo(), clientType);
+            NiftyProcessClient niftyProcessClient = niftyProcessClientFactory.createNiftyProcessClient(farm.getUserNo(),
+                    niftyVolume.getPlatformNo(), clientType);
 
             //イベントログ出力
             Platform platform = platformDao.read(niftyProcessClient.getPlatformNo());
@@ -1205,18 +1205,17 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
             NiftyInstance niftyInstance = niftyInstanceDao.read(niftyVolume.getInstanceNo());
             eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), niftyVolume.getComponentNo(),
                     component.getComponentName(), niftyVolume.getInstanceNo(), instance.getInstanceName(),
-                    "NiftyDiskDelete", niftyInstance.getInstanceType(), instance.getPlatformNo(), new Object[] {
-                            platform.getPlatformName(), niftyVolume.getVolumeId() });
+                    "NiftyDiskDelete", niftyInstance.getInstanceType(), instance.getPlatformNo(),
+                    new Object[] { platform.getPlatformName(), niftyVolume.getVolumeId() });
 
             try {
                 // ボリュームの削除
                 niftyProcessClient.deleteVolume(niftyVolume.getVolumeId());
 
                 //イベントログ出力
-                eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(),
-                        niftyVolume.getComponentNo(), component.getComponentName(), niftyVolume.getInstanceNo(),
-                        instance.getInstanceName(), "NiftyDiskDeleteFinish", niftyInstance.getInstanceType(),
-                        instance.getPlatformNo(),
+                eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), niftyVolume.getComponentNo(),
+                        component.getComponentName(), niftyVolume.getInstanceNo(), instance.getInstanceName(),
+                        "NiftyDiskDeleteFinish", niftyInstance.getInstanceType(), instance.getPlatformNo(),
                         new Object[] { platform.getPlatformName(), niftyVolume.getVolumeId() });
 
             } catch (AutoException ignore) {
@@ -1427,7 +1426,8 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
                     for (VcloudDisk vcloudDisk : instance.getVcloudDisks()) {
                         if (componentNo.equals(vcloudDisk.getComponentNo())) {
                             if (BooleanUtils.isTrue(vcloudDisk.getAttached())) {
-                                if (InstanceStatus.fromStatus(instance.getInstance().getStatus()) != InstanceStatus.STOPPED) {
+                                if (InstanceStatus
+                                        .fromStatus(instance.getInstance().getStatus()) != InstanceStatus.STOPPED) {
                                     // ディスクがアタッチされたままの場合
                                     moveList.add(notSelectedItem);
                                 }
@@ -1440,7 +1440,8 @@ public class ComponentServiceImpl extends ServiceSupport implements ComponentSer
                     for (AzureDisk azureDisk : instance.getAzureDisks()) {
                         if (componentNo.equals(azureDisk.getComponentNo())) {
                             if (StringUtils.isNotEmpty(azureDisk.getInstanceName())) {
-                                if (InstanceStatus.fromStatus(instance.getInstance().getStatus()) != InstanceStatus.STOPPED) {
+                                if (InstanceStatus
+                                        .fromStatus(instance.getInstance().getStatus()) != InstanceStatus.STOPPED) {
                                     // ディスクがアタッチされたままの場合
                                     moveList.add(notSelectedItem);
                                 }

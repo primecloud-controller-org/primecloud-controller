@@ -22,13 +22,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import jp.primecloud.auto.entity.crud.Component;
-import jp.primecloud.auto.entity.crud.ComponentType;
-import jp.primecloud.auto.entity.crud.Instance;
-
 import jp.primecloud.auto.component.apache.ApacheConstants;
 import jp.primecloud.auto.component.geronimo.GeronimoConstants;
 import jp.primecloud.auto.component.tomcat.TomcatConstants;
+import jp.primecloud.auto.entity.crud.Component;
+import jp.primecloud.auto.entity.crud.ComponentType;
+import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.process.ComponentProcessContext;
 import jp.primecloud.auto.process.puppet.PuppetComponentProcess;
 

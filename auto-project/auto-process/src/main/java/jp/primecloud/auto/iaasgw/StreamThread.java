@@ -32,6 +32,7 @@ import java.util.List;
 public class StreamThread extends Thread {
 
     private BufferedReader br;
+
     private List<String> list = new ArrayList<String>();
 
     /** コンストラクター */
@@ -53,7 +54,8 @@ public class StreamThread extends Thread {
         try {
             for (;;) {
                 String line = br.readLine();
-                if (line == null)   break;
+                if (line == null)
+                    break;
                 list.add(line);
             }
         } catch (IOException e) {

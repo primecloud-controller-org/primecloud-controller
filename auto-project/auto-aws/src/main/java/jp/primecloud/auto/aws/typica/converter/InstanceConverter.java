@@ -29,8 +29,8 @@ import com.amazonaws.services.ec2.model.Placement;
  * </p>
  *
  */
-public class InstanceConverter extends
-        AbstractConverter<com.xerox.amazonws.ec2.ReservationDescription.Instance, Instance> {
+public class InstanceConverter
+        extends AbstractConverter<com.xerox.amazonws.ec2.ReservationDescription.Instance, Instance> {
 
     @Override
     protected Instance convertObject(com.xerox.amazonws.ec2.ReservationDescription.Instance from) {

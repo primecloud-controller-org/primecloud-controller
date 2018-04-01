@@ -23,6 +23,7 @@ import java.util.List;
 import jp.primecloud.auto.zabbix.ZabbixAccessor;
 import jp.primecloud.auto.zabbix.model.trigger.Trigger;
 import jp.primecloud.auto.zabbix.model.trigger.TriggerGetParam;
+
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;

@@ -88,7 +88,8 @@ public class AwsProcessClientFactory {
         return createAwsClient(platform, platformAws, awsCertificate);
     }
 
-    protected AwsProcessClient createAwsClient(Platform platform, PlatformAws platformAws, AwsCertificate awsCertificate) {
+    protected AwsProcessClient createAwsClient(Platform platform, PlatformAws platformAws,
+            AwsCertificate awsCertificate) {
         AwsClientFactory factory;
         if (BooleanUtils.isTrue(platformAws.getEuca())) {
             factory = new EucaAwsClientFactory();
@@ -109,8 +110,8 @@ public class AwsProcessClientFactory {
         }
 
         // Clientの作成
-        AmazonEC2 ec2Client = factory
-                .createEc2Client(awsCertificate.getAwsAccessId(), awsCertificate.getAwsSecretKey());
+        AmazonEC2 ec2Client = factory.createEc2Client(awsCertificate.getAwsAccessId(),
+                awsCertificate.getAwsSecretKey());
         AmazonElasticLoadBalancing elbClient = factory.createElbClient(awsCertificate.getAwsAccessId(),
                 awsCertificate.getAwsSecretKey());
 

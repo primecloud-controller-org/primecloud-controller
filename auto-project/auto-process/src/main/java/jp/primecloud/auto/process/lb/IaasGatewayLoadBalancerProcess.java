@@ -69,7 +69,8 @@ public class IaasGatewayLoadBalancerProcess extends ServiceSupport {
 
         //IaasGatewayWrapper作成
         Farm farm = farmDao.read(loadBalancer.getFarmNo());
-        IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), loadBalancer.getPlatformNo());
+        IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(),
+                loadBalancer.getPlatformNo());
         // ELBの起動
         gateway.startLoadBalancer(loadBalancer.getLoadBalancerNo());
 
@@ -103,10 +104,10 @@ public class IaasGatewayLoadBalancerProcess extends ServiceSupport {
             zabbixLoadBalancerProcess.stopHost(loadBalancerNo);
         }
 
-
         //IaasGatewayWrapper作成
         Farm farm = farmDao.read(loadBalancer.getFarmNo());
-        IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), loadBalancer.getPlatformNo());
+        IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(),
+                loadBalancer.getPlatformNo());
         // ELBの停止
         gateway.stopLoadBalancer(loadBalancer.getLoadBalancerNo());
 
@@ -125,7 +126,8 @@ public class IaasGatewayLoadBalancerProcess extends ServiceSupport {
 
         //IaasGatewayWrapper作成
         Farm farm = farmDao.read(loadBalancer.getFarmNo());
-        IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), loadBalancer.getPlatformNo());
+        IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(),
+                loadBalancer.getPlatformNo());
 
         try {
             // 振り分け設定を変更
@@ -233,7 +235,6 @@ public class IaasGatewayLoadBalancerProcess extends ServiceSupport {
             log.info(MessageUtils.getMessage("IPROCESS-200231", loadBalancerNo, loadBalancer.getLoadBalancerName()));
         }
     }
-
 
     protected void addDns(Long loadBalancerNo) {
         LoadBalancer loadBalancer = loadBalancerDao.read(loadBalancerNo);

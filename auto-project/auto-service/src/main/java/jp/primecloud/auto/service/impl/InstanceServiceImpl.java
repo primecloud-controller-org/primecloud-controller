@@ -816,8 +816,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         List<VcloudInstanceNetwork> allVcloudInstanceNetworks = vcloudInstanceNetworkDao.readByFarmNo(farmNo);
         Map<Long, List<VcloudInstanceNetwork>> vcloudInstanceNetworkMap = new LinkedHashMap<Long, List<VcloudInstanceNetwork>>();
         for (VcloudInstanceNetwork vcloudInstanceNetwork : allVcloudInstanceNetworks) {
-            List<VcloudInstanceNetwork> instanceNetworks = vcloudInstanceNetworkMap.get(vcloudInstanceNetwork
-                    .getInstanceNo());
+            List<VcloudInstanceNetwork> instanceNetworks = vcloudInstanceNetworkMap
+                    .get(vcloudInstanceNetwork.getInstanceNo());
             if (instanceNetworks == null) {
                 instanceNetworks = new ArrayList<VcloudInstanceNetwork>();
             }
@@ -1193,12 +1193,12 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
 
         // TODO: OS種別の判定方法を見直す
         if (!StringUtils.startsWithIgnoreCase(image.getOs(), PCCConstant.OS_NAME_WIN)
-                || (StringUtils.startsWithIgnoreCase(image.getOs(), PCCConstant.OS_NAME_WIN) && PCCConstant.PLATFORM_TYPE_VMWARE
-                        .equals(platform.getPlatformType()))
-                || (StringUtils.startsWithIgnoreCase(image.getOs(), PCCConstant.OS_NAME_WIN) && PCCConstant.PLATFORM_TYPE_AZURE
-                        .equals(platform.getPlatformType()))
-                || (StringUtils.startsWithIgnoreCase(image.getOs(), PCCConstant.OS_NAME_WIN) && PCCConstant.PLATFORM_TYPE_OPENSTACK
-                        .equals(platform.getPlatformType()))) {
+                || (StringUtils.startsWithIgnoreCase(image.getOs(), PCCConstant.OS_NAME_WIN)
+                        && PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType()))
+                || (StringUtils.startsWithIgnoreCase(image.getOs(), PCCConstant.OS_NAME_WIN)
+                        && PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType()))
+                || (StringUtils.startsWithIgnoreCase(image.getOs(), PCCConstant.OS_NAME_WIN)
+                        && PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType()))) {
             if (BooleanUtils.isNotTrue(image.getPuppetDisabled())) {
                 // Puppetインスタンスの作成
                 PuppetInstance puppetInstance = new PuppetInstance();
@@ -1270,7 +1270,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         return instanceNo;
     }
 
-    private void makeAwsData(Farm farm, Long instanceNo, String instanceType, PlatformAws platformAws, ImageAws imageAws) {
+    private void makeAwsData(Farm farm, Long instanceNo, String instanceType, PlatformAws platformAws,
+            ImageAws imageAws) {
 
         // 引数チェック
         String[] instanceTypes = imageAws.getInstanceTypes().split(",");
@@ -1516,8 +1517,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         vcloudInstance.setKeyPairNo(keyPairNo);
 
         //ストレージタイプ
-        List<PlatformVcloudStorageType> storageTypes = platformVcloudStorageTypeDao.readByPlatformNo(platformVcloud
-                .getPlatformNo());
+        List<PlatformVcloudStorageType> storageTypes = platformVcloudStorageTypeDao
+                .readByPlatformNo(platformVcloud.getPlatformNo());
         Collections.sort(storageTypes, Comparators.COMPARATOR_PLATFORM_VCLOUD_STORAGE_TYPE);
         vcloudInstance.setStorageTypeNo(storageTypes.get(0).getStorageTypeNo());
 
@@ -1532,17 +1533,16 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         //IaasGateWay処理で一律、PCCネットワークを先頭に設定する為、
         //VCLOUD_INSTANCE_NETWORKもPCCネットワークを先頭に設定する。
         Boolean showPublicIp = BooleanUtils.toBooleanObject(Config.getProperty("ui.showPublicIp"));
-        List<NetworkDto> networkDtos = iaasDescribeService
-                .getNetworks(farm.getUserNo(), platformVcloud.getPlatformNo());
+        List<NetworkDto> networkDtos = iaasDescribeService.getNetworks(farm.getUserNo(),
+                platformVcloud.getPlatformNo());
         for (int i = 0; i < networkDtos.size(); i++) {
             NetworkDto networkDto = networkDtos.get(i);
             //PCCネットワークと デフォルトネットワークを初期設定とする
             //インデックスはサーバ起動時にIaasGateWay側で設定されるのでNULLを設定
             //IPアドレスはサーバ編集時またはサーバ起動時にIaasGateWay側で設定されるのでNULLを設定
             //PCCネットワークとデフォルトネットワークの設定値が同じ場合は1件だけ追加する
-            if (networkDto.isPcc()
-                    || (!networkDto.isPcc() && StringUtils.equals(networkDto.getNetworkName(),
-                            platformVcloud.getDefNetwork()))) {
+            if (networkDto.isPcc() || (!networkDto.isPcc()
+                    && StringUtils.equals(networkDto.getNetworkName(), platformVcloud.getDefNetwork()))) {
                 VcloudInstanceNetwork vcloudInstanceNetwork = new VcloudInstanceNetwork();
                 vcloudInstanceNetwork.setPlatformNo(platformVcloud.getPlatformNo());
                 vcloudInstanceNetwork.setInstanceNo(instanceNo);
@@ -1617,7 +1617,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         azureInstanceDao.create(azureInstance);
     }
 
-    private void makeOpenstackData(Farm farm, Long instanceNo, String instanceType, PlatformOpenstack platformOpenstack) {
+    private void makeOpenstackData(Farm farm, Long instanceNo, String instanceType,
+            PlatformOpenstack platformOpenstack) {
 
         // Openstackインスタンスの作成
         OpenstackInstance openstackInstance = new OpenstackInstance();
@@ -1831,8 +1832,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
      */
     @Override
     public void updateAwsInstance(Long instanceNo, String instanceName, String comment, String keyName,
-            String instanceType, String securityGroupName, String availabilityZoneName, Long addressNo,
-            String subnetId, Integer rootSize, String privateIpAddress) {
+            String instanceType, String securityGroupName, String availabilityZoneName, Long addressNo, String subnetId,
+            Integer rootSize, String privateIpAddress) {
         // インスタンスの更新
         updateInstance(instanceNo, instanceName, comment);
 
@@ -1877,8 +1878,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
                     : !StringUtils.equals(awsInstance.getAvailabilityZone(), availabilityZoneName)) {
                 throw new AutoApplicationException("ESERVICE-000407", instance.getInstanceName());
             }
-            if (StringUtils.isEmpty(awsInstance.getSubnetId()) ? StringUtils.isNotEmpty(subnetId) : !StringUtils
-                    .equals(awsInstance.getSubnetId(), subnetId)) {
+            if (StringUtils.isEmpty(awsInstance.getSubnetId()) ? StringUtils.isNotEmpty(subnetId)
+                    : !StringUtils.equals(awsInstance.getSubnetId(), subnetId)) {
                 throw new AutoApplicationException("ESERVICE-000407", instance.getInstanceName());
             }
             if (awsInstance.getRootSize() == null ? rootSize != null : !awsInstance.getRootSize().equals(rootSize)) {
@@ -2056,15 +2057,15 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
                     : !StringUtils.equals(cloudstackInstance.getSecuritygroup(), securityGroupName)) {
                 throw new AutoApplicationException("ESERVICE-000407", instance.getInstanceName());
             }
-            if (StringUtils.isEmpty(cloudstackInstance.getZoneid()) ? StringUtils.isNotEmpty(zoneid) : !StringUtils
-                    .equals(cloudstackInstance.getZoneid(), zoneid)) {
+            if (StringUtils.isEmpty(cloudstackInstance.getZoneid()) ? StringUtils.isNotEmpty(zoneid)
+                    : !StringUtils.equals(cloudstackInstance.getZoneid(), zoneid)) {
                 throw new AutoApplicationException("ESERVICE-000407", instance.getInstanceName());
             }
         }
 
         // ゾーンのチェック
-        if (StringUtils.isEmpty(cloudstackInstance.getZoneid()) ? StringUtils.isNotEmpty(zoneid) : !StringUtils.equals(
-                cloudstackInstance.getZoneid(), zoneid)) {
+        if (StringUtils.isEmpty(cloudstackInstance.getZoneid()) ? StringUtils.isNotEmpty(zoneid)
+                : !StringUtils.equals(cloudstackInstance.getZoneid(), zoneid)) {
             if (cloudstackVolumeDao.countByInstanceNo(instanceNo) > 0) {
                 // EBS作成後はゾーンを変更できない
                 throw new AutoApplicationException("ESERVICE-000412", instance.getInstanceName());
@@ -2171,8 +2172,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
                     //削除されている場合
                     throw new AutoApplicationException("ESERVICE-000407", instance.getInstanceName());
                 } else {
-                    VcloudInstanceNetwork oldVcloudInstanceNetwork = vcloudInstanceNetworkMap.get(instanceNetworkDto
-                            .getNetworkNo());
+                    VcloudInstanceNetwork oldVcloudInstanceNetwork = vcloudInstanceNetworkMap
+                            .get(instanceNetworkDto.getNetworkNo());
                     if (!StringUtils.equals(oldVcloudInstanceNetwork.getIpMode(), instanceNetworkDto.getIpMode())
                             || !StringUtils.equals(oldVcloudInstanceNetwork.getIpAddress(),
                                     instanceNetworkDto.getIpAddress())) {
@@ -2208,13 +2209,13 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
                 vcloudInstanceNetworkDao.create(vcloudInstanceNetwork);
             } else if (instanceNetworkDto.isDelete()) {
                 //削除
-                VcloudInstanceNetwork vcloudInstanceNetwork = vcloudInstanceNetworkMap.get(instanceNetworkDto
-                        .getNetworkNo());
+                VcloudInstanceNetwork vcloudInstanceNetwork = vcloudInstanceNetworkMap
+                        .get(instanceNetworkDto.getNetworkNo());
                 vcloudInstanceNetworkDao.delete(vcloudInstanceNetwork);
             } else {
                 //更新
-                VcloudInstanceNetwork vcloudInstanceNetwork = vcloudInstanceNetworkMap.get(instanceNetworkDto
-                        .getNetworkNo());
+                VcloudInstanceNetwork vcloudInstanceNetwork = vcloudInstanceNetworkMap
+                        .get(instanceNetworkDto.getNetworkNo());
                 vcloudInstanceNetwork.setIpMode(instanceNetworkDto.getIpMode());
                 vcloudInstanceNetwork.setIpAddress(instanceNetworkDto.getIpAddress());
                 vcloudInstanceNetwork.setIsPrimary(instanceNetworkDto.isPrimary());
@@ -2552,8 +2553,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
             if (!keyPairNo.equals(vmwareInstance.getKeyPairNo())) {
                 throw new AutoApplicationException("ESERVICE-000407", instance.getInstanceName());
             }
-            if (vmwareInstance.getRootSize() == null ? rootSize != null : !vmwareInstance.getRootSize()
-                    .equals(rootSize)) {
+            if (vmwareInstance.getRootSize() == null ? rootSize != null
+                    : !vmwareInstance.getRootSize().equals(rootSize)) {
                 throw new AutoApplicationException("ESERVICE-000407", instance.getInstanceName());
             }
             if (vmwareAddress == null || BooleanUtils.isNotTrue(vmwareAddress.getEnabled())) {
@@ -2565,7 +2566,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
                     throw new AutoApplicationException("ESERVICE-000407", instance.getInstanceName());
                 } else if (!StringUtils.equals(vmwareAddress.getIpAddress(), vmwareAddressDto.getIpAddress())
                         || !StringUtils.equals(vmwareAddress.getSubnetMask(), vmwareAddressDto.getSubnetMask())
-                        || !StringUtils.equals(vmwareAddress.getDefaultGateway(), vmwareAddressDto.getDefaultGateway())) {
+                        || !StringUtils.equals(vmwareAddress.getDefaultGateway(),
+                                vmwareAddressDto.getDefaultGateway())) {
                     throw new AutoApplicationException("ESERVICE-000407", instance.getInstanceName());
                 }
             }
@@ -2578,7 +2580,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
                 Image image = imageDao.read(instance.getImageNo());
                 throw new AutoApplicationException("ESERVICE-000431", image.getImageName());
             }
-            if (StringUtils.isNotEmpty(vmwareInstance.getDatastore()) && !rootSize.equals(vmwareInstance.getRootSize())) {
+            if (StringUtils.isNotEmpty(vmwareInstance.getDatastore())
+                    && !rootSize.equals(vmwareInstance.getRootSize())) {
                 throw new AutoApplicationException("ESERVICE-000432", instance.getInstanceName());
             }
 
@@ -2623,7 +2626,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
                 boolean change = false;
                 if (!StringUtils.equals(vmwareAddress.getIpAddress(), vmwareAddressDto.getIpAddress())
                         || !StringUtils.equals(vmwareAddress.getSubnetMask(), vmwareAddressDto.getSubnetMask())
-                        || !StringUtils.equals(vmwareAddress.getDefaultGateway(), vmwareAddressDto.getDefaultGateway())) {
+                        || !StringUtils.equals(vmwareAddress.getDefaultGateway(),
+                                vmwareAddressDto.getDefaultGateway())) {
                     change = true;
                 }
 
@@ -2760,8 +2764,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
 
                     //イベントログ出力
                     eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), null, null, instanceNo,
-                            instance.getInstanceName(), "ZabbixUnregist", null, instance.getPlatformNo(), new Object[] {
-                                    instance.getFqdn(), zabbixInstance.getHostid() });
+                            instance.getInstanceName(), "ZabbixUnregist", null, instance.getPlatformNo(),
+                            new Object[] { instance.getFqdn(), zabbixInstance.getHostid() });
 
                 } catch (RuntimeException ignore) {
                     // 登録解除に失敗した場合、警告ログを出してエラーを握りつぶす
@@ -2853,8 +2857,7 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
             //イベントログ出力
             Platform platform = platformDao.read(cloudstackVolume.getPlatformNo());
             Component component = componentDao.read(cloudstackVolume.getComponentNo());
-            eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(),
-                    farm.getFarmName(),
+            eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(),
                     cloudstackVolume.getComponentNo(),
                     //component.getComponentName(), instanceNo, instance.getInstanceName(), "AwsEbsDelete", new Object[] {
                     component.getComponentName(), instanceNo, instance.getInstanceName(), "CloudStackVolumeDelete",
@@ -2867,8 +2870,7 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
                 //awsProcessClient.waitDeleteVolume(volumeId); // TODO: EC2ではDeleteVolumeに時間がかかるため、Waitしない
 
                 //イベントログ出力
-                eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(),
-                        farm.getFarmName(),
+                eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(),
                         cloudstackVolume.getComponentNo(),
                         //component.getComponentName(), instanceNo, instance.getInstanceName(), "AwsEbsDeleteFinish",
                         component.getComponentName(), instanceNo, instance.getInstanceName(),
@@ -2972,8 +2974,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
             vmwareAddressDao.delete(vmwareAddress);
         }
 
-        VmwareProcessClient vmwareProcessClient = vmwareProcessClientFactory.createVmwareProcessClient(instance
-                .getPlatformNo());
+        VmwareProcessClient vmwareProcessClient = vmwareProcessClientFactory
+                .createVmwareProcessClient(instance.getPlatformNo());
 
         try {
             // ディスクの削除
@@ -3024,8 +3026,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
                 // NiftyProcessClientの作成
                 String clientType;
                 clientType = PCCConstant.NIFTYCLIENT_TYPE_DISK;
-                NiftyProcessClient niftyProcessClient = niftyProcessClientFactory.createNiftyProcessClient(
-                        farm.getUserNo(), niftyVolume.getPlatformNo(), clientType);
+                NiftyProcessClient niftyProcessClient = niftyProcessClientFactory
+                        .createNiftyProcessClient(farm.getUserNo(), niftyVolume.getPlatformNo(), clientType);
 
                 // デタッチ処理
                 niftyVolumeProcess.stopVolume(niftyProcessClient, instanceNo, niftyVolume.getVolumeNo());
@@ -3033,20 +3035,18 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
                 //イベントログ出力
                 Platform platform = platformDao.read(niftyProcessClient.getPlatformNo());
                 Component component = componentDao.read(niftyVolume.getComponentNo());
-                eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(),
-                        niftyVolume.getComponentNo(), component.getComponentName(), instanceNo,
-                        instance.getInstanceName(), "NiftyDiskDelete", niftyInstance.getInstanceType(),
-                        instance.getPlatformNo(),
+                eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), niftyVolume.getComponentNo(),
+                        component.getComponentName(), instanceNo, instance.getInstanceName(), "NiftyDiskDelete",
+                        niftyInstance.getInstanceType(), instance.getPlatformNo(),
                         new Object[] { platform.getPlatformName(), niftyVolume.getVolumeId() });
 
                 // ボリュームの削除
                 niftyProcessClient.deleteVolume(niftyVolume.getVolumeId());
 
                 //イベントログ出力
-                eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(),
-                        niftyVolume.getComponentNo(), component.getComponentName(), instanceNo,
-                        instance.getInstanceName(), "NiftyDiskDeleteFinish", niftyInstance.getInstanceType(),
-                        instance.getPlatformNo(),
+                eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), niftyVolume.getComponentNo(),
+                        component.getComponentName(), instanceNo, instance.getInstanceName(), "NiftyDiskDeleteFinish",
+                        niftyInstance.getInstanceType(), instance.getPlatformNo(),
                         new Object[] { platform.getPlatformName(), niftyVolume.getVolumeId() });
 
             } catch (AutoException ignore) {
@@ -3060,8 +3060,8 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         if (niftyInstance != null && StringUtils.isNotEmpty(niftyInstance.getInstanceId())) {
             String clientType;
             clientType = PCCConstant.NIFTYCLIENT_TYPE_SERVER;
-            NiftyProcessClient niftyProcessClient = niftyProcessClientFactory.createNiftyProcessClient(
-                    farm.getUserNo(), instance.getPlatformNo(), clientType);
+            NiftyProcessClient niftyProcessClient = niftyProcessClientFactory.createNiftyProcessClient(farm.getUserNo(),
+                    instance.getPlatformNo(), clientType);
 
             try {
                 niftyProcessClient.terminateInstance(niftyInstance.getInstanceId());
@@ -3202,10 +3202,9 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
             //イベントログ出力
             Platform platform = platformDao.read(openstackVolume.getPlatformNo());
             Component component = componentDao.read(openstackVolume.getComponentNo());
-            eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(),
-                    openstackVolume.getComponentNo(), component.getComponentName(), instanceNo,
-                    instance.getInstanceName(), "OpenstackVolumeDelete", openstackInstance.getInstanceType(),
-                    instance.getPlatformNo(),
+            eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), openstackVolume.getComponentNo(),
+                    component.getComponentName(), instanceNo, instance.getInstanceName(), "OpenstackVolumeDelete",
+                    openstackInstance.getInstanceType(), instance.getPlatformNo(),
                     new Object[] { platform.getPlatformName(), openstackVolume.getVolumeId() });
 
             try {

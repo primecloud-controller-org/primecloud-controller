@@ -19,8 +19,8 @@
 package jp.primecloud.auto.zabbix.client;
 
 import jp.primecloud.auto.zabbix.ZabbixAccessor;
-import net.sf.json.JsonConfig;
 
+import net.sf.json.JsonConfig;
 
 /**
  * <p>

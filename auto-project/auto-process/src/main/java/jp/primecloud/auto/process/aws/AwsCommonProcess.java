@@ -80,8 +80,8 @@ public class AwsCommonProcess extends ServiceSupport {
                 state = InstanceStateName.fromValue(instance.getState().getName());
             } catch (IllegalArgumentException e) {
                 // 予期しないステータス
-                AutoException exception = new AutoException("EPROCESS-000104", instanceId, instance.getState()
-                        .getName());
+                AutoException exception = new AutoException("EPROCESS-000104", instanceId,
+                        instance.getState().getName());
                 exception.addDetailInfo("result=" + ReflectionToStringBuilder.toString(instance));
                 throw exception;
             }

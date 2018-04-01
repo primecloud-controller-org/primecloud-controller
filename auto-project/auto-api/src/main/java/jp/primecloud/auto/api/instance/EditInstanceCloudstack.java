@@ -92,8 +92,8 @@ public class EditInstanceCloudstack extends ApiSupport {
 
         // 更新処理
         CloudstackInstance cloudstackInstance = cloudstackInstanceDao.read(instance.getInstanceNo());
-        instanceService.updateCloudstackInstance(instance.getInstanceNo(), instance.getInstanceName(), comment,
-                keyName, instanceType, cloudstackInstance.getSecuritygroup(), cloudstackInstance.getZoneid(), null);
+        instanceService.updateCloudstackInstance(instance.getInstanceNo(), instance.getInstanceName(), comment, keyName,
+                instanceType, cloudstackInstance.getSecuritygroup(), cloudstackInstance.getZoneid(), null);
 
         EditInstanceCloudstackResponse response = new EditInstanceCloudstackResponse();
 

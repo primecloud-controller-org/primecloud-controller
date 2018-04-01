@@ -289,8 +289,8 @@ public class WinServerAttachService extends Window {
                         Label.CONTENT_XHTML);
                 statusLabel.setHeight(COLUMN_HEIGHT);
 
-                addItem(new Object[] { checkBox, serviceNameLabel, statusLabel }, component.getComponent()
-                        .getComponentNo());
+                addItem(new Object[] { checkBox, serviceNameLabel, statusLabel },
+                        component.getComponent().getComponentNo());
             }
 
             changeCheckEnabled();
@@ -339,8 +339,8 @@ public class WinServerAttachService extends Window {
                     for (ComponentDto component : components) {
                         if (componentInstance.getComponentInstance().getComponentNo()
                                 .equals(component.getComponent().getComponentNo())) {
-                            ComponentInstanceStatus status = ComponentInstanceStatus.fromStatus(componentInstance
-                                    .getComponentInstance().getStatus());
+                            ComponentInstanceStatus status = ComponentInstanceStatus
+                                    .fromStatus(componentInstance.getComponentInstance().getStatus());
                             if (status != ComponentInstanceStatus.STOPPED) {
                                 disableComponentNos.add(component.getComponent().getComponentNo());
                             }
@@ -374,7 +374,8 @@ public class WinServerAttachService extends Window {
                 if (instance.getVcloudDisks() != null) {
                     for (VcloudDisk vcloudDisk : instance.getVcloudDisks()) {
                         if (BooleanUtils.isTrue(vcloudDisk.getAttached())) {
-                            if (InstanceStatus.fromStatus(instance.getInstance().getStatus()) != InstanceStatus.STOPPED) {
+                            if (InstanceStatus
+                                    .fromStatus(instance.getInstance().getStatus()) != InstanceStatus.STOPPED) {
                                 disableComponentNos.add(vcloudDisk.getComponentNo());
                             }
                         }
@@ -383,7 +384,8 @@ public class WinServerAttachService extends Window {
                 if (instance.getAzureDisks() != null) {
                     for (AzureDisk azureDisk : instance.getAzureDisks()) {
                         if (StringUtils.isNotEmpty(azureDisk.getInstanceName())) {
-                            if (InstanceStatus.fromStatus(instance.getInstance().getStatus()) != InstanceStatus.STOPPED) {
+                            if (InstanceStatus
+                                    .fromStatus(instance.getInstance().getStatus()) != InstanceStatus.STOPPED) {
                                 disableComponentNos.add(azureDisk.getComponentNo());
                             }
                         }
@@ -392,7 +394,8 @@ public class WinServerAttachService extends Window {
                 if (instance.getOpenstackVolumes() != null) {
                     for (OpenstackVolume openstackVolume : instance.getOpenstackVolumes()) {
                         if (StringUtils.isNotEmpty(openstackVolume.getInstanceId())) {
-                            if (InstanceStatus.fromStatus(instance.getInstance().getStatus()) != InstanceStatus.STOPPED) {
+                            if (InstanceStatus
+                                    .fromStatus(instance.getInstance().getStatus()) != InstanceStatus.STOPPED) {
                                 disableComponentNos.add(openstackVolume.getComponentNo());
                             }
                         }

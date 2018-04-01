@@ -59,8 +59,8 @@ public class ListLoadBalancerListener extends ApiSupport {
 
         ListLoadBalancerListenerResponse response = new ListLoadBalancerListenerResponse();
 
-        List<LoadBalancerListener> loadBalancerListeners = loadBalancerListenerDao.readByLoadBalancerNo(Long
-                .parseLong(loadBalancerNo));
+        List<LoadBalancerListener> loadBalancerListeners = loadBalancerListenerDao
+                .readByLoadBalancerNo(Long.parseLong(loadBalancerNo));
         for (LoadBalancerListener listener : loadBalancerListeners) {
             LoadBalancerListenerResponse listenerResponse = new LoadBalancerListenerResponse(listener);
             response.getLoadBalancerListeners().add(listenerResponse);

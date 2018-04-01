@@ -98,7 +98,8 @@ public class JSchUtils {
      * @param host
      * @return
      */
-    public static Session createSessionByPrivateKey(String username, String privateKey, String passphrase, String host) {
+    public static Session createSessionByPrivateKey(String username, String privateKey, String passphrase,
+            String host) {
         return createSessionByPrivateKey(username, privateKey, passphrase, host, 22);
     }
 
@@ -204,7 +205,8 @@ public class JSchUtils {
      * @param pty
      * @return
      */
-    public static JSchResult executeCommand(Session session, String command, String encoding, long timeout, boolean pty) {
+    public static JSchResult executeCommand(Session session, String command, String encoding, long timeout,
+            boolean pty) {
         ChannelExec channel = null;
         try {
             channel = (ChannelExec) session.openChannel("exec");

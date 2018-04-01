@@ -22,12 +22,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import jp.primecloud.auto.common.constant.PCCConstant;
+import jp.primecloud.auto.component.ultramonkey.UltraMonkeyConstants;
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.Platform;
 import jp.primecloud.auto.entity.crud.PlatformAws;
-import jp.primecloud.auto.common.constant.PCCConstant;
-
-import jp.primecloud.auto.component.ultramonkey.UltraMonkeyConstants;
 import jp.primecloud.auto.process.ComponentProcessContext;
 import jp.primecloud.auto.process.puppet.PuppetComponentProcess;
 
@@ -70,7 +69,7 @@ public class UltraMonkeyPuppetComponentProcess extends PuppetComponentProcess {
             // VPN利用前提のため、PublicIpで待ち受ける
             listenIps.add(instance.getPublicIp());
             listenIps.add(instance.getPrivateIp());
-        }  else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
+        } else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
             // VMwareの場合
             listenIps.add(instance.getPublicIp());
             listenIps.add(instance.getPrivateIp());

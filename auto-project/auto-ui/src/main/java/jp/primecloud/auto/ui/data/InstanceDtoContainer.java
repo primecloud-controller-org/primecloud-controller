@@ -39,8 +39,8 @@ import com.vaadin.data.util.BeanItemContainer;
  *
  */
 @SuppressWarnings("serial")
-public class InstanceDtoContainer extends BeanItemContainer<InstanceDto> implements Serializable,
-        Container.ItemSetChangeNotifier {
+public class InstanceDtoContainer extends BeanItemContainer<InstanceDto>
+        implements Serializable, Container.ItemSetChangeNotifier {
 
     public InstanceDtoContainer() {
         super(InstanceDto.class);
@@ -114,8 +114,8 @@ public class InstanceDtoContainer extends BeanItemContainer<InstanceDto> impleme
                         item.getItemProperty("vcloudDisks").setValue(newInstance.getVcloudDisks());
                         item.getItemProperty("vcloudInstanceNetworks")
                                 .setValue(newInstance.getVcloudInstanceNetworks());
-                        item.getItemProperty("platformVcloudStorageType").setValue(
-                                newInstance.getPlatformVcloudStorageType());
+                        item.getItemProperty("platformVcloudStorageType")
+                                .setValue(newInstance.getPlatformVcloudStorageType());
 
                         //Azure
                         item.getItemProperty("azureInstance").setValue(newInstance.getAzureInstance());

@@ -49,8 +49,7 @@ public class DetachLoadBalancer extends ApiSupport {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public DetachLoadBalancerResponse detachLoadBalancer(
-            @QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo,
+    public DetachLoadBalancerResponse detachLoadBalancer(@QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo,
             @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo) {
 
         // 入力チェック

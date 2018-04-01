@@ -18,15 +18,12 @@
  */
 package jp.primecloud.auto.log.service.impl;
 
-
-
 import java.util.Date;
 
 import jp.primecloud.auto.log.dao.crud.OperationLogDao;
 import jp.primecloud.auto.log.entity.crud.OperationLog;
 import jp.primecloud.auto.log.service.EventLogService;
 import jp.primecloud.auto.log.service.OperationLogService;
-
 
 /**
  * <p>
@@ -42,15 +39,8 @@ public class OperationLogServiceImpl implements OperationLogService {
      * {@inheritDoc}
      */
     @Override
-    public void writeOperationLog(Long userNo,
-                                  String userName,
-                                  Long farmNo,
-                                  String screen,
-                                  String operation,
-                                  Long instanceNo,
-                                  Long componentNo,
-                                  Long loadBalancerNo,
-                                  String memo) {
+    public void writeOperationLog(Long userNo, String userName, Long farmNo, String screen, String operation,
+            Long instanceNo, Long componentNo, Long loadBalancerNo, String memo) {
         // オペレーションログの出力
         OperationLog operationLog = new OperationLog();
         operationLog.setOLogDate(new Date());
@@ -75,6 +65,5 @@ public class OperationLogServiceImpl implements OperationLogService {
     public void setOperationLogDao(OperationLogDao operationLogDao) {
         this.operationLogDao = operationLogDao;
     }
-
 
 }

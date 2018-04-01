@@ -27,8 +27,6 @@ import java.util.Map;
 
 import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.zabbix.model.ResponseError;
-import net.sf.json.JSON;
-import net.sf.json.JSONObject;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
@@ -39,6 +37,9 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import net.sf.json.JSON;
+import net.sf.json.JSONObject;
 
 /**
  * <p>
@@ -74,7 +75,8 @@ public class ZabbixAccessor {
         ignoreAuthMethods.add("user.login");
     }
 
-    private ZabbixAccessor(){}
+    private ZabbixAccessor() {
+    }
 
     public static ZabbixAccessor getInstance(HttpClient httpClient, String apiUrl, String username, String password) {
         zAccessor.init(httpClient, apiUrl, username, password);
@@ -83,13 +85,13 @@ public class ZabbixAccessor {
 
     public void init(HttpClient httpClient, String apiUrl, String username, String password) {
         //設定されていなければ設定する
-        if (this.httpClient == null){
+        if (this.httpClient == null) {
             this.httpClient = httpClient;
         }
-        if (this.apiUrl == null){
+        if (this.apiUrl == null) {
             this.apiUrl = apiUrl;
         }
-        if (this.username == null){
+        if (this.username == null) {
             this.username = username;
         }
         if (this.password == null) {
@@ -147,8 +149,8 @@ public class ZabbixAccessor {
             // エラー発生時
             AutoException exception = new AutoException("EZABBIX-000001", method);
             exception.addDetailInfo("params=" + params);
-            exception.addDetailInfo("error="
-                    + ReflectionToStringBuilder.toString(error, ToStringStyle.SHORT_PREFIX_STYLE));
+            exception.addDetailInfo(
+                    "error=" + ReflectionToStringBuilder.toString(error, ToStringStyle.SHORT_PREFIX_STYLE));
             throw exception;
         }
 

@@ -33,6 +33,7 @@ import jp.primecloud.auto.zabbix.model.hostgroup.Hostgroup;
 import jp.primecloud.auto.zabbix.model.hostinterface.Hostinterface;
 import jp.primecloud.auto.zabbix.model.maintenance.Maintenance;
 import jp.primecloud.auto.zabbix.model.template.Template;
+
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
@@ -219,8 +220,8 @@ public class HostClient {
                     hostinterface.setInterfaceid(interfaceid);
                     hostinterface.setDns(param.getDns());
                     hostinterface.setHostid(param.getHostid());
-                    hostinterface.setIp((param.getIp() == null || param.getIp().length() == 0) ? "0.0.0.0" : param
-                            .getIp());
+                    hostinterface
+                            .setIp((param.getIp() == null || param.getIp().length() == 0) ? "0.0.0.0" : param.getIp());
                     hostinterface.setPort((param.getPort() == null) ? 10050 : param.getPort());
                     hostinterface.setUseip((param.getUseip() == null) ? 0 : param.getUseip());
                     hostinterface.setType(1);

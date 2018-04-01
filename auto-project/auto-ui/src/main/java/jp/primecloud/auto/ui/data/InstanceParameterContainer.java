@@ -77,8 +77,8 @@ public class InstanceParameterContainer extends BeanItemContainer<InstanceParame
 
         // 共通
         String captionCommon = ViewProperties.getCaption("param.instance.common");
-        parameters.add(new InstanceParameter(captionCommon, ViewProperties.getCaption("param.instance.name"), instance
-                .getInstanceName()));
+        parameters.add(new InstanceParameter(captionCommon, ViewProperties.getCaption("param.instance.name"),
+                instance.getInstanceName()));
         parameters.add(new InstanceParameter(captionCommon, ViewProperties.getCaption("param.instance.hostName"),
                 instance.getFqdn()));
         parameters.add(new InstanceParameter(captionCommon, ViewProperties.getCaption("param.instance.comment"),
@@ -89,20 +89,20 @@ public class InstanceParameterContainer extends BeanItemContainer<InstanceParame
             //ui.showPublicIp = true の場合IPアドレスにPublicIp、内部IPにPrivateIpを表示
             parameters.add(new InstanceParameter(captionCommon, ViewProperties.getCaption("param.instance.ipAddress"),
                     instance.getPublicIp()));
-            parameters.add(new InstanceParameter(captionCommon, ViewProperties
-                    .getCaption("param.instance.privateIpAddress"), instance.getPrivateIp()));
+            parameters.add(new InstanceParameter(captionCommon,
+                    ViewProperties.getCaption("param.instance.privateIpAddress"), instance.getPrivateIp()));
         } else {
             //ui.showPublicIp = false の場合 IPアドレスにPrivateIp、内部IPにPublicIpを表示
             parameters.add(new InstanceParameter(captionCommon, ViewProperties.getCaption("param.instance.ipAddress"),
                     instance.getPrivateIp()));
-            parameters.add(new InstanceParameter(captionCommon, ViewProperties
-                    .getCaption("param.instance.privateIpAddress"), instance.getPublicIp()));
+            parameters.add(new InstanceParameter(captionCommon,
+                    ViewProperties.getCaption("param.instance.privateIpAddress"), instance.getPublicIp()));
         }
 
         parameters.add(new InstanceParameter(captionCommon, ViewProperties.getCaption("param.instance.platform"),
                 platformName));
-        parameters.add(new InstanceParameter(captionCommon, ViewProperties.getCaption("param.instance.image"),
-                imageName));
+        parameters.add(
+                new InstanceParameter(captionCommon, ViewProperties.getCaption("param.instance.image"), imageName));
 
         // AWS
         if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType()) && awsInstance != null) {
@@ -115,14 +115,14 @@ public class InstanceParameterContainer extends BeanItemContainer<InstanceParame
 
             parameters
                     .add(new InstanceParameter(kind, ViewProperties.getCaption("param.instance.elasticIp"), elasticIp));
-            parameters.add(new InstanceParameter(kind, ViewProperties.getCaption("param.instance.dnsName"), awsInstance
-                    .getDnsName()));
+            parameters.add(new InstanceParameter(kind, ViewProperties.getCaption("param.instance.dnsName"),
+                    awsInstance.getDnsName()));
             parameters.add(new InstanceParameter(kind, ViewProperties.getCaption("param.instance.privateDns"),
                     awsInstance.getPrivateDnsName()));
             parameters.add(new InstanceParameter(kind, ViewProperties.getCaption("param.instance.instanceId"),
                     awsInstance.getInstanceId()));
-            parameters.add(new InstanceParameter(kind, ViewProperties.getCaption("param.instance.keyPair"), awsInstance
-                    .getKeyName()));
+            parameters.add(new InstanceParameter(kind, ViewProperties.getCaption("param.instance.keyPair"),
+                    awsInstance.getKeyName()));
             parameters.add(new InstanceParameter(kind, ViewProperties.getCaption("param.instance.instanceType"),
                     awsInstance.getInstanceType()));
             parameters.add(new InstanceParameter(kind, ViewProperties.getCaption("param.instance.securityGroup"),
@@ -184,7 +184,8 @@ public class InstanceParameterContainer extends BeanItemContainer<InstanceParame
                     niftyInstance.getPrivateIpAddress()));
         }
         // CloudStack
-        else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType()) && cloudStackInstance != null) {
+        else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())
+                && cloudStackInstance != null) {
             String kind = platform.getPlatformSimplenameDisp();
 
             String elasticIp = null;
@@ -237,8 +238,8 @@ public class InstanceParameterContainer extends BeanItemContainer<InstanceParame
                     vcloudInstance.getInstanceType()));
             parameters.add(new InstanceParameter(kind, ViewProperties.getCaption("param.instance.organization"),
                     platformVcloud.getOrgName()));
-            parameters.add(new InstanceParameter(kind, ViewProperties.getCaption("param.instance.vdc"), platformVcloud
-                    .getVdcName()));
+            parameters.add(new InstanceParameter(kind, ViewProperties.getCaption("param.instance.vdc"),
+                    platformVcloud.getVdcName()));
             parameters.add(new InstanceParameter(kind, ViewProperties.getCaption("param.instance.storageType"),
                     storageTypeName));
         }

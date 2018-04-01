@@ -30,7 +30,7 @@ import jp.primecloud.auto.util.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class IaasGatewayWrapper{
+public class IaasGatewayWrapper {
 
     protected Long platformNo;
 
@@ -40,14 +40,14 @@ public class IaasGatewayWrapper{
 
     protected EventLogger eventLogger;
 
-    public IaasGatewayWrapper(Long userNo, Long platformNo, EventLogger eventLogger){
+    public IaasGatewayWrapper(Long userNo, Long platformNo, EventLogger eventLogger) {
         this.platformNo = platformNo;
         this.userNo = userNo;
         this.eventLogger = eventLogger;
     }
 
-    public String excGateway(String gwMod, List<String> gwParams){
-        try{
+    public String excGateway(String gwMod, List<String> gwParams) {
+        try {
             //パスは環境によって異なります　引数は
             //1 : Python.exeのパス       Ex."/C:/Python27/python"
             //2 : 実行モジュールパス     Ex."./StartInstance.py"
@@ -63,8 +63,8 @@ public class IaasGatewayWrapper{
             params.add(String.valueOf(this.platformNo));
             if (gwParams != null && gwParams.size() > 0) {
                 params.addAll(gwParams);
-                for (String item: gwParams) {
-                    if(!"".equals(logstr)){
+                for (String item : gwParams) {
+                    if (!"".equals(logstr)) {
                         logstr.append(",");
                     }
                     logstr.append(item);
@@ -75,7 +75,8 @@ public class IaasGatewayWrapper{
             pb.redirectErrorStream(true);
             Process p = pb.start();
             if (log.isInfoEnabled()) {
-                log.info(MessageUtils.format("Call start IaasGateway (Method={0}, Params={1}) ", gwMod, logstr.toString()));
+                log.info(MessageUtils.format("Call start IaasGateway (Method={0}, Params={1}) ", gwMod,
+                        logstr.toString()));
             }
 
             StreamThread is = new StreamThread(p.getInputStream());
@@ -91,15 +92,15 @@ public class IaasGatewayWrapper{
             es.join();
 
             String processOut = "";
-            if(p.exitValue() == 0){
+            if (p.exitValue() == 0) {
                 //標準出力の内容を出力
                 for (String s : is.getStringList()) {
-                    if(s.startsWith("RESULT:")){
+                    if (s.startsWith("RESULT:")) {
                         //リザルト出力を受け取る
                         processOut = s.replace("RESULT:", "");
                     }
                 }
-            }else{
+            } else {
                 //標準エラーの内容を出力
                 String rastErrMsg = "";
                 for (String s : es.getStringList()) {
@@ -107,26 +108,26 @@ public class IaasGatewayWrapper{
                 }
 
                 //エラー出力から取れない場合は標準出力からとる
-                if ("".equals(rastErrMsg)){
+                if ("".equals(rastErrMsg)) {
                     for (String s : is.getStringList()) {
                         rastErrMsg = s;
                     }
                 }
-                log.error(MessageUtils.format("IAAS GATEWAY ERR:{0}",rastErrMsg));
+                log.error(MessageUtils.format("IAAS GATEWAY ERR:{0}", rastErrMsg));
                 throw new IaasgwException(rastErrMsg);
             }
 
             //リザルトはこのような形→itemi1#item2##itemi1#item2
             if (log.isInfoEnabled()) {
-                log.info(MessageUtils.format("Call nomal end IaasGateway (Method={0}, Params={1}) ", gwMod, logstr.toString()));
+                log.info(MessageUtils.format("Call nomal end IaasGateway (Method={0}, Params={1}) ", gwMod,
+                        logstr.toString()));
             }
             return processOut;
 
-        }catch (Exception e){
+        } catch (Exception e) {
             throw handleException(e, gwMod, gwParams);
         }
     }
-
 
     public String describeKeyPairs() {
         return excGateway("DescribeKeyPairs.py", null);
@@ -134,12 +135,11 @@ public class IaasGatewayWrapper{
 
     public String describeSecurityGroups(String vpcId) {
         List<String> params = new ArrayList<String>();
-        if(vpcId != null && !vpcId.equals("")) {
+        if (vpcId != null && !vpcId.equals("")) {
             params.add(String.valueOf(vpcId));
         }
         return excGateway("DescribeSecurityGroups.py", params);
     }
-
 
     public String describeAvailabilityZones() {
         return excGateway("DescribeAvailabilityZones.py", null);
@@ -147,7 +147,7 @@ public class IaasGatewayWrapper{
 
     public String describeSubnets(String vpcId) {
         List<String> params = new ArrayList<String>();
-        if(vpcId != null && !vpcId.equals("")) {
+        if (vpcId != null && !vpcId.equals("")) {
             params.add(String.valueOf(vpcId));
         }
         return excGateway("DescribeSubnets.py", params);
@@ -160,7 +160,7 @@ public class IaasGatewayWrapper{
 
     public String describeAzureSubnets(String networkName) {
         List<String> params = new ArrayList<String>();
-        if(networkName != null && !networkName.equals("")) {
+        if (networkName != null && !networkName.equals("")) {
             params.add(String.valueOf(networkName));
         }
         return excGateway("DescribeAzureSubnets.py", params);
@@ -168,7 +168,7 @@ public class IaasGatewayWrapper{
 
     public String describeFlavors(String flavorIds) {
         List<String> params = new ArrayList<String>();
-        if(flavorIds != null && !flavorIds.equals("")) {
+        if (flavorIds != null && !flavorIds.equals("")) {
             params.add(String.valueOf(flavorIds));
         }
         return excGateway("DescribeFlavors.py", params);
@@ -218,21 +218,21 @@ public class IaasGatewayWrapper{
      *  Volume
      *****************************/
 
-    public void stopVolume(Long instanceNo, Long  volumeNo) {
+    public void stopVolume(Long instanceNo, Long volumeNo) {
         List<String> params = new ArrayList<String>();
         params.add(String.valueOf(instanceNo));
         params.add(String.valueOf(volumeNo));
         excGateway("StopVolume.py", params);
     }
 
-    public void startVolume(Long instanceNo, Long  volumeNo) {
+    public void startVolume(Long instanceNo, Long volumeNo) {
         List<String> params = new ArrayList<String>();
         params.add(String.valueOf(instanceNo));
         params.add(String.valueOf(volumeNo));
         excGateway("StartVolume.py", params);
     }
 
-    public void deleteVolume(String  volumeId) {
+    public void deleteVolume(String volumeId) {
         List<String> params = new ArrayList<String>();
         params.add(volumeId);
         excGateway("DeleteVolume.py", params);
@@ -262,13 +262,11 @@ public class IaasGatewayWrapper{
         return excGateway("CreateKeyPair.py", params);
     }
 
-
     public void deleteKeyPair(String keyName) {
         List<String> params = new ArrayList<String>();
         params.add(keyName);
         excGateway("DeleteKeyPair.py", params);
     }
-
 
     public void importKeyPair(String keyName, String publicKeyMaterial) {
         List<String> params = new ArrayList<String>();
@@ -286,7 +284,6 @@ public class IaasGatewayWrapper{
         return excGateway("CreateSnapshot.py", params);
     }
 
-
     public void deleteSnapshot(String snapshotId) {
         List<String> params = new ArrayList<String>();
         params.add(snapshotId);
@@ -302,20 +299,17 @@ public class IaasGatewayWrapper{
         excGateway("StartLoadBalancer.py", params);
     }
 
-
     public void stopLoadBalancer(Long loadBalancerNo) {
         List<String> params = new ArrayList<String>();
         params.add(String.valueOf(loadBalancerNo));
         excGateway("StopLoadBalancer.py", params);
     }
 
-
     public void configureLoadBalancer(Long loadBalancerNo) {
         List<String> params = new ArrayList<String>();
         params.add(String.valueOf(loadBalancerNo));
         excGateway("ConfigureLoadBalancer.py", params);
     }
-
 
     /*****************************
      *  Other
@@ -342,7 +336,7 @@ public class IaasGatewayWrapper{
     }
 
     protected AutoException handleException(Exception exception, String actionName, Object param) {
-        if (exception instanceof IaasgwException){
+        if (exception instanceof IaasgwException) {
             // イベントログ出力
             if (eventLogger != null) {
                 eventLogger.error("SystemError", new Object[] { exception.getMessage() });

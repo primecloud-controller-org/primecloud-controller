@@ -27,6 +27,7 @@ import jp.primecloud.auto.zabbix.model.usergroup.UsergroupCreateParam;
 import jp.primecloud.auto.zabbix.model.usergroup.UsergroupGetParam;
 import jp.primecloud.auto.zabbix.model.usergroup.UsergroupMassAddParam;
 import jp.primecloud.auto.zabbix.model.usergroup.UsergroupUpdateParam;
+
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;

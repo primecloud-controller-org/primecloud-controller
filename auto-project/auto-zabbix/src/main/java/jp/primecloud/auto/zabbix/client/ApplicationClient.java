@@ -29,7 +29,6 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
 
-
 /**
  * <p>
  * Zabbix APIのApplicationを操作するためのクラスです。

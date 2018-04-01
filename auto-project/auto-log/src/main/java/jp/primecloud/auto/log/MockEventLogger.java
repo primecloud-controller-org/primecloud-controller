@@ -32,7 +32,7 @@ public class MockEventLogger extends EventLogger {
     @Override
     public void log(EventLogLevel logLevel, Long userNo, String userName, Long farmNo, String farmName,
             Long componentNo, String componentName, Long instanceNo, String instanceName, String code,
-            String instanceType,  Long platformNo, Object[] additions) {
+            String instanceType, Long platformNo, Object[] additions) {
     }
 
 }

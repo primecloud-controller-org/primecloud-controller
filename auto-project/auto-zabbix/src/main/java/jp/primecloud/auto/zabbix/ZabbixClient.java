@@ -20,9 +20,6 @@ package jp.primecloud.auto.zabbix;
 
 import java.util.Set;
 
-import net.sf.json.JsonConfig;
-import net.sf.json.processors.PropertyNameProcessorMatcher;
-
 import jp.primecloud.auto.zabbix.client.APIInfoClient;
 import jp.primecloud.auto.zabbix.client.ApplicationClient;
 import jp.primecloud.auto.zabbix.client.HostClient;
@@ -36,6 +33,9 @@ import jp.primecloud.auto.zabbix.client.UsergroupClient;
 import jp.primecloud.auto.zabbix.util.JavaPropertyNameProcessor;
 import jp.primecloud.auto.zabbix.util.JsonPropertyNameProcessor;
 import jp.primecloud.auto.zabbix.util.NullPropertyFilter;
+
+import net.sf.json.JsonConfig;
+import net.sf.json.processors.PropertyNameProcessorMatcher;
 
 /**
  * <p>
@@ -66,7 +66,7 @@ public class ZabbixClient {
     private TriggerClient triggerClient;
 
     private ApplicationClient applicationClient;
-    
+
     private ProxyClient proxyClient;
 
     public ZabbixClient(ZabbixAccessor accessor) {
@@ -157,9 +157,9 @@ public class ZabbixClient {
     public ApplicationClient application() {
         return applicationClient;
     }
-    
+
     public ProxyClient proxy() {
         return proxyClient;
     }
-         
+
 }

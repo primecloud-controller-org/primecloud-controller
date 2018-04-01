@@ -36,7 +36,6 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-
 /**
  * <p>
  * TODO: クラスコメントを記述
@@ -183,7 +182,8 @@ public class PuppetClient {
                 }
                 //マニュフェスト不正
                 exception = new AutoException("EPUPPET-000007", fqdn);
-            } else if (result.getStdouts().size() > 0 && result.getStdouts().get(0).contains("returned unknown answer")) {
+            } else if (result.getStdouts().size() > 0
+                    && result.getStdouts().get(0).contains("returned unknown answer")) {
                 // パペットマスターの滞留により排他制御に不具合が生じたい場合、少し待って再実行(強調設定版)
                 try {
                     Thread.sleep(100000);
@@ -195,8 +195,8 @@ public class PuppetClient {
                 exception = new AutoException("EPUPPET-000001", fqdn);
             }
 
-            exception.addDetailInfo("result="
-                    + ReflectionToStringBuilder.toString(result, ToStringStyle.SHORT_PREFIX_STYLE));
+            exception.addDetailInfo(
+                    "result=" + ReflectionToStringBuilder.toString(result, ToStringStyle.SHORT_PREFIX_STYLE));
             throw exception;
         }
 
@@ -312,8 +312,8 @@ public class PuppetClient {
         if (result.getExitValue() != 0) {
             // ファイルのtouchに失敗
             AutoException exception = new AutoException("EPUPPET-000004", file);
-            exception.addDetailInfo("result="
-                    + ReflectionToStringBuilder.toString(result, ToStringStyle.SHORT_PREFIX_STYLE));
+            exception.addDetailInfo(
+                    "result=" + ReflectionToStringBuilder.toString(result, ToStringStyle.SHORT_PREFIX_STYLE));
             throw exception;
         }
     }

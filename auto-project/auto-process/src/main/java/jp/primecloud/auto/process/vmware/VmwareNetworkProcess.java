@@ -372,7 +372,8 @@ public class VmwareNetworkProcess extends ServiceSupport {
         return StringUtils.equals(backingInfo1.getDeviceName(), backingInfo2.getDeviceName());
     }
 
-    protected boolean checkSameDistributedNetwork(VirtualEthernetCard ethernetCard1, VirtualEthernetCard ethernetCard2) {
+    protected boolean checkSameDistributedNetwork(VirtualEthernetCard ethernetCard1,
+            VirtualEthernetCard ethernetCard2) {
         if (!(ethernetCard1.getBacking() instanceof VirtualEthernetCardDistributedVirtualPortBackingInfo)) {
             return false;
         }

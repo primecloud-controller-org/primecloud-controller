@@ -130,7 +130,8 @@ public class PuppetLoadBalancerProcess extends ServiceSupport {
         }
     }
 
-    protected void configureInstance(Long loadBalancerNo, Long componentNo, Long instanceNo, Map<String, Object> rootMap) {
+    protected void configureInstance(Long loadBalancerNo, Long componentNo, Long instanceNo,
+            Map<String, Object> rootMap) {
         LoadBalancer loadBalancer = loadBalancerDao.read(loadBalancerNo);
         Component component = componentDao.read(componentNo);
         Instance instance = instanceDao.read(instanceNo);
@@ -195,20 +196,23 @@ public class PuppetLoadBalancerProcess extends ServiceSupport {
             puppetClient.runClient(instance.getFqdn());
 
         } catch (RuntimeException e) {
-            processLogger.debug(component, instance, "PuppetManifestApplyFail", new String[] { instance.getFqdn(), type });
+            processLogger.debug(component, instance, "PuppetManifestApplyFail",
+                    new String[] { instance.getFqdn(), type });
 
             // マニフェスト適用に失敗した場合、警告ログ出力した後にリトライする
             String code = (e instanceof AutoException) ? AutoException.class.cast(e).getCode() : null;
             if ("EPUPPET-000003".equals(code) || "EPUPPET-000007".equals(code)) {
                 log.warn(e.getMessage());
 
-                processLogger.debug(component, instance, "PuppetManifestApply", new String[] { instance.getFqdn(), type });
+                processLogger.debug(component, instance, "PuppetManifestApply",
+                        new String[] { instance.getFqdn(), type });
 
                 try {
                     puppetClient.runClient(instance.getFqdn());
 
                 } catch (RuntimeException e2) {
-                    processLogger.debug(component, instance, "PuppetManifestApplyFail", new String[] { instance.getFqdn(), type });
+                    processLogger.debug(component, instance, "PuppetManifestApplyFail",
+                            new String[] { instance.getFqdn(), type });
 
                     throw e2;
                 }
@@ -217,7 +221,8 @@ public class PuppetLoadBalancerProcess extends ServiceSupport {
             }
         }
 
-        processLogger.debug(component, instance, "PuppetManifestApplyFinish", new String[] { instance.getFqdn(), type });
+        processLogger.debug(component, instance, "PuppetManifestApplyFinish",
+                new String[] { instance.getFqdn(), type });
     }
 
     protected Map<String, Object> createRootMap(Long loadBalancerNo, Long componentNo, List<Long> instanceNos) {

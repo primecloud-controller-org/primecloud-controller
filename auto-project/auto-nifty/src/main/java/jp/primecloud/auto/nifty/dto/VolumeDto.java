@@ -8,7 +8,6 @@ import java.util.List;
 import com.nifty.cloud.sdk.disk.model.Volume;
 import com.nifty.cloud.sdk.disk.model.VolumeAttachment;
 
-
 /**
  * <p>
  * nifty sdkのVolumeクラスからのデータ移送用クラス
@@ -199,11 +198,11 @@ public class VolumeDto implements Serializable {
         this.volumeId = volumeId;
     }
 
-    public VolumeDto(Volume volume){
+    public VolumeDto(Volume volume) {
         accountingType = volume.getAccountingType();
         attachments = new ArrayList<VolumeAttachmentDto>();
         if (volume.getAttachments() != null && volume.getAttachments().size() > 0) {
-            for (VolumeAttachment attachment: volume.getAttachments()) {
+            for (VolumeAttachment attachment : volume.getAttachments()) {
                 attachments.add(new VolumeAttachmentDto(attachment));
             }
         }

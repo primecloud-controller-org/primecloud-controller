@@ -40,14 +40,7 @@ public interface OperationLogService {
      * @param memo
      * @return 検索結果に該当するイベントログのリスト。無ければ空のリスト。
      */
-    public void writeOperationLog(Long userNo,
-            String userName,
-            Long farmNo,
-            String screen,
-            String operation,
-            Long instanceNo,
-            Long componentNo,
-            Long loadBalancerNo,
-            String memo);
+    public void writeOperationLog(Long userNo, String userName, Long farmNo, String screen, String operation,
+            Long instanceNo, Long componentNo, Long loadBalancerNo, String memo);
 
 }

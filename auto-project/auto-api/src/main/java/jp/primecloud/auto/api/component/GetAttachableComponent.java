@@ -21,7 +21,8 @@ public class GetAttachableComponent extends ApiSupport {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public GetAttachableComponentResponse getAttachableComponent(@QueryParam(PARAM_NAME_COMPONENT_NO) String componentNo) {
+    public GetAttachableComponentResponse getAttachableComponent(
+            @QueryParam(PARAM_NAME_COMPONENT_NO) String componentNo) {
         // 入力チェック
         ApiValidate.validateComponentNo(componentNo);
 

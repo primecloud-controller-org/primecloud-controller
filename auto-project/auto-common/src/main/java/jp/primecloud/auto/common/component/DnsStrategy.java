@@ -60,8 +60,8 @@ public class DnsStrategy implements DnsStrategyInterface {
         if (result.getExitValue() != 0) {
             // 正引きレコードの追加に失敗
             AutoException exception = new AutoException("ECOMMON-000201", fqdn, ipAddress);
-            exception.addDetailInfo("result="
-                    + ReflectionToStringBuilder.toString(result, ToStringStyle.SHORT_PREFIX_STYLE));
+            exception.addDetailInfo(
+                    "result=" + ReflectionToStringBuilder.toString(result, ToStringStyle.SHORT_PREFIX_STYLE));
             throw exception;
         }
 
@@ -97,8 +97,8 @@ public class DnsStrategy implements DnsStrategyInterface {
         if (result.getExitValue() != 0) {
             // 逆引きレコードの追加に失敗
             AutoException exception = new AutoException("ECOMMON-000203", fqdn, ipAddress);
-            exception.addDetailInfo("result="
-                    + ReflectionToStringBuilder.toString(result, ToStringStyle.SHORT_PREFIX_STYLE));
+            exception.addDetailInfo(
+                    "result=" + ReflectionToStringBuilder.toString(result, ToStringStyle.SHORT_PREFIX_STYLE));
             throw exception;
         }
 
@@ -134,8 +134,8 @@ public class DnsStrategy implements DnsStrategyInterface {
         if (result.getExitValue() != 0) {
             // CNAMEレコードの追加に失敗
             AutoException exception = new AutoException("ECOMMON-000205", fqdn, canonicalName);
-            exception.addDetailInfo("result="
-                    + ReflectionToStringBuilder.toString(result, ToStringStyle.SHORT_PREFIX_STYLE));
+            exception.addDetailInfo(
+                    "result=" + ReflectionToStringBuilder.toString(result, ToStringStyle.SHORT_PREFIX_STYLE));
             throw exception;
         }
 
@@ -155,8 +155,8 @@ public class DnsStrategy implements DnsStrategyInterface {
         if (result.getExitValue() != 0) {
             // 正引きレコードの削除に失敗
             AutoException exception = new AutoException("ECOMMON-000207", fqdn);
-            exception.addDetailInfo("result="
-                    + ReflectionToStringBuilder.toString(result, ToStringStyle.SHORT_PREFIX_STYLE));
+            exception.addDetailInfo(
+                    "result=" + ReflectionToStringBuilder.toString(result, ToStringStyle.SHORT_PREFIX_STYLE));
             throw exception;
         }
 
@@ -192,8 +192,8 @@ public class DnsStrategy implements DnsStrategyInterface {
         if (result.getExitValue() != 0) {
             // 逆引きレコードの削除に失敗
             AutoException exception = new AutoException("ECOMMON-000209", ipAddress);
-            exception.addDetailInfo("result="
-                    + ReflectionToStringBuilder.toString(result, ToStringStyle.SHORT_PREFIX_STYLE));
+            exception.addDetailInfo(
+                    "result=" + ReflectionToStringBuilder.toString(result, ToStringStyle.SHORT_PREFIX_STYLE));
             throw exception;
         }
 
@@ -229,8 +229,8 @@ public class DnsStrategy implements DnsStrategyInterface {
         if (result.getExitValue() != 0) {
             // CNAMEレコードの削除に失敗
             AutoException exception = new AutoException("ECOMMON-000211", fqdn);
-            exception.addDetailInfo("result="
-                    + ReflectionToStringBuilder.toString(result, ToStringStyle.SHORT_PREFIX_STYLE));
+            exception.addDetailInfo(
+                    "result=" + ReflectionToStringBuilder.toString(result, ToStringStyle.SHORT_PREFIX_STYLE));
             throw exception;
         }
 

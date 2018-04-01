@@ -38,7 +38,6 @@ public class ProxyGetParam implements Serializable {
 
     private Map<String, List<Object>> search;
 
-
     public Map<String, List<Object>> getSearch() {
         return search;
     }

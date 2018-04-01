@@ -25,7 +25,6 @@ import java.util.List;
 
 import jp.primecloud.auto.util.MessageUtils;
 
-
 /**
  * <p>
  * TODO: クラスコメントを記述

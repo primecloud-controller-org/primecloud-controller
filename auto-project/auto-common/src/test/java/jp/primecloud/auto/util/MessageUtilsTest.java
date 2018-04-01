@@ -19,7 +19,6 @@
 package jp.primecloud.auto.util;
 
 import static org.junit.Assert.assertEquals;
-import jp.primecloud.auto.util.MessageUtils;
 
 import org.junit.Test;
 

@@ -60,7 +60,6 @@ public class UsergroupUpdateParam implements Serializable {
         this.usrgrpid = usrgrpid;
     }
 
-
     /**
      * nameを取得します。
      *

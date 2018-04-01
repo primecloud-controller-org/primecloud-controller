@@ -40,7 +40,7 @@ public enum ComponentStatus {
     CONFIGURING,
 
     WARNING;
-    
+
     private static Map<String, ComponentStatus> statusMap;
 
     static {

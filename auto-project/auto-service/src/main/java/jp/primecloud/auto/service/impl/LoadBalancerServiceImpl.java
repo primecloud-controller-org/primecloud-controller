@@ -380,7 +380,8 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
                         status2 = LoadBalancerListenerStatus.CONFIGURING;
                     }
                 } else {
-                    if (status2 == LoadBalancerListenerStatus.RUNNING || status2 == LoadBalancerListenerStatus.WARNING) {
+                    if (status2 == LoadBalancerListenerStatus.RUNNING
+                            || status2 == LoadBalancerListenerStatus.WARNING) {
                         status2 = LoadBalancerListenerStatus.STOPPING;
                     }
                 }
@@ -412,8 +413,8 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
     public Long getLoadBalancerInstance(Long loadBalancerNo) {
         //コンポーネント形ロードバランサのインスタンスIDを取得する
         ComponentLoadBalancer componentLoadBalancer = componentLoadBalancerDao.read(loadBalancerNo);
-        List<ComponentInstance> componentInstances = componentInstanceDao.readByComponentNo(componentLoadBalancer
-                .getComponentNo());
+        List<ComponentInstance> componentInstances = componentInstanceDao
+                .readByComponentNo(componentLoadBalancer.getComponentNo());
         if (!componentInstances.isEmpty()) {
             return componentInstances.get(0).getInstanceNo();
         }
@@ -501,8 +502,8 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
                 if (defLbSubnets.contains(subnet.getSubnetId())
                         && zones.contains(subnet.getAvailabilityZone()) == false) {
                     subnetBuffer.append(subnetBuffer.length() > 0 ? "," + subnet.getSubnetId() : subnet.getSubnetId());
-                    zoneBuffer.append(zoneBuffer.length() > 0 ? "," + subnet.getAvailabilityZone() : subnet
-                            .getAvailabilityZone());
+                    zoneBuffer.append(zoneBuffer.length() > 0 ? "," + subnet.getAvailabilityZone()
+                            : subnet.getAvailabilityZone());
                     zones.add(subnet.getAvailabilityZone());
                 }
             }
@@ -857,8 +858,8 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
 
         // イベントログ出力
         eventLogger.log(EventLogLevel.INFO, farmNo, farm.getFarmName(), null, null, null, null, "LoadBalancerCreate",
-                null, null, new Object[] { loadBalancerName, platform.getPlatformName(),
-                        PCCConstant.LOAD_BALANCER_ULTRAMONKEY });
+                null, null,
+                new Object[] { loadBalancerName, platform.getPlatformName(), PCCConstant.LOAD_BALANCER_ULTRAMONKEY });
 
         // フック処理の実行
         processHook.execute("post-create-loadbalancer", farm.getUserNo(), farm.getFarmNo(), loadBalancerNo);
@@ -900,8 +901,8 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
 
     protected void registerInstances(LoadBalancer loadBalancer) {
         // コンポーネントに関連付けられたインスタンス情報を取得
-        List<ComponentInstance> componentInstances = componentInstanceDao.readByComponentNo(loadBalancer
-                .getComponentNo());
+        List<ComponentInstance> componentInstances = componentInstanceDao
+                .readByComponentNo(loadBalancer.getComponentNo());
         List<Long> instanceNos = new ArrayList<Long>();
         for (ComponentInstance componentInstance : componentInstances) {
             if (BooleanUtils.isNotTrue(componentInstance.getAssociate())) {
@@ -970,8 +971,8 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
                 }
 
                 // 振り分けが無効で停止している場合はチェックしない
-                if (BooleanUtils.isNotTrue(lbInstance.getEnabled())
-                        && LoadBalancerInstanceStatus.fromStatus(lbInstance.getStatus()) == LoadBalancerInstanceStatus.STOPPED) {
+                if (BooleanUtils.isNotTrue(lbInstance.getEnabled()) && LoadBalancerInstanceStatus
+                        .fromStatus(lbInstance.getStatus()) == LoadBalancerInstanceStatus.STOPPED) {
                     continue;
                 }
 
@@ -1047,8 +1048,8 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
                     || !componentNo.equals(loadBalancer.getComponentNo())) {
                 throw new AutoApplicationException("ESERVICE-000604", loadBalancer.getLoadBalancerName());
             }
-            if (StringUtils.isEmpty(awsLoadBalancer.getSubnetId()) ? StringUtils.isNotEmpty(subnetId) : !StringUtils
-                    .equals(awsLoadBalancer.getSubnetId(), subnetId)) {
+            if (StringUtils.isEmpty(awsLoadBalancer.getSubnetId()) ? StringUtils.isNotEmpty(subnetId)
+                    : !StringUtils.equals(awsLoadBalancer.getSubnetId(), subnetId)) {
                 throw new AutoApplicationException("ESERVICE-000604", loadBalancer.getLoadBalancerName());
             }
             if (StringUtils.isEmpty(awsLoadBalancer.getSecurityGroups()) ? StringUtils.isNotEmpty(securityGroupName)
@@ -1068,8 +1069,8 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
             }
 
             // インスタンス名のチェック
-            Instance checkInstance = instanceDao
-                    .readByFarmNoAndInstanceName(loadBalancer.getFarmNo(), loadBalancerName);
+            Instance checkInstance = instanceDao.readByFarmNoAndInstanceName(loadBalancer.getFarmNo(),
+                    loadBalancerName);
             if (checkInstance != null) {
                 // 同名のインスタンスが存在する場合
                 throw new AutoApplicationException("ESERVICE-000626", loadBalancerName);
@@ -1098,8 +1099,8 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
 
         //ロードバランサーインスタンス更新
         if (loadBalancer.getComponentNo().equals(componentNo) == false
-                || (StringUtils.isNotEmpty(awsLoadBalancer.getAvailabilityZone()) && StringUtils.equals(
-                        awsLoadBalancer.getAvailabilityZone(), availabilityZone) == false)) {
+                || (StringUtils.isNotEmpty(awsLoadBalancer.getAvailabilityZone())
+                        && StringUtils.equals(awsLoadBalancer.getAvailabilityZone(), availabilityZone) == false)) {
             //割り当てサービス変更時、またはサブネット変更時にロードバランサインスタンスのEnableをFalseにする
             List<LoadBalancerInstance> loadBalancerInstances = loadBalancerInstanceDao
                     .readByLoadBalancerNo(loadBalancerNo);
@@ -1200,8 +1201,8 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
             }
 
             // インスタンス名のチェック
-            Instance checkInstance = instanceDao
-                    .readByFarmNoAndInstanceName(loadBalancer.getFarmNo(), loadBalancerName);
+            Instance checkInstance = instanceDao.readByFarmNoAndInstanceName(loadBalancer.getFarmNo(),
+                    loadBalancerName);
             if (checkInstance != null) {
                 // 同名のインスタンスが存在する場合
                 throw new AutoApplicationException("ESERVICE-000626", loadBalancerName);
@@ -1382,8 +1383,8 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
 
                     //イベントログ出力
                     eventLogger.log(EventLogLevel.DEBUG, farm.getFarmNo(), farm.getFarmName(), null, null, null, null,
-                            "ZabbixUnregist", null, loadBalancer.getPlatformNo(), new Object[] {
-                                    loadBalancer.getFqdn(), zabbixLoadBalancer.getHostid() });
+                            "ZabbixUnregist", null, loadBalancer.getPlatformNo(),
+                            new Object[] { loadBalancer.getFqdn(), zabbixLoadBalancer.getHostid() });
 
                 } catch (RuntimeException ignore) {
                     // 登録解除に失敗した場合、警告ログを出してエラーを握りつぶす
@@ -1416,8 +1417,8 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
 
     protected void deleteUltraMonkeyLoadBalancer(Long loadBalancerNo) {
         ComponentLoadBalancer componentLoadBalancer = componentLoadBalancerDao.read(loadBalancerNo);
-        List<ComponentInstance> componentInstances = componentInstanceDao.readByComponentNo(componentLoadBalancer
-                .getComponentNo());
+        List<ComponentInstance> componentInstances = componentInstanceDao
+                .readByComponentNo(componentLoadBalancer.getComponentNo());
 
         // コンポーネントロードバランサ情報の削除処理
         componentLoadBalancerDao.deleteByLoadBalancerNo(loadBalancerNo);
@@ -1516,8 +1517,8 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         // イベントログ出力
         Farm farm = farmDao.read(loadBalancer.getFarmNo());
         eventLogger.log(EventLogLevel.INFO, farm.getFarmNo(), farm.getFarmName(), null, null, null, null,
-                "LoadBalancerListenerCreate", null, null, new Object[] { loadBalancer.getLoadBalancerName(),
-                        loadBalancerPort });
+                "LoadBalancerListenerCreate", null, null,
+                new Object[] { loadBalancer.getLoadBalancerName(), loadBalancerPort });
     }
 
     /**
@@ -1629,8 +1630,8 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         // イベントログ出力
         Farm farm = farmDao.read(loadBalancer.getFarmNo());
         eventLogger.log(EventLogLevel.INFO, farm.getFarmNo(), farm.getFarmName(), null, null, null, null,
-                "LoadBalancerListenerUpdate", null, null, new Object[] { loadBalancer.getLoadBalancerName(),
-                        loadBalancerPort });
+                "LoadBalancerListenerUpdate", null, null,
+                new Object[] { loadBalancer.getLoadBalancerName(), loadBalancerPort });
     }
 
     /**
@@ -1666,8 +1667,8 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         LoadBalancer loadBalancer = loadBalancerDao.read(loadBalancerNo);
         Farm farm = farmDao.read(loadBalancer.getFarmNo());
         eventLogger.log(EventLogLevel.INFO, farm.getFarmNo(), farm.getFarmName(), null, null, null, null,
-                "LoadBalancerListenerDelete", null, null, new Object[] { loadBalancer.getLoadBalancerName(),
-                        loadBalancerPort });
+                "LoadBalancerListenerDelete", null, null,
+                new Object[] { loadBalancer.getLoadBalancerName(), loadBalancerPort });
     }
 
     /**
@@ -1822,8 +1823,8 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         }
 
         // コンポーネントのチェック
-        List<ComponentInstance> componentInstances = componentInstanceDao.readByComponentNo(loadBalancer
-                .getComponentNo());
+        List<ComponentInstance> componentInstances = componentInstanceDao
+                .readByComponentNo(loadBalancer.getComponentNo());
         for (Instance instance : instances) {
             boolean contain = false;
             for (ComponentInstance componentInstance : componentInstances) {
@@ -1987,8 +1988,8 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         }
 
         // コンポーネントのチェック
-        List<ComponentInstance> componentInstances = componentInstanceDao.readByComponentNo(loadBalancer
-                .getComponentNo());
+        List<ComponentInstance> componentInstances = componentInstanceDao
+                .readByComponentNo(loadBalancer.getComponentNo());
         for (Instance instance : instances) {
             boolean contain = false;
             for (ComponentInstance componentInstance : componentInstances) {

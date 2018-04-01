@@ -78,8 +78,8 @@ public class InstancesProcess extends ServiceSupport {
             for (Instance instance : allInstances) {
                 // 起動しているインスタンスのうち、有効なものと、無効でも既に協調されているものを開始対象とする
                 if (InstanceStatus.fromStatus(instance.getStatus()) == InstanceStatus.RUNNING) {
-                    if (BooleanUtils.isTrue(instance.getEnabled())
-                            || InstanceCoodinateStatus.fromStatus(instance.getCoodinateStatus()) == InstanceCoodinateStatus.COODINATED) {
+                    if (BooleanUtils.isTrue(instance.getEnabled()) || InstanceCoodinateStatus
+                            .fromStatus(instance.getCoodinateStatus()) == InstanceCoodinateStatus.COODINATED) {
                         startInstanceNos.add(instance.getInstanceNo());
                     }
                 }
@@ -145,7 +145,8 @@ public class InstancesProcess extends ServiceSupport {
                 if (InstanceStatus.fromStatus(instance.getStatus()) == InstanceStatus.RUNNING) {
                     if (BooleanUtils.isTrue(instance.getEnabled())) {
                         startInstanceNos.add(instance.getInstanceNo());
-                    } else if (InstanceCoodinateStatus.fromStatus(instance.getCoodinateStatus()) == InstanceCoodinateStatus.COODINATED) {
+                    } else if (InstanceCoodinateStatus
+                            .fromStatus(instance.getCoodinateStatus()) == InstanceCoodinateStatus.COODINATED) {
                         stopInstanceNos.add(instance.getInstanceNo());
                     }
                 }

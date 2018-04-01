@@ -84,16 +84,16 @@ public class ListComponent extends ApiSupport {
             ComponentResponse componentResponse = new ComponentResponse(component);
 
             //コンポーネントインスタンス取得
-            List<ComponentInstance> componentInstances = componentInstanceDao.readByComponentNo(component
-                    .getComponentNo());
+            List<ComponentInstance> componentInstances = componentInstanceDao
+                    .readByComponentNo(component.getComponentNo());
             if (componentInstances.isEmpty() == false) {
                 //ソート
                 Collections.sort(componentInstances, Comparators.COMPARATOR_COMPONENT_INSTANCE);
                 for (ComponentInstance componentInstance : componentInstances) {
                     // 関連付けが無効で停止している場合は除外
                     if (BooleanUtils.isNotTrue(componentInstance.getAssociate())) {
-                        ComponentInstanceStatus status = ComponentInstanceStatus.fromStatus(componentInstance
-                                .getStatus());
+                        ComponentInstanceStatus status = ComponentInstanceStatus
+                                .fromStatus(componentInstance.getStatus());
                         if (status == ComponentInstanceStatus.STOPPED) {
                             continue;
                         }

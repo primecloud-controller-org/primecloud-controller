@@ -28,7 +28,6 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-
 /**
  * <p>
  * 例外をハンドリングするインターセプタClassです。

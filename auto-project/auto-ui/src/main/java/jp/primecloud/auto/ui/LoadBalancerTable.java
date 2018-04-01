@@ -51,7 +51,8 @@ public class LoadBalancerTable extends Table {
     private String[] CAPNAME = { ViewProperties.getCaption("field.no"),
             ViewProperties.getCaption("field.loadBalancerName"), ViewProperties.getCaption("field.loadBalancerStatus"),
             ViewProperties.getCaption("field.loadBalancerHostname"),
-            ViewProperties.getCaption("field.loadBalancerType"), ViewProperties.getCaption("field.loadBalancerService") };
+            ViewProperties.getCaption("field.loadBalancerType"),
+            ViewProperties.getCaption("field.loadBalancerService") };
 
     public LoadBalancerTable(MainView sender) {
         this.sender = sender;

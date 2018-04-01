@@ -122,7 +122,8 @@ public class DescribePlatform extends ApiSupport {
         }
         // OpenStack
         else if (PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
-            PlatformOpenstackResponse openstackResponse = getOpenstackDetail(user.getUserNo(), platform.getPlatformNo());
+            PlatformOpenstackResponse openstackResponse = getOpenstackDetail(user.getUserNo(),
+                    platform.getPlatformNo());
             platformResponse.setOpenstack(openstackResponse);
         }
 

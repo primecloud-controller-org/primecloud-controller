@@ -5,7 +5,6 @@ import java.util.Date;
 
 import com.nifty.cloud.sdk.server.model.Instance;
 
-
 /**
  * <p>
  * nifty sdkのInstanceクラスからのデータ移送用クラス
@@ -574,7 +573,7 @@ public class InstanceDto implements Serializable {
         this.vpcId = vpcId;
     }
 
-    public InstanceDto(Instance instance){
+    public InstanceDto(Instance instance) {
         accountingType = instance.getAccountingType();
         admin = instance.getAdmin();
         amiLaunchIndex = instance.getAmiLaunchIndex();

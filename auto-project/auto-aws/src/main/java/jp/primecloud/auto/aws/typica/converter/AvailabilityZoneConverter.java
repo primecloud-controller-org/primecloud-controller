@@ -26,8 +26,8 @@ import com.amazonaws.services.ec2.model.AvailabilityZone;
  * </p>
  *
  */
-public class AvailabilityZoneConverter extends
-        AbstractConverter<com.xerox.amazonws.ec2.AvailabilityZone, AvailabilityZone> {
+public class AvailabilityZoneConverter
+        extends AbstractConverter<com.xerox.amazonws.ec2.AvailabilityZone, AvailabilityZone> {
 
     @Override
     protected AvailabilityZone convertObject(com.xerox.amazonws.ec2.AvailabilityZone from) {

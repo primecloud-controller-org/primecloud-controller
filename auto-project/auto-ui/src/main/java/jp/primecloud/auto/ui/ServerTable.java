@@ -92,8 +92,9 @@ public class ServerTable extends Table {
                 InstanceDto instance = (InstanceDto) itemId;
 
                 Icons icon = IconUtils.getPlatformIcon(instance.getPlatform());
-                Label label = new Label(IconUtils.createImageTag(getApplication(), icon, instance.getInstance()
-                        .getInstanceName()), Label.CONTENT_XHTML);
+                Label label = new Label(
+                        IconUtils.createImageTag(getApplication(), icon, instance.getInstance().getInstanceName()),
+                        Label.CONTENT_XHTML);
                 label.setHeight(COLUMN_HEIGHT);
                 return label;
             }
@@ -115,8 +116,8 @@ public class ServerTable extends Table {
                 InstanceDto instance = (InstanceDto) itemId;
 
                 boolean showPublicIp = BooleanUtils.toBoolean(Config.getProperty("ui.showPublicIp"));
-                String ipAddress = showPublicIp ? instance.getInstance().getPublicIp() : instance.getInstance()
-                        .getPrivateIp();
+                String ipAddress = showPublicIp ? instance.getInstance().getPublicIp()
+                        : instance.getInstance().getPrivateIp();
                 Label label = new Label(ipAddress);
                 return label;
             }

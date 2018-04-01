@@ -237,8 +237,7 @@ public class PuppetNodeProcess extends ServiceSupport {
     protected void runPuppet(Instance instance) {
         // Puppetクライアントの設定更新処理を実行
         try {
-            processLogger.debug(null, instance, "PuppetManifestApply",
-                    new String[] { instance.getFqdn(), "base" });
+            processLogger.debug(null, instance, "PuppetManifestApply", new String[] { instance.getFqdn(), "base" });
 
             puppetClient.runClient(instance.getFqdn());
 
@@ -256,7 +255,8 @@ public class PuppetNodeProcess extends ServiceSupport {
                     puppetClient.runClient(instance.getFqdn());
 
                 } catch (RuntimeException e2) {
-                    processLogger.debug(null, instance, "PuppetManifestApplyFail", new String[] { instance.getFqdn(), "base" });
+                    processLogger.debug(null, instance, "PuppetManifestApplyFail",
+                            new String[] { instance.getFqdn(), "base" });
 
                     throw e2;
                 }
@@ -291,14 +291,14 @@ public class PuppetNodeProcess extends ServiceSupport {
         List<Component> components = componentDao.readByFarmNo(instance.getFarmNo());
         map.put("components", components);
         Map<Long, Component> componentMap = new HashMap<Long, Component>();
-        for (Component component: components) {
+        for (Component component : components) {
             componentMap.put(component.getComponentNo(), component);
         }
 
         // ComponentType
         List<ComponentType> componentTypes = componentTypeDao.readAll();
         Map<Long, ComponentType> componentTypeMap = new HashMap<Long, ComponentType>();
-        for (ComponentType componentType: componentTypes) {
+        for (ComponentType componentType : componentTypes) {
             componentTypeMap.put(componentType.getComponentTypeNo(), componentType);
         }
 
@@ -393,7 +393,8 @@ public class PuppetNodeProcess extends ServiceSupport {
             if (!componentTypeNameMap.containsKey(componentInstance.getComponentNo())) {
                 Component component = componentMap.get(componentInstance.getComponentNo());
                 ComponentType componentType = componentTypeMap.get(component.getComponentTypeNo());
-                componentTypeNameMap.put(componentInstance.getComponentNo().toString(), componentType.getComponentTypeName());
+                componentTypeNameMap.put(componentInstance.getComponentNo().toString(),
+                        componentType.getComponentTypeName());
             }
         }
 

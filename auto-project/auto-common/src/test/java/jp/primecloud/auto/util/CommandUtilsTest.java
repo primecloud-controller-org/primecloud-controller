@@ -25,12 +25,10 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.List;
 
-import jp.primecloud.auto.util.CommandUtils;
 import jp.primecloud.auto.util.CommandUtils.CommandResult;
 
 import org.junit.Ignore;
 import org.junit.Test;
-
 
 /**
  * <p>

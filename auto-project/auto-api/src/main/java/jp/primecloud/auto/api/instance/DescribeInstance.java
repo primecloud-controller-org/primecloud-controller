@@ -159,8 +159,8 @@ public class DescribeInstance extends ApiSupport {
             }
 
             //VMWARE_KEYPAIR取得
-            List<VmwareKeyPair> keyPairs = vmwareDescribeService
-                    .getKeyPairs(user.getUserNo(), instance.getPlatformNo());
+            List<VmwareKeyPair> keyPairs = vmwareDescribeService.getKeyPairs(user.getUserNo(),
+                    instance.getPlatformNo());
             for (VmwareKeyPair keyPair : keyPairs) {
                 if (keyPair.getKeyNo().equals(vmwareInstance.getKeyPairNo())) {
                     vmResponse.setKeyName(keyPair.getKeyName());
@@ -199,8 +199,8 @@ public class DescribeInstance extends ApiSupport {
             VcloudInstanceResponse vcloudInstanceResponse = new VcloudInstanceResponse(vcloudInstance);
 
             //PLATFORM_VCLOUD_STORAGE_TYPE取得
-            List<PlatformVcloudStorageType> storageTypes = platformVcloudStorageTypeDao.readByPlatformNo(platform
-                    .getPlatformNo());
+            List<PlatformVcloudStorageType> storageTypes = platformVcloudStorageTypeDao
+                    .readByPlatformNo(platform.getPlatformNo());
             for (PlatformVcloudStorageType storageType : storageTypes) {
                 if (storageType.getStorageTypeNo().equals(vcloudInstance.getStorageTypeNo())) {
                     vcloudInstanceResponse.setStorageTypeName(storageType.getStorageTypeName());
@@ -218,8 +218,8 @@ public class DescribeInstance extends ApiSupport {
             }
 
             // VCloudNetwork取得
-            List<VcloudInstanceNetwork> vcloudInstanceNetworks = vcloudInstanceNetworkDao.readByInstanceNo(Long
-                    .parseLong(instanceNo));
+            List<VcloudInstanceNetwork> vcloudInstanceNetworks = vcloudInstanceNetworkDao
+                    .readByInstanceNo(Long.parseLong(instanceNo));
             for (VcloudInstanceNetwork vcloudInstanceNetwork : vcloudInstanceNetworks) {
                 // VCloudNetwork情報設定
                 VcloudInstanceNetworkResponse vcloudInstanceNetworkResponse = new VcloudInstanceNetworkResponse(

@@ -53,5 +53,5 @@ public enum ZabbixInstanceStatus {
         }
         return UN_MONITORING;
     }
-    
+
 }

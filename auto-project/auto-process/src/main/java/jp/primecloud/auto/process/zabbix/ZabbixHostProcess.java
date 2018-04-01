@@ -88,10 +88,11 @@ public class ZabbixHostProcess extends ServiceSupport {
             List<Hostgroup> hostgroups = getInitHostgroups(zabbixProcessClient, instance);
 
             // 監視対象の登録
-            hostid = zabbixProcessClient.createHost(hostname, instance.getFqdn(), hostgroups, true, useIp, zabbixListenIp, proxyHostid);
+            hostid = zabbixProcessClient.createHost(hostname, instance.getFqdn(), hostgroups, true, useIp,
+                    zabbixListenIp, proxyHostid);
 
             // イベントログ出力
-            processLogger.debug(null,instance, "ZabbixRegist", new Object[] {instance.getFqdn(), hostid });
+            processLogger.debug(null, instance, "ZabbixRegist", new Object[] { instance.getFqdn(), hostid });
 
             // データベースの更新
             zabbixInstance.setHostid(hostid);
@@ -99,14 +100,15 @@ public class ZabbixHostProcess extends ServiceSupport {
             zabbixInstanceDao.update(zabbixInstance);
         } else {
             // 監視対象の更新
-            zabbixProcessClient.updateHost(hostid, hostname, instance.getFqdn(), null, true, useIp, zabbixListenIp, proxyHostid);
+            zabbixProcessClient.updateHost(hostid, hostname, instance.getFqdn(), null, true, useIp, zabbixListenIp,
+                    proxyHostid);
 
             // データベースの更新
             zabbixInstance.setStatus(ZabbixInstanceStatus.MONITORING.toString());
             zabbixInstanceDao.update(zabbixInstance);
 
             // イベントログ出力
-            processLogger.debug(null,instance, "ZabbixStart", new Object[] {instance.getFqdn(), hostid });
+            processLogger.debug(null, instance, "ZabbixStart", new Object[] { instance.getFqdn(), hostid });
         }
 
         // 標準テンプレートの適用
@@ -123,7 +125,8 @@ public class ZabbixHostProcess extends ServiceSupport {
 
                 if (ret) {
                     // イベントログ出力
-                    processLogger.debug(null,instance, "ZabbixTemplateAdd", new Object[] {instance.getFqdn(), templateName });
+                    processLogger.debug(null, instance, "ZabbixTemplateAdd",
+                            new Object[] { instance.getFqdn(), templateName });
                 }
             }
         }
@@ -164,10 +167,12 @@ public class ZabbixHostProcess extends ServiceSupport {
             //ZabbixプロキシID取得
             String proxyHostid = getProxyHostid(zabbixProcessClient);
 
-            zabbixProcessClient.updateHost(zabbixInstance.getHostid(), hostname, instance.getFqdn(), null, false, useIp, null, proxyHostid);
+            zabbixProcessClient.updateHost(zabbixInstance.getHostid(), hostname, instance.getFqdn(), null, false, useIp,
+                    null, proxyHostid);
 
             // イベントログ出力
-            processLogger.debug(null,instance, "ZabbixStop", new Object[] {instance.getFqdn(), zabbixInstance.getHostid() });
+            processLogger.debug(null, instance, "ZabbixStop",
+                    new Object[] { instance.getFqdn(), zabbixInstance.getHostid() });
 
             // データベースの更新
             zabbixInstance.setStatus(ZabbixInstanceStatus.UN_MONITORING.toString());
@@ -221,14 +226,16 @@ public class ZabbixHostProcess extends ServiceSupport {
                 boolean ret = zabbixProcessClient.addTemplate(zabbixInstance.getHostid(), template);
                 if (ret) {
                     // イベントログ出力
-                    processLogger.debug(component, instance, "ZabbixTemplateAdd", new Object[] { instance.getFqdn(), templateName });
+                    processLogger.debug(component, instance, "ZabbixTemplateAdd",
+                            new Object[] { instance.getFqdn(), templateName });
                 }
 
                 // ホストに紐づくアイテムを有効化
                 boolean ret2 = zabbixProcessClient.enableItems(zabbixInstance.getHostid(), template.getTemplateid());
                 if (ret2) {
                     // イベントログ出力
-                    processLogger.debug(component, instance, "ZabbixItemEnable", new Object[] { instance.getFqdn(), templateName });
+                    processLogger.debug(component, instance, "ZabbixItemEnable",
+                            new Object[] { instance.getFqdn(), templateName });
                 }
             }
         }
@@ -276,7 +283,8 @@ public class ZabbixHostProcess extends ServiceSupport {
             boolean ret = zabbixProcessClient.disableItems(zabbixInstance.getHostid(), template.getTemplateid());
             if (ret) {
                 // イベントログ出力
-                processLogger.debug(component, instance, "ZabbixItemDisable", new Object[] { instance.getFqdn(), templateName });
+                processLogger.debug(component, instance, "ZabbixItemDisable",
+                        new Object[] { instance.getFqdn(), templateName });
             }
         }
 
@@ -323,14 +331,16 @@ public class ZabbixHostProcess extends ServiceSupport {
             boolean ret = zabbixProcessClient.removeTemplate(zabbixInstance.getHostid(), template);
             if (ret) {
                 // イベントログ出力
-                processLogger.debug(component, instance, "ZabbixTemplateRemove", new Object[] { instance.getFqdn(), templateName });
+                processLogger.debug(component, instance, "ZabbixTemplateRemove",
+                        new Object[] { instance.getFqdn(), templateName });
             }
 
             // アイテムを削除
             boolean ret2 = zabbixProcessClient.deleteItems(zabbixInstance.getHostid(), template.getTemplateid());
             if (ret2) {
                 // イベントログ出力
-                processLogger.debug(component, instance, "ZabbixItemDelete", new Object[] { instance.getFqdn(), templateName });
+                processLogger.debug(component, instance, "ZabbixItemDelete",
+                        new Object[] { instance.getFqdn(), templateName });
             }
         }
 
@@ -477,7 +487,8 @@ public class ZabbixHostProcess extends ServiceSupport {
             String proxyHostid = getProxyHostid(zabbixProcessClient);
             //IP設定
             String zabbixListenIp = getZabbixListenIp(zabbixProcessClient, instance, platform);
-            zabbixProcessClient.updateHost(hostid, hostname, instance.getFqdn(), hostgroups, null, useIp, zabbixListenIp, proxyHostid);
+            zabbixProcessClient.updateHost(hostid, hostname, instance.getFqdn(), hostgroups, null, useIp,
+                    zabbixListenIp, proxyHostid);
         }
     }
 
@@ -532,7 +543,8 @@ public class ZabbixHostProcess extends ServiceSupport {
             String proxyHostid = getProxyHostid(zabbixProcessClient);
             //IP設定
             String zabbixListenIp = getZabbixListenIp(zabbixProcessClient, instance, platform);
-            zabbixProcessClient.updateHost(hostid, hostname, instance.getFqdn(), hostgroups, null, useIp, zabbixListenIp, proxyHostid);
+            zabbixProcessClient.updateHost(hostid, hostname, instance.getFqdn(), hostgroups, null, useIp,
+                    zabbixListenIp, proxyHostid);
         }
     }
 

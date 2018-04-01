@@ -86,8 +86,8 @@ public class VmwareMachineProcess extends ServiceSupport {
 
         // イベントログ出力
         Platform platform = platformDao.read(vmwareProcessClient.getPlatformNo());
-        processLogger.debug(null, instance, "VmwareInstanceCreate", new Object[] { platform.getPlatformName(),
-                vmwareInstance.getMachineName() });
+        processLogger.debug(null, instance, "VmwareInstanceCreate",
+                new Object[] { platform.getPlatformName(), vmwareInstance.getMachineName() });
 
         // 仮想マシンをクローン
         vmwareProcessClient.cloneVM(vmwareInstance.getMachineName(), imageVmware.getTemplateName(),
@@ -99,8 +99,8 @@ public class VmwareMachineProcess extends ServiceSupport {
         }
 
         // イベントログ出力
-        processLogger.debug(null, instance, "VmwareInstanceCreateFinish", new Object[] { platform.getPlatformName(),
-                vmwareInstance.getMachineName() });
+        processLogger.debug(null, instance, "VmwareInstanceCreateFinish",
+                new Object[] { platform.getPlatformName(), vmwareInstance.getMachineName() });
 
         // データベース更新
         vmwareInstance = vmwareInstanceDao.read(instanceNo);
@@ -157,8 +157,8 @@ public class VmwareMachineProcess extends ServiceSupport {
         // イベントログ出力
         Instance instance = instanceDao.read(instanceNo);
         Platform platform = platformDao.read(vmwareProcessClient.getPlatformNo());
-        processLogger.debug(null, instance, "VmwareInstanceStart", new Object[] { platform.getPlatformName(),
-                vmwareInstance.getMachineName() });
+        processLogger.debug(null, instance, "VmwareInstanceStart",
+                new Object[] { platform.getPlatformName(), vmwareInstance.getMachineName() });
 
         // 仮想マシンをパワーオン
         vmwareProcessClient.powerOnVM(vmwareInstance.getMachineName());
@@ -176,15 +176,15 @@ public class VmwareMachineProcess extends ServiceSupport {
         // イベントログ出力
         Instance instance = instanceDao.read(instanceNo);
         Platform platform = platformDao.read(vmwareProcessClient.getPlatformNo());
-        processLogger.debug(null, instance, "VmwareInstanceStop", new Object[] { platform.getPlatformName(),
-                vmwareInstance.getMachineName() });
+        processLogger.debug(null, instance, "VmwareInstanceStop",
+                new Object[] { platform.getPlatformName(), vmwareInstance.getMachineName() });
 
         // 仮想マシンをパワーオフ
         vmwareProcessClient.powerOffVM(vmwareInstance.getMachineName());
 
         // イベントログ出力
-        processLogger.debug(null, instance, "VmwareInstanceStopFinish", new Object[] { platform.getPlatformName(),
-                vmwareInstance.getMachineName() });
+        processLogger.debug(null, instance, "VmwareInstanceStopFinish",
+                new Object[] { platform.getPlatformName(), vmwareInstance.getMachineName() });
 
         // データベースを更新
         vmwareInstance = vmwareInstanceDao.read(instanceNo);
@@ -205,15 +205,15 @@ public class VmwareMachineProcess extends ServiceSupport {
         // イベントログ出力
         Instance instance = instanceDao.read(instanceNo);
         Platform platform = platformDao.read(vmwareProcessClient.getPlatformNo());
-        processLogger.debug(null, instance, "VmwareInstanceStop", new Object[] { platform.getPlatformName(),
-                vmwareInstance.getMachineName() });
+        processLogger.debug(null, instance, "VmwareInstanceStop",
+                new Object[] { platform.getPlatformName(), vmwareInstance.getMachineName() });
 
         // 仮想マシンのゲストをシャットダウン
         vmwareProcessClient.shutdownGuest(vmwareInstance.getMachineName());
 
         // イベントログ出力
-        processLogger.debug(null, instance, "VmwareInstanceStopFinish", new Object[] { platform.getPlatformName(),
-                vmwareInstance.getMachineName() });
+        processLogger.debug(null, instance, "VmwareInstanceStopFinish",
+                new Object[] { platform.getPlatformName(), vmwareInstance.getMachineName() });
 
         // データベースを更新
         vmwareInstance = vmwareInstanceDao.read(instanceNo);
@@ -234,15 +234,15 @@ public class VmwareMachineProcess extends ServiceSupport {
         // イベントログ出力
         Instance instance = instanceDao.read(instanceNo);
         Platform platform = platformDao.read(vmwareProcessClient.getPlatformNo());
-        processLogger.debug(null, instance, "VmwareInstanceDelete", new Object[] { platform.getPlatformName(),
-                vmwareInstance.getMachineName() });
+        processLogger.debug(null, instance, "VmwareInstanceDelete",
+                new Object[] { platform.getPlatformName(), vmwareInstance.getMachineName() });
 
         // 仮想マシンを削除
         vmwareProcessClient.destroyVM(vmwareInstance.getMachineName());
 
         // イベントログ出力
-        processLogger.debug(null, instance, "VmwareInstanceDeleteFinish", new Object[] { platform.getPlatformName(),
-                vmwareInstance.getMachineName() });
+        processLogger.debug(null, instance, "VmwareInstanceDeleteFinish",
+                new Object[] { platform.getPlatformName(), vmwareInstance.getMachineName() });
     }
 
     /**
@@ -345,8 +345,8 @@ public class VmwareMachineProcess extends ServiceSupport {
         }
 
         // イベントログ出力
-        processLogger.debug(null, instance, "VmwareInstanceStartFinish", new Object[] { platform.getPlatformName(),
-                vmwareInstance.getMachineName() });
+        processLogger.debug(null, instance, "VmwareInstanceStartFinish",
+                new Object[] { platform.getPlatformName(), vmwareInstance.getMachineName() });
 
         // データベースに格納
         vmwareInstance = vmwareInstanceDao.read(instanceNo);
@@ -374,8 +374,8 @@ public class VmwareMachineProcess extends ServiceSupport {
         Platform platform = platformDao.read(instance.getPlatformNo());
         if (platform != null && (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType()))) {
             PlatformVmware platformVmware = platformVmwareDao.read(instance.getPlatformNo());
-            List<PlatformVmwareInstanceType> instanceTypes = platformVmwareInstanceTypeDao.readByPlatformNo(instance
-                    .getPlatformNo());
+            List<PlatformVmwareInstanceType> instanceTypes = platformVmwareInstanceTypeDao
+                    .readByPlatformNo(instance.getPlatformNo());
             if (platformVmware != null && instanceTypes.isEmpty() == false) {
                 for (PlatformVmwareInstanceType instanceType2 : instanceTypes) {
                     if (StringUtils.equals(vmwareInstance.getInstanceType(), instanceType2.getInstanceTypeName())) {

@@ -20,13 +20,13 @@ package jp.primecloud.auto.zabbix.client;
 
 import java.util.List;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.JsonConfig;
-
 import jp.primecloud.auto.zabbix.ZabbixAccessor;
 import jp.primecloud.auto.zabbix.model.proxy.Proxy;
 import jp.primecloud.auto.zabbix.model.proxy.ProxyGetParam;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import net.sf.json.JsonConfig;
 
 /**
  * <p>

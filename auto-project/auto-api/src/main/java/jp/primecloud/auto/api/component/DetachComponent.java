@@ -71,8 +71,8 @@ public class DetachComponent extends ApiSupport {
 
         if (BooleanUtils.isFalse(instance.getFarmNo().equals(component.getFarmNo()))) {
             //ファームとインスタンスが一致しない
-            throw new AutoApplicationException("EAPI-100022", "Instance", component.getFarmNo(),
-                    PARAM_NAME_INSTANCE_NO, instanceNo);
+            throw new AutoApplicationException("EAPI-100022", "Instance", component.getFarmNo(), PARAM_NAME_INSTANCE_NO,
+                    instanceNo);
         }
 
         // 現在サービスに紐づいているサーバの一覧を取得する

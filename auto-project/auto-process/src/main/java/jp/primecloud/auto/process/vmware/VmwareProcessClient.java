@@ -26,14 +26,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import jp.primecloud.auto.exception.AutoException;
+import jp.primecloud.auto.util.MessageUtils;
+import jp.primecloud.auto.vmware.VmwareClient;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import jp.primecloud.auto.exception.AutoException;
-import jp.primecloud.auto.util.MessageUtils;
-import jp.primecloud.auto.vmware.VmwareClient;
 
 import com.vmware.vim25.AlreadyExists;
 import com.vmware.vim25.CustomFieldDef;
@@ -606,8 +606,8 @@ public class VmwareProcessClient {
             }
 
             // VMware Toolsがインストールされていること
-            if (VirtualMachineToolsVersionStatus.guestToolsNotInstalled.toString().equals(
-                    guestInfo.getToolsVersionStatus2())) {
+            if (VirtualMachineToolsVersionStatus.guestToolsNotInstalled.toString()
+                    .equals(guestInfo.getToolsVersionStatus2())) {
                 throw new AutoException("EPROCESS-000509", machineName);
             }
 
@@ -866,8 +866,8 @@ public class VmwareProcessClient {
 
         // 仮想マシン自体のディスクを取得
         VirtualDisk machineDisk = getVirtualDisk(machine, 0);
-        VirtualDiskFlatVer2BackingInfo machieBackingInfo = VirtualDiskFlatVer2BackingInfo.class.cast(machineDisk
-                .getBacking());
+        VirtualDiskFlatVer2BackingInfo machieBackingInfo = VirtualDiskFlatVer2BackingInfo.class
+                .cast(machineDisk.getBacking());
 
         // VirtualDisk
         VirtualDisk disk = new VirtualDisk();
@@ -902,8 +902,8 @@ public class VmwareProcessClient {
 
         // 仮想マシン自体のディスクを取得
         VirtualDisk machineDisk = getVirtualDisk(machine, 0);
-        VirtualDiskFlatVer2BackingInfo machieBackingInfo = VirtualDiskFlatVer2BackingInfo.class.cast(machineDisk
-                .getBacking());
+        VirtualDiskFlatVer2BackingInfo machieBackingInfo = VirtualDiskFlatVer2BackingInfo.class
+                .cast(machineDisk.getBacking());
 
         // VirtualDisk
         VirtualDisk disk = new VirtualDisk();

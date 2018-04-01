@@ -73,8 +73,8 @@ public class AttachComponent extends ApiSupport {
 
         if (BooleanUtils.isFalse(instance.getFarmNo().equals(component.getFarmNo()))) {
             //ファームとインスタンスが一致しない
-            throw new AutoApplicationException("EAPI-100022", "Instance", component.getFarmNo(),
-                    PARAM_NAME_INSTANCE_NO, instanceNo);
+            throw new AutoApplicationException("EAPI-100022", "Instance", component.getFarmNo(), PARAM_NAME_INSTANCE_NO,
+                    instanceNo);
         }
 
         // イメージ取得
@@ -102,7 +102,8 @@ public class AttachComponent extends ApiSupport {
             ComponentType componentType2 = componentTypeDao.read(tmpComponent.getComponentTypeNo());
             ComponentInstanceStatus status = ComponentInstanceStatus.fromStatus(componentInstance.getStatus());
             if (StringUtils.equals(componentType.getLayer(), componentType2.getLayer())
-                    && (BooleanUtils.isTrue(componentInstance.getAssociate()) || status != ComponentInstanceStatus.STOPPED)) {
+                    && (BooleanUtils.isTrue(componentInstance.getAssociate())
+                            || status != ComponentInstanceStatus.STOPPED)) {
                 // 同レイヤ かつ 関連付けがされている または 停止中ではないコンポーネントの場合紐付け不可
                 throw new AutoApplicationException("EAPI-100009", componentNo, instanceNo);
             }

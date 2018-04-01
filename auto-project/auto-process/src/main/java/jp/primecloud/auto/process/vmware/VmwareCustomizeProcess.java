@@ -3,9 +3,6 @@ package jp.primecloud.auto.process.vmware;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.common.component.PasswordEncryptor;
 import jp.primecloud.auto.common.constant.PCCConstant;
 import jp.primecloud.auto.config.Config;
@@ -21,6 +18,9 @@ import jp.primecloud.auto.exception.AutoException;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
 import jp.primecloud.auto.vmware.VmwareClient;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 
 import com.vmware.vim25.CustomizationAdapterMapping;
 import com.vmware.vim25.CustomizationDhcpIpGenerator;
@@ -128,8 +128,8 @@ public class VmwareCustomizeProcess extends ServiceSupport {
         Instance instance = instanceDao.read(vmwareInstance.getInstanceNo());
         Farm farm = farmDao.read(instance.getFarmNo());
         User user = userDao.read(farm.getUserNo());
-        PccSystemInfo pccSystemInfo= pccSystemInfoDao.read();
-        if(pccSystemInfo == null) {
+        PccSystemInfo pccSystemInfo = pccSystemInfoDao.read();
+        if (pccSystemInfo == null) {
             // PCC_SYSTEM_INFOのレコードが存在しない場合
             log.error(MessageUtils.getMessage("EPROCESS-000532"));
             throw new AutoException("EPROCESS-000532");

@@ -127,8 +127,8 @@ public class CreateLoadBalancer extends ApiSupport {
                     comment, Long.parseLong(platformNo), Long.parseLong(componentNo), internal);
         } else if (LB_TYPE_ULTRA_MONKEY.equals(loadBalancerType)) {
             //ultraMonkey
-            loadBalancerNo = loadBalancerService.createUltraMonkeyLoadBalancer(Long.parseLong(farmNo),
-                    loadBalancerName, comment, Long.parseLong(platformNo), Long.parseLong(componentNo));
+            loadBalancerNo = loadBalancerService.createUltraMonkeyLoadBalancer(Long.parseLong(farmNo), loadBalancerName,
+                    comment, Long.parseLong(platformNo), Long.parseLong(componentNo));
 
         } else if (LB_TYPE_CLOUDSTACK.equals(loadBalancerType)) {
             //cloudstack

@@ -58,8 +58,6 @@ public class CreateFarm extends ApiSupport {
     public CreateFarmResponse createFarm(@QueryParam(PARAM_NAME_FARM_NAME) String farmName,
             @QueryParam(PARAM_NAME_TEMPLATE_NO) String templateNo, @QueryParam(PARAM_NAME_COMMENT) String comment) {
 
-        
-
         // 入力チェック
         // FarmName
         ApiValidate.validateFarmName(farmName);

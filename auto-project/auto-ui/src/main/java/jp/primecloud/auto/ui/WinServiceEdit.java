@@ -471,7 +471,8 @@ public class WinServiceEdit extends Window {
         // 選択されていないサーバの中に、Stoppedではないステータスのものが含まれているかチェックする
         List<String> notStoppedServerNames = new ArrayList<String>();
         for (String serverName : notSelectedServerNames) {
-            if (StringUtils.contains(serverName.toUpperCase(), "(" + ComponentInstanceStatus.STOPPED.toString() + ")")) {
+            if (StringUtils.contains(serverName.toUpperCase(),
+                    "(" + ComponentInstanceStatus.STOPPED.toString() + ")")) {
                 continue;
             }
 
@@ -545,7 +546,8 @@ public class WinServiceEdit extends Window {
                     for (VcloudDisk vcloudDisk : instance.getVcloudDisks()) {
                         if (componentNo.equals(vcloudDisk.getComponentNo())) {
                             if (BooleanUtils.isTrue(vcloudDisk.getAttached())) {
-                                if (InstanceStatus.fromStatus(instance.getInstance().getStatus()) != InstanceStatus.STOPPED) {
+                                if (InstanceStatus
+                                        .fromStatus(instance.getInstance().getStatus()) != InstanceStatus.STOPPED) {
                                     diskAttachedServerNames.add(serverName);
                                 }
                             }
@@ -557,7 +559,8 @@ public class WinServiceEdit extends Window {
                     for (AzureDisk azureDisk : instance.getAzureDisks()) {
                         if (componentNo.equals(azureDisk.getComponentNo())) {
                             if (StringUtils.isNotEmpty(azureDisk.getInstanceName())) {
-                                if (InstanceStatus.fromStatus(instance.getInstance().getStatus()) != InstanceStatus.STOPPED) {
+                                if (InstanceStatus
+                                        .fromStatus(instance.getInstance().getStatus()) != InstanceStatus.STOPPED) {
                                     diskAttachedServerNames.add(serverName);
                                 }
                             }

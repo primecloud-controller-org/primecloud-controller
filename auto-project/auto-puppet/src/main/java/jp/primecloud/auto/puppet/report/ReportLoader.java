@@ -35,7 +35,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.yaml.snakeyaml.Yaml;
 
-
 /**
  * <p>
  * puppetrun実行時に出力されるYAML形式のファイルを扱うためのクラス

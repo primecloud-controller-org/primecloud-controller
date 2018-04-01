@@ -25,19 +25,18 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import jp.primecloud.auto.common.status.ComponentInstanceStatus;
+import jp.primecloud.auto.component.mysql.MySQLConstants;
 import jp.primecloud.auto.entity.crud.AwsVolume;
 import jp.primecloud.auto.entity.crud.ComponentConfig;
 import jp.primecloud.auto.entity.crud.ComponentInstance;
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.entity.crud.InstanceConfig;
 import jp.primecloud.auto.exception.AutoException;
+import jp.primecloud.auto.process.ComponentProcessContext;
+import jp.primecloud.auto.process.puppet.PuppetComponentProcess;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
-
-import jp.primecloud.auto.component.mysql.MySQLConstants;
-import jp.primecloud.auto.process.ComponentProcessContext;
-import jp.primecloud.auto.process.puppet.PuppetComponentProcess;
 
 /**
  * <p>
@@ -106,8 +105,8 @@ public class MySQLPuppetComponentProcess extends PuppetComponentProcess {
                 AwsVolume awsVolume = awsVolumeDao.readByComponentNoAndInstanceNo(componentNo, instanceNo);
                 if (awsVolume == null) {
                     ComponentInstance master = componentInstanceDao.read(componentNo, masterInstanceNo);
-                    if (master == null
-                            || ComponentInstanceStatus.fromStatus(master.getStatus()) != ComponentInstanceStatus.RUNNING) {
+                    if (master == null || ComponentInstanceStatus
+                            .fromStatus(master.getStatus()) != ComponentInstanceStatus.RUNNING) {
                         throw new AutoException("EPROCESS-200101", instanceNo, masterInstanceNo);
                     }
                 }
@@ -117,7 +116,8 @@ public class MySQLPuppetComponentProcess extends PuppetComponentProcess {
         super.configureInstance(componentNo, context, start, instanceNo, rootMap);
     }
 
-    protected Map<Long, Long> createMasterInstanceNoMap(Long componentNo, ComponentProcessContext context, boolean start) {
+    protected Map<Long, Long> createMasterInstanceNoMap(Long componentNo, ComponentProcessContext context,
+            boolean start) {
         Map<Long, Long> masterInstanceNoMap = new HashMap<Long, Long>();
         List<Long> instanceNos;
         if (start) {

@@ -23,7 +23,6 @@ import java.util.List;
 
 import jp.primecloud.auto.zabbix.model.usergroup.Usergroup;
 
-
 /**
  * <p>
  * UserのCreateメソッド用パラメータクラスです。

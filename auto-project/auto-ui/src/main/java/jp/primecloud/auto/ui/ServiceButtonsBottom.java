@@ -126,8 +126,8 @@ public class ServiceButtonsBottom extends CssLayout {
             // サービスを設定中のサーバがなければ有効にする
             boolean processing = false;
             for (ComponentInstanceDto componentInstance : component.getComponentInstances()) {
-                ComponentInstanceStatus status2 = ComponentInstanceStatus.fromStatus(componentInstance
-                        .getComponentInstance().getStatus());
+                ComponentInstanceStatus status2 = ComponentInstanceStatus
+                        .fromStatus(componentInstance.getComponentInstance().getStatus());
                 if (status2 != ComponentInstanceStatus.RUNNING && status2 != ComponentInstanceStatus.WARNING
                         && status2 != ComponentInstanceStatus.STOPPED) {
                     processing = true;
@@ -203,7 +203,8 @@ public class ServiceButtonsBottom extends CssLayout {
 
         // 確認ダイアログを表示
         String message = ViewMessages.getMessage("IUI-000018", component.getComponent().getComponentName());
-        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message, Buttons.OKCancel);
+        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message,
+                Buttons.OKCancel);
         dialog.setCallback(new DialogConfirm.Callback() {
             @Override
             public void onDialogResult(Result result) {

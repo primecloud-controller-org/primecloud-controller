@@ -88,8 +88,8 @@ public class EditComponent extends ApiSupport {
         ApiValidate.validateCustomParam3(customParam3);
 
         // サービス編集
-        componentService.updateComponent(Long.parseLong(componentNo), comment, Integer.parseInt(diskSize),
-                customParam1, customParam2, customParam3);
+        componentService.updateComponent(Long.parseLong(componentNo), comment, Integer.parseInt(diskSize), customParam1,
+                customParam2, customParam3);
 
         EditComponentResponse response = new EditComponentResponse();
 

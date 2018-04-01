@@ -29,6 +29,7 @@ import java.util.concurrent.Future;
 
 import jp.primecloud.auto.common.log.LoggingUtils;
 import jp.primecloud.auto.common.status.ComponentInstanceStatus;
+import jp.primecloud.auto.component.windows.WindowsConstants;
 import jp.primecloud.auto.entity.crud.AwsInstance;
 import jp.primecloud.auto.entity.crud.AwsVolume;
 import jp.primecloud.auto.entity.crud.CloudstackInstance;
@@ -38,15 +39,13 @@ import jp.primecloud.auto.entity.crud.ComponentConfig;
 import jp.primecloud.auto.entity.crud.ComponentInstance;
 import jp.primecloud.auto.entity.crud.Instance;
 import jp.primecloud.auto.exception.MultiCauseException;
+import jp.primecloud.auto.process.ComponentConstants;
+import jp.primecloud.auto.process.ComponentProcessContext;
+import jp.primecloud.auto.process.puppet.PuppetComponentProcess;
 import jp.primecloud.auto.util.MessageUtils;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
-
-import jp.primecloud.auto.component.windows.WindowsConstants;
-import jp.primecloud.auto.process.ComponentConstants;
-import jp.primecloud.auto.process.ComponentProcessContext;
-import jp.primecloud.auto.process.puppet.PuppetComponentProcess;
 
 /**
  * <p>
@@ -70,7 +69,6 @@ public class WindowsComponentProcess extends PuppetComponentProcess {
         // ノード用マニフェストの生成 必要なし
         return;
     }
-
 
     @Override
     protected void configureInstances(final Long componentNo, final ComponentProcessContext context,
@@ -134,7 +132,7 @@ public class WindowsComponentProcess extends PuppetComponentProcess {
             if (BooleanUtils.isTrue(componentInstance.getConfigure())) {
                 Instance instance = instanceMap.get(instanceNo);
                 if (status == ComponentInstanceStatus.STARTING) {
-                    processLogger.info(component, instance, "ComponentStart",  null);
+                    processLogger.info(component, instance, "ComponentStart", null);
                 } else if (status == ComponentInstanceStatus.CONFIGURING) {
                     processLogger.info(component, instance, "ComponentReload", null);
                 } else if (status == ComponentInstanceStatus.STOPPING) {
@@ -207,8 +205,8 @@ public class WindowsComponentProcess extends PuppetComponentProcess {
 
         if (log.isInfoEnabled()) {
             String code = start ? "IPROCESS-100221" : "IPROCESS-100223";
-            log.info(MessageUtils.getMessage(code, componentNo, instanceNo, component.getComponentName(), instance
-                    .getInstanceName()));
+            log.info(MessageUtils.getMessage(code, componentNo, instanceNo, component.getComponentName(),
+                    instance.getInstanceName()));
         }
 
         try {
@@ -230,7 +228,8 @@ public class WindowsComponentProcess extends PuppetComponentProcess {
                 }
 
                 // ステータス更新
-                if (status != ComponentInstanceStatus.WARNING || BooleanUtils.isTrue(componentInstance.getConfigure())) {
+                if (status != ComponentInstanceStatus.WARNING
+                        || BooleanUtils.isTrue(componentInstance.getConfigure())) {
                     componentInstance.setStatus(ComponentInstanceStatus.WARNING.toString());
                     componentInstance.setConfigure(false);
                     componentInstanceDao.update(componentInstance);
@@ -280,8 +279,8 @@ public class WindowsComponentProcess extends PuppetComponentProcess {
 
         if (log.isInfoEnabled()) {
             String code = start ? "IPROCESS-100222" : "IPROCESS-100224";
-            log.info(MessageUtils.getMessage(code, componentNo, instanceNo, component.getComponentName(), instance
-                    .getInstanceName()));
+            log.info(MessageUtils.getMessage(code, componentNo, instanceNo, component.getComponentName(),
+                    instance.getInstanceName()));
         }
     }
 
@@ -413,7 +412,6 @@ public class WindowsComponentProcess extends PuppetComponentProcess {
         awsVolume2.setInstanceId("WindowsDummy");
         awsVolumeDao.update(awsVolume2);
 
-
     }
 
     @Override
@@ -453,7 +451,7 @@ public class WindowsComponentProcess extends PuppetComponentProcess {
             cloudstackVolume.setSize(diskSize);
             cloudstackVolume.setZoneid(cloudstackInstance.getZoneid());
             cloudstackVolumeDao.create(cloudstackVolume);
-        }else if (cloudstackVolume.getInstanceId() != null && !"".equals(cloudstackVolume.getInstanceId())){
+        } else if (cloudstackVolume.getInstanceId() != null && !"".equals(cloudstackVolume.getInstanceId())) {
             //すでにアタッチ済みの場合は処理を行わない
             //AWS等はGWでチェックし何もせずリターンするがPuppetの処理の都合上ここでリターンする
             return;
@@ -461,12 +459,12 @@ public class WindowsComponentProcess extends PuppetComponentProcess {
 
         //GWは呼ばず作成済みへ持っていく
         // ボリューム情報の再取得
-        CloudstackVolume cloudstackVolume2 = cloudstackVolumeDao.readByComponentNoAndInstanceNo(componentNo, instanceNo);
+        CloudstackVolume cloudstackVolume2 = cloudstackVolumeDao.readByComponentNoAndInstanceNo(componentNo,
+                instanceNo);
         cloudstackVolume2.setState("Allocated");
         cloudstackVolume2.setInstanceId("WindowsDummy");
         cloudstackVolumeDao.update(cloudstackVolume2);
     }
-
 
     @Override
     protected void stopAwsVolume(Long componentNo, Long instanceNo) {

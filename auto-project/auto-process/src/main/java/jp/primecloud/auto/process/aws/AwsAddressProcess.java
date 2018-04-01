@@ -85,8 +85,8 @@ public class AwsAddressProcess extends ServiceSupport {
         }
 
         // イベントログ出力
-        processLogger.debug(null, null, "AwsElasticIpAllocate", new Object[] {
-                awsProcessClient.getPlatform().getPlatformName(), publicIp });
+        processLogger.debug(null, null, "AwsElasticIpAllocate",
+                new Object[] { awsProcessClient.getPlatform().getPlatformName(), publicIp });
 
         // AWSアドレス情報を作成
         AwsAddress awsAddress = new AwsAddress();
@@ -137,8 +137,8 @@ public class AwsAddressProcess extends ServiceSupport {
             awsProcessClient.getEc2Client().releaseAddress(request);
 
             // イベントログ出力
-            processLogger.debug(null, null, "AwsElasticIpRelease", new Object[] {
-                    awsProcessClient.getPlatform().getPlatformName(), awsAddress.getPublicIp() });
+            processLogger.debug(null, null, "AwsElasticIpRelease",
+                    new Object[] { awsProcessClient.getPlatform().getPlatformName(), awsAddress.getPublicIp() });
 
         } catch (Exception ignore) {
             // Elastic IPが実際には存在しない場合などに備えて、警告ログを出力して例外を握りつぶす
@@ -274,8 +274,8 @@ public class AwsAddressProcess extends ServiceSupport {
 
         // イベントログ出力
         Instance instance2 = instanceDao.read(instanceNo);
-        processLogger.debug(null, instance2, "AwsElasticIpAssociate", new Object[] { awsInstance.getInstanceId(),
-                awsAddress.getPublicIp() });
+        processLogger.debug(null, instance2, "AwsElasticIpAssociate",
+                new Object[] { awsInstance.getInstanceId(), awsAddress.getPublicIp() });
 
         // データベースの更新
         awsAddress.setInstanceId(awsInstance.getInstanceId());
@@ -355,7 +355,8 @@ public class AwsAddressProcess extends ServiceSupport {
         return address;
     }
 
-    public void disassociateAddress(AwsProcessClient awsProcessClient, Long instanceNo, Long addressNo, Address address) {
+    public void disassociateAddress(AwsProcessClient awsProcessClient, Long instanceNo, Long addressNo,
+            Address address) {
         AwsAddress awsAddress = awsAddressDao.read(addressNo);
 
         // アドレスの切り離し
@@ -380,8 +381,8 @@ public class AwsAddressProcess extends ServiceSupport {
 
         //イベントログ出力
         Instance instance = instanceDao.read(instanceNo);
-        processLogger.debug(null, instance, "AwsElasticIpDisassociate", new Object[] { awsAddress.getInstanceId(),
-                awsAddress.getPublicIp() });
+        processLogger.debug(null, instance, "AwsElasticIpDisassociate",
+                new Object[] { awsAddress.getInstanceId(), awsAddress.getPublicIp() });
 
         // データベースの更新
         awsAddress.setInstanceId(null);

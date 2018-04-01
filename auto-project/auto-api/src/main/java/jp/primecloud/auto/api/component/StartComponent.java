@@ -134,8 +134,8 @@ public class StartComponent extends ApiSupport {
 
                 // インスタンス起動チェック（個別起動）
                 boolean startupErrFlg;
-                startupErrFlg = processService.checkStartup(platform.getPlatformType(),
-                        azureInstance.getInstanceName(), azureInstance.getInstanceNo());
+                startupErrFlg = processService.checkStartup(platform.getPlatformType(), azureInstance.getInstanceName(),
+                        azureInstance.getInstanceNo());
                 if (startupErrFlg == true) {
                     // インスタンス作成中のものがあった場合は、起動不可
                     // 同一インスタンスNoは、除外する

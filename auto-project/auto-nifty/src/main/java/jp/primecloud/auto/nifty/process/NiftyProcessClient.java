@@ -726,7 +726,7 @@ public class NiftyProcessClient {
 
     public void deleteVolume(String volumeId) {
         // 排他制御(apiを同時に実行するとエラーになる対策)
-        synchronized(lock) {
+        synchronized (lock) {
             // ディスク削除
             DeleteVolumeRequest request = new DeleteVolumeRequest();
             request.setVolumeId(volumeId);

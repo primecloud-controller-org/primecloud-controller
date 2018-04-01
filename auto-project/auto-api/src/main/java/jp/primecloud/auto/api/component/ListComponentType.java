@@ -35,7 +35,8 @@ public class ListComponentType extends ApiSupport {
         ListComponentTypeResponse response = new ListComponentTypeResponse();
 
         for (ComponentTypeDto componentTypeDto : componentTypeDtos) {
-            ComponentTypeResponse componentTypeResponse = new ComponentTypeResponse(componentTypeDto.getComponentType());
+            ComponentTypeResponse componentTypeResponse = new ComponentTypeResponse(
+                    componentTypeDto.getComponentType());
             response.getComponentTypes().add(componentTypeResponse);
         }
 

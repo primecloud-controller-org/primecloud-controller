@@ -72,7 +72,8 @@ public class WinPassword extends Window {
         String keyName = "";
         if (PCCConstant.PLATFORM_TYPE_AWS.equals(instance.getPlatform().getPlatform().getPlatformType())) {
             keyName = instance.getAwsInstance().getKeyName();
-        } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(instance.getPlatform().getPlatform().getPlatformType())) {
+        } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK
+                .equals(instance.getPlatform().getPlatform().getPlatformType())) {
             keyName = instance.getCloudstackInstance().getKeyName();
         }
 
@@ -137,7 +138,8 @@ public class WinPassword extends Window {
             // AWSの場合
             AwsDescribeService awsDescribeService = BeanContext.getBean(AwsDescribeService.class);
             password = awsDescribeService.getPassword(instanceNo, privateKey);
-        } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(instance.getPlatform().getPlatform().getPlatformType())) {
+        } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK
+                .equals(instance.getPlatform().getPlatform().getPlatformType())) {
             // CloudStackの場合
             IaasDescribeService iaasDescribeService = BeanContext.getBean(IaasDescribeService.class);
             password = iaasDescribeService.getPassword(instanceNo, privateKey);

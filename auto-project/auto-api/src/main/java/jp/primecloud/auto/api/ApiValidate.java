@@ -37,14 +37,14 @@ public class ApiValidate extends ApiConstants {
 
     public static void validateFarmNo(String farmNo) {
         ValidateUtil.required(farmNo, "EAPI-000001", new Object[] { PARAM_NAME_FARM_NO });
-        ValidateUtil.longInRange(farmNo, new Long(1), Long.MAX_VALUE, "EAPI-000002", new Object[] { PARAM_NAME_FARM_NO,
-                new Long(1), Long.MAX_VALUE });
+        ValidateUtil.longInRange(farmNo, new Long(1), Long.MAX_VALUE, "EAPI-000002",
+                new Object[] { PARAM_NAME_FARM_NO, new Long(1), Long.MAX_VALUE });
     }
 
     public static void validateComponentNo(String componentNo) {
         ValidateUtil.required(componentNo, "EAPI-000001", new Object[] { PARAM_NAME_COMPONENT_NO });
-        ValidateUtil.longInRange(componentNo, new Long(1), Long.MAX_VALUE, "EAPI-000002", new Object[] {
-                PARAM_NAME_COMPONENT_NO, new Long(1), Long.MAX_VALUE });
+        ValidateUtil.longInRange(componentNo, new Long(1), Long.MAX_VALUE, "EAPI-000002",
+                new Object[] { PARAM_NAME_COMPONENT_NO, new Long(1), Long.MAX_VALUE });
     }
 
     public static void validateComponentName(String componentName) {
@@ -56,8 +56,8 @@ public class ApiValidate extends ApiConstants {
 
     public static void validateComponentTypeNo(String componentTypeNo) {
         ValidateUtil.required(componentTypeNo, "EAPI-000001", new Object[] { PARAM_NAME_COMPONENT_TYPE_NO });
-        ValidateUtil.longInRange(componentTypeNo, 1, Long.MAX_VALUE, "EAPI-000002", new Object[] {
-                PARAM_NAME_COMPONENT_TYPE_NO, 1, Long.MAX_VALUE });
+        ValidateUtil.longInRange(componentTypeNo, 1, Long.MAX_VALUE, "EAPI-000002",
+                new Object[] { PARAM_NAME_COMPONENT_TYPE_NO, 1, Long.MAX_VALUE });
     }
 
     public static void validateDiskSize(String diskSize) {
@@ -77,20 +77,20 @@ public class ApiValidate extends ApiConstants {
 
     public static void validatePlatformNo(String platformNo) {
         ValidateUtil.required(platformNo, "EAPI-000001", new Object[] { PARAM_NAME_PLATFORM_NO });
-        ValidateUtil.longInRange(platformNo, 1, Long.MAX_VALUE, "EAPI-000002", new Object[] { PARAM_NAME_PLATFORM_NO,
-                1, Long.MAX_VALUE });
+        ValidateUtil.longInRange(platformNo, 1, Long.MAX_VALUE, "EAPI-000002",
+                new Object[] { PARAM_NAME_PLATFORM_NO, 1, Long.MAX_VALUE });
     }
 
     public static void validateInstanceNo(String instanceNo) {
         ValidateUtil.required(instanceNo, "EAPI-000001", new Object[] { PARAM_NAME_INSTANCE_NO });
-        ValidateUtil.longInRange(instanceNo, 1, Long.MAX_VALUE, "EAPI-000002", new Object[] { PARAM_NAME_INSTANCE_NO,
-                1, Long.MAX_VALUE });
+        ValidateUtil.longInRange(instanceNo, 1, Long.MAX_VALUE, "EAPI-000002",
+                new Object[] { PARAM_NAME_INSTANCE_NO, 1, Long.MAX_VALUE });
     }
 
     public static void validateImageNo(String imageNo) {
         ValidateUtil.required(imageNo, "EAPI-000001", new Object[] { PARAM_NAME_IMAGE_NO });
-        ValidateUtil.longInRange(imageNo, 1, Long.MAX_VALUE, "EAPI-000002", new Object[] { PARAM_NAME_IMAGE_NO, 1,
-                Long.MAX_VALUE });
+        ValidateUtil.longInRange(imageNo, 1, Long.MAX_VALUE, "EAPI-000002",
+                new Object[] { PARAM_NAME_IMAGE_NO, 1, Long.MAX_VALUE });
     }
 
     public static void validateInstanceName(String instanceName) {
@@ -119,14 +119,14 @@ public class ApiValidate extends ApiConstants {
 
     public static void validateLoadBalancerNo(String loadBalancerNo) {
         ValidateUtil.required(loadBalancerNo, "EAPI-000001", new Object[] { PARAM_NAME_LOAD_BALANCER_NO });
-        ValidateUtil.longInRange(loadBalancerNo, 1, Long.MAX_VALUE, "EAPI-000002", new Object[] {
-                PARAM_NAME_LOAD_BALANCER_NO, 1, Long.MAX_VALUE });
+        ValidateUtil.longInRange(loadBalancerNo, 1, Long.MAX_VALUE, "EAPI-000002",
+                new Object[] { PARAM_NAME_LOAD_BALANCER_NO, 1, Long.MAX_VALUE });
     }
 
     public static void validateLoadBalancerPort(String loadBalancerPort) {
         ValidateUtil.required(loadBalancerPort, "EAPI-000001", new Object[] { PARAM_NAME_LOAD_BALANCER_PORT });
-        ValidateUtil.intInRange(loadBalancerPort, 1, 65535, "EAPI-000002", new Object[] {
-                PARAM_NAME_LOAD_BALANCER_PORT, 1, 65535 });
+        ValidateUtil.intInRange(loadBalancerPort, 1, 65535, "EAPI-000002",
+                new Object[] { PARAM_NAME_LOAD_BALANCER_PORT, 1, 65535 });
     }
 
     public static void validateServicePort(String servicePort) {
@@ -137,8 +137,8 @@ public class ApiValidate extends ApiConstants {
 
     public static void validateProtocol(String protocol) {
         ValidateUtil.required(protocol, "EAPI-000001", new Object[] { PARAM_NAME_PROTOCOL });
-        ValidateUtil.matchRegex(protocol, "HTTP|TCP|HTTPS|SSL", "EAPI-000006", new Object[] { PARAM_NAME_PROTOCOL,
-                "HTTP or TCP or HTTPS or SSL" });
+        ValidateUtil.matchRegex(protocol, "HTTP|TCP|HTTPS|SSL", "EAPI-000006",
+                new Object[] { PARAM_NAME_PROTOCOL, "HTTP or TCP or HTTPS or SSL" });
     }
 
     public static void validateUser(String user) {
@@ -159,8 +159,8 @@ public class ApiValidate extends ApiConstants {
 
     public static void validateTemplateNo(String templateNo) {
         ValidateUtil.required(templateNo, "EAPI-000001", new Object[] { PARAM_NAME_TEMPLATE_NO });
-        ValidateUtil.longInRange(templateNo, 1, Long.MAX_VALUE, "EAPI-000002", new Object[] { PARAM_NAME_TEMPLATE_NO,
-                1, Long.MAX_VALUE });
+        ValidateUtil.longInRange(templateNo, 1, Long.MAX_VALUE, "EAPI-000002",
+                new Object[] { PARAM_NAME_TEMPLATE_NO, 1, Long.MAX_VALUE });
     }
 
     public static void validateKeyName(String keyName) {
@@ -176,18 +176,16 @@ public class ApiValidate extends ApiConstants {
             ValidateUtil.required(ipAddress, "EAPI-000001", new Object[] { PARAM_NAME_IP_ADDRESS });
         }
         if (StringUtils.isNotEmpty(ipAddress)) {
-            ValidateUtil
-                    .matchRegex(
-                            ipAddress,
-                            "^(\\d|[01]?\\d\\d|2[0-4]\\d|25[0-5])\\.(\\d|[01]?\\d\\d|2[0-4]\\d|25[0-5])\\.(\\d|[01]?\\d\\d|2[0-4]\\d|25[0-5])\\.(\\d|[01]?\\d\\d|2[0-4]\\d|25[0-5])$",
-                            "EAPI-000013", new Object[] { PARAM_NAME_IP_ADDRESS, });
+            ValidateUtil.matchRegex(ipAddress,
+                    "^(\\d|[01]?\\d\\d|2[0-4]\\d|25[0-5])\\.(\\d|[01]?\\d\\d|2[0-4]\\d|25[0-5])\\.(\\d|[01]?\\d\\d|2[0-4]\\d|25[0-5])\\.(\\d|[01]?\\d\\d|2[0-4]\\d|25[0-5])$",
+                    "EAPI-000013", new Object[] { PARAM_NAME_IP_ADDRESS, });
         }
     }
 
     public static void validateKeyPairNo(String keyPairNo) {
         ValidateUtil.required(keyPairNo, "EAPI-000001", new Object[] { PARAM_NAME_KEY_PAIR_NO });
-        ValidateUtil.longInRange(keyPairNo, 1, Long.MAX_VALUE, "EAPI-000002", new Object[] { PARAM_NAME_KEY_PAIR_NO, 1,
-                Long.MAX_VALUE });
+        ValidateUtil.longInRange(keyPairNo, 1, Long.MAX_VALUE, "EAPI-000002",
+                new Object[] { PARAM_NAME_KEY_PAIR_NO, 1, Long.MAX_VALUE });
     }
 
     public static void validateComputeResource(String computeResource) {
@@ -201,31 +199,27 @@ public class ApiValidate extends ApiConstants {
 
     public static void validateSubnetMask(String subnetMask) {
         ValidateUtil.required(subnetMask, "EAPI-000001", new Object[] { PARAM_NAME_SUBNET_MASK });
-        ValidateUtil
-                .matchRegex(
-                        subnetMask,
-                        "^(\\d|[01]?\\d\\d|2[0-4]\\d|25[0-5])\\.(\\d|[01]?\\d\\d|2[0-4]\\d|25[0-5])\\.(\\d|[01]?\\d\\d|2[0-4]\\d|25[0-5])\\.(\\d|[01]?\\d\\d|2[0-4]\\d|25[0-5])$",
-                        "EAPI-000013", new Object[] { PARAM_NAME_SUBNET_MASK, });
+        ValidateUtil.matchRegex(subnetMask,
+                "^(\\d|[01]?\\d\\d|2[0-4]\\d|25[0-5])\\.(\\d|[01]?\\d\\d|2[0-4]\\d|25[0-5])\\.(\\d|[01]?\\d\\d|2[0-4]\\d|25[0-5])\\.(\\d|[01]?\\d\\d|2[0-4]\\d|25[0-5])$",
+                "EAPI-000013", new Object[] { PARAM_NAME_SUBNET_MASK, });
     }
 
     public static void validateDefaultGateway(String defaultGateway) {
         ValidateUtil.required(defaultGateway, "EAPI-000001", new Object[] { PARAM_NAME_DEFAULT_GATEWAY });
-        ValidateUtil
-                .matchRegex(
-                        defaultGateway,
-                        "^(\\d|[01]?\\d\\d|2[0-4]\\d|25[0-5])\\.(\\d|[01]?\\d\\d|2[0-4]\\d|25[0-5])\\.(\\d|[01]?\\d\\d|2[0-4]\\d|25[0-5])\\.(\\d|[01]?\\d\\d|2[0-4]\\d|25[0-5])$",
-                        "EAPI-000013", new Object[] { PARAM_NAME_DEFAULT_GATEWAY, });
+        ValidateUtil.matchRegex(defaultGateway,
+                "^(\\d|[01]?\\d\\d|2[0-4]\\d|25[0-5])\\.(\\d|[01]?\\d\\d|2[0-4]\\d|25[0-5])\\.(\\d|[01]?\\d\\d|2[0-4]\\d|25[0-5])\\.(\\d|[01]?\\d\\d|2[0-4]\\d|25[0-5])$",
+                "EAPI-000013", new Object[] { PARAM_NAME_DEFAULT_GATEWAY, });
     }
 
     public static void validateAvailabilityZone(String availabilityZoneName) {
-        ValidateUtil.lengthInRange(availabilityZoneName, 0, 100, "EAPI-000003", new Object[] {
-                PARAM_NAME_AVAILABILITY_ZONE, 100 });
+        ValidateUtil.lengthInRange(availabilityZoneName, 0, 100, "EAPI-000003",
+                new Object[] { PARAM_NAME_AVAILABILITY_ZONE, 100 });
     }
 
     public static void validateLoadBalancerName(String loadBalancerName) {
         ValidateUtil.required(loadBalancerName, "EAPI-000001", new Object[] { PARAM_NAME_LOAD_BALANCER_NAME });
-        ValidateUtil.lengthInRange(loadBalancerName, 1, 15, "EAPI-000003", new Object[] {
-                PARAM_NAME_LOAD_BALANCER_NAME, 15 });
+        ValidateUtil.lengthInRange(loadBalancerName, 1, 15, "EAPI-000003",
+                new Object[] { PARAM_NAME_LOAD_BALANCER_NAME, 15 });
         ValidateUtil.matchRegex(loadBalancerName, "^[0-9a-z]|[0-9a-z][0-9a-z-]*[0-9a-z]$", "EAPI-000004",
                 new Object[] { PARAM_NAME_LOAD_BALANCER_NAME });
         if (loadBalancerName.startsWith("lb-")) {
@@ -238,8 +232,8 @@ public class ApiValidate extends ApiConstants {
         ValidateUtil.required(loadBalancerType, "EAPI-000001", new Object[] { PARAM_NAME_LOAD_BALANCER_TYPE });
         //        ValidateUtil.machRegex(loadBalancerType, "aws|ultramonkey|cloudstack", "EAPI-000006",
         //                new Object[] {PARAM_NAME_LOAD_BALANCER_TYPE, "aws or ultramonkey or cloudstack"});
-        ValidateUtil.matchRegex(loadBalancerType, "aws|ultramonkey", "EAPI-000006", new Object[] {
-                PARAM_NAME_LOAD_BALANCER_TYPE, "aws or ultramonkey" });
+        ValidateUtil.matchRegex(loadBalancerType, "aws|ultramonkey", "EAPI-000006",
+                new Object[] { PARAM_NAME_LOAD_BALANCER_TYPE, "aws or ultramonkey" });
     }
 
     public static void validateEnabled(String enabled) {
@@ -266,8 +260,8 @@ public class ApiValidate extends ApiConstants {
 
     public static void validateContinueLimit(String continueLimit) {
         ValidateUtil.required(continueLimit, "EAPI-000001", new Object[] { PARAM_NAME_CONTINUE_LIMIT });
-        ValidateUtil.longInRange(continueLimit, 1, 1000000, "EAPI-000002", new Object[] { PARAM_NAME_CONTINUE_LIMIT, 1,
-                1000000 });
+        ValidateUtil.longInRange(continueLimit, 1, 1000000, "EAPI-000002",
+                new Object[] { PARAM_NAME_CONTINUE_LIMIT, 1, 1000000 });
     }
 
     public static void validateAddCount(String addCount) {
@@ -282,8 +276,8 @@ public class ApiValidate extends ApiConstants {
 
     public static void validateCheckProtocol(String checkProtocol) {
         ValidateUtil.required(checkProtocol, "EAPI-000001", new Object[] { PARAM_NAME_CHECK_PROTOCOL });
-        ValidateUtil.matchRegex(checkProtocol, "HTTP|TCP", "EAPI-000006", new Object[] { PARAM_NAME_PROTOCOL,
-                "HTTP or TCP" });
+        ValidateUtil.matchRegex(checkProtocol, "HTTP|TCP", "EAPI-000006",
+                new Object[] { PARAM_NAME_PROTOCOL, "HTTP or TCP" });
     }
 
     public static void validateCheckPort(String checkPort) {
@@ -311,21 +305,21 @@ public class ApiValidate extends ApiConstants {
 
     public static void validateHealthyThreshold(String healthyThreshold) {
         ValidateUtil.required(healthyThreshold, "EAPI-000001", new Object[] { PARAM_NAME_HEALTHY_THRESHOLD });
-        ValidateUtil.intInRange(healthyThreshold, 2, 10, "EAPI-000002", new Object[] { PARAM_NAME_HEALTHY_THRESHOLD, 2,
-                10 });
+        ValidateUtil.intInRange(healthyThreshold, 2, 10, "EAPI-000002",
+                new Object[] { PARAM_NAME_HEALTHY_THRESHOLD, 2, 10 });
     }
 
     public static void validateUnhealthyThreshold(String unhealthyThreshold) {
         ValidateUtil.required(unhealthyThreshold, "EAPI-000001", new Object[] { PARAM_NAME_UNHEALTHY_THRESHOLD });
-        ValidateUtil.intInRange(unhealthyThreshold, 2, 10, "EAPI-000002", new Object[] {
-                PARAM_NAME_UNHEALTHY_THRESHOLD, 2, 10 });
+        ValidateUtil.intInRange(unhealthyThreshold, 2, 10, "EAPI-000002",
+                new Object[] { PARAM_NAME_UNHEALTHY_THRESHOLD, 2, 10 });
     }
 
     public static void validateInstanceNos(String instanceNos, boolean isLongInRange) {
         ValidateUtil.required(instanceNos, "EAPI-000001", new Object[] { PARAM_NAME_INSTANCE_NOS });
         if (isLongInRange) {
-            ValidateUtil.longInRange(instanceNos, 1, Long.MAX_VALUE, "EAPI-000002", new Object[] {
-                    PARAM_NAME_INSTANCE_NOS, 1, Long.MAX_VALUE });
+            ValidateUtil.longInRange(instanceNos, 1, Long.MAX_VALUE, "EAPI-000002",
+                    new Object[] { PARAM_NAME_INSTANCE_NOS, 1, Long.MAX_VALUE });
         }
     }
 
@@ -342,11 +336,9 @@ public class ApiValidate extends ApiConstants {
 
     public static void validatePrivateIpAddress(String privateIpAddress) {
         if (StringUtils.isNotEmpty(privateIpAddress)) {
-            ValidateUtil
-                    .matchRegex(
-                            privateIpAddress,
-                            "^(\\d|[01]?\\d\\d|2[0-4]\\d|25[0-5])\\.(\\d|[01]?\\d\\d|2[0-4]\\d|25[0-5])\\.(\\d|[01]?\\d\\d|2[0-4]\\d|25[0-5])\\.(\\d|[01]?\\d\\d|2[0-4]\\d|25[0-5])$",
-                            "EAPI-000013", new Object[] { PARAM_NAME_PRIVATE_IP });
+            ValidateUtil.matchRegex(privateIpAddress,
+                    "^(\\d|[01]?\\d\\d|2[0-4]\\d|25[0-5])\\.(\\d|[01]?\\d\\d|2[0-4]\\d|25[0-5])\\.(\\d|[01]?\\d\\d|2[0-4]\\d|25[0-5])\\.(\\d|[01]?\\d\\d|2[0-4]\\d|25[0-5])$",
+                    "EAPI-000013", new Object[] { PARAM_NAME_PRIVATE_IP });
         }
     }
 
@@ -357,28 +349,28 @@ public class ApiValidate extends ApiConstants {
 
     public static void validateFromCurrent(String fromCurrent) {
         if (StringUtils.isNotEmpty(fromCurrent)) {
-            ValidateUtil.matchRegex(fromCurrent, "10m|30m|1H|1d", "EAPI-000006", new Object[] {
-                    PARAM_NAME_FROM_CURRENT, "10m or 30m or 1H or 1d" });
+            ValidateUtil.matchRegex(fromCurrent, "10m|30m|1H|1d", "EAPI-000006",
+                    new Object[] { PARAM_NAME_FROM_CURRENT, "10m or 30m or 1H or 1d" });
         }
     }
 
     public static void validateFromDate(String fromDate) {
         ValidateUtil.required(fromDate, "EAPI-000001", new Object[] { PARAM_NAME_FROM_DATE });
-        ValidateUtil
-                .isDate(fromDate, "EAPI-000005", DATE_FORMAT_YYYYMMDD_HHMMSS, new Object[] { PARAM_NAME_FROM_DATE });
+        ValidateUtil.isDate(fromDate, "EAPI-000005", DATE_FORMAT_YYYYMMDD_HHMMSS,
+                new Object[] { PARAM_NAME_FROM_DATE });
     }
 
     public static void validateToDate(String toDate) {
         if (StringUtils.isNotEmpty(toDate)) {
-            ValidateUtil
-                    .isDate(toDate, "EAPI-000005", DATE_FORMAT_YYYYMMDD_HHMMSS, new Object[] { PARAM_NAME_TO_DATE });
+            ValidateUtil.isDate(toDate, "EAPI-000005", DATE_FORMAT_YYYYMMDD_HHMMSS,
+                    new Object[] { PARAM_NAME_TO_DATE });
         }
     }
 
     public static void validateLogLevel(String logLevel) {
         if (StringUtils.isNotEmpty(logLevel)) {
-            ValidateUtil.matchRegex(logLevel, "ERROR|WARN|INFO|DEBUG", "EAPI-000006", new Object[] {
-                    PARAM_NAME_LOG_LEVEL, "ERROR or WARN or INFO or DEBUG" });
+            ValidateUtil.matchRegex(logLevel, "ERROR|WARN|INFO|DEBUG", "EAPI-000006",
+                    new Object[] { PARAM_NAME_LOG_LEVEL, "ERROR or WARN or INFO or DEBUG" });
         }
     }
 
@@ -391,8 +383,8 @@ public class ApiValidate extends ApiConstants {
 
     public static void validateOrderAscDesc(String orderAscDesc) {
         ValidateUtil.required(orderAscDesc, "EAPI-000001", new Object[] { PARAM_NAME_ORDER_ASC_DESC });
-        ValidateUtil.matchRegex(orderAscDesc, "ASC|DESC", "EAPI-000006", new Object[] { PARAM_NAME_ORDER_ASC_DESC,
-                "ASC or DESC" });
+        ValidateUtil.matchRegex(orderAscDesc, "ASC|DESC", "EAPI-000006",
+                new Object[] { PARAM_NAME_ORDER_ASC_DESC, "ASC or DESC" });
     }
 
     public static void validateAccessId(String accessId) {
@@ -404,8 +396,8 @@ public class ApiValidate extends ApiConstants {
             ValidateUtil.matchRegex(customParam1, "^[0-9a-zA-Z-,._][0-9a-zA-Z-,._ ]*[0-9a-zA-Z-,._]$", "EAPI-000019",
                     new Object[] { PARAM_NAME_CUSTOM_PARAM_1 });
         }
-        ValidateUtil
-                .lengthInRange(customParam1, 0, 200, "EAPI-000003", new Object[] { PARAM_NAME_CUSTOM_PARAM_1, 200 });
+        ValidateUtil.lengthInRange(customParam1, 0, 200, "EAPI-000003",
+                new Object[] { PARAM_NAME_CUSTOM_PARAM_1, 200 });
     }
 
     public static void validateCustomParam2(String customParam2) {
@@ -413,8 +405,8 @@ public class ApiValidate extends ApiConstants {
             ValidateUtil.matchRegex(customParam2, "^[0-9a-zA-Z-,._][0-9a-zA-Z-,._ ]*[0-9a-zA-Z-,._]$", "EAPI-000019",
                     new Object[] { PARAM_NAME_CUSTOM_PARAM_2 });
         }
-        ValidateUtil
-                .lengthInRange(customParam2, 0, 200, "EAPI-000003", new Object[] { PARAM_NAME_CUSTOM_PARAM_2, 200 });
+        ValidateUtil.lengthInRange(customParam2, 0, 200, "EAPI-000003",
+                new Object[] { PARAM_NAME_CUSTOM_PARAM_2, 200 });
     }
 
     public static void validateCustomParam3(String customParam3) {
@@ -422,14 +414,14 @@ public class ApiValidate extends ApiConstants {
             ValidateUtil.matchRegex(customParam3, "^[0-9a-zA-Z-,._][0-9a-zA-Z-,._ ]*[0-9a-zA-Z-,._]$", "EAPI-000019",
                     new Object[] { PARAM_NAME_CUSTOM_PARAM_3 });
         }
-        ValidateUtil
-                .lengthInRange(customParam3, 0, 200, "EAPI-000003", new Object[] { PARAM_NAME_CUSTOM_PARAM_3, 200 });
+        ValidateUtil.lengthInRange(customParam3, 0, 200, "EAPI-000003",
+                new Object[] { PARAM_NAME_CUSTOM_PARAM_3, 200 });
     }
 
     public static void validateSslKeyNo(String sslKeyNo) {
         ValidateUtil.required(sslKeyNo, "EAPI-000001", new Object[] { PARAM_NAME_SSL_KEY_NO });
-        ValidateUtil.longInRange(sslKeyNo, new Long(1), Long.MAX_VALUE, "EAPI-000002", new Object[] {
-                PARAM_NAME_SSL_KEY_NO, new Long(1), Long.MAX_VALUE });
+        ValidateUtil.longInRange(sslKeyNo, new Long(1), Long.MAX_VALUE, "EAPI-000002",
+                new Object[] { PARAM_NAME_SSL_KEY_NO, new Long(1), Long.MAX_VALUE });
     }
 
     public static void validateStrageType(String storageType) {
@@ -442,8 +434,8 @@ public class ApiValidate extends ApiConstants {
 
     public static void validateAddressNo(String addressNo) {
         ValidateUtil.required(addressNo, "EAPI-000001", new Object[] { PARAM_NAME_ADDRESS_NO });
-        ValidateUtil.longInRange(addressNo, 1, Long.MAX_VALUE, "EAPI-000002", new Object[] { PARAM_NAME_ADDRESS_NO, 1,
-                Long.MAX_VALUE });
+        ValidateUtil.longInRange(addressNo, 1, Long.MAX_VALUE, "EAPI-000002",
+                new Object[] { PARAM_NAME_ADDRESS_NO, 1, Long.MAX_VALUE });
     }
 
 }

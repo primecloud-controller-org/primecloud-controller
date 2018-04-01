@@ -220,7 +220,8 @@ public class WinCloudStackLoadBalancerEdit extends Window {
             commentField.addValidator(new StringLengthValidator(message, -1, 100, true));
         }
 
-        public void show(LoadBalancerDto loadBalancer, LoadBalancerPlatformDto platform, List<ComponentDto> components) {
+        public void show(LoadBalancerDto loadBalancer, LoadBalancerPlatformDto platform,
+                List<ComponentDto> components) {
             // ロードバランサー名
             loadBalancerNameField.setReadOnly(false);
             loadBalancerNameField.setValue(loadBalancer.getLoadBalancer().getLoadBalancerName());

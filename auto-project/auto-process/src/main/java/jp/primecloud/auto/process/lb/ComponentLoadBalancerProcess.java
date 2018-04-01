@@ -139,8 +139,8 @@ public class ComponentLoadBalancerProcess extends ServiceSupport {
             if (BooleanUtils.isNotTrue(loadBalancer.getEnabled())) {
                 List<ZabbixInstance> zabbixInstances = zabbixInstanceDao.readInInstanceNos(instanceNos);
                 for (ZabbixInstance zabbixInstance : zabbixInstances) {
-                    zabbixHostProcess.stopTemplate(zabbixInstance.getInstanceNo(), componentLoadBalancer
-                            .getComponentNo());
+                    zabbixHostProcess.stopTemplate(zabbixInstance.getInstanceNo(),
+                            componentLoadBalancer.getComponentNo());
                 }
             }
 
@@ -151,8 +151,8 @@ public class ComponentLoadBalancerProcess extends ServiceSupport {
             if (BooleanUtils.isTrue(loadBalancer.getEnabled())) {
                 List<ZabbixInstance> zabbixInstances = zabbixInstanceDao.readInInstanceNos(instanceNos);
                 for (ZabbixInstance zabbixInstance : zabbixInstances) {
-                    zabbixHostProcess.startTemplate(zabbixInstance.getInstanceNo(), componentLoadBalancer
-                            .getComponentNo());
+                    zabbixHostProcess.startTemplate(zabbixInstance.getInstanceNo(),
+                            componentLoadBalancer.getComponentNo());
                 }
             }
         } catch (RuntimeException e) {
@@ -263,8 +263,8 @@ public class ComponentLoadBalancerProcess extends ServiceSupport {
         List<Long> instanceNos = new ArrayList<Long>();
 
         ComponentLoadBalancer componentLoadBalancer = componentLoadBalancerDao.read(loadBalancerNo);
-        List<ComponentInstance> componentInstances = componentInstanceDao.readByComponentNo(componentLoadBalancer
-                .getComponentNo());
+        List<ComponentInstance> componentInstances = componentInstanceDao
+                .readByComponentNo(componentLoadBalancer.getComponentNo());
         for (ComponentInstance componentInstance : componentInstances) {
             instanceNos.add(componentInstance.getInstanceNo());
         }
@@ -317,16 +317,16 @@ public class ComponentLoadBalancerProcess extends ServiceSupport {
                     try {
                         if (log.isInfoEnabled()) {
                             log.info(MessageUtils.getMessage("IPROCESS-200211", loadBalancer.getLoadBalancerNo(),
-                                    instance.getInstanceNo(), loadBalancer.getLoadBalancerName(), instance
-                                            .getInstanceName()));
+                                    instance.getInstanceNo(), loadBalancer.getLoadBalancerName(),
+                                    instance.getInstanceName()));
                         }
 
                         instanceProcess.start(instance.getInstanceNo());
 
                         if (log.isInfoEnabled()) {
                             log.info(MessageUtils.getMessage("IPROCESS-200212", loadBalancer.getLoadBalancerNo(),
-                                    instance.getInstanceNo(), loadBalancer.getLoadBalancerName(), instance
-                                            .getInstanceName()));
+                                    instance.getInstanceNo(), loadBalancer.getLoadBalancerName(),
+                                    instance.getInstanceName()));
                         }
                     } catch (Exception e) {
                         log.error(e.getMessage(), e);
@@ -398,16 +398,16 @@ public class ComponentLoadBalancerProcess extends ServiceSupport {
                     try {
                         if (log.isInfoEnabled()) {
                             log.info(MessageUtils.getMessage("IPROCESS-200213", loadBalancer.getLoadBalancerNo(),
-                                    instance.getInstanceNo(), loadBalancer.getLoadBalancerName(), instance
-                                            .getInstanceName()));
+                                    instance.getInstanceNo(), loadBalancer.getLoadBalancerName(),
+                                    instance.getInstanceName()));
                         }
 
                         instanceProcess.stop(instance.getInstanceNo());
 
                         if (log.isInfoEnabled()) {
                             log.info(MessageUtils.getMessage("IPROCESS-200214", loadBalancer.getLoadBalancerNo(),
-                                    instance.getInstanceNo(), loadBalancer.getLoadBalancerName(), instance
-                                            .getInstanceName()));
+                                    instance.getInstanceNo(), loadBalancer.getLoadBalancerName(),
+                                    instance.getInstanceName()));
                         }
                     } catch (Exception e) {
                         log.error(e.getMessage(), e);

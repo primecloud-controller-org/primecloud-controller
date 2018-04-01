@@ -280,8 +280,8 @@ public class WinServiceAdd extends Window {
                 // サービス説明
                 String description = componentType.getComponentType().getLayerDisp();
 
-                addItem(new Object[] { (i + 1), slbl, description }, componentType.getComponentType()
-                        .getComponentTypeNo());
+                addItem(new Object[] { (i + 1), slbl, description },
+                        componentType.getComponentType().getComponentTypeNo());
             }
         }
 

@@ -247,8 +247,8 @@ public class ServerButtonsBottom extends CssLayout {
                 boolean enabled = false;
 
                 if (instance.getZabbixInstance() != null) {
-                    ZabbixInstanceStatus status2 = ZabbixInstanceStatus.fromStatus(instance.getZabbixInstance()
-                            .getStatus());
+                    ZabbixInstanceStatus status2 = ZabbixInstanceStatus
+                            .fromStatus(instance.getZabbixInstance().getStatus());
                     if (status2 == ZabbixInstanceStatus.UN_MONITORING) {
                         enabled = true;
                     }
@@ -266,8 +266,8 @@ public class ServerButtonsBottom extends CssLayout {
                 boolean enabled = false;
 
                 if (instance.getZabbixInstance() != null) {
-                    ZabbixInstanceStatus status2 = ZabbixInstanceStatus.fromStatus(instance.getZabbixInstance()
-                            .getStatus());
+                    ZabbixInstanceStatus status2 = ZabbixInstanceStatus
+                            .fromStatus(instance.getZabbixInstance().getStatus());
                     if (status2 == ZabbixInstanceStatus.MONITORING) {
                         enabled = true;
                     }
@@ -336,7 +336,8 @@ public class ServerButtonsBottom extends CssLayout {
 
         // 確認ダイアログを表示
         String message = ViewMessages.getMessage("IUI-000015", instance.getInstance().getInstanceName());
-        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message, Buttons.OKCancel);
+        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message,
+                Buttons.OKCancel);
         dialog.setCallback(new DialogConfirm.Callback() {
             @Override
             public void onDialogResult(Result result) {
@@ -386,8 +387,8 @@ public class ServerButtonsBottom extends CssLayout {
 
             // インスタンス起動チェック（個別起動）
             ProcessService processService = BeanContext.getBean(ProcessService.class);
-            boolean startupErrFlg = processService.checkStartup(platform.getPlatform().getPlatformType(), instance
-                    .getAzureInstance().getInstanceName(), instance.getAzureInstance().getInstanceNo());
+            boolean startupErrFlg = processService.checkStartup(platform.getPlatform().getPlatformType(),
+                    instance.getAzureInstance().getInstanceName(), instance.getAzureInstance().getInstanceNo());
             if (startupErrFlg == true) {
                 // インスタンス作成中のものがあった場合は、起動不可
                 // 同一インスタンスNoは、除外する
@@ -411,10 +412,10 @@ public class ServerButtonsBottom extends CssLayout {
 
         // 確認ダイアログを表示
         String actionName = event.getButton().getDescription();
-        String message = ViewMessages.getMessage("IUI-000013", new Object[] { instance.getInstance().getInstanceName(),
-                actionName });
-        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message,
-                Buttons.OKCancel, optionLayout);
+        String message = ViewMessages.getMessage("IUI-000013",
+                new Object[] { instance.getInstance().getInstanceName(), actionName });
+        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message, Buttons.OKCancel,
+                optionLayout);
         dialog.setCallback(new DialogConfirm.Callback() {
             @Override
             public void onDialogResult(Result result) {
@@ -447,7 +448,8 @@ public class ServerButtonsBottom extends CssLayout {
 
         // 確認ダイアログを表示
         String message = ViewMessages.getMessage("IUI-000014", instance.getInstance().getInstanceName());
-        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message, Buttons.OKCancel);
+        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message,
+                Buttons.OKCancel);
         dialog.setCallback(new DialogConfirm.Callback() {
             @Override
             public void onDialogResult(Result result) {
@@ -479,7 +481,8 @@ public class ServerButtonsBottom extends CssLayout {
 
         // 確認ダイアログを表示
         String message = ViewMessages.getMessage("IUI-000121", instance.getInstance().getInstanceName());
-        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message, Buttons.OKCancel);
+        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message,
+                Buttons.OKCancel);
         dialog.setCallback(new DialogConfirm.Callback() {
             @Override
             public void onDialogResult(Result result) {
@@ -512,7 +515,8 @@ public class ServerButtonsBottom extends CssLayout {
 
         // 確認ダイアログを表示
         String message = ViewMessages.getMessage("IUI-000122", instance.getInstance().getInstanceName());
-        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message, Buttons.OKCancel);
+        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message,
+                Buttons.OKCancel);
         dialog.setCallback(new DialogConfirm.Callback() {
             @Override
             public void onDialogResult(Result result) {

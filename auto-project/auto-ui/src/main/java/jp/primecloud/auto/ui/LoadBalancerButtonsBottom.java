@@ -248,7 +248,8 @@ public class LoadBalancerButtonsBottom extends CssLayout {
         LoadBalancerStatus status = LoadBalancerStatus.fromStatus(loadBalancer.getLoadBalancer().getStatus());
         String code = status == LoadBalancerStatus.STOPPED ? "IUI-000057" : "IUI-000059";
         String message = ViewMessages.getMessage(code, loadBalancer.getLoadBalancer().getLoadBalancerName());
-        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message, Buttons.OKCancel);
+        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message,
+                Buttons.OKCancel);
         dialog.setCallback(new DialogConfirm.Callback() {
             @Override
             public void onDialogResult(Result result) {
@@ -280,7 +281,8 @@ public class LoadBalancerButtonsBottom extends CssLayout {
 
         // 確認ダイアログを表示
         String message = ViewMessages.getMessage("IUI-000058", loadBalancer.getLoadBalancer().getLoadBalancerName());
-        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message, Buttons.OKCancel);
+        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message,
+                Buttons.OKCancel);
         dialog.setCallback(new DialogConfirm.Callback() {
             @Override
             public void onDialogResult(Result result) {
@@ -331,7 +333,8 @@ public class LoadBalancerButtonsBottom extends CssLayout {
         final LoadBalancerDto dto = (LoadBalancerDto) sender.loadBalancerPanel.loadBalancerTable.getValue();
 
         String message = ViewMessages.getMessage("IUI-000056", dto.getLoadBalancer().getLoadBalancerName());
-        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message, Buttons.OKCancel);
+        DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message,
+                Buttons.OKCancel);
         dialog.setCallback(new DialogConfirm.Callback() {
             @Override
             public void onDialogResult(Result result) {

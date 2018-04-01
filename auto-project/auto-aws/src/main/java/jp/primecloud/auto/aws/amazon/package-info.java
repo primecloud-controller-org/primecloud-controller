@@ -4,4 +4,3 @@
  * </p>
  */
 package jp.primecloud.auto.aws.amazon;
-

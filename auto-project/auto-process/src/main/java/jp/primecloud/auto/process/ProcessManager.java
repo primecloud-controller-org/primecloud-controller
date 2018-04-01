@@ -221,7 +221,8 @@ public class ProcessManager extends ServiceSupport {
         for (Instance instance : allInstances) {
             if (InstanceStatus.fromStatus(instance.getStatus()) == InstanceStatus.RUNNING) {
                 if (BooleanUtils.isTrue(instance.getEnabled())) {
-                    if (InstanceCoodinateStatus.fromStatus(instance.getCoodinateStatus()) == InstanceCoodinateStatus.UN_COODINATED) {
+                    if (InstanceCoodinateStatus
+                            .fromStatus(instance.getCoodinateStatus()) == InstanceCoodinateStatus.UN_COODINATED) {
                         if (puppetInstanceDao.countByInstanceNo(instance.getInstanceNo()) > 0) {
                             coodinated = false;
                             break;
@@ -488,7 +489,8 @@ public class ProcessManager extends ServiceSupport {
         for (Instance instance : allInstances) {
             if (InstanceStatus.fromStatus(instance.getStatus()) == InstanceStatus.RUNNING) {
                 if (BooleanUtils.isNotTrue(instance.getEnabled())) {
-                    if (InstanceCoodinateStatus.fromStatus(instance.getCoodinateStatus()) == InstanceCoodinateStatus.COODINATED) {
+                    if (InstanceCoodinateStatus
+                            .fromStatus(instance.getCoodinateStatus()) == InstanceCoodinateStatus.COODINATED) {
                         if (puppetInstanceDao.countByInstanceNo(instance.getInstanceNo()) > 0) {
                             coodinated = true;
                             break;

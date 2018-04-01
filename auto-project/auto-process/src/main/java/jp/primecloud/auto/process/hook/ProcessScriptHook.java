@@ -80,8 +80,8 @@ public class ProcessScriptHook extends ServiceSupport implements ProcessHook {
                 // フック処理のスクリプト実行に失敗
                 AutoException exception = new AutoException("EPROCESS-000701", hookName);
                 exception.addDetailInfo("commands=" + commands);
-                exception.addDetailInfo("result="
-                        + ReflectionToStringBuilder.toString(result, ToStringStyle.SHORT_PREFIX_STYLE));
+                exception.addDetailInfo(
+                        "result=" + ReflectionToStringBuilder.toString(result, ToStringStyle.SHORT_PREFIX_STYLE));
                 throw exception;
             }
         } catch (Exception e) {

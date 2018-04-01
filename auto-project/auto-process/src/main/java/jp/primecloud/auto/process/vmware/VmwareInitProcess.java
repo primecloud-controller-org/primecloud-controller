@@ -334,7 +334,8 @@ public class VmwareInitProcess extends ServiceSupport {
         }
     }
 
-    protected Map<String, String> createStaticNetworkData(VirtualEthernetCard ethernetCard, VmwareAddress vmwareAddress) {
+    protected Map<String, String> createStaticNetworkData(VirtualEthernetCard ethernetCard,
+            VmwareAddress vmwareAddress) {
         Map<String, String> map = new HashMap<String, String>();
         String macAddress = ethernetCard.getMacAddress().toUpperCase();
         map.put("BootProto", "static");

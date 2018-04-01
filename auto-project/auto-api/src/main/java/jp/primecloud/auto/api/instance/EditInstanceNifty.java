@@ -48,7 +48,8 @@ public class EditInstanceNifty extends ApiSupport {
     @Produces(MediaType.APPLICATION_JSON)
     public EditInstanceNiftyResponse editInstanceNifty(@Context UriInfo uriInfo,
             @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo, @QueryParam(PARAM_NAME_COMMENT) String comment,
-            @QueryParam(PARAM_NAME_INSTANCE_TYPE) String instanceType, @QueryParam(PARAM_NAME_KEY_NAME) String keyName) {
+            @QueryParam(PARAM_NAME_INSTANCE_TYPE) String instanceType,
+            @QueryParam(PARAM_NAME_KEY_NAME) String keyName) {
 
         // 入力チェック
         ApiValidate.validateInstanceNo(instanceNo);

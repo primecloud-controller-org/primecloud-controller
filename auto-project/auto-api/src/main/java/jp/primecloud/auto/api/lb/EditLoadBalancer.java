@@ -129,8 +129,8 @@ public class EditLoadBalancer extends ApiSupport {
                 }
                 zones.add(subnet.getAvailabilityZone());
                 subnetBuffer.append(subnetBuffer.length() > 0 ? "," + subnet.getSubnetId() : subnet.getSubnetId());
-                zoneBuffer.append(zoneBuffer.length() > 0 ? "," + subnet.getAvailabilityZone() : subnet
-                        .getAvailabilityZone());
+                zoneBuffer.append(
+                        zoneBuffer.length() > 0 ? "," + subnet.getAvailabilityZone() : subnet.getAvailabilityZone());
             }
             subnetId = subnetBuffer.toString();
             availabilityZone = zoneBuffer.toString();

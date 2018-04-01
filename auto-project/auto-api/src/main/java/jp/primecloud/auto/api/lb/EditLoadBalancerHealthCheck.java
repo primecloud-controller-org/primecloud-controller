@@ -89,8 +89,8 @@ public class EditLoadBalancerHealthCheck extends ApiSupport {
             ApiValidate.validateHealthyThreshold(healthyThreshold);
         } else if (LB_TYPE_ULTRA_MONKEY.equals(loadBalancer.getType())) {
             //UltraMonkeyの場合は編集不可(テーブルの値を変えずに更新)
-            LoadBalancerHealthCheck loadBalancerHealthCheck = loadBalancerHealthCheckDao.read(Long
-                    .parseLong(loadBalancerNo));
+            LoadBalancerHealthCheck loadBalancerHealthCheck = loadBalancerHealthCheckDao
+                    .read(Long.parseLong(loadBalancerNo));
             healthyThreshold = String.valueOf(loadBalancerHealthCheck.getHealthyThreshold());
         }
         // UnhealthyThreshold
@@ -104,9 +104,8 @@ public class EditLoadBalancerHealthCheck extends ApiSupport {
 
         //ヘルスチェック情報 更新
         loadBalancerService.configureHealthCheck(Long.parseLong(loadBalancerNo), checkProtocol,
-                Integer.parseInt(checkPort), checkPath, Integer.parseInt(checkTimeout),
-                Integer.parseInt(checkInterval), Integer.parseInt(healthyThreshold),
-                Integer.parseInt(unhealthyThreshold));
+                Integer.parseInt(checkPort), checkPath, Integer.parseInt(checkTimeout), Integer.parseInt(checkInterval),
+                Integer.parseInt(healthyThreshold), Integer.parseInt(unhealthyThreshold));
 
         EditLoadBalancerHealthCheckResponse response = new EditLoadBalancerHealthCheckResponse();
 

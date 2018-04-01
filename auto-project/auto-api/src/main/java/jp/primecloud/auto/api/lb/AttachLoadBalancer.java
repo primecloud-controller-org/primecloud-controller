@@ -50,8 +50,7 @@ public class AttachLoadBalancer extends ApiSupport {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public AttachLoadBalancerResponse attachLoadBalancer(
-            @QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo,
+    public AttachLoadBalancerResponse attachLoadBalancer(@QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo,
             @QueryParam(PARAM_NAME_INSTANCE_NO) String instanceNo) {
 
         // 入力チェック
@@ -83,8 +82,8 @@ public class AttachLoadBalancer extends ApiSupport {
         }
 
         // コンポーネントのチェック
-        List<ComponentInstance> componentInstances = componentInstanceDao.readByComponentNo(loadBalancer
-                .getComponentNo());
+        List<ComponentInstance> componentInstances = componentInstanceDao
+                .readByComponentNo(loadBalancer.getComponentNo());
         boolean isContain = false;
         for (ComponentInstance componentInstance : componentInstances) {
             if (BooleanUtils.isFalse(componentInstance.getAssociate())) {

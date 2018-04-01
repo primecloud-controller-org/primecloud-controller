@@ -335,8 +335,8 @@ public class ProcessServiceImpl extends ServiceSupport implements ProcessService
 
                 // 全てのコンポーネントが無効かどうかのチェック
                 boolean allDisabled = true;
-                List<ComponentInstance> componentInstances2 = componentInstanceDao.readByInstanceNo(instance
-                        .getInstanceNo());
+                List<ComponentInstance> componentInstances2 = componentInstanceDao
+                        .readByInstanceNo(instance.getInstanceNo());
                 for (ComponentInstance componentInstance : componentInstances2) {
                     if (BooleanUtils.isTrue(componentInstance.getEnabled())) {
                         allDisabled = false;
@@ -388,8 +388,8 @@ public class ProcessServiceImpl extends ServiceSupport implements ProcessService
 
                 // 全てのコンポーネントが無効かどうかのチェック
                 boolean allDisabled = true;
-                List<ComponentInstance> componentInstances2 = componentInstanceDao.readByInstanceNo(instance
-                        .getInstanceNo());
+                List<ComponentInstance> componentInstances2 = componentInstanceDao
+                        .readByInstanceNo(instance.getInstanceNo());
                 for (ComponentInstance componentInstance : componentInstances2) {
                     if (BooleanUtils.isTrue(componentInstance.getEnabled())) {
                         allDisabled = false;
@@ -642,8 +642,8 @@ public class ProcessServiceImpl extends ServiceSupport implements ProcessService
                 for (AzureInstance azureInstance : azureInstances) {
                     Instance instance = instanceDao.read(azureInstance.getInstanceNo());
                     if (instanceNo.equals(instance.getInstanceNo()) == false
-                            && (instance.getStatus().equals(InstanceStatus.STARTING.toString()) || instance.getStatus()
-                                    .equals(InstanceStatus.CONFIGURING.toString()))
+                            && (instance.getStatus().equals(InstanceStatus.STARTING.toString())
+                                    || instance.getStatus().equals(InstanceStatus.CONFIGURING.toString()))
                             && StringUtils.isEmpty(azureInstance.getInstanceName())) {
                         // インスタンス作成中のものがあった場合は、起動不可
                         // 同一インスタンスNoは、除外する

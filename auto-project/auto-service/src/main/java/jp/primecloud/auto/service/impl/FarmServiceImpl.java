@@ -325,8 +325,8 @@ public class FarmServiceImpl extends ServiceSupport implements FarmService {
                 continue;
             }
 
-            List<ComponentInstance> componentInstances = componentInstanceDao.readByComponentNo(component
-                    .getComponentNo());
+            List<ComponentInstance> componentInstances = componentInstanceDao
+                    .readByComponentNo(component.getComponentNo());
             for (ComponentInstance componentInstance : componentInstances) {
                 ComponentInstanceStatus status = ComponentInstanceStatus.fromStatus(componentInstance.getStatus());
                 if (status != ComponentInstanceStatus.STOPPED) {
@@ -435,8 +435,10 @@ public class FarmServiceImpl extends ServiceSupport implements FarmService {
                     platform.getPlatformNo());
             try {
                 if (BooleanUtils.isTrue(platform.getSelectable())
-                        && vcloudCertificateDao.countByUserNoAndPlatformNo(farm.getUserNo(), platform.getPlatformNo()) > 0
-                        && vcloudKeyPairDao.countByUserNoAndPlatformNo(farm.getUserNo(), platform.getPlatformNo()) > 0) {
+                        && vcloudCertificateDao.countByUserNoAndPlatformNo(farm.getUserNo(),
+                                platform.getPlatformNo()) > 0
+                        && vcloudKeyPairDao.countByUserNoAndPlatformNo(farm.getUserNo(),
+                                platform.getPlatformNo()) > 0) {
                     // myCloud(vApp)の削除
                     gateway.deleteMyCloud(farmNo);
                 }

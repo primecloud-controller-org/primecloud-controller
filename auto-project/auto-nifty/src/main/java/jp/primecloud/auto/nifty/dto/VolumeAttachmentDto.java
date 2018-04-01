@@ -5,7 +5,6 @@ import java.util.Date;
 
 import com.nifty.cloud.sdk.disk.model.VolumeAttachment;
 
-
 /**
  * <p>
  * nifty sdkのVolumeAttachmentクラスからのデータ移送用クラス
@@ -124,7 +123,7 @@ public class VolumeAttachmentDto implements Serializable {
         this.volumeId = volumeId;
     }
 
-    public VolumeAttachmentDto(VolumeAttachment volumeAttachment){
+    public VolumeAttachmentDto(VolumeAttachment volumeAttachment) {
         attachTime = volumeAttachment.getAttachTime();
         deleteOnTermination = volumeAttachment.getDeleteOnTermination();
         device = volumeAttachment.getDevice();

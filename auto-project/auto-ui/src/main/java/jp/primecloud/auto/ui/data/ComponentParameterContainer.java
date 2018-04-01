@@ -77,8 +77,8 @@ public class ComponentParameterContainer extends BeanItemContainer<ComponentPara
             }
 
             String captionDisk = ViewProperties.getCaption("param.disk");
-            parameters.add(new ComponentParameter(captionDisk, ViewProperties.getCaption("param.disk.size"), diskSize
-                    + ViewProperties.getCaption("param.disk.gb")));
+            parameters.add(new ComponentParameter(captionDisk, ViewProperties.getCaption("param.disk.size"),
+                    diskSize + ViewProperties.getCaption("param.disk.gb")));
             parameters.add(new ComponentParameter(captionDisk, ViewProperties.getCaption("param.disk.mountpoint"),
                     mountPoint));
         }
@@ -116,10 +116,10 @@ public class ComponentParameterContainer extends BeanItemContainer<ComponentPara
                     phpMyAdmin = BooleanUtils.toBoolean(config.getConfigValue());
                 }
             }
-            String usePhpMyAdmin = phpMyAdmin ? ViewProperties.getCaption("param.phpmyadmin.enable") : ViewProperties
-                    .getCaption("param.phpmyadmin.disable");
-            parameters.add(new ComponentParameter(captionMysql, ViewProperties.getCaption("param.phpmyadmin"),
-                    usePhpMyAdmin));
+            String usePhpMyAdmin = phpMyAdmin ? ViewProperties.getCaption("param.phpmyadmin.enable")
+                    : ViewProperties.getCaption("param.phpmyadmin.disable");
+            parameters.add(
+                    new ComponentParameter(captionMysql, ViewProperties.getCaption("param.phpmyadmin"), usePhpMyAdmin));
         }
 
         for (ComponentParameter parameter : parameters) {

@@ -135,8 +135,8 @@ public class ServicePanel extends Panel {
         Collection<ComponentDto> components = serviceTable.getItemIds();
         for (ComponentDto component : components) {
             for (ComponentInstanceDto componentInstance : component.getComponentInstances()) {
-                ComponentInstanceStatus componentInstanceStatus = ComponentInstanceStatus.fromStatus(componentInstance
-                        .getComponentInstance().getStatus());
+                ComponentInstanceStatus componentInstanceStatus = ComponentInstanceStatus
+                        .fromStatus(componentInstance.getComponentInstance().getStatus());
                 if (componentInstanceStatus == ComponentInstanceStatus.STARTING
                         || componentInstanceStatus == ComponentInstanceStatus.STOPPING
                         || componentInstanceStatus == ComponentInstanceStatus.CONFIGURING) {

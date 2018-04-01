@@ -151,7 +151,8 @@ public class EucaEc2Client implements AmazonEC2 {
     }
 
     @Override
-    public AttachInternetGatewayResult attachInternetGateway(AttachInternetGatewayRequest attachInternetGatewayRequest) {
+    public AttachInternetGatewayResult attachInternetGateway(
+            AttachInternetGatewayRequest attachInternetGatewayRequest) {
         throw new UnsupportedOperationException();
     }
 
@@ -255,7 +256,8 @@ public class EucaEc2Client implements AmazonEC2 {
     }
 
     @Override
-    public CreateCustomerGatewayResult createCustomerGateway(CreateCustomerGatewayRequest createCustomerGatewayRequest) {
+    public CreateCustomerGatewayResult createCustomerGateway(
+            CreateCustomerGatewayRequest createCustomerGatewayRequest) {
         throw new UnsupportedOperationException();
     }
 
@@ -281,7 +283,8 @@ public class EucaEc2Client implements AmazonEC2 {
     }
 
     @Override
-    public CreateInternetGatewayResult createInternetGateway(CreateInternetGatewayRequest createInternetGatewayRequest) {
+    public CreateInternetGatewayResult createInternetGateway(
+            CreateInternetGatewayRequest createInternetGatewayRequest) {
         throw new UnsupportedOperationException();
     }
 
@@ -312,7 +315,8 @@ public class EucaEc2Client implements AmazonEC2 {
     }
 
     @Override
-    public CreateNetworkAclEntryResult createNetworkAclEntry(CreateNetworkAclEntryRequest createNetworkAclEntryRequest) {
+    public CreateNetworkAclEntryResult createNetworkAclEntry(
+            CreateNetworkAclEntryRequest createNetworkAclEntryRequest) {
         throw new UnsupportedOperationException();
     }
 
@@ -427,7 +431,8 @@ public class EucaEc2Client implements AmazonEC2 {
     }
 
     @Override
-    public DeleteCustomerGatewayResult deleteCustomerGateway(DeleteCustomerGatewayRequest deleteCustomerGatewayRequest) {
+    public DeleteCustomerGatewayResult deleteCustomerGateway(
+            DeleteCustomerGatewayRequest deleteCustomerGatewayRequest) {
         throw new UnsupportedOperationException();
     }
 
@@ -442,7 +447,8 @@ public class EucaEc2Client implements AmazonEC2 {
     }
 
     @Override
-    public DeleteInternetGatewayResult deleteInternetGateway(DeleteInternetGatewayRequest deleteInternetGatewayRequest) {
+    public DeleteInternetGatewayResult deleteInternetGateway(
+            DeleteInternetGatewayRequest deleteInternetGatewayRequest) {
         throw new UnsupportedOperationException();
     }
 
@@ -467,7 +473,8 @@ public class EucaEc2Client implements AmazonEC2 {
     }
 
     @Override
-    public DeleteNetworkAclEntryResult deleteNetworkAclEntry(DeleteNetworkAclEntryRequest deleteNetworkAclEntryRequest) {
+    public DeleteNetworkAclEntryResult deleteNetworkAclEntry(
+            DeleteNetworkAclEntryRequest deleteNetworkAclEntryRequest) {
         throw new UnsupportedOperationException();
     }
 
@@ -820,8 +827,8 @@ public class EucaEc2Client implements AmazonEC2 {
     @Override
     public DescribeInstancesResult describeInstances(DescribeInstancesRequest describeInstancesRequest) {
         try {
-            List<ReservationDescription> descriptions = jec2.describeInstances(describeInstancesRequest
-                    .getInstanceIds());
+            List<ReservationDescription> descriptions = jec2
+                    .describeInstances(describeInstancesRequest.getInstanceIds());
             List<Reservation> reservations = new ReservationConverter().convert(descriptions);
             return new DescribeInstancesResult().withReservations(reservations);
         } catch (EC2Exception e) {
@@ -848,8 +855,8 @@ public class EucaEc2Client implements AmazonEC2 {
     @Override
     public DescribeKeyPairsResult describeKeyPairs(DescribeKeyPairsRequest describeKeyPairsRequest) {
         try {
-            List<com.xerox.amazonws.ec2.KeyPairInfo> infos = jec2.describeKeyPairs(describeKeyPairsRequest
-                    .getKeyNames());
+            List<com.xerox.amazonws.ec2.KeyPairInfo> infos = jec2
+                    .describeKeyPairs(describeKeyPairsRequest.getKeyNames());
             List<KeyPairInfo> keyPairs = new KeyPairInfoConverter().convert(infos);
             return new DescribeKeyPairsResult().withKeyPairs(keyPairs);
         } catch (EC2Exception e) {
@@ -1018,8 +1025,8 @@ public class EucaEc2Client implements AmazonEC2 {
     public DescribeSecurityGroupsResult describeSecurityGroups(
             DescribeSecurityGroupsRequest describeSecurityGroupsRequest) {
         try {
-            List<GroupDescription> descriptions = jec2.describeSecurityGroups(describeSecurityGroupsRequest
-                    .getGroupNames());
+            List<GroupDescription> descriptions = jec2
+                    .describeSecurityGroups(describeSecurityGroupsRequest.getGroupNames());
             List<SecurityGroup> securityGroups = new SecurityGroupConverter().convert(descriptions);
             return new DescribeSecurityGroupsResult().withSecurityGroups(securityGroups);
         } catch (EC2Exception e) {
@@ -1259,7 +1266,8 @@ public class EucaEc2Client implements AmazonEC2 {
     }
 
     @Override
-    public DetachInternetGatewayResult detachInternetGateway(DetachInternetGatewayRequest detachInternetGatewayRequest) {
+    public DetachInternetGatewayResult detachInternetGateway(
+            DetachInternetGatewayRequest detachInternetGatewayRequest) {
         throw new UnsupportedOperationException();
     }
 
@@ -1301,7 +1309,8 @@ public class EucaEc2Client implements AmazonEC2 {
     }
 
     @Override
-    public DisableVpcClassicLinkResult disableVpcClassicLink(DisableVpcClassicLinkRequest disableVpcClassicLinkRequest) {
+    public DisableVpcClassicLinkResult disableVpcClassicLink(
+            DisableVpcClassicLinkRequest disableVpcClassicLinkRequest) {
         throw new UnsupportedOperationException();
     }
 
@@ -1469,12 +1478,14 @@ public class EucaEc2Client implements AmazonEC2 {
     }
 
     @Override
-    public ModifySubnetAttributeResult modifySubnetAttribute(ModifySubnetAttributeRequest modifySubnetAttributeRequest) {
+    public ModifySubnetAttributeResult modifySubnetAttribute(
+            ModifySubnetAttributeRequest modifySubnetAttributeRequest) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public ModifyVolumeAttributeResult modifyVolumeAttribute(ModifyVolumeAttributeRequest modifyVolumeAttributeRequest) {
+    public ModifyVolumeAttributeResult modifyVolumeAttribute(
+            ModifyVolumeAttributeRequest modifyVolumeAttributeRequest) {
         throw new UnsupportedOperationException();
     }
 
@@ -1676,7 +1687,8 @@ public class EucaEc2Client implements AmazonEC2 {
     }
 
     @Override
-    public RunScheduledInstancesResult runScheduledInstances(RunScheduledInstancesRequest runScheduledInstancesRequest) {
+    public RunScheduledInstancesResult runScheduledInstances(
+            RunScheduledInstancesRequest runScheduledInstancesRequest) {
         throw new UnsupportedOperationException();
     }
 
@@ -1693,8 +1705,8 @@ public class EucaEc2Client implements AmazonEC2 {
     @Override
     public TerminateInstancesResult terminateInstances(TerminateInstancesRequest terminateInstancesRequest) {
         try {
-            List<TerminatingInstanceDescription> descriptions = jec2.terminateInstances(terminateInstancesRequest
-                    .getInstanceIds());
+            List<TerminatingInstanceDescription> descriptions = jec2
+                    .terminateInstances(terminateInstancesRequest.getInstanceIds());
             List<InstanceStateChange> terminatingInstances = new InstanceStateChangeTerminateConverter()
                     .convert(descriptions);
             return new TerminateInstancesResult().withTerminatingInstances(terminatingInstances);

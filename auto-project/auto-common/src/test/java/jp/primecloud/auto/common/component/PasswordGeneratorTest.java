@@ -20,7 +20,6 @@ package jp.primecloud.auto.common.component;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import jp.primecloud.auto.common.component.PasswordGenerator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

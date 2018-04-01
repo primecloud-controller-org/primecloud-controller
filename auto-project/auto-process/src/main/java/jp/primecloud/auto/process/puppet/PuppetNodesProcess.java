@@ -29,10 +29,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
-
 import jp.primecloud.auto.common.component.FreeMarkerGenerator;
 import jp.primecloud.auto.common.component.PasswordEncryptor;
 import jp.primecloud.auto.common.constant.PCCConstant;
@@ -54,6 +50,10 @@ import jp.primecloud.auto.process.ProcessLogger;
 import jp.primecloud.auto.puppet.PuppetClient;
 import jp.primecloud.auto.service.ServiceSupport;
 import jp.primecloud.auto.util.MessageUtils;
+
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * <p>
@@ -308,36 +308,38 @@ public class PuppetNodesProcess extends ServiceSupport {
         Image image = imageDao.read(instance.getImageNo());
         // Puppetクライアントの設定更新処理を実行
         try {
-            processLogger.debug(null, instance, "PuppetManifestApply", new String[] { instance.getFqdn(),
-                    "base_coordinate" });
+            processLogger.debug(null, instance, "PuppetManifestApply",
+                    new String[] { instance.getFqdn(), "base_coordinate" });
 
             puppetClient.runClient(instance.getFqdn());
             if (StringUtils.startsWithIgnoreCase(image.getOs(), PCCConstant.OS_NAME_WIN)) {
                 // TODO 協調設定が反映されない不具合対応
                 // 1回の「puppet run」だと協調設定が空振りする事があるので、同じマニフェストの内容で2回実行する。
                 // Linux系OSに関しては、puppetの「postrun_command」で対応可能なので実行は1回のみ
-                log.debug(MessageUtils.format("run the puppet process(base_coordinate) twice for windows instance. (fqdn={0})", instance.getFqdn()));
+                log.debug(MessageUtils.format(
+                        "run the puppet process(base_coordinate) twice for windows instance. (fqdn={0})",
+                        instance.getFqdn()));
                 puppetClient.runClient(instance.getFqdn());
             }
 
         } catch (RuntimeException e) {
-            processLogger.debug(null, instance, "PuppetManifestApplyFail", new String[] { instance.getFqdn(),
-                    "base_coordinate" });
+            processLogger.debug(null, instance, "PuppetManifestApplyFail",
+                    new String[] { instance.getFqdn(), "base_coordinate" });
 
             // マニフェスト適用に失敗した場合、警告ログ出力した後にリトライする
             String code = (e instanceof AutoException) ? AutoException.class.cast(e).getCode() : null;
             if ("EPUPPET-000003".equals(code) || "EPUPPET-000007".equals(code)) {
                 log.warn(e.getMessage());
 
-                processLogger.debug(null, instance, "PuppetManifestApply", new String[] { instance.getFqdn(),
-                        "base_coordinate" });
+                processLogger.debug(null, instance, "PuppetManifestApply",
+                        new String[] { instance.getFqdn(), "base_coordinate" });
 
                 try {
                     puppetClient.runClient(instance.getFqdn());
 
                 } catch (RuntimeException e2) {
-                    processLogger.debug(null, instance, "PuppetManifestApplyFail", new String[] { instance.getFqdn(),
-                            "base_coordinate" });
+                    processLogger.debug(null, instance, "PuppetManifestApplyFail",
+                            new String[] { instance.getFqdn(), "base_coordinate" });
 
                     throw e2;
                 }
@@ -346,8 +348,8 @@ public class PuppetNodesProcess extends ServiceSupport {
             }
         }
 
-        processLogger.debug(null, instance, "PuppetManifestApplyFinish", new String[] { instance.getFqdn(),
-                "base_coordinate" });
+        processLogger.debug(null, instance, "PuppetManifestApplyFinish",
+                new String[] { instance.getFqdn(), "base_coordinate" });
     }
 
     @SuppressWarnings("unchecked")

@@ -127,8 +127,8 @@ public class CreateInstance extends ApiSupport {
                 || PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())
                 || PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
             // AWS or Eucalyptus or Cloudstack or VCloud or Openstack or Azure
-            instanceNo = instanceService.createIaasInstance(Long.parseLong(farmNo), instanceName,
-                    image.getPlatformNo(), comment, image.getImageNo(), instanceType);
+            instanceNo = instanceService.createIaasInstance(Long.parseLong(farmNo), instanceName, image.getPlatformNo(),
+                    comment, image.getImageNo(), instanceType);
         } else if (PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
             // VMware
             instanceNo = instanceService.createVmwareInstance(Long.parseLong(farmNo), instanceName,

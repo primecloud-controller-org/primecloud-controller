@@ -42,14 +42,12 @@ import org.apache.commons.codec.binary.Base64;
 
 public class PasswordEncryptor {
 
-    private static final String ALGORITHM = "AES" ;
+    private static final String ALGORITHM = "AES";
 
     private static final String CIPHER_PARAM = ALGORITHM + "/CBC/PKCS5Padding";
 
-    private static final byte[] IV ={ 0x00, 0x01, 0x02, 0x03,
-                                      0x04, 0x05, 0x06, 0x07,
-                                      0x08, 0x09, 0x0a, 0x0b,
-                                      0x0c, 0x0d, 0x0e, 0x0f };
+    private static final byte[] IV = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c,
+            0x0d, 0x0e, 0x0f };
 
     private IvParameterSpec ivParameterSpec;
 
@@ -102,7 +100,7 @@ public class PasswordEncryptor {
      * @param keyString
      * @return
      */
-    public String encrypt(String orignalString, String keyString){
+    public String encrypt(String orignalString, String keyString) {
         byte[] originalBytes = orignalString.getBytes();
         byte[] keyBytes = keyString.getBytes();
 
@@ -134,7 +132,7 @@ public class PasswordEncryptor {
      * @param keyString
      * @return
      */
-    public String decrypt(String encryptedString, String keyString){
+    public String decrypt(String encryptedString, String keyString) {
         byte[] encryptedBytes = Base64.decodeBase64(encryptedString.getBytes());
         byte[] keyBytes = keyString.getBytes();
 
@@ -166,7 +164,7 @@ public class PasswordEncryptor {
      *
      * @return 共通鍵文字列
      */
-    public String keyGenerate(){
+    public String keyGenerate() {
         char[] key = new char[16];
         for (int i = 0; i < 16; i++) {
             int n = secureRandom.nextInt(characterSet.length);

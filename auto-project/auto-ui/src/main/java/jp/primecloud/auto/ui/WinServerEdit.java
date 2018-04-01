@@ -797,7 +797,8 @@ public class WinServerEdit extends Window {
                 int maxRootSize = NumberUtils.toInt(Config.getProperty("aws.maxRootSize"), 1024);
                 message = ViewMessages.getMessage("IUI-000135", image.getImageAws().getRootSize(), maxRootSize);
                 rootSizeField.setRequired(false);
-                rootSizeField.addValidator(new IntegerRangeValidator(image.getImageAws().getRootSize(), maxRootSize, message));
+                rootSizeField.addValidator(
+                        new IntegerRangeValidator(image.getImageAws().getRootSize(), maxRootSize, message));
             }
 
             if (elasticIpSelect != null) {
@@ -857,7 +858,8 @@ public class WinServerEdit extends Window {
 
             // ルートディスクサイズ
             rootSizeField.setValue(ObjectUtils.toString(instance.getAwsInstance().getRootSize(), ""));
-            if (BooleanUtils.isNotTrue(image.getImageAws().getEbsImage()) || image.getImageAws().getRootSize() == null) {
+            if (BooleanUtils.isNotTrue(image.getImageAws().getEbsImage())
+                    || image.getImageAws().getRootSize() == null) {
                 rootSizeField.setEnabled(false);
             }
 
@@ -955,8 +957,8 @@ public class WinServerEdit extends Window {
 
             // ElasticIP情報を再取得して表示する
             AwsDescribeService awsDescribeService = BeanContext.getBean(AwsDescribeService.class);
-            elasticIps = awsDescribeService.getAddresses(ViewContext.getUserNo(), instance.getInstance()
-                    .getPlatformNo());
+            elasticIps = awsDescribeService.getAddresses(ViewContext.getUserNo(),
+                    instance.getInstance().getPlatformNo());
             showElasticIp();
             elasticIpSelect.select(awsAddress.getAddressNo());
 
@@ -995,14 +997,14 @@ public class WinServerEdit extends Window {
                     AwsProcessClientFactory awsProcessClientFactory = BeanContext
                             .getBean(AwsProcessClientFactory.class);
                     AwsAddressProcess awsAddressProcess = BeanContext.getBean(AwsAddressProcess.class);
-                    AwsProcessClient awsProcessClient = awsProcessClientFactory.createAwsProcessClient(
-                            address.getUserNo(), address.getPlatformNo());
+                    AwsProcessClient awsProcessClient = awsProcessClientFactory
+                            .createAwsProcessClient(address.getUserNo(), address.getPlatformNo());
                     awsAddressProcess.deleteAddress(awsProcessClient, address.getAddressNo());
 
                     // ElasticIP情報を再取得して表示する
                     AwsDescribeService awsDescribeService = BeanContext.getBean(AwsDescribeService.class);
-                    elasticIps = awsDescribeService.getAddresses(ViewContext.getUserNo(), instance.getInstance()
-                            .getPlatformNo());
+                    elasticIps = awsDescribeService.getAddresses(ViewContext.getUserNo(),
+                            instance.getInstance().getPlatformNo());
                     showElasticIp();
 
                     // 動的なIPを選択状態にする
@@ -1112,8 +1114,8 @@ public class WinServerEdit extends Window {
                 int maxRootSize = NumberUtils.toInt(Config.getProperty("vmware.maxRootSize"), 1024);
                 message = ViewMessages.getMessage("IUI-000135", image.getImageVmware().getRootSize(), maxRootSize);
                 rootSizeField.setRequired(false);
-                rootSizeField.addValidator(new IntegerRangeValidator(image.getImageVmware().getRootSize(), maxRootSize,
-                        message));
+                rootSizeField.addValidator(
+                        new IntegerRangeValidator(image.getImageVmware().getRootSize(), maxRootSize, message));
             }
         }
 
@@ -1343,8 +1345,8 @@ public class WinServerEdit extends Window {
             NiftyDescribeService niftyDescribeService = BeanContext.getBean(NiftyDescribeService.class);
 
             // キーペア情報を取得
-            List<NiftyKeyPair> niftyKeyPairs = niftyDescribeService.getKeyPairs(ViewContext.getUserNo(), platform
-                    .getPlatform().getPlatformNo());
+            List<NiftyKeyPair> niftyKeyPairs = niftyDescribeService.getKeyPairs(ViewContext.getUserNo(),
+                    platform.getPlatform().getPlatformNo());
             this.niftyKeyPairs = niftyKeyPairs;
         }
 
@@ -1536,8 +1538,8 @@ public class WinServerEdit extends Window {
             // 情報を取得
             // TODO: ロジックを必ずリファクタリングすること
             IaasDescribeService describeService = BeanContext.getBean(IaasDescribeService.class);
-            List<KeyPairDto> infos = describeService.getKeyPairs(ViewContext.getUserNo(), platform.getPlatform()
-                    .getPlatformNo());
+            List<KeyPairDto> infos = describeService.getKeyPairs(ViewContext.getUserNo(),
+                    platform.getPlatform().getPlatformNo());
             List<String> keyPairs = new ArrayList<String>();
             for (KeyPairDto info : infos) {
                 keyPairs.add(info.getKeyName());
@@ -1552,8 +1554,8 @@ public class WinServerEdit extends Window {
 
             List<String> securityGroups = new ArrayList<String>();
             if (StringUtils.isEmpty(instance.getCloudstackInstance().getNetworkid())) {
-                List<SecurityGroupDto> groups = describeService.getSecurityGroups(ViewContext.getUserNo(), platform
-                        .getPlatform().getPlatformNo(), null);
+                List<SecurityGroupDto> groups = describeService.getSecurityGroups(ViewContext.getUserNo(),
+                        platform.getPlatform().getPlatformNo(), null);
                 for (SecurityGroupDto group : groups) {
                     securityGroups.add(group.getGroupName());
                 }
@@ -1566,13 +1568,13 @@ public class WinServerEdit extends Window {
             }
             this.instanceTypes = instanceTypes;
 
-            List<ZoneDto> zones = describeService.getAvailabilityZones(ViewContext.getUserNo(), platform.getPlatform()
-                    .getPlatformNo());
+            List<ZoneDto> zones = describeService.getAvailabilityZones(ViewContext.getUserNo(),
+                    platform.getPlatform().getPlatformNo());
             this.zones = zones;
 
             List<AddressDto> elasticIps = new ArrayList<AddressDto>();
-            List<AddressDto> addresses = describeService.getAddresses(ViewContext.getUserNo(), platform.getPlatform()
-                    .getPlatformNo());
+            List<AddressDto> addresses = describeService.getAddresses(ViewContext.getUserNo(),
+                    platform.getPlatform().getPlatformNo());
             for (AddressDto address : addresses) {
                 elasticIps.add(address);
             }
@@ -1670,8 +1672,8 @@ public class WinServerEdit extends Window {
         private void addButtonClick() {
             // ElasticIPを取得する
             IaasDescribeService describeService = BeanContext.getBean(IaasDescribeService.class);
-            Long addressNo = describeService.createAddress(ViewContext.getUserNo(), instance.getInstance()
-                    .getPlatformNo());
+            Long addressNo = describeService.createAddress(ViewContext.getUserNo(),
+                    instance.getInstance().getPlatformNo());
 
             //ElasticIPをリセット
             resetElasticIps();
@@ -1737,8 +1739,8 @@ public class WinServerEdit extends Window {
         private void resetElasticIps() {
             // Addressの情報を取り直す
             IaasDescribeService describeService = BeanContext.getBean(IaasDescribeService.class);
-            List<AddressDto> addresses = describeService.getAddresses(ViewContext.getUserNo(), instance.getInstance()
-                    .getPlatformNo());
+            List<AddressDto> addresses = describeService.getAddresses(ViewContext.getUserNo(),
+                    instance.getInstance().getPlatformNo());
 
             elasticIps = addresses;
             elasticIpSelect.setContainerDataSource(createElasticIpContainer());
@@ -1846,13 +1848,13 @@ public class WinServerEdit extends Window {
             // VCloud情報を取得
             IaasDescribeService describeService = BeanContext.getBean(IaasDescribeService.class);
             //StorageType
-            List<StorageTypeDto> storageTypes = describeService.getStorageTypes(ViewContext.getUserNo(), platform
-                    .getPlatform().getPlatformNo());
+            List<StorageTypeDto> storageTypes = describeService.getStorageTypes(ViewContext.getUserNo(),
+                    platform.getPlatform().getPlatformNo());
             this.storageTypes = storageTypes;
 
             //KeyPair
-            List<KeyPairDto> vcloudKeyPairs = describeService.getKeyPairs(ViewContext.getUserNo(), platform
-                    .getPlatform().getPlatformNo());
+            List<KeyPairDto> vcloudKeyPairs = describeService.getKeyPairs(ViewContext.getUserNo(),
+                    platform.getPlatform().getPlatformNo());
             this.vcloudKeyPairs = vcloudKeyPairs;
 
             //InstanceType
@@ -2195,8 +2197,8 @@ public class WinServerEdit extends Window {
             IaasDescribeService describeService = BeanContext.getBean(IaasDescribeService.class);
 
             //Network
-            List<NetworkDto> networkDtos = describeService.getNetworks(ViewContext.getUserNo(), platform.getPlatform()
-                    .getPlatformNo());
+            List<NetworkDto> networkDtos = describeService.getNetworks(ViewContext.getUserNo(),
+                    platform.getPlatform().getPlatformNo());
             Map<String, NetworkDto> networkMap = new HashMap<String, NetworkDto>();
             for (NetworkDto networkDto : networkDtos) {
                 networkMap.put(networkDto.getNetworkName(), networkDto);
@@ -2304,8 +2306,8 @@ public class WinServerEdit extends Window {
 
                 //Network
                 networkMap = new HashMap<String, NetworkDto>();
-                List<NetworkDto> networkDtos = describeService.getNetworks(ViewContext.getUserNo(), instanceDto
-                        .getInstance().getPlatformNo());
+                List<NetworkDto> networkDtos = describeService.getNetworks(ViewContext.getUserNo(),
+                        instanceDto.getInstance().getPlatformNo());
                 for (NetworkDto networkDto : networkDtos) {
                     networkMap.put(networkDto.getNetworkName(), networkDto);
                 }
@@ -2397,8 +2399,9 @@ public class WinServerEdit extends Window {
             }
 
             private void addButtonClick(ClickEvent event) {
-                WinServerNetworkConfig winServerDataDiskConfig = new WinServerNetworkConfig(getApplication(), instance
-                        .getInstance().getInstanceNo(), instance.getInstance().getPlatformNo(), null, instanceNetworks);
+                WinServerNetworkConfig winServerDataDiskConfig = new WinServerNetworkConfig(getApplication(),
+                        instance.getInstance().getInstanceNo(), instance.getInstance().getPlatformNo(), null,
+                        instanceNetworks);
                 winServerDataDiskConfig.addListener(new Window.CloseListener() {
                     @Override
                     public void windowClose(CloseEvent e) {
@@ -2412,8 +2415,8 @@ public class WinServerEdit extends Window {
 
             private void editButtonClick(ClickEvent event) {
                 InstanceNetworkDto instanceNetwork = (InstanceNetworkDto) networkTable.getValue();
-                WinServerNetworkConfig winServerDataDiskConfig = new WinServerNetworkConfig(getApplication(), instance
-                        .getInstance().getInstanceNo(), instance.getInstance().getPlatformNo(), instanceNetwork,
+                WinServerNetworkConfig winServerDataDiskConfig = new WinServerNetworkConfig(getApplication(),
+                        instance.getInstance().getInstanceNo(), instance.getInstance().getPlatformNo(), instanceNetwork,
                         instanceNetworks);
                 winServerDataDiskConfig.addListener(new Window.CloseListener() {
                     @Override
@@ -2587,8 +2590,8 @@ public class WinServerEdit extends Window {
             this.availabilitySets = availabilitySets;
 
             //サブネット
-            List<SubnetDto> subnets = describeService.getAzureSubnets(ViewContext.getUserNo(), platform.getPlatform()
-                    .getPlatformNo(), platform.getPlatformAzure().getNetworkName());
+            List<SubnetDto> subnets = describeService.getAzureSubnets(ViewContext.getUserNo(),
+                    platform.getPlatform().getPlatformNo(), platform.getPlatformAzure().getNetworkName());
             this.subnets = subnets;
         }
 
@@ -2751,8 +2754,8 @@ public class WinServerEdit extends Window {
             this.instanceTypes = instanceTypes;
 
             // Availablility Zone
-            List<ZoneDto> zones = describeService.getAvailabilityZones(ViewContext.getUserNo(), platform.getPlatform()
-                    .getPlatformNo());
+            List<ZoneDto> zones = describeService.getAvailabilityZones(ViewContext.getUserNo(),
+                    platform.getPlatform().getPlatformNo());
             this.zones = zones;
 
             //セキュリティグループ
@@ -2766,8 +2769,8 @@ public class WinServerEdit extends Window {
             this.securityGroups = securityGroups;
 
             //キーペア
-            List<KeyPairDto> infos = describeService.getKeyPairs(ViewContext.getUserNo(), platform.getPlatform()
-                    .getPlatformNo());
+            List<KeyPairDto> infos = describeService.getKeyPairs(ViewContext.getUserNo(),
+                    platform.getPlatform().getPlatformNo());
             List<String> keyPairs = new ArrayList<String>();
             for (KeyPairDto info : infos) {
                 keyPairs.add(info.getKeyName());
@@ -3096,8 +3099,8 @@ public class WinServerEdit extends Window {
 
         // CloudStackサーバを更新
         InstanceService instanceService = BeanContext.getBean(InstanceService.class);
-        instanceService.updateCloudstackInstance(instanceNo, instance.getInstance().getInstanceName(), comment,
-                keyName, serverSize, groupName, zoneId, address.getAddressNo());
+        instanceService.updateCloudstackInstance(instanceNo, instance.getInstance().getInstanceName(), comment, keyName,
+                serverSize, groupName, zoneId, address.getAddressNo());
 
         // サーバにサービスを関連付ける
         if (basicTab.componentNos != null && basicTab.attachService) {

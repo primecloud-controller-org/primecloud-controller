@@ -192,8 +192,8 @@ public class AwsVolumeProcess extends ServiceSupport {
             component = componentDao.read(awsVolume.getComponentNo());
         }
         Instance instance = instanceDao.read(instanceNo);
-        processLogger.debug(component, instance, "AwsEbsCreate", new Object[] { awsProcessClient.getPlatform()
-                .getPlatformName() });
+        processLogger.debug(component, instance, "AwsEbsCreate",
+                new Object[] { awsProcessClient.getPlatform().getPlatformName() });
 
         // データベース更新
         awsVolume.setVolumeId(volume.getVolumeId());
@@ -322,8 +322,8 @@ public class AwsVolumeProcess extends ServiceSupport {
             component = componentDao.read(awsVolume.getComponentNo());
         }
         Instance instance = instanceDao.read(instanceNo);
-        processLogger.debug(component, instance, "AwsEbsAttachFinish", new Object[] { instance.getInstanceName(),
-                awsVolume.getVolumeId(), awsVolume.getDevice() });
+        processLogger.debug(component, instance, "AwsEbsAttachFinish",
+                new Object[] { instance.getInstanceName(), awsVolume.getVolumeId(), awsVolume.getDevice() });
 
         // データベースの更新
         awsVolume = awsVolumeDao.read(volumeNo);
@@ -401,8 +401,8 @@ public class AwsVolumeProcess extends ServiceSupport {
             component = componentDao.read(awsVolume.getComponentNo());
         }
         Instance instance = instanceDao.read(instanceNo);
-        processLogger.debug(component, instance, "AwsEbsDetachFinish", new Object[] { instance.getInstanceName(),
-                awsVolume.getVolumeId(), awsVolume.getDevice() });
+        processLogger.debug(component, instance, "AwsEbsDetachFinish",
+                new Object[] { instance.getInstanceName(), awsVolume.getVolumeId(), awsVolume.getDevice() });
 
         // データベースの更新
         awsVolume = awsVolumeDao.read(volumeNo);
@@ -424,8 +424,8 @@ public class AwsVolumeProcess extends ServiceSupport {
         if (instanceNo != null) {
             instance = instanceDao.read(instanceNo);
         }
-        processLogger.debug(component, instance, "AwsEbsDelete", new Object[] {
-                awsProcessClient.getPlatform().getPlatformName(), awsVolume.getVolumeId() });
+        processLogger.debug(component, instance, "AwsEbsDelete",
+                new Object[] { awsProcessClient.getPlatform().getPlatformName(), awsVolume.getVolumeId() });
 
         // ボリュームの削除
         DeleteVolumeRequest request = new DeleteVolumeRequest();
@@ -466,8 +466,8 @@ public class AwsVolumeProcess extends ServiceSupport {
         if (instanceNo != null) {
             instance = instanceDao.read(instanceNo);
         }
-        processLogger.debug(component, instance, "AwsEbsDeleteFinish", new Object[] {
-                awsProcessClient.getPlatform().getPlatformName(), awsVolume.getVolumeId() });
+        processLogger.debug(component, instance, "AwsEbsDeleteFinish",
+                new Object[] { awsProcessClient.getPlatform().getPlatformName(), awsVolume.getVolumeId() });
 
         // ログ出力
         if (log.isInfoEnabled()) {

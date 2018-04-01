@@ -25,7 +25,6 @@ import jp.primecloud.auto.zabbix.model.hostgroup.Hostgroup;
 import jp.primecloud.auto.zabbix.model.hostinterface.Hostinterface;
 import jp.primecloud.auto.zabbix.model.template.Template;
 
-
 /**
  * <p>
  * HostのUpdateメソッド用パラメータクラスです。

@@ -360,10 +360,10 @@ public class WinLogView extends Window {
         //
         logTable.setContainerDataSource(getInitialContainer());
 
-        logTable.setColumnHeaders(new String[] { ViewProperties.getCaption("field.datetime"),
-                ViewProperties.getCaption("field.loglevel"), ViewProperties.getCaption("field.couldname"),
-                ViewProperties.getCaption("field.servicename"), ViewProperties.getCaption("field.servername"),
-                ViewProperties.getCaption("field.logmessage") });
+        logTable.setColumnHeaders(
+                new String[] { ViewProperties.getCaption("field.datetime"), ViewProperties.getCaption("field.loglevel"),
+                        ViewProperties.getCaption("field.couldname"), ViewProperties.getCaption("field.servicename"),
+                        ViewProperties.getCaption("field.servername"), ViewProperties.getCaption("field.logmessage") });
 
         layout.addComponent(logTable);
         layout.setExpandRatio(logTable, 1);

@@ -152,17 +152,17 @@ public class PuppetComponentProcess extends ServiceSupport {
         User user = userDao.read(farm.getUserNo());
         List<Component> components = componentDao.readByFarmNo(context.getFarmNo());
         Map<Long, Component> componentMap = new HashMap<Long, Component>();
-        for (Component component: components) {
+        for (Component component : components) {
             componentMap.put(component.getComponentNo(), component);
         }
         List<Instance> instances = instanceDao.readInInstanceNos(context.getRunningInstanceNos());
         Map<Long, Instance> instanceMap = new HashMap<Long, Instance>();
-        for (Instance instance: instances) {
+        for (Instance instance : instances) {
             instanceMap.put(instance.getInstanceNo(), instance);
         }
         List<ComponentType> componentTypes = componentTypeDao.readAll();
         Map<Long, ComponentType> componentTypeMap = new HashMap<Long, ComponentType>();
-        for (ComponentType componentType: componentTypes) {
+        for (ComponentType componentType : componentTypes) {
             componentTypeMap.put(componentType.getComponentTypeNo(), componentType);
         }
 
@@ -179,7 +179,8 @@ public class PuppetComponentProcess extends ServiceSupport {
         // 自サービスと同じWEBサーバリストのマップ
         Map<Long, List<Instance>> webInstancesMap = new HashMap<Long, List<Instance>>();
         // myCloud内のすべてのコンポーネント
-        List<ComponentInstance> allComponentInstances = componentInstanceDao.readInInstanceNos(context.getRunningInstanceNos());
+        List<ComponentInstance> allComponentInstances = componentInstanceDao
+                .readInInstanceNos(context.getRunningInstanceNos());
         for (ComponentInstance componentInstance : allComponentInstances) {
             // 無効な関連は除外
             if (BooleanUtils.isNotTrue(componentInstance.getEnabled())
@@ -261,7 +262,7 @@ public class PuppetComponentProcess extends ServiceSupport {
             List<Instance> apInstances = new ArrayList<Instance>();
             // 自サービスと同じWEBサーバリスト
             List<Instance> webInstances = new ArrayList<Instance>();
-            for (Component component: associatedComponents) {
+            for (Component component : associatedComponents) {
                 ComponentType componentType = componentTypeMap.get(component.getComponentTypeNo());
                 if (ComponentConstants.LAYER_NAME_DB.equals(componentType.getLayer())) {
                     dbInstances = dbInstancesMap.get(component.getComponentNo());
@@ -482,8 +483,8 @@ public class PuppetComponentProcess extends ServiceSupport {
 
         if (log.isInfoEnabled()) {
             String code = start ? "IPROCESS-100221" : "IPROCESS-100223";
-            log.info(MessageUtils.getMessage(code, componentNo, instanceNo, component.getComponentName(), instance
-                    .getInstanceName()));
+            log.info(MessageUtils.getMessage(code, componentNo, instanceNo, component.getComponentName(),
+                    instance.getInstanceName()));
         }
 
         // マニフェストファイルのリストア
@@ -508,7 +509,8 @@ public class PuppetComponentProcess extends ServiceSupport {
                 }
 
                 // ステータス更新
-                if (status != ComponentInstanceStatus.WARNING || BooleanUtils.isTrue(componentInstance.getConfigure())) {
+                if (status != ComponentInstanceStatus.WARNING
+                        || BooleanUtils.isTrue(componentInstance.getConfigure())) {
                     componentInstance.setStatus(ComponentInstanceStatus.WARNING.toString());
                     componentInstance.setConfigure(false);
                     componentInstanceDao.update(componentInstance);
@@ -566,8 +568,8 @@ public class PuppetComponentProcess extends ServiceSupport {
 
         if (log.isInfoEnabled()) {
             String code = start ? "IPROCESS-100222" : "IPROCESS-100224";
-            log.info(MessageUtils.getMessage(code, componentNo, instanceNo, component.getComponentName(), instance
-                    .getInstanceName()));
+            log.info(MessageUtils.getMessage(code, componentNo, instanceNo, component.getComponentName(),
+                    instance.getInstanceName()));
         }
     }
 
@@ -661,20 +663,23 @@ public class PuppetComponentProcess extends ServiceSupport {
             puppetClient.runClient(instance.getFqdn());
 
         } catch (RuntimeException e) {
-            processLogger.debug(component, instance, "PuppetManifestApplyFail", new String[] { instance.getFqdn(), type });
+            processLogger.debug(component, instance, "PuppetManifestApplyFail",
+                    new String[] { instance.getFqdn(), type });
 
             // マニフェスト適用に失敗した場合、警告ログ出力した後にリトライする
             String code = (e instanceof AutoException) ? AutoException.class.cast(e).getCode() : null;
             if ("EPUPPET-000003".equals(code) || "EPUPPET-000007".equals(code)) {
                 log.warn(e.getMessage());
 
-                processLogger.debug(component, instance, "PuppetManifestApply", new String[] { instance.getFqdn(), type });
+                processLogger.debug(component, instance, "PuppetManifestApply",
+                        new String[] { instance.getFqdn(), type });
 
                 try {
                     puppetClient.runClient(instance.getFqdn());
 
                 } catch (RuntimeException e2) {
-                    processLogger.debug(component, instance, "PuppetManifestApplyFail", new String[] { instance.getFqdn(), type });
+                    processLogger.debug(component, instance, "PuppetManifestApplyFail",
+                            new String[] { instance.getFqdn(), type });
 
                     throw e2;
                 }
@@ -683,7 +688,8 @@ public class PuppetComponentProcess extends ServiceSupport {
             }
         }
 
-        processLogger.debug(component, instance, "PuppetManifestApplyFinish", new String[] { instance.getFqdn(), type });
+        processLogger.debug(component, instance, "PuppetManifestApplyFinish",
+                new String[] { instance.getFqdn(), type });
     }
 
     protected Map<String, Object> createComponentMap(Long componentNo, ComponentProcessContext context, boolean start) {
@@ -791,7 +797,8 @@ public class PuppetComponentProcess extends ServiceSupport {
             map.put("cloudstackInstance", cloudstackInstance);
 
             // CloudStackVolume
-            CloudstackVolume cloudstackVolume = cloudstackVolumeDao.readByComponentNoAndInstanceNo(componentNo, instanceNo);
+            CloudstackVolume cloudstackVolume = cloudstackVolumeDao.readByComponentNoAndInstanceNo(componentNo,
+                    instanceNo);
             if (cloudstackVolume != null) {
                 map.put("cloudstackVolume", cloudstackVolume);
             }
@@ -822,7 +829,7 @@ public class PuppetComponentProcess extends ServiceSupport {
             // VcloudDisk
             VcloudDisk vcloudDisk = null;
             List<VcloudDisk> vcloudDisks = vcloudDiskDao.readByComponentNo(componentNo);
-            for (VcloudDisk tmpVcloudDisk: vcloudDisks) {
+            for (VcloudDisk tmpVcloudDisk : vcloudDisks) {
                 if (tmpVcloudDisk.getInstanceNo().equals(instanceNo)) {
                     vcloudDisk = tmpVcloudDisk;
                     break;
@@ -846,8 +853,9 @@ public class PuppetComponentProcess extends ServiceSupport {
             OpenstackInstance openstackInstance = openstackInstanceDao.read(instanceNo);
             map.put("openstackInstance", openstackInstance);
             // OpenstackVolume
-            OpenstackVolume openstackVolume = openstackVolumeDao.readByComponentNoAndInstanceNo(componentNo, instanceNo);
-            if(openstackVolume != null) {
+            OpenstackVolume openstackVolume = openstackVolumeDao.readByComponentNoAndInstanceNo(componentNo,
+                    instanceNo);
+            if (openstackVolume != null) {
                 map.put("openstackVolume", openstackVolume);
             }
         }
@@ -1011,7 +1019,7 @@ public class PuppetComponentProcess extends ServiceSupport {
         // TODO CLOUD BRANCHING
         if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
             startAwsVolume(componentNo, instanceNo);
-        }else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
+        } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
             startCloudStackVolume(componentNo, instanceNo);
         } else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
             startVmwareDisk(componentNo, instanceNo);
@@ -1076,8 +1084,8 @@ public class PuppetComponentProcess extends ServiceSupport {
 
         // AwsProcessClientの作成
         Farm farm = farmDao.read(awsVolume.getFarmNo());
-        AwsProcessClient awsProcessClient = awsProcessClientFactory.createAwsProcessClient(farm.getUserNo(), awsVolume
-                .getPlatformNo());
+        AwsProcessClient awsProcessClient = awsProcessClientFactory.createAwsProcessClient(farm.getUserNo(),
+                awsVolume.getPlatformNo());
 
         // ボリュームの開始処理
         awsVolumeProcess.startVolume(awsProcessClient, instanceNo, awsVolume.getVolumeNo());
@@ -1119,7 +1127,7 @@ public class PuppetComponentProcess extends ServiceSupport {
             cloudstackVolume.setSize(diskSize);
             cloudstackVolume.setZoneid(cloudstackInstance.getZoneid());
             cloudstackVolumeDao.create(cloudstackVolume);
-        }else if (cloudstackVolume.getInstanceId() != null && !"".equals(cloudstackVolume.getInstanceId())){
+        } else if (cloudstackVolume.getInstanceId() != null && !"".equals(cloudstackVolume.getInstanceId())) {
             //すでにアタッチ済みの場合は処理を行わない
             //AWS等はGWでチェックし何もせずリターンするがPuppetの処理の都合上ここでリターンする
             return;
@@ -1127,32 +1135,29 @@ public class PuppetComponentProcess extends ServiceSupport {
 
         // IaasGatewayWrapperの作成
         Farm farm = farmDao.read(cloudstackVolume.getFarmNo());
-        IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), cloudstackVolume.getPlatformNo());
+        IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(),
+                cloudstackVolume.getPlatformNo());
 
-//        //再起動を掛ける為、Puppet終了設定処理
-//        try {
-//            // 終了設定処理
-//            if (puppetInstanceDao.countByInstanceNo(instanceNo) > 0) {
-//                puppetNodeProcess.stopNode(instanceNo);
-//            }
-//        } catch (RuntimeException e) {
-//            log.warn(e.getMessage());
-//        }
-
+        //        //再起動を掛ける為、Puppet終了設定処理
+        //        try {
+        //            // 終了設定処理
+        //            if (puppetInstanceDao.countByInstanceNo(instanceNo) > 0) {
+        //                puppetNodeProcess.stopNode(instanceNo);
+        //            }
+        //        } catch (RuntimeException e) {
+        //            log.warn(e.getMessage());
+        //        }
 
         // ボリュームの開始処理
         gateway.startVolume(instanceNo, cloudstackVolume.getVolumeNo());
 
-
-//        // Puppet初期設定処理
-//        if (puppetInstanceDao.countByInstanceNo(instanceNo) > 0) {
-//            log.info("Puppet 終了設定処理");
-//            puppetNodeProcess.startNode(instanceNo);
-//        }
-
+        //        // Puppet初期設定処理
+        //        if (puppetInstanceDao.countByInstanceNo(instanceNo) > 0) {
+        //            log.info("Puppet 終了設定処理");
+        //            puppetNodeProcess.startNode(instanceNo);
+        //        }
 
     }
-
 
     protected void startVmwareDisk(Long componentNo, Long instanceNo) {
         // SCSI IDの取得
@@ -1200,7 +1205,8 @@ public class PuppetComponentProcess extends ServiceSupport {
         }
 
         // VmwareProcessClientの作成
-        VmwareProcessClient vmwareProcessClient = vmwareProcessClientFactory.createVmwareProcessClient(vmwareDisk.getPlatformNo());
+        VmwareProcessClient vmwareProcessClient = vmwareProcessClientFactory
+                .createVmwareProcessClient(vmwareDisk.getPlatformNo());
 
         try {
             // ディスクの開始処理
@@ -1215,7 +1221,7 @@ public class PuppetComponentProcess extends ServiceSupport {
         // ディスク情報の取得
         VcloudDisk vcloudDisk = null;
         List<VcloudDisk> vcloudDisks = vcloudDiskDao.readByComponentNo(componentNo);
-        for (VcloudDisk tmpVcloudDisk: vcloudDisks) {
+        for (VcloudDisk tmpVcloudDisk : vcloudDisks) {
             if (tmpVcloudDisk.getInstanceNo().equals(instanceNo)) {
                 vcloudDisk = tmpVcloudDisk;
                 break;
@@ -1306,7 +1312,7 @@ public class PuppetComponentProcess extends ServiceSupport {
             //azureDisk.setLun(lun);
             azureDisk.setSize(diskSize);
             azureDiskDao.create(azureDisk);
-        }else if (azureDisk.getInstanceName() != null && !"".equals(azureDisk.getInstanceName())){
+        } else if (azureDisk.getInstanceName() != null && !"".equals(azureDisk.getInstanceName())) {
             //すでにアタッチ済みの場合は処理を行わない
             //AWS等はGWでチェックし何もせずリターンするがPuppetの処理の都合上ここでリターンする
             return;
@@ -1374,7 +1380,8 @@ public class PuppetComponentProcess extends ServiceSupport {
 
         // AwsProcessClientの作成
         Farm farm = farmDao.read(openstackVolume.getFarmNo());
-        IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), openstackVolume.getPlatformNo());
+        IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(),
+                openstackVolume.getPlatformNo());
 
         // ボリュームの開始処理
         gateway.startVolume(instanceNo, openstackVolume.getVolumeNo());
@@ -1475,8 +1482,8 @@ public class PuppetComponentProcess extends ServiceSupport {
 
         // AwsProcessClientの作成
         Farm farm = farmDao.read(awsVolume.getFarmNo());
-        AwsProcessClient awsProcessClient = awsProcessClientFactory.createAwsProcessClient(farm.getUserNo(), awsVolume
-                .getPlatformNo());
+        AwsProcessClient awsProcessClient = awsProcessClientFactory.createAwsProcessClient(farm.getUserNo(),
+                awsVolume.getPlatformNo());
 
         // ボリュームの終了処理
         awsVolumeProcess.stopVolume(awsProcessClient, instanceNo, awsVolume.getVolumeNo());
@@ -1491,7 +1498,8 @@ public class PuppetComponentProcess extends ServiceSupport {
 
         // IaasGatewayWrapperの作成
         Farm farm = farmDao.read(cloudstackVolume.getFarmNo());
-        IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), cloudstackVolume.getPlatformNo());
+        IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(),
+                cloudstackVolume.getPlatformNo());
 
         // ボリュームの終了処理
         gateway.stopVolume(instanceNo, cloudstackVolume.getVolumeNo());
@@ -1505,7 +1513,8 @@ public class PuppetComponentProcess extends ServiceSupport {
         }
 
         // VmwareProcessClientの作成
-        VmwareProcessClient vmwareProcessClient = vmwareProcessClientFactory.createVmwareProcessClient(vmwareDisk.getPlatformNo());
+        VmwareProcessClient vmwareProcessClient = vmwareProcessClientFactory
+                .createVmwareProcessClient(vmwareDisk.getPlatformNo());
 
         try {
             // ディスクの終了処理
@@ -1519,7 +1528,7 @@ public class PuppetComponentProcess extends ServiceSupport {
     protected void stopVcloudDisk(Long componentNo, Long instanceNo) {
         VcloudDisk vcloudDisk = null;
         List<VcloudDisk> vcloudDisks = vcloudDiskDao.readByComponentNo(componentNo);
-        for (VcloudDisk tmpVcloudDisk: vcloudDisks) {
+        for (VcloudDisk tmpVcloudDisk : vcloudDisks) {
             if (tmpVcloudDisk.getInstanceNo().equals(instanceNo)) {
                 vcloudDisk = tmpVcloudDisk;
                 break;
@@ -1563,7 +1572,8 @@ public class PuppetComponentProcess extends ServiceSupport {
 
         // AwsProcessClientの作成
         Farm farm = farmDao.read(openstackVolume.getFarmNo());
-        IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(), openstackVolume.getPlatformNo());
+        IaasGatewayWrapper gateway = iaasGatewayFactory.createIaasGateway(farm.getUserNo(),
+                openstackVolume.getPlatformNo());
 
         // ボリュームの終了処理
         gateway.stopVolume(instanceNo, openstackVolume.getVolumeNo());

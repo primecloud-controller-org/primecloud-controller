@@ -19,7 +19,6 @@
 package jp.primecloud.auto.common.interceptor;
 
 import static org.junit.Assert.assertEquals;
-import jp.primecloud.auto.common.interceptor.TraceInterceptor;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

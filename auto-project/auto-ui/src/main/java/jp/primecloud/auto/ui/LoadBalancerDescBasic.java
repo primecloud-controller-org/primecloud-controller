@@ -434,8 +434,8 @@ public class LoadBalancerDescBasic extends Panel {
                         }
 
                         AwsDescribeService awsDescribeService = BeanContext.getBean(AwsDescribeService.class);
-                        List<Subnet> subnets = awsDescribeService.getSubnets(ViewContext.getUserNo(), loadBalancer
-                                .getLoadBalancer().getPlatformNo());
+                        List<Subnet> subnets = awsDescribeService.getSubnets(ViewContext.getUserNo(),
+                                loadBalancer.getLoadBalancer().getPlatformNo());
 
                         for (Subnet subnet : subnets) {
                             if (subnetIds.contains(subnet.getSubnetId())) {
@@ -831,8 +831,8 @@ public class LoadBalancerDescBasic extends Panel {
         }
 
         private void addButtonClick(Button.ClickEvent event) {
-            WinLoadBalancerConfigListener win = new WinLoadBalancerConfigListener(loadBalancer.getLoadBalancer()
-                    .getLoadBalancerNo(), null);
+            WinLoadBalancerConfigListener win = new WinLoadBalancerConfigListener(
+                    loadBalancer.getLoadBalancer().getLoadBalancerNo(), null);
             win.addListener(new Window.CloseListener() {
                 @Override
                 public void windowClose(Window.CloseEvent e) {
@@ -981,8 +981,8 @@ public class LoadBalancerDescBasic extends Panel {
 
         private void enable(List<LoadBalancerListener> listeners) {
             // オペレーションログ
-            OperationLogger.writeLoadBalancer("LOAD_BALANCER", "Enable LB_Listener", loadBalancer.getLoadBalancer()
-                    .getLoadBalancerNo(), String.valueOf(listeners.size()));
+            OperationLogger.writeLoadBalancer("LOAD_BALANCER", "Enable LB_Listener",
+                    loadBalancer.getLoadBalancer().getLoadBalancerNo(), String.valueOf(listeners.size()));
 
             // リスナーの有効化
             List<Integer> loadBalancerPorts = new ArrayList<Integer>();
@@ -991,8 +991,8 @@ public class LoadBalancerDescBasic extends Panel {
             }
 
             ProcessService processService = BeanContext.getBean(ProcessService.class);
-            processService.startLoadBalancerListeners(loadBalancer.getLoadBalancer().getFarmNo(), loadBalancer
-                    .getLoadBalancer().getLoadBalancerNo(), loadBalancerPorts);
+            processService.startLoadBalancerListeners(loadBalancer.getLoadBalancer().getFarmNo(),
+                    loadBalancer.getLoadBalancer().getLoadBalancerNo(), loadBalancerPorts);
 
             // 表示の更新
             refreshTable();
@@ -1071,8 +1071,8 @@ public class LoadBalancerDescBasic extends Panel {
 
         private void disable(List<LoadBalancerListener> listeners) {
             // オペレーションログ
-            OperationLogger.writeLoadBalancer("LOAD_BALANCER", "Disable LB_Listener", loadBalancer.getLoadBalancer()
-                    .getLoadBalancerNo(), String.valueOf(listeners.size()));
+            OperationLogger.writeLoadBalancer("LOAD_BALANCER", "Disable LB_Listener",
+                    loadBalancer.getLoadBalancer().getLoadBalancerNo(), String.valueOf(listeners.size()));
 
             // リスナーの無効化
             List<Integer> loadBalancerPorts = new ArrayList<Integer>();
@@ -1081,8 +1081,8 @@ public class LoadBalancerDescBasic extends Panel {
             }
 
             ProcessService processService = BeanContext.getBean(ProcessService.class);
-            processService.stopLoadBalancerListeners(loadBalancer.getLoadBalancer().getFarmNo(), loadBalancer
-                    .getLoadBalancer().getLoadBalancerNo(), loadBalancerPorts);
+            processService.stopLoadBalancerListeners(loadBalancer.getLoadBalancer().getFarmNo(),
+                    loadBalancer.getLoadBalancer().getLoadBalancerNo(), loadBalancerPorts);
 
             // 表示の更新
             refreshTable();

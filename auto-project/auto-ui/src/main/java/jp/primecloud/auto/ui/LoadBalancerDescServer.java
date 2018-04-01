@@ -449,8 +449,9 @@ public class LoadBalancerDescServer extends Panel {
                     InstanceDto instance = (InstanceDto) itemId;
 
                     Icons icon = IconUtils.getPlatformIcon(instance.getPlatform());
-                    Label label = new Label(IconUtils.createImageTag(getApplication(), icon, instance.getInstance()
-                            .getInstanceName()), Label.CONTENT_XHTML);
+                    Label label = new Label(
+                            IconUtils.createImageTag(getApplication(), icon, instance.getInstance().getInstanceName()),
+                            Label.CONTENT_XHTML);
                     label.setHeight(COLUMN_HEIGHT);
                     return label;
                 }
@@ -475,11 +476,13 @@ public class LoadBalancerDescServer extends Panel {
                         lbInstanceStatus = LoadBalancerInstanceStatus.fromStatus(lbInstance.getStatus());
                     }
 
-                    LoadBalancerStatus lbStatus = LoadBalancerStatus.fromStatus(loadBalancer.getLoadBalancer()
-                            .getStatus());
+                    LoadBalancerStatus lbStatus = LoadBalancerStatus
+                            .fromStatus(loadBalancer.getLoadBalancer().getStatus());
                     InstanceStatus instanceStatus = InstanceStatus.fromStatus(instance.getInstance().getStatus());
-                    boolean lbRunning = (lbStatus == LoadBalancerStatus.RUNNING || lbStatus == LoadBalancerStatus.CONFIGURING);
-                    boolean instanceRunning = (instanceStatus == InstanceStatus.RUNNING || instanceStatus == InstanceStatus.CONFIGURING);
+                    boolean lbRunning = (lbStatus == LoadBalancerStatus.RUNNING
+                            || lbStatus == LoadBalancerStatus.CONFIGURING);
+                    boolean instanceRunning = (instanceStatus == InstanceStatus.RUNNING
+                            || instanceStatus == InstanceStatus.CONFIGURING);
 
                     String status;
                     boolean notice = false;
@@ -532,11 +535,13 @@ public class LoadBalancerDescServer extends Panel {
                     Label label;
                     if (notice) {
                         icon = Icons.fromName(status + "_WITH_ATTENTION");
-                        label = new Label(IconUtils.createImageTag(getApplication(), icon, status), Label.CONTENT_XHTML);
+                        label = new Label(IconUtils.createImageTag(getApplication(), icon, status),
+                                Label.CONTENT_XHTML);
                         label.setDescription(noticeMessage);
                     } else {
                         icon = Icons.fromName(status);
-                        label = new Label(IconUtils.createImageTag(getApplication(), icon, status), Label.CONTENT_XHTML);
+                        label = new Label(IconUtils.createImageTag(getApplication(), icon, status),
+                                Label.CONTENT_XHTML);
                     }
                     label.setHeight(COLUMN_HEIGHT);
                     return label;

@@ -239,16 +239,17 @@ public class ServiceDescBasic extends Panel {
                 public Component generateCell(Table source, Object itemId, Object columnId) {
                     InstanceDto instance = (InstanceDto) itemId;
 
-                    ComponentInstanceDto componentInstance = findComponentInstance(instance.getInstance()
-                            .getInstanceNo());
+                    ComponentInstanceDto componentInstance = findComponentInstance(
+                            instance.getInstance().getInstanceNo());
                     String url = (componentInstance == null) ? "" : componentInstance.getUrl();
-                    String status = (componentInstance == null) ? "" : componentInstance.getComponentInstance()
-                            .getStatus();
+                    String status = (componentInstance == null) ? ""
+                            : componentInstance.getComponentInstance().getStatus();
 
                     Icons icon = Icons.fromName(component.getComponentType().getComponentTypeName());
 
                     // MySQLならMasterとSlaveでアイコンを変える
-                    if (MySQLConstants.COMPONENT_TYPE_NAME.equals(component.getComponentType().getComponentTypeName())) {
+                    if (MySQLConstants.COMPONENT_TYPE_NAME
+                            .equals(component.getComponentType().getComponentTypeName())) {
                         Long masterInstanceNo = null;
                         for (InstanceConfig config : instance.getInstanceConfigs()) {
                             if (MySQLConstants.CONFIG_NAME_MASTER_INSTANCE_NO.equals(config.getConfigName())) {
@@ -289,10 +290,10 @@ public class ServiceDescBasic extends Panel {
                 public Component generateCell(Table source, Object itemId, Object columnId) {
                     InstanceDto instance = (InstanceDto) itemId;
 
-                    ComponentInstanceDto componentInstance = findComponentInstance(instance.getInstance()
-                            .getInstanceNo());
-                    String status = (componentInstance == null) ? "" : componentInstance.getComponentInstance()
-                            .getStatus();
+                    ComponentInstanceDto componentInstance = findComponentInstance(
+                            instance.getInstance().getInstanceNo());
+                    String status = (componentInstance == null) ? ""
+                            : componentInstance.getComponentInstance().getStatus();
 
                     Icons icon = Icons.fromName(status);
                     status = status.substring(0, 1).toUpperCase() + status.substring(1).toLowerCase();
@@ -311,7 +312,8 @@ public class ServiceDescBasic extends Panel {
 
                     Icons icon = IconUtils.getPlatformIcon(instance.getPlatform());
                     String name = instance.getPlatform().getPlatform().getPlatformSimplenameDisp();
-                    Label label = new Label(IconUtils.createImageTag(getApplication(), icon, name), Label.CONTENT_XHTML);
+                    Label label = new Label(IconUtils.createImageTag(getApplication(), icon, name),
+                            Label.CONTENT_XHTML);
                     label.setHeight(COLUMN_HEIGHT);
 
                     return label;
@@ -692,8 +694,8 @@ public class ServiceDescBasic extends Panel {
                 if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatform().getPlatformType())) {
                     // インスタンス起動チェック（同時起動）
                     Map<String, Boolean> flgMap = new HashMap<String, Boolean>();
-                    flgMap = processService.checkStartupAll(platform.getPlatform().getPlatformType(), instance
-                            .getAzureInstance().getInstanceName(), skipServer);
+                    flgMap = processService.checkStartupAll(platform.getPlatform().getPlatformType(),
+                            instance.getAzureInstance().getInstanceName(), skipServer);
                     skipServer = flgMap.get("skipServer");
                     boolean startupAllErrFlg = flgMap.get("startupAllErrFlg");
                     if (startupAllErrFlg) {
@@ -713,8 +715,8 @@ public class ServiceDescBasic extends Panel {
             }
 
             // 確認ダイアログを表示
-            String message = ViewMessages.getMessage("IUI-000051", new Object[] { selectedInstances.size(),
-                    component.getComponent().getComponentName() });
+            String message = ViewMessages.getMessage("IUI-000051",
+                    new Object[] { selectedInstances.size(), component.getComponent().getComponentName() });
             DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message,
                     Buttons.OKCancel);
             dialog.setCallback(new DialogConfirm.Callback() {
@@ -810,8 +812,8 @@ public class ServiceDescBasic extends Panel {
             optionLayout.addComponent(checkBox);
 
             // 確認ダイアログの表示
-            String message = ViewMessages.getMessage("IUI-000052", new Object[] { selectedInstances.size(),
-                    component.getComponent().getComponentName() });
+            String message = ViewMessages.getMessage("IUI-000052",
+                    new Object[] { selectedInstances.size(), component.getComponent().getComponentName() });
             DialogConfirm dialog = new DialogConfirm(ViewProperties.getCaption("dialog.confirm"), message,
                     Buttons.OKCancel, optionLayout);
             dialog.setCallback(new DialogConfirm.Callback() {

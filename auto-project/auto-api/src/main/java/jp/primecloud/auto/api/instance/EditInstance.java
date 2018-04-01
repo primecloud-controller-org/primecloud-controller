@@ -270,8 +270,8 @@ public class EditInstance extends ApiSupport {
         ApiValidate.validateComment(comment);
 
         //更新処理
-        instanceService.updateCloudstackInstance(instance.getInstanceNo(), instance.getInstanceName(), comment,
-                keyName, instanceType, cloudstackInstance.getSecuritygroup(), cloudstackInstance.getZoneid(), null);
+        instanceService.updateCloudstackInstance(instance.getInstanceNo(), instance.getInstanceName(), comment, keyName,
+                instanceType, cloudstackInstance.getSecuritygroup(), cloudstackInstance.getZoneid(), null);
     }
 
     private void editVcloudInstance(Long userNo, Instance instance, String instanceType, String storageType,
@@ -405,8 +405,8 @@ public class EditInstance extends ApiSupport {
         ApiValidate.validateComment(comment);
 
         //更新処理
-        instanceService.updateAzureInstance(instance.getInstanceNo(), instance.getInstanceName(), comment,
-                instanceType, availabilitySet, subnetId);
+        instanceService.updateAzureInstance(instance.getInstanceNo(), instance.getInstanceName(), comment, instanceType,
+                availabilitySet, subnetId);
     }
 
     private Long checkStorageType(Long userNo, Long platformNo, String storageTypeName) {

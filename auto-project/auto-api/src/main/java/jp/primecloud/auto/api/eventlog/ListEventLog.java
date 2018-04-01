@@ -97,7 +97,8 @@ public class ListEventLog extends ApiSupport {
         }
 
         //farmNo
-        if (StringUtils.isNotEmpty(farmNo) || StringUtils.isNotEmpty(componentNo) || StringUtils.isNotEmpty(instanceNo)) {
+        if (StringUtils.isNotEmpty(farmNo) || StringUtils.isNotEmpty(componentNo)
+                || StringUtils.isNotEmpty(instanceNo)) {
             ApiValidate.validateFarmNo(farmNo);
         }
         //logLevel

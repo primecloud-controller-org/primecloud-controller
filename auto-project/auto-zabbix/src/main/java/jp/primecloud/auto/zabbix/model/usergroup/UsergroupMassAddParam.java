@@ -23,7 +23,6 @@ import java.util.List;
 
 import jp.primecloud.auto.zabbix.model.right.Right;
 
-
 /**
  * <p>
  * UsergroupのMassAddメソッド用パラメータクラスです。

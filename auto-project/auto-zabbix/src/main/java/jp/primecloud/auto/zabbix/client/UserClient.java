@@ -30,6 +30,7 @@ import jp.primecloud.auto.zabbix.model.user.UserCreateParam;
 import jp.primecloud.auto.zabbix.model.user.UserGetParam;
 import jp.primecloud.auto.zabbix.model.user.UserUpdateParam;
 import jp.primecloud.auto.zabbix.model.usergroup.Usergroup;
+
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;

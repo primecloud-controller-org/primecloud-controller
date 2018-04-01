@@ -42,7 +42,8 @@ public class DeleteLoadBalancer extends ApiSupport {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public DeleteLoadBalancerResponse deleteLoadBalancer(@QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo) {
+    public DeleteLoadBalancerResponse deleteLoadBalancer(
+            @QueryParam(PARAM_NAME_LOAD_BALANCER_NO) String loadBalancerNo) {
 
         // 入力チェック
         // LoadBalancerNo

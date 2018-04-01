@@ -49,8 +49,8 @@ public class ExtendedApplicationServlet extends ApplicationServlet {
      * {@inheritDoc}
      */
     @Override
-    protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException,
-            IOException {
+    protected void service(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         // セッションをコンテキストとして設定
         HttpSession session = request.getSession(true);
         ContextUtils.setSession(session);

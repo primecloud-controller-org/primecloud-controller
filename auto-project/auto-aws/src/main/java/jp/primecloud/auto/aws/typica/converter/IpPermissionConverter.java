@@ -26,8 +26,8 @@ import com.amazonaws.services.ec2.model.IpPermission;
  * </p>
  *
  */
-public class IpPermissionConverter extends
-        AbstractConverter<com.xerox.amazonws.ec2.GroupDescription.IpPermission, IpPermission> {
+public class IpPermissionConverter
+        extends AbstractConverter<com.xerox.amazonws.ec2.GroupDescription.IpPermission, IpPermission> {
 
     @Override
     protected IpPermission convertObject(com.xerox.amazonws.ec2.GroupDescription.IpPermission from) {

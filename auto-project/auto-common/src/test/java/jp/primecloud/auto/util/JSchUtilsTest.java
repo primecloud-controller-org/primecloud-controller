@@ -23,7 +23,6 @@ import static org.junit.Assert.assertEquals;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 
-import jp.primecloud.auto.util.JSchUtils;
 import jp.primecloud.auto.util.JSchUtils.JSchResult;
 
 import org.apache.commons.io.FileUtils;
