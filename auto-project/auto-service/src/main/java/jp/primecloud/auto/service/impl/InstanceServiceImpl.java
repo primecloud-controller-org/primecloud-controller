@@ -1224,54 +1224,19 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
      * {@inheritDoc}
      */
     @Override
-    public Long createIaasInstance(Long farmNo, String instanceName, Long platformNo, String comment, Long imageNo,
+    public Long createAwsInstance(Long farmNo, String instanceName, Long platformNo, String comment, Long imageNo,
             String instanceType) {
         // インスタンスの作成
         Long instanceNo = createInstance(farmNo, instanceName, platformNo, comment, imageNo);
 
         // プラットフォームのチェック
         Platform platform = platformDao.read(platformNo);
-        if (!PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())
-                && !PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())
-                && !PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())
-                && !PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())
-                && !PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
+        if (!PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
             throw new AutoApplicationException("ESERVICE-000404", instanceName);
         }
 
-        //ファームの取得
-        Farm farm = farmDao.read(farmNo);
-        // TODO CLOUD BRANCHING
-        if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
-            PlatformAws platformAws = platformAwsDao.read(platformNo);
-            ImageAws imageAws = imageAwsDao.read(imageNo);
-            makeAwsData(farm, instanceNo, instanceType, platformAws, imageAws);
-        } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
-            PlatformCloudstack platformCloudstack = platformCloudstackDao.read(platformNo);
-            makeCloudStackData(farm, instanceNo, instanceType, platformCloudstack);
-        } else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
-            PlatformVcloud platformVcloud = platformVcloudDao.read(platformNo);
-            makeVcloudData(farm, instanceNo, instanceName, instanceType, platformVcloud);
-        } else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
-            PlatformAzure platformAzure = platformAzureDao.read(platformNo);
-            makeAzureData(farm, instanceNo, instanceType, platformAzure);
-        } else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
-            PlatformOpenstack platformOpenstack = platformOpenstackDao.read(platformNo);
-            makeOpenstackData(farm, instanceNo, instanceType, platformOpenstack);
-        }
-
-        // イベントログ出力
-        eventLogger.log(EventLogLevel.INFO, farmNo, farm.getFarmName(), null, null, instanceNo, instanceName,
-                "InstanceCreate", instanceType, platformNo, new Object[] { platform.getPlatformName() });
-
-        // フック処理の実行
-        processHook.execute("post-create-instance", farm.getUserNo(), farm.getFarmNo(), instanceNo);
-
-        return instanceNo;
-    }
-
-    private void makeAwsData(Farm farm, Long instanceNo, String instanceType, PlatformAws platformAws,
-            ImageAws imageAws) {
+        PlatformAws platformAws = platformAwsDao.read(platformNo);
+        ImageAws imageAws = imageAwsDao.read(imageNo);
 
         // 引数チェック
         String[] instanceTypes = imageAws.getInstanceTypes().split(",");
@@ -1285,9 +1250,11 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         awsInstance.setInstanceType(instanceType);
 
         //KeyName
-        AwsCertificate awsCertificate = awsCertificateDao.read(farm.getUserNo(), platformAws.getPlatformNo());
+        Farm farm = farmDao.read(farmNo);
+        AwsCertificate awsCertificate = awsCertificateDao.read(farm.getUserNo(), platformNo);
+
         //キーペアの取得
-        List<KeyPairInfo> keyPairs = awsDescribeService.getKeyPairs(farm.getUserNo(), platformAws.getPlatformNo());
+        List<KeyPairInfo> keyPairs = awsDescribeService.getKeyPairs(farm.getUserNo(), platformNo);
         String keyName = null;
         // AWS認証情報に設定されているデフォルトキーペアを設定
         for (KeyPairInfo keyPair : keyPairs) {
@@ -1305,7 +1272,7 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         if (platformAws.getEuca() == false && platformAws.getVpc()) {
             // VPCの場合
             // SubnetId & AvailabilityZone
-            List<Subnet> subnets = awsDescribeService.getSubnets(farm.getUserNo(), platformAws.getPlatformNo());
+            List<Subnet> subnets = awsDescribeService.getSubnets(farm.getUserNo(), platformNo);
             Subnet subnet = null;
             for (Subnet subnet2 : subnets) {
                 //デフォルトサブネットを設定
@@ -1331,7 +1298,7 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
             if (StringUtils.isEmpty(zoneName) && platformAws.getEuca()) {
                 // デフォルトのゾーン名が指定されておらず、Eucalyptusの場合のみAPIでゾーン名を取得する
                 List<AvailabilityZone> availabilityZones = awsDescribeService.getAvailabilityZones(farm.getUserNo(),
-                        platformAws.getPlatformNo());
+                        platformNo);
 
                 zoneName = availabilityZones.get(0).getZoneName();
             }
@@ -1340,8 +1307,7 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
 
         // SecurityGroup
         String groupName = null;
-        List<SecurityGroup> securityGroups = awsDescribeService.getSecurityGroups(farm.getUserNo(),
-                platformAws.getPlatformNo());
+        List<SecurityGroup> securityGroups = awsDescribeService.getSecurityGroups(farm.getUserNo(), platformNo);
         groupName = setSecurityGroupAws(securityGroups, "aws.defaultSecurityGroup");
         awsInstance.setSecurityGroups(groupName);
 
@@ -1351,6 +1317,15 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         }
 
         awsInstanceDao.create(awsInstance);
+
+        // イベントログ出力
+        eventLogger.log(EventLogLevel.INFO, farmNo, farm.getFarmName(), null, null, instanceNo, instanceName,
+                "InstanceCreate", instanceType, platformNo, new Object[] { platform.getPlatformName() });
+
+        // フック処理の実行
+        processHook.execute("post-create-instance", farm.getUserNo(), farm.getFarmNo(), instanceNo);
+
+        return instanceNo;
     }
 
     /**
@@ -1449,8 +1424,22 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         return groupName;
     }
 
-    private void makeCloudStackData(Farm farm, Long instanceNo, String instanceType,
-            PlatformCloudstack platformCloudstack) {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Long createCloudStackInstance(Long farmNo, String instanceName, Long platformNo, String comment,
+            Long imageNo, String instanceType) {
+        // インスタンスの作成
+        Long instanceNo = createInstance(farmNo, instanceName, platformNo, comment, imageNo);
+
+        // プラットフォームのチェック
+        Platform platform = platformDao.read(platformNo);
+        if (!PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
+            throw new AutoApplicationException("ESERVICE-000434", instanceName);
+        }
+
+        PlatformCloudstack platformCloudstack = platformCloudstackDao.read(platformNo);
 
         // AWSインスタンスの作成
         CloudstackInstance cloudstackInstance = new CloudstackInstance();
@@ -1459,11 +1448,11 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
 
         //KeyName
         //Cloudstack認証情報の取得
-        CloudstackCertificate cloudstackCertificate = cloudstackCertificateDao.read(farm.getUserNo(),
-                platformCloudstack.getPlatformNo());
+        Farm farm = farmDao.read(farmNo);
+        CloudstackCertificate cloudstackCertificate = cloudstackCertificateDao.read(farm.getUserNo(), platformNo);
+
         //キーペアの取得
-        List<KeyPairDto> keyPairInfos = iaasDescribeService.getKeyPairs(farm.getUserNo(),
-                platformCloudstack.getPlatformNo());
+        List<KeyPairDto> keyPairInfos = iaasDescribeService.getKeyPairs(farm.getUserNo(), platformNo);
         String keyName = null;
         // CLOUDSTACK認証情報に設定されているデフォルトキーペアを設定
         for (KeyPairDto keyPairDto : keyPairInfos) {
@@ -1487,18 +1476,41 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         cloudstackInstance.setNetworkid(netId);
 
         String groupName = null;
-        List<SecurityGroupDto> securityGroups = iaasDescribeService.getSecurityGroups(farm.getUserNo(),
-                platformCloudstack.getPlatformNo(), null);
+        List<SecurityGroupDto> securityGroups = iaasDescribeService.getSecurityGroups(farm.getUserNo(), platformNo,
+                null);
 
         groupName = setSecurityGroup(securityGroups, "cloudStack.defaultSecurityGroup");
 
         cloudstackInstance.setSecuritygroup(groupName);
 
         cloudstackInstanceDao.create(cloudstackInstance);
+
+        // イベントログ出力
+        eventLogger.log(EventLogLevel.INFO, farmNo, farm.getFarmName(), null, null, instanceNo, instanceName,
+                "InstanceCreate", instanceType, platformNo, new Object[] { platform.getPlatformName() });
+
+        // フック処理の実行
+        processHook.execute("post-create-instance", farm.getUserNo(), farm.getFarmNo(), instanceNo);
+
+        return instanceNo;
     }
 
-    private void makeVcloudData(Farm farm, Long instanceNo, String instanceName, String instanceType,
-            PlatformVcloud platformVcloud) {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Long createVcloudInstance(Long farmNo, String instanceName, Long platformNo, String comment, Long imageNo,
+            String instanceType) {
+        // インスタンスの作成
+        Long instanceNo = createInstance(farmNo, instanceName, platformNo, comment, imageNo);
+
+        // プラットフォームのチェック
+        Platform platform = platformDao.read(platformNo);
+        if (!PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
+            throw new AutoApplicationException("ESERVICE-000428", instanceName);
+        }
+
+        PlatformVcloud platformVcloud = platformVcloudDao.read(platformNo);
 
         // VCloudインスタンスの作成
         VcloudInstance vcloudInstance = new VcloudInstance();
@@ -1511,14 +1523,13 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
 
         //キーペア
         //キーペアはユーザ名のキーペアをデフォルトとして設定
-        List<VcloudKeyPair> vcloudKeyPairs = vcloudKeyPairDao.readByUserNoAndPlatformNo(farm.getUserNo(),
-                platformVcloud.getPlatformNo());
+        Farm farm = farmDao.read(farmNo);
+        List<VcloudKeyPair> vcloudKeyPairs = vcloudKeyPairDao.readByUserNoAndPlatformNo(farm.getUserNo(), platformNo);
         Long keyPairNo = vcloudKeyPairs.get(0).getKeyNo();
         vcloudInstance.setKeyPairNo(keyPairNo);
 
         //ストレージタイプ
-        List<PlatformVcloudStorageType> storageTypes = platformVcloudStorageTypeDao
-                .readByPlatformNo(platformVcloud.getPlatformNo());
+        List<PlatformVcloudStorageType> storageTypes = platformVcloudStorageTypeDao.readByPlatformNo(platformNo);
         Collections.sort(storageTypes, Comparators.COMPARATOR_PLATFORM_VCLOUD_STORAGE_TYPE);
         vcloudInstance.setStorageTypeNo(storageTypes.get(0).getStorageTypeNo());
 
@@ -1533,8 +1544,7 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         //IaasGateWay処理で一律、PCCネットワークを先頭に設定する為、
         //VCLOUD_INSTANCE_NETWORKもPCCネットワークを先頭に設定する。
         Boolean showPublicIp = BooleanUtils.toBooleanObject(Config.getProperty("ui.showPublicIp"));
-        List<NetworkDto> networkDtos = iaasDescribeService.getNetworks(farm.getUserNo(),
-                platformVcloud.getPlatformNo());
+        List<NetworkDto> networkDtos = iaasDescribeService.getNetworks(farm.getUserNo(), platformNo);
         for (int i = 0; i < networkDtos.size(); i++) {
             NetworkDto networkDto = networkDtos.get(i);
             //PCCネットワークと デフォルトネットワークを初期設定とする
@@ -1544,7 +1554,7 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
             if (networkDto.isPcc() || (!networkDto.isPcc()
                     && StringUtils.equals(networkDto.getNetworkName(), platformVcloud.getDefNetwork()))) {
                 VcloudInstanceNetwork vcloudInstanceNetwork = new VcloudInstanceNetwork();
-                vcloudInstanceNetwork.setPlatformNo(platformVcloud.getPlatformNo());
+                vcloudInstanceNetwork.setPlatformNo(platformNo);
                 vcloudInstanceNetwork.setInstanceNo(instanceNo);
                 vcloudInstanceNetwork.setFarmNo(farm.getFarmNo());
                 vcloudInstanceNetwork.setNetworkName(networkDto.getNetworkName());
@@ -1562,9 +1572,33 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
                 vcloudInstanceNetworkDao.create(vcloudInstanceNetwork);
             }
         }
+
+        // イベントログ出力
+        eventLogger.log(EventLogLevel.INFO, farmNo, farm.getFarmName(), null, null, instanceNo, instanceName,
+                "InstanceCreate", instanceType, platformNo, new Object[] { platform.getPlatformName() });
+
+        // フック処理の実行
+        processHook.execute("post-create-instance", farm.getUserNo(), farm.getFarmNo(), instanceNo);
+
+        return instanceNo;
     }
 
-    private void makeAzureData(Farm farm, Long instanceNo, String instanceType, PlatformAzure platformAzure) {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Long createAzureInstance(Long farmNo, String instanceName, Long platformNo, String comment, Long imageNo,
+            String instanceType) {
+        // インスタンスの作成
+        Long instanceNo = createInstance(farmNo, instanceName, platformNo, comment, imageNo);
+
+        // プラットフォームのチェック
+        Platform platform = platformDao.read(platformNo);
+        if (!PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
+            throw new AutoApplicationException("ESERVICE-000435", instanceName);
+        }
+
+        PlatformAzure platformAzure = platformAzureDao.read(platformNo);
 
         // Azureインスタンスの作成
         AzureInstance azureInstance = new AzureInstance();
@@ -1587,9 +1621,10 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         // SUBNET_ID
         String subnetId = null;
         // AzureCertificate情報取得
-        AzureCertificate azureCertificate = azureCertificateDao.read(farm.getUserNo(), platformAzure.getPlatformNo());
+        Farm farm = farmDao.read(farmNo);
+        AzureCertificate azureCertificate = azureCertificateDao.read(farm.getUserNo(), platformNo);
         // SubnetId
-        List<SubnetDto> subnets = iaasDescribeService.getAzureSubnets(farm.getUserNo(), platformAzure.getPlatformNo(),
+        List<SubnetDto> subnets = iaasDescribeService.getAzureSubnets(farm.getUserNo(), platformNo,
                 platformAzure.getNetworkName());
         SubnetDto subnet = null;
         for (SubnetDto subnetDto : subnets) {
@@ -1615,33 +1650,55 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
             azureInstance.setAvailabilitySet(availabilitySets[0].trim());
         }
         azureInstanceDao.create(azureInstance);
+
+        // イベントログ出力
+        eventLogger.log(EventLogLevel.INFO, farmNo, farm.getFarmName(), null, null, instanceNo, instanceName,
+                "InstanceCreate", instanceType, platformNo, new Object[] { platform.getPlatformName() });
+
+        // フック処理の実行
+        processHook.execute("post-create-instance", farm.getUserNo(), farm.getFarmNo(), instanceNo);
+
+        return instanceNo;
     }
 
-    private void makeOpenstackData(Farm farm, Long instanceNo, String instanceType,
-            PlatformOpenstack platformOpenstack) {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Long createOpenStackInstance(Long farmNo, String instanceName, Long platformNo, String comment, Long imageNo,
+            String instanceType) {
+        // インスタンスの作成
+        Long instanceNo = createInstance(farmNo, instanceName, platformNo, comment, imageNo);
+
+        // プラットフォームのチェック
+        Platform platform = platformDao.read(platformNo);
+        if (!PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
+            throw new AutoApplicationException("ESERVICE-000436", instanceName);
+        }
+
+        PlatformOpenstack platformOpenstack = platformOpenstackDao.read(platformNo);
 
         // Openstackインスタンスの作成
         OpenstackInstance openstackInstance = new OpenstackInstance();
         //INSTANCE_NO
         openstackInstance.setInstanceNo(instanceNo);
         //KEY_NAME
-        OpenstackCertificate openstackCertificate = openstackCertificateDao.read(farm.getUserNo(),
-                platformOpenstack.getPlatformNo());
+        Farm farm = farmDao.read(farmNo);
+        OpenstackCertificate openstackCertificate = openstackCertificateDao.read(farm.getUserNo(), platformNo);
         openstackInstance.setKeyName(openstackCertificate.getDefKeypair());
         //INSTANCE_TYPE
         openstackInstance.setInstanceType(instanceType);
         //SECURITY_GROUPS
         String groupName = null;
-        List<SecurityGroupDto> securityGroups = iaasDescribeService.getSecurityGroups(farm.getUserNo(),
-                platformOpenstack.getPlatformNo(), null);
+        List<SecurityGroupDto> securityGroups = iaasDescribeService.getSecurityGroups(farm.getUserNo(), platformNo,
+                null);
         groupName = setSecurityGroup(securityGroups, "openStack.defaultSecurityGroup");
         openstackInstance.setSecurityGroups(groupName);
         //AVAILABILITY_ZONE
         String zoneName = platformOpenstack.getAvailabilityZone();
         if (StringUtils.isEmpty(zoneName)) {
             // デフォルトのゾーン名が指定されていない場合
-            List<ZoneDto> availabilityZones = iaasDescribeService.getAvailabilityZones(farm.getUserNo(),
-                    platformOpenstack.getPlatformNo());
+            List<ZoneDto> availabilityZones = iaasDescribeService.getAvailabilityZones(farm.getUserNo(), platformNo);
             zoneName = availabilityZones.get(0).getZoneName();
         }
         openstackInstance.setAvailabilityZone(zoneName);
@@ -1651,6 +1708,15 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         openstackInstance.setNetworkId(netId);
 
         openstackInstanceDao.create(openstackInstance);
+
+        // イベントログ出力
+        eventLogger.log(EventLogLevel.INFO, farmNo, farm.getFarmName(), null, null, instanceNo, instanceName,
+                "InstanceCreate", instanceType, platformNo, new Object[] { platform.getPlatformName() });
+
+        // フック処理の実行
+        processHook.execute("post-create-instance", farm.getUserNo(), farm.getFarmNo(), instanceNo);
+
+        return instanceNo;
     }
 
     /**
@@ -2040,7 +2106,7 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         // プラットフォームのチェック
         Platform platform = platformDao.read(instance.getPlatformNo());
         if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType()) == false) {
-            throw new AutoApplicationException("ESERVICE-000404", instance.getInstanceName());
+            throw new AutoApplicationException("ESERVICE-000434", instance.getInstanceName());
         }
 
         // インスタンスが停止状態でない場合
@@ -2254,7 +2320,7 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         // プラットフォームのチェック
         Platform platform = platformDao.read(instance.getPlatformNo());
         if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType()) == false) {
-            throw new AutoApplicationException("ESERVICE-000404", instance.getInstanceName());
+            throw new AutoApplicationException("ESERVICE-000435", instance.getInstanceName());
         }
 
         //ファーム取得
@@ -2312,7 +2378,7 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         // プラットフォームのチェック
         Platform platform = platformDao.read(instance.getPlatformNo());
         if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType()) == false) {
-            throw new AutoApplicationException("ESERVICE-000404", instance.getInstanceName());
+            throw new AutoApplicationException("ESERVICE-000436", instance.getInstanceName());
         }
 
         //ファーム取得

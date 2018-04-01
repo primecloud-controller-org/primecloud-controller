@@ -166,22 +166,48 @@ public class TemplateServiceImpl extends ServiceSupport implements TemplateServi
             Long instanceNo = null;
 
             Platform platform = usablePlatformMap.get(templateInstance.getPlatformNo());
-            // TODO: CLOUD BRANCHING
-            if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())
-                    || PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())
-                    || PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())
-                    || PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())
-                    || PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
-                instanceNo = instanceService.createIaasInstance(farmNo, templateInstance.getTemplateInstanceName(),
+
+            // AWS
+            if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
+                instanceNo = instanceService.createAwsInstance(farmNo, templateInstance.getTemplateInstanceName(),
                         templateInstance.getPlatformNo(), templateInstance.getComment(), templateInstance.getImageNo(),
                         templateInstance.getInstanceType());
-            } else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
+            }
+            // VMware
+            else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
                 instanceNo = instanceService.createVmwareInstance(farmNo, templateInstance.getTemplateInstanceName(),
                         templateInstance.getPlatformNo(), templateInstance.getComment(), templateInstance.getImageNo(),
                         templateInstance.getInstanceType());
 
-            } else if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platform.getPlatformType())) {
+            }
+            // Nifty
+            else if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platform.getPlatformType())) {
                 instanceNo = instanceService.createNiftyInstance(farmNo, templateInstance.getTemplateInstanceName(),
+                        templateInstance.getPlatformNo(), templateInstance.getComment(), templateInstance.getImageNo(),
+                        templateInstance.getInstanceType());
+            }
+            // CloudStack
+            else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
+                instanceNo = instanceService.createCloudStackInstance(farmNo,
+                        templateInstance.getTemplateInstanceName(), templateInstance.getPlatformNo(),
+                        templateInstance.getComment(), templateInstance.getImageNo(),
+                        templateInstance.getInstanceType());
+            }
+            // vCloud
+            else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
+                instanceNo = instanceService.createVcloudInstance(farmNo, templateInstance.getTemplateInstanceName(),
+                        templateInstance.getPlatformNo(), templateInstance.getComment(), templateInstance.getImageNo(),
+                        templateInstance.getInstanceType());
+            }
+            // Azure
+            else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
+                instanceNo = instanceService.createAzureInstance(farmNo, templateInstance.getTemplateInstanceName(),
+                        templateInstance.getPlatformNo(), templateInstance.getComment(), templateInstance.getImageNo(),
+                        templateInstance.getInstanceType());
+            }
+            // OpenStack
+            else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
+                instanceNo = instanceService.createOpenStackInstance(farmNo, templateInstance.getTemplateInstanceName(),
                         templateInstance.getPlatformNo(), templateInstance.getComment(), templateInstance.getImageNo(),
                         templateInstance.getInstanceType());
             } else {

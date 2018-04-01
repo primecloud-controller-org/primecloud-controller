@@ -40,7 +40,19 @@ public interface InstanceService {
 
     public List<InstanceDto> getInstances(Long farmNo);
 
-    public Long createIaasInstance(Long farmNo, String instanceName, Long platformNo, String comment, Long imageNo,
+    public Long createAwsInstance(Long farmNo, String instanceName, Long platformNo, String comment, Long imageNo,
+            String instanceType);
+
+    public Long createCloudStackInstance(Long farmNo, String instanceName, Long platformNo, String comment,
+            Long imageNo, String instanceType);
+
+    public Long createVcloudInstance(Long farmNo, String instanceName, Long platformNo, String comment, Long imageNo,
+            String instanceType);
+
+    public Long createAzureInstance(Long farmNo, String instanceName, Long platformNo, String comment, Long imageNo,
+            String instanceType);
+
+    public Long createOpenStackInstance(Long farmNo, String instanceName, Long platformNo, String comment, Long imageNo,
             String instanceType);
 
     public Long createVmwareInstance(Long farmNo, String instanceName, Long platformNo, String comment, Long imageNo,

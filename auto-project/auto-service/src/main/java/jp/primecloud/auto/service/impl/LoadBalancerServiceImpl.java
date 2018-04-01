@@ -794,7 +794,7 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
             ImageAws imageAws = imageAwsDao.read(image.getImageNo());
             String[] instanceTypes = StringUtils.split(imageAws.getInstanceTypes(), ",");
-            lbInstanceNo = instanceService.createIaasInstance(farmNo, lbInstanceName, platformNo, null,
+            lbInstanceNo = instanceService.createAwsInstance(farmNo, lbInstanceName, platformNo, null,
                     image.getImageNo(), instanceTypes[0].trim());
         } else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
             ImageVmware imageVmware = imageVmwareDao.read(image.getImageNo());
@@ -809,22 +809,22 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
             ImageCloudstack imageCloudstack = imageCloudstackDao.read(image.getImageNo());
             String[] instanceTypes = StringUtils.split(imageCloudstack.getInstanceTypes(), ",");
-            lbInstanceNo = instanceService.createIaasInstance(farmNo, lbInstanceName, platformNo, null,
+            lbInstanceNo = instanceService.createCloudStackInstance(farmNo, lbInstanceName, platformNo, null,
                     image.getImageNo(), instanceTypes[0].trim());
         } else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
             ImageVcloud imageVcloud = imageVcloudDao.read(image.getImageNo());
             String[] instanceTypes = StringUtils.split(imageVcloud.getInstanceTypes(), ",");
-            lbInstanceNo = instanceService.createIaasInstance(farmNo, lbInstanceName, platformNo, null,
+            lbInstanceNo = instanceService.createVcloudInstance(farmNo, lbInstanceName, platformNo, null,
                     image.getImageNo(), instanceTypes[0].trim());
         } else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
             ImageAzure imageAzure = imageAzureDao.read(image.getImageNo());
             String[] instanceTypes = StringUtils.split(imageAzure.getInstanceTypes(), ",");
-            lbInstanceNo = instanceService.createIaasInstance(farmNo, lbInstanceName, platformNo, null,
+            lbInstanceNo = instanceService.createAzureInstance(farmNo, lbInstanceName, platformNo, null,
                     image.getImageNo(), instanceTypes[0].trim());
         } else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
             ImageOpenstack imageOpenstack = imageOpenstackDao.read(image.getImageNo());
             String[] instanceTypes = StringUtils.split(imageOpenstack.getInstanceTypes(), ",");
-            lbInstanceNo = instanceService.createIaasInstance(farmNo, lbInstanceName, platformNo, null,
+            lbInstanceNo = instanceService.createOpenStackInstance(farmNo, lbInstanceName, platformNo, null,
                     image.getImageNo(), instanceTypes[0].trim());
         }
 

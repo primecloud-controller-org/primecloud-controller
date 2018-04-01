@@ -120,22 +120,40 @@ public class CreateInstance extends ApiSupport {
 
         // 対象となるIaas(プラットフォーム)にサーバ(インスタンス)を作成
         Long instanceNo = null;
-        // TODO CLOUD BRANCHING
-        if (PLATFORM_TYPE_AWS.equals(platform.getPlatformType())
-                || PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())
-                || PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())
-                || PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())
-                || PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
-            // AWS or Eucalyptus or Cloudstack or VCloud or Openstack or Azure
-            instanceNo = instanceService.createIaasInstance(Long.parseLong(farmNo), instanceName, image.getPlatformNo(),
+
+        // AWS
+        if (PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
+            instanceNo = instanceService.createAwsInstance(Long.parseLong(farmNo), instanceName, image.getPlatformNo(),
                     comment, image.getImageNo(), instanceType);
-        } else if (PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
-            // VMware
+        }
+        // VMware
+        else if (PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
             instanceNo = instanceService.createVmwareInstance(Long.parseLong(farmNo), instanceName,
                     image.getPlatformNo(), comment, image.getImageNo(), instanceType);
-        } else if (PLATFORM_TYPE_NIFTY.equals(platform.getPlatformType())) {
-            // Nifty
+        }
+        // Nifty
+        else if (PLATFORM_TYPE_NIFTY.equals(platform.getPlatformType())) {
             instanceNo = instanceService.createNiftyInstance(Long.parseLong(farmNo), instanceName,
+                    image.getPlatformNo(), comment, image.getImageNo(), instanceType);
+        }
+        // CloudStack
+        else if (PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
+            instanceNo = instanceService.createCloudStackInstance(Long.parseLong(farmNo), instanceName,
+                    image.getPlatformNo(), comment, image.getImageNo(), instanceType);
+        }
+        // vCloud
+        else if (PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
+            instanceNo = instanceService.createVcloudInstance(Long.parseLong(farmNo), instanceName,
+                    image.getPlatformNo(), comment, image.getImageNo(), instanceType);
+        }
+        // Azure
+        else if (PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
+            instanceNo = instanceService.createAzureInstance(Long.parseLong(farmNo), instanceName,
+                    image.getPlatformNo(), comment, image.getImageNo(), instanceType);
+        }
+        // OpenStack
+        else if (PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
+            instanceNo = instanceService.createOpenStackInstance(Long.parseLong(farmNo), instanceName,
                     image.getPlatformNo(), comment, image.getImageNo(), instanceType);
         }
 
