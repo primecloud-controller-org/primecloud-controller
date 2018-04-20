@@ -1240,13 +1240,18 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
 
         // 引数チェック
         String[] instanceTypes = imageAws.getInstanceTypes().split(",");
-        if (!ArrayUtils.contains(instanceTypes, instanceType)) {
+        if (StringUtils.isNotEmpty(instanceType) && !ArrayUtils.contains(instanceTypes, instanceType)) {
             throw new AutoApplicationException("ECOMMON-000001", "instanceType");
         }
 
         // AWSインスタンスの作成
         AwsInstance awsInstance = new AwsInstance();
         awsInstance.setInstanceNo(instanceNo);
+
+        // InstanceType
+        if (StringUtils.isEmpty(instanceType)) {
+            instanceType = instanceTypes[0];
+        }
         awsInstance.setInstanceType(instanceType);
 
         //KeyName
@@ -1444,6 +1449,13 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         // AWSインスタンスの作成
         CloudstackInstance cloudstackInstance = new CloudstackInstance();
         cloudstackInstance.setInstanceNo(instanceNo);
+
+        // InstanceType
+        if (StringUtils.isEmpty(instanceType)) {
+            ImageCloudstack imageCloudstack = imageCloudstackDao.read(imageNo);
+            String[] instanceTypes = imageCloudstack.getInstanceTypes().split(",");
+            instanceType = instanceTypes[0];
+        }
         cloudstackInstance.setInstanceType(instanceType);
 
         //KeyName
@@ -1534,6 +1546,11 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         vcloudInstance.setStorageTypeNo(storageTypes.get(0).getStorageTypeNo());
 
         //インスタンスタイプ
+        if (StringUtils.isEmpty(instanceType)) {
+            ImageVcloud imageVcloud = imageVcloudDao.read(imageNo);
+            String[] instanceTypes = imageVcloud.getInstanceTypes().split(",");
+            instanceType = instanceTypes[0];
+        }
         vcloudInstance.setInstanceType(instanceType);
 
         //VCLOUD_INSTANCE作成
@@ -1616,8 +1633,15 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         // NETWORK_NAME
         String networkName = platformAzure.getNetworkName();
         azureInstance.setNetworkName(networkName);
+
         // INSTANCE_TYPE
+        if (StringUtils.isEmpty(instanceType)) {
+            ImageAzure imageAzure = imageAzureDao.read(imageNo);
+            String[] instanceTypes = imageAzure.getInstanceTypes().split(",");
+            instanceType = instanceTypes[0];
+        }
         azureInstance.setInstanceType(instanceType);
+
         // SUBNET_ID
         String subnetId = null;
         // AzureCertificate情報取得
@@ -1686,8 +1710,15 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         Farm farm = farmDao.read(farmNo);
         OpenstackCertificate openstackCertificate = openstackCertificateDao.read(farm.getUserNo(), platformNo);
         openstackInstance.setKeyName(openstackCertificate.getDefKeypair());
+
         //INSTANCE_TYPE
+        if (StringUtils.isEmpty(instanceType)) {
+            ImageOpenstack imageOpenstack = imageOpenstackDao.read(imageNo);
+            String[] instanceTypes = imageOpenstack.getInstanceTypes().split(",");
+            instanceType = instanceTypes[0];
+        }
         openstackInstance.setInstanceType(instanceType);
+
         //SECURITY_GROUPS
         String groupName = null;
         List<SecurityGroupDto> securityGroups = iaasDescribeService.getSecurityGroups(farm.getUserNo(), platformNo,
@@ -1728,11 +1759,6 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         // インスタンスの作成
         Long instanceNo = createInstance(farmNo, instanceName, platformNo, comment, imageNo);
 
-        // 引数チェック
-        if (instanceType == null || instanceType.length() == 0) {
-            throw new AutoApplicationException("ECOMMON-000003", "instanceType");
-        }
-
         // プラットフォームのチェック
         Platform platform = platformDao.read(platformNo);
         if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType()) == false) {
@@ -1750,6 +1776,11 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         vmwareInstance.setMachineName(machineName);
 
         // InstanceType
+        ImageVmware imageVmware = imageVmwareDao.read(imageNo);
+        if (StringUtils.isEmpty(instanceType)) {
+            String[] instanceTypes = imageVmware.getInstanceTypes().split(",");
+            instanceType = instanceTypes[0];
+        }
         vmwareInstance.setInstanceType(instanceType);
 
         // クラスタ、ホスト
@@ -1775,7 +1806,6 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         vmwareInstance.setKeyPairNo(keyPairNo);
 
         // RootSize
-        ImageVmware imageVmware = imageVmwareDao.read(imageNo);
         if (imageVmware.getRootSize() != null) {
             vmwareInstance.setRootSize(imageVmware.getRootSize());
         }
@@ -1801,11 +1831,6 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         // インスタンスの作成
         Long instanceNo = createInstance(farmNo, instanceName, platformNo, comment, imageNo);
 
-        // 引数チェック
-        if (instanceType == null || instanceType.length() == 0) {
-            throw new AutoApplicationException("ECOMMON-000003", "instanceType");
-        }
-
         // プラットフォームのチェック
         Platform platform = platformDao.read(platformNo);
         if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platform.getPlatformType()) == false) {
@@ -1815,6 +1840,13 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         // Niftyインスタンスの作成
         NiftyInstance niftyInstance = new NiftyInstance();
         niftyInstance.setInstanceNo(instanceNo);
+
+        // InstanceType
+        if (StringUtils.isEmpty(instanceType)) {
+            ImageNifty imageNifty = imageNiftyDao.read(imageNo);
+            String[] instanceTypes = imageNifty.getInstanceTypes().split(",");
+            instanceType = instanceTypes[0];
+        }
         niftyInstance.setInstanceType(instanceType);
 
         Farm farm = farmDao.read(farmNo);

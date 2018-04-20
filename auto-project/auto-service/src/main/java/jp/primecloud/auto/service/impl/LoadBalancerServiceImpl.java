@@ -792,40 +792,26 @@ public class LoadBalancerServiceImpl extends ServiceSupport implements LoadBalan
         Long lbInstanceNo = null;
         Platform platform = platformDao.read(platformNo);
         if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatformType())) {
-            ImageAws imageAws = imageAwsDao.read(image.getImageNo());
-            String[] instanceTypes = StringUtils.split(imageAws.getInstanceTypes(), ",");
             lbInstanceNo = instanceService.createAwsInstance(farmNo, lbInstanceName, platformNo, null,
-                    image.getImageNo(), instanceTypes[0].trim());
+                    image.getImageNo(), null);
         } else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatformType())) {
-            ImageVmware imageVmware = imageVmwareDao.read(image.getImageNo());
-            String[] instanceTypes = StringUtils.split(imageVmware.getInstanceTypes(), ",");
             lbInstanceNo = instanceService.createVmwareInstance(farmNo, lbInstanceName, platformNo, null,
-                    image.getImageNo(), instanceTypes[0].trim());
+                    image.getImageNo(), null);
         } else if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platform.getPlatformType())) {
-            ImageNifty imageNifty = imageNiftyDao.read(image.getImageNo());
-            String[] instanceTypes = StringUtils.split(imageNifty.getInstanceTypes(), ",");
             lbInstanceNo = instanceService.createNiftyInstance(farmNo, lbInstanceName, platformNo, null,
-                    image.getImageNo(), instanceTypes[0].trim());
+                    image.getImageNo(), null);
         } else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatformType())) {
-            ImageCloudstack imageCloudstack = imageCloudstackDao.read(image.getImageNo());
-            String[] instanceTypes = StringUtils.split(imageCloudstack.getInstanceTypes(), ",");
             lbInstanceNo = instanceService.createCloudStackInstance(farmNo, lbInstanceName, platformNo, null,
-                    image.getImageNo(), instanceTypes[0].trim());
+                    image.getImageNo(), null);
         } else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatformType())) {
-            ImageVcloud imageVcloud = imageVcloudDao.read(image.getImageNo());
-            String[] instanceTypes = StringUtils.split(imageVcloud.getInstanceTypes(), ",");
             lbInstanceNo = instanceService.createVcloudInstance(farmNo, lbInstanceName, platformNo, null,
-                    image.getImageNo(), instanceTypes[0].trim());
+                    image.getImageNo(), null);
         } else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatformType())) {
-            ImageAzure imageAzure = imageAzureDao.read(image.getImageNo());
-            String[] instanceTypes = StringUtils.split(imageAzure.getInstanceTypes(), ",");
             lbInstanceNo = instanceService.createAzureInstance(farmNo, lbInstanceName, platformNo, null,
-                    image.getImageNo(), instanceTypes[0].trim());
+                    image.getImageNo(), null);
         } else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatformType())) {
-            ImageOpenstack imageOpenstack = imageOpenstackDao.read(image.getImageNo());
-            String[] instanceTypes = StringUtils.split(imageOpenstack.getInstanceTypes(), ",");
             lbInstanceNo = instanceService.createOpenStackInstance(farmNo, lbInstanceName, platformNo, null,
-                    image.getImageNo(), instanceTypes[0].trim());
+                    image.getImageNo(), null);
         }
 
         // UltraMonkeyインスタンス情報のロードバランサフラグを立てる

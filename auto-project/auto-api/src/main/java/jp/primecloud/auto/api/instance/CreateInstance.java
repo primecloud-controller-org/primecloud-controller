@@ -106,10 +106,8 @@ public class CreateInstance extends ApiSupport {
         ApiValidate.validateInstanceName(instanceName);
         // InstanceType
         ApiValidate.validateInstanceType(instanceType, false);
-        List<String> instanceTypes = getInstanceTypes(platform, image);
-        if (StringUtils.isEmpty(instanceType)) {
-            instanceType = instanceTypes.get(0);
-        } else {
+        if (StringUtils.isNotEmpty(instanceType)) {
+            List<String> instanceTypes = getInstanceTypes(platform, image);
             if (!instanceTypes.contains(instanceType)) {
                 // インスタンスタイプがイメージのインスタンスタイプに含まれていない
                 throw new AutoApplicationException("EAPI-000011", imageNo, instanceType);

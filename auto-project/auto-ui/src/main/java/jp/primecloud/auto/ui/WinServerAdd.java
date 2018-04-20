@@ -587,7 +587,6 @@ public class WinServerAdd extends Window {
 
         // 選択されたイメージを取得
         PlatformDto platform = findPlatform(platformNo);
-        ImageDto image = findImage(platformNo, imageNo);
 
         // サーバを作成
         InstanceService instanceService = BeanContext.getBean(InstanceService.class);
@@ -596,45 +595,33 @@ public class WinServerAdd extends Window {
 
         // AWSサーバを作成
         if (PCCConstant.PLATFORM_TYPE_AWS.equals(platform.getPlatform().getPlatformType())) {
-            String[] instanceTypes = image.getImageAws().getInstanceTypes().split(",");
-            instanceNo = instanceService.createAwsInstance(farmNo, serverName, platformNo, comment, imageNo,
-                    instanceTypes[0].trim());
+            instanceNo = instanceService.createAwsInstance(farmNo, serverName, platformNo, comment, imageNo, null);
         }
         // VMwareサーバを作成
         else if (PCCConstant.PLATFORM_TYPE_VMWARE.equals(platform.getPlatform().getPlatformType())) {
-            String[] instanceTypes = image.getImageVmware().getInstanceTypes().split(",");
-            instanceNo = instanceService.createVmwareInstance(farmNo, serverName, platformNo, comment, imageNo,
-                    instanceTypes[0].trim());
+            instanceNo = instanceService.createVmwareInstance(farmNo, serverName, platformNo, comment, imageNo, null);
         }
         // Niftyサーバを作成
         else if (PCCConstant.PLATFORM_TYPE_NIFTY.equals(platform.getPlatform().getPlatformType())) {
-            String[] instanceTypes = image.getImageNifty().getInstanceTypes().split(",");
-            instanceNo = instanceService.createNiftyInstance(farmNo, serverName, platformNo, comment, imageNo,
-                    instanceTypes[0].trim());
+            instanceNo = instanceService.createNiftyInstance(farmNo, serverName, platformNo, comment, imageNo, null);
         }
         // CloudStackサーバを作成
         else if (PCCConstant.PLATFORM_TYPE_CLOUDSTACK.equals(platform.getPlatform().getPlatformType())) {
-            String[] instanceTypes = image.getImageCloudstack().getInstanceTypes().split(",");
             instanceNo = instanceService.createCloudStackInstance(farmNo, serverName, platformNo, comment, imageNo,
-                    instanceTypes[0].trim());
+                    null);
         }
         // vCloudサーバを作成
         else if (PCCConstant.PLATFORM_TYPE_VCLOUD.equals(platform.getPlatform().getPlatformType())) {
-            String[] instanceTypes = image.getImageVcloud().getInstanceTypes().split(",");
-            instanceNo = instanceService.createVcloudInstance(farmNo, serverName, platformNo, comment, imageNo,
-                    instanceTypes[0].trim());
+            instanceNo = instanceService.createVcloudInstance(farmNo, serverName, platformNo, comment, imageNo, null);
         }
         // Azureサーバを作成
         else if (PCCConstant.PLATFORM_TYPE_AZURE.equals(platform.getPlatform().getPlatformType())) {
-            String[] instanceTypes = image.getImageAzure().getInstanceTypes().split(",");
-            instanceNo = instanceService.createAzureInstance(farmNo, serverName, platformNo, comment, imageNo,
-                    instanceTypes[0].trim());
+            instanceNo = instanceService.createAzureInstance(farmNo, serverName, platformNo, comment, imageNo, null);
         }
         // OpenStackサーバを作成
         else if (PCCConstant.PLATFORM_TYPE_OPENSTACK.equals(platform.getPlatform().getPlatformType())) {
-            String[] instanceTypes = image.getImageOpenstack().getInstanceTypes().split(",");
             instanceNo = instanceService.createOpenStackInstance(farmNo, serverName, platformNo, comment, imageNo,
-                    instanceTypes[0].trim());
+                    null);
         }
 
         // オペレーションログ
