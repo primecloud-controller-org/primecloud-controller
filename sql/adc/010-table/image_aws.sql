@@ -6,5 +6,6 @@ create table IMAGE_AWS (
     INSTANCE_TYPES varchar(500) not null,
     EBS_IMAGE tinyint(1) not null,
     ROOT_SIZE int,
+    DEFAULT_INSTANCE_TYPE varchar(20),
     constraint IMAGE_AWS primary key (IMAGE_NO)
 );

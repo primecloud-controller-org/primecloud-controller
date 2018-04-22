@@ -10,6 +10,7 @@
 		<result property="templateName" column="TEMPLATE_NAME" nullValue="" />
 		<result property="instanceTypes" column="INSTANCE_TYPES" nullValue="" />
 		<result property="rootSize" column="ROOT_SIZE" />
+		<result property="defaultInstanceType" column="DEFAULT_INSTANCE_TYPE" nullValue="" />
 	</resultMap>
 
 	<sql id="selectSql">
@@ -18,7 +19,8 @@
 			t1.IMAGE_NO as IMAGE_NO,
 			t1.TEMPLATE_NAME as TEMPLATE_NAME,
 			t1.INSTANCE_TYPES as INSTANCE_TYPES,
-			t1.ROOT_SIZE as ROOT_SIZE
+			t1.ROOT_SIZE as ROOT_SIZE,
+			t1.DEFAULT_INSTANCE_TYPE as DEFAULT_INSTANCE_TYPE
 		from
 			IMAGE_VMWARE t1
 		]]>
@@ -61,12 +63,14 @@
 			IMAGE_NO,
 			TEMPLATE_NAME,
 			INSTANCE_TYPES,
-			ROOT_SIZE
+			ROOT_SIZE,
+			DEFAULT_INSTANCE_TYPE
 		) values (
 			#imageNo#,
 			#templateName#,
 			#instanceTypes#,
-			#rootSize#
+			#rootSize#,
+			#defaultInstanceType#
 		)
 		]]>
 	</insert>
@@ -76,7 +80,8 @@
 		update IMAGE_VMWARE set
 			TEMPLATE_NAME = #templateName#,
 			INSTANCE_TYPES = #instanceTypes#,
-			ROOT_SIZE = #rootSize#
+			ROOT_SIZE = #rootSize#,
+			DEFAULT_INSTANCE_TYPE = #defaultInstanceType#
 		where
 			IMAGE_NO = #imageNo#
 		]]>

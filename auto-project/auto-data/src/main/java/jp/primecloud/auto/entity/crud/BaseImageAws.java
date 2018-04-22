@@ -52,6 +52,9 @@ public abstract class BaseImageAws implements Serializable {
     /** ROOT_SIZE [INT(10,0)] */
     private Integer rootSize;
 
+    /** DEFAULT_INSTANCE_TYPE [VARCHAR(20,0)] */
+    private String defaultInstanceType;
+
     /**
      * imageNoを取得します。
      *
@@ -178,6 +181,24 @@ public abstract class BaseImageAws implements Serializable {
         this.rootSize = rootSize;
     }
 
+    /**
+     * defaultInstanceTypeを取得します。
+     *
+     * @return defaultInstanceType
+     */
+    public String getDefaultInstanceType() {
+        return defaultInstanceType;
+    }
+
+    /**
+     * defaultInstanceTypeを設定します。
+     *
+     * @param defaultInstanceType defaultInstanceType
+     */
+    public void setDefaultInstanceType(String defaultInstanceType) {
+        this.defaultInstanceType = defaultInstanceType;
+    }
+
 
     /**
      * {@inheritDoc}
@@ -194,6 +215,7 @@ public abstract class BaseImageAws implements Serializable {
         result = prime * result + ((instanceTypes == null) ? 0 : instanceTypes.hashCode());
         result = prime * result + ((ebsImage == null) ? 0 : ebsImage.hashCode());
         result = prime * result + ((rootSize == null) ? 0 : rootSize.hashCode());
+        result = prime * result + ((defaultInstanceType == null) ? 0 : defaultInstanceType.hashCode());
 
         return result;
     }
@@ -243,6 +265,11 @@ public abstract class BaseImageAws implements Serializable {
         } else if (!rootSize.equals(other.rootSize)) {
             return false;
         }
+        if (defaultInstanceType == null) {
+            if (other.defaultInstanceType != null) { return false; }
+        } else if (!defaultInstanceType.equals(other.defaultInstanceType)) {
+            return false;
+        }
 
         return true;
     }
@@ -260,7 +287,8 @@ public abstract class BaseImageAws implements Serializable {
         sb.append("ramdiskId=").append(ramdiskId).append(", ");
         sb.append("instanceTypes=").append(instanceTypes).append(", ");
         sb.append("ebsImage=").append(ebsImage).append(", ");
-        sb.append("rootSize=").append(rootSize);
+        sb.append("rootSize=").append(rootSize).append(", ");
+        sb.append("defaultInstanceType=").append(defaultInstanceType);
         sb.append("]");
         return sb.toString();
     }

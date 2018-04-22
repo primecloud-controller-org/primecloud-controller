@@ -1250,7 +1250,11 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
 
         // InstanceType
         if (StringUtils.isEmpty(instanceType)) {
-            instanceType = instanceTypes[0];
+            if (StringUtils.isNotEmpty(imageAws.getDefaultInstanceType())) {
+                instanceType = imageAws.getDefaultInstanceType();
+            } else {
+                instanceType = instanceTypes[0];
+            }
         }
         awsInstance.setInstanceType(instanceType);
 
@@ -1778,8 +1782,12 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
         // InstanceType
         ImageVmware imageVmware = imageVmwareDao.read(imageNo);
         if (StringUtils.isEmpty(instanceType)) {
-            String[] instanceTypes = imageVmware.getInstanceTypes().split(",");
-            instanceType = instanceTypes[0];
+            if (StringUtils.isNotEmpty(imageVmware.getDefaultInstanceType())) {
+                instanceType = imageVmware.getDefaultInstanceType();
+            } else {
+                String[] instanceTypes = imageVmware.getInstanceTypes().split(",");
+                instanceType = instanceTypes[0];
+            }
         }
         vmwareInstance.setInstanceType(instanceType);
 
