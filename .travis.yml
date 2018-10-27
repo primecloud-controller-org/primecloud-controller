@@ -1,4 +1,4 @@
 language: java
 script: "mvn -q install"
 jdk:
-  - openjdk6
+  - openjdk8
