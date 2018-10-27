@@ -1291,9 +1291,15 @@ public class InstanceServiceImpl extends ServiceSupport implements InstanceServi
                 }
             }
 
-            // デフォルトサブネットが指定されていない場合、1つ目のサブネットを設定する
-            if (subnet == null && subnets.size() > 0) {
-                subnet = subnets.get(0);
+            // デフォルトサブネットが指定されていない場合、利用可能IPアドレスが最も多いサブネットを設定する
+            if (subnet == null) {
+                int count = -1;
+                for (Subnet subnet2 : subnets) {
+                    if (count < subnet2.getAvailableIpAddressCount()) {
+                        subnet = subnet2;
+                        count = subnet2.getAvailableIpAddressCount();
+                    }
+                }
             }
 
             if (subnet != null) {
