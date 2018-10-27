@@ -33,11 +33,13 @@ public interface BasePlatformVmwareInstanceTypeDao {
     /**
      * 主キーに該当するレコードを検索します。
      *
-     * @param instanceTypeNo instanceTypeNo
+     * @param platformNo platformNo
+     * @param instanceTypeName instanceTypeName
      * @return 主キーに該当するレコードのエンティティ。レコードがない場合はnull。
      */
     public PlatformVmwareInstanceType read(
-            Long instanceTypeNo
+            Long platformNo,
+            String instanceTypeName
         );
 
     /**
@@ -46,18 +48,6 @@ public interface BasePlatformVmwareInstanceTypeDao {
      * @return 全てのレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
     public List<PlatformVmwareInstanceType> readAll();
-
-    /**
-     * 一意キーに該当するレコードを検索します。
-     *
-     * @param platformNo platformNo
-     * @param instanceTypeName instanceTypeName
-     * @return 一意キーに該当するレコードのエンティティ。レコードがない場合はnull。
-     */
-    public PlatformVmwareInstanceType readByPlatformNoAndInstanceTypeName(
-            Long platformNo,
-            String instanceTypeName
-        );
 
     /**
      * 与えられたキーに該当するレコードを検索します。
@@ -72,11 +62,21 @@ public interface BasePlatformVmwareInstanceTypeDao {
     /**
      * 主キーのコレクションに該当するレコードを検索します。
      *
-     * @param instanceTypeNos instanceTypeNoのコレクション
+     * @param platformNos platformNoのコレクション
      * @return 主キーのコレクションに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
      */
-    public List<PlatformVmwareInstanceType> readInInstanceTypeNos(
-            Collection<Long> instanceTypeNos
+    public List<PlatformVmwareInstanceType> readInPlatformNos(
+            Collection<Long> platformNos
+        );
+
+    /**
+     * 主キーのコレクションに該当するレコードを検索します。
+     *
+     * @param instanceTypeNames instanceTypeNameのコレクション
+     * @return 主キーのコレクションに該当するレコードのエンティティのリスト。レコードがない場合は空リスト。
+     */
+    public List<PlatformVmwareInstanceType> readInInstanceTypeNames(
+            Collection<String> instanceTypeNames
         );
 
     /**
@@ -108,15 +108,6 @@ public interface BasePlatformVmwareInstanceTypeDao {
     /**
      * 主キーに該当するレコードを削除します。
      *
-     * @param instanceTypeNo instanceTypeNo
-     */
-    public void deleteByInstanceTypeNo(
-            Long instanceTypeNo
-        );
-
-    /**
-     * 一意キーに該当するレコードを削除します。
-     *
      * @param platformNo platformNo
      * @param instanceTypeName instanceTypeName
      */
@@ -144,19 +135,9 @@ public interface BasePlatformVmwareInstanceTypeDao {
     /**
      * 主キーに該当するレコードの件数を取得します。
      *
-     * @param instanceTypeNo instanceTypeNo
-     * @return 主キーに該当するレコードの件数。
-     */
-    public long countByInstanceTypeNo(
-            Long instanceTypeNo
-        );
-
-    /**
-     * 一意キーに該当するレコードの件数を取得します。
-     *
      * @param platformNo platformNo
      * @param instanceTypeName instanceTypeName
-     * @return 一意キーに該当するレコードの件数。
+     * @return 主キーに該当するレコードの件数。
      */
     public long countByPlatformNoAndInstanceTypeName(
             Long platformNo,

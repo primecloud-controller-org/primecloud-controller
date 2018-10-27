@@ -31,9 +31,6 @@ public abstract class BasePlatformVmwareInstanceType implements Serializable {
     /** SerialVersionUID */
     private static final long serialVersionUID = 1L;
 
-    /** INSTANCE_TYPE_NO [BIGINT(19,0)] */
-    private Long instanceTypeNo;
-
     /** PLATFORM_NO [BIGINT(19,0)] */
     private Long platformNo;
 
@@ -45,24 +42,6 @@ public abstract class BasePlatformVmwareInstanceType implements Serializable {
 
     /** MEMORY [BIGINT(19,0)] */
     private Long memory;
-
-    /**
-     * instanceTypeNoを取得します。
-     *
-     * @return instanceTypeNo
-     */
-    public Long getInstanceTypeNo() {
-        return instanceTypeNo;
-    }
-
-    /**
-     * instanceTypeNoを設定します。
-     *
-     * @param instanceTypeNo instanceTypeNo
-     */
-    public void setInstanceTypeNo(Long instanceTypeNo) {
-        this.instanceTypeNo = instanceTypeNo;
-    }
 
     /**
      * platformNoを取得します。
@@ -145,7 +124,6 @@ public abstract class BasePlatformVmwareInstanceType implements Serializable {
         int result = 1;
 
         final int prime = 31;
-        result = prime * result + ((instanceTypeNo == null) ? 0 : instanceTypeNo.hashCode());
         result = prime * result + ((platformNo == null) ? 0 : platformNo.hashCode());
         result = prime * result + ((instanceTypeName == null) ? 0 : instanceTypeName.hashCode());
         result = prime * result + ((cpu == null) ? 0 : cpu.hashCode());
@@ -164,11 +142,6 @@ public abstract class BasePlatformVmwareInstanceType implements Serializable {
         if (getClass() != obj.getClass()) { return false; }
 
         final BasePlatformVmwareInstanceType other = (BasePlatformVmwareInstanceType) obj;
-        if (instanceTypeNo == null) {
-            if (other.instanceTypeNo != null) { return false; }
-        } else if (!instanceTypeNo.equals(other.instanceTypeNo)) {
-            return false;
-        }
         if (platformNo == null) {
             if (other.platformNo != null) { return false; }
         } else if (!platformNo.equals(other.platformNo)) {
@@ -200,7 +173,6 @@ public abstract class BasePlatformVmwareInstanceType implements Serializable {
     public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append("PlatformVmwareInstanceType").append(" [");
-        sb.append("instanceTypeNo=").append(instanceTypeNo).append(", ");
         sb.append("platformNo=").append(platformNo).append(", ");
         sb.append("instanceTypeName=").append(instanceTypeName).append(", ");
         sb.append("cpu=").append(cpu).append(", ");

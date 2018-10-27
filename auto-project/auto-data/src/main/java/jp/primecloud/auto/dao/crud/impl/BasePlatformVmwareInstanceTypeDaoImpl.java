@@ -43,10 +43,12 @@ public abstract class BasePlatformVmwareInstanceTypeDaoImpl extends SqlMapClient
      */
     @Override
     public PlatformVmwareInstanceType read(
-            Long instanceTypeNo
+            Long platformNo,
+            String instanceTypeName
         ) {
         Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("instanceTypeNo", instanceTypeNo);
+        paramMap.put("platformNo", platformNo);
+        paramMap.put("instanceTypeName", instanceTypeName);
         return (PlatformVmwareInstanceType) getSqlMapClientTemplate().queryForObject(getSqlMapId("read"), paramMap);
     }
 
@@ -57,20 +59,6 @@ public abstract class BasePlatformVmwareInstanceTypeDaoImpl extends SqlMapClient
     @SuppressWarnings("unchecked")
     public List<PlatformVmwareInstanceType> readAll() {
         return (List<PlatformVmwareInstanceType>) getSqlMapClientTemplate().queryForList(getSqlMapId("readAll"));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public PlatformVmwareInstanceType readByPlatformNoAndInstanceTypeName(
-            Long platformNo,
-            String instanceTypeName
-        ) {
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("platformNo", platformNo);
-        paramMap.put("instanceTypeName", instanceTypeName);
-        return (PlatformVmwareInstanceType) getSqlMapClientTemplate().queryForObject(getSqlMapId("readByPlatformNoAndInstanceTypeName"), paramMap);
     }
 
     /**
@@ -91,20 +79,41 @@ public abstract class BasePlatformVmwareInstanceTypeDaoImpl extends SqlMapClient
      */
     @Override
     @SuppressWarnings("unchecked")
-    public List<PlatformVmwareInstanceType> readInInstanceTypeNos(
-            Collection<Long> instanceTypeNos
+    public List<PlatformVmwareInstanceType> readInPlatformNos(
+            Collection<Long> platformNos
         ) {
-        if (instanceTypeNos.isEmpty()) {
+        if (platformNos.isEmpty()) {
             return new ArrayList<PlatformVmwareInstanceType>();
         }
         Map<String, Object> paramMap = new HashMap<String, Object>();
-        if (instanceTypeNos instanceof List) {
-            paramMap.put("instanceTypeNos", instanceTypeNos);
+        if (platformNos instanceof List) {
+            paramMap.put("platformNos", platformNos);
         } else {
-            paramMap.put("instanceTypeNos", new ArrayList<Long>(instanceTypeNos));
+            paramMap.put("platformNos", new ArrayList<Long>(platformNos));
         }
         paramMap.put("orderBys", new String[0]);
-        return (List<PlatformVmwareInstanceType>) getSqlMapClientTemplate().queryForList(getSqlMapId("readInInstanceTypeNos"), paramMap);
+        return (List<PlatformVmwareInstanceType>) getSqlMapClientTemplate().queryForList(getSqlMapId("readInPlatformNos"), paramMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<PlatformVmwareInstanceType> readInInstanceTypeNames(
+            Collection<String> instanceTypeNames
+        ) {
+        if (instanceTypeNames.isEmpty()) {
+            return new ArrayList<PlatformVmwareInstanceType>();
+        }
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        if (instanceTypeNames instanceof List) {
+            paramMap.put("instanceTypeNames", instanceTypeNames);
+        } else {
+            paramMap.put("instanceTypeNames", new ArrayList<String>(instanceTypeNames));
+        }
+        paramMap.put("orderBys", new String[0]);
+        return (List<PlatformVmwareInstanceType>) getSqlMapClientTemplate().queryForList(getSqlMapId("readInInstanceTypeNames"), paramMap);
     }
 
     /**
@@ -113,9 +122,6 @@ public abstract class BasePlatformVmwareInstanceTypeDaoImpl extends SqlMapClient
     @Override
     public void create(PlatformVmwareInstanceType entity) {
         String id = "create";
-        if (entity.getInstanceTypeNo() == null) {
-            id = "createAuto";
-        }
         getSqlMapClientTemplate().insert(getSqlMapId(id), entity);
     }
 
@@ -141,18 +147,6 @@ public abstract class BasePlatformVmwareInstanceTypeDaoImpl extends SqlMapClient
     @Override
     public void deleteAll() {
         getSqlMapClientTemplate().delete(getSqlMapId("deleteAll"));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void deleteByInstanceTypeNo(
-            Long instanceTypeNo
-        ) {
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("instanceTypeNo", instanceTypeNo);
-        getSqlMapClientTemplate().delete(getSqlMapId("deleteByInstanceTypeNo"), paramMap);
     }
 
     /**
@@ -187,18 +181,6 @@ public abstract class BasePlatformVmwareInstanceTypeDaoImpl extends SqlMapClient
     @Override
     public long countAll() {
         return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countAll"));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long countByInstanceTypeNo(
-            Long instanceTypeNo
-        ) {
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("instanceTypeNo", instanceTypeNo);
-        return (Long) getSqlMapClientTemplate().queryForObject(getSqlMapId("countByInstanceTypeNo"), paramMap);
     }
 
     /**
